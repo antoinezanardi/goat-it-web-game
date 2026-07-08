@@ -70,7 +70,7 @@ FROM node:26.4.0-alpine AS production
 
 
 ENV NODE_ENV="production"
-ENV PORT=3001
+ENV PORT=3002
 ENV HOST=0.0.0.0
 
 USER node
@@ -79,7 +79,7 @@ WORKDIR /app
 
 COPY --from=build --chown=node:node /app/.output ./.output
 
-EXPOSE 3001
+EXPOSE 3002
 
 HEALTHCHECK --interval=20s --timeout=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3001 || exit 1
