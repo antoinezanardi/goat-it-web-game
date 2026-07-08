@@ -97,7 +97,6 @@
     "eslint-plugin-oxlint": "^1.73.0",
     "eslint-plugin-unicorn": "^71.1.0",
     "fuse.js": "^7.4.2",
-    "h3": "^1.15.11",
     "happy-dom": "^20.10.6",
     "husky": "^9.1.7",
     "is-ci": "^4.1.0",
@@ -120,7 +119,6 @@
     "vue-component-type-helpers": "^3.3.7",
     "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "^3.3.7",
-    "vue": "^3.5.13",
     "zod": "^4.4.3"
   }
 }
