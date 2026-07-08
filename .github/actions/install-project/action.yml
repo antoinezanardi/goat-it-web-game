@@ -1,0 +1,31 @@
+name: Install project 📦
+description: Installs project dependencies using pnpm – uses caching to speed up the process
+author: Antoine ZANARDI
+
+runs:
+  using: composite
+  steps:
+    - name: Install pnpm 🏗️
+      uses: pnpm/action-setup@v6
+
+    - name: Setup NodeJS ✨
+      uses: actions/setup-node@v6
+      with:
+        node-version-file: configs/node/.node-version
+        cache: pnpm
+
+    - name: Cache pnpm dependencies 🥡
+      uses: actions/cache@v6
+      id: cache-node-modules
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+
+    - name: Install project dependencies 📦
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: Post installation 🧹
+      shell: bash
+      run: pnpm run postinstall

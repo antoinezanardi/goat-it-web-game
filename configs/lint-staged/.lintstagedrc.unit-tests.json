@@ -1,0 +1,3 @@
+{
+  "*.{ts,vue}": "cross-env NODE_OPTIONS='--no-webstorage' vitest --config configs/vitest/vitest.config.ts related --run"
+}

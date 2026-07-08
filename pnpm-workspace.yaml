@@ -1,0 +1,12 @@
+overrides:
+  conventional-changelog-writer: ^9.1.1
+
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  unrs-resolver: true
+  vue-demi: true
+
+supportedArchitectures: os=linux,darwin cpu=x64,arm64
+libc: glibc,musl
+minimumReleaseAge: 0

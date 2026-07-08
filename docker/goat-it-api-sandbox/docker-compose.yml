@@ -1,0 +1,142 @@
+# This docker-compose file is used to run the goat-it-api in a sandbox environment.
+# Useful for testing and development purposes.
+# 4 instances are defined to support parallel acceptance test execution.
+
+services:
+  api-0:
+    image: antoinezanardi/goat-it-api:develop
+    container_name: goat-it-api-sandbox-0
+    depends_on:
+      mongodb-0:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: "production"
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: "9090"
+      MONGODB_HOST: "goat-it-api-sandbox-mongodb-0"
+      MONGODB_PORT: "27017"
+      MONGODB_DATABASE: "goat-it-sandbox"
+      API_KEY_HMAC_SECRET: "test_hmac_secret_key_for_api_key_signing_1234"
+      ADMIN_API_KEY: "test_admin_api_key_for_testing"
+      GAME_API_KEY: "test_game_api_key_for_testing"
+    ports:
+      - "127.0.0.1:9090:9090"
+    restart: unless-stopped
+
+  mongodb-0:
+    container_name: goat-it-api-sandbox-mongodb-0
+    image: mongo:8
+    volumes:
+      - goat-it-api-sandbox-mongodb-0-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  api-1:
+    image: antoinezanardi/goat-it-api:develop
+    container_name: goat-it-api-sandbox-1
+    depends_on:
+      mongodb-1:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: "production"
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: "9091"
+      MONGODB_HOST: "goat-it-api-sandbox-mongodb-1"
+      MONGODB_PORT: "27017"
+      MONGODB_DATABASE: "goat-it-sandbox"
+      API_KEY_HMAC_SECRET: "test_hmac_secret_key_for_api_key_signing_1234"
+      ADMIN_API_KEY: "test_admin_api_key_for_testing"
+      GAME_API_KEY: "test_game_api_key_for_testing"
+    ports:
+      - "127.0.0.1:9091:9091"
+    restart: unless-stopped
+
+  mongodb-1:
+    container_name: goat-it-api-sandbox-mongodb-1
+    image: mongo:8
+    volumes:
+      - goat-it-api-sandbox-mongodb-1-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  api-2:
+    image: antoinezanardi/goat-it-api:develop
+    container_name: goat-it-api-sandbox-2
+    depends_on:
+      mongodb-2:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: "production"
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: "9092"
+      MONGODB_HOST: "goat-it-api-sandbox-mongodb-2"
+      MONGODB_PORT: "27017"
+      MONGODB_DATABASE: "goat-it-sandbox"
+      API_KEY_HMAC_SECRET: "test_hmac_secret_key_for_api_key_signing_1234"
+      ADMIN_API_KEY: "test_admin_api_key_for_testing"
+      GAME_API_KEY: "test_game_api_key_for_testing"
+    ports:
+      - "127.0.0.1:9092:9092"
+    restart: unless-stopped
+
+  mongodb-2:
+    container_name: goat-it-api-sandbox-mongodb-2
+    image: mongo:8
+    volumes:
+      - goat-it-api-sandbox-mongodb-2-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  api-3:
+    image: antoinezanardi/goat-it-api:develop
+    container_name: goat-it-api-sandbox-3
+    depends_on:
+      mongodb-3:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: "production"
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: "9093"
+      MONGODB_HOST: "goat-it-api-sandbox-mongodb-3"
+      MONGODB_PORT: "27017"
+      MONGODB_DATABASE: "goat-it-sandbox"
+      API_KEY_HMAC_SECRET: "test_hmac_secret_key_for_api_key_signing_1234"
+      ADMIN_API_KEY: "test_admin_api_key_for_testing"
+      GAME_API_KEY: "test_game_api_key_for_testing"
+    ports:
+      - "127.0.0.1:9093:9093"
+    restart: unless-stopped
+
+  mongodb-3:
+    container_name: goat-it-api-sandbox-mongodb-3
+    image: mongo:8
+    volumes:
+      - goat-it-api-sandbox-mongodb-3-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  goat-it-api-sandbox-mongodb-0-data:
+  goat-it-api-sandbox-mongodb-1-data:
+  goat-it-api-sandbox-mongodb-2-data:
+  goat-it-api-sandbox-mongodb-3-data:
