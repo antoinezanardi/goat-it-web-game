@@ -1,0 +1,3 @@
+{
+  "*.{js,mjs,cjs,ts,vue}": "oxlint -c configs/oxlint/oxlint.config.jsonc --fix --fix-suggestions"
+}

@@ -1,0 +1,25 @@
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = false
+indent_style = space
+indent_size = 2
+max_line_length = 150
+trim_trailing_whitespace = true
+
+[{*.yml,*.yaml}]
+insert_final_newline = true
+
+[*.sh]
+insert_final_newline = true
+
+[.env*]
+insert_final_newline = true
+
+[*.json]
+insert_final_newline = true
+max_line_length = off
+
+[*.md]
+insert_final_newline = true
+max_line_length = off
