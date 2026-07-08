@@ -91,7 +91,7 @@
     "@vue/test-utils": "^2.4.11",
     "@vueuse/core": "^14.3.0",
     "@vueuse/nuxt": "^14.3.0",
-    "commitlint": "^21.2.0",
+    "commitlint": "^21.2.1",
     "cross-env": "^10.1.0",
     "eslint": "^10.6.0",
     "eslint-plugin-oxlint": "^1.73.0",
