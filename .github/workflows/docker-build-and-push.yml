@@ -1,0 +1,145 @@
+name: Docker Build and Push Workflow 🐳
+
+on:
+  workflow_call:
+    inputs:
+      registry-image:
+        description: 'Full image name including registry (e.g., username/repo)'
+        required: true
+        type: string
+      platforms:
+        description: 'JSON array of platforms (e.g., ["linux/amd64","linux/arm64"])'
+        required: true
+        type: string
+      tags:
+        description: 'JSON array of tags (e.g., ["v1.2.3","latest"])'
+        required: true
+        type: string
+      environment-name:
+        description: 'Optional environment name to mark the deployment (e.g., "Docker Image Staging")'
+        required: false
+        type: string
+      environment-url:
+        description: 'Optional environment url to show in the environment (e.g., staging image url)'
+        required: false
+        type: string
+      build-args:
+        description: 'Optional build arguments to pass to docker build (in "ARG_NAME=ARG_VALUE" format, one per line)'
+        required: false
+        type: string
+
+    secrets:
+      DOCKER_HUB_USERNAME:
+        description: 'Docker Hub username (used for login)'
+        required: false
+      DOCKER_HUB_PASSWORD:
+        description: 'Docker Hub password or access token (used for login)'
+        required: false
+
+jobs:
+  upload-to-docker-hub:
+    name: Upload image(s) to registry 🐳
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJson(inputs.platforms) }}
+        tag: ${{ fromJson(inputs.tags) }}
+    steps:
+      - name: Checkout repository 📡
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Log in to Docker registry 🔐
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Set up QEMU 🏗️
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx 🏗️
+        uses: docker/setup-buildx-action@v4
+
+      - name: Docker meta 📦
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ inputs.registry-image }}
+          tags: ${{ inputs.registry-image }}:${{ matrix.tag }}
+
+      - name: Build and push Docker image 🐳
+        id: build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,name=${{ inputs.registry-image }},push-by-digest=true,push=true
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: ${{ inputs.build-args }}
+
+      - name: Set formatted platform directory in environment variable 🌿
+        shell: bash
+        run: echo "PLATFORM_DIR=$(echo ${{ matrix.platform }} | sed 's/\//-/g')" >> "$GITHUB_ENV"
+
+      - name: Export digest 📦
+        shell: bash
+        run: |
+          mkdir -p /tmp/digests/${{ matrix.tag }}
+          echo "${{ steps.build.outputs.digest }}" > "/tmp/digests/${{ matrix.tag }}/${{ env.PLATFORM_DIR }}-digest.txt"
+
+      - name: Upload digest artifact 📦
+        uses: actions/upload-artifact@v7
+        with:
+          name: docker-digest-${{ matrix.tag }}-${{ env.PLATFORM_DIR }}
+          path: /tmp/digests/${{ matrix.tag }}/${{ env.PLATFORM_DIR }}-digest.txt
+          retention-days: 1
+
+  merge-images-into-manifest-list:
+    name: Merge images into a manifest list 🗂️
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: upload-to-docker-hub
+    strategy:
+      matrix:
+        tag: ${{ fromJson(inputs.tags) }}
+    environment:
+      name: ${{ inputs.environment-name }}
+      url: ${{ inputs.environment-url }}
+    steps:
+      - name: Download digests 📩
+        uses: actions/download-artifact@v8
+        with:
+          pattern: docker-digest-${{ matrix.tag }}-*
+          path: /tmp/digests/${{ matrix.tag }}
+          merge-multiple: true
+
+      - name: Set up Docker Buildx 🏗️
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to Docker registry 🔐
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Create manifest list and push 📦
+        shell: bash
+        run: |
+          DIGESTS=()
+          for f in /tmp/digests/${{ matrix.tag }}/*-digest.txt; do
+            PLATFORM=$(basename "$f" | sed 's/-digest.txt//')
+            DIGEST=$(cat "$f")
+            DIGESTS+=("${{ inputs.registry-image }}:${PLATFORM}@${DIGEST}")
+          done
+
+          docker buildx imagetools create --tag "${{ inputs.registry-image }}:${{ matrix.tag }}" "${DIGESTS[@]}"
+
+      - name: Inspect manifest list 🕵️
+        shell: bash
+        run: docker buildx imagetools inspect ${{ inputs.registry-image }}:${{ matrix.tag }}

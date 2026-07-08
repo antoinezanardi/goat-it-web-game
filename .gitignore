@@ -1,0 +1,72 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Local env files
+.env
+.env.*
+!envs/.env.example
+!envs/.env.test
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# temp directory
+.temp
+.tmp
+
+# IDE specific
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Semantic release files
+RELEASE.md
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Build artifacts
+dist/
+.vitest/
+.swc/
+
+# Coverage and tests reports
+tests/unit/coverage
+tests/mutation/coverage
+tests/acceptance/reports
+tests/acceptance/logs
+
+# Stryker temp files
+.stryker-tmp
+
+# Agents artifacts
+docs/superpowers
+.superpowers
+.playwright-mcp
+
+# MemPalace files
+mempalace.yaml
+entities.json
+.mempalace/
+hallways.json

@@ -1,0 +1,16 @@
+name: Build App ✨
+description: Builds the application for production
+author: Antoine ZANARDI
+runs:
+  using: composite
+  steps:
+    - name: Install project 📦
+      uses: ./.github/actions/install-project
+
+    - name: Typecheck 🪨
+      shell: bash
+      run: pnpm run typecheck
+
+    - name: Build application ✨
+      shell: bash
+      run: pnpm run build

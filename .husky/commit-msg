@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+commitlint --config configs/commitlint/.commitlintrc.json --edit "$1"
