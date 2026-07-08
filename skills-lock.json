@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "skills": {
+    "dispatching-parallel-agents": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
+      "computedHash": "85df55d2235a7623b315dac4bc340c14a37dcdc57c869c80a829e1a53a174689"
+    },
+    "executing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/executing-plans/SKILL.md",
+      "computedHash": "08604f93f2e38dd3575e5503c79cda5c623c78a8df0e472457ac5ef7a33f22b8"
+    },
+    "nuxt": {
+      "source": "onmax/nuxt-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nuxt/SKILL.md",
+      "computedHash": "571d9ea31a6f18b94168894814f20df361773e16de4a6dc675b526aaf6d55a45"
+    },
+    "nuxt-ui": {
+      "source": "onmax/nuxt-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nuxt-ui/SKILL.md",
+      "computedHash": "c793a5cefc7a23a1e2e9fb637372ab5c4f9d1c26f04a7abba91ffa51c9726485"
+    },
+    "receiving-code-review": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/receiving-code-review/SKILL.md",
+      "computedHash": "3f56080356c62e4f74a183d7371686babc661e41a952dc67a97c2c76fe8a9329"
+    },
+    "requesting-code-review": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/requesting-code-review/SKILL.md",
+      "computedHash": "cde520e9118d7e6b74b5ab0123cff2f68d9c07bddb3f82c997753b6126600aed"
+    },
+    "subagent-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/subagent-driven-development/SKILL.md",
+      "computedHash": "aaeb6686111c76b3c38e09156fe18af44d73b324ee055e5cb0ab63dc776f216f"
+    },
+    "systematic-debugging": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/systematic-debugging/SKILL.md",
+      "computedHash": "792a368e074981d7e3138edb439e138489b2ac247cd1e5739fab52af680fb17b"
+    },
+    "test-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/test-driven-development/SKILL.md",
+      "computedHash": "eee144aea35d783296d178017e9fe843c6d16cc8b240e106f5e50910f6caf329"
+    },
+    "using-superpowers": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/using-superpowers/SKILL.md",
+      "computedHash": "e94af48fd52e1c329952fae638bde84671997744901c780281aff6e6986b8f1d"
+    },
+    "vite": {
+      "source": "onmax/nuxt-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vite/SKILL.md",
+      "computedHash": "f6b076920b1a2d8300dd2a2a66962e40c35102231b74af7d336cf47b999ba4a3"
+    },
+    "vitest": {
+      "source": "onmax/nuxt-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vitest/SKILL.md",
+      "computedHash": "04ed1b09da8ac778d693ad12fab49b1c48aadfe1758fe13eb4d6de3fdcbb22f4"
+    },
+    "vue": {
+      "source": "onmax/nuxt-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vue/SKILL.md",
+      "computedHash": "cb120821c275a351b6e3c154d82cf62a9277b6260c2c30b3101f688928a3428b"
+    },
+    "vueuse": {
+      "source": "onmax/nuxt-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vueuse/SKILL.md",
+      "computedHash": "81c6a7945aa6b1c5805235c88bab7543fd6c28c19414a75a5fe594c937fe792e"
+    },
+    "writing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/writing-plans/SKILL.md",
+      "computedHash": "b73b59d43c34c3fc225bfae419c458bb216af80df25fc0c545dfa7fd2a161722"
+    },
+    "writing-skills": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/writing-skills/SKILL.md",
+      "computedHash": "985a2c1a4242d89bd44a0060cd0e2c81ebb3683e820026fa52ccd7213804ce03"
+    }
+  }
+}
