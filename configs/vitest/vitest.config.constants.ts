@@ -51,6 +51,7 @@ const VITEST_PROJECT_COMMON_NUXT_INLINE_CONFIG: InlineConfig = {
           goatItApi: {
             baseUrl: "https://api.goat-it.com",
             adminKey: "test-admin-key",
+            gameKey: "test-game-key",
           },
         },
       },
