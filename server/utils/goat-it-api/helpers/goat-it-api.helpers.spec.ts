@@ -64,7 +64,6 @@ describe("Goat It API Helpers", () => {
     it("should create the correct fetch options for a given Goat It API runtime config when called.", () => {
       const goatItApiRuntimeConfig: SharedRuntimeConfig["goatItApi"] = {
         baseUrl: "https://api.example.com",
-        adminKey: "unused-admin-key",
         gameKey: "secret-game-key",
       };
       const expectedFetchOptions: Parameters<typeof $fetch>[1] = {

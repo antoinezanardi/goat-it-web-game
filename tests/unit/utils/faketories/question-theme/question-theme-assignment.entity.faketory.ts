@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 
-import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme.entity.faketory";
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import type { QuestionThemeAssignment } from "#shared/types/question.types";
 

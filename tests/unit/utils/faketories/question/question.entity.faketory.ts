@@ -1,10 +1,10 @@
 import { faker } from "@faker-js/faker";
 import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES, QUESTION_STATUSES } from "@goat-it/schemas/question";
 
-import { createFakeQuestionAuthor } from "~~/tests/unit/utils/faketories/question-author.entity.faketory";
-import { createFakeQuestionContent } from "~~/tests/unit/utils/faketories/question-content.entity.faketory";
-import { createFakeQuestionRejection } from "~~/tests/unit/utils/faketories/question-rejection.entity.faketory";
-import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme-assignment.entity.faketory";
+import { createFakeQuestionAuthor } from "~~/tests/unit/utils/faketories/question/question-author.entity.faketory";
+import { createFakeQuestionContent } from "~~/tests/unit/utils/faketories/question/question-content.entity.faketory";
+import { createFakeQuestionRejection } from "~~/tests/unit/utils/faketories/question/question-rejection.entity.faketory";
+import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
 import type { Question } from "#shared/types/question.types";
 

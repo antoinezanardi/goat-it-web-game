@@ -1,10 +1,10 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ZodError } from "zod";
 
-import { createFakeQuestionThemeDto } from "~~/tests/unit/utils/faketories/question-theme.dto.faketory";
+import { createFakeQuestionThemeDto } from "~~/tests/unit/utils/faketories/question-theme/question-theme.dto.faketory";
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
-import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/goat-it-api.mappers";
+import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";
 import type { SharedRuntimeConfig } from "#build/types/runtime-config";
 import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
 import { getQuestionThemesHandler } from "#server/api/goat-it-api/question-themes/handlers/get-all/index.get.handler";
@@ -15,7 +15,6 @@ describe("Server Goat It API Question Themes Get Handler", () => {
   const mockedEvent = createFakeH3Event();
   const expectedGoatItApiConfig: SharedRuntimeConfig["goatItApi"] = {
     baseUrl: "https://api.goat-it.com",
-    adminKey: "test-admin-key",
     gameKey: "test-game-key",
   };
 
@@ -64,11 +63,7 @@ describe("Server Goat It API Question Themes Get Handler", () => {
     it("should throw zod error when query params are invalid.", async() => {
       vi.mocked(getQuery).mockReturnValue({ "sort-by": "invalid-field" });
 
-      const asyncFunction = async(): Promise<void> => {
-        await getQuestionThemesHandler(mockedEvent);
-      };
-
-      await expect(asyncFunction).rejects.toThrow(ZodError);
+      await expect(getQuestionThemesHandler(mockedEvent)).rejects.toThrow(ZodError);
     });
 
     it("should return mapped question themes when called.", async() => {

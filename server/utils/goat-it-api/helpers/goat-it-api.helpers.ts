@@ -2,19 +2,12 @@ import { FetchError } from "ofetch";
 import { API_RESPONSE_EXCEPTION_DTO } from "@goat-it/schemas/shared/error";
 
 import type { SharedRuntimeConfig } from "#build/types/runtime-config";
-import { GOAT_IT_API_GAME_SCOPE_NAME } from "#server/utils/goat-it-api/goat-it-api.constants";
-import type { GoatItApiResourceName } from "#server/utils/goat-it-api/goat-it-api.types";
+import type { CreateGoatItApiEndpointOptions, GoatItApiResourceName } from "#server/utils/goat-it-api/goat-it-api.types";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { isNonEmptyString } from "#shared/utils/helpers/string/string.helpers";
 
-type CreateGoatItApiEndpointOptions = {
-  id?: string;
-  suffix?: string;
-};
-
 function createGoatItApiEndpoint(resourceName: GoatItApiResourceName, options?: CreateGoatItApiEndpointOptions): string {
-  const segments = [GOAT_IT_API_GAME_SCOPE_NAME, resourceName].filter(isNonEmptyString);
-  let endpoint = `/${segments.join("/")}`;
+  let endpoint = `/${resourceName}`;
 
   if (isNonEmptyString(options?.id)) {
     endpoint += `/${options.id}`;

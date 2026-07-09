@@ -67,7 +67,6 @@ export default defineNuxtConfig({
   runtimeConfig: {
     goatItApi: {
       baseUrl: "",
-      adminKey: "",
       gameKey: "",
     },
   },

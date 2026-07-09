@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import type { QuestionDto } from "@goat-it/schemas/question";
 
-import { createFakeQuestionThemeDto } from "~~/tests/unit/utils/faketories/question-theme.dto.faketory";
+import { createFakeQuestionThemeDto } from "~~/tests/unit/utils/faketories/question-theme/question-theme.dto.faketory";
 
 type QuestionThemeAssignmentDto = QuestionDto["themes"][number];
 

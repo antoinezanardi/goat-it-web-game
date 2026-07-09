@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { createFakeQuestionDto } from "~~/tests/unit/utils/faketories/question.dto.faketory";
-import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question.entity.faketory";
-import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme.entity.faketory";
+import { createFakeQuestionDto } from "~~/tests/unit/utils/faketories/question/question.dto.faketory";
+import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
 

@@ -1,7 +1,7 @@
 import type { QuestionDto } from "@goat-it/schemas/question";
 
 import type { Question } from "#shared/types/question.types";
-import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/goat-it-api.mappers";
+import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";
 
 function createQuestionFromQuestionDto(dto: QuestionDto): Question {
   return {

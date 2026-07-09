@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { createFakeQuestionThemeDto } from "~~/tests/unit/utils/faketories/question-theme.dto.faketory";
-import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme.entity.faketory";
+import { createFakeQuestionThemeDto } from "~~/tests/unit/utils/faketories/question-theme/question-theme.dto.faketory";
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
-import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/goat-it-api.mappers";
+import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";
 
 describe("Goat It Api Mappers", () => {
   describe(createQuestionThemeFromQuestionThemeDto, () => {

@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ZodError } from "zod";
 
-import { createFakeQuestionDto } from "~~/tests/unit/utils/faketories/question.dto.faketory";
+import { createFakeQuestionDto } from "~~/tests/unit/utils/faketories/question/question.dto.faketory";
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
@@ -15,7 +15,6 @@ describe("Server Goat It API Questions Random Handler", () => {
   const mockedEvent = createFakeH3Event();
   const expectedGoatItApiConfig: SharedRuntimeConfig["goatItApi"] = {
     baseUrl: "https://api.goat-it.com",
-    adminKey: "test-admin-key",
     gameKey: "test-game-key",
   };
 
