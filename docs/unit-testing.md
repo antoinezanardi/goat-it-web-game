@@ -10,7 +10,6 @@ It covers the test infrastructure, every file type that needs tests, exact patte
 1. [Overview and tooling](#1-overview-and-tooling)
 2. [Vitest projects](#2-vitest-projects)
 3. [Coverage policy](#3-coverage-policy)
-   - [Mutation testing](#31-mutation-testing)
 4. [Global test setup](#4-global-test-setup)
 5. [Running tests](#5-running-tests)
 6. [Test patterns by file type](#6-test-patterns-by-file-type)
@@ -98,14 +97,6 @@ All other projects use `environment: "nuxt"` (happy-dom + Nuxt runtime).
   - `server/api/**/*.{get,post,put,patch,delete}.ts` (thin route wrappers)
 
 Every line of every non-excluded source file must be reachable by at least one test.
-
-### 3.1. Mutation testing
-
-In addition to code coverage, we also run mutation testing with Stryker. Mutation testing creates random mutations in the source code and checks if the tests fail as expected.
-
-This ensures that our tests are effective at catching bugs.
-
-So, when writing tests, aim for high coverage AND strong assertions that would fail if the code were incorrect. Avoid superficial assertions that would pass even if the implementation were wrong.
 
 ---
 

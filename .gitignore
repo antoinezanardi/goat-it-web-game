@@ -53,12 +53,8 @@ dist/
 
 # Coverage and tests reports
 tests/unit/coverage
-tests/mutation/coverage
 tests/acceptance/reports
 tests/acceptance/logs
-
-# Stryker temp files
-.stryker-tmp
 
 # Agents artifacts
 docs/superpowers

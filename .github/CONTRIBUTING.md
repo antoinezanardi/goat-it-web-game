@@ -21,7 +21,7 @@ Thank you for your interest in contributing — we appreciate your time and help
 ## 📌 High-level rules
 
 - The integration branch is `develop`. All contributions must be based on `develop` and opened as PRs targeting `develop`.
-- Every PR must pass the full CI pipeline before it can be merged (linting, type checks, unit tests, mutation tests, acceptance tests).
+- Every PR must pass the full CI pipeline before it can be merged (linting, type checks, unit tests, acceptance tests).
 - Branch names and commit messages must follow the defined conventions (see below).
 
 > [!IMPORTANT]
@@ -34,7 +34,7 @@ Thank you for your interest in contributing — we appreciate your time and help
 - [ ] Fork the repository on GitHub
 - [ ] Clone your fork locally
 - [ ] Create a branch from `develop` following the branch naming rules
-- [ ] Run local checks (typecheck, unit tests, mutation tests if possible)
+- [ ] Run local checks (typecheck, unit tests)
 - [ ] Use Conventional Commits for commit messages
 - [ ] Open a PR from your branch (on your fork) → target `develop` on upstream
 - [ ] Ensure CI checks pass and address review comments
@@ -103,18 +103,6 @@ pnpm run typecheck
 pnpm run test:unit
 # coverage
 pnpm run test:unit:cov
-```
-
-### Mutation tests (heavy — can be slow)
-
-> [!WARNING]
-> Mutation testing is expensive and can take a long time locally. If you cannot run mutation tests on your machine, rely on CI for final verification — but aim to run unit tests and type checks locally before pushing.
-
-> [!TIP]
-> Use `pnpm run test:mutation` for incremental runs during development and `pnpm run test:mutation:ci` in CI contexts.
-
-```bash
-pnpm run test:mutation
 ```
 
 ### Build
@@ -233,7 +221,7 @@ npx --no-install @commitlint/cli --config configs/commitlint/.commitlintrc.json 
 
 ## 🚦 CI & merging
 
-- All PRs must pass the CI checks before merge (lint, typecheck, unit tests, mutation tests, acceptance tests).
+- All PRs must pass the CI checks before merge (lint, typecheck, unit tests, acceptance tests).
 - If CI fails, fix locally, push, and wait for re-run. Your PR won't be merged until CI is green.
 - Maintainers will merge into `develop` once reviews pass and CI is green. Release automation handles promotion to `main`.
 - Please avoid force-pushing to shared branches after reviews start, as it can disrupt the review process.

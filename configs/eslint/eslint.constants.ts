@@ -82,7 +82,6 @@ const ESLINT_IGNORES = [
   "node_modules/**/*",
   "packages/**/*",
   "tests/unit/coverage/**/*",
-  "tests/mutation/**/*",
   "tests/acceptance/reports/**/*",
 ];
 
