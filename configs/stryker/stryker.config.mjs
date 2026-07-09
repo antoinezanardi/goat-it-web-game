@@ -11,6 +11,7 @@ export default {
     "**/*.repository.ts",
     "**/*.store.ts",
     "app/composables/**/*.ts",
+    "server/api/**/*.handler.ts",
     "!**/*.config.ts",
     "!**/*.constants.ts",
     "!**/*.d.ts",

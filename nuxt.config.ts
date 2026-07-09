@@ -67,7 +67,6 @@ export default defineNuxtConfig({
   runtimeConfig: {
     goatItApi: {
       baseUrl: "",
-      adminKey: "",
       gameKey: "",
     },
   },
@@ -78,7 +77,7 @@ export default defineNuxtConfig({
   nitro: { imports: { dirs: ["shared/utils/helpers/*.helpers.ts"] } },
   vite: {
     optimizeDeps: {
-      include: ["fuse.js", "radashi", "zod"],
+      include: ["fuse.js", "radashi", "zod", "@goat-it/schemas/question", "@goat-it/schemas/question-theme"],
     },
   },
   typescript: {

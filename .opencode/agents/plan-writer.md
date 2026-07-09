@@ -7,9 +7,9 @@ hidden: false
 steps: 80
 permission:
   edit:
+    "*": "deny"
     "docs/superpowers/plans/**": "allow"
     "/tmp": "allow"
-    "*": "deny"
   bash:
     "*": "ask"
     "find *": "allow"
