@@ -76,7 +76,6 @@
     ".agents/**/*",
     ".opencode/**/*",
     "tests/unit/coverage/**/*",
-    "tests/mutation/**/*",
     "tests/acceptance/reports/**/*"
   ],
   "options": {

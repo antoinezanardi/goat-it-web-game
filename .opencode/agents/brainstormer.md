@@ -64,7 +64,6 @@ Flag immediately. Help decompose into sub-projects. Each sub-project gets its ow
 
 - Always question yourself if acceptance scenarios are needed (mostly they are). If so, add a BDD section with the list of scenarios names and description to create or update. Don't write the scenarios themselves, they will be detailed in the plan phase. Your job is to identify the need for them and define their high-level scope.
 - Every source code addition / change must be accompanied by a test addition / change as the coverage is 100%.
-- If code is added/modifed on any TS files (composables, stores, helpers, server routes, etc.) add a "Mutation testing" section which tells to add the mutation testing step in the plan as part of the quality gates.
 
 ## Skills to load
 

@@ -24,7 +24,6 @@ handling, Nuxt conventions, and other repo-specific rules).
   - Full unit run:   `pnpm run test:unit`
   - With coverage:   `pnpm run test:unit:cov`
   - Watch mode:      `pnpm run test:unit:watch`
-  - Mutation (Stryker): `pnpm run test:mutation` / `pnpm run test:mutation:force`
   - Acceptance (Cucumber + Playwright): `pnpm run test:acceptance`
   - Acceptance build only: `pnpm run test:acceptance:build`
   - Install Playwright: `pnpm run test:acceptance:prepare` (run once locally)
@@ -50,7 +49,7 @@ Running acceptance tests:
 > `pnpm run test:acceptance --tags "@feature-tag"`
 > Always build fresh (do not use `test:acceptance:skip-build`).
 
-**Mandatory quality gates** — the orchestrator (via the gatekeeper agent) runs these four commands **in order** before considering any task complete. **Do NOT skip any gate**, even for "trivial" changes:
+**Mandatory quality gates** — the orchestrator (via the gatekeeper agent) runs these three commands **in order** before considering any task complete. **Do NOT skip any gate**, even for "trivial" changes:
 
 1. `pnpm run lint:fix`
 2. `pnpm run typecheck`
@@ -80,7 +79,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - `shared/utils/`     – Helpers auto-imported in both app and server
 - `tests/unit/`       – Test utilities: `setup/nuxt/`, `utils/faketories/`, `utils/mocks/`
 - `tests/acceptance/` – Acceptance tests: Cucumber features, Playwright step definitions, hooks
-- `configs/`          – Vitest, Cucumber, ESLint, Oxlint, Stryker, lint-staged configs
+- `configs/`          – Vitest, Cucumber, ESLint, Oxlint, lint-staged configs
 - `envs/`             – `.env.development`, `.env.test`, `.env.example`
 - `modules/`          – Custom Nuxt modules; `scripts/` – shell utilities
 - `docker/goat-it-api-sandbox/` – Local API sandbox via docker-compose
@@ -327,7 +326,6 @@ your machine — no API keys, no cloud.
 - Vitest config:    `configs/vitest/vitest.config.ts` + `vitest.config.constants.ts`
 - ESLint config:    `eslint.config.ts` + `configs/eslint/flat-configs/`
 - Oxlint config:    `configs/oxlint/oxlint.config.jsonc`
-- Stryker config:   `configs/stryker/stryker.config.mjs`
 - Cucumber config:  `configs/cucumber/cucumber.json`
 - Nuxt config:      `nuxt.config.ts`
 - Env files:        `envs/.env.development`, `envs/.env.test`, `envs/.env.example`

@@ -28,8 +28,6 @@ permission:
     "rtk pnpm run test:unit*": "allow"
     "pnpm run test:acceptance*": "allow"
     "rtk pnpm run test:acceptance*": "allow"
-    "pnpm run test:mutation*": "allow"
-    "rtk pnpm run test:mutation*": "allow"
     "pnpm run typecheck": "allow"
     "rtk pnpm run typecheck": "allow"
     "pnpm run lint*": "allow"

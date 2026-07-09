@@ -14,7 +14,6 @@
 ![Dependencies](https://img.shields.io/badge/-dependencies-black?style=flat-square&logoColor=white&logo=pnpm&color=B76507)
 
 [![Tests count](https://byob.yarr.is/antoinezanardi/goat-it-web-game/unit-tests-count)](https://byob.yarr.is/antoinezanardi/goat-it-web-game/unit-tests-count)
-[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fantoinezanardi%2Fgoat-it-web-game%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/antoinezanardi/goat-it-web-game/main)
 [![Scenarios count](https://byob.yarr.is/antoinezanardi/goat-it-web-game/scenarios)](https://byob.yarr.is/antoinezanardi/goat-it-web-game/scenarios)
 
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=antoinezanardi_goat-it-web-game&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=antoinezanardi_goat-it-web-game)
@@ -149,22 +148,6 @@ pnpm run test:unit:watch
 
 # Run unit tests in coverage mode – used in CI pipelines
 pnpm run test:unit:cov
-```
-
-### 👽 Mutation testing
-
-![Stryker](https://img.shields.io/badge/-Stryker-black?style=for-the-badge&logoColor=white&logo=stryker&color=7F1B10)
-
-[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fantoinezanardi%2Fgoat-it-web-game%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/antoinezanardi/goat-it-web-game/main)
-
-This project uses `Stryker` for mutation testing with `100%` coverage (mutation score).
-
-```bash
-# Run mutation tests
-pnpm run test:mutation
-
-# Run mutation tests without incremental file (can be longer)
-pnpm run test:mutation:force
 ```
 
 ### 🥒 Acceptance tests
