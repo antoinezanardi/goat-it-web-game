@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  conventional-changelog-writer: ^9.1.1
+  conventional-changelog-writer: ^9.2.0
   eslint-plugin-import-x: 4.17.1
 
 importers:
@@ -4014,6 +4014,10 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
+  argue-cli@3.1.0:
+    resolution: {integrity: sha512-DhBpBfXL4SS2uC0N922MMajKR3CdrTG0u2or1PNYgXMsrSzViJrbtvT0nCLlLGUI0plam/ZZCs7aAauHtW9thw==}
+    engines: {node: '>=22'}
+
   argv-formatter@1.0.0:
     resolution: {integrity: sha512-F2+Hkm9xFaRg+GkaNnbwXNDV5O6pnCFEmqyhvfC/Ic5LbgOWjJh3L+mN/s91rxVL3znE7DYVpW0GJFT+4YBgWw==}
 
@@ -4378,8 +4382,8 @@ packages:
     resolution: {integrity: sha512-UtlM9GqolY7OmlQh5L/UEVoKsTUpTgUVy1PU8JN5gl5Ydaejb7WRklGliG1SKPxxj7hzA173eG3Kt5fYWE2pmg==}
     engines: {node: '>=22'}
 
-  conventional-changelog-writer@9.1.1:
-    resolution: {integrity: sha512-rkrh3VdVTfeZDwnrV1zrGZq9zzFsYLtyE0ksJ7DD/0QoXzx+fn9higBnOUl5oCm18h3SoFYMDsoYjUQN5LA8AA==}
+  conventional-changelog-writer@9.2.0:
+    resolution: {integrity: sha512-eACD5BaAQCYjeI3RExkCZopNaaIuXzCP4kaAb2lEFXcGa/KOuxJfj8v/SnjhvF6377pYn0A2Gji+6GhwUK8rEA==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -8139,7 +8143,7 @@ snapshots:
       '@babel/code-frame': 7.29.0
       '@babel/generator': 7.29.1
       '@babel/helper-compilation-targets': 7.28.6
-      '@babel/helper-module-transforms': 7.28.6(@babel/core@7.29.0)
+      '@babel/helper-module-transforms': 7.28.6(@babel/core@7.29.0(supports-color@10.2.2))
       '@babel/helpers': 7.29.2
       '@babel/parser': 7.29.7
       '@babel/template': 7.28.6
@@ -8212,7 +8216,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/helper-module-transforms@7.28.6(@babel/core@7.29.0)':
+  '@babel/helper-module-transforms@7.28.6(@babel/core@7.29.0(supports-color@10.2.2))':
     dependencies:
       '@babel/core': 7.29.0(supports-color@10.2.2)
       '@babel/helper-module-imports': 7.28.6
@@ -10766,7 +10770,7 @@ snapshots:
   '@semantic-release/commit-analyzer@13.0.1(semantic-release@25.0.5(supports-color@10.2.2)(typescript@6.0.3))(supports-color@10.2.2)':
     dependencies:
       conventional-changelog-angular: 8.3.1
-      conventional-changelog-writer: 9.1.1
+      conventional-changelog-writer: 9.2.0
       conventional-commits-filter: 5.0.0
       conventional-commits-parser: 6.4.0
       debug: 4.4.3(supports-color@10.2.2)
@@ -10840,7 +10844,7 @@ snapshots:
   '@semantic-release/release-notes-generator@14.1.1(semantic-release@25.0.5(supports-color@10.2.2)(typescript@6.0.3))':
     dependencies:
       conventional-changelog-angular: 8.3.1
-      conventional-changelog-writer: 9.1.1
+      conventional-changelog-writer: 9.2.0
       conventional-commits-filter: 5.0.0
       conventional-commits-parser: 6.4.0
       debug: 4.4.3(supports-color@10.2.2)
@@ -11840,6 +11844,8 @@ snapshots:
 
   argparse@2.0.1: {}
 
+  argue-cli@3.1.0: {}
+
   argv-formatter@1.0.0: {}
 
   aria-hidden@1.2.6:
@@ -12176,13 +12182,13 @@ snapshots:
     dependencies:
       '@conventional-changelog/template': 1.2.0
 
-  conventional-changelog-writer@9.1.1:
+  conventional-changelog-writer@9.2.0:
     dependencies:
       '@conventional-changelog/template': 1.2.1
       '@simple-libs/stream-utils': 2.0.0
+      argue-cli: 3.1.0
       conventional-commits-filter: 6.0.1
-      meow: 14.1.0
-      semver: 7.8.4
+      semver: 7.8.5
 
   conventional-commits-filter@5.0.0: {}
 
