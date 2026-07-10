@@ -1,6 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import type { $Fetch } from "nitropack";
 
+import { createFakeFindQuestionThemesQueryDto } from "~~/tests/unit/utils/faketories/question-theme/find-question-themes-query.dto.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import { questionThemesRepository } from "@/repositories/goat-it-api/question-themes/question-themes.repository";
@@ -33,11 +34,11 @@ describe(questionThemesRepository, () => {
     it("should call fetch with the correct endpoint and query when called with query params.", async() => {
       const repository = questionThemesRepository(fetchMock as $Fetch);
       fetchMock.mockResolvedValue([]);
-      const query = {
-        "sort-by": "slug" as const,
-        "sort-order": "asc" as const,
+      const query = createFakeFindQuestionThemesQueryDto({
+        "sort-by": "slug",
+        "sort-order": "asc",
         "limit": 10,
-      };
+      });
 
       await repository.getAll(query);
 

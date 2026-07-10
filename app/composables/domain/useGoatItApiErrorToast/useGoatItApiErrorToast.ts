@@ -1,6 +1,5 @@
 import { FetchError } from "ofetch";
 
-import type { UseAppToast } from "~/composables/ui/useAppToast/useAppToast";
 import { isRecord } from "#shared/utils/helpers/object/object.helpers";
 
 type UseGoatItApiErrorToast = {
@@ -29,10 +28,7 @@ function extractErrorCode(error: unknown): string | undefined {
 }
 
 function useGoatItApiErrorToast(): UseGoatItApiErrorToast {
-  // Acceptable as useAppToast cannot have its return type resolved by oxlint in type-aware mode
-  // oxlint-disable-next-line typescript/no-unsafe-assignment, typescript/no-unsafe-call
-  const appToast: UseAppToast = useAppToast();
-  const { addErrorToast } = appToast;
+  const { addErrorToast } = useAppToast();
   const i18n = useI18n();
 
   function handleGoatItApiError(error: unknown, title: string): void {

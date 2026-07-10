@@ -1,5 +1,3 @@
-const QUESTION_THEME_ICON = "i-lucide-palette";
-
 const QUESTION_THEME_UNKNOWN_ICON = "i-lucide-circle-help";
 
 const QUESTION_THEME_SLUG_ICON_MAP: Record<string, string> = {
@@ -23,7 +21,6 @@ const QUESTION_THEME_SLUG_ICON_MAP: Record<string, string> = {
 };
 
 export {
-  QUESTION_THEME_ICON,
   QUESTION_THEME_SLUG_ICON_MAP,
   QUESTION_THEME_UNKNOWN_ICON,
 };

@@ -8,24 +8,14 @@ describe("Object Helpers", () => {
       expect(isRecord({ key: "value" })).toBe(true);
     });
 
-    it("should return false when input is null.", () => {
-      expect(isRecord(null)).toBe(false);
-    });
-
-    it("should return false when input is an array.", () => {
-      expect(isRecord(["a", "b"])).toBe(false);
-    });
-
-    it("should return false when input is a string.", () => {
-      expect(isRecord("string")).toBe(false);
-    });
-
-    it("should return false when input is undefined.", () => {
-      expect(isRecord(undefined)).toBe(false);
-    });
-
-    it("should return false when input is a number.", () => {
-      expect(isRecord(42)).toBe(false);
+    it.each([
+      { input: null, label: "null" },
+      { input: ["a", "b"], label: "an array" },
+      { input: "string", label: "a string" },
+      { input: undefined, label: "undefined" },
+      { input: 42, label: "a number" },
+    ])("should return false when input is $label.", ({ input }) => {
+      expect(isRecord(input)).toBe(false);
     });
   });
 });
