@@ -91,6 +91,10 @@ const VITEST_REPOSITORIES_MOCK_SETUP_FILES: readonly string[] = [
     processCwd,
     "tests/unit/setup/nuxt/repositories/question-themes-repository.nuxt.unit-setup.ts",
   ),
+  path.resolve(
+    processCwd,
+    "tests/unit/setup/nuxt/repositories/questions-repository.nuxt.unit-setup.ts",
+  ),
 ] as const;
 
 const VITEST_NODE_PROJECT_INCLUDES = [

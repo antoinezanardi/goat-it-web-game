@@ -103,6 +103,7 @@ export default defineNuxtConfig({
           "fr/common.json",
           "fr/errors.json",
           "fr/question-themes.json",
+          "fr/questions.json",
         ],
       },
       {
@@ -114,6 +115,7 @@ export default defineNuxtConfig({
           "en/common.json",
           "en/errors.json",
           "en/question-themes.json",
+          "en/questions.json",
         ],
       },
       {
@@ -125,6 +127,7 @@ export default defineNuxtConfig({
           "de/common.json",
           "de/errors.json",
           "de/question-themes.json",
+          "de/questions.json",
         ],
       },
       {
@@ -136,6 +139,7 @@ export default defineNuxtConfig({
           "es/common.json",
           "es/errors.json",
           "es/question-themes.json",
+          "es/questions.json",
         ],
       },
       {
@@ -147,6 +151,7 @@ export default defineNuxtConfig({
           "it/common.json",
           "it/errors.json",
           "it/question-themes.json",
+          "it/questions.json",
         ],
       },
       {
@@ -158,6 +163,7 @@ export default defineNuxtConfig({
           "pt/common.json",
           "pt/errors.json",
           "pt/question-themes.json",
+          "pt/questions.json",
         ],
       },
     ],
