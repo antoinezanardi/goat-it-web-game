@@ -7,15 +7,7 @@ type UseGoatItApiErrorToast = {
 };
 
 function extractErrorCode(error: unknown): string | undefined {
-  if (!(error instanceof FetchError)) {
-    return undefined;
-  }
-
-  if (!isRecord(error.data)) {
-    return undefined;
-  }
-
-  if (!isRecord(error.data.data)) {
+  if (!(error instanceof FetchError) || !isRecord(error.data) || !isRecord(error.data.data)) {
     return undefined;
   }
 
