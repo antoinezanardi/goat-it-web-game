@@ -3,15 +3,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { createUseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import type { UseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
+import { createFakeFindQuestionsQueryDto } from "~~/tests/unit/utils/faketories/question/find-questions-query.dto.faketory";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
 import type { useQuestionsStore as UseQuestionsStoreType } from "@/stores/domain/question/questions.store";
-
-const fakeQuery = {
-  "sort-by": "createdAt" as const,
-  "sort-order": "asc" as const,
-  "limit": 20,
-};
 
 let fetchAsyncActionMock: UseAsyncActionMock;
 let capturedFetchAction: ((...arguments_: unknown[]) => Promise<unknown>) | undefined;
@@ -123,10 +118,15 @@ describe("useQuestionsStore", () => {
 
     it("should call fetchRandomQuestions with query when called with query params.", async() => {
       const store = useQuestionsStore();
+      const query = createFakeFindQuestionsQueryDto({
+        "sort-by": "createdAt",
+        "sort-order": "asc",
+        "limit": 20,
+      });
 
-      await store.fetchAndAppendRandomQuestions(fakeQuery);
+      await store.fetchAndAppendRandomQuestions(query);
 
-      expect(fetchAsyncActionMock.execute).toHaveBeenCalledExactlyOnceWith(fakeQuery);
+      expect(fetchAsyncActionMock.execute).toHaveBeenCalledExactlyOnceWith(query);
     });
 
     it("should append fetched questions to questions when fetchRandomQuestions resolves with data.", async() => {

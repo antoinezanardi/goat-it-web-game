@@ -1,19 +1,10 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import type { $Fetch } from "nitropack";
 
+import { createFakeFindQuestionsQueryDto } from "~~/tests/unit/utils/faketories/question/find-questions-query.dto.faketory";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
 import { questionsRepository } from "@/repositories/goat-it-api/questions/questions.repository";
-
-const fakeQuery = {
-  "sort-by": "createdAt" as const,
-  "sort-order": "asc" as const,
-  "limit": 20,
-  "category": "trivia" as const,
-  "cognitive-difficulty": "easy" as const,
-  "author-role": "game" as const,
-  "theme-ids": ["507f1f77bcf86cd799439011"],
-};
 
 describe(questionsRepository, () => {
   let fetchMock: ReturnType<typeof vi.fn<$Fetch>>;
@@ -43,10 +34,15 @@ describe(questionsRepository, () => {
     it("should call fetch with the correct endpoint and query when called with query params.", async() => {
       const repository = questionsRepository(fetchMock as $Fetch);
       fetchMock.mockResolvedValue([]);
+      const query = createFakeFindQuestionsQueryDto({
+        "sort-by": "createdAt",
+        "sort-order": "asc",
+        "limit": 20,
+      });
 
-      await repository.getRandom(fakeQuery);
+      await repository.getRandom(query);
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions/random", { query: fakeQuery });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions/random", { query });
     });
 
     it("should return questions from fetch when called.", async() => {

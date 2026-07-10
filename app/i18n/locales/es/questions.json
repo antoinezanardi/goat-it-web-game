@@ -1,5 +1,5 @@
 {
   "questions": {
-    "cantFetch": "Unable to load questions. Please try again later."
+    "cantFetch": "No se pudieron cargar las preguntas. Inténtelo de nuevo más tarde."
   }
 }
