@@ -1,9 +1,14 @@
 <script lang="ts" setup>
-defineOptions({ name: "App" });
+const questionThemesStore = useQuestionThemesStore();
+const { fetchAndStoreQuestionThemes } = questionThemesStore;
 
-const TITLE = "Goat It Game";
+const { t } = useI18n();
+
+void callOnce(fetchAndStoreQuestionThemes);
 </script>
 
 <template>
-  <div>{{ TITLE }}</div>
+  <main>
+    <h1>{{ t("home.pageTitle") }}</h1>
+  </main>
 </template>

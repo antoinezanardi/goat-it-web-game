@@ -1,10 +1,17 @@
 import type { VueWrapper } from "@vue/test-utils";
-import { describe, it, expect, beforeEach } from "vitest";
-import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import type { Mock } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import App from "@/App.vue";
+
+let fetchAndStoreQuestionThemesMock: Mock<() => Promise<void>>;
+
+mockNuxtImport("useQuestionThemesStore", () => (): { fetchAndStoreQuestionThemes: Mock<() => Promise<void>> } => ({
+  fetchAndStoreQuestionThemes: fetchAndStoreQuestionThemesMock,
+}));
 
 describe("App Component", () => {
   let wrapper: VueWrapper;
@@ -14,6 +21,7 @@ describe("App Component", () => {
   }
 
   beforeEach(async() => {
+    fetchAndStoreQuestionThemesMock = vi.fn<() => Promise<void>>();
     wrapper = await mountAppComponent();
   });
 
@@ -21,7 +29,7 @@ describe("App Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
-  it("should display the application title when mounted.", () => {
-    expect(wrapper.text()).toContain("Goat It Game");
+  it("should call callOnce with fetchAndStoreQuestionThemes when mounted.", () => {
+    expect(callOnce).toHaveBeenCalledExactlyOnceWith(fetchAndStoreQuestionThemesMock, expect.any(String) as unknown);
   });
 });

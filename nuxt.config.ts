@@ -2,42 +2,42 @@ const FR_LOCALE = {
   code: "fr",
   language: "fr-FR",
   name: "Français",
-  files: ["fr/home.json"],
+  files: ["fr/home.json", "fr/common.json", "fr/errors.json", "fr/question-themes.json"],
 };
 
 const EN_LOCALE = {
   code: "en",
   language: "en-US",
   name: "English",
-  files: ["en/home.json"],
+  files: ["en/home.json", "en/common.json", "en/errors.json", "en/question-themes.json"],
 };
 
 const DE_LOCALE = {
   code: "de",
   language: "de-DE",
   name: "Deutsch",
-  files: ["de/home.json"],
+  files: ["de/home.json", "de/common.json", "de/errors.json", "de/question-themes.json"],
 };
 
 const ES_LOCALE = {
   code: "es",
   language: "es-ES",
   name: "Español",
-  files: ["es/home.json"],
+  files: ["es/home.json", "es/common.json", "es/errors.json", "es/question-themes.json"],
 };
 
 const IT_LOCALE = {
   code: "it",
   language: "it-IT",
   name: "Italiano",
-  files: ["it/home.json"],
+  files: ["it/home.json", "it/common.json", "it/errors.json", "it/question-themes.json"],
 };
 
 const PT_LOCALE = {
   code: "pt",
   language: "pt-PT",
   name: "Português",
-  files: ["pt/home.json"],
+  files: ["pt/home.json", "pt/common.json", "pt/errors.json", "pt/question-themes.json"],
 };
 
 export default defineNuxtConfig({
