@@ -18,7 +18,7 @@ describe("Home Page", () => {
   });
 
   it("should call useHead with a function that returns the page title translation key when mounted.", () => {
-    const useHeadFunction = vi.mocked(useHead).mock.calls[0]?.[0] as () => { title?: string };
+    const useHeadFunction = vi.mocked(useHead).mock.calls[0]?.[0] as (() => { title?: string }) | undefined;
     const headResult = useHeadFunction?.();
 
     expect(headResult?.title).toBe("home.pageTitle");

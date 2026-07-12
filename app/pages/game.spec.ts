@@ -46,6 +46,13 @@ describe("Game Page", () => {
     wrapper = await mountGamePage();
   });
 
+  it("should call useHead with a function that returns the page title translation key when mounted.", () => {
+    const useHeadFunction = vi.mocked(useHead).mock.calls[0]?.[0] as (() => { title?: string }) | undefined;
+    const headResult = useHeadFunction?.();
+
+    expect(headResult?.title).toBe("game.pageTitle");
+  });
+
   it("should call callOnce with a function that triggers the initial fetch when invoked.", () => {
     const initialFetchFunction = vi.mocked(callOnce).mock.calls[0]?.[0] as () => void;
 
@@ -67,9 +74,7 @@ describe("Game Page", () => {
     questions.value = fakeQuestions;
     await nextTick();
 
-    // Acceptable as the array was just created with one element so index 0 is always defined
-    // oxlint-disable-next-line typescript/no-non-null-assertion
-    expect(wrapper.find("[data-testid='game-question-statement']").text()).toBe(fakeQuestions[0]!.content.statement);
+    expect(wrapper.find("[data-testid='game-question-statement']").text()).toBe(fakeQuestions[0]?.content.statement);
   });
 
   it("should display the current question answer when fetch succeeds.", async() => {
@@ -77,9 +82,7 @@ describe("Game Page", () => {
     questions.value = fakeQuestions;
     await nextTick();
 
-    // Acceptable as the array was just created with one element so index 0 is always defined
-    // oxlint-disable-next-line typescript/no-non-null-assertion
-    expect(wrapper.find("[data-testid='game-question-answer']").text()).toBe(fakeQuestions[0]!.content.answer);
+    expect(wrapper.find("[data-testid='game-question-answer']").text()).toBe(fakeQuestions[0]?.content.answer);
   });
 
   it("should render the next question translation key on the button when questions are available.", async() => {
@@ -96,9 +99,7 @@ describe("Game Page", () => {
 
     await wrapper.find("[data-testid='game-next-button']").trigger("click");
 
-    // Acceptable as the array was just created with two elements so index 1 is always defined
-    // oxlint-disable-next-line typescript/no-non-null-assertion
-    expect(wrapper.find("[data-testid='game-question-statement']").text()).toBe(fakeQuestions[1]!.content.statement);
+    expect(wrapper.find("[data-testid='game-question-statement']").text()).toBe(fakeQuestions[1]?.content.statement);
   });
 
   it("should trigger fetchAndAppendRandomQuestions when currentIndex reaches the 80% threshold.", async() => {
@@ -182,8 +183,6 @@ describe("Game Page", () => {
       void error;
     }
 
-    // Acceptable as the array was just created with two elements so index 1 is always defined
-    // oxlint-disable-next-line typescript/no-non-null-assertion
-    expect(wrapper.find("[data-testid='game-question-statement']").text()).toBe(fakeQuestions[1]!.content.statement);
+    expect(wrapper.find("[data-testid='game-question-statement']").text()).toBe(fakeQuestions[1]?.content.statement);
   });
 });

@@ -1,5 +1,6 @@
-Feature: Home
+@home-page
+Feature: 🏡 Home Page
 
-  Scenario: The home page should display the application title
-    Given the user is on the "/" page
+  Scenario: 🏡 Home Page is displayed with correct title
+    Given the user is on home page
     Then the page title should be "Goat It Game"

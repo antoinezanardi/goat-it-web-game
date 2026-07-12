@@ -1,5 +1,6 @@
 {
   "game": {
+    "pageTitle": "Goat It Game",
     "loadingQuestions": "Cargando preguntas...",
     "nextQuestion": "Siguiente pregunta"
   }

@@ -1,7 +1,13 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 
-import { GAME_DEFAULT_FETCH_QUERY, GAME_PREFETCH_BATCH_SIZE, GAME_PREFETCH_THRESHOLD } from "@/pages/game.constants";
+import { GAME_DEFAULT_FETCH_QUERY, GAME_PAGE_TITLE_KEY, GAME_PREFETCH_BATCH_SIZE, GAME_PREFETCH_THRESHOLD } from "@/pages/game.constants";
+
+const { t } = useI18n();
+
+useHead(() => ({
+  title: t(GAME_PAGE_TITLE_KEY),
+}));
 
 const store = useQuestionsStore();
 const { questions, isPending } = storeToRefs(store);
@@ -10,6 +16,12 @@ const currentIndex = ref(0);
 const hasTriggeredPrefetch = ref(false);
 
 const currentQuestion = computed(() => questions.value[currentIndex.value] ?? questions.value[0]);
+
+const isInitialLoading = computed(() => questions.value.length === 0 && isPending.value);
+
+const isOutOfQuestionsLoading = computed(() => currentIndex.value >= questions.value.length && isPending.value);
+
+const hasCurrentQuestion = computed(() => questions.value.length > 0 && currentQuestion.value !== undefined);
 
 const prefetchThreshold = computed(() => Math.floor(questions.value.length * GAME_PREFETCH_THRESHOLD));
 
@@ -35,24 +47,24 @@ function advanceToNextQuestion(): void {
 
 <template>
   <main>
-    <p v-if="questions.length === 0 && isPending">
+    <p v-if="isInitialLoading">
       {{ $t("game.loadingQuestions") }}
     </p>
 
-    <p v-else-if="currentIndex >= questions.length && isPending">
+    <p v-else-if="isOutOfQuestionsLoading">
       {{ $t("game.loadingQuestions") }}
     </p>
 
     <div
-      v-else-if="questions.length > 0 && currentQuestion"
+      v-else-if="hasCurrentQuestion"
       data-testid="game-question"
     >
       <p data-testid="game-question-statement">
-        {{ currentQuestion.content.statement }}
+        {{ currentQuestion?.content.statement }}
       </p>
 
       <p data-testid="game-question-answer">
-        {{ currentQuestion.content.answer }}
+        {{ currentQuestion?.content.answer }}
       </p>
 
       <button

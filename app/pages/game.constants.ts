@@ -1,5 +1,6 @@
 import type { FindQuestionsQueryDto } from "@goat-it/schemas/question";
 
+const GAME_PAGE_TITLE_KEY = "game.pageTitle";
 const GAME_PREFETCH_THRESHOLD = 0.8;
 const GAME_PREFETCH_BATCH_SIZE = 25;
 const GAME_DEFAULT_FETCH_QUERY: FindQuestionsQueryDto = {
@@ -8,4 +9,4 @@ const GAME_DEFAULT_FETCH_QUERY: FindQuestionsQueryDto = {
   "limit": GAME_PREFETCH_BATCH_SIZE,
 };
 
-export { GAME_DEFAULT_FETCH_QUERY, GAME_PREFETCH_BATCH_SIZE, GAME_PREFETCH_THRESHOLD };
+export { GAME_DEFAULT_FETCH_QUERY, GAME_PAGE_TITLE_KEY, GAME_PREFETCH_BATCH_SIZE, GAME_PREFETCH_THRESHOLD };
