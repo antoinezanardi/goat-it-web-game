@@ -107,12 +107,18 @@ describe("Goat It API Helpers", () => {
       expect(locale).toBe("fr");
     });
 
-    it("should fall back to accept-language header locale when cookie is missing.", () => {
-      vi.mocked(getRequestHeader).mockReturnValue("fr-FR,en;q=0.8");
+    it.each([
+      { header: "fr-FR,en;q=0.8", expected: "fr" },
+      { header: "pt", expected: "pt" },
+      { header: "en;q=0.9,fr;q=0.8", expected: "en" },
+      { header: "ja-JP", expected: "en" },
+      { header: "*", expected: "en" },
+    ])("should return '$expected' when accept-language header is '$header' and cookie is missing.", ({ header, expected }) => {
+      vi.mocked(getRequestHeader).mockReturnValue(header);
 
       const locale = extractLocaleFromEvent(mockedEvent);
 
-      expect(locale).toBe("fr");
+      expect(locale).toBe(expected);
     });
 
     it("should fall back to default locale when cookie and header are missing.", () => {
@@ -130,14 +136,6 @@ describe("Goat It API Helpers", () => {
       expect(locale).toBe("es");
     });
 
-    it("should fall back to default locale when header locale is unsupported.", () => {
-      vi.mocked(getRequestHeader).mockReturnValue("ja-JP");
-
-      const locale = extractLocaleFromEvent(mockedEvent);
-
-      expect(locale).toBe("en");
-    });
-
     it("should prefer cookie locale over accept-language header when both are present.", () => {
       vi.mocked(getCookie).mockReturnValue("de");
       vi.mocked(getRequestHeader).mockReturnValue("fr-FR");
@@ -145,22 +143,6 @@ describe("Goat It API Helpers", () => {
       const locale = extractLocaleFromEvent(mockedEvent);
 
       expect(locale).toBe("de");
-    });
-
-    it("should parse the accept-language header locale when the header contains only a language code.", () => {
-      vi.mocked(getRequestHeader).mockReturnValue("pt");
-
-      const locale = extractLocaleFromEvent(mockedEvent);
-
-      expect(locale).toBe("pt");
-    });
-
-    it("should fall back to default locale when accept-language header is malformed.", () => {
-      vi.mocked(getRequestHeader).mockReturnValue("*");
-
-      const locale = extractLocaleFromEvent(mockedEvent);
-
-      expect(locale).toBe("en");
     });
 
     it("should fall back to default locale when i18n_redirected cookie is empty string.", () => {
