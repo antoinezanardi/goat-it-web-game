@@ -5,7 +5,6 @@ import { createFakeQuestionDto } from "~~/tests/unit/utils/faketories/question/q
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
-import type { SharedRuntimeConfig } from "#build/types/runtime-config";
 import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
 import { getRandomQuestionsHandler } from "#server/api/goat-it-api/questions/handlers/random/index.get.handler";
 
@@ -13,10 +12,6 @@ vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
 
 describe("Server Goat It API Questions Random Handler", () => {
   const mockedEvent = createFakeH3Event();
-  const expectedGoatItApiConfig: SharedRuntimeConfig["goatItApi"] = {
-    baseUrl: "https://api.goat-it.com",
-    gameKey: "test-game-key",
-  };
 
   beforeEach(() => {
     vi.mocked($fetch).mockResolvedValue([
@@ -33,10 +28,10 @@ describe("Server Goat It API Questions Random Handler", () => {
       expect(createGoatItApiEndpoint).toHaveBeenCalledExactlyOnceWith("questions", { suffix: "random" });
     });
 
-    it("should create goat it api fetch options with config when called.", async() => {
+    it("should create goat it api fetch options with event when called.", async() => {
       await getRandomQuestionsHandler(mockedEvent);
 
-      expect(createGoatItApiFetchOptions).toHaveBeenCalledExactlyOnceWith(expectedGoatItApiConfig);
+      expect(createGoatItApiFetchOptions).toHaveBeenCalledExactlyOnceWith(mockedEvent);
     });
 
     it("should fetch random questions from goat it api with correct endpoint and fetch options when called.", async() => {

@@ -8,9 +8,8 @@ import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiEr
 import { FIND_QUERY_UNBOUNDED_LIMIT } from "#server/utils/goat-it-api/goat-it-api.constants";
 
 async function getQuestionThemesHandler(event: H3Event): Promise<QuestionTheme[]> {
-  const config = useRuntimeConfig(event);
   const endpoint = createGoatItApiEndpoint("question-themes");
-  const fetchOptions = createGoatItApiFetchOptions(config.goatItApi);
+  const fetchOptions = createGoatItApiFetchOptions(event);
   const rawQuery = getQuery(event);
   const query = FIND_QUESTION_THEMES_QUERY_DTO.parse({
     ...rawQuery,

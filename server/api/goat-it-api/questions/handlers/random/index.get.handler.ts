@@ -7,9 +7,8 @@ import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers
 import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
 
 async function getRandomQuestionsHandler(event: H3Event): Promise<Question[]> {
-  const config = useRuntimeConfig(event);
   const endpoint = createGoatItApiEndpoint("questions", { suffix: "random" });
-  const fetchOptions = createGoatItApiFetchOptions(config.goatItApi);
+  const fetchOptions = createGoatItApiFetchOptions(event);
 
   try {
     const rawData = await $fetch(endpoint, fetchOptions);

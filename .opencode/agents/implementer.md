@@ -17,6 +17,8 @@ permission:
     "rtk pnpm run lint*": "allow"
     "pnpm run typecheck*": "allow"
     "rtk pnpm run typecheck*": "allow"
+    "pnpm ls *": "allow"
+    "rtk pnpm ls *": "allow"
     "git status*": "allow"
     "rtk git status*": "allow"
     "git log*": "allow"
