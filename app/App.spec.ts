@@ -25,8 +25,12 @@ describe("App Component", () => {
     wrapper = await mountAppComponent();
   });
 
-  it("should render the app component when mounted.", () => {
-    expect(wrapper.exists()).toBeTruthy();
+  it("should render UApp component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "App" }).exists()).toBeTruthy();
+  });
+
+  it("should render NuxtPage component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "NuxtPage" }).exists()).toBeTruthy();
   });
 
   it("should call callOnce with fetchAndStoreQuestionThemes when mounted.", () => {

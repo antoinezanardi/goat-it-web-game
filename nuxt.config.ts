@@ -104,6 +104,7 @@ export default defineNuxtConfig({
           "fr/errors.json",
           "fr/question-themes.json",
           "fr/questions.json",
+          "fr/game.json",
         ],
       },
       {
@@ -116,6 +117,7 @@ export default defineNuxtConfig({
           "en/errors.json",
           "en/question-themes.json",
           "en/questions.json",
+          "en/game.json",
         ],
       },
       {
@@ -128,6 +130,7 @@ export default defineNuxtConfig({
           "de/errors.json",
           "de/question-themes.json",
           "de/questions.json",
+          "de/game.json",
         ],
       },
       {
@@ -140,6 +143,7 @@ export default defineNuxtConfig({
           "es/errors.json",
           "es/question-themes.json",
           "es/questions.json",
+          "es/game.json",
         ],
       },
       {
@@ -152,6 +156,7 @@ export default defineNuxtConfig({
           "it/errors.json",
           "it/question-themes.json",
           "it/questions.json",
+          "it/game.json",
         ],
       },
       {
@@ -164,6 +169,7 @@ export default defineNuxtConfig({
           "pt/errors.json",
           "pt/question-themes.json",
           "pt/questions.json",
+          "pt/game.json",
         ],
       },
     ],
