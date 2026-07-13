@@ -27,8 +27,6 @@ describe("Goat It API Helpers", () => {
   const mockedEvent = createFakeH3Event();
 
   beforeEach(() => {
-    // Acceptable as useRuntimeConfig mock needs to return a value matching the runtime shape
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     const runtimeConfigMock = {
       goatItApi: {
         baseUrl: "https://api.example.com",
@@ -167,6 +165,22 @@ describe("Goat It API Helpers", () => {
 
     it("should fall back to default locale when i18n_redirected cookie is empty string.", () => {
       vi.mocked(getCookie).mockReturnValue("");
+
+      const locale = extractLocaleFromEvent(mockedEvent);
+
+      expect(locale).toBe("en");
+    });
+
+    it("should fall back to the first valid locale when default locale is invalid.", () => {
+      vi.mocked(useRuntimeConfig).mockReturnValue({
+        goatItApi: {
+          baseUrl: "https://api.example.com",
+          gameKey: "secret-game-key",
+        },
+        public: {
+          defaultLocale: "invalid-locale",
+        },
+      } as unknown as ReturnType<typeof useRuntimeConfig>);
 
       const locale = extractLocaleFromEvent(mockedEvent);
 

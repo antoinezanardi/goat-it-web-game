@@ -1,18 +1,19 @@
 import { FetchError } from "ofetch";
 import { getCookie, getRequestHeader } from "h3";
 import { API_RESPONSE_EXCEPTION_DTO } from "@goat-it/schemas/shared/error";
-import { LOCALES } from "@goat-it/schemas/shared/locale";
+import { isValidLocale, LOCALES } from "@goat-it/schemas/shared/locale";
+import type { Locale } from "@goat-it/schemas/shared/locale";
 import type { H3Event } from "h3";
 
-import type { SharedRuntimeConfig } from "#build/types/runtime-config";
+import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
 import type { CreateGoatItApiEndpointOptions, GoatItApiResourceName } from "#server/utils/goat-it-api/goat-it-api.types";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { isNonEmptyString } from "#shared/utils/helpers/string/string.helpers";
 
-function getRuntimeConfig(event: H3Event): SharedRuntimeConfig & { public: { defaultLocale: string } } {
+function getRuntimeConfig(event: H3Event): AppRuntimeConfig {
   // Acceptable as the NitroRuntimeConfig type does not expose custom runtimeConfig keys
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  return useRuntimeConfig(event) as unknown as SharedRuntimeConfig & { public: { defaultLocale: string } };
+  return useRuntimeConfig(event) as unknown as AppRuntimeConfig;
 }
 
 function createGoatItApiEndpoint(resourceName: GoatItApiResourceName, options?: CreateGoatItApiEndpointOptions): string {
@@ -26,23 +27,27 @@ function createGoatItApiEndpoint(resourceName: GoatItApiResourceName, options?: 
   return endpoint;
 }
 
-function extractLocaleFromEvent(event: H3Event): string {
+function extractLocaleFromEvent(event: H3Event): Locale {
   const cookieLocale = getCookie(event, "i18n_redirected");
-  if (isNonEmptyString(cookieLocale) && (LOCALES as readonly string[]).includes(cookieLocale)) {
+  if (isNonEmptyString(cookieLocale) && isValidLocale(cookieLocale)) {
     return cookieLocale;
   }
 
   const acceptLanguageHeader = getRequestHeader(event, "accept-language");
   if (isNonEmptyString(acceptLanguageHeader)) {
     const headerLocale = acceptLanguageHeader.split(",")[0]?.split("-")[0]?.toLowerCase();
-    if (isNonEmptyString(headerLocale) && (LOCALES as readonly string[]).includes(headerLocale)) {
+    if (isNonEmptyString(headerLocale) && isValidLocale(headerLocale)) {
       return headerLocale;
     }
   }
 
   const config = getRuntimeConfig(event);
+  const { defaultLocale } = config.public;
 
-  return config.public.defaultLocale;
+  if (isValidLocale(defaultLocale)) {
+    return defaultLocale;
+  }
+  return LOCALES[0];
 }
 
 function createGoatItApiFetchOptions(event: H3Event): Parameters<typeof $fetch>[1] {
