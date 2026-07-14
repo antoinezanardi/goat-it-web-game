@@ -7,6 +7,8 @@ vi.mock("h3", async importOriginal => {
 
   return {
     ...original,
+    getCookie: vi.fn<typeof original.getCookie>(),
+    getRequestHeader: vi.fn<typeof original.getRequestHeader>(),
     getRouterParam: vi.fn<typeof original.getRouterParam>(),
     createError: vi.fn<typeof original.createError>(),
     readBody: vi.fn<typeof original.readBody>(),

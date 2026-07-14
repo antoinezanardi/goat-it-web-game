@@ -38,6 +38,8 @@ permission:
     "rtk write-file *": "allow"
     "sed *": "allow"
     "rtk sed *": "allow"
+    "rg *": "allow"
+    "rtk rg *": "allow"
   webfetch: deny
 ---
 

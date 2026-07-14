@@ -1,9 +1,17 @@
 import { FetchError } from "ofetch";
-import { H3Error } from "h3";
-import { describe, it, expect } from "vitest";
+import { H3Error, getCookie, getRequestHeader } from "h3";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import type { SharedRuntimeConfig } from "#build/types/runtime-config";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
+
+import {
+  createGoatItApiEndpoint,
+  createGoatItApiFetchOptions,
+  extractLocaleFromEvent,
+  handleGoatItApiError,
+} from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+
+vi.stubGlobal("useRuntimeConfig", vi.fn());
 
 function getThrowableError(function_: () => void): H3Error {
   try {
@@ -16,6 +24,36 @@ function getThrowableError(function_: () => void): H3Error {
 }
 
 describe("Goat It API Helpers", () => {
+  const mockedEvent = createFakeH3Event();
+
+  beforeEach(() => {
+    const runtimeConfigMock = {
+      goatItApi: {
+        baseUrl: "https://api.example.com",
+        gameKey: "secret-game-key",
+      },
+      public: {
+        defaultLocale: "en",
+        i18n: {
+          defaultLocale: "en",
+          baseUrl: "",
+          locales: [],
+          detectBrowserLanguage: {
+            alwaysRedirect: false,
+            cookieKey: "i18n_redirected",
+            cookieSecure: false,
+            fallbackLocale: "",
+            redirectOn: "root",
+            useCookie: true,
+          },
+        },
+      },
+    } as const;
+    vi.mocked(useRuntimeConfig).mockReturnValue(runtimeConfigMock as unknown as ReturnType<typeof useRuntimeConfig>);
+    vi.mocked(getCookie).mockReturnValue(undefined);
+    vi.mocked(getRequestHeader).mockReturnValue(undefined);
+  });
+
   describe(createGoatItApiEndpoint, () => {
     it("should create the correct endpoint for a given resource name when called.", () => {
       const resourceName = "question-themes";
@@ -60,19 +98,90 @@ describe("Goat It API Helpers", () => {
     });
   });
 
+  describe(extractLocaleFromEvent, () => {
+    it("should return cookie locale when i18n_redirected cookie is valid.", () => {
+      vi.mocked(getCookie).mockReturnValue("fr");
+
+      const locale = extractLocaleFromEvent(mockedEvent);
+
+      expect(locale).toBe("fr");
+    });
+
+    it.each([
+      { header: "fr-FR,en;q=0.8", expected: "fr" },
+      { header: "pt", expected: "pt" },
+      { header: "en;q=0.9,fr;q=0.8", expected: "en" },
+      { header: "ja-JP", expected: "en" },
+      { header: "*", expected: "en" },
+    ])("should return '$expected' when accept-language header is '$header' and cookie is missing.", ({ header, expected }) => {
+      vi.mocked(getRequestHeader).mockReturnValue(header);
+
+      const locale = extractLocaleFromEvent(mockedEvent);
+
+      expect(locale).toBe(expected);
+    });
+
+    it("should fall back to default locale when cookie and header are missing.", () => {
+      const locale = extractLocaleFromEvent(mockedEvent);
+
+      expect(locale).toBe("en");
+    });
+
+    it("should fall back to header locale when cookie locale is unsupported.", () => {
+      vi.mocked(getCookie).mockReturnValue("ja");
+      vi.mocked(getRequestHeader).mockReturnValue("es-ES");
+
+      const locale = extractLocaleFromEvent(mockedEvent);
+
+      expect(locale).toBe("es");
+    });
+
+    it("should prefer cookie locale over accept-language header when both are present.", () => {
+      vi.mocked(getCookie).mockReturnValue("de");
+      vi.mocked(getRequestHeader).mockReturnValue("fr-FR");
+
+      const locale = extractLocaleFromEvent(mockedEvent);
+
+      expect(locale).toBe("de");
+    });
+
+    it("should fall back to default locale when i18n_redirected cookie is empty string.", () => {
+      vi.mocked(getCookie).mockReturnValue("");
+
+      const locale = extractLocaleFromEvent(mockedEvent);
+
+      expect(locale).toBe("en");
+    });
+
+    it("should fall back to the first valid locale when default locale is invalid.", () => {
+      vi.mocked(useRuntimeConfig).mockReturnValue({
+        goatItApi: {
+          baseUrl: "https://api.example.com",
+          gameKey: "secret-game-key",
+        },
+        public: {
+          defaultLocale: "invalid-locale",
+        },
+      } as unknown as ReturnType<typeof useRuntimeConfig>);
+
+      const locale = extractLocaleFromEvent(mockedEvent);
+
+      expect(locale).toBe("en");
+    });
+  });
+
   describe(createGoatItApiFetchOptions, () => {
-    it("should create the correct fetch options for a given Goat It API runtime config when called.", () => {
-      const goatItApiRuntimeConfig: SharedRuntimeConfig["goatItApi"] = {
-        baseUrl: "https://api.example.com",
-        gameKey: "secret-game-key",
-      };
+    it("should create fetch options with baseURL, api key and accept-language header when called with event.", () => {
+      vi.mocked(getRequestHeader).mockReturnValue("fr-FR");
       const expectedFetchOptions: Parameters<typeof $fetch>[1] = {
-        baseURL: goatItApiRuntimeConfig.baseUrl,
+        baseURL: "https://api.example.com",
         headers: {
-          "goat-it-api-key": goatItApiRuntimeConfig.gameKey,
+          "goat-it-api-key": "secret-game-key",
+          "Accept-Language": "fr",
         },
       };
-      const fetchOptions = createGoatItApiFetchOptions(goatItApiRuntimeConfig);
+
+      const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
 
       expect(fetchOptions).toStrictEqual<Parameters<typeof $fetch>[1]>(expectedFetchOptions);
     });
