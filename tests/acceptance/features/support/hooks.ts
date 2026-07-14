@@ -1,7 +1,6 @@
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-import type { ITestCaseHookParameter } from "@cucumber/cucumber";
 import { After, AfterAll, Before, BeforeAll, Status } from "@cucumber/cucumber";
 import { createPage, createTest } from "@nuxt/test-utils/e2e";
 
@@ -76,7 +75,7 @@ Before({ timeout: BEFORE_TIMEOUT }, async function(this: GoatItWorld): Promise<v
   this.context = this.page.context();
 });
 
-After(async function(this: GoatItWorld, scenario: ITestCaseHookParameter): Promise<void> {
+After(async function(this: GoatItWorld, scenario): Promise<void> {
   if (scenario.result?.status === Status.FAILED) {
     try {
       await generateScreenshotOnScenarioFailure(this, scenario);

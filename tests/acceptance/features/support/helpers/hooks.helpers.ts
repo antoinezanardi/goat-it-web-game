@@ -1,8 +1,8 @@
 import { execSync } from "node:child_process";
 
-import type { ITestCaseHookParameter } from "@cucumber/cucumber";
 import { rimraf } from "rimraf";
 
+import type { TestCaseHookParameter } from "#acceptance/features/support/types/cucumber.types.ts";
 import { ACCEPTANCE_TESTS_REPORTS_SCREENSHOTS_PATH } from "#acceptance/features/support/constants/acceptance.constants.ts";
 import {
   RESET_SANDBOX_DATA_TIMEOUT_IN_MS,
@@ -41,7 +41,7 @@ function sanitizeScenarioName(name: string): string {
     .slice(0, MAX_LENGTH);
 }
 
-async function generateScreenshotOnScenarioFailure(world: GoatItWorld, scenario: ITestCaseHookParameter): Promise<void> {
+async function generateScreenshotOnScenarioFailure(world: GoatItWorld, scenario: TestCaseHookParameter): Promise<void> {
   const screenShotExtension = ".png";
   const sanitizedName = sanitizeScenarioName(scenario.pickle.name);
   const screenShotRelativePath = `${ACCEPTANCE_TESTS_REPORTS_SCREENSHOTS_PATH}/${sanitizedName}-${Date.now()}${screenShotExtension}`;
