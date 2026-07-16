@@ -1,8 +1,8 @@
 import { execSync } from "node:child_process";
 
 import { rimraf } from "rimraf";
+import type { ITestCaseHookParameter as TestCaseHookParameter } from "@cucumber/cucumber";
 
-import type { TestCaseHookParameter } from "#acceptance/features/support/types/cucumber.types.ts";
 import { ACCEPTANCE_TESTS_REPORTS_SCREENSHOTS_PATH } from "#acceptance/features/support/constants/acceptance.constants.ts";
 import {
   RESET_SANDBOX_DATA_TIMEOUT_IN_MS,
