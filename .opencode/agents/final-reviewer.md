@@ -176,7 +176,7 @@ No files are automatically ignored in the diff review.
 
 ## Skills to load
 
-- `requesting-code-review` — for the review structure
+- `vue` — to understand Vue 3 patterns and best practices
 - `nuxt` — to understand project structure and conventions
 - `nuxt-ui` — to evaluate UI component usage
 - `unit-testing` — to evaluate test quality

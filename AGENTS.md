@@ -240,10 +240,8 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 
 Each skill has a `SKILL.md` entry point. Load only the relevant skill for the task.
 
-Available skills: `acceptance-testing`, `brainstorming`, `dispatching-parallel-agents`, `executing-plans`,
-`nuxt`, `nuxt-ui`, `receiving-code-review`, `requesting-code-review`, `subagent-driven-development`,
-`systematic-debugging`, `test-driven-development`, `unit-testing`, `using-superpowers`, `vite`,
-`vitest`, `vue`, `vueuse`, `writing-plans`, `writing-skills`.
+Available skills: `acceptance-testing`, `brainstorming`, `nuxt`, `nuxt-ui`, `receiving-code-review`,
+`systematic-debugging`, `unit-testing`, `vite`, `vitest`, `vue`, `vueuse`, `writing-plans`, `writing-skills`.
 
 - **When writing unit tests** (including inside plans): always load the `unit-testing` skill first.
 - **When writing acceptance tests** (including inside plans): always load the `acceptance-testing` skill first.
