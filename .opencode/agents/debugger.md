@@ -105,6 +105,5 @@ If you haven't completed Phase 1, you cannot propose fixes.
 ## Skills to load
 
 - `systematic-debugging` (the full 4-phase process)
-- `test-driven-development` (for the regression test in Phase 4)
-- `verification-before-completion` (before claiming root cause + fix)
+- `unit-testing` (for the regression test in Phase 4)
 - `nuxt` — for project structure context
