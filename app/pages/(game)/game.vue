@@ -3,7 +3,7 @@ import { storeToRefs } from "pinia";
 
 import type { Question } from "#shared/types/question.types.ts";
 
-import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY, GAME_PAGE_TITLE_KEY, GAME_FETCH_RANDOM_QUESTIONS_LIMIT, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
+import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY, GAME_PAGE_TITLE_KEY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
 
 const { t } = useI18n();
 
@@ -30,10 +30,7 @@ callOnce(() => store.fetchAndAppendRandomQuestions(GAME_DEFAULT_FETCH_RANDOM_QUE
 watch(currentIndex, index => {
   if (index >= prefetchThreshold.value && !isPending.value && !hasTriggeredPrefetch.value) {
     hasTriggeredPrefetch.value = true;
-    store.fetchAndAppendRandomQuestions({
-      ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY,
-      limit: GAME_FETCH_RANDOM_QUESTIONS_LIMIT,
-    });
+    store.fetchAndAppendRandomQuestions(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY);
   }
 });
 
