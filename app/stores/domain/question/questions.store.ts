@@ -1,4 +1,4 @@
-import type { FindQuestionsQueryDto } from "@goat-it/schemas/question";
+import type { FindRandomQuestionsQueryDto } from "@goat-it/schemas/question";
 
 export const useQuestionsStore = defineStore(StoreNames.QUESTIONS, () => {
   const questions = ref<Question[]>([]);
@@ -18,7 +18,7 @@ export const useQuestionsStore = defineStore(StoreNames.QUESTIONS, () => {
     (thrownError: unknown) => handleGoatItApiError(thrownError, t("questions.cantFetch")),
   );
 
-  async function fetchAndAppendRandomQuestions(query?: FindQuestionsQueryDto): Promise<void> {
+  async function fetchAndAppendRandomQuestions(query?: FindRandomQuestionsQueryDto): Promise<void> {
     const fetched = await fetchRandomQuestions(query);
     if (fetched) {
       questions.value = [...questions.value, ...fetched];
