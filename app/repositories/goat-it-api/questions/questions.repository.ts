@@ -1,12 +1,12 @@
-import type { FindQuestionsQueryDto } from "@goat-it/schemas/question";
+import type { FindRandomQuestionsQueryDto } from "@goat-it/schemas/question";
 import type { $Fetch } from "nitropack";
 
 type QuestionsRepository = (fetch: $Fetch) => {
-  getRandom: (query?: FindQuestionsQueryDto) => Promise<Question[]>;
+  getRandom: (query?: FindRandomQuestionsQueryDto) => Promise<Question[]>;
 };
 
 export const questionsRepository: QuestionsRepository = (fetch: $Fetch) => ({
-  async getRandom(query?: FindQuestionsQueryDto): Promise<Question[]> {
+  async getRandom(query?: FindRandomQuestionsQueryDto): Promise<Question[]> {
     return fetch<Question[]>("/api/goat-it-api/questions/random", { query });
   },
 });

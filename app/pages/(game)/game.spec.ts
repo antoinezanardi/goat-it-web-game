@@ -1,3 +1,4 @@
+import type { FindRandomQuestionsQueryDto } from "@goat-it/schemas/question";
 import type { VueWrapper } from "@vue/test-utils";
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -8,24 +9,17 @@ import type { Mock } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
+import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY } from "~/pages/(game)/game.constants.ts";
 import type { Question } from "#shared/types/question.types";
-import GamePage from "@/pages/game.vue";
-
-const DEFAULT_FETCH_QUERY = {
-  "sort-by": "createdAt",
-  "sort-order": "desc",
-  "limit": 25,
-} as const;
-
-type FetchQuery = { "sort-by": string; "sort-order": string; "limit": number };
+import GamePage from "@/pages/(game)/game.vue";
 
 let questions: Ref<Question[]>;
 let isPending: Ref<boolean>;
-let fetchAndAppendRandomQuestions: Mock<(query?: FetchQuery) => Promise<void>>;
+let fetchAndAppendRandomQuestions: Mock<(query?: FindRandomQuestionsQueryDto) => Promise<void>>;
 
 mockNuxtImport(
   "useQuestionsStore",
-  () => (): { questions: Ref<Question[]>; isPending: Ref<boolean>; fetchAndAppendRandomQuestions: Mock<(query?: FetchQuery) => Promise<void>> } => ({
+  () => (): { questions: Ref<Question[]>; isPending: Ref<boolean>; fetchAndAppendRandomQuestions: Mock<(query?: FindRandomQuestionsQueryDto) => Promise<void>> } => ({
     questions,
     isPending,
     fetchAndAppendRandomQuestions,
@@ -58,10 +52,10 @@ describe("Game Page", () => {
 
     initialFetchFunction();
 
-    expect(fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(DEFAULT_FETCH_QUERY);
+    expect(fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY);
   });
 
-  it("should show loading text when questions array is empty and fetch is pending.", async() => {
+  it("should show loading text when the questions array is empty and fetch is pending.", async() => {
     questions.value = [];
     isPending.value = true;
     await nextTick();
@@ -69,20 +63,14 @@ describe("Game Page", () => {
     expect(wrapper.text()).toContain("game.loadingQuestions");
   });
 
-  it("should display the current question statement when fetch succeeds.", async() => {
+  it("should pass the current question to GameQuestionCard when fetch succeeds.", async() => {
     const fakeQuestions = [createFakeQuestion()];
     questions.value = fakeQuestions;
     await nextTick();
 
-    expect(wrapper.find("[data-testid='game-question-statement']").text()).toBe(fakeQuestions[0]?.content.statement);
-  });
+    const gameQuestionCard = wrapper.findComponent({ name: "GameQuestionCard" });
 
-  it("should display the current question answer when fetch succeeds.", async() => {
-    const fakeQuestions = [createFakeQuestion()];
-    questions.value = fakeQuestions;
-    await nextTick();
-
-    expect(wrapper.find("[data-testid='game-question-answer']").text()).toBe(fakeQuestions[0]?.content.answer);
+    expect(gameQuestionCard.props("question")).toStrictEqual(fakeQuestions[0]);
   });
 
   it("should render the next question translation key on the button when questions are available.", async() => {
@@ -92,14 +80,16 @@ describe("Game Page", () => {
     expect(wrapper.find("[data-testid='game-next-button']").text()).toContain("game.nextQuestion");
   });
 
-  it("should advance currentIndex and display the next question when the next button is clicked.", async() => {
+  it("should advance currentIndex and pass the next question to GameQuestionCard when the next button is clicked.", async() => {
     const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
     questions.value = fakeQuestions;
     await nextTick();
 
     await wrapper.find("[data-testid='game-next-button']").trigger("click");
 
-    expect(wrapper.find("[data-testid='game-question-statement']").text()).toBe(fakeQuestions[1]?.content.statement);
+    const gameQuestionCard = wrapper.findComponent({ name: "GameQuestionCard" });
+
+    expect(gameQuestionCard.props("question")).toStrictEqual(fakeQuestions[1]);
   });
 
   it("should trigger fetchAndAppendRandomQuestions when currentIndex reaches the 80% threshold.", async() => {
@@ -107,13 +97,13 @@ describe("Game Page", () => {
     await nextTick();
 
     const button = wrapper.find("[data-testid='game-next-button']");
-    // Acceptable as each click must be sequential to let Vue process the reactive update
     for (let index = 0; index < 20; index++) {
+      // Acceptable as each click must be sequential to let Vue process the reactive update
       // oxlint-disable-next-line eslint/no-await-in-loop
       await button.trigger("click");
     }
 
-    expect(fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(DEFAULT_FETCH_QUERY);
+    expect(fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY);
   });
 
   it("should not trigger prefetch when a fetch is already in progress.", async() => {
@@ -122,8 +112,8 @@ describe("Game Page", () => {
     await nextTick();
 
     const button = wrapper.find("[data-testid='game-next-button']");
-    // Acceptable as each click must be sequential to let Vue process the reactive update
     for (let index = 0; index < 20; index++) {
+      // Acceptable as each click must be sequential to let Vue process the reactive update
       // oxlint-disable-next-line eslint/no-await-in-loop
       await button.trigger("click");
     }
@@ -147,8 +137,8 @@ describe("Game Page", () => {
     await nextTick();
 
     const button = wrapper.find("[data-testid='game-next-button']");
-    // Acceptable as each click must be sequential to let Vue process the reactive update
     for (let index = 0; index < 20; index++) {
+      // Acceptable as each click must be sequential to let Vue process the reactive update
       // oxlint-disable-next-line eslint/no-await-in-loop
       await button.trigger("click");
     }
@@ -161,7 +151,7 @@ describe("Game Page", () => {
     fetchAndAppendRandomQuestions.mockClear();
     await button.trigger("click");
 
-    expect(fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(DEFAULT_FETCH_QUERY);
+    expect(fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY);
   });
 
   it("should keep rendering the current question when fetchAndAppendRandomQuestions rejects.", async() => {
@@ -183,6 +173,8 @@ describe("Game Page", () => {
       void error;
     }
 
-    expect(wrapper.find("[data-testid='game-question-statement']").text()).toBe(fakeQuestions[1]?.content.statement);
+    const gameQuestionCard = wrapper.findComponent({ name: "GameQuestionCard" });
+
+    expect(gameQuestionCard.props("question")).toStrictEqual(fakeQuestions[1]);
   });
 });
