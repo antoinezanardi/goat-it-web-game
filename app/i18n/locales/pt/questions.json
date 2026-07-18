@@ -1,5 +1,16 @@
 {
   "questions": {
-    "cantFetch": "Não foi possível carregar as perguntas. Tente novamente mais tarde."
+    "cantFetch": "Não foi possível carregar as perguntas. Tente novamente mais tarde.",
+    "difficulty": {
+      "label": "Dificuldade",
+      "easy": "Fácil",
+      "medium": "Média",
+      "hard": "Difícil"
+    },
+    "questionLabel": "Pergunta",
+    "answerLabel": "Resposta",
+    "contextAccordionTitle": "Contexto e Curiosidades",
+    "sourcesAriaLabel": "Fontes",
+    "sourceOpensInNewTab": "Abre em uma nova guia"
   }
 }

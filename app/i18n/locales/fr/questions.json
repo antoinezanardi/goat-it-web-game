@@ -1,5 +1,16 @@
 {
   "questions": {
-    "cantFetch": "Impossible de charger les questions. Veuillez réessayer plus tard."
+    "cantFetch": "Impossible de charger les questions. Veuillez réessayer plus tard.",
+    "difficulty": {
+      "label": "Difficulté",
+      "easy": "Facile",
+      "medium": "Moyenne",
+      "hard": "Difficile"
+    },
+    "questionLabel": "Question",
+    "answerLabel": "Réponse",
+    "contextAccordionTitle": "Contexte & Anecdotes",
+    "sourcesAriaLabel": "Sources",
+    "sourceOpensInNewTab": "S'ouvre dans un nouvel onglet"
   }
 }

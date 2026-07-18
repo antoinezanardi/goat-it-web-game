@@ -9,7 +9,7 @@ import type { Mock } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY } from "~/pages/(game)/game.constants.ts";
+import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY } from "~/pages/(game)/game.constants";
 import type { Question } from "#shared/types/question.types";
 import GamePage from "@/pages/(game)/game.vue";
 
@@ -63,7 +63,7 @@ describe("Game Page", () => {
     expect(wrapper.text()).toContain("game.loadingQuestions");
   });
 
-  it("should pass the current question to GameQuestionCard when fetch succeeds.", async() => {
+  it("should render GameQuestionCard with the current question when questions are available.", async() => {
     const fakeQuestions = [createFakeQuestion()];
     questions.value = fakeQuestions;
     await nextTick();
@@ -73,19 +73,34 @@ describe("Game Page", () => {
     expect(gameQuestionCard.props("question")).toStrictEqual(fakeQuestions[0]);
   });
 
-  it("should render the next question translation key on the button when questions are available.", async() => {
+  it("should render GameNextButton with disabled bound to true when no current question.", async() => {
+    questions.value = [];
+    await nextTick();
+
+    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
+
+    expect(nextButton.props("disabled")).toBe(true);
+  });
+
+  it("should render GameNextButton with disabled bound to false when current question exists.", async() => {
     questions.value = [createFakeQuestion()];
     await nextTick();
 
-    expect(wrapper.find("[data-testid='game-next-button']").text()).toContain("game.nextQuestion");
+    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
+
+    expect(nextButton.props("disabled")).toBe(false);
   });
 
-  it("should advance currentIndex and pass the next question to GameQuestionCard when the next button is clicked.", async() => {
+  it("should advance currentIndex and pass the next question to GameQuestionCard when GameNextButton emits click.", async() => {
     const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
     questions.value = fakeQuestions;
     await nextTick();
 
-    await wrapper.find("[data-testid='game-next-button']").trigger("click");
+    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
+    // Acceptable as shallow stub vm.$emit is typed any; this is an expected test pattern
+    // oxlint-disable-next-line typescript/no-unsafe-call, typescript/no-unsafe-member-access
+    nextButton.vm.$emit("click");
+    await nextTick();
 
     const gameQuestionCard = wrapper.findComponent({ name: "GameQuestionCard" });
 
@@ -96,11 +111,14 @@ describe("Game Page", () => {
     questions.value = Array.from({ length: 25 }, () => createFakeQuestion());
     await nextTick();
 
-    const button = wrapper.find("[data-testid='game-next-button']");
+    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
     for (let index = 0; index < 20; index++) {
       // Acceptable as each click must be sequential to let Vue process the reactive update
+      // oxlint-disable-next-line eslint/no-await-in-loop, typescript/no-unsafe-call, typescript/no-unsafe-member-access
+      nextButton.vm.$emit("click");
+      // Acceptable as each emit must flush to let Vue process the reactive update
       // oxlint-disable-next-line eslint/no-await-in-loop
-      await button.trigger("click");
+      await nextTick();
     }
 
     expect(fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY);
@@ -111,11 +129,14 @@ describe("Game Page", () => {
     isPending.value = true;
     await nextTick();
 
-    const button = wrapper.find("[data-testid='game-next-button']");
+    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
     for (let index = 0; index < 20; index++) {
       // Acceptable as each click must be sequential to let Vue process the reactive update
+      // oxlint-disable-next-line eslint/no-await-in-loop, typescript/no-unsafe-call, typescript/no-unsafe-member-access
+      nextButton.vm.$emit("click");
+      // Acceptable as each emit must flush to let Vue process the reactive update
       // oxlint-disable-next-line eslint/no-await-in-loop
-      await button.trigger("click");
+      await nextTick();
     }
 
     expect(fetchAndAppendRandomQuestions).not.toHaveBeenCalled();
@@ -125,7 +146,11 @@ describe("Game Page", () => {
     questions.value = [createFakeQuestion()];
     await nextTick();
 
-    await wrapper.find("[data-testid='game-next-button']").trigger("click");
+    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
+    // Acceptable as shallow stub vm.$emit is typed any; this is an expected test pattern
+    // oxlint-disable-next-line typescript/no-unsafe-call, typescript/no-unsafe-member-access
+    nextButton.vm.$emit("click");
+    await nextTick();
     isPending.value = true;
     await nextTick();
 
@@ -136,11 +161,14 @@ describe("Game Page", () => {
     questions.value = Array.from({ length: 25 }, () => createFakeQuestion());
     await nextTick();
 
-    const button = wrapper.find("[data-testid='game-next-button']");
+    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
     for (let index = 0; index < 20; index++) {
       // Acceptable as each click must be sequential to let Vue process the reactive update
+      // oxlint-disable-next-line eslint/no-await-in-loop, typescript/no-unsafe-call, typescript/no-unsafe-member-access
+      nextButton.vm.$emit("click");
+      // Acceptable as each emit must flush to let Vue process the reactive update
       // oxlint-disable-next-line eslint/no-await-in-loop
-      await button.trigger("click");
+      await nextTick();
     }
 
     isPending.value = true;
@@ -149,7 +177,10 @@ describe("Game Page", () => {
     await nextTick();
 
     fetchAndAppendRandomQuestions.mockClear();
-    await button.trigger("click");
+    // Acceptable as shallow stub vm.$emit is typed any; this is an expected test pattern
+    // oxlint-disable-next-line typescript/no-unsafe-call, typescript/no-unsafe-member-access
+    nextButton.vm.$emit("click");
+    await nextTick();
 
     expect(fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY);
   });
@@ -165,7 +196,11 @@ describe("Game Page", () => {
     });
     await nextTick();
 
-    await wrapper.find("[data-testid='game-next-button']").trigger("click");
+    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
+    // Acceptable as shallow stub vm.$emit is typed any; this is an expected test pattern
+    // oxlint-disable-next-line typescript/no-unsafe-call, typescript/no-unsafe-member-access
+    nextButton.vm.$emit("click");
+    await nextTick();
 
     try {
       await rejectionPromise;
