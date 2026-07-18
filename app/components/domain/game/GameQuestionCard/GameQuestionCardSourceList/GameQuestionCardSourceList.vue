@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import type { GameQuestionCardSourceListProps } from "./game-question-card-source-list.types";
-
+import type { GameQuestionCardSourceListProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardSourceList/game-question-card-source-list.types";
 import { getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
 
 defineProps<GameQuestionCardSourceListProps>();
@@ -10,12 +9,12 @@ const linkClass = [
   "border-border-subtle",
   "focus-visible:outline-2",
   "focus-visible:outline-offset-2",
-  "focus-visible:outline-[var(--game-theme-focus)]",
+  "focus-visible:outline-(color:--game-theme-focus)",
   "font-medium",
   "gap-1.5",
   "group",
-  "hover:border-[var(--game-theme-neon)]",
-  "hover:text-[var(--game-theme-neon)]",
+  "hover:border-(color:--game-theme-neon)",
+  "hover:text-(color:--game-theme-neon)",
   "inline-flex",
   "items-center",
   "pb-0.5",

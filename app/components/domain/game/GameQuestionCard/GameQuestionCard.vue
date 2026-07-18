@@ -1,13 +1,11 @@
 <script lang="ts" setup>
-import type { GameQuestionCardProps } from "./game-question-card.types";
-
-import { getPrimaryTheme, getThemeIcon, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestionCard/game-question-card.types";
+import { getPrimaryTheme, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 const props = defineProps<GameQuestionCardProps>();
 
 const primaryTheme = computed(() => getPrimaryTheme(props.question));
 const themeColor = computed(() => resolveThemeColor(primaryTheme.value.color));
-const themeIcon = computed(() => getThemeIcon(primaryTheme.value.slug));
 
 const hasContextSection = computed(() => Boolean(props.question.content.context) || (props.question.content.trivia?.length ?? 0) > 0);
 
@@ -25,7 +23,6 @@ const articleStyle = computed(() => ({
   >
     <GameQuestionCardThemeHeader
       :difficulty="props.question.cognitiveDifficulty"
-      :icon="themeIcon"
       :theme="primaryTheme"
     />
 
@@ -61,3 +58,11 @@ const articleStyle = computed(() => ({
     />
   </article>
 </template>
+
+<style lang="scss" scoped>
+.game-card-halo {
+  box-shadow:
+    0 0 14px var(--game-theme-halo-near),
+    0 0 36px var(--game-theme-halo-far);
+}
+</style>

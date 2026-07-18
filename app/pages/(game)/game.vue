@@ -2,6 +2,7 @@
 import { storeToRefs } from "pinia";
 
 import { getPrimaryTheme, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "~/composables/domain/question-theme/constants/question-theme.constants";
 import type { Question } from "#shared/types/question.types";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY, GAME_PAGE_TITLE_KEY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
 
@@ -23,7 +24,7 @@ const isInitialLoading = computed<boolean>(() => questions.value.length === 0 &&
 
 const isOutOfQuestionsLoading = computed<boolean>(() => currentIndex.value >= questions.value.length && isPending.value);
 
-const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveThemeColor(getPrimaryTheme(currentQuestion.value).color) : "#a1a1aa"));
+const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveThemeColor(getPrimaryTheme(currentQuestion.value).color) : NEUTRAL_GREY_FALLBACK_THEME_COLOR));
 
 const prefetchThreshold = computed<number>(() => Math.floor(questions.value.length * GAME_PREFETCH_THRESHOLD));
 

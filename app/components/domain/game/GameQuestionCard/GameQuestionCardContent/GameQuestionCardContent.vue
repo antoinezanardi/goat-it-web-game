@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import type { GameQuestionCardContentProps } from "./game-question-card-content.types";
+import type { GameQuestionCardContentProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContent/game-question-card-content.types";
 
 const props = defineProps<GameQuestionCardContentProps>();
 
-const labelColorClass = "text-[var(--game-theme-neon)]";
+const labelColorClass = "text-(color:--game-theme-neon)";
 
 const textColorClass = computed(() => (props.variant === "answer" ? "text-text-answer" : "text-text-primary"));
 </script>

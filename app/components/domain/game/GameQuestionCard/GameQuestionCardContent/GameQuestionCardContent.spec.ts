@@ -62,6 +62,6 @@ describe("GameQuestionCardContent Component", () => {
   it("should render the label with the neon color class when component is mounted.", () => {
     const label = wrapper.find("p");
 
-    expect(label.classes()).toContain("text-[var(--game-theme-neon)]");
+    expect(label.classes()).toContain("text-(color:--game-theme-neon)");
   });
 });

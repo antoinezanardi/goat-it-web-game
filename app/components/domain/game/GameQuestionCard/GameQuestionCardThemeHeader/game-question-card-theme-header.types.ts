@@ -4,7 +4,6 @@ import type { QuestionTheme } from "#shared/types/question-theme.types";
 
 type GameQuestionCardThemeHeaderProps = {
   theme: QuestionTheme;
-  icon: string;
   difficulty: QuestionCognitiveDifficulty;
 };
 

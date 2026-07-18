@@ -33,39 +33,33 @@ describe("GameQuestionCardContextAccordion Component", () => {
     expect(wrapper.text()).toContain("Some historical context.");
   });
 
-  it("should render a trivia list when trivia is provided.", async() => {
-    const wrapper = await mountAndOpenAccordion({ props: { trivia: ["Fact one"] } });
-
-    expect(wrapper.find("ul").exists()).toBe(true);
-  });
-
-  it("should render the correct number of trivia items when trivia is provided.", async() => {
+  it("should render a trivia list with the correct number of items when trivia is provided.", async() => {
     const wrapper = await mountAndOpenAccordion({ props: { trivia: ["Fact one", "Fact two"] } });
 
     expect(wrapper.findAll("li")).toHaveLength(2);
   });
 
-  it("should render both context and trivia when both are provided.", async() => {
+  it("should render only a single trivia item when trivia has one element.", async() => {
+    const wrapper = await mountAndOpenAccordion({ props: { trivia: ["Fact one"] } });
+
+    expect(wrapper.findAll("li")).toHaveLength(1);
+  });
+
+  it.each([
+    { text: "Context text." },
+    { text: "Trivia item" },
+  ])("should render '$text' when both context and trivia are provided.", async({ text }) => {
     const wrapper = await mountAndOpenAccordion({ props: { context: "Context text.", trivia: ["Trivia item"] } });
 
-    expect(wrapper.text()).toContain("Context text.");
+    expect(wrapper.text()).toContain(text);
   });
 
-  it("should render trivia items when combined with context.", async() => {
-    const wrapper = await mountAndOpenAccordion({ props: { context: "Context text.", trivia: ["Trivia item"] } });
+  it.each([
+    { description: "a context paragraph", props: { trivia: ["Only trivia"] }, selector: ".bg-surface-secondary p.text-sm" as const },
+    { description: "a trivia list", props: { context: "Only context" }, selector: "ul" as const },
+  ])("should not render $description when the corresponding prop is empty.", async({ props, selector }) => {
+    const wrapper = await mountAndOpenAccordion({ props });
 
-    expect(wrapper.text()).toContain("Trivia item");
-  });
-
-  it("should not render a context paragraph when context is empty.", async() => {
-    const wrapper = await mountAndOpenAccordion({ props: { trivia: ["Only trivia"] } });
-
-    expect(wrapper.find(".bg-surface-secondary p.text-sm").exists()).toBe(false);
-  });
-
-  it("should not render a trivia list when trivia is empty.", async() => {
-    const wrapper = await mountAndOpenAccordion({ props: { context: "Only context" } });
-
-    expect(wrapper.find("ul").exists()).toBe(false);
+    expect(wrapper.find(selector).exists()).toBe(false);
   });
 });

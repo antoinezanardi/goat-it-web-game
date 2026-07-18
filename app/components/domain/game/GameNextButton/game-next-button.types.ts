@@ -3,4 +3,8 @@ type GameNextButtonProps = {
   loading?: boolean;
 };
 
-export type { GameNextButtonProps };
+type GameNextButtonEmits = {
+  click: [];
+};
+
+export type { GameNextButtonEmits, GameNextButtonProps };

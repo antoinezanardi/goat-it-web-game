@@ -1,26 +1,19 @@
 <script lang="ts" setup>
-import type { GameQuestionCardContextAccordionProps } from "./game-question-card-context-accordion.types";
+import type { GameQuestionCardContextAccordionProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.types";
+import { GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI, GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.constants";
 
 defineProps<GameQuestionCardContextAccordionProps>();
-
-const collapsibleUi = { content: "overflow-hidden" } as const;
-
-const buttonUi = {
-  base: "ring-0 bg-surface-secondary hover:bg-surface-secondary",
-  leadingIcon: "text-[var(--game-theme-neon)]",
-  trailingIcon: "text-[var(--game-theme-neon)] group-data-[state=open]:rotate-180 transition-transform duration-200",
-} as const;
 </script>
 
 <template>
-  <UCollapsible :ui="collapsibleUi">
+  <UCollapsible :ui="GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI">
     <UButton
       block
       class="bg-surface-secondary border border-border-subtle group justify-between min-h-10 rounded-lg"
       color="neutral"
       leading-icon="i-lucide-file-text"
       trailing-icon="i-lucide-chevron-down"
-      :ui="buttonUi"
+      :ui="GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI"
       variant="outline"
     >
       <span class="font-medium text-sm text-text-primary">

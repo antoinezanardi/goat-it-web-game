@@ -24,7 +24,7 @@ describe("GameQuestionCardThemeSeparator Component", () => {
   it("should render a span with the separator background CSS var when component is mounted.", () => {
     const span = wrapper.find(".h-px");
 
-    expect(span.classes()).toContain("bg-[var(--game-theme-separator)]");
+    expect(span.classes()).toContain("bg-(color:--game-theme-separator)");
   });
 
   it("should render a span with the separator shadow CSS var when component is mounted.", () => {

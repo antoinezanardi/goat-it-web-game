@@ -11,8 +11,7 @@ import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/
 
 describe("GameQuestionCardThemeHeader Component", () => {
   const defaultProps: GameQuestionCardThemeHeaderProps = {
-    theme: createFakeQuestionTheme({ label: "Histoire" }),
-    icon: "i-lucide-landmark",
+    theme: createFakeQuestionTheme({ label: "Histoire", slug: "history-civilizations" }),
     difficulty: "medium",
   };
 
@@ -57,7 +56,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
   it("should render the theme icon with the neon color class when component is mounted.", () => {
     const themeIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-landmark");
 
-    expect(themeIcon?.classes()).toContain("text-[var(--game-theme-neon)]");
+    expect(themeIcon?.classes()).toContain("text-(color:--game-theme-neon)");
   });
 
   it("should render the difficulty icon with text-text-secondary class when component is mounted.", () => {

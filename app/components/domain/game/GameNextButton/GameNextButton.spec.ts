@@ -21,8 +21,8 @@ describe("GameNextButton Component", () => {
     expect(wrapper.text()).toContain("game.nextQuestion");
   });
 
-  it("should emit click when the button is clicked.", () => {
-    void wrapper.find("button").trigger("click");
+  it("should emit click when the button is clicked.", async() => {
+    await wrapper.find("button").trigger("click");
 
     expect(wrapper.emitted("click")).toBeDefined();
   });

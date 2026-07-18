@@ -52,17 +52,6 @@
   transition: --game-theme-color 350ms ease-out;
 }
 
-.game-card-halo {
-  box-shadow:
-    0 0 14px var(--game-theme-halo-near),
-    0 0 36px var(--game-theme-halo-far);
-}
-
-.game-next-button--themed {
-  border: 1px solid var(--game-theme-border);
-  box-shadow: 0 0 8px var(--game-theme-glow-soft);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .game-theme-scope {
     transition-duration: 0ms;
