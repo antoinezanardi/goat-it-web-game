@@ -141,7 +141,6 @@ const ESLINT_VUE_FLAT_CONFIG: Linter.Config = {
       "error",
       {
         script: { lang: "ts" },
-        style: { lang: "scss" },
       },
     ],
     "vue/block-order": ["error", { order: ["script", "template", "style"] }],

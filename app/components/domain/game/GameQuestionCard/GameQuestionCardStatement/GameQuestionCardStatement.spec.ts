@@ -4,23 +4,20 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import { GameQuestionCardContent } from "#components";
+import { GameQuestionCardStatement } from "#components";
 
-import type { GameQuestionCardContentProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContent/game-question-card-content.types";
+import type { GameQuestionCardStatementProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardStatement/game-question-card-statement.types";
 
-describe("GameQuestionCardContent Component", () => {
-  const defaultProps: GameQuestionCardContentProps = {
-    label: "Question",
-    icon: "i-lucide-help-circle",
+describe("GameQuestionCardStatement Component", () => {
+  const defaultProps: GameQuestionCardStatementProps = {
     text: "What is the capital of France?",
-    variant: "question",
     textTestId: "test-content",
   };
 
   let wrapper: VueWrapper;
 
-  async function mountContent(options: MountSuspendedOptions<typeof GameQuestionCardContent> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCardContent, {
+  async function mountStatement(options: MountSuspendedOptions<typeof GameQuestionCardStatement> = {}): Promise<VueWrapper> {
+    return mountSuspended(GameQuestionCardStatement, {
       props: defaultProps,
       shallow: false,
       ...options,
@@ -28,11 +25,11 @@ describe("GameQuestionCardContent Component", () => {
   }
 
   beforeEach(async() => {
-    wrapper = await mountContent();
+    wrapper = await mountStatement();
   });
 
-  it("should render the label text when mounted.", () => {
-    expect(wrapper.text()).toContain("Question");
+  it("should render the question label when mounted.", () => {
+    expect(wrapper.text()).toContain("questions.questionLabel");
   });
 
   it("should render the body text when mounted.", () => {
@@ -49,17 +46,11 @@ describe("GameQuestionCardContent Component", () => {
     expect(wrapper.find("p[data-testid]").exists()).toBe(false);
   });
 
-  it("should apply text-text-primary class when variant is question.", () => {
+  it("should apply text-text-primary class to the body paragraph when mounted.", () => {
     expect(wrapper.find("section p:last-child").classes()).toContain("text-text-primary");
   });
 
-  it("should apply text-text-answer class when variant is answer.", async() => {
-    await wrapper.setProps({ variant: "answer" });
-
-    expect(wrapper.find("section p:last-child").classes()).toContain("text-text-answer");
-  });
-
-  it("should render the label with the neon color class when component is mounted.", () => {
+  it("should render the label with the neon color class when mounted.", () => {
     const label = wrapper.find("p");
 
     expect(label.classes()).toContain("text-(color:--game-theme-neon)");

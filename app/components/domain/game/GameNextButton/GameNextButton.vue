@@ -4,12 +4,12 @@ import type { GameNextButtonEmits, GameNextButtonProps } from "@/components/doma
 const props = defineProps<GameNextButtonProps>();
 const emit = defineEmits<GameNextButtonEmits>();
 
-const buttonClass = computed(() => (props.disabled || props.loading ? "" : "game-next-button--themed"));
+const buttonClass = computed<string | undefined>(() => (props.disabled || props.loading ? undefined : "game-next-button--themed"));
 
-const buttonUi = computed(() => ({
+const buttonUi = computed<Record<string, string | undefined>>(() => ({
   base: "ring-0",
   label: "text-text-primary",
-  trailingIcon: props.disabled || props.loading ? "" : "text-(color:--game-theme-neon)",
+  trailingIcon: props.disabled || props.loading ? undefined : "text-(color:--game-theme-neon)",
 }));
 
 function onClick(): void {
@@ -36,7 +36,7 @@ function onClick(): void {
   />
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .game-next-button--themed {
   border: 1px solid var(--game-theme-border);
   box-shadow: 0 0 8px var(--game-theme-glow-soft);

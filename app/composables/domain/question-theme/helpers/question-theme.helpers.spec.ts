@@ -1,5 +1,4 @@
-import type { Mock } from "vitest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
@@ -38,44 +37,20 @@ describe("Question Theme Helpers", () => {
   });
 
   describe(resolveThemeColor, () => {
-    let consoleErrorSpy: Mock<typeof console.error>;
-
-    beforeEach(() => {
-      consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {
-        /* Empty */
-      });
-    });
-
-    afterEach(() => {
-      consoleErrorSpy.mockRestore();
-    });
-
     it("should return the same hex when a valid #rrggbb color is provided.", () => {
       expect(resolveThemeColor("#B8860B")).toBe("#B8860B");
     });
 
-    it("should return the same hex when a valid #rgb color is provided.", () => {
-      expect(resolveThemeColor("#F00")).toBe("#F00");
+    it("should return the fallback when a short #rgb color is provided.", () => {
+      expect(resolveThemeColor("#F00")).toBe("#A1A1AA");
     });
 
     it("should return the neutral grey fallback when an invalid string is provided.", () => {
       expect(resolveThemeColor("not-a-color")).toBe("#A1A1AA");
     });
 
-    it("should log an error when an invalid string is provided.", () => {
-      resolveThemeColor("not-a-color");
-
-      expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith("resolveThemeColor: invalid color \"not-a-color\", falling back to neutral grey.");
-    });
-
     it("should return the neutral grey fallback when undefined is provided.", () => {
       expect(resolveThemeColor(undefined)).toBe("#A1A1AA");
-    });
-
-    it("should log an error when undefined is provided.", () => {
-      resolveThemeColor(undefined);
-
-      expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith("resolveThemeColor: received undefined color, falling back to neutral grey.");
     });
   });
 
@@ -93,7 +68,7 @@ describe("Question Theme Helpers", () => {
       expect(getPrimaryTheme(question)).toBe(primaryTheme);
     });
 
-    it("should fall back to the first assignment's theme when none is flagged as primary.", () => {
+    it("should return undefined when none is flagged as primary.", () => {
       const firstTheme = createFakeQuestionTheme();
       const secondTheme = createFakeQuestionTheme();
       const question = createFakeQuestion({
@@ -103,7 +78,7 @@ describe("Question Theme Helpers", () => {
         ],
       });
 
-      expect(getPrimaryTheme(question)).toBe(firstTheme);
+      expect(getPrimaryTheme(question)).toBeUndefined();
     });
   });
 });

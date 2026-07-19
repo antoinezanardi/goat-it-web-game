@@ -61,8 +61,22 @@ describe("GameQuestionCard Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardThemeHeader" }).exists()).toBe(true);
   });
 
-  it("should render two content blocks when question and answer are provided.", () => {
-    expect(wrapper.findAllComponents({ name: "GameQuestionCardContent" })).toHaveLength(2);
+  it("should not render the theme header when no primary theme is found.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        themes: [createFakeQuestionThemeAssignment({ isPrimary: false })],
+      }),
+    });
+
+    expect(wrapper.findComponent({ name: "GameQuestionCardThemeHeader" }).exists()).toBe(false);
+  });
+
+  it("should render the statement component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "GameQuestionCardStatement" }).exists()).toBe(true);
+  });
+
+  it("should render the answer component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "GameQuestionCardAnswer" }).exists()).toBe(true);
   });
 
   it("should render the separator component when mounted.", () => {

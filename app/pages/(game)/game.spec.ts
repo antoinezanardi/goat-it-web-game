@@ -8,6 +8,7 @@ import type { Mock } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY } from "~/pages/(game)/game.constants";
 import type { Question } from "#shared/types/question.types";
@@ -97,9 +98,7 @@ describe("Game Page", () => {
     await nextTick();
 
     const nextButton = wrapper.findComponent({ name: "GameNextButton" });
-    // Acceptable as shallow stub vm.$emit is typed any; this is an expected test pattern
-    // oxlint-disable-next-line typescript/no-unsafe-call, typescript/no-unsafe-member-access
-    nextButton.vm.$emit("click");
+    getWrapperVm(nextButton).$emit("click");
     await nextTick();
 
     const gameQuestionCard = wrapper.findComponent({ name: "GameQuestionCard" });
@@ -114,8 +113,8 @@ describe("Game Page", () => {
     const nextButton = wrapper.findComponent({ name: "GameNextButton" });
     for (let index = 0; index < 20; index++) {
       // Acceptable as each click must be sequential to let Vue process the reactive update
-      // oxlint-disable-next-line eslint/no-await-in-loop, typescript/no-unsafe-call, typescript/no-unsafe-member-access
-      nextButton.vm.$emit("click");
+      // oxlint-disable-next-line eslint/no-await-in-loop
+      getWrapperVm(nextButton).$emit("click");
       // Acceptable as each emit must flush to let Vue process the reactive update
       // oxlint-disable-next-line eslint/no-await-in-loop
       await nextTick();
@@ -132,8 +131,8 @@ describe("Game Page", () => {
     const nextButton = wrapper.findComponent({ name: "GameNextButton" });
     for (let index = 0; index < 20; index++) {
       // Acceptable as each click must be sequential to let Vue process the reactive update
-      // oxlint-disable-next-line eslint/no-await-in-loop, typescript/no-unsafe-call, typescript/no-unsafe-member-access
-      nextButton.vm.$emit("click");
+      // oxlint-disable-next-line eslint/no-await-in-loop
+      getWrapperVm(nextButton).$emit("click");
       // Acceptable as each emit must flush to let Vue process the reactive update
       // oxlint-disable-next-line eslint/no-await-in-loop
       await nextTick();
@@ -147,9 +146,7 @@ describe("Game Page", () => {
     await nextTick();
 
     const nextButton = wrapper.findComponent({ name: "GameNextButton" });
-    // Acceptable as shallow stub vm.$emit is typed any; this is an expected test pattern
-    // oxlint-disable-next-line typescript/no-unsafe-call, typescript/no-unsafe-member-access
-    nextButton.vm.$emit("click");
+    getWrapperVm(nextButton).$emit("click");
     await nextTick();
     isPending.value = true;
     await nextTick();
@@ -164,8 +161,8 @@ describe("Game Page", () => {
     const nextButton = wrapper.findComponent({ name: "GameNextButton" });
     for (let index = 0; index < 20; index++) {
       // Acceptable as each click must be sequential to let Vue process the reactive update
-      // oxlint-disable-next-line eslint/no-await-in-loop, typescript/no-unsafe-call, typescript/no-unsafe-member-access
-      nextButton.vm.$emit("click");
+      // oxlint-disable-next-line eslint/no-await-in-loop
+      getWrapperVm(nextButton).$emit("click");
       // Acceptable as each emit must flush to let Vue process the reactive update
       // oxlint-disable-next-line eslint/no-await-in-loop
       await nextTick();
@@ -177,9 +174,7 @@ describe("Game Page", () => {
     await nextTick();
 
     fetchAndAppendRandomQuestions.mockClear();
-    // Acceptable as shallow stub vm.$emit is typed any; this is an expected test pattern
-    // oxlint-disable-next-line typescript/no-unsafe-call, typescript/no-unsafe-member-access
-    nextButton.vm.$emit("click");
+    getWrapperVm(nextButton).$emit("click");
     await nextTick();
 
     expect(fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY);
@@ -197,9 +192,7 @@ describe("Game Page", () => {
     await nextTick();
 
     const nextButton = wrapper.findComponent({ name: "GameNextButton" });
-    // Acceptable as shallow stub vm.$emit is typed any; this is an expected test pattern
-    // oxlint-disable-next-line typescript/no-unsafe-call, typescript/no-unsafe-member-access
-    nextButton.vm.$emit("click");
+    getWrapperVm(nextButton).$emit("click");
     await nextTick();
 
     try {

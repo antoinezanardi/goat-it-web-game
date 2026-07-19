@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestionCard/game-question-card.types";
+import type { QuestionTheme } from "#shared/types/question-theme.types";
 import { getPrimaryTheme, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 const props = defineProps<GameQuestionCardProps>();
 
-const primaryTheme = computed(() => getPrimaryTheme(props.question));
-const themeColor = computed(() => resolveThemeColor(primaryTheme.value.color));
+const primaryTheme = computed<QuestionTheme | undefined>(() => getPrimaryTheme(props.question));
+const themeColor = computed<string>(() => resolveThemeColor(primaryTheme.value?.color));
 
-const hasContextSection = computed(() => Boolean(props.question.content.context) || (props.question.content.trivia?.length ?? 0) > 0);
+const hasContextSection = computed<boolean>(() => Boolean(props.question.content.context) || (props.question.content.trivia?.length ?? 0) > 0);
 
 const articleStyle = computed(() => ({
   "--game-theme-color": themeColor.value,
@@ -22,27 +23,22 @@ const articleStyle = computed(() => ({
     :style="articleStyle"
   >
     <GameQuestionCardThemeHeader
+      v-if="primaryTheme"
       :difficulty="props.question.cognitiveDifficulty"
       :theme="primaryTheme"
     />
 
-    <GameQuestionCardContent
+    <GameQuestionCardStatement
       class="mt-4"
-      icon="i-lucide-help-circle"
-      :label="$t('questions.questionLabel')"
       :text="props.question.content.statement"
       text-test-id="game-question-statement"
-      variant="question"
     />
 
     <GameQuestionCardThemeSeparator class="my-3"/>
 
-    <GameQuestionCardContent
-      icon="i-lucide-sparkles"
-      :label="$t('questions.answerLabel')"
+    <GameQuestionCardAnswer
       :text="props.question.content.answer"
       text-test-id="game-question-answer"
-      variant="answer"
     />
 
     <GameQuestionCardContextAccordion

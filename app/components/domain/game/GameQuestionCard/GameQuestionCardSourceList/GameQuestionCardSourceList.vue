@@ -1,27 +1,9 @@
 <script lang="ts" setup>
 import type { GameQuestionCardSourceListProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardSourceList/game-question-card-source-list.types";
+import { GAME_QUESTION_CARD_SOURCE_LINK_CLASSES } from "@/components/domain/game/GameQuestionCard/GameQuestionCardSourceList/game-question-card-source-list.constants";
 import { getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
 
 defineProps<GameQuestionCardSourceListProps>();
-
-const linkClass = [
-  "border-b",
-  "border-border-subtle",
-  "focus-visible:outline-2",
-  "focus-visible:outline-offset-2",
-  "focus-visible:outline-(color:--game-theme-focus)",
-  "font-medium",
-  "gap-1.5",
-  "group",
-  "hover:border-(color:--game-theme-neon)",
-  "hover:text-(color:--game-theme-neon)",
-  "inline-flex",
-  "items-center",
-  "pb-0.5",
-  "text-text-secondary",
-  "text-xs",
-  "transition-colors",
-].join(" ");
 </script>
 
 <template>
@@ -33,7 +15,7 @@ const linkClass = [
       v-for="url in sourceUrls"
       :key="url"
       :aria-label="`${getSourceDomain(url)} — ${$t('questions.sourceOpensInNewTab')}`"
-      :class="linkClass"
+      :class="GAME_QUESTION_CARD_SOURCE_LINK_CLASSES"
       rel="noopener noreferrer"
       target="_blank"
       :to="url"
