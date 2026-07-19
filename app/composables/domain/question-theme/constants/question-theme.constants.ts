@@ -1,3 +1,5 @@
+const NEUTRAL_GREY_FALLBACK_THEME_COLOR = "#A1A1AA";
+
 const QUESTION_THEME_UNKNOWN_ICON = "i-lucide-circle-help";
 
 const QUESTION_THEME_SLUG_ICON_MAP: Record<string, string> = {
@@ -21,6 +23,7 @@ const QUESTION_THEME_SLUG_ICON_MAP: Record<string, string> = {
 };
 
 export {
+  NEUTRAL_GREY_FALLBACK_THEME_COLOR,
   QUESTION_THEME_SLUG_ICON_MAP,
   QUESTION_THEME_UNKNOWN_ICON,
 };

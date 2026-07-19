@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { QUESTION_THEME_UNKNOWN_ICON } from "~/composables/domain/question-theme/constants/question-theme.constants";
-import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { getThemeIcon, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 describe("Question Theme Helpers", () => {
   describe(getThemeIcon, () => {
@@ -29,6 +29,17 @@ describe("Question Theme Helpers", () => {
 
     it("should return the unknown icon when the slug is not in the map.", () => {
       expect(getThemeIcon("unknown-slug")).toBe(QUESTION_THEME_UNKNOWN_ICON);
+    });
+  });
+
+  describe(resolveThemeColor, () => {
+    it.each([
+      ["a valid #rrggbb color", "#B8860B", "#B8860B"],
+      ["a short #rgb color", "#F00", "#A1A1AA"],
+      ["an invalid string", "not-a-color", "#A1A1AA"],
+      ["undefined", undefined, "#A1A1AA"],
+    ])("should return the correct value when %s is provided.", (_title, input, expected) => {
+      expect(resolveThemeColor(input)).toBe(expected);
     });
   });
 });

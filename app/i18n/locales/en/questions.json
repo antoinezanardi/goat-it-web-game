@@ -1,5 +1,16 @@
 {
   "questions": {
-    "cantFetch": "Unable to load questions. Please try again later."
+    "cantFetch": "Unable to load questions. Please try again later.",
+    "difficulty": {
+      "label": "Difficulty",
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "questionLabel": "Question",
+    "answerLabel": "Answer",
+    "contextAccordionTitle": "Context & Trivia",
+    "sourcesAriaLabel": "Sources",
+    "sourceOpensInNewTab": "Opens in a new tab"
   }
 }

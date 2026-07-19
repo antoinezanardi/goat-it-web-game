@@ -60,11 +60,12 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: [
+        "@goat-it/schemas/shared/constants",
+        "@goat-it/schemas/question",
+        "@goat-it/schemas/question-theme",
         "fuse.js",
         "radashi",
         "zod",
-        "@goat-it/schemas/question",
-        "@goat-it/schemas/question-theme",
       ],
     },
   },

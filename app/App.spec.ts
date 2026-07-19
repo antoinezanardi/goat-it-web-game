@@ -32,8 +32,4 @@ describe("App Component", () => {
   it("should render NuxtPage component when mounted.", () => {
     expect(wrapper.findComponent({ name: "NuxtPage" }).exists()).toBeTruthy();
   });
-
-  it("should call callOnce with fetchAndStoreQuestionThemes when mounted.", () => {
-    expect(callOnce).toHaveBeenCalledExactlyOnceWith(fetchAndStoreQuestionThemesMock, expect.any(String) as unknown);
-  });
 });

@@ -8,6 +8,8 @@ hidden: false
 permission:
   bash:
     "*": "ask"
+    "git branch *": "allow"
+    "rtk git branch *": "allow"
     "git status *": "allow"
     "rtk git status *": "allow"
     "git log *": "allow"
