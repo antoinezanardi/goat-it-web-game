@@ -11,7 +11,6 @@ import type { GameQuestionCardAnswerProps } from "@/components/domain/game/GameQ
 describe("GameQuestionCardAnswer Component", () => {
   const defaultProps: GameQuestionCardAnswerProps = {
     text: "Paris",
-    textTestId: "test-content",
   };
 
   let wrapper: VueWrapper;
@@ -36,14 +35,8 @@ describe("GameQuestionCardAnswer Component", () => {
     expect(wrapper.text()).toContain("Paris");
   });
 
-  it("should apply the data-testid attribute to the body paragraph when provided.", () => {
-    expect(wrapper.find("[data-testid='test-content']").exists()).toBe(true);
-  });
-
-  it("should not apply data-testid to the body paragraph when textTestId is not provided.", async() => {
-    await wrapper.setProps({ textTestId: undefined });
-
-    expect(wrapper.find("p[data-testid]").exists()).toBe(false);
+  it("should apply the data-testid attribute to the body paragraph when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-question-answer']").exists()).toBe(true);
   });
 
   it("should apply text-text-answer class to the body paragraph when mounted.", () => {

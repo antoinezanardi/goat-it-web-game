@@ -19,7 +19,7 @@ const { t } = useI18n();
 
     <p
       class="font-medium leading-[1.5] md:text-xl text-lg text-text-primary"
-      :data-testid="props.textTestId"
+      data-testid="game-question-statement"
     >
       {{ props.text }}
     </p>

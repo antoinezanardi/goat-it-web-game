@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
 
-import { getPrimaryTheme, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
+import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "~/composables/domain/question-theme/constants/question-theme.constants";
 import type { Question } from "#shared/types/question.types";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY, GAME_PAGE_TITLE_KEY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";

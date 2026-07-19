@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestionCard/game-question-card.types";
 import type { QuestionTheme } from "#shared/types/question-theme.types";
-import { getPrimaryTheme, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
+import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 const props = defineProps<GameQuestionCardProps>();
 
@@ -10,7 +11,7 @@ const themeColor = computed<string>(() => resolveThemeColor(primaryTheme.value?.
 
 const hasContextSection = computed<boolean>(() => Boolean(props.question.content.context) || (props.question.content.trivia?.length ?? 0) > 0);
 
-const articleStyle = computed(() => ({
+const articleStyle = computed<Record<string, string>>(() => ({
   "--game-theme-color": themeColor.value,
   "border": "1px solid var(--game-theme-border)",
 }));
@@ -31,14 +32,12 @@ const articleStyle = computed(() => ({
     <GameQuestionCardStatement
       class="mt-4"
       :text="props.question.content.statement"
-      text-test-id="game-question-statement"
     />
 
     <GameQuestionCardThemeSeparator class="my-3"/>
 
     <GameQuestionCardAnswer
       :text="props.question.content.answer"
-      text-test-id="game-question-answer"
     />
 
     <GameQuestionCardContextAccordion

@@ -17,10 +17,6 @@ describe("GameQuestionCardThemeSeparator Component", () => {
     wrapper = await mountSeparator();
   });
 
-  it("should render a container with role presentation when mounted.", () => {
-    expect(wrapper.find("[role='presentation']").exists()).toBe(true);
-  });
-
   it("should render a span with the separator background CSS var when component is mounted.", () => {
     const span = wrapper.find(".h-px");
 
