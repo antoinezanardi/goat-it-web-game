@@ -113,33 +113,15 @@ describe("GameQuestionCard Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).exists()).toBe(false);
   });
 
-  it("should apply the game-theme-scope class when mounted.", () => {
+  it.each([
+    { cssClass: "game-theme-scope" },
+    { cssClass: "game-card-halo" },
+    { cssClass: "overflow-y-auto" },
+    { cssClass: "h-[calc(100dvh-10rem)]" },
+    { cssClass: "md:max-h-[650px]" },
+  ])("should apply $cssClass class to the article when mounted.", ({ cssClass }) => {
     const article = wrapper.find("[data-testid='game-question']");
 
-    expect(article.classes()).toContain("game-theme-scope");
-  });
-
-  it("should apply the game-card-halo class when mounted.", () => {
-    const article = wrapper.find("[data-testid='game-question']");
-
-    expect(article.classes()).toContain("game-card-halo");
-  });
-
-  it("should apply overflow-y-auto class to the article when mounted.", () => {
-    const article = wrapper.find("[data-testid='game-question']");
-
-    expect(article.classes()).toContain("overflow-y-auto");
-  });
-
-  it("should apply h-[calc(100dvh-10rem)] class to the article when mounted.", () => {
-    const article = wrapper.find("[data-testid='game-question']");
-
-    expect(article.classes()).toContain("h-[calc(100dvh-10rem)]");
-  });
-
-  it("should apply md:max-h-[650px] class to the article when mounted.", () => {
-    const article = wrapper.find("[data-testid='game-question']");
-
-    expect(article.classes()).toContain("md:max-h-[650px]");
+    expect(article.classes()).toContain(cssClass);
   });
 });
