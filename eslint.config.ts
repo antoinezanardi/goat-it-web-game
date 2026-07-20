@@ -41,7 +41,7 @@ export default withNuxt(
   ESLINT_REPOSITORIES_FLAT_CONFIG,
   ESLINT_ACCEPTANCE_TESTS_FLAT_CONFIG,
   ESLINT_SCRIPTS_FLAT_CONFIG,
-  ...oxlint.buildFromOxlintConfigFile("./configs/oxlint/oxlint.config.jsonc") as Linter.Config[],
+  ...oxlint.buildFromOxlintConfigFile("./oxlint.config.jsonc") as Linter.Config[],
 )
   .override("nuxt/javascript", {
     rules: ESLINT_GLOBAL_FLAT_CONFIG.rules,

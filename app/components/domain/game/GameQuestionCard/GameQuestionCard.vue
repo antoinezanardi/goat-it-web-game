@@ -54,7 +54,7 @@ const articleStyle = computed<Record<string, string>>(() => ({
   </article>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .game-card-halo {
   box-shadow:
     0 0 14px var(--game-theme-halo-near),
