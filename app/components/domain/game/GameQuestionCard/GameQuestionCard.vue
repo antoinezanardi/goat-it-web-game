@@ -19,7 +19,7 @@ const articleStyle = computed<Record<string, string>>(() => ({
 
 <template>
   <article
-    class="bg-card game-card-halo game-theme-scope max-w-3xl md:p-6 mx-auto p-4 rounded-xl"
+    class="bg-card game-card-halo game-theme-scope h-[calc(100dvh-10rem)] max-w-3xl md:max-h-[650px] md:p-6 mx-auto overflow-y-auto p-4 rounded-xl"
     data-testid="game-question"
     :style="articleStyle"
   >

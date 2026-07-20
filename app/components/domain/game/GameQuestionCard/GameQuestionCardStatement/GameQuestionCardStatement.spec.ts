@@ -48,4 +48,16 @@ describe("GameQuestionCardStatement Component", () => {
 
     expect(label.classes()).toContain("text-(color:--game-theme-neon)");
   });
+
+  it("should apply text-base class to the label when mounted.", () => {
+    const label = wrapper.find("p");
+
+    expect(label.classes()).toContain("text-base");
+  });
+
+  it("should apply size-5 class to the icon when mounted.", () => {
+    const icon = wrapper.findComponent({ name: "UIcon" });
+
+    expect(icon.classes()).toContain("size-5");
+  });
 });

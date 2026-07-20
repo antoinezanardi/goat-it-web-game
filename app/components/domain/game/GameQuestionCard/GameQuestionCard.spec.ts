@@ -124,4 +124,22 @@ describe("GameQuestionCard Component", () => {
 
     expect(article.classes()).toContain("game-card-halo");
   });
+
+  it("should apply overflow-y-auto class to the article when mounted.", () => {
+    const article = wrapper.find("[data-testid='game-question']");
+
+    expect(article.classes()).toContain("overflow-y-auto");
+  });
+
+  it("should apply h-[calc(100dvh-10rem)] class to the article when mounted.", () => {
+    const article = wrapper.find("[data-testid='game-question']");
+
+    expect(article.classes()).toContain("h-[calc(100dvh-10rem)]");
+  });
+
+  it("should apply md:max-h-[650px] class to the article when mounted.", () => {
+    const article = wrapper.find("[data-testid='game-question']");
+
+    expect(article.classes()).toContain("md:max-h-[650px]");
+  });
 });

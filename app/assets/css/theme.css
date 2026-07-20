@@ -43,8 +43,8 @@
   );
 
   --game-theme-border: color-mix(in oklch, var(--game-theme-neon) 55%, transparent);
-  --game-theme-halo-near: color-mix(in oklch, var(--game-theme-neon) 16%, transparent);
-  --game-theme-halo-far: color-mix(in oklch, var(--game-theme-neon) 8%, transparent);
+  --game-theme-halo-near: color-mix(in oklch, var(--game-theme-neon) 36%, transparent);
+  --game-theme-halo-far: color-mix(in oklch, var(--game-theme-neon) 22%, transparent);
   --game-theme-separator: color-mix(in oklch, var(--game-theme-neon) 72%, transparent);
   --game-theme-glow-soft: color-mix(in oklch, var(--game-theme-neon) 15%, transparent);
   --game-theme-focus: var(--game-theme-neon);

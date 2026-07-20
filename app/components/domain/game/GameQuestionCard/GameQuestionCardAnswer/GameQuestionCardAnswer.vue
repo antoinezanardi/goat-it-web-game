@@ -8,11 +8,11 @@ const { t } = useI18n();
 <template>
   <section class="bg-content border border-border-subtle md:p-5 p-4 rounded-lg">
     <p
-      class="flex font-semibold gap-1.5 items-center mb-2 text-(color:--game-theme-neon) text-xs"
+      class="flex font-semibold gap-1.5 items-center mb-2 text-(color:--game-theme-neon) text-base"
     >
       <UIcon
-        class="size-4"
-        name="i-lucide-sparkles"
+        class="size-5"
+        name="i-lucide-lightbulb"
       />
       {{ t("questions.answerLabel") }}
     </p>

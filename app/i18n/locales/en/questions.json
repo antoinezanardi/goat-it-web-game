@@ -11,6 +11,7 @@
     "answerLabel": "Answer",
     "contextAccordionTitle": "Context & Trivia",
     "sourcesAriaLabel": "Sources",
-    "sourceOpensInNewTab": "Opens in a new tab"
+    "sourceOpensInNewTab": "Opens in a new tab",
+    "sourceLabel": "Source | Sources"
   }
 }

@@ -25,14 +25,14 @@ defineProps<GameQuestionCardContextAccordionProps>();
       <div class="bg-surface-secondary border border-border-subtle mt-1 p-4 rounded-lg">
         <p
           v-if="context"
-          class="leading-[1.6] text-sm text-text-secondary"
+          class="leading-[1.6] text-sm text-text-primary"
         >
           {{ context }}
         </p>
 
         <ul
           v-if="trivia?.length"
-          class="leading-[1.6] list-disc mt-2 ps-5 space-y-1 text-sm text-text-secondary"
+          class="leading-[1.6] list-disc mt-2 ps-5 space-y-1 text-sm text-text-primary"
         >
           <li
             v-for="(item, index) in trivia"
