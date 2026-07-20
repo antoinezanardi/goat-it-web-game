@@ -11,6 +11,7 @@
     "answerLabel": "Resposta",
     "contextAccordionTitle": "Contexto e Curiosidades",
     "sourcesAriaLabel": "Fontes",
-    "sourceOpensInNewTab": "Abre em uma nova guia"
+    "sourceOpensInNewTab": "Abre em uma nova guia",
+    "sourceLabel": "Fonte | Fontes"
   }
 }

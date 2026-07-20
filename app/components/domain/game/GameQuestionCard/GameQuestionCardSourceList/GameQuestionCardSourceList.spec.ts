@@ -61,4 +61,31 @@ describe("GameQuestionCardSourceList Component", () => {
   it("should include the opens-in-new-tab key in the aria-label of the first link when sourceUrls are provided.", () => {
     expect(wrapper.find("a").attributes("aria-label")).toContain("questions.sourceOpensInNewTab");
   });
+
+  it("should render the source label key before the colon when multiple sources are provided.", () => {
+    const label = wrapper.find("nav span");
+
+    expect(label.text()).toContain("questions.sourceLabel:");
+  });
+
+  it("should render the source label key before the colon when a single source is provided.", async() => {
+    const singleWrapper = await mountSourceList({
+      props: { sourceUrls: ["https://en.wikipedia.org/wiki/Goat"] },
+    });
+    const label = singleWrapper.find("nav span");
+
+    expect(label.text()).toContain("questions.sourceLabel:");
+  });
+
+  it("should apply text-text-secondary class to the source label when sourceUrls are provided.", () => {
+    const label = wrapper.find("nav span");
+
+    expect(label.classes()).toContain("text-text-secondary");
+  });
+
+  it("should apply shrink-0 class to the source label when sourceUrls are provided.", () => {
+    const label = wrapper.find("nav span");
+
+    expect(label.classes()).toContain("shrink-0");
+  });
 });

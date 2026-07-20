@@ -62,4 +62,20 @@ describe("GameQuestionCardContextAccordion Component", () => {
 
     expect(wrapper.find(selector).exists()).toBe(false);
   });
+
+  it("should apply text-text-primary class to the context paragraph when context is provided.", async() => {
+    const wrapper = await mountAndOpenAccordion({ props: { context: "Some historical context." } });
+
+    const contextElement = wrapper.find(".bg-surface-secondary p.text-sm");
+
+    expect(contextElement.classes()).toContain("text-text-primary");
+  });
+
+  it("should apply text-text-primary class to the trivia list when trivia is provided.", async() => {
+    const wrapper = await mountAndOpenAccordion({ props: { trivia: ["Fact one"] } });
+
+    const triviaElement = wrapper.find("ul");
+
+    expect(triviaElement.classes()).toContain("text-text-primary");
+  });
 });

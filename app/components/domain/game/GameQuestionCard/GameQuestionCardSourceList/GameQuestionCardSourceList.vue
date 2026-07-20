@@ -11,6 +11,10 @@ defineProps<GameQuestionCardSourceListProps>();
     :aria-label="$t('questions.sourcesAriaLabel')"
     class="flex flex-wrap gap-x-3 gap-y-2"
   >
+    <span class="font-medium shrink-0 text-text-secondary text-xs">
+      {{ $t("questions.sourceLabel", { "count": sourceUrls.length }) }}:
+    </span>
+
     <ULink
       v-for="url in sourceUrls"
       :key="url"
