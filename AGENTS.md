@@ -275,7 +275,7 @@ MemPalace stores project context as searchable embeddings. It runs as an MCP ser
 
 - Vitest config:    `configs/vitest/vitest.config.ts` + `vitest.config.constants.ts`
 - ESLint config:    `eslint.config.ts` + `configs/eslint/flat-configs/`
-- Oxlint config:    `configs/oxlint/oxlint.config.jsonc`
+- Oxlint config:    `oxlint.config.jsonc`
 - Cucumber config:  `configs/cucumber/cucumber.json`
 - Nuxt config:      `nuxt.config.ts`
 - Env files:        `envs/.env.development`, `envs/.env.test`, `envs/.env.example`

@@ -1,5 +1,5 @@
 {
-  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
   "env": {
     "builtin": true
   },
@@ -315,6 +315,7 @@
     "eslint/no-unsafe-finally": "error",
     "eslint/no-unsafe-negation": "error",
     "eslint/no-unsafe-optional-chaining": "error",
+    "eslint/no-unreachable-loop": "error",
     "eslint/no-unused-expressions": "error",
     "eslint/no-unused-labels": "error",
     "eslint/no-unused-private-class-members": "error",
@@ -428,10 +429,12 @@
     "node/callback-return": "error",
     "node/global-require": "error",
     "node/handle-callback-err": "error",
+    "node/no-mixed-requires": "error",
     "node/no-exports-assign": "error",
     "node/no-new-require": "error",
     "node/no-path-concat": "error",
     "node/no-process-env": "error",
+    "node/no-sync": "off",
     // ---- Oxc rules ----
     "oxc/approx-constant": "error",
     "oxc/bad-array-method-on-arguments": "error",
@@ -489,6 +492,7 @@
     "unicorn/error-message": "error",
     "unicorn/escape-case": "error",
     "unicorn/explicit-length-check": "error",
+    "unicorn/explicit-timer-delay": "error",
     "unicorn/filename-case": [
       "error",
       {
@@ -497,6 +501,7 @@
       }
     ],
     "unicorn/import-style": "error",
+    "unicorn/max-nested-calls": "error",
     "unicorn/new-for-builtins": "error",
     "unicorn/no-abusive-eslint-disable": "error",
     "unicorn/no-accessor-recursion": "error",
@@ -510,6 +515,7 @@
     "unicorn/no-array-sort": "error",
     "unicorn/no-await-expression-member": "error",
     "unicorn/no-await-in-promise-methods": "error",
+    "unicorn/no-confusing-array-with": "error",
     "unicorn/no-console-spaces": "error",
     "unicorn/no-document-cookie": "error",
     "unicorn/no-empty-file": "error",
@@ -586,6 +592,7 @@
     "unicorn/prefer-native-coercion-functions": "error",
     "unicorn/prefer-negative-index": "error",
     "unicorn/prefer-node-protocol": "error",
+    "unicorn/prefer-number-coercion": "error",
     "unicorn/prefer-number-properties": "error",
     "unicorn/prefer-object-from-entries": "error",
     "unicorn/prefer-optional-catch-binding": "error",
@@ -635,6 +642,7 @@
     ],
     "vue/next-tick-style": "error",
     "vue/no-arrow-functions-in-watch": "error",
+    "vue/no-async-in-computed-properties": "error",
     "vue/no-computed-properties-in-data": "error",
     "vue/no-deprecated-data-object-declaration": "error",
     "vue/no-deprecated-delete-set": "error",
