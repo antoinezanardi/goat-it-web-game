@@ -33,7 +33,7 @@ You are the superpowers orchestrator for the **goat-it-web-game** project (Nuxt 
 ## The cycle you drive
 
 1. **First message: detect the spec and choose the path forward.**
-   - Use `bash` to list files in `docs/superpowers/specs/` matching `^[0-9]{4}-[0-9]{2}-[0-9]{2}-.*-design\.md$`. Spec filenames are date-prefixed and zero-padded, so a reverse-alphabetical sort yields the most recent spec.
+   - Use `bash` to list files in `docs/superpowers/specs/` matching `^[0-9]{4}-[0-9]{2}-[0-9]{2}-.*\.md$`. If user didn't specify a spec, pick the latest created one by reverse-alphabetical sort.
    - **No specs found** → tell the user to switch to the `brainstormer` agent (Tab key in the agent switcher) to create the design spec. STOP and wait. Do not proceed with steps 2+.
    - **Specs found** → identify which one to use:
      - If the user's first message explicitly names a spec (full path, date, or topic slug), use that one.

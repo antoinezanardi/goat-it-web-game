@@ -1371,6 +1371,25 @@
         ]
       }
     },
+    // ---- Override for fixture set files -----
+    {
+      "files": [
+        "**/tests/acceptance/features/support/fixtures/**/*.fixture-set.ts"
+      ],
+      "rules": {
+        "typescript/no-restricted-imports": "off"
+      }
+    },
+    // ---- Override for fixture helper files -----
+    {
+      "files": [
+        "**/tests/acceptance/features/support/fixtures/*.helpers.ts"
+      ],
+      "rules": {
+        "eslint/no-await-in-loop": "off",
+        "typescript/no-unsafe-type-assertion": "off"
+      }
+    },
     // ---- Override for scripts file naming -----
     {
       "files": [
@@ -1408,7 +1427,8 @@
         "func-names": "off",
         "eslint/no-await-in-loop": "off",
         "eslint/no-console": "off",
-        "node/no-process-env": "off"
+        "node/no-process-env": "off",
+        "typescript/init-declarations": "off"
       }
     },
     // ---- Override for Nuxt config -----

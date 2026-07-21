@@ -3,15 +3,21 @@ import { HOME_PAGE_TITLE_KEY } from "@/pages/index.constants";
 
 const { t } = useI18n();
 
+const homePageTitle = computed<string>(() => t(HOME_PAGE_TITLE_KEY));
+
 useHead(() => ({
-  title: t(HOME_PAGE_TITLE_KEY),
+  title: homePageTitle.value,
 }));
 </script>
 
 <template>
-  <main>
+  <div id="home-page">
+    <h1 class="sr-only">
+      {{ homePageTitle }}
+    </h1>
+
     <NuxtLink to="/game">
       {{ $t("home.gameLink") }}
     </NuxtLink>
-  </main>
+  </div>
 </template>

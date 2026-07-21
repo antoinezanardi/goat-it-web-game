@@ -36,6 +36,9 @@ permission:
     "rtk mkdir *": "allow"
     "write-file *": "allow"
     "sed *": "allow"
+    "rtk sed *": "allow"
+    "wc *": "allow"
+    "rtk wc *": "allow"
   webfetch: "deny"
 ---
 
