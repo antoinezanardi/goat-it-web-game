@@ -9,8 +9,10 @@ import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY, GAME_PAGE_TITLE_KEY, GAME_PR
 
 const { t } = useI18n();
 
+const gamePageTitle = computed<string>(() => t(GAME_PAGE_TITLE_KEY));
+
 useHead(() => ({
-  title: t(GAME_PAGE_TITLE_KEY),
+  title: gamePageTitle.value,
 }));
 
 const store = useQuestionsStore();
@@ -51,9 +53,14 @@ function advanceToNextQuestion(): void {
 
 <template>
   <div
+    id="game-page"
     class="bg-app-bg flex flex-col game-theme-scope md:px-6 min-h-dvh px-4"
     :style="{ '--game-theme-color': pageThemeColor }"
   >
+    <h1 class="sr-only">
+      {{ gamePageTitle }}
+    </h1>
+
     <div class="flex flex-1 flex-col items-center justify-center py-6">
       <p
         v-if="isInitialLoading || isOutOfQuestionsLoading"

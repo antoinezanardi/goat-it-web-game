@@ -4,7 +4,12 @@ import { TWO_ENGLISH_ONLY_QUESTION_THEMES_FIXTURE_SET } from "#acceptance/featur
 import { FIVE_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/five-questions.fixture-set.ts";
 import { SIXTY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/sixty-questions.fixture-set.ts";
 import { TWO_ENGLISH_ONLY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/two-english-only-questions.fixture-set.ts";
-import type { FixtureRegistry } from "#acceptance/features/support/fixtures/fixture.types.ts";
+import type { FixtureDomain, FixtureRegistry } from "#acceptance/features/support/fixtures/fixture.types.ts";
+
+const DOMAIN_TO_COLLECTION_MAP: Record<FixtureDomain, string> = {
+  "question": "questions",
+  "question-theme": "question_themes",
+} as const;
 
 const FIXTURE_REGISTRY: FixtureRegistry = {
   "question-theme": {
@@ -32,8 +37,9 @@ const FIXTURE_REGISTRY: FixtureRegistry = {
       dependencies: [["question-theme", "two-english-only-question-themes"]],
     },
   },
-};
+} as const;
 
 export {
+  DOMAIN_TO_COLLECTION_MAP,
   FIXTURE_REGISTRY,
 };

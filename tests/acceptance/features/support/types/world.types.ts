@@ -13,6 +13,8 @@ class GoatItWorld extends World {
 
   public mongoDb!: Db;
 
+  public completedFixtureKeys?: Set<string>;
+
   public constructor(options: ConstructorParameters<typeof World>[0]) {
     super(options);
   }

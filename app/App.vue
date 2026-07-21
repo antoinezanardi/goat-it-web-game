@@ -12,6 +12,8 @@ void callOnce(fetchAndStoreQuestionThemes);
     :toaster="APP_TOAST_CONFIG"
     :tooltip="APP_TOOLTIP_CONFIG"
   >
-    <NuxtPage/>
+    <UMain>
+      <NuxtPage/>
+    </UMain>
   </UApp>
 </template>

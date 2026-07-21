@@ -56,8 +56,8 @@ const { beforeEach, afterEach, afterAll, beforeAll } = createTest({
   },
 });
 
-let mongoClient: MongoClient;
-let mongoDatabase: Db;
+let mongoClient: MongoClient | undefined;
+let mongoDatabase: Db | undefined;
 
 BeforeAll({ timeout: BEFORE_ALL_TIMEOUT }, async(): Promise<void> => {
   if (workerId === 0) {
@@ -80,8 +80,11 @@ BeforeAll({ timeout: BEFORE_ALL_TIMEOUT }, async(): Promise<void> => {
 });
 
 Before({ timeout: BEFORE_TIMEOUT }, async function(this: GoatItWorld): Promise<void> {
-  this.mongoClient = mongoClient;
-  this.mongoDb = mongoDatabase;
+  // Acceptable as mongoClient and mongoDatabase are guaranteed to be assigned in BeforeAll before Before runs
+  // oxlint-disable-next-line typescript/no-non-null-assertion
+  this.mongoClient = mongoClient!;
+  // oxlint-disable-next-line typescript/no-non-null-assertion
+  this.mongoDb = mongoDatabase!;
   await resetSandboxData(this);
   beforeEach();
   this.page = await createPage();
@@ -109,7 +112,7 @@ AfterAll(async(): Promise<void> => {
   await afterAll();
 
   try {
-    await mongoClient.close();
+    await mongoClient?.close();
     console.info(`[Worker ${workerId}] MongoDB connection closed.`);
   } catch(error: unknown) {
     console.error(`[Worker ${workerId}] Failed to close MongoDB connection:`, error);
