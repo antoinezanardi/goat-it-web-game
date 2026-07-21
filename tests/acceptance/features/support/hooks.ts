@@ -3,16 +3,19 @@ import path from "node:path";
 
 import { After, AfterAll, Before, BeforeAll, Status } from "@cucumber/cucumber";
 import { createPage, createTest } from "@nuxt/test-utils/e2e";
+import type { Db, MongoClient } from "mongodb";
 
 import {
   ACCEPTANCE_TESTS_DEFAULT_LOCALE,
   BEFORE_ALL_TIMEOUT,
   BEFORE_TIMEOUT,
-  SANDBOX_ADMIN_KEY,
+  SANDBOX_GAME_KEY,
   SHARED_BUILD_DIR,
 } from "#acceptance/features/support/constants/hooks.constants.ts";
 import {
   generateScreenshotOnScenarioFailure,
+  getMongoClient,
+  getMongoDatabase,
   getSandboxBaseUrl,
   getWorkerId,
   removeAcceptanceTestsReportsScreenshotsDirectory,
@@ -30,7 +33,7 @@ const { beforeEach, afterEach, afterAll, beforeAll } = createTest({
   server: true,
   env: {
     NUXT_GOAT_IT_API_BASE_URL: sandboxBaseUrl,
-    NUXT_GOAT_IT_API_ADMIN_KEY: SANDBOX_ADMIN_KEY,
+    NUXT_GOAT_IT_API_GAME_KEY: SANDBOX_GAME_KEY,
   },
   browserOptions: {
     type: "chromium",
@@ -53,6 +56,9 @@ const { beforeEach, afterEach, afterAll, beforeAll } = createTest({
   },
 });
 
+let mongoClient: MongoClient;
+let mongoDatabase: Db;
+
 BeforeAll({ timeout: BEFORE_ALL_TIMEOUT }, async(): Promise<void> => {
   if (workerId === 0) {
     console.info(`[Worker ${workerId}] Cleaning up previous acceptance test reports...`);
@@ -66,10 +72,17 @@ BeforeAll({ timeout: BEFORE_ALL_TIMEOUT }, async(): Promise<void> => {
   console.info(`[Worker ${workerId}] Starting Nuxt server (buildDir: ${SHARED_BUILD_DIR})...`);
   await beforeAll();
   console.info(`[Worker ${workerId}] Nuxt server started successfully.`);
+
+  console.info(`[Worker ${workerId}] Connecting to MongoDB...`);
+  mongoClient = await getMongoClient(workerId);
+  mongoDatabase = getMongoDatabase(mongoClient);
+  console.info(`[Worker ${workerId}] Connected to MongoDB.`);
 });
 
 Before({ timeout: BEFORE_TIMEOUT }, async function(this: GoatItWorld): Promise<void> {
-  resetSandboxData();
+  this.mongoClient = mongoClient;
+  this.mongoDb = mongoDatabase;
+  await resetSandboxData(this);
   beforeEach();
   this.page = await createPage();
   this.context = this.page.context();
@@ -94,4 +107,11 @@ After(async function(this: GoatItWorld, scenario): Promise<void> {
 
 AfterAll(async(): Promise<void> => {
   await afterAll();
+
+  try {
+    await mongoClient.close();
+    console.info(`[Worker ${workerId}] MongoDB connection closed.`);
+  } catch(error: unknown) {
+    console.error(`[Worker ${workerId}] Failed to close MongoDB connection:`, error);
+  }
 });

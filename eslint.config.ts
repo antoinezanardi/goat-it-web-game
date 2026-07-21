@@ -22,6 +22,7 @@ import { ESLINT_TESTS_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-t
 import { ESLINT_STYLISTIC_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-stylistic.flat-config";
 import { ESLINT_REPOSITORIES_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-repositories.flat-config";
 import { ESLINT_ACCEPTANCE_TESTS_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-acceptance-tests.flat-config";
+import { ESLINT_FIXTURES_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-fixtures.flat-config";
 import { ESLINT_SCRIPTS_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-scripts.flat-config";
 
 export default withNuxt(
@@ -40,6 +41,7 @@ export default withNuxt(
   ESLINT_TESTS_COMPOSABLES_MOCKS_FLAT_CONFIG,
   ESLINT_REPOSITORIES_FLAT_CONFIG,
   ESLINT_ACCEPTANCE_TESTS_FLAT_CONFIG,
+  ESLINT_FIXTURES_FLAT_CONFIG,
   ESLINT_SCRIPTS_FLAT_CONFIG,
   ...oxlint.buildFromOxlintConfigFile("./oxlint.config.jsonc") as Linter.Config[],
 )

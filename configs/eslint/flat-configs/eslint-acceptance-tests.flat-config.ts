@@ -4,6 +4,7 @@ const ESLINT_ACCEPTANCE_TESTS_FLAT_CONFIG: Linter.Config = {
   name: "goat-it/acceptance-tests",
   files: ["tests/acceptance/**/*.ts"],
   rules: {
+    "init-declarations": "off",
     // Acceptance test infrastructure uses console.info for informational logging (e.g., screenshot paths, cleanup messages)
     "no-console": ["error", { allow: ["info", "error"] }],
   },
