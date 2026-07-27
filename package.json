@@ -121,7 +121,7 @@
     "is-ci": "^4.1.0",
     "lint-staged": "^17.2.0",
     "mongodb": "^7.5.0",
-    "nuxt": "^4.4.8",
+    "nuxt": "^4.5.1",
     "oxlint": "^1.75.0",
     "oxlint-tsgolint": "^7.0.2001",
     "pinia": "^4.0.2",
