@@ -128,7 +128,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - Files: Components: `PascalCase.vue` | Composables: `use*.ts` | Stores: `<entity>.store.ts`
     Repositories: `<resource>.repository.ts` | Server handlers: `<resource>.<method>.handler.ts`
     Types: `*.types.ts` | Constants: `*.constants.ts` | Enums: `*.enums.ts`
-    Tests: `*.spec.ts` next to source | Faketories: `<entity>.<layer>.faketory.ts`
+    Tests: `*.spec.ts` next to source | Entity faketories: `<entity>.<layer>.faketory.ts` (DTO faketories come from `@goat-it/schemas/testing/*`)
     Mocks: `<composable>.mock.ts` (+ `.mock.constants.ts` + `.mock.types.ts` as needed)
   - Symbols: Types/Interfaces: `PascalCase` | Variables/functions: `camelCase`
     Exported constants: `UPPER_SNAKE_CASE`
@@ -179,6 +179,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - `@goat-it/schemas` package (version in `package.json`):
   - Provides Zod schemas, DTO types, and domain constants shared with the Goat It API.
   - Sub-paths used: `@goat-it/schemas/question`, `@goat-it/schemas/question-theme`, `@goat-it/schemas/shared/error`, `@goat-it/schemas/shared/locale`.
+  - Test faketories: `@goat-it/schemas/testing/question`, `@goat-it/schemas/testing/question-theme`, `@goat-it/schemas/testing/shared`.
   - Used in server handlers for response/query validation (`parse()` before mapping to domain types) and in app code for type-only imports (`import type` for DTO types, domain constant arrays).
   - Listed in `vite.optimizeDeps.include` for correct tree-shaking in non-hoisted pnpm setups.
   - Version is re-exported from the `goat-it-api` repo's `packages/schemas/`.
@@ -213,7 +214,8 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 
 - Fake data: faketory functions (`@faker-js/faker`) in `tests/unit/utils/faketories/`.
   - Accept `Partial<T>`; named `createFake<Entity>` (e.g. `createFakeQuestionTheme`).
-  - Two layers per entity: `entity/` (domain type) and `dto/` (raw API DTO).
+  - Entity faketories live locally (domain type). DTO faketories come from `@goat-it/schemas/testing/*` (raw API DTO).
+  - Do NOT create local DTO faketories — always import from the package.
 
 - Config per project: `mockReset: true`, `clearMocks: true`, `restoreMocks: true`.
 - `describe(functionName, ...)` — pass the function/composable/store reference as label. Exception for components, which are always `describe("<ComponentName> Component", ...)`

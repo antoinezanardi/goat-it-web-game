@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ZodError } from "zod";
+import { createFakeQuestionThemeDto } from "@goat-it/schemas/testing/question-theme";
 
-import { createFakeQuestionThemeDto } from "~~/tests/unit/utils/faketories/question-theme/question-theme.dto.faketory";
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
 import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";

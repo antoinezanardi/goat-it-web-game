@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import type { $Fetch } from "nitropack";
+import { createFakeFindQuestionsQueryDto } from "@goat-it/schemas/testing/question";
 
-import { createFakeFindQuestionsQueryDto } from "~~/tests/unit/utils/faketories/question/find-questions-query.dto.faketory";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
 import { questionsRepository } from "@/repositories/goat-it-api/questions/questions.repository";

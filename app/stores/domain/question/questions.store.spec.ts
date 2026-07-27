@@ -1,9 +1,9 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
+import { createFakeFindQuestionsQueryDto } from "@goat-it/schemas/testing/question";
 
 import { createUseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import type { UseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
-import { createFakeFindQuestionsQueryDto } from "~~/tests/unit/utils/faketories/question/find-questions-query.dto.faketory";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
 import type { useQuestionsStore as UseQuestionsStoreType } from "@/stores/domain/question/questions.store";
