@@ -1461,25 +1461,33 @@ export { createMyRepositoryMock };
 
 ## 9. Faketories
 
-Faketories generate typed fake data for tests. They live in `tests/unit/utils/faketories/`.
+Faketories generate typed fake data for tests.
 
 ### Structure
 
-Each entity typically has two layers:
+**Entity faketories** (domain types) live in `tests/unit/utils/faketories/`. **DTO faketories** and **shared locale helpers** are provided by the `@goat-it/schemas` package.
 
 ```text
 tests/unit/utils/faketories/
   my-entity/
     entity/
       my-entity.entity.faketory.ts   ← domain type (QuestionTheme, etc.)
-    dto/
-      my-entity.dto.faketory.ts      ← raw API DTO type (may contain multiple factories)
   shared/
-    locale/
-      locale.faketory.ts             ← shared locale helpers (createFakeLocalizedText, createFakeLocalizedTexts)
+    h3/
+      h3-event.faketory.ts           ← project-specific H3Event fake
+
+# DTO faketories come from the package:
+# import { createFakeQuestionDto } from "@goat-it/schemas/testing/question"
+# import { createFakeQuestionThemeDto } from "@goat-it/schemas/testing/question-theme"
+# import { createFakeLocalizedText } from "@goat-it/schemas/testing/shared"
 ```
 
-The DTO faketory may contain multiple factory functions for different use cases (e.g. `createFakeAdminQuestionThemeDto`, `createFakeQuestionThemeCreationDto`, `createFakeQuestionThemeModificationDto`).
+DTO faketories are available under three sub-paths:
+- `@goat-it/schemas/testing/question` — question DTOs, author, content, rejection, assignments, queries
+- `@goat-it/schemas/testing/question-theme` — question-theme DTOs, queries, admin variants
+- `@goat-it/schemas/testing/shared` — locale helpers (`createFakeLocalizedText`, `createFakeLocalizedTexts`, `createFakeLocalizationOptions`) and error DTOs
+
+The DTO faketory module may contain multiple factory functions for different use cases (e.g. `createFakeAdminQuestionThemeDto`, `createFakeQuestionThemeCreationDto`, `createFakeQuestionThemeModificationDto`).
 
 ### Pattern
 
@@ -1501,14 +1509,15 @@ function createFakeMyEntity(myEntity: Partial<MyEntity> = {}): MyEntity {
 export { createFakeMyEntity };
 ```
 
-### Shared faketories
+### Shared locale faketories
 
-`tests/unit/utils/faketories/shared/locale/locale.faketory.ts` provides helpers for localized text fields:
+The `@goat-it/schemas/testing/shared` module provides helpers for localized text fields:
 
 - `createFakeLocalizedText(partial?)` — returns a `Partial<LocalizedText>` with random optional values.
 - `createFakeLocalizedTexts(partial?)` — returns an array of localized text objects.
+- `createFakeLocalizationOptions(partial?)` — returns localization options with locale and fallback.
 
-Import and use them when building entities or DTOs that have localized fields.
+Import from `@goat-it/schemas/testing/shared` when building entities or DTOs that have localized fields.
 
 ### Rules
 
@@ -1518,6 +1527,7 @@ Import and use them when building entities or DTOs that have localized fields.
 - Use `faker.lorem.slug()` for slugs.
 - Use `faker.helpers.arrayElement(ENUM_VALUES)` for enum fields.
 - DTO faketories produce raw API shapes (dates as ISO strings via `.toISOString()`); entity faketories produce domain shapes (dates as `Date` objects via `faker.date.anytime()`).
+- Do NOT create local DTO faketories. Always import from `@goat-it/schemas/testing/*`.
 
 ---
 

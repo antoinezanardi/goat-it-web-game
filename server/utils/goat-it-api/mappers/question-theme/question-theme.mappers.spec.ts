@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { createFakeQuestionThemeDto } from "@goat-it/schemas/testing/question-theme";
 
-import { createFakeQuestionThemeDto } from "~~/tests/unit/utils/faketories/question-theme/question-theme.dto.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";
