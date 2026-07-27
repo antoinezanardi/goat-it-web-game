@@ -69,6 +69,7 @@ const FIVE_QUESTION_THEMES_FIXTURE_MUSIC_ENTRY = {
 const FIVE_QUESTION_THEMES_FIXTURE_SPORTS_ENTRY = {
   _id: new ObjectId("dbb0664ad4797c6cc79d5aee"),
   slug: "sports",
+  color: "#F44336",
   label: {
     fr: "Sport",
     en: "Sports",
@@ -101,6 +102,7 @@ const FIVE_QUESTION_THEMES_FIXTURE_SPORTS_ENTRY = {
 const FIVE_QUESTION_THEMES_FIXTURE_SCIENCE_ENTRY = {
   _id: new ObjectId("9adeceb41db80ab7ec49b457"),
   slug: "science",
+  color: "#00C853",
   label: {
     fr: "Science",
     en: "Science",
