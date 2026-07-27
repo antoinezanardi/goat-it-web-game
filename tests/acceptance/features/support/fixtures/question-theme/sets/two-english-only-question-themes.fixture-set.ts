@@ -21,6 +21,7 @@ const TWO_ENGLISH_ONLY_QUESTION_THEMES_FIXTURE_CINEMA_ENTRY = {
 const TWO_ENGLISH_ONLY_QUESTION_THEMES_FIXTURE_MUSIC_ENTRY = {
   _id: new ObjectId("3ff6c1e3ae2fe3fdd9ced1e8"),
   slug: "music",
+  color: "#FA2333",
   createdAt: new Date("2024-01-01T00:00:00.000Z"),
   updatedAt: new Date("2024-01-01T00:00:00.000Z"),
   label: {

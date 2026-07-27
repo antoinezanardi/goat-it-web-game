@@ -65,6 +65,7 @@ function advanceToNextQuestion(): void {
       <p
         v-if="isInitialLoading || isOutOfQuestionsLoading"
         class="text-sm text-text-secondary"
+        data-testid="game-loading"
       >
         {{ $t("game.loadingQuestions") }}
       </p>

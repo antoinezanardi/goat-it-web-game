@@ -234,7 +234,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_MEDICINE_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_ASTRONOMY_ENTRY = {
   _id: new ObjectId("60000000000000000000000c"),
   slug: "astronomy",
-  color: undefined,
+  color: "#7B1FA2",
   label: {
     en: "Astronomy",
     fr: "Astronomie",
@@ -276,7 +276,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_BIOLOGY_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_CHEMISTRY_ENTRY = {
   _id: new ObjectId("60000000000000000000000e"),
   slug: "chemistry",
-  color: undefined,
+  color: "#00BCD4",
   label: {
     en: "Chemistry",
     fr: "Chimie",
@@ -360,7 +360,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_GAMING_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_POKER_ENTRY = {
   _id: new ObjectId("600000000000000000000012"),
   slug: "poker",
-  color: undefined,
+  color: "#D32F2F",
   label: {
     en: "Poker",
     fr: "Poker",
@@ -381,7 +381,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_POKER_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_MEDITATION_ENTRY = {
   _id: new ObjectId("600000000000000000000013"),
   slug: "meditation",
-  color: undefined,
+  color: "#CE93D8",
   label: {
     en: "Meditation",
     fr: "Méditation",
@@ -423,7 +423,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_FITNESS_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_NUTRITION_ENTRY = {
   _id: new ObjectId("600000000000000000000015"),
   slug: "nutrition",
-  color: undefined,
+  color: "#66BB6A",
   label: {
     en: "Nutrition",
     fr: "Nutrition",
@@ -507,7 +507,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_COFFEE_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_CHOCOLATE_ENTRY = {
   _id: new ObjectId("600000000000000000000019"),
   slug: "chocolate",
-  color: undefined,
+  color: "#5D4037",
   label: {
     en: "Chocolate",
     fr: "Chocolat",
@@ -591,7 +591,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_AVIATION_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_MARITIME_ENTRY = {
   _id: new ObjectId("60000000000000000000001d"),
   slug: "maritime",
-  color: undefined,
+  color: "#0277BD",
   label: {
     en: "Maritime",
     fr: "Maritime",
@@ -633,7 +633,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_WINE_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_BEER_ENTRY = {
   _id: new ObjectId("60000000000000000000001f"),
   slug: "beer",
-  color: undefined,
+  color: "#FF8F00",
   label: {
     en: "Beer",
     fr: "Bière",
@@ -696,7 +696,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_GARDENING_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_DANCE_ENTRY = {
   _id: new ObjectId("600000000000000000000022"),
   slug: "dance",
-  color: undefined,
+  color: "#EC407A",
   label: {
     en: "Dance",
     fr: "Danse",
@@ -738,7 +738,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_THEATER_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_FASHION_ENTRY = {
   _id: new ObjectId("600000000000000000000024"),
   slug: "fashion",
-  color: undefined,
+  color: "#AB47BC",
   label: {
     en: "Fashion",
     fr: "Mode",
@@ -780,7 +780,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_ARCHITECTURE_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_POLITICS_ENTRY = {
   _id: new ObjectId("600000000000000000000026"),
   slug: "politics",
-  color: undefined,
+  color: "#546E7A",
   label: {
     en: "Politics",
     fr: "Politique",
@@ -822,7 +822,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_ECONOMICS_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_PHILOSOPHY_ENTRY = {
   _id: new ObjectId("600000000000000000000028"),
   slug: "philosophy",
-  color: undefined,
+  color: "#6D4C41",
   label: {
     en: "Philosophy",
     fr: "Philosophie",
@@ -864,7 +864,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_PSYCHOLOGY_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_SOCIOLOGY_ENTRY = {
   _id: new ObjectId("60000000000000000000002a"),
   slug: "sociology",
-  color: undefined,
+  color: "#78909C",
   label: {
     en: "Sociology",
     fr: "Sociologie",
@@ -906,7 +906,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_ANTHROPOLOGY_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_ARCHAEOLOGY_ENTRY = {
   _id: new ObjectId("60000000000000000000002c"),
   slug: "archaeology",
-  color: undefined,
+  color: "#A1887F",
   label: {
     en: "Archaeology",
     fr: "Archéologie",
@@ -990,7 +990,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_MILITARY_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_RELIGION_ENTRY = {
   _id: new ObjectId("600000000000000000000030"),
   slug: "religion",
-  color: undefined,
+  color: "#FF8A65",
   label: {
     en: "Religion",
     fr: "Religion",
@@ -1032,7 +1032,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_MATHEMATICS_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_YOGA_ENTRY = {
   _id: new ObjectId("600000000000000000000032"),
   slug: "yoga",
-  color: undefined,
+  color: "#81C784",
   label: {
     en: "Yoga",
     fr: "Yoga",
@@ -1074,7 +1074,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_TRAVEL_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_CLIMATE_ENTRY = {
   _id: new ObjectId("600000000000000000000034"),
   slug: "climate",
-  color: undefined,
+  color: "#4DD0E1",
   label: {
     en: "Climate",
     fr: "Climat",
@@ -1137,7 +1137,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_ENERGY_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_PALEONTOLOGY_ENTRY = {
   _id: new ObjectId("600000000000000000000037"),
   slug: "paleontology",
-  color: undefined,
+  color: "#8D6E63",
   label: {
     en: "Paleontology",
     fr: "Paléontologie",
@@ -1242,7 +1242,7 @@ const SIXTY_QUESTION_THEMES_FIXTURE_MAGIC_ENTRY = {
 const SIXTY_QUESTION_THEMES_FIXTURE_SPORTS_ENTRY = {
   _id: new ObjectId("60000000000000000000003c"),
   slug: "sports",
-  color: undefined,
+  color: "#F44336",
   label: {
     en: "Sports",
     fr: "Sports",
