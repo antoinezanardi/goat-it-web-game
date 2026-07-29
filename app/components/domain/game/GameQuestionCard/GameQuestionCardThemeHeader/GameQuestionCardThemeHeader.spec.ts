@@ -13,6 +13,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
   const defaultProps: GameQuestionCardThemeHeaderProps = {
     theme: createFakeQuestionTheme({ label: "Histoire", slug: "history-civilizations" }),
     difficulty: "medium",
+    category: "trivia",
   };
 
   let wrapper: VueWrapper;
@@ -33,35 +34,121 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(wrapper.text()).toContain("Histoire");
   });
 
-  it("should render the difficulty label translation key when mounted.", () => {
-    expect(wrapper.text()).toContain("questions.difficulty.label");
-  });
-
-  it("should render the medium difficulty translation key when mounted.", () => {
-    expect(wrapper.text()).toContain("questions.difficulty.medium");
-  });
-
-  it("should render the easy difficulty translation key when difficulty is easy.", async() => {
-    await wrapper.setProps({ difficulty: "easy" });
-
-    expect(wrapper.text()).toContain("questions.difficulty.easy");
-  });
-
-  it("should render the hard difficulty translation key when difficulty is hard.", async() => {
-    await wrapper.setProps({ difficulty: "hard" });
-
-    expect(wrapper.text()).toContain("questions.difficulty.hard");
-  });
-
   it("should render the theme icon with the neon color class when component is mounted.", () => {
     const themeIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-landmark");
 
     expect(themeIcon?.classes()).toContain("text-(color:--game-theme-neon)");
   });
 
-  it("should render the difficulty icon with text-text-secondary class when component is mounted.", () => {
-    const difficultyIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-gauge");
+  it("should render the UBadge component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UBadge" }).exists()).toBe(true);
+  });
 
-    expect(difficultyIcon?.classes()).toContain("text-text-secondary");
+  it("should set the UBadge color to warning when difficulty is medium.", () => {
+    const badge = wrapper.findComponent({ name: "UBadge" });
+
+    expect(badge.props("color")).toBe("warning");
+  });
+
+  it("should set the UBadge color to success when difficulty is easy.", async() => {
+    await wrapper.setProps({ difficulty: "easy" });
+
+    const badge = wrapper.findComponent({ name: "UBadge" });
+
+    expect(badge.props("color")).toBe("success");
+  });
+
+  it("should set the UBadge color to error when difficulty is hard.", async() => {
+    await wrapper.setProps({ difficulty: "hard" });
+
+    const badge = wrapper.findComponent({ name: "UBadge" });
+
+    expect(badge.props("color")).toBe("error");
+  });
+
+  it("should set the UBadge icon to i-lucide-brain-cog when mounted.", () => {
+    const badge = wrapper.findComponent({ name: "UBadge" });
+
+    expect(badge.props("icon")).toBe("i-lucide-brain-cog");
+  });
+
+  it("should set the UBadge label from the difficulty i18n key when mounted.", () => {
+    const badge = wrapper.findComponent({ name: "UBadge" });
+
+    expect(badge.props("label")).toBe("questions.difficulty.medium");
+  });
+
+  it("should set the UBadge variant to subtle when mounted.", () => {
+    const badge = wrapper.findComponent({ name: "UBadge" });
+
+    expect(badge.props("variant")).toBe("subtle");
+  });
+
+  it("should set the UBadge size to xs when mounted.", () => {
+    const badge = wrapper.findComponent({ name: "UBadge" });
+
+    expect(badge.props("size")).toBe("xs");
+  });
+
+  it("should render a dot separator between the difficulty pill and category when mounted.", () => {
+    expect(wrapper.text()).toContain("·");
+  });
+
+  it("should render the category icon from getCategoryIcon when category is trivia.", () => {
+    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-sparkle");
+
+    expect(categoryIcon).toBeDefined();
+  });
+
+  it("should render the category icon from getCategoryIcon when category is lexicon.", async() => {
+    await wrapper.setProps({ category: "lexicon" });
+
+    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-languages");
+
+    expect(categoryIcon).toBeDefined();
+  });
+
+  it("should render the category icon from getCategoryIcon when category is riddle.", async() => {
+    await wrapper.setProps({ category: "riddle" });
+
+    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-puzzle");
+
+    expect(categoryIcon).toBeDefined();
+  });
+
+  it("should render the category icon from getCategoryIcon when category is explanation.", async() => {
+    await wrapper.setProps({ category: "explanation" });
+
+    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-atom");
+
+    expect(categoryIcon).toBeDefined();
+  });
+
+  it("should apply the game-theme-neon color class to the category icon when mounted.", () => {
+    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-sparkle");
+
+    expect(categoryIcon?.classes()).toContain("text-(color:--game-theme-neon)");
+  });
+
+  it("should render the category label from the i18n key when category is trivia.", () => {
+    expect(wrapper.text()).toContain("questions.category.trivia");
+  });
+
+  it("should render the category label from the i18n key when category is lexicon.", async() => {
+    await wrapper.setProps({ category: "lexicon" });
+
+    expect(wrapper.text()).toContain("questions.category.lexicon");
+  });
+
+  it("should render the category label from the i18n key when category is riddle.", async() => {
+    await wrapper.setProps({ category: "riddle" });
+
+    expect(wrapper.text()).toContain("questions.category.riddle");
+  });
+
+  it("should render the category label from the i18n key when category is explanation.", async() => {
+    await wrapper.setProps({ category: "explanation" });
+
+    expect(wrapper.text()).toContain("questions.category.explanation");
   });
 });

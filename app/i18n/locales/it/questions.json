@@ -2,16 +2,22 @@
   "questions": {
     "cantFetch": "Impossibile caricare le domande. Riprova più tardi.",
     "difficulty": {
-      "label": "Difficoltà",
       "easy": "Facile",
       "medium": "Media",
       "hard": "Difficile"
+    },
+    "category": {
+      "trivia": "Curiosità",
+      "lexicon": "Lessico",
+      "riddle": "Indovinello",
+      "explanation": "Spiegazione"
     },
     "questionLabel": "Domanda",
     "answerLabel": "Risposta",
     "contextAccordionTitle": "Contesto e Curiosità",
     "sourcesAriaLabel": "Fonti",
     "sourceOpensInNewTab": "Si apre in una nuova scheda",
-    "sourceLabel": "Fonte | Fonti"
+    "sourceLabel": "Fonte | Fonti",
+    "sourceTooltip": "Visita {url} per maggiori informazioni"
   }
 }

@@ -13,6 +13,7 @@ import { GameQuestionCard } from "#components";
 describe("GameQuestionCard Component", () => {
   const defaultProps = {
     question: createFakeQuestion({
+      category: "trivia",
       themes: [
         createFakeQuestionThemeAssignment({
           isPrimary: true,
@@ -57,8 +58,26 @@ describe("GameQuestionCard Component", () => {
     expect(article.attributes("style")).toContain("--game-theme-color: #B8860B");
   });
 
+  it("should apply flex class to the article when mounted.", () => {
+    const article = wrapper.find("[data-testid='game-question']");
+
+    expect(article.classes()).toContain("flex");
+  });
+
+  it("should apply flex-col class to the article when mounted.", () => {
+    const article = wrapper.find("[data-testid='game-question']");
+
+    expect(article.classes()).toContain("flex-col");
+  });
+
   it("should render the theme header component when mounted.", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardThemeHeader" }).exists()).toBe(true);
+  });
+
+  it("should pass the question category to the theme header when primary theme exists.", () => {
+    const header = wrapper.findComponent({ name: "GameQuestionCardThemeHeader" });
+
+    expect(header.props("category")).toBe("trivia");
   });
 
   it("should not render the theme header when no primary theme is found.", async() => {
@@ -85,6 +104,43 @@ describe("GameQuestionCard Component", () => {
 
   it("should render the source list component when mounted.", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardSourceList" }).exists()).toBe(true);
+  });
+
+  it("should render the source list component outside the scrollable body when mounted.", () => {
+    const bodyDiv = wrapper.find("[data-testid='game-question-body']");
+    const sourceListInBody = bodyDiv.findComponent({ name: "GameQuestionCardSourceList" });
+
+    expect(sourceListInBody.exists()).toBe(false);
+  });
+
+  it("should apply overflow-y-auto class to the scrollable body div when mounted.", () => {
+    const bodyDiv = wrapper.find("[data-testid='game-question-body']");
+
+    expect(bodyDiv.classes()).toContain("overflow-y-auto");
+  });
+
+  it("should apply flex-1 class to the scrollable body div when mounted.", () => {
+    const bodyDiv = wrapper.find("[data-testid='game-question-body']");
+
+    expect(bodyDiv.classes()).toContain("flex-1");
+  });
+
+  it("should apply min-h-0 class to the scrollable body div when mounted.", () => {
+    const bodyDiv = wrapper.find("[data-testid='game-question-body']");
+
+    expect(bodyDiv.classes()).toContain("min-h-0");
+  });
+
+  it("should apply shrink-0 class to the source list when mounted.", () => {
+    const sourceList = wrapper.findComponent({ name: "GameQuestionCardSourceList" });
+
+    expect(sourceList.classes()).toContain("shrink-0");
+  });
+
+  it("should apply pt-4 class to the source list when mounted.", () => {
+    const sourceList = wrapper.findComponent({ name: "GameQuestionCardSourceList" });
+
+    expect(sourceList.classes()).toContain("pt-4");
   });
 
   it("should render the context accordion when context is present.", () => {
@@ -116,7 +172,6 @@ describe("GameQuestionCard Component", () => {
   it.each([
     { cssClass: "game-theme-scope" },
     { cssClass: "game-card-halo" },
-    { cssClass: "overflow-y-auto" },
     { cssClass: "h-[calc(100dvh-10rem)]" },
     { cssClass: "md:max-h-[650px]" },
   ])("should apply $cssClass class to the article when mounted.", ({ cssClass }) => {

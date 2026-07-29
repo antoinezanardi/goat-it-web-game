@@ -4,7 +4,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
-import { getPrimaryTheme, getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
+import { getCategoryIcon, getPrimaryTheme, getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
 
 describe(getSourceDomain, () => {
   it("should extract the hostname when a full HTTPS URL is provided.", () => {
@@ -17,6 +17,24 @@ describe(getSourceDomain, () => {
 
   it("should return the raw input when the URL is malformed.", () => {
     expect(getSourceDomain("not a url")).toBe("not a url");
+  });
+});
+
+describe(getCategoryIcon, () => {
+  it("should return the sparkle icon when category is trivia.", () => {
+    expect(getCategoryIcon("trivia")).toBe("i-lucide-sparkle");
+  });
+
+  it("should return the languages icon when category is lexicon.", () => {
+    expect(getCategoryIcon("lexicon")).toBe("i-lucide-languages");
+  });
+
+  it("should return the puzzle icon when category is riddle.", () => {
+    expect(getCategoryIcon("riddle")).toBe("i-lucide-puzzle");
+  });
+
+  it("should return the atom icon when category is explanation.", () => {
+    expect(getCategoryIcon("explanation")).toBe("i-lucide-atom");
   });
 });
 

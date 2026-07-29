@@ -88,4 +88,16 @@ describe("GameQuestionCardSourceList Component", () => {
 
     expect(label.classes()).toContain("shrink-0");
   });
+
+  it("should wrap each link in a UTooltip when sourceUrls are provided.", () => {
+    const tooltips = wrapper.findAllComponents({ name: "UTooltip" });
+
+    expect(tooltips).toHaveLength(2);
+  });
+
+  it("should set the UTooltip text with the sourceTooltip i18n key for the first link when sourceUrls are provided.", () => {
+    const firstTooltip = wrapper.findAllComponents({ name: "UTooltip" })[0];
+
+    expect(firstTooltip?.props("text")).toBe("questions.sourceTooltip");
+  });
 });
