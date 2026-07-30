@@ -11,18 +11,22 @@ const themeColor = computed<string>(() => resolveThemeColor(primaryTheme.value?.
 
 const hasContextSection = computed<boolean>(() => Boolean(props.question.content.context) || (props.question.content.trivia?.length ?? 0) > 0);
 
-const articleStyle = computed<Record<string, string>>(() => ({
+const wrapperStyle = computed<Record<string, string>>(() => ({
   "--game-theme-color": themeColor.value,
-  "border": "1px solid var(--game-theme-border)",
 }));
 </script>
 
 <template>
   <article
-    class="bg-card flex flex-col game-card-halo game-theme-scope h-[calc(100dvh-10rem)] max-w-3xl md:max-h-[650px] md:p-6 mx-auto p-4 rounded-xl"
+    class="bg-card flex flex-col game-question-card game-theme-scope h-[calc(100dvh-10rem)] max-w-3xl md:max-h-[650px] md:p-6 mx-auto overflow-clip p-4 relative rounded-xl z-0"
     data-testid="game-question"
-    :style="articleStyle"
+    :style="wrapperStyle"
   >
+    <div
+      aria-hidden="true"
+      class="game-card-halo"
+    />
+
     <div
       class="flex-1 min-h-0 overflow-y-auto"
       data-testid="game-question-body"
@@ -62,8 +66,88 @@ const articleStyle = computed<Record<string, string>>(() => ({
 
 <style scoped>
 .game-card-halo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 0.75rem;
+  filter: blur(28px);
+  pointer-events: none;
+  background:
+    radial-gradient(
+      100dvw circle at 15% 20%,
+      color-mix(in srgb, var(--game-theme-neon) 20%, transparent) 0%,
+      color-mix(in srgb, var(--game-theme-neon) 5%, transparent) 40%,
+      transparent 60%
+    ),
+    radial-gradient(
+      100dvw circle at 85% 80%,
+      color-mix(in srgb, var(--game-theme-neon) 13%, transparent) 0%,
+      color-mix(in srgb, var(--game-theme-neon) 4%, transparent) 40%,
+      transparent 60%
+    );
+  animation: glow-breathe 25s ease-in-out infinite;
+}
+
+.game-card-halo::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(
+      360px circle at 50% 50%,
+      color-mix(in srgb, var(--game-theme-neon) 28%, transparent) 0%,
+      color-mix(in srgb, var(--game-theme-neon) 14%, transparent) 30%,
+      color-mix(in srgb, var(--game-theme-neon) 4%, transparent) 50%,
+      transparent 65%
+    );
+  animation: wander-a 18s linear infinite;
+}
+
+.game-card-halo::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(
+      380px circle at 50% 50%,
+      color-mix(in srgb, var(--game-theme-neon) 20%, transparent) 0%,
+      color-mix(in srgb, var(--game-theme-neon) 10%, transparent) 25%,
+      color-mix(in srgb, var(--game-theme-neon) 3%, transparent) 45%,
+      transparent 60%
+    );
+  animation: wander-b 14s linear infinite reverse;
+}
+
+.game-question-card {
+  border: 1px solid var(--game-theme-border);
   box-shadow:
-    0 0 14px var(--game-theme-halo-near),
-    0 0 36px var(--game-theme-halo-far);
+    0 0 12px 3px var(--game-theme-halo-near),
+    0 0 36px 8px var(--game-theme-halo-far),
+    0 0 60px 16px var(--game-theme-glow-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-card-halo,
+  .game-card-halo::before,
+  .game-card-halo::after {
+    animation: none;
+  }
+}
+
+@keyframes glow-breathe {
+  0%, 100% { transform: scale(1.05) translate(0, 0); opacity: 0.45; }
+  25% { transform: scale(1.12) translate(6px, -4px); opacity: 0.6; }
+  50% { transform: scale(0.95) translate(-4px, 5px); opacity: 0.35; }
+  75% { transform: scale(1.08) translate(-5px, -3px); opacity: 0.6; }
+}
+
+@keyframes wander-a {
+  from { transform: rotate(360deg) translate(150px, 0); }
+  to { transform: rotate(0deg) translate(150px, 0); }
+}
+
+@keyframes wander-b {
+  from { transform: rotate(0deg) translate(140px, 0); }
+  to { transform: rotate(360deg) translate(140px, 0); }
 }
 </style>
