@@ -6,7 +6,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <section class="bg-content border border-border-subtle md:p-5 p-4 rounded-lg">
+  <section class="bg-content border border-(color:--game-theme-border) md:p-5 p-4 rounded-lg">
     <p
       class="flex font-semibold gap-1.5 items-center mb-2 text-(color:--game-theme-neon) text-base"
     >

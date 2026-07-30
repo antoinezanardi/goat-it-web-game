@@ -163,7 +163,7 @@ describe("GameQuestionCard Component", () => {
 
   it.each([
     { cssClass: "game-theme-scope" },
-    { cssClass: "game-card-halo" },
+    { cssClass: "relative" },
     { cssClass: "h-[calc(100dvh-10rem)]" },
     { cssClass: "md:max-h-[650px]" },
   ])("should apply $cssClass class to the article when mounted.", ({ cssClass }) => {
