@@ -2,16 +2,22 @@
   "questions": {
     "cantFetch": "Unable to load questions. Please try again later.",
     "difficulty": {
-      "label": "Difficulty",
       "easy": "Easy",
       "medium": "Medium",
       "hard": "Hard"
+    },
+    "category": {
+      "trivia": "Trivia",
+      "lexicon": "Lexicon",
+      "riddle": "Riddle",
+      "explanation": "Explanation"
     },
     "questionLabel": "Question",
     "answerLabel": "Answer",
     "contextAccordionTitle": "Context & Trivia",
     "sourcesAriaLabel": "Sources",
     "sourceOpensInNewTab": "Opens in a new tab",
-    "sourceLabel": "Source | Sources"
+    "sourceLabel": "Source | Sources",
+    "sourceTooltip": "Visit {url} for more info"
   }
 }

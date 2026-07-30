@@ -2,16 +2,22 @@
   "questions": {
     "cantFetch": "Não foi possível carregar as perguntas. Tente novamente mais tarde.",
     "difficulty": {
-      "label": "Dificuldade",
       "easy": "Fácil",
       "medium": "Média",
       "hard": "Difícil"
+    },
+    "category": {
+      "trivia": "Curiosidades",
+      "lexicon": "Léxico",
+      "riddle": "Charada",
+      "explanation": "Explicação"
     },
     "questionLabel": "Pergunta",
     "answerLabel": "Resposta",
     "contextAccordionTitle": "Contexto e Curiosidades",
     "sourcesAriaLabel": "Fontes",
     "sourceOpensInNewTab": "Abre em uma nova guia",
-    "sourceLabel": "Fonte | Fontes"
+    "sourceLabel": "Fonte | Fontes",
+    "sourceTooltip": "Visitar {url} para mais informações"
   }
 }

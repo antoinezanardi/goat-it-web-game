@@ -4,6 +4,12 @@ import { GAME_QUESTION_CARD_SOURCE_LINK_CLASSES } from "@/components/domain/game
 import { getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
 
 defineProps<GameQuestionCardSourceListProps>();
+
+const { t } = useI18n();
+
+function getSourceLinkLabel(url: string): string {
+  return t("questions.sourceTooltip", { url });
+}
 </script>
 
 <template>
@@ -15,20 +21,24 @@ defineProps<GameQuestionCardSourceListProps>();
       {{ $t("questions.sourceLabel", { "count": sourceUrls.length }) }}:
     </span>
 
-    <ULink
+    <UTooltip
       v-for="url in sourceUrls"
       :key="url"
-      :aria-label="`${getSourceDomain(url)} — ${$t('questions.sourceOpensInNewTab')}`"
-      :class="GAME_QUESTION_CARD_SOURCE_LINK_CLASSES"
-      rel="noopener noreferrer"
-      target="_blank"
-      :to="url"
+      :text="getSourceLinkLabel(url)"
     >
-      <UIcon
-        class="size-3.5"
-        name="i-lucide-external-link"
-      />
-      {{ getSourceDomain(url) }}
-    </ULink>
+      <ULink
+        :aria-label="getSourceLinkLabel(url)"
+        :class="GAME_QUESTION_CARD_SOURCE_LINK_CLASSES"
+        rel="noopener noreferrer"
+        target="_blank"
+        :to="url"
+      >
+        <UIcon
+          class="size-3.5"
+          name="i-lucide-external-link"
+        />
+        {{ getSourceDomain(url) }}
+      </ULink>
+    </UTooltip>
   </nav>
 </template>

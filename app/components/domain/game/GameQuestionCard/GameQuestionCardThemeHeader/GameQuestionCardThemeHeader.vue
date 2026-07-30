@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
+import { getCategoryIcon, getDifficultyColor } from "~/composables/domain/question/helpers/question.helpers";
 import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 const props = defineProps<GameQuestionCardThemeHeaderProps>();
@@ -23,14 +24,22 @@ const themeIcon = computed(() => getThemeIcon(props.theme.slug));
         {{ props.theme.label }}
       </p>
 
-      <p class="flex gap-1.5 items-center leading-[1.4] mt-0.5 text-text-secondary text-xs">
+      <p class="flex gap-1 items-center leading-[1.4] mt-0.5 text-sm">
         <UIcon
-          class="size-3.5 text-text-secondary"
-          name="i-lucide-gauge"
+          class="size-4 text-(color:--game-theme-neon)"
+          :name="getCategoryIcon(props.category)"
         />
 
-        <span>{{ $t("questions.difficulty.label") }} : {{ $t(`questions.difficulty.${props.difficulty}`) }}</span>
+        <span class="font-medium text-(color:--game-theme-neon)">{{ $t(`questions.category.${props.category}`) }}</span>
       </p>
     </div>
+
+    <UBadge
+      class="ml-auto"
+      :color="getDifficultyColor(props.difficulty)"
+      :label="$t(`questions.difficulty.${props.difficulty}`)"
+      size="lg"
+      variant="subtle"
+    />
   </header>
 </template>
