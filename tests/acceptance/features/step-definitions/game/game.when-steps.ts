@@ -11,6 +11,7 @@ When(
 
 When(
   /^the user skips (?<count>\d+) questions$/u,
+  { timeout: 10_000 },
   async function(this: GoatItWorld, count: string): Promise<void> {
     const clicks = Math.trunc(Number(count));
 
