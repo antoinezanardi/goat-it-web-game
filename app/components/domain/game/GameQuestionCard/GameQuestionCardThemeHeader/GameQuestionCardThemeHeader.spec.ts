@@ -66,12 +66,6 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(badge.props("color")).toBe("error");
   });
 
-  it("should set the UBadge icon to i-lucide-brain-cog when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("icon")).toBe("i-lucide-brain-cog");
-  });
-
   it("should set the UBadge label from the difficulty i18n key when mounted.", () => {
     const badge = wrapper.findComponent({ name: "UBadge" });
 
@@ -84,10 +78,10 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(badge.props("variant")).toBe("subtle");
   });
 
-  it("should set the UBadge size to md when mounted.", () => {
+  it("should set the UBadge size to lg when mounted.", () => {
     const badge = wrapper.findComponent({ name: "UBadge" });
 
-    expect(badge.props("size")).toBe("md");
+    expect(badge.props("size")).toBe("lg");
   });
 
   it.each([

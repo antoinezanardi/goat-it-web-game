@@ -8,7 +8,7 @@ defineProps<GameQuestionCardSourceListProps>();
 const { t } = useI18n();
 
 function getSourceLinkLabel(url: string): string {
-  return `${getSourceDomain(url)} — ${t("questions.sourceOpensInNewTab")}`;
+  return t("questions.sourceTooltip", { url });
 }
 </script>
 

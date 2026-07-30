@@ -7,12 +7,10 @@ const QUESTION_CATEGORY_ICON_MAP: Record<QuestionCategory, string> = {
   explanation: "i-lucide-atom",
 };
 
-const DIFFICULTY_ICON = "i-lucide-brain-cog";
-
 const DIFFICULTY_COLOR_MAP: Record<QuestionCognitiveDifficulty, "success" | "warning" | "error"> = {
   easy: "success",
   medium: "warning",
   hard: "error",
 };
 
-export { DIFFICULTY_COLOR_MAP, DIFFICULTY_ICON, QUESTION_CATEGORY_ICON_MAP };
+export { DIFFICULTY_COLOR_MAP, QUESTION_CATEGORY_ICON_MAP };
