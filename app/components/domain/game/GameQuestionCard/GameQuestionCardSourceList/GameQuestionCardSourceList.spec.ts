@@ -95,9 +95,15 @@ describe("GameQuestionCardSourceList Component", () => {
     expect(tooltips).toHaveLength(2);
   });
 
-  it("should set the UTooltip text with the sourceTooltip i18n key for the first link when sourceUrls are provided.", () => {
+  it("should include the source domain in the UTooltip text of the first link when sourceUrls are provided.", () => {
     const firstTooltip = wrapper.findAllComponents({ name: "UTooltip" })[0];
 
-    expect(firstTooltip?.props("text")).toBe("questions.sourceTooltip");
+    expect(firstTooltip?.props("text")).toContain("en.wikipedia.org");
+  });
+
+  it("should include the opens-in-new-tab key in the UTooltip text of the first link when sourceUrls are provided.", () => {
+    const firstTooltip = wrapper.findAllComponents({ name: "UTooltip" })[0];
+
+    expect(firstTooltip?.props("text")).toContain("questions.sourceOpensInNewTab");
   });
 });

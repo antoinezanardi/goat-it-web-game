@@ -113,22 +113,14 @@ describe("GameQuestionCard Component", () => {
     expect(sourceListInBody.exists()).toBe(false);
   });
 
-  it("should apply overflow-y-auto class to the scrollable body div when mounted.", () => {
+  it.each([
+    { cssClass: "overflow-y-auto" },
+    { cssClass: "flex-1" },
+    { cssClass: "min-h-0" },
+  ])("should apply $cssClass class to the scrollable body div when mounted.", ({ cssClass }) => {
     const bodyDiv = wrapper.find("[data-testid='game-question-body']");
 
-    expect(bodyDiv.classes()).toContain("overflow-y-auto");
-  });
-
-  it("should apply flex-1 class to the scrollable body div when mounted.", () => {
-    const bodyDiv = wrapper.find("[data-testid='game-question-body']");
-
-    expect(bodyDiv.classes()).toContain("flex-1");
-  });
-
-  it("should apply min-h-0 class to the scrollable body div when mounted.", () => {
-    const bodyDiv = wrapper.find("[data-testid='game-question-body']");
-
-    expect(bodyDiv.classes()).toContain("min-h-0");
+    expect(bodyDiv.classes()).toContain(cssClass);
   });
 
   it("should apply shrink-0 class to the source list when mounted.", () => {

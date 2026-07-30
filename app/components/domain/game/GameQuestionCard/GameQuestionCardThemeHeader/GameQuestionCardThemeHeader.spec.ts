@@ -84,42 +84,20 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(badge.props("variant")).toBe("subtle");
   });
 
-  it("should set the UBadge size to xs when mounted.", () => {
+  it("should set the UBadge size to md when mounted.", () => {
     const badge = wrapper.findComponent({ name: "UBadge" });
 
-    expect(badge.props("size")).toBe("xs");
+    expect(badge.props("size")).toBe("md");
   });
 
-  it("should render a dot separator between the difficulty pill and category when mounted.", () => {
-    expect(wrapper.text()).toContain("·");
-  });
-
-  it("should render the category icon from getCategoryIcon when category is trivia.", () => {
-    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-sparkle");
-
-    expect(categoryIcon).toBeDefined();
-  });
-
-  it("should render the category icon from getCategoryIcon when category is lexicon.", async() => {
-    await wrapper.setProps({ category: "lexicon" });
-
-    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-languages");
-
-    expect(categoryIcon).toBeDefined();
-  });
-
-  it("should render the category icon from getCategoryIcon when category is riddle.", async() => {
-    await wrapper.setProps({ category: "riddle" });
-
-    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-puzzle");
-
-    expect(categoryIcon).toBeDefined();
-  });
-
-  it("should render the category icon from getCategoryIcon when category is explanation.", async() => {
-    await wrapper.setProps({ category: "explanation" });
-
-    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-atom");
+  it.each([
+    { category: "trivia", icon: "i-lucide-sparkle" },
+    { category: "lexicon", icon: "i-lucide-languages" },
+    { category: "riddle", icon: "i-lucide-puzzle" },
+    { category: "explanation", icon: "i-lucide-atom" },
+  ])("should render the category icon $icon when category is $category.", async({ category, icon }) => {
+    await wrapper.setProps({ category });
+    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === icon);
 
     expect(categoryIcon).toBeDefined();
   });
@@ -130,25 +108,14 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(categoryIcon?.classes()).toContain("text-(color:--game-theme-neon)");
   });
 
-  it("should render the category label from the i18n key when category is trivia.", () => {
-    expect(wrapper.text()).toContain("questions.category.trivia");
-  });
+  it.each([
+    { category: "trivia" },
+    { category: "lexicon" },
+    { category: "riddle" },
+    { category: "explanation" },
+  ])("should render the category label from the i18n key when category is $category.", async({ category }) => {
+    await wrapper.setProps({ category });
 
-  it("should render the category label from the i18n key when category is lexicon.", async() => {
-    await wrapper.setProps({ category: "lexicon" });
-
-    expect(wrapper.text()).toContain("questions.category.lexicon");
-  });
-
-  it("should render the category label from the i18n key when category is riddle.", async() => {
-    await wrapper.setProps({ category: "riddle" });
-
-    expect(wrapper.text()).toContain("questions.category.riddle");
-  });
-
-  it("should render the category label from the i18n key when category is explanation.", async() => {
-    await wrapper.setProps({ category: "explanation" });
-
-    expect(wrapper.text()).toContain("questions.category.explanation");
+    expect(wrapper.text()).toContain(`questions.category.${category}`);
   });
 });

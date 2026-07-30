@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
+import type { QuestionCategory, QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
-import { getCategoryIcon, getPrimaryTheme, getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
+import { getCategoryIcon, getDifficultyColor, getPrimaryTheme, getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
 
 describe(getSourceDomain, () => {
   it("should extract the hostname when a full HTTPS URL is provided.", () => {
@@ -21,20 +22,23 @@ describe(getSourceDomain, () => {
 });
 
 describe(getCategoryIcon, () => {
-  it("should return the sparkle icon when category is trivia.", () => {
-    expect(getCategoryIcon("trivia")).toBe("i-lucide-sparkle");
+  it.each<{ category: QuestionCategory; icon: string }>([
+    { category: "trivia", icon: "i-lucide-sparkle" },
+    { category: "lexicon", icon: "i-lucide-languages" },
+    { category: "riddle", icon: "i-lucide-puzzle" },
+    { category: "explanation", icon: "i-lucide-atom" },
+  ])("should return the $icon icon when category is $category.", ({ category, icon }) => {
+    expect(getCategoryIcon(category)).toBe(icon);
   });
+});
 
-  it("should return the languages icon when category is lexicon.", () => {
-    expect(getCategoryIcon("lexicon")).toBe("i-lucide-languages");
-  });
-
-  it("should return the puzzle icon when category is riddle.", () => {
-    expect(getCategoryIcon("riddle")).toBe("i-lucide-puzzle");
-  });
-
-  it("should return the atom icon when category is explanation.", () => {
-    expect(getCategoryIcon("explanation")).toBe("i-lucide-atom");
+describe(getDifficultyColor, () => {
+  it.each<{ difficulty: QuestionCognitiveDifficulty; color: string }>([
+    { difficulty: "easy", color: "success" },
+    { difficulty: "medium", color: "warning" },
+    { difficulty: "hard", color: "error" },
+  ])("should return the $color color when difficulty is $difficulty.", ({ difficulty, color }) => {
+    expect(getDifficultyColor(difficulty)).toBe(color);
   });
 });
 
