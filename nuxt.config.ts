@@ -175,6 +175,7 @@ export default defineNuxtConfig({
     ],
     strategy: "no_prefix",
     restructureDir: "app/i18n",
+    experimental: { optimizeMessageBundling: false },
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: "i18n_redirected",

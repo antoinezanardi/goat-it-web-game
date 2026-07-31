@@ -64,7 +64,7 @@ function advanceToNextQuestion(): void {
     <div class="flex flex-1 flex-col items-center justify-center py-6">
       <p
         v-if="isInitialLoading || isOutOfQuestionsLoading"
-        class="text-sm text-text-secondary"
+        class="text-fg-secondary text-sm"
         data-testid="game-loading"
       >
         {{ $t("game.loadingQuestions") }}

@@ -1,6 +1,6 @@
 const GAME_QUESTION_CARD_SOURCE_LINK_CLASSES = [
   "border-b",
-  "border-border-subtle",
+  "border-stroke-subtle",
   "focus-visible:outline-2",
   "focus-visible:outline-offset-2",
   "focus-visible:outline-(color:--game-theme-focus)",
@@ -12,7 +12,7 @@ const GAME_QUESTION_CARD_SOURCE_LINK_CLASSES = [
   "inline-flex",
   "items-center",
   "pb-0.5",
-  "text-text-secondary",
+  "text-fg-secondary",
   "text-xs",
   "transition-colors",
 ] as const;

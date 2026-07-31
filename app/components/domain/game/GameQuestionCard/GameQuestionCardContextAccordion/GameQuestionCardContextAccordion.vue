@@ -16,7 +16,7 @@ defineProps<GameQuestionCardContextAccordionProps>();
       :ui="GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI"
       variant="outline"
     >
-      <span class="font-medium text-sm text-text-primary">
+      <span class="font-medium text-fg-primary text-sm">
         {{ $t("questions.contextAccordionTitle") }}
       </span>
     </UButton>
@@ -25,14 +25,14 @@ defineProps<GameQuestionCardContextAccordionProps>();
       <div class="bg-content border border-(color:--game-theme-border) mt-1 p-4 rounded-lg">
         <p
           v-if="context"
-          class="leading-[1.6] text-sm text-text-primary"
+          class="leading-body text-fg-primary text-sm"
         >
           {{ context }}
         </p>
 
         <ul
           v-if="trivia?.length"
-          class="leading-[1.6] list-disc mt-2 ps-5 space-y-1 text-sm text-text-primary"
+          class="leading-body list-disc mt-2 ps-5 space-y-1 text-fg-primary text-sm"
         >
           <li
             v-for="(item, index) in trivia"

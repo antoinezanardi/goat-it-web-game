@@ -73,10 +73,10 @@ describe("GameQuestionCardSourceList Component", () => {
     expect(label.text()).toContain("questions.sourceLabel:");
   });
 
-  it("should apply text-text-secondary class to the source label when sourceUrls are provided.", () => {
+  it("should apply text-fg-secondary class to the source label when sourceUrls are provided.", () => {
     const label = wrapper.find("nav span");
 
-    expect(label.classes()).toContain("text-text-secondary");
+    expect(label.classes()).toContain("text-fg-secondary");
   });
 
   it("should apply shrink-0 class to the source label when sourceUrls are provided.", () => {
