@@ -39,8 +39,8 @@ describe("GameQuestionCardAnswer Component", () => {
     expect(wrapper.find("[data-testid='game-question-answer']").exists()).toBe(true);
   });
 
-  it("should apply text-text-answer class to the body paragraph when mounted.", () => {
-    expect(wrapper.find("section p:last-child").classes()).toContain("text-text-answer");
+  it("should apply text-fg-primary class to the body paragraph when mounted.", () => {
+    expect(wrapper.find("section p:last-child").classes()).toContain("text-fg-primary");
   });
 
   it("should render the label with the neon color class when mounted.", () => {

@@ -7,8 +7,8 @@ const emit = defineEmits<GameNextButtonEmits>();
 const buttonClass = computed<string | undefined>(() => (props.disabled || props.loading ? undefined : "game-next-button--themed"));
 
 const buttonUi = computed<Record<string, string | undefined>>(() => ({
-  base: "ring-0",
-  label: "text-text-primary",
+  base: "ring-0 bg-surface-interactive",
+  label: "text-fg-primary",
   trailingIcon: props.disabled || props.loading ? undefined : "text-(color:--game-theme-neon)",
 }));
 
@@ -20,7 +20,7 @@ function onClick(): void {
 <template>
   <UButton
     block
-    class="bg-surface-interactive font-semibold h-10 md:self-end md:w-auto rounded-lg text-sm text-text-primary"
+    class="font-semibold h-10 md:self-end md:w-auto rounded-lg text-fg-primary text-sm"
     :class="buttonClass"
     color="neutral"
     data-testid="game-next-button"

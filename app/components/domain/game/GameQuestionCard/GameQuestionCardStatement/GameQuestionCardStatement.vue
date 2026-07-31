@@ -18,7 +18,7 @@ const { t } = useI18n();
     </p>
 
     <p
-      class="font-medium leading-[1.5] md:text-xl text-lg text-text-primary"
+      class="font-medium leading-normal md:text-xl text-fg-primary text-lg"
       data-testid="game-question-statement"
     >
       {{ props.text }}

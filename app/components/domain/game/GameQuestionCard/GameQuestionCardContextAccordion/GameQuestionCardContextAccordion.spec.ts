@@ -55,7 +55,7 @@ describe("GameQuestionCardContextAccordion Component", () => {
   });
 
   it.each([
-    { description: "a context paragraph", props: { trivia: ["Only trivia"] }, selector: ".bg-surface-secondary p.text-sm" as const },
+    { description: "a context paragraph", props: { trivia: ["Only trivia"] }, selector: ".bg-content p.text-sm" as const },
     { description: "a trivia list", props: { context: "Only context" }, selector: "ul" as const },
   ])("should not render $description when the corresponding prop is empty.", async({ props, selector }) => {
     const wrapper = await mountAndOpenAccordion({ props });
@@ -63,11 +63,11 @@ describe("GameQuestionCardContextAccordion Component", () => {
     expect(wrapper.find(selector).exists()).toBe(false);
   });
 
-  it("should apply text-text-primary class to the trivia list when trivia is provided.", async() => {
+  it("should apply text-fg-primary class to the trivia list when trivia is provided.", async() => {
     const wrapper = await mountAndOpenAccordion({ props: { trivia: ["Fact one"] } });
 
     const triviaElement = wrapper.find("ul");
 
-    expect(triviaElement.classes()).toContain("text-text-primary");
+    expect(triviaElement.classes()).toContain("text-fg-primary");
   });
 });

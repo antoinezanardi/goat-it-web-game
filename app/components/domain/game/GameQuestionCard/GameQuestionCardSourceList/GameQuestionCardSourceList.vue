@@ -17,7 +17,7 @@ function getSourceLinkLabel(url: string): string {
     :aria-label="$t('questions.sourcesAriaLabel')"
     class="flex flex-wrap gap-x-3 gap-y-2"
   >
-    <span class="font-medium shrink-0 text-text-secondary text-xs">
+    <span class="font-medium shrink-0 text-fg-secondary text-xs">
       {{ $t("questions.sourceLabel", { "count": sourceUrls.length }) }}:
     </span>
 

@@ -20,11 +20,11 @@ const themeIcon = computed(() => getThemeIcon(props.theme.slug));
     </span>
 
     <div class="min-w-0">
-      <p class="font-semibold leading-[1.4] text-(color:--game-theme-neon) text-base">
+      <p class="font-semibold leading-snug-plus text-(color:--game-theme-neon) text-base">
         {{ props.theme.label }}
       </p>
 
-      <p class="flex gap-1 items-center leading-[1.4] mt-0.5 text-sm">
+      <p class="flex gap-1 items-center leading-snug-plus mt-0.5 text-sm">
         <UIcon
           class="size-4 text-(color:--game-theme-neon)"
           :name="getCategoryIcon(props.category)"
