@@ -119,7 +119,7 @@
     "happy-dom": "^20.11.1",
     "husky": "^9.1.7",
     "is-ci": "^4.1.0",
-    "lint-staged": "^17.2.0",
+    "lint-staged": "^17.3.0",
     "mongodb": "^7.5.0",
     "nuxt": "^4.5.1",
     "oxlint": "^1.76.0",
