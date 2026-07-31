@@ -175,7 +175,9 @@ export default defineNuxtConfig({
     ],
     strategy: "no_prefix",
     restructureDir: "app/i18n",
-    experimental: { optimizeMessageBundling: false },
+    // eslint-disable-next-line unicorn/expiring-todo-comments
+    // TODO: Remove this when nuxt-i18n supports message bundling from the dev server
+    experimental: { optimizeMessageBundling: process.env.NODE_ENV !== "development" },
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: "i18n_redirected",
