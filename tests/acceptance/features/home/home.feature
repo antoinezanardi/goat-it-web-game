@@ -7,7 +7,7 @@ Feature: 🏡 Home Page
 
   Scenario: 🎮 Clicking PLAY navigates to game page
     Given the user is on home page
-    When the user clicks on the text "play"
+    When the user clicks on the text "Play"
     Then the user should be on game page
 
   Scenario: 🐙 Version button opens repository

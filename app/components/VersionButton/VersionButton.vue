@@ -1,12 +1,6 @@
 <script lang="ts" setup>
+import { version } from "~~/package.json";
 import { GITHUB_REPO_URL } from "@/components/VersionButton/version-button.constants";
-
-const props = defineProps<{
-  /** The application version displayed in the GitHub link label. */
-  version: string;
-}>();
-
-const versionLabel = computed(() => `v${props.version}`);
 
 const versionButtonClass = [
   "bg-(--ui-bg-elevated) gap-1.5 hover:bg-(--ui-bg-elevated-hover) hover:text-(--ui-text)",
@@ -32,7 +26,7 @@ const versionButtonClass = [
           name="i-lucide-github"
         />
 
-        <span>{{ versionLabel }}</span>
+        <span>{{ `v${version}` }}</span>
       </ULink>
     </UTooltip>
   </div>

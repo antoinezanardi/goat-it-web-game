@@ -1,7 +1,8 @@
 {
   "home": {
+    "brand": "Goat It",
     "pageTitle": "Goat It Game",
-    "playButton": "spielen",
+    "playButton": "Spielen",
     "githubTooltip": "Dieses Projekt ist Open Source auf GitHub, schau es dir an!"
   }
 }
