@@ -1,11 +1,15 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import { GITHUB_REPO_URL } from "@/components/VersionButton/version-button.constants";
 import VersionButton from "@/components/VersionButton/VersionButton.vue";
+
+vi.mock(import("~~/package.json"), () => ({
+  version: "1.0.0",
+}));
 
 describe("VersionButton Component", () => {
   let wrapper: VueWrapper;
@@ -15,12 +19,10 @@ describe("VersionButton Component", () => {
   }
 
   beforeEach(async() => {
-    wrapper = await mountVersionButton({
-      props: { version: "1.0.0" },
-    });
+    wrapper = await mountVersionButton();
   });
 
-  it("should display v{version} text when version prop is provided.", () => {
+  it("should display v{version} text when mounted.", () => {
     expect(wrapper.text()).toContain("v1.0.0");
   });
 

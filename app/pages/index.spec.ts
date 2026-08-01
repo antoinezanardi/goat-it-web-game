@@ -4,12 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import { HOME_PAGE_TITLE_KEY, PLAY_BUTTON_KEY } from "@/pages/index.constants";
+import { HOME_PAGE_TITLE_KEY } from "@/pages/index.constants";
 import HomePage from "@/pages/index.vue";
-
-vi.mock(import("~~/package.json"), () => ({
-  version: "1.0.0",
-}));
 
 describe("Home Page", () => {
   let wrapper: VueWrapper;
@@ -29,22 +25,22 @@ describe("Home Page", () => {
     expect(headResult?.title).toBe(HOME_PAGE_TITLE_KEY);
   });
 
-  it("should render the h1 with 'Goat It' text when mounted.", () => {
+  it("should render the h1 with brand translation key when mounted.", () => {
     const h1 = wrapper.find("h1");
 
-    expect(h1.text()).toBe("Goat It");
+    expect(h1.text()).toBe("home.brand");
   });
 
-  it("should render the logo image with correct src when mounted.", () => {
+  it("should render the logo image with 512px src when mounted.", () => {
     const img = wrapper.find("img");
 
-    expect(img.attributes("src")).toBe("/img/logo/logo-256.avif");
+    expect(img.attributes("src")).toBe("/img/logo/logo-512.avif");
   });
 
-  it("should render the logo image with correct alt when mounted.", () => {
+  it("should render the logo image with brand translation key as alt when mounted.", () => {
     const img = wrapper.find("img");
 
-    expect(img.attributes("alt")).toBe("Goat It");
+    expect(img.attributes("alt")).toBe("home.brand");
   });
 
   it("should render a UButton linking to /game when mounted.", () => {
@@ -62,12 +58,12 @@ describe("Home Page", () => {
   it("should render a UButton with the translated PLAY button label when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.attributes("label")).toBe(PLAY_BUTTON_KEY);
+    expect(button.attributes("label")).toBe("home.playButton");
   });
 
-  it("should render VersionButton with the package version prop when mounted.", () => {
+  it("should render VersionButton when mounted.", () => {
     const versionButton = wrapper.findComponent({ name: "VersionButton" });
 
-    expect(versionButton.attributes("version")).toBe("1.0.0");
+    expect(versionButton.exists()).toBe(true);
   });
 });
