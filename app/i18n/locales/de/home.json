@@ -1,6 +1,7 @@
 {
   "home": {
     "pageTitle": "Goat It Game",
-    "gameLink": "Spiel starten"
+    "playButton": "spielen",
+    "githubTooltip": "Dieses Projekt ist Open Source auf GitHub, schau es dir an!"
   }
 }

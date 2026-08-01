@@ -53,6 +53,10 @@ permission:
     "rtk find *": "allow"
     "rg *": "allow"
     "rtk rg *": "allow"
+    "tree *": "allow"
+    "rtk tree *": "allow"
+    "sort *": "allow"
+    "rtk sort *": "allow"
   task: deny
   webfetch: deny
 ---

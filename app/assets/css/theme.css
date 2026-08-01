@@ -64,3 +64,7 @@
   --ui-text-dimmed: var(--ui-text-muted);
   --ui-secondary: var(--ui-color-secondary-300);
 }
+
+.home-play-button {
+  --ui-primary: #6423dc;
+}
