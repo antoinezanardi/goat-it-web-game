@@ -49,6 +49,7 @@
 :root,
 .light {
   --ui-info: var(--ui-color-info-800);
+  --ui-primary: var(--ui-color-primary-600);
   --ui-text: var(--ui-color-neutral-800);
   --ui-text-toned: var(--ui-color-neutral-700);
   --ui-text-muted: var(--ui-color-neutral-600);
@@ -58,6 +59,7 @@
 
 .dark {
   --ui-info: var(--ui-color-info-300);
+  --ui-primary: var(--ui-color-primary-500);
   --ui-text: var(--ui-color-neutral-100);
   --ui-text-toned: var(--ui-color-neutral-200);
   --ui-text-muted: var(--ui-color-neutral-300);

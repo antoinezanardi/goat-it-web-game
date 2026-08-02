@@ -23,6 +23,7 @@ useHead(() => ({
     </h1>
 
     <UButton
+      id="home-play-button"
       color="primary"
       :label="t('home.playButton')"
       size="xl"
@@ -34,3 +35,9 @@ useHead(() => ({
     <VersionButton/>
   </div>
 </template>
+
+<style scoped>
+#home-play-button {
+  text-shadow: 0 2px 6px rgba(0, 0, 0, .6);
+}
+</style>
