@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import { GITHUB_REPO_URL } from "@/components/VersionButton/version-button.constants";
+import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/VersionButton/version-button.constants";
 import VersionButton from "@/components/VersionButton/VersionButton.vue";
 
 vi.mock(import("~~/package.json"), () => ({
@@ -22,32 +22,58 @@ describe("VersionButton Component", () => {
     wrapper = await mountVersionButton();
   });
 
-  it("should display v{version} text when mounted.", () => {
-    expect(wrapper.text()).toContain("v1.0.0");
+  it("should display v{version} text as the UButton label when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
+
+    expect(button.props("label")).toBe("v1.0.0");
   });
 
-  it("should render a link to the GitHub repository URL when mounted.", () => {
-    const link = wrapper.find("a");
+  it("should render a UButton linking to the GitHub repository URL when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(link.attributes("href")).toBe(GITHUB_REPO_URL);
+    expect(button.props("href")).toBe(GITHUB_REPO_URL);
   });
 
-  it("should have target=_blank on the link when mounted.", () => {
-    const link = wrapper.find("a");
+  it("should have target=_blank on the UButton when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(link.attributes("target")).toBe("_blank");
+    expect(button.props("target")).toBe("_blank");
   });
 
-  it("should have rel=noopener noreferrer on the link when mounted.", () => {
-    const link = wrapper.find("a");
+  it("should have rel=noopener noreferrer on the UButton when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(link.attributes("rel")).toBe("noopener noreferrer");
+    expect(button.props("rel")).toBe("noopener noreferrer");
   });
 
-  it("should render the GitHub icon when mounted.", () => {
-    const icon = wrapper.findComponent({ name: "UIcon" });
+  it("should set the UButton icon to i-lucide-github when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(icon.props("name")).toBe("i-lucide-github");
+    expect(button.props("icon")).toBe("i-lucide-github");
+  });
+
+  it("should set the UButton ui prop to VERSION_BUTTON_UI when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
+
+    expect(button.props("ui")).toStrictEqual(VERSION_BUTTON_UI);
+  });
+
+  it("should set the UButton variant to outline when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
+
+    expect(button.props("variant")).toBe("outline");
+  });
+
+  it("should set the UButton color to neutral when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
+
+    expect(button.props("color")).toBe("info");
+  });
+
+  it("should set the UButton size to xs when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
+
+    expect(button.props("size")).toBe("md");
   });
 
   it("should render the tooltip with the translated githubTooltip key when mounted.", () => {
