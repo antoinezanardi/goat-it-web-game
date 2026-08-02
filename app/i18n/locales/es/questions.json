@@ -1,0 +1,23 @@
+{
+  "questions": {
+    "cantFetch": "No se pudieron cargar las preguntas. Inténtelo de nuevo más tarde.",
+    "difficulty": {
+      "easy": "Fácil",
+      "medium": "Media",
+      "hard": "Difícil"
+    },
+    "category": {
+      "trivia": "Curiosidades",
+      "lexicon": "Léxico",
+      "riddle": "Adivinanza",
+      "explanation": "Explicación"
+    },
+    "questionLabel": "Pregunta",
+    "answerLabel": "Respuesta",
+    "contextAccordionTitle": "Contexto y Curiosidades",
+    "sourcesAriaLabel": "Fuentes",
+    "sourceOpensInNewTab": "Se abre en una nueva pestaña",
+    "sourceLabel": "Fuente | Fuentes",
+    "sourceTooltip": "Visitar {url} para más información"
+  }
+}

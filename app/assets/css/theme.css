@@ -1,22 +1,55 @@
-@theme static {
-  --font-sans: system-ui, sans-serif;
+@theme {
+  --font-sans: "Geist", system-ui, sans-serif;
 
-  --color-violet-50: #f5f3ff;
-  --color-violet-100: #ede9fe;
-  --color-violet-200: #ddd6fe;
-  --color-violet-300: #c4b5fd;
-  --color-violet-400: #a78bfa;
-  --color-violet-500: #8b5cf6;
-  --color-violet-600: #7c3aed;
-  --color-violet-700: #6d28d9;
-  --color-violet-800: #5b21b6;
-  --color-violet-900: #4c1d95;
-  --color-violet-950: #2e1065;
+  --color-app-bg: #09090b;
+  --color-card: #111114;
+  --color-content: #17171c;
+  --color-surface-interactive: #24242b;
+  --color-stroke-subtle: #2a2a31;
+
+  --color-fg-primary: #f5f5f7;
+  --color-fg-secondary: #a1a1aa;
+
+  --leading-snug-plus: 1.4;
+  --leading-body: 1.6;
+}
+
+@property --game-theme-color {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #a1a1aa;
+}
+
+.game-theme-scope {
+  --game-theme-neon-l-floor: 0.72;
+
+  --game-theme-neon: oklch(
+    from var(--game-theme-color)
+    max(l, var(--game-theme-neon-l-floor))
+    c
+    h
+  );
+
+  --game-theme-border: color-mix(in oklch, var(--game-theme-neon) 55%, transparent);
+  --game-theme-halo-near: color-mix(in oklch, var(--game-theme-neon) 36%, transparent);
+  --game-theme-halo-far: color-mix(in oklch, var(--game-theme-neon) 22%, transparent);
+  --game-theme-separator: color-mix(in oklch, var(--game-theme-neon) 72%, transparent);
+  --game-theme-glow-soft: color-mix(in oklch, var(--game-theme-neon) 15%, transparent);
+  --game-theme-focus: var(--game-theme-neon);
+
+  transition: --game-theme-color 350ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-theme-scope {
+    transition-duration: 0ms;
+  }
 }
 
 :root,
 .light {
   --ui-info: var(--ui-color-info-800);
+  --ui-primary: var(--ui-color-primary-600);
   --ui-text: var(--ui-color-neutral-800);
   --ui-text-toned: var(--ui-color-neutral-700);
   --ui-text-muted: var(--ui-color-neutral-600);
@@ -26,13 +59,10 @@
 
 .dark {
   --ui-info: var(--ui-color-info-300);
+  --ui-primary: var(--ui-color-primary-500);
   --ui-text: var(--ui-color-neutral-100);
   --ui-text-toned: var(--ui-color-neutral-200);
   --ui-text-muted: var(--ui-color-neutral-300);
   --ui-text-dimmed: var(--ui-text-muted);
   --ui-secondary: var(--ui-color-secondary-300);
-}
-
-div[role="region"] > span[aria-hidden="true"] {
-  display: none !important;
 }

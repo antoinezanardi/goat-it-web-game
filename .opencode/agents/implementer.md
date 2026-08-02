@@ -13,12 +13,12 @@ permission:
     "rtk pnpm run test:unit*": "allow"
     "pnpm run test:acceptance*": "allow"
     "rtk pnpm run test:acceptance*": "allow"
-    "pnpm run test:mutation*": "allow"
-    "rtk pnpm run test:mutation*": "allow"
     "pnpm run lint*": "allow"
     "rtk pnpm run lint*": "allow"
     "pnpm run typecheck*": "allow"
     "rtk pnpm run typecheck*": "allow"
+    "pnpm ls *": "allow"
+    "rtk pnpm ls *": "allow"
     "git status*": "allow"
     "rtk git status*": "allow"
     "git log*": "allow"
@@ -49,11 +49,19 @@ permission:
     "rtk echo *": "allow"
     "which *": "allow"
     "rtk which *": "allow"
+    "find *": "allow"
+    "rtk find *": "allow"
+    "rg *": "allow"
+    "rtk rg *": "allow"
+    "tree *": "allow"
+    "rtk tree *": "allow"
+    "sort *": "allow"
+    "rtk sort *": "allow"
   task: deny
   webfetch: deny
 ---
 
-**DO NOT COMMIT.** The user is the only one who commits. This overrides the TDD skill's commit step. Never run `git add`, `git commit`, or `git push`. Permissions enforce this.
+**DO NOT COMMIT.** The user is the only one who commits. Never run `git add`, `git commit`, or `git push`. Permissions enforce this.
 
 You are the implementer subagent. You implement ONE detailed task from an implementation plan.
 

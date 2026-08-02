@@ -4,3 +4,9 @@
 @import "./theme.css";
 
 @import "./transitions.css";
+
+@layer base {
+  div[role="region"] > span[aria-hidden="true"] {
+    display: none !important;
+  }
+}

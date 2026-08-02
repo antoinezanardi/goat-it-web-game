@@ -1,7 +1,7 @@
 ---
 description: Reviews the entire feature branch against the full plan and spec for the goat-it-web-game project. Catches cross-task issues, checks code quality, architecture fit, and spec coverage holistically. Does NOT run quality gates (orchestrator owns those). Returns a merge recommendation.
 mode: subagent
-model: opencode-go/deepseek-v4-flash
+model: opencode-go/deepseek-v4-pro
 temperature: 0.1
 hidden: true
 steps: 80
@@ -9,12 +9,18 @@ permission:
   edit: deny
   bash:
     "*": "ask"
-    "git status*": "allow"
-    "rtk git status*": "allow"
-    "git log*": "allow"
-    "rtk git log*": "allow"
-    "git diff*": "allow"
-    "rtk git diff*": "allow"
+    "git status *": "allow"
+    "rtk git status *": "allow"
+    "git branch *": "allow"
+    "rtk git branch *": "allow"
+    "git log *": "allow"
+    "rtk git log *": "allow"
+    "git diff *": "allow"
+    "rtk git diff *": "allow"
+    "git ls-files *": "allow"
+    "rtk git ls-files*": "allow"
+    "git show *": "allow"
+    "rtk git show *": "allow"
     "git add *": "deny"
     "rtk git add *": "deny"
     "git commit *": "deny"
@@ -32,8 +38,6 @@ permission:
     "rtk tail *": "allow"
     "find *": "allow"
     "rtk find *": "allow"
-    "git log *": "allow"
-    "rtk git log *": "allow"
     "echo *": "allow"
     "rtk echo *": "allow"
     "wc *": "allow"
@@ -66,7 +70,7 @@ You are the final reviewer. You review the whole implementation holistically —
 
 ### 0. Ignored files
 
-- **`tests/mutation/incremental/`** — ignore entirely. This is a Stryker incremental cache file (auto-generated, can exceed 20k lines). Do not flag it in any review category. If the only change on the branch is this file, the review is trivially clean.
+No files are automatically ignored in the diff review.
 
 ### 1. Spec coverage
 - Every requirement in the spec is implemented
@@ -176,7 +180,7 @@ You are the final reviewer. You review the whole implementation holistically —
 
 ## Skills to load
 
-- `requesting-code-review` — for the review structure
+- `vue` — to understand Vue 3 patterns and best practices
 - `nuxt` — to understand project structure and conventions
 - `nuxt-ui` — to evaluate UI component usage
 - `unit-testing` — to evaluate test quality

@@ -7,10 +7,10 @@ handling, Nuxt conventions, and other repo-specific rules).
 
 ## Build / Run / Lint / Test commands
 
-- Package manager: `pnpm@10.32.1` (see `package.json` -> `packageManager`).
+- Package manager: `pnpm` (exact version in `package.json` -> `packageManager`).
   - Unlike npm, `pnpm` does NOT require an extra `--` before flags. Pass arguments directly:
     `pnpm run test:unit -t "should render"` (correct) vs ~~`pnpm run test:unit -- -t "should render"`~~ (unnecessary).
-- Node requirement: >=25.8.1 (see `package.json` -> `engines.node`).
+- Node requirement: see `package.json` -> `engines.node` and `configs/node/.node-version`.
 - Dev server: `pnpm run dev` (nuxt dev, port 4000, dotenv `envs/.env.development`)
 - Build: `pnpm run build`; preview: `pnpm run preview` / `pnpm run start:prod`
 
@@ -24,7 +24,6 @@ handling, Nuxt conventions, and other repo-specific rules).
   - Full unit run:   `pnpm run test:unit`
   - With coverage:   `pnpm run test:unit:cov`
   - Watch mode:      `pnpm run test:unit:watch`
-  - Mutation (Stryker): `pnpm run test:mutation` / `pnpm run test:mutation:force`
   - Acceptance (Cucumber + Playwright): `pnpm run test:acceptance`
   - Acceptance build only: `pnpm run test:acceptance:build`
   - Install Playwright: `pnpm run test:acceptance:prepare` (run once locally)
@@ -67,12 +66,11 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 ## Repository structure
 
 - `app/`              – Nuxt application source
-  - `components/`     – `layouts/` and `shared/` sub-dirs; PascalCase `.vue` files
+  - `pages/`, `assets/`
   - `composables/`    – Organised as `core/`, `domain/`, `ui/`; each composable in its own sub-dir
   - `repositories/`   – Client-side data access (`*.repository.ts`); factory functions, auto-imported by Nuxt
   - `stores/`         – Pinia stores under `domain/`; store names from `stores/store.enums.ts`
   - `i18n/`           – i18n resources, locale JSON files live in `locales/{de,en,es,fr,it,pt}/`
-  - `pages/`, `layouts/`, `assets/`
 - `server/`           – Nitro server routes and utilities (API handlers, mappers, helpers)
   - `api/**/handlers/` – Route handler files (`*.handler.ts`); thin wrappers in `api/**/index.*.ts`
   - `utils/goat-it-api/` – Helpers, mappers, types, constants for the external API
@@ -80,9 +78,9 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - `shared/utils/`     – Helpers auto-imported in both app and server
 - `tests/unit/`       – Test utilities: `setup/nuxt/`, `utils/faketories/`, `utils/mocks/`
 - `tests/acceptance/` – Acceptance tests: Cucumber features, Playwright step definitions, hooks
-- `configs/`          – Vitest, Cucumber, ESLint, Oxlint, Stryker, lint-staged configs
+- `configs/`          – Vitest, Cucumber, ESLint, Oxlint, lint-staged configs
 - `envs/`             – `.env.development`, `.env.test`, `.env.example`
-- `modules/`          – Custom Nuxt modules; `scripts/` – shell utilities
+- `modules/`          – Modules directory; `scripts/` – shell and TypeScript scripts
 - `docker/goat-it-api-sandbox/` – Local API sandbox via docker-compose
 
 ## Project conventions & style
@@ -123,13 +121,14 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - `~~/` → repo root (use for `~~/tests/unit/...` in tests)
   - `#server/utils/...` → inside `server/` only
   - `#shared/` → `shared/`
+  - `#build/` → `.nuxt/`
   - `#acceptance/` → `tests/acceptance/` (acceptance tests only, via Node subpath imports)
 
 - Naming conventions:
   - Files: Components: `PascalCase.vue` | Composables: `use*.ts` | Stores: `<entity>.store.ts`
     Repositories: `<resource>.repository.ts` | Server handlers: `<resource>.<method>.handler.ts`
     Types: `*.types.ts` | Constants: `*.constants.ts` | Enums: `*.enums.ts`
-    Tests: `*.spec.ts` next to source | Faketories: `<entity>.<layer>.faketory.ts`
+    Tests: `*.spec.ts` next to source | Entity faketories: `<entity>.<layer>.faketory.ts` (DTO faketories come from `@goat-it/schemas/testing/*`)
     Mocks: `<composable>.mock.ts` (+ `.mock.constants.ts` + `.mock.types.ts` as needed)
   - Symbols: Types/Interfaces: `PascalCase` | Variables/functions: `camelCase`
     Exported constants: `UPPER_SNAKE_CASE`
@@ -139,7 +138,6 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - Prefer props + emits over global state for reusable components.
   - Minimal logic in templates; move complexity to `script setup` or composables.
   - Components with tests use `mountSuspended` from `@nuxt/test-utils/runtime`.
-  - Use `shallow: true` in `mountSuspended` for layout/page tests to avoid deep rendering.
 
 - Server-side (Nitro) rules:
   - API route files (`*.get.ts`, etc.) are 3-line thin wrappers: import handler + `defineEventHandler`.
@@ -147,7 +145,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - Validate all external API responses with `zod` before mapping to domain types.
   - Validate request bodies with `zod` via `readBody(event)` + `SCHEMA.parse(body)`.
   - Use `createGoatItApiEndpoint` / `createGoatItApiFetchOptions` helpers; never inline fetch options.
-  - Map DTOs to domain types via dedicated mapper functions in `goat-it-api.mappers.ts`.
+  - Map DTOs to domain types via dedicated mapper functions in `server/utils/goat-it-api/mappers/`.
 
 - Repository pattern:
   - Factory function: `export const fooRepository: FooRepository = (fetch: $Fetch) => ({ ... })`.
@@ -159,31 +157,32 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - Zod parse errors propagate naturally; do not catch unless you can recover.
   - No `console.log` in production code. `console.error` only for unexpected errors that are caught and handled gracefully.
 
-- **No agent-generated comments in source code.** Agents must never add comments to `.ts`, `.vue`, or other source files unless one of the following applies:
-  1. **Lint disable comments** — following the two-line format described in "Lint disable comments (last resort)" below
-  2. **JSDoc-type documentation** — for public API surfaces, exported functions, and composables
-
-  No explanatory comments, no `// TODO`, no `// FIXME`, no inline notes, no section markers (`// ---`, `// Types:`, `// Helpers`, etc.). Code and tests should be self-documenting through clear naming, small functions, and well-structured files.
-
-  The implementer agent already enforces "No `// TODO` / `// FIXME`" — this extends to all comment types.
-
 - Control flow:
-  - Prefer early returns over deeply nested `if/else` blocks. Guard clauses at the top
-    of a function improve readability and reduce indentation depth.
-  - Apply the same principle in all layers: composables, helpers, handlers, and mappers.
+  - Prefer early returns over deeply nested `if/else` blocks.
+
+- No agent-generated comments in source code. Agents must never add comments to `.ts`, `.vue`, or other source files unless:
+  1. **Lint disable comments** — following the two-line format below
+  2. **JSDoc-type documentation** — for public API surfaces, exported functions, and composables
+  - No explanatory comments, no `// TODO`, no `// FIXME`, no inline notes, no section markers.
 
 - Lint disable comments (last resort):
-  - Disabling lint rules should be a **last resort**. Exhaust all alternatives first
-    (refactoring, type narrowing, extracting helpers) before reaching for a disable comment.
+  - Disabling lint rules should be a **last resort**. Exhaust all alternatives first.
   - When a disable is genuinely needed, use the following two-line format:
     ```ts
     // Acceptable as <concise justification explaining WHY the disable is safe>
     // oxlint-disable-next-line <rule-name(s)>
     ```
-  - The reason line MUST start with `// Acceptable as` (no variations like "This is acceptable",
-    no trailing period). The disable line follows immediately below.
-  - Never use inline `--` reason comments (e.g. `// oxlint-disable-next-line rule -- reason`).
-  - Never use file-level or block-level disables (`/* eslint-disable */`) without explicit approval.
+  - The reason line MUST start with `// Acceptable as` (no variations, no trailing period).
+  - Never use inline `--` reason comments.
+  - Never use file-level or block-level disables without explicit approval.
+
+- `@goat-it/schemas` package (version in `package.json`):
+  - Provides Zod schemas, DTO types, and domain constants shared with the Goat It API.
+  - Sub-paths used: `@goat-it/schemas/question`, `@goat-it/schemas/question-theme`, `@goat-it/schemas/shared/error`, `@goat-it/schemas/shared/locale`.
+  - Test faketories: `@goat-it/schemas/testing/question`, `@goat-it/schemas/testing/question-theme`, `@goat-it/schemas/testing/shared`.
+  - Used in server handlers for response/query validation (`parse()` before mapping to domain types) and in app code for type-only imports (`import type` for DTO types, domain constant arrays).
+  - Listed in `vite.optimizeDeps.include` for correct tree-shaking in non-hoisted pnpm setups.
+  - Version is re-exported from the `goat-it-api` repo's `packages/schemas/`.
 
 ## Tests and test style
 
@@ -193,7 +192,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - `composables`  – `app/composables/**/*.spec.ts`
   - `stores`       – `app/**/*.store.spec.ts` (includes Pinia + composables + repository mock setup)
   - `repositories` – `app/**/*.repository.spec.ts` (plain Node env, no Nuxt)
-  - `node`         – `*.mappers.spec.ts`, `*.helpers.spec.ts` under app/, server/, shared/
+  - `node`         – `*.mappers.spec.ts`, `*.helpers.spec.ts`, `*.translations.spec.ts` under app/, server/, shared/
 - Coverage threshold: 100% (`thresholds: { 100: true }`).
   - Collected for `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`, `shared/**/*.ts`.
   - Excluded: `*.constants.ts`, `*.enums.ts`, `*.types.ts`, `*.d.ts`, `*.config.ts`,
@@ -201,19 +200,22 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 
 - Mocks in `tests/unit/utils/mocks/` — `composables/` and `repositories/` sub-dirs.
   - Non-trivial mocks use a triplet: `.mock.ts` + optionally `.mock.constants.ts` + `.mock.types.ts`.
-  - Use `ToMock<T>` from `~~/tests/unit/utils/types/mock.types.ts` to type mock objects:
-    ```ts
-    type ToMock<Stub> = { [Key in keyof Stub]: Stub[Key] extends (...args: unknown[]) => unknown ? Mock<Stub[Key]> : Stub[Key] };
-    ```
+  - Use `ToMock<T>` from `~~/tests/unit/utils/types/mock.types.ts` to type mock objects.
 - Mock setup files in `tests/unit/setup/nuxt/` sub-dirs `composables/` and `repositories/`.
   - New repository mocks: use `vi.mock(...)` (NOT `mockNuxtImport`).
   - New composable mocks: use `mockNuxtImport`.
   - Register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES` or `VITEST_REPOSITORIES_MOCK_SETUP_FILES`
     in `configs/vitest/vitest.config.constants.ts`. Load in `nuxt`, `composables`, `stores`; NOT in `repositories` or `node`.
 
+- Infrastructure registration checklist:
+  - New composable mock → register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES`
+  - New repository mock → register in `VITEST_REPOSITORIES_MOCK_SETUP_FILES`
+  - New bounded context (API) or domain alias → register in `nuxt.config.ts` `imports.dir` and Vitest aliases
+
 - Fake data: faketory functions (`@faker-js/faker`) in `tests/unit/utils/faketories/`.
-  - Accept `Partial<T>`; named `create<Entity><Layer>` (e.g. `createQuestionThemeEntity`).
-  - Two layers per entity: `entity/` (domain type) and `dto/` (raw API DTO).
+  - Accept `Partial<T>`; named `createFake<Entity>` (e.g. `createFakeQuestionTheme`).
+  - Entity faketories live locally (domain type). DTO faketories come from `@goat-it/schemas/testing/*` (raw API DTO).
+  - Do NOT create local DTO faketories — always import from the package.
 
 - Config per project: `mockReset: true`, `clearMocks: true`, `restoreMocks: true`.
 - `describe(functionName, ...)` — pass the function/composable/store reference as label. Exception for components, which are always `describe("<ComponentName> Component", ...)`
@@ -229,8 +231,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 
 - **Never commit unless the user explicitly asks for it.** Do not create commits
   autonomously after completing tasks or passing quality gates. This applies to ALL
-  agents, including subagents dispatched via Task/parallel execution. No agent at any
-  level of nesting may create a commit without explicit user approval.
+  agents, including subagents dispatched via Task/parallel execution.
 - Do not commit `.env.*` files with real secrets (`.env.example` is safe).
 - Husky pre-commit hooks are active; never bypass with `--no-verify`.
 - Conventional commits enforced by commitlint: `type(scope): message`.
@@ -241,30 +242,12 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 
 Each skill has a `SKILL.md` entry point. Load only the relevant skill for the task.
 
-- `nuxt`         – Nuxt 4 routing, composables, data fetching, server routes, SSR, testing.
-  Load before writing or modifying any Nuxt-specific code.
-- `nuxt-ui`      – `@nuxt/ui` v4 components, Tailwind CSS theming, layout patterns.
-- `vueuse`       – VueUse composables (state, sensors, browser APIs). Check here before
-  writing any custom composable; auto-imported via `@vueuse/nuxt`.
-- `unit-testing` – Complete unit test reference (patterns, mocks, faketories, Vitest projects).
-  Load before writing or modifying any `*.spec.ts` file. Full reference at `docs/unit-testing.md`.
-  Do NOT load all skill files at once; read the relevant `SKILL.md` first.
-- `acceptance-testing` – Cucumber + Playwright acceptance test patterns, step definitions,
-  feature files, DataTable schemas. Load before writing or modifying acceptance test files.
+Available skills: `acceptance-testing`, `brainstorming`, `nuxt`, `nuxt-ui`, `receiving-code-review`,
+`systematic-debugging`, `unit-testing`, `vite`, `vitest`, `vue`, `vueuse`, `writing-plans`, `writing-skills`.
 
-### Skill usage rules
-
-- **When writing unit tests** (including inside plans): always load the `unit-testing`
-  skill first. It contains all the patterns, mock wiring, faketory conventions, and
-  Vitest project rules needed to write correct tests.
-- **When writing acceptance tests** (including inside plans): always load the
-  `acceptance-testing` skill first. It contains step definition patterns, feature file
-  conventions, DataTable schemas, and infrastructure rules needed to write correct
-  acceptance tests.
-- **When brainstorming or writing plans**: always consult the `nuxt`, `nuxt-ui`, and
-  `vueuse` skills to make informed design decisions. These skills provide framework
-  conventions, component APIs, and composable references that should guide approach
-  selection and implementation details.
+- **When writing unit tests** (including inside plans): always load the `unit-testing` skill first.
+- **When writing acceptance tests** (including inside plans): always load the `acceptance-testing` skill first.
+- **When brainstorming or writing plans**: always consult the `nuxt`, `nuxt-ui`, and `vueuse` skills.
 
 ## OpenCode commands (`.opencode/commands/`)
 
@@ -276,58 +259,25 @@ Slash commands available in OpenCode sessions:
 
 ## Useful docs (`docs/`)
 
+- `docs/superpowers/` – Agent workflow artifacts: `specs/` (design specs from brainstormer), `plans/` (implementation plans from plan-writer).
 - `docs/unit-testing.md` – Full human-readable unit testing guide (patterns, examples, pitfalls).
 - `docs/acceptance-testing.md` – Full acceptance testing guide (Cucumber, Playwright, patterns, examples).
 
 ## MemPalace (persistent project memory)
 
-MemPalace is a local memory system that stores project context as searchable embeddings.
-It runs as an MCP server with 33 tools (prefixed `mcp_mempalace_*`). All data stays on
-your machine — no API keys, no cloud.
+MemPalace stores project context as searchable embeddings. It runs as an MCP server
+(prefixed `mcp_mempalace_*`). All data stays on your machine.
 
-### What's in the palace
-
-- **Drawers** of project files (code, docs, configs, tests) under wing `goat_it_web_game`
-- Rooms: `app`, `testing`, `documentation`, `backend`, `frontend`, `shared`, `configuration`,
-  `scripts`, `general`, `docker`, `design`, `modules`
-- Future sessions will be auto-mined by the plugin (every 20 message pairs)
-
-### How agents should use it
-
-1. **For tasks involving codebase context** (architecture, patterns, past decisions): query MemPalace first:
-   ```
-   Search for patterns, decisions, or architecture related to the task
-   ```
-   Use `mcp mempalace_search` with the wing filter to find relevant drawers. Skip MemPalace for trivial or purely mechanical tasks.
-
-2. **File learnings** to the knowledge graph after making decisions:
-   Use `mcp mempalace_kg_add` to persist important decisions, conventions,
-   or discoveries that future sessions should know.
-
-3. **Write diary entries** at session end:
-   Use `mcp mempalace_diary_write` to summarize what was accomplished.
-
-### Key commands
-
-- `mempalace search "query"` — semantic search across all project content
-- `mempalace search "query" --wing goat_it_web_game --room app` — scoped search
-- `mempalace status` — show drawer counts by room
-
-## Copilot instructions (`.github/copilot-instructions.md`)
-
-- Always read and follow `AGENTS.md` when working in this repo.
-- If `AGENTS.md` is not in the chat context, ask the repo owner to attach it.
-- Prefer minimal edits, Nuxt conventions, write unit tests first, and ensure
-  all mandatory quality gates pass (`pnpm run lint:fix` → `pnpm run typecheck` →
-  `pnpm run test:unit:cov` → `pnpm run test:acceptance`). Do NOT skip any gate.
-- Cursor rules: none (`.cursor/rules/` and `.cursorrules` do not exist).
+- Wing: `goat_it_web_game` | Rooms: `app`, `testing`, `documentation`, `backend/cli`, `configuration`, `scripts`, `general`, `docker`, `design`, `modules`, `shared`
+- For codebase context (architecture, patterns, past decisions): `mcp mempalace_search "query" --wing goat_it_web_game`
+- File learnings after decisions: `mcp mempalace_kg_add`
+- Write diary entries at session end: `mcp mempalace_diary_write`
 
 ## Useful paths
 
 - Vitest config:    `configs/vitest/vitest.config.ts` + `vitest.config.constants.ts`
 - ESLint config:    `eslint.config.ts` + `configs/eslint/flat-configs/`
-- Oxlint config:    `configs/oxlint/oxlint.config.jsonc`
-- Stryker config:   `configs/stryker/stryker.config.mjs`
+- Oxlint config:    `oxlint.config.jsonc`
 - Cucumber config:  `configs/cucumber/cucumber.json`
 - Nuxt config:      `nuxt.config.ts`
 - Env files:        `envs/.env.development`, `envs/.env.test`, `envs/.env.example`

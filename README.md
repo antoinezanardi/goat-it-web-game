@@ -1,4 +1,12 @@
-# 🐐 Goat It Web Game
+<h1 align="center">
+  <strong>Goat It Web Game</strong>
+</h1>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/antoinezanardi/goat-it-web-game/refs/heads/develop/public/img/logo/logo-512.avif" alt="Goat It Web Game Logo" width="200"/>
+</p>
+
+---
 
 ![TypeScript](https://img.shields.io/badge/-TypeScript-black?style=for-the-badge&logoColor=white&logo=typescript&color=2F73BF)
 ![Nuxt](https://img.shields.io/badge/-Nuxt-black?style=for-the-badge&logoColor=white&logo=nuxt&color=00DC82)
@@ -14,7 +22,6 @@
 ![Dependencies](https://img.shields.io/badge/-dependencies-black?style=flat-square&logoColor=white&logo=pnpm&color=B76507)
 
 [![Tests count](https://byob.yarr.is/antoinezanardi/goat-it-web-game/unit-tests-count)](https://byob.yarr.is/antoinezanardi/goat-it-web-game/unit-tests-count)
-[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fantoinezanardi%2Fgoat-it-web-game%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/antoinezanardi/goat-it-web-game/main)
 [![Scenarios count](https://byob.yarr.is/antoinezanardi/goat-it-web-game/scenarios)](https://byob.yarr.is/antoinezanardi/goat-it-web-game/scenarios)
 
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=antoinezanardi_goat-it-web-game&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=antoinezanardi_goat-it-web-game)
@@ -24,6 +31,7 @@
 ## 📖 Table of Contents
 
 - [🐐 What is this project ?](#what-is-this-project)
+- [🎮 Live demo](#live-demo)
 - [🔨 Installation](#installation)
 - [🚀 Build](#build)
 - [🐳 Docker](#docker)
@@ -37,6 +45,10 @@
 ## <a name="what-is-this-project">🐐 What is this project ?</a>
 
 Goat It Web Game is a web game built with Nuxt 4 and Vue 3, part of the Goat It app ecosystem.
+
+## <a name="live-demo">🎮 Live demo</a>
+
+You can test the app live at **[goat-it.fr](https://goat-it.fr/)**.
 
 ## <a name="installation">🔨 Installation</a>
 
@@ -149,22 +161,6 @@ pnpm run test:unit:watch
 
 # Run unit tests in coverage mode – used in CI pipelines
 pnpm run test:unit:cov
-```
-
-### 👽 Mutation testing
-
-![Stryker](https://img.shields.io/badge/-Stryker-black?style=for-the-badge&logoColor=white&logo=stryker&color=7F1B10)
-
-[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fantoinezanardi%2Fgoat-it-web-game%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/antoinezanardi/goat-it-web-game/main)
-
-This project uses `Stryker` for mutation testing with `100%` coverage (mutation score).
-
-```bash
-# Run mutation tests
-pnpm run test:mutation
-
-# Run mutation tests without incremental file (can be longer)
-pnpm run test:mutation:force
 ```
 
 ### 🥒 Acceptance tests

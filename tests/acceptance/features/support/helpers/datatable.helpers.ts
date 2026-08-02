@@ -1,6 +1,6 @@
-import type { DataTable } from "@cucumber/cucumber";
 import type { ZodType } from "zod";
 import { z } from "zod";
+import type { DataTable } from "@cucumber/cucumber";
 
 /**
  * Creates a Zod schema that coerces an empty string to `undefined` and validates non-empty strings.

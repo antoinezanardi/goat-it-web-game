@@ -1,0 +1,23 @@
+{
+  "questions": {
+    "cantFetch": "Impossible de charger les questions. Veuillez réessayer plus tard.",
+    "difficulty": {
+      "easy": "Facile",
+      "medium": "Moyenne",
+      "hard": "Difficile"
+    },
+    "category": {
+      "trivia": "Savoir & faits insolites",
+      "lexicon": "Lexique",
+      "riddle": "Mystère & devinette",
+      "explanation": "Comment & pourquoi ?"
+    },
+    "questionLabel": "Question",
+    "answerLabel": "Réponse",
+    "contextAccordionTitle": "Contexte & Anecdotes",
+    "sourcesAriaLabel": "Sources",
+    "sourceOpensInNewTab": "S'ouvre dans un nouvel onglet",
+    "sourceLabel": "Source | Sources",
+    "sourceTooltip": "Visiter {url} pour plus d'infos"
+  }
+}

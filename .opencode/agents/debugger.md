@@ -28,8 +28,6 @@ permission:
     "rtk pnpm run test:unit*": "allow"
     "pnpm run test:acceptance*": "allow"
     "rtk pnpm run test:acceptance*": "allow"
-    "pnpm run test:mutation*": "allow"
-    "rtk pnpm run test:mutation*": "allow"
     "pnpm run typecheck": "allow"
     "rtk pnpm run typecheck": "allow"
     "pnpm run lint*": "allow"
@@ -107,6 +105,5 @@ If you haven't completed Phase 1, you cannot propose fixes.
 ## Skills to load
 
 - `systematic-debugging` (the full 4-phase process)
-- `test-driven-development` (for the regression test in Phase 4)
-- `verification-before-completion` (before claiming root cause + fix)
+- `unit-testing` (for the regression test in Phase 4)
 - `nuxt` — for project structure context

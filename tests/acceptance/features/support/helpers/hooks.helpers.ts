@@ -1,7 +1,7 @@
-import { execSync } from "node:child_process";
-
-import type { ITestCaseHookParameter } from "@cucumber/cucumber";
 import { rimraf } from "rimraf";
+import { MongoClient } from "mongodb";
+import type { ITestCaseHookParameter as TestCaseHookParameter } from "@cucumber/cucumber";
+import type { Db } from "mongodb";
 
 import { ACCEPTANCE_TESTS_REPORTS_SCREENSHOTS_PATH } from "#acceptance/features/support/constants/acceptance.constants.ts";
 import {
@@ -10,6 +10,7 @@ import {
   SANDBOX_HEALTH_CHECK_INTERVAL_IN_MS,
   SANDBOX_HEALTH_CHECK_MAX_RETRIES,
   SANDBOX_MONGODB_DATABASE_NAME,
+  SANDBOX_MONGODB_PORT_BASE,
 } from "#acceptance/features/support/constants/hooks.constants.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { MS_IN_SECOND } from "#shared/utils/helpers/time/time.constants.ts";
@@ -21,6 +22,10 @@ function getWorkerId(): number {
 
 function getSandboxBaseUrl(): string {
   return `http://localhost:${SANDBOX_BASE_PORT + getWorkerId()}`;
+}
+
+function getSandboxMongoUri(workerId: number): string {
+  return `mongodb://localhost:${SANDBOX_MONGODB_PORT_BASE + workerId}`;
 }
 
 function removeAcceptanceTestsReportsScreenshotsDirectory(): void {
@@ -41,7 +46,7 @@ function sanitizeScenarioName(name: string): string {
     .slice(0, MAX_LENGTH);
 }
 
-async function generateScreenshotOnScenarioFailure(world: GoatItWorld, scenario: ITestCaseHookParameter): Promise<void> {
+async function generateScreenshotOnScenarioFailure(world: GoatItWorld, scenario: TestCaseHookParameter): Promise<void> {
   const screenShotExtension = ".png";
   const sanitizedName = sanitizeScenarioName(scenario.pickle.name);
   const screenShotRelativePath = `${ACCEPTANCE_TESTS_REPORTS_SCREENSHOTS_PATH}/${sanitizedName}-${Date.now()}${screenShotExtension}`;
@@ -56,16 +61,26 @@ async function generateScreenshotOnScenarioFailure(world: GoatItWorld, scenario:
   console.info(`Screenshot for failure scenario: ${scenario.pickle.name} saved at: "${screenShotFullPath}"`);
 }
 
-function resetSandboxData(): void {
-  const containerName = `goat-it-api-sandbox-mongodb-${getWorkerId()}`;
+async function getMongoClient(workerId: number): Promise<MongoClient> {
+  const uri = getSandboxMongoUri(workerId);
+  const client = new MongoClient(uri, {
+    connectTimeoutMS: RESET_SANDBOX_DATA_TIMEOUT_IN_MS,
+  });
 
+  await client.connect();
+
+  return client;
+}
+
+function getMongoDatabase(client: MongoClient): Db {
+  return client.db(SANDBOX_MONGODB_DATABASE_NAME);
+}
+
+async function resetSandboxData(world: GoatItWorld): Promise<void> {
   try {
-    execSync(
-      `docker exec ${containerName} mongosh --quiet --eval "db.dropDatabase()" ${SANDBOX_MONGODB_DATABASE_NAME}`,
-      { stdio: "pipe", timeout: RESET_SANDBOX_DATA_TIMEOUT_IN_MS },
-    );
+    await world.mongoDb.dropDatabase();
   } catch(error: unknown) {
-    throw new Error(`Failed to reset the Goat It API sandbox data within ${RESET_SANDBOX_DATA_TIMEOUT_IN_MS / MS_IN_SECOND}s.`, { cause: error });
+    throw new Error(`Failed to reset the Goat It API sandbox data.`, { cause: error });
   }
 }
 
@@ -93,6 +108,9 @@ async function waitForSandboxHealthCheck(): Promise<void> {
 
 export {
   generateScreenshotOnScenarioFailure,
+  getMongoClient,
+  getMongoDatabase,
+  getSandboxMongoUri,
   getSandboxBaseUrl,
   getWorkerId,
   removeAcceptanceTestsReportsScreenshotsDirectory,

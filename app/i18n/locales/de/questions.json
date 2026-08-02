@@ -1,0 +1,23 @@
+{
+  "questions": {
+    "cantFetch": "Fragen konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+    "difficulty": {
+      "easy": "Leicht",
+      "medium": "Mittel",
+      "hard": "Schwer"
+    },
+    "category": {
+      "trivia": "Wissenswertes",
+      "lexicon": "Lexikon",
+      "riddle": "Rätsel",
+      "explanation": "Erklärung"
+    },
+    "questionLabel": "Frage",
+    "answerLabel": "Antwort",
+    "contextAccordionTitle": "Kontext & Wissenswertes",
+    "sourcesAriaLabel": "Quellen",
+    "sourceOpensInNewTab": "Öffnet in neuem Tab",
+    "sourceLabel": "Quelle | Quellen",
+    "sourceTooltip": "{url} für weitere Informationen besuchen"
+  }
+}

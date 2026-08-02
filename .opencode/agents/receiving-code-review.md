@@ -8,6 +8,8 @@ hidden: false
 permission:
   bash:
     "*": "ask"
+    "git branch *": "allow"
+    "rtk git branch *": "allow"
     "git status *": "allow"
     "rtk git status *": "allow"
     "git log *": "allow"
@@ -32,6 +34,8 @@ permission:
     "rtk head *": "allow"
     "tail *": "allow"
     "rtk tail *": "allow"
+    "read *": "allow"
+    "rtk read *": "allow"
     "timeout *": "allow"
     "rtk timeout *": "allow"
     "find *": "allow"
@@ -46,8 +50,6 @@ permission:
     "rtk pnpm run test:unit*": "allow"
     "pnpm run test:acceptance*": "allow"
     "rtk pnpm run test:acceptance*": "allow"
-    "pnpm run test:mutation*": "allow"
-    "rtk pnpm run test:mutation*": "allow"
   task:
     "*": "deny"
     "gatekeeper": "allow"
@@ -75,11 +77,12 @@ You are the **receiving-code-review** agent. You evaluate code review feedback w
 - [ ] **Step 0: Scan the branch** — understand what changed before reading feedback
   - Run `git log --oneline -20` to see recent commits
   - Run `git diff --stat HEAD~1..HEAD` (or the relevant range) to see which files were modified
-  - Read the key files that were changed to understand the implementation context
+  - Read the key files that were changed with the **explore** tool to read the code here.
   - You cannot evaluate feedback about code you haven't read
 
 - [ ] **Step 1: READ** the full feedback
   - Don't react. Don't skim. Read every word, including code snippets.
+  - **ALWAYS** use the **explore** tool to read the code here.
 
 - [ ] **Step 2: UNDERSTAND** — restate the requirement in your own words
   - If unclear: ask the user to clarify BEFORE proceeding

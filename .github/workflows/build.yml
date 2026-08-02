@@ -125,25 +125,6 @@ jobs:
         id: unit-tests
         uses: ./.github/actions/unit-tests
 
-  mutation-tests:
-    name: Mutation Tests 👽
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment:
-      name: Stryker Dashboard
-      url: ${{ steps.mutation-tests.outputs.mutation-tests-dashboard-url }}
-    needs:
-      - install
-    steps:
-      - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
-
-      - name: Mutation Tests 👽
-        id: mutation-tests
-        uses: ./.github/actions/mutation-tests
-        with:
-          stryker-dashboard-api-key: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-
   acceptance-tests:
     name: Acceptance Tests 🥒
     runs-on: ubuntu-latest

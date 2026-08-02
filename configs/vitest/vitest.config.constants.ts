@@ -50,7 +50,7 @@ const VITEST_PROJECT_COMMON_NUXT_INLINE_CONFIG: InlineConfig = {
         runtimeConfig: {
           goatItApi: {
             baseUrl: "https://api.goat-it.com",
-            adminKey: "test-admin-key",
+            gameKey: "test-game-key",
           },
         },
       },
@@ -73,7 +73,12 @@ const VITEST_NUXT_PROJECT_SETUP_FILES = [
   path.resolve(processCwd, "tests/unit/setup/nuxt/virtualizer.nuxt.unit-setup.ts"),
 ] as const;
 
-const VITEST_COMPOSABLES_MOCK_SETUP_FILES: readonly string[] = [] as const;
+const VITEST_COMPOSABLES_MOCK_SETUP_FILES: readonly string[] = [
+  path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-fetch-status.nuxt.unit-setup.ts"),
+  path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-async-action.nuxt.unit-setup.ts"),
+  path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-app-toast.nuxt.unit-setup.ts"),
+  path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-goat-it-api-error-toast.nuxt.unit-setup.ts"),
+] as const;
 
 const VITEST_COMPOSABLES_PROJECT_INCLUDES = ["app/composables/**/*.spec.ts"];
 
@@ -81,7 +86,16 @@ const VITEST_STORES_PROJECT_INCLUDES = ["app/**/*.store.spec.ts"];
 
 const VITEST_REPOSITORIES_PROJECT_INCLUDES = ["app/**/*.repository.spec.ts"];
 
-const VITEST_REPOSITORIES_MOCK_SETUP_FILES: readonly string[] = [] as const;
+const VITEST_REPOSITORIES_MOCK_SETUP_FILES: readonly string[] = [
+  path.resolve(
+    processCwd,
+    "tests/unit/setup/nuxt/repositories/question-themes-repository.nuxt.unit-setup.ts",
+  ),
+  path.resolve(
+    processCwd,
+    "tests/unit/setup/nuxt/repositories/questions-repository.nuxt.unit-setup.ts",
+  ),
+] as const;
 
 const VITEST_NODE_PROJECT_INCLUDES = [
   "app/**/*.mappers.spec.ts",

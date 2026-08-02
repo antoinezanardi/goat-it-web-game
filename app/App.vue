@@ -1,9 +1,19 @@
 <script lang="ts" setup>
-defineOptions({ name: "App" });
+import { APP_TOAST_CONFIG, APP_TOOLTIP_CONFIG } from "~/app.constants";
 
-const TITLE = "Goat It Game";
+const questionThemesStore = useQuestionThemesStore();
+const { fetchAndStoreQuestionThemes } = questionThemesStore;
+
+void callOnce(fetchAndStoreQuestionThemes);
 </script>
 
 <template>
-  <div>{{ TITLE }}</div>
+  <UApp
+    :toaster="APP_TOAST_CONFIG"
+    :tooltip="APP_TOOLTIP_CONFIG"
+  >
+    <UMain>
+      <NuxtPage/>
+    </UMain>
+  </UApp>
 </template>
