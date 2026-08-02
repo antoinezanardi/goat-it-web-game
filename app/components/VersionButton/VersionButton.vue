@@ -1,12 +1,6 @@
 <script lang="ts" setup>
 import { version } from "~~/package.json";
-import { GITHUB_REPO_URL } from "@/components/VersionButton/version-button.constants";
-
-const versionButtonClass = [
-  "bg-(--ui-bg-elevated) gap-1.5 hover:bg-(--ui-bg-elevated-hover) hover:text-(--ui-text)",
-  "inline-flex items-center px-3 py-1.5 ring-(--ui-border) ring-1 rounded-full shadow-sm",
-  "text-(--ui-text-muted) text-xs transition-colors",
-].join(" ");
+import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/VersionButton/version-button.constants";
 </script>
 
 <template>
@@ -15,19 +9,17 @@ const versionButtonClass = [
     data-testid="github-version-button"
   >
     <UTooltip :text="$t('home.githubTooltip')">
-      <ULink
-        :class="versionButtonClass"
+      <UButton
+        color="info"
         :href="GITHUB_REPO_URL"
+        icon="i-lucide-github"
+        :label="`v${version}`"
         rel="noopener noreferrer"
+        size="md"
         target="_blank"
-      >
-        <UIcon
-          class="size-3.5"
-          name="i-lucide-github"
-        />
-
-        <span>{{ `v${version}` }}</span>
-      </ULink>
+        :ui="VERSION_BUTTON_UI"
+        variant="outline"
+      />
     </UTooltip>
   </div>
 </template>

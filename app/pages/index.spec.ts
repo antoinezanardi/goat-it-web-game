@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import { HOME_PAGE_TITLE_KEY } from "@/pages/index.constants";
+import { HOME_PAGE_PLAY_BUTTON_UI, HOME_PAGE_TITLE_KEY } from "@/pages/index.constants";
 import HomePage from "@/pages/index.vue";
 
 describe("Home Page", () => {
@@ -49,16 +49,22 @@ describe("Home Page", () => {
     expect(button.attributes("to")).toBe("/game");
   });
 
-  it("should render a UButton with the play-circle icon when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.attributes("icon")).toBe("i-lucide-play-circle");
-  });
-
   it("should render a UButton with the translated PLAY button label when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
     expect(button.attributes("label")).toBe("home.playButton");
+  });
+
+  it("should render a UButton with size xl when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
+
+    expect(button.attributes("size")).toBe("xl");
+  });
+
+  it("should render a UButton with the HOME_PAGE_PLAY_BUTTON_UI ui config when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
+
+    expect(button.props("ui")).toStrictEqual(HOME_PAGE_PLAY_BUTTON_UI);
   });
 
   it("should render VersionButton when mounted.", () => {

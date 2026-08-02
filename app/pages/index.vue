@@ -1,14 +1,9 @@
 <script lang="ts" setup>
-import { HOME_PAGE_TITLE_KEY } from "@/pages/index.constants";
+import { HOME_PAGE_PLAY_BUTTON_UI, HOME_PAGE_TITLE_KEY } from "@/pages/index.constants";
 
 const { t } = useI18n();
 
 const homePageTitle = computed<string>(() => t(HOME_PAGE_TITLE_KEY));
-
-const playButtonUi = {
-  base: "px-10 py-3 text-lg",
-  label: "uppercase tracking-widest",
-} as const;
 
 useHead(() => ({
   title: homePageTitle.value,
@@ -23,18 +18,17 @@ useHead(() => ({
       src="/img/logo/logo-512.avif"
     >
 
-    <h1 class="font-bold text-4xl text-fg-primary">
+    <h1 class="font-bold mb-10 text-5xl text-fg-primary">
       {{ t('home.brand') }}
     </h1>
 
     <UButton
-      color="neutral"
-      icon="i-lucide-play-circle"
+      color="primary"
       :label="t('home.playButton')"
       size="xl"
       to="/game"
-      :ui="playButtonUi"
-      variant="outline"
+      :ui="HOME_PAGE_PLAY_BUTTON_UI"
+      variant="solid"
     />
 
     <VersionButton/>
