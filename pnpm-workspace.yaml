@@ -1,13 +1,18 @@
 overrides:
   conventional-changelog-writer: ^9.2.0
   eslint-plugin-import-x: 4.17.1
+  vite: ^8.1.5
 
 allowBuilds:
   '@parcel/watcher': true
   esbuild: true
+  sharp: true
   unrs-resolver: true
   vue-demi: true
 
+peerDependencyRules:
+  allowedVersions:
+    vite: "8"
 supportedArchitectures: os=linux,darwin cpu=x64,arm64
 libc: glibc,musl
 minimumReleaseAge: 0

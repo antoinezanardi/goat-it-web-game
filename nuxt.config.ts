@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     "@nuxt/hints",
     "@pinia/nuxt",
     "@nuxt/eslint",
+    "@vite-pwa/nuxt",
   ],
   $test: {
     buildDir: ".nuxt/test",
@@ -188,4 +189,44 @@ export default defineNuxtConfig({
     },
   },
   pinia: { storesDirs: ["stores/**"] },
+  pwa: {
+    registerType: "autoUpdate",
+    manifest: {
+      name: "Goat It",
+      short_name: "Goat It",
+      description: "Un jeu de quiz multijoueur — relevez des défis avec des questions thématiques",
+      theme_color: "#18181b",
+      background_color: "#18181b",
+      display: "standalone",
+      orientation: "any",
+      scope: "/",
+      start_url: "/",
+      lang: "fr",
+      icons: [
+        { src: "/pwa/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+        { src: "/pwa/pwa-512x512.png", sizes: "512x512", type: "image/png" },
+        { src: "/pwa/pwa-512x512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      ],
+      screenshots: [
+        { src: "/pwa/screenshot-home.png", sizes: "1280x720", type: "image/png", form_factor: "wide" },
+        { src: "/pwa/screenshot-game.png", sizes: "1280x720", type: "image/png", form_factor: "wide" },
+      ],
+      shortcuts: [
+        {
+          name: "Jouer",
+          short_name: "Jouer",
+          url: "/game",
+          icons: [{ src: "/pwa/pwa-192x192.png", sizes: "192x192" }],
+        },
+      ],
+      categories: ["games"],
+    },
+    workbox: {
+      globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,otf,avif}"],
+      navigateFallback: null,
+    },
+    client: {
+      installPrompt: true,
+    },
+  },
 });

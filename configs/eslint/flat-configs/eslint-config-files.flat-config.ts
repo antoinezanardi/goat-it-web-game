@@ -14,6 +14,7 @@ const ESLINT_CONFIG_FILES_FLAT_CONFIG: Linter.Config = {
     "import/no-default-export": "off",
     "import/no-internal-modules": "off",
     "import/no-anonymous-default-export": "off",
+    "camelcase": "off",
     "unicorn/filename-case": [
       "error",
       {
