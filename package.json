@@ -106,7 +106,7 @@
     "@tanstack/vue-table": "^8.21.3",
     "@types/node": "^25.9.5",
     "@vitest/coverage-v8": "^4.1.10",
-    "@vitest/eslint-plugin": "^1.6.25",
+    "@vitest/eslint-plugin": "^1.6.26",
     "@vue/test-utils": "^2.4.11",
     "@vueuse/core": "^14.4.0",
     "@vueuse/nuxt": "^14.4.0",
