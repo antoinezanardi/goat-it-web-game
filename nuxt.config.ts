@@ -34,12 +34,15 @@ export default defineNuxtConfig({
       mode: "out-in",
     },
     head: {
-      htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE },
+      htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE, class: "dark" },
       title: "Goat It Game",
     },
   },
   css: ["~/assets/css/main.css"],
-  ui: { experimental: { componentDetection: true } },
+  ui: {
+    colorMode: false,
+    experimental: { componentDetection: true },
+  },
   runtimeConfig: {
     goatItApi: {
       baseUrl: "",
