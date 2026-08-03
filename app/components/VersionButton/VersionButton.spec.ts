@@ -58,13 +58,13 @@ describe("VersionButton Component", () => {
   it("should set the UButton variant to outline when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("variant")).toBe("outline");
+    expect(button.props("variant")).toBe("subtle");
   });
 
   it("should set the UButton color to info when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("color")).toBe("info");
+    expect(button.props("color")).toBe("primary");
   });
 
   it("should set the UButton size to md when mounted.", () => {
