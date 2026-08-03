@@ -6,28 +6,28 @@ import type { GoatItWorld } from "#acceptance/features/support/types/world.types
 Then(
   /^the manifest link should be present in the document head$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.locator("link[rel=\"manifest\"]")).toBeAttached();
+    await expect(this.page.locator("head link[rel=\"manifest\"]")).toBeAttached();
   },
 );
 
 Then(
   /^the theme color meta tag should have content "(?<content>[^"]*)"$/u,
   async function(this: GoatItWorld, content: string): Promise<void> {
-    await expect(this.page.locator("meta[name=\"theme-color\"]")).toHaveAttribute("content", content);
+    await expect(this.page.locator("head meta[name=\"theme-color\"]")).toHaveAttribute("content", content);
   },
 );
 
 Then(
   /^the apple touch icon link should be present in the document head$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.locator("link[rel=\"apple-touch-icon\"]")).toHaveAttribute("href", "/pwa/apple-touch-icon.png");
+    await expect(this.page.locator("head link[rel=\"apple-touch-icon\"]")).toHaveAttribute("href", "/pwa/apple-touch-icon.png");
   },
 );
 
 Then(
   /^the mobile web app capable meta tag should be present$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.locator("meta[name=\"mobile-web-app-capable\"]")).toHaveAttribute("content", "yes");
+    await expect(this.page.locator("head meta[name=\"mobile-web-app-capable\"]")).toHaveAttribute("content", "yes");
   },
 );
 

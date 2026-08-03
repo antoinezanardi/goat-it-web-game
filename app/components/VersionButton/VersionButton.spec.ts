@@ -7,7 +7,9 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/VersionButton/version-button.constants";
 import VersionButton from "@/components/VersionButton/VersionButton.vue";
 
-vi.mock(import("~~/package.json"), () => ({
+// Acceptable as import() mock hoisting fails on CI because ~~/ alias is not resolved during Vitest's mock hoisting phase
+// oxlint-disable-next-line vitest/prefer-import-in-mock
+vi.mock("~~/package.json", () => ({
   version: "1.0.0",
 }));
 
