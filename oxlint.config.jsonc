@@ -31,6 +31,7 @@
     "fetch": "readonly",
     "getQuery": "readonly",
     "getRouterParam": "readonly",
+    "navigator": "readonly",
     "process": "readonly",
     "questionThemesRepository": "readonly",
     "questionsRepository": "readonly",
@@ -1437,7 +1438,8 @@
         "nuxt.config.ts"
       ],
       "rules": {
-        "node/no-process-env": "off"
+        "node/no-process-env": "off",
+        "unicorn/no-null": "off"
       }
     }
   ]

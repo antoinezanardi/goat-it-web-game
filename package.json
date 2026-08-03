@@ -105,6 +105,7 @@
     "@semantic-release/release-notes-generator": "^14.1.1",
     "@tanstack/vue-table": "^8.21.3",
     "@types/node": "^25.9.5",
+    "@vite-pwa/nuxt": "^1.1.1",
     "@vitest/coverage-v8": "^4.1.10",
     "@vitest/eslint-plugin": "^1.6.26",
     "@vue/test-utils": "^2.4.11",
