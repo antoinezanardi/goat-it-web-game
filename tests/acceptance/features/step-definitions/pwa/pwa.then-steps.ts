@@ -6,7 +6,7 @@ import type { GoatItWorld } from "#acceptance/features/support/types/world.types
 Then(
   /^the manifest link should be present in the document head$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.locator("head link[rel=\"manifest\"]")).toBeAttached();
+    await expect(this.page.locator("head link[rel=\"manifest\"]")).toHaveAttribute("href", "/manifest.webmanifest");
   },
 );
 
