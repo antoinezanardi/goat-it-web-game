@@ -10,7 +10,7 @@ import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/VersionButton/v
   >
     <UTooltip :text="$t('home.githubTooltip')">
       <UButton
-        color="info"
+        color="primary"
         :href="GITHUB_REPO_URL"
         icon="i-lucide-github"
         :label="`v${version}`"
@@ -18,7 +18,7 @@ import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/VersionButton/v
         size="md"
         target="_blank"
         :ui="VERSION_BUTTON_UI"
-        variant="outline"
+        variant="subtle"
       />
     </UTooltip>
   </div>

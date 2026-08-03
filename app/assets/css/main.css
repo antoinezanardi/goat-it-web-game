@@ -10,6 +10,10 @@
     background-color: var(--color-app-bg);
   }
 
+  body {
+    background-color: var(--color-app-bg);
+  }
+
   div[role="region"] > span[aria-hidden="true"] {
     display: none !important;
   }
