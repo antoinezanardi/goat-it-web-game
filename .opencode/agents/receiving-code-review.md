@@ -30,6 +30,8 @@ permission:
     "rtk grep *": "allow"
     "ls *": "allow"
     "rtk ls *": "allow"
+    "readlink *": "allow"
+    "rtk readlink *": "allow"
     "head *": "allow"
     "rtk head *": "allow"
     "tail *": "allow"

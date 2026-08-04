@@ -54,7 +54,7 @@ const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveTh
     </div>
 
     <div
-      v-if="!isGameOver"
+      v-if="!isGameOver && !isOutOfQuestionsLoading"
       class="bottom-0 flex flex-col max-w-3xl mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 sticky w-full"
     >
       <GameNextButton

@@ -32,6 +32,7 @@
     "getQuery": "readonly",
     "getRouterParam": "readonly",
     "navigator": "readonly",
+    "onMounted": "readonly",
     "process": "readonly",
     "questionThemesRepository": "readonly",
     "questionsRepository": "readonly",

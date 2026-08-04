@@ -24,6 +24,7 @@ mockNuxtImport(
   () => (): UseGame => ({
     currentQuestion: computed(() => currentQuestion.value),
     advanceToNextQuestion,
+    initialize: vi.fn<() => Promise<void>>(),
     isInitialLoading: computed(() => isInitialLoading.value),
     isOutOfQuestionsLoading: computed(() => isOutOfQuestionsLoading.value),
     isGameOver: computed(() => isGameOver.value),
@@ -109,14 +110,14 @@ describe("Game Page", () => {
     expect(wrapper.text()).toContain("game.loadingQuestions");
   });
 
-  it("should render GameNextButton with loading bound to true when out of questions loading.", async() => {
+  it("should hide GameNextButton when out of questions loading.", async() => {
     currentQuestion.value = undefined;
     isOutOfQuestionsLoading.value = true;
     await nextTick();
 
     const nextButton = wrapper.findComponent({ name: "GameNextButton" });
 
-    expect(nextButton.props("loading")).toBe(true);
+    expect(nextButton.exists()).toBeFalsy();
   });
 
   it("should render GameNoMoreQuestions when isGameOver is true.", async() => {

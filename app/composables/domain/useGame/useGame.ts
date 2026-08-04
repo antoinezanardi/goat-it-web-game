@@ -1,5 +1,4 @@
 import { storeToRefs } from "pinia";
-import type { FindRandomQuestionsQueryDto } from "@goat-it/schemas/question";
 
 import type { Question } from "#shared/types/question.types";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
@@ -7,6 +6,7 @@ import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY, GAME_PREFETCH_THRESHOLD } fr
 type UseGame = {
   currentQuestion: ComputedRef<Question | undefined>;
   advanceToNextQuestion: () => void;
+  initialize: () => Promise<void>;
   isInitialLoading: ComputedRef<boolean>;
   isOutOfQuestionsLoading: ComputedRef<boolean>;
   isGameOver: ComputedRef<boolean>;
@@ -20,18 +20,14 @@ function useGame(): UseGame {
   const isExhausted = ref<boolean>(false);
   const hasTriggeredPrefetch = ref<boolean>(false);
 
-  const playedQuestionIds = computed<string[]>(() => questions.value.slice(0, currentIndex.value).map(question => question.id));
-
-  const excludedIdsQuery = computed<FindRandomQuestionsQueryDto>(() => {
-    if (playedQuestionIds.value.length === 0) {
+  const excludedIdsQuery = computed(() => {
+    if (questions.value.length === 0) {
       return GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY;
     }
-    // Acceptable as the schema handles comma-separated strings at runtime, but the DTO type only models string[]
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return {
       "limit": GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY.limit,
-      "excluded-ids": playedQuestionIds.value.join(","),
-    } as unknown as FindRandomQuestionsQueryDto;
+      "excluded-ids": questions.value.map(question => question.id),
+    };
   });
 
   const currentQuestion = computed<Question | undefined>(() => questions.value[currentIndex.value]);
@@ -40,21 +36,36 @@ function useGame(): UseGame {
   const isGameOver = computed<boolean>(() => isExhausted.value && currentIndex.value >= questions.value.length);
   const prefetchThreshold = computed<number>(() => Math.floor(questions.value.length * GAME_PREFETCH_THRESHOLD));
 
-  void callOnce(async() => {
+  async function initialize(): Promise<void> {
     await store.fetchAndAppendRandomQuestions(excludedIdsQuery.value);
     if (questions.value.length === 0) {
       isExhausted.value = true;
     }
+  }
+
+  onMounted(() => {
+    void initialize();
   });
 
   watch(currentIndex, async index => {
-    if (index >= prefetchThreshold.value && !isPending.value && !isExhausted.value && !hasTriggeredPrefetch.value) {
-      hasTriggeredPrefetch.value = true;
-      const lengthBefore = questions.value.length;
-      await store.fetchAndAppendRandomQuestions(excludedIdsQuery.value);
-      if (questions.value.length === lengthBefore) {
-        isExhausted.value = true;
-      }
+    if (index < prefetchThreshold.value) {
+      return;
+    }
+    if (isPending.value) {
+      return;
+    }
+    if (isExhausted.value) {
+      return;
+    }
+    if (hasTriggeredPrefetch.value) {
+      return;
+    }
+
+    hasTriggeredPrefetch.value = true;
+    const lengthBefore = questions.value.length;
+    await store.fetchAndAppendRandomQuestions(excludedIdsQuery.value);
+    if (questions.value.length === lengthBefore) {
+      isExhausted.value = true;
     }
   });
 
@@ -72,6 +83,7 @@ function useGame(): UseGame {
   return {
     currentQuestion,
     advanceToNextQuestion,
+    initialize,
     isInitialLoading,
     isOutOfQuestionsLoading,
     isGameOver,

@@ -1,24 +1,21 @@
-<script lang="ts" setup>
-const GAME_NO_MORE_QUESTIONS_ICON = "🐐";
-</script>
-
 <template>
   <div
     class="flex flex-1 flex-col gap-6 items-center justify-center px-4 py-6"
     data-testid="game-no-more-questions"
   >
-    <span
+    <UIcon
       aria-hidden="true"
-      class="text-5xl"
-    >{{ GAME_NO_MORE_QUESTIONS_ICON }}</span>
+      class="size-20"
+      name="i-lucide-party-popper"
+    />
 
-    <p class="font-medium text-center text-fg-primary text-lg">
+    <p class="font-medium text-center text-fg-primary text-xl">
       {{ $t("game.noMoreQuestions") }}
     </p>
 
     <UButton
       :label="$t('game.backToHome')"
-      size="lg"
+      size="xl"
       to="/"
     />
   </div>
