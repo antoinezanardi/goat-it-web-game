@@ -10,8 +10,8 @@ export default defineAppConfig({
       },
       compoundVariants: [
         {
-          color: "primary" as const,
-          variant: "solid" as const,
+          color: "primary",
+          variant: "solid",
           class: {
             base: "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]",
           },

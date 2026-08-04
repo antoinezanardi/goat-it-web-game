@@ -48,16 +48,7 @@ function useGame(): UseGame {
   });
 
   watch(currentIndex, async index => {
-    if (index < prefetchThreshold.value) {
-      return;
-    }
-    if (isPending.value) {
-      return;
-    }
-    if (isExhausted.value) {
-      return;
-    }
-    if (hasTriggeredPrefetch.value) {
+    if (index < prefetchThreshold.value || isPending.value || isExhausted.value || hasTriggeredPrefetch.value) {
       return;
     }
 
