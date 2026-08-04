@@ -1,6 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ZodError } from "zod";
-import { createFakeQuestionDto } from "@goat-it/schemas/testing/question";
+import { RANDOM_QUESTIONS_LIMIT_DEFAULT } from "@goat-it/schemas/question";
+import { createFakeFindRandomQuestionsQueryDto, createFakeQuestionDto } from "@goat-it/schemas/testing/question";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
@@ -34,7 +35,13 @@ describe("Server Goat It API Questions Random Handler", () => {
       expect(createGoatItApiFetchOptions).toHaveBeenCalledExactlyOnceWith(mockedEvent);
     });
 
-    it("should fetch random questions from goat it api with correct endpoint and fetch options when called.", async() => {
+    it("should read query parameters from the event when called.", async() => {
+      await getRandomQuestionsHandler(mockedEvent);
+
+      expect(getQuery).toHaveBeenCalledExactlyOnceWith(mockedEvent);
+    });
+
+    it("should fetch random questions from goat it api with correct endpoint, fetch options and query when called.", async() => {
       const expectedEndpoint = "/questions/random";
       const expectedFetchOptions = {
         baseURL: "https://api.goat-it.com",
@@ -46,7 +53,27 @@ describe("Server Goat It API Questions Random Handler", () => {
       vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
       await getRandomQuestionsHandler(mockedEvent);
 
-      expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, expectedFetchOptions);
+      expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, { ...expectedFetchOptions, query: { limit: RANDOM_QUESTIONS_LIMIT_DEFAULT } });
+    });
+
+    it("should fetch random questions with query parameters forwarded when called with excluded ids.", async() => {
+      const expectedEndpoint = "/questions/random";
+      const expectedFetchOptions = {
+        baseURL: "https://api.goat-it.com",
+        headers: {
+          "goat-it-api-key": "test-game-key",
+        },
+      };
+      vi.mocked(createGoatItApiEndpoint).mockReturnValue(expectedEndpoint);
+      vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
+      const expectedQuery = createFakeFindRandomQuestionsQueryDto({
+        "excluded-ids": ["60af924f4f1a2563f8e8b456", "60af924f4f1a2563f8e8b457"],
+      });
+      vi.mocked(getQuery).mockReturnValue(expectedQuery);
+
+      await getRandomQuestionsHandler(mockedEvent);
+
+      expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, { ...expectedFetchOptions, query: expectedQuery });
     });
 
     it("should return mapped questions when called.", async() => {
@@ -60,6 +87,12 @@ describe("Server Goat It API Questions Random Handler", () => {
       const result = await getRandomQuestionsHandler(mockedEvent);
 
       expect(result).toStrictEqual(expectedQuestions);
+    });
+
+    it("should throw ZodError when query parameters are invalid.", async() => {
+      vi.mocked(getQuery).mockReturnValue({ limit: "not-a-number" });
+
+      await expect(getRandomQuestionsHandler(mockedEvent)).rejects.toThrow(ZodError);
     });
 
     it("should call handleGoatItApiError when $fetch throws an error.", async() => {

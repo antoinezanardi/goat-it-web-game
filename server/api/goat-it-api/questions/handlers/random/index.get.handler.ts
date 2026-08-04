@@ -1,4 +1,4 @@
-import { QUESTION_DTO } from "@goat-it/schemas/question";
+import { FIND_RANDOM_QUESTIONS_QUERY_DTO, QUESTION_DTO } from "@goat-it/schemas/question";
 import type { H3Event } from "h3";
 import { z } from "zod";
 
@@ -9,9 +9,11 @@ import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiEr
 async function getRandomQuestionsHandler(event: H3Event): Promise<Question[]> {
   const endpoint = createGoatItApiEndpoint("questions", { suffix: "random" });
   const fetchOptions = createGoatItApiFetchOptions(event);
+  const rawQuery = getQuery(event);
+  const query = FIND_RANDOM_QUESTIONS_QUERY_DTO.parse(rawQuery);
 
   try {
-    const rawData = await $fetch(endpoint, fetchOptions);
+    const rawData = await $fetch(endpoint, { ...fetchOptions, query });
     const questions = z.array(QUESTION_DTO).parse(rawData);
 
     return questions.map(createQuestionFromQuestionDto);

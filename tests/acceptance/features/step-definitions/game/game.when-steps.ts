@@ -2,6 +2,8 @@ import { When } from "@cucumber/cucumber";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 
+const GAME_NEXT_QUESTION_SETTLE_DELAY_MS = 300;
+
 When(
   /^the user goes to the next question$/u,
   async function(this: GoatItWorld): Promise<void> {
@@ -11,7 +13,7 @@ When(
 
 When(
   /^the user skips (?<count>\d+) questions$/u,
-  { timeout: 10_000 },
+  { timeout: 30_000 },
   async function(this: GoatItWorld, count: string): Promise<void> {
     const clicks = Math.trunc(Number(count));
 
@@ -19,6 +21,16 @@ When(
       // Acceptable as each click must be sequential to let the page render the next question
       // oxlint-disable-next-line eslint/no-await-in-loop
       await this.page.getByTestId("game-next-button").click();
+      // Acceptable as each delay must be sequential to let Vue reactivity settle
+      // oxlint-disable-next-line eslint/no-await-in-loop
+      await this.page.waitForTimeout(GAME_NEXT_QUESTION_SETTLE_DELAY_MS);
     }
+  },
+);
+
+When(
+  /^the user clicks the back to home button$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.getByRole("link", { name: "Back to Home" }).click();
   },
 );

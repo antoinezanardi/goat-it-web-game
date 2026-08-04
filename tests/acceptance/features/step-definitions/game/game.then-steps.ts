@@ -16,3 +16,17 @@ Then(
     await expect(this.page.getByTestId("game-next-button")).toBeVisible();
   },
 );
+
+Then(
+  /^the next question button should be hidden$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expect(this.page.getByTestId("game-next-button")).not.toBeVisible();
+  },
+);
+
+Then(
+  /^the no more questions message should be displayed$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expect(this.page.getByTestId("game-no-more-questions")).toBeVisible();
+  },
+);

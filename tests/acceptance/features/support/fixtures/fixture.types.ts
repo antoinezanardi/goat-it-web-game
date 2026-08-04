@@ -50,7 +50,7 @@ type FixtureRegistry = {
   };
   "question": {
     "two-english-only-questions": FixtureDefinition<QuestionFixtureDocument>;
-    "five-questions": FixtureDefinition<QuestionFixtureDocument>;
+    "five-active-questions": FixtureDefinition<QuestionFixtureDocument>;
     "sixty-questions": FixtureDefinition<QuestionFixtureDocument>;
   };
 };
