@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { FIVE_QUESTION_THEMES_FIXTURE_CINEMA_ENTRY, FIVE_QUESTION_THEMES_FIXTURE_HISTORY_ENTRY, FIVE_QUESTION_THEMES_FIXTURE_MUSIC_ENTRY, FIVE_QUESTION_THEMES_FIXTURE_SCIENCE_ENTRY, FIVE_QUESTION_THEMES_FIXTURE_SPORTS_ENTRY } from "../../question-theme/sets/five-question-themes.fixture-set.ts";
 
-const FIVE_QUESTIONS_FIXTURE_SET = [
+const FIVE_ACTIVE_QUESTIONS_FIXTURE_SET = [
   {
     _id: new ObjectId("a1b2c3d4e5f6012345678901"),
     category: "riddle",
@@ -107,7 +107,7 @@ const FIVE_QUESTIONS_FIXTURE_SET = [
       name: "Music AI",
     },
     sourceUrls: ["https://en.wikipedia.org/wiki/The_Dark_Side_of_the_Moon"],
-    status: "pending",
+    status: "active",
     createdAt: new Date("2024-04-01T00:00:00.000Z"),
     updatedAt: new Date("2024-04-01T00:00:00.000Z"),
   },
@@ -208,7 +208,7 @@ const FIVE_QUESTIONS_FIXTURE_SET = [
       comment: "Second theme assignment is not relevant to the question content.",
     },
     sourceUrls: ["https://en.wikipedia.org/wiki/George_Washington"],
-    status: "rejected",
+    status: "active",
     createdAt: new Date("2024-02-01T00:00:00.000Z"),
     updatedAt: new Date("2024-02-01T00:00:00.000Z"),
   },
@@ -262,12 +262,12 @@ const FIVE_QUESTIONS_FIXTURE_SET = [
       name: "AI Question Generator",
     },
     sourceUrls: ["https://www.nationalgeographic.com/animals/article/elephants-bees-fear-wildlife-conservation-africa-science"],
-    status: "archived",
+    status: "active",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
     updatedAt: new Date("2024-01-01T00:00:00.000Z"),
   },
 ] as const;
 
 export {
-  FIVE_QUESTIONS_FIXTURE_SET,
+  FIVE_ACTIVE_QUESTIONS_FIXTURE_SET,
 };

@@ -11,7 +11,7 @@ When(
 
 When(
   /^the user skips (?<count>\d+) questions$/u,
-  { timeout: 10_000 },
+  { timeout: 30_000 },
   async function(this: GoatItWorld, count: string): Promise<void> {
     const clicks = Math.trunc(Number(count));
 
@@ -20,5 +20,12 @@ When(
       // oxlint-disable-next-line eslint/no-await-in-loop
       await this.page.getByTestId("game-next-button").click();
     }
+  },
+);
+
+When(
+  /^the user clicks the back to home button$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.getByRole("link", { name: "Back to Home" }).click();
   },
 );

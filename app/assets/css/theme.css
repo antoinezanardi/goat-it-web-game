@@ -21,7 +21,7 @@
 }
 
 .game-theme-scope {
-  --game-theme-neon-l-floor: 0.72;
+  --game-theme-neon-l-floor: 0.85;
 
   --game-theme-neon: oklch(
     from var(--game-theme-color)
@@ -49,7 +49,7 @@
 :root,
 .dark {
   --ui-info: var(--ui-color-info-300);
-  --ui-primary: var(--ui-color-primary-500);
+  --ui-primary: var(--ui-color-primary-600);
   --ui-text: var(--ui-color-neutral-100);
   --ui-text-toned: var(--ui-color-neutral-200);
   --ui-text-muted: var(--ui-color-neutral-300);

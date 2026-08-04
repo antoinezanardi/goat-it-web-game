@@ -1,6 +1,6 @@
 import type { FindRandomQuestionsQueryDto } from "@goat-it/schemas/question";
 
-export const useQuestionsStore = defineStore(StoreNames.QUESTIONS, () => {
+export const useGameStore = defineStore(StoreNames.GAME, () => {
   const questions = ref<Question[]>([]);
 
   const repository = questionsRepository($fetch);
