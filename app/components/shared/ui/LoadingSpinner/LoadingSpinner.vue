@@ -11,7 +11,7 @@ defineProps<LoadingSpinnerProps>();
   >
     <UIcon
       aria-hidden="true"
-      class="animate-spin size-10"
+      class="animate-spin size-12 text-blue-400"
       name="i-lucide-loader-circle"
     />
 

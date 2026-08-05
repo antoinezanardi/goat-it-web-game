@@ -28,7 +28,7 @@ describe("LoadingSpinner Component", () => {
   });
 
   describe("with label", () => {
-    const fakeLabel = "Chargement...";
+    const fakeLabel = "Loading …";
 
     beforeEach(async() => {
       wrapper = await mountLoadingSpinnerComponent({ props: { label: fakeLabel } });

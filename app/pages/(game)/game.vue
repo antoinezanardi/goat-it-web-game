@@ -20,7 +20,7 @@ const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveTh
 <template>
   <div
     id="game-page"
-    class="bg-app-bg game-theme-scope md:px-6 min-h-dvh px-4"
+    class="bg-app-bg flex flex-col game-theme-scope md:px-6 min-h-dvh px-4"
     :style="{ '--game-theme-color': pageThemeColor }"
   >
     <h1 class="sr-only">

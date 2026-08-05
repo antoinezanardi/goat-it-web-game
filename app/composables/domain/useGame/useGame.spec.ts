@@ -107,10 +107,10 @@ describe("useGame", () => {
       expect(game.gameState.value).toBe("playing");
     });
 
-    it("should be 'playing' when questions are empty, no fetch is pending, and the game is not exhausted.", () => {
+    it("should be 'loading' when questions are empty, no fetch is pending, and the game is not exhausted.", () => {
       const game = useGame();
 
-      expect(game.gameState.value).toBe("playing");
+      expect(game.gameState.value).toBe("loading");
     });
 
     it("should be 'playing' when currentIndex is below the questions length.", async() => {

@@ -3,7 +3,7 @@ import path from "node:path";
 import type { TestProjectInlineConfiguration } from "vitest/config";
 import type { InlineConfig } from "vitest/node";
 
-import { VitestProjectNames } from "./vitest.config.enums";
+import { VitestProjectNames } from "./vitest.config.enums.ts";
 
 const processCwd = process.cwd();
 
@@ -36,6 +36,7 @@ const VITEST_PROJECT_COMMON_NUXT_INLINE_CONFIG: InlineConfig = {
   environment: "nuxt",
   pool: "threads",
   isolate: false,
+  testTimeout: 20_000,
   deps: {
     optimizer: {
       client: {

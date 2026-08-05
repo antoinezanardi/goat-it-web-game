@@ -4,13 +4,13 @@ import type { GamePlayingEmits, GamePlayingProps } from "@/components/domain/gam
 const props = defineProps<GamePlayingProps>();
 const emit = defineEmits<GamePlayingEmits>();
 
-function onNext(): void {
+function onNextGameQuestion(): void {
   emit("next");
 }
 </script>
 
 <template>
-  <div class="flex flex-col min-h-dvh">
+  <div class="flex flex-1 flex-col">
     <div class="flex flex-1 items-center justify-center py-6">
       <GameQuestionCard
         class="w-full"
@@ -19,7 +19,7 @@ function onNext(): void {
     </div>
 
     <div class="bottom-0 flex flex-col max-w-3xl mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 sticky w-full">
-      <GameNextButton @click="onNext"/>
+      <GameNextButton @click="onNextGameQuestion"/>
     </div>
   </div>
 </template>

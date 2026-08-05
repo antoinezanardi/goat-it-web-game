@@ -31,7 +31,7 @@ function useGame(): UseGame {
   });
 
   const currentQuestion = computed<Question | undefined>(() => questions.value[currentIndex.value]);
-  const isInitialLoading = computed<boolean>(() => questions.value.length === 0 && isPending.value);
+  const isInitialLoading = computed<boolean>(() => questions.value.length === 0 && !isExhausted.value);
   const isOutOfQuestionsLoading = computed<boolean>(() => currentIndex.value >= questions.value.length && isPending.value && !isExhausted.value);
   const isGameOver = computed<boolean>(() => isExhausted.value && currentIndex.value >= questions.value.length);
   const prefetchThreshold = computed<number>(() => Math.floor(questions.value.length * GAME_PREFETCH_THRESHOLD));
