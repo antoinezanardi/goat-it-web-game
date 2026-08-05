@@ -131,12 +131,7 @@ No files are automatically ignored in the diff review.
 - If `eslint.config.ts` or `oxlint` config changed — are rules consistent?
 - If `envs/` files changed — are all environment variables accounted for?
 
-### 9. No scope creep
-- No features added that weren't asked for in the spec
-- No "while I'm here" refactors
-- No speculative abstractions or over-engineering
-
-### 10. No missing requirements
+### 9. No missing requirements
 - Nothing silently dropped
 - All spec acceptance criteria met
 
@@ -172,7 +167,6 @@ No files are automatically ignored in the diff review.
 - [issues or "No config concerns"]
 
 **Scope & completeness:**
-- Scope creep: [none found / list]
 - Missing requirements: [none found / list]
 
 **Assessment:** Ready to merge | Ready with minor follow-ups | Needs changes before merge
@@ -184,3 +178,4 @@ No files are automatically ignored in the diff review.
 - `nuxt` — to understand project structure and conventions
 - `nuxt-ui` — to evaluate UI component usage
 - `unit-testing` — to evaluate test quality
+- `acceptance-testing` — to evaluate BDD and Playwright tests

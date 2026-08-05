@@ -36,34 +36,16 @@ describe("useGame", () => {
     });
   });
 
-  describe("isInitialLoading", () => {
-    it("should be true when questions are empty and a fetch is pending.", () => {
+  describe("gameState", () => {
+    it("should be 'loading' when questions are empty and a fetch is pending.", () => {
       const store = mockStore(useGameStore);
       const game = useGame();
       store.isPending = true;
 
-      expect(game.isInitialLoading.value).toBe(true);
+      expect(game.gameState.value).toBe("loading");
     });
 
-    it("should be false when questions exist and a fetch is pending.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      store.questions = [createFakeQuestion()];
-      store.isPending = true;
-      await nextTick();
-
-      expect(game.isInitialLoading.value).toBe(false);
-    });
-
-    it("should be false when questions are empty and no fetch is pending.", () => {
-      const game = useGame();
-
-      expect(game.isInitialLoading.value).toBe(false);
-    });
-  });
-
-  describe("isOutOfQuestionsLoading", () => {
-    it("should be true when currentIndex is beyond the questions, a fetch is pending and the game is not exhausted.", async() => {
+    it("should be 'loading' when currentIndex is beyond the questions, a fetch is pending and the game is not exhausted.", async() => {
       const store = mockStore(useGameStore);
       const game = useGame();
       store.questions = [createFakeQuestion(), createFakeQuestion()];
@@ -73,10 +55,22 @@ describe("useGame", () => {
       game.advanceToNextQuestion();
       await nextTick();
 
-      expect(game.isOutOfQuestionsLoading.value).toBe(true);
+      expect(game.gameState.value).toBe("loading");
     });
 
-    it("should be false when the game is exhausted.", async() => {
+    it("should be 'game-over' when exhausted and currentIndex is beyond the questions.", async() => {
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      store.questions = [createFakeQuestion()];
+      await nextTick();
+      game.advanceToNextQuestion();
+      await nextTick();
+      await flushPromises();
+
+      expect(game.gameState.value).toBe("game-over");
+    });
+
+    it("should be 'game-over' when the game is exhausted and a fetch is still pending.", async() => {
       const store = mockStore(useGameStore);
       const game = useGame();
       store.questions = [createFakeQuestion()];
@@ -87,19 +81,10 @@ describe("useGame", () => {
       store.isPending = true;
       await nextTick();
 
-      expect(game.isOutOfQuestionsLoading.value).toBe(false);
+      expect(game.gameState.value).toBe("game-over");
     });
 
-    it("should be false when currentIndex is below the questions length.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      store.questions = [createFakeQuestion(), createFakeQuestion()];
-      await nextTick();
-
-      expect(game.isOutOfQuestionsLoading.value).toBe(false);
-    });
-
-    it("should be false when currentIndex is beyond the questions and no fetch is pending.", async() => {
+    it("should be 'game-over' when currentIndex is beyond the questions, no fetch is pending, and the game is exhausted.", async() => {
       const store = mockStore(useGameStore);
       const game = useGame();
       store.questions = [createFakeQuestion(), createFakeQuestion()];
@@ -109,30 +94,32 @@ describe("useGame", () => {
       await nextTick();
       await flushPromises();
 
-      expect(game.isOutOfQuestionsLoading.value).toBe(false);
+      expect(game.gameState.value).toBe("game-over");
     });
-  });
 
-  describe("isGameOver", () => {
-    it("should be false initially when there are questions to play.", async() => {
+    it("should be 'playing' when there is a current question and a fetch is pending.", async() => {
       const store = mockStore(useGameStore);
       const game = useGame();
       store.questions = [createFakeQuestion()];
+      store.isPending = true;
       await nextTick();
 
-      expect(game.isGameOver.value).toBe(false);
+      expect(game.gameState.value).toBe("playing");
     });
 
-    it("should be true when exhausted and currentIndex is beyond the questions.", async() => {
+    it("should be 'loading' when questions are empty, no fetch is pending, and the game is not exhausted.", () => {
+      const game = useGame();
+
+      expect(game.gameState.value).toBe("loading");
+    });
+
+    it("should be 'playing' when currentIndex is below the questions length.", async() => {
       const store = mockStore(useGameStore);
       const game = useGame();
-      store.questions = [createFakeQuestion()];
+      store.questions = [createFakeQuestion(), createFakeQuestion()];
       await nextTick();
-      game.advanceToNextQuestion();
-      await nextTick();
-      await flushPromises();
 
-      expect(game.isGameOver.value).toBe(true);
+      expect(game.gameState.value).toBe("playing");
     });
   });
 
@@ -161,15 +148,15 @@ describe("useGame", () => {
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY);
     });
 
-    it("should mark the game as over when the initial fetch returns no questions.", async() => {
+    it("should set gameState to 'game-over' when the initial fetch returns no questions.", async() => {
       const game = useGame();
 
       await game.initialize();
 
-      expect(game.isGameOver.value).toBe(true);
+      expect(game.gameState.value).toBe("game-over");
     });
 
-    it("should not mark the game as over when the initial fetch returns questions.", async() => {
+    it("should not set gameState to 'game-over' when the initial fetch returns questions.", async() => {
       const store = mockStore(useGameStore);
       const game = useGame();
       const fetchedQuestions = [createFakeQuestion()];
@@ -180,7 +167,7 @@ describe("useGame", () => {
 
       await game.initialize();
 
-      expect(game.isGameOver.value).toBe(false);
+      expect(game.gameState.value).toBe("playing");
     });
   });
 
@@ -321,7 +308,7 @@ describe("useGame", () => {
       });
     });
 
-    it("should mark the game as over when a prefetch returns no new questions.", async() => {
+    it("should set gameState to 'game-over' when a prefetch returns no new questions.", async() => {
       const store = mockStore(useGameStore);
       const game = useGame();
       store.questions = [createFakeQuestion()];
@@ -330,7 +317,7 @@ describe("useGame", () => {
       await nextTick();
       await flushPromises();
 
-      expect(game.isGameOver.value).toBe(true);
+      expect(game.gameState.value).toBe("game-over");
     });
 
     it("should re-arm the prefetch when the pending fetch completes.", async() => {

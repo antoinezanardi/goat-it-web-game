@@ -3,13 +3,13 @@ import { storeToRefs } from "pinia";
 import type { Question } from "#shared/types/question.types";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
 
+type GamePageState = "loading" | "playing" | "game-over";
+
 type UseGame = {
   currentQuestion: ComputedRef<Question | undefined>;
   advanceToNextQuestion: () => void;
   initialize: () => Promise<void>;
-  isInitialLoading: ComputedRef<boolean>;
-  isOutOfQuestionsLoading: ComputedRef<boolean>;
-  isGameOver: ComputedRef<boolean>;
+  gameState: ComputedRef<GamePageState>;
 };
 
 function useGame(): UseGame {
@@ -31,10 +31,20 @@ function useGame(): UseGame {
   });
 
   const currentQuestion = computed<Question | undefined>(() => questions.value[currentIndex.value]);
-  const isInitialLoading = computed<boolean>(() => questions.value.length === 0 && isPending.value);
+  const isInitialLoading = computed<boolean>(() => questions.value.length === 0 && !isExhausted.value);
   const isOutOfQuestionsLoading = computed<boolean>(() => currentIndex.value >= questions.value.length && isPending.value && !isExhausted.value);
   const isGameOver = computed<boolean>(() => isExhausted.value && currentIndex.value >= questions.value.length);
   const prefetchThreshold = computed<number>(() => Math.floor(questions.value.length * GAME_PREFETCH_THRESHOLD));
+
+  const gameState = computed<GamePageState>(() => {
+    if (isInitialLoading.value || isOutOfQuestionsLoading.value) {
+      return "loading";
+    }
+    if (isGameOver.value) {
+      return "game-over";
+    }
+    return "playing";
+  });
 
   async function initialize(): Promise<void> {
     await store.fetchAndAppendRandomQuestions(excludedIdsQuery.value);
@@ -75,9 +85,7 @@ function useGame(): UseGame {
     currentQuestion,
     advanceToNextQuestion,
     initialize,
-    isInitialLoading,
-    isOutOfQuestionsLoading,
-    isGameOver,
+    gameState,
   };
 }
 

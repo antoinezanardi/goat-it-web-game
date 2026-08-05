@@ -15,9 +15,7 @@ import GamePage from "@/pages/(game)/game.vue";
 
 let currentQuestion: Ref<Question | undefined>;
 let advanceToNextQuestion: Mock<() => void>;
-let isInitialLoading: Ref<boolean>;
-let isOutOfQuestionsLoading: Ref<boolean>;
-let isGameOver: Ref<boolean>;
+let gameState: Ref<"loading" | "playing" | "game-over">;
 
 mockNuxtImport(
   "useGame",
@@ -25,9 +23,7 @@ mockNuxtImport(
     currentQuestion: computed(() => currentQuestion.value),
     advanceToNextQuestion,
     initialize: vi.fn<() => Promise<void>>(),
-    isInitialLoading: computed(() => isInitialLoading.value),
-    isOutOfQuestionsLoading: computed(() => isOutOfQuestionsLoading.value),
-    isGameOver: computed(() => isGameOver.value),
+    gameState: computed(() => gameState.value),
   }),
 );
 
@@ -41,9 +37,7 @@ describe("Game Page", () => {
   beforeEach(async() => {
     currentQuestion = ref<Question | undefined>(undefined);
     advanceToNextQuestion = vi.fn<() => void>();
-    isInitialLoading = ref(false);
-    isOutOfQuestionsLoading = ref(false);
-    isGameOver = ref(false);
+    gameState = ref<"loading" | "playing" | "game-over">("loading");
     wrapper = await mountGamePage();
   });
 
@@ -54,107 +48,43 @@ describe("Game Page", () => {
     expect(headResult?.title).toBe("game.pageTitle");
   });
 
-  it("should show loading text when initial loading.", async() => {
-    isInitialLoading.value = true;
+  it("should render GameLoading when gameState is 'loading'.", async() => {
+    gameState.value = "loading";
     await nextTick();
 
-    expect(wrapper.text()).toContain("game.loadingQuestions");
+    const gameLoading = wrapper.findComponent({ name: "GameLoading" });
+
+    expect(gameLoading.exists()).toBeTruthy();
   });
 
-  it("should render GameQuestionCard with the current question when questions are available.", async() => {
+  it("should render GamePlaying with the current question when gameState is 'playing'.", async() => {
     const fakeQuestion = createFakeQuestion();
     currentQuestion.value = fakeQuestion;
+    gameState.value = "playing";
     await nextTick();
 
-    const gameQuestionCard = wrapper.findComponent({ name: "GameQuestionCard" });
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
 
-    expect(gameQuestionCard.props("question")).toStrictEqual(fakeQuestion);
+    expect(gamePlaying.props("question")).toStrictEqual(fakeQuestion);
   });
 
-  it("should render GameNextButton with disabled bound to true when no current question.", async() => {
-    currentQuestion.value = undefined;
+  it("should render GameNoMoreQuestions when gameState is 'game-over'.", async() => {
+    gameState.value = "game-over";
     await nextTick();
 
-    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
+    const noMoreQuestions = wrapper.findComponent({ name: "GameNoMoreQuestions" });
 
-    expect(nextButton.props("disabled")).toBe(true);
+    expect(noMoreQuestions.exists()).toBeTruthy();
   });
 
-  it("should render GameNextButton with disabled bound to false when current question exists.", async() => {
+  it("should call advanceToNextQuestion when GamePlaying emits next.", async() => {
     currentQuestion.value = createFakeQuestion();
+    gameState.value = "playing";
     await nextTick();
 
-    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
-
-    expect(nextButton.props("disabled")).toBe(false);
-  });
-
-  it("should call advanceToNextQuestion when GameNextButton emits click.", async() => {
-    currentQuestion.value = createFakeQuestion();
-    await nextTick();
-
-    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
-    getWrapperVm(nextButton).$emit("click");
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+    getWrapperVm(gamePlaying).$emit("next");
 
     expect(advanceToNextQuestion).toHaveBeenCalledExactlyOnceWith();
-  });
-
-  it("should show loading text when out of questions and fetch is pending.", async() => {
-    currentQuestion.value = createFakeQuestion();
-    await nextTick();
-
-    currentQuestion.value = undefined;
-    isOutOfQuestionsLoading.value = true;
-    await nextTick();
-
-    expect(wrapper.text()).toContain("game.loadingQuestions");
-  });
-
-  it("should hide GameNextButton when out of questions loading.", async() => {
-    currentQuestion.value = undefined;
-    isOutOfQuestionsLoading.value = true;
-    await nextTick();
-
-    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
-
-    expect(nextButton.exists()).toBeFalsy();
-  });
-
-  it("should render GameNoMoreQuestions when isGameOver is true.", async() => {
-    isGameOver.value = true;
-    await nextTick();
-
-    const noMoreQuestions = wrapper.findComponent({ name: "GameNoMoreQuestions" });
-
-    expect(noMoreQuestions.exists()).toBeTruthy();
-  });
-
-  it("should hide GameNextButton when isGameOver is true.", async() => {
-    isGameOver.value = true;
-    await nextTick();
-
-    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
-
-    expect(nextButton.exists()).toBeFalsy();
-  });
-
-  it("should render GameNoMoreQuestions when game is over on empty DB.", async() => {
-    isGameOver.value = true;
-    isInitialLoading.value = false;
-    await nextTick();
-
-    const noMoreQuestions = wrapper.findComponent({ name: "GameNoMoreQuestions" });
-
-    expect(noMoreQuestions.exists()).toBeTruthy();
-  });
-
-  it("should not render loading text when game is over on empty DB.", async() => {
-    isGameOver.value = true;
-    isInitialLoading.value = false;
-    await nextTick();
-
-    const loadingText = wrapper.find("[data-testid='game-loading']");
-
-    expect(loadingText.exists()).toBeFalsy();
   });
 });

@@ -12,13 +12,7 @@ useHead(() => ({
   title: gamePageTitle.value,
 }));
 
-const {
-  currentQuestion,
-  advanceToNextQuestion,
-  isInitialLoading,
-  isOutOfQuestionsLoading,
-  isGameOver,
-} = useGame();
+const { currentQuestion, advanceToNextQuestion, gameState } = useGame();
 
 const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveThemeColor(getPrimaryTheme(currentQuestion.value)?.color) : NEUTRAL_GREY_FALLBACK_THEME_COLOR));
 </script>
@@ -33,35 +27,19 @@ const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveTh
       {{ gamePageTitle }}
     </h1>
 
-    <div class="flex flex-1 flex-col items-center justify-center py-6">
-      <GameNoMoreQuestions v-if="isGameOver"/>
-
-      <template v-else>
-        <p
-          v-if="isInitialLoading || isOutOfQuestionsLoading"
-          class="text-fg-secondary text-sm"
-          data-testid="game-loading"
-        >
-          {{ $t("game.loadingQuestions") }}
-        </p>
-
-        <GameQuestionCard
-          v-else-if="currentQuestion"
-          class="w-full"
-          :question="currentQuestion"
-        />
-      </template>
-    </div>
-
-    <div
-      v-if="!isGameOver && !isOutOfQuestionsLoading"
-      class="bottom-0 flex flex-col max-w-3xl mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 sticky w-full"
+    <Transition
+      mode="out-in"
+      name="fade-slide-up"
     >
-      <GameNextButton
-        :disabled="!currentQuestion"
-        :loading="isOutOfQuestionsLoading"
-        @click="advanceToNextQuestion"
+      <GameLoading v-if="gameState === 'loading'"/>
+
+      <GamePlaying
+        v-else-if="gameState === 'playing' && currentQuestion"
+        :question="currentQuestion"
+        @next="advanceToNextQuestion"
       />
-    </div>
+
+      <GameNoMoreQuestions v-else/>
+    </Transition>
   </div>
 </template>
