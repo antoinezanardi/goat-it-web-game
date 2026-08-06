@@ -8,7 +8,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 
 import type { useGame as UseGameType } from "~/composables/domain/useGame/useGame";
 import { useGameStore } from "@/stores/domain/game/game.store";
-import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY } from "~/pages/(game)/game.constants";
+import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY } from "~/pages/(game)/game.constants";
 
 let useGame: typeof UseGameType;
 
@@ -130,7 +130,7 @@ describe("useGame", () => {
 
       await game.initialize();
 
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY);
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
     });
 
     it("should trigger the initial fetch when mounted.", async() => {
@@ -145,7 +145,7 @@ describe("useGame", () => {
       await flushPromises();
       wrapper.unmount();
 
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY);
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
     });
 
     it("should set gameState to 'game-over' when the initial fetch returns no questions.", async() => {
@@ -220,8 +220,8 @@ describe("useGame", () => {
       await flushPromises();
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        "limit": GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY.limit,
-        "excluded-ids": fakeQuestions.map(question => question.id),
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        excludedIds: fakeQuestions.map(question => question.id),
       });
     });
 
@@ -303,8 +303,8 @@ describe("useGame", () => {
       await flushPromises();
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        "limit": GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY.limit,
-        "excluded-ids": fakeQuestions.map(question => question.id),
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        excludedIds: fakeQuestions.map(question => question.id),
       });
     });
 
@@ -353,8 +353,8 @@ describe("useGame", () => {
       await flushPromises();
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        "limit": GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY.limit,
-        "excluded-ids": allQuestions.map(question => question.id),
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        excludedIds: allQuestions.map(question => question.id),
       });
     });
   });

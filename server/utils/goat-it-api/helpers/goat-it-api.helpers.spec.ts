@@ -74,8 +74,8 @@ describe("Goat It API Helpers", () => {
 
     it("should create the correct endpoint with suffix for a given resource name when called.", () => {
       const resourceName = "questions";
-      const suffix = "random";
-      const expectedEndpoint = "/questions/random";
+      const suffix = "search/random";
+      const expectedEndpoint = "/questions/search/random";
       const endpoint = createGoatItApiEndpoint(resourceName, { suffix });
 
       expect(endpoint).toBe(expectedEndpoint);

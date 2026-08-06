@@ -1,7 +1,7 @@
 import { storeToRefs } from "pinia";
 
 import type { Question } from "#shared/types/question.types";
-import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
+import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
 
 type GamePageState = "loading" | "playing" | "game-over";
 
@@ -20,13 +20,13 @@ function useGame(): UseGame {
   const isExhausted = ref<boolean>(false);
   const hasTriggeredPrefetch = ref<boolean>(false);
 
-  const excludedIdsQuery = computed(() => {
+  const excludedIdsBody = computed(() => {
     if (questions.value.length === 0) {
-      return GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY;
+      return GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY;
     }
     return {
-      "limit": GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_QUERY.limit,
-      "excluded-ids": questions.value.map(question => question.id),
+      limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+      excludedIds: questions.value.map(question => question.id),
     };
   });
 
@@ -47,7 +47,7 @@ function useGame(): UseGame {
   });
 
   async function initialize(): Promise<void> {
-    await store.fetchAndAppendRandomQuestions(excludedIdsQuery.value);
+    await store.fetchAndAppendRandomQuestions(excludedIdsBody.value);
     if (questions.value.length === 0) {
       isExhausted.value = true;
     }
@@ -64,7 +64,7 @@ function useGame(): UseGame {
 
     hasTriggeredPrefetch.value = true;
     const lengthBefore = questions.value.length;
-    await store.fetchAndAppendRandomQuestions(excludedIdsQuery.value);
+    await store.fetchAndAppendRandomQuestions(excludedIdsBody.value);
     if (questions.value.length === lengthBefore) {
       isExhausted.value = true;
     }
