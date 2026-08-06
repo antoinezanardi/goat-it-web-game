@@ -64,6 +64,7 @@
     "useRoute": "readonly",
     "useRouter": "readonly",
     "useRuntimeConfig": "readonly",
+    "useSeoMeta": "readonly",
     "useTableFilters": "readonly",
     "useTableGlobalFilter": "readonly",
     "useTemplateRef": "readonly",

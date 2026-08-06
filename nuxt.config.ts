@@ -5,6 +5,11 @@ export default defineNuxtConfig({
     "@nuxtjs/i18n",
     "@vueuse/nuxt",
     "@nuxt/hints",
+    "@nuxtjs/robots",
+    "@nuxtjs/sitemap",
+    "nuxt-og-image",
+    "nuxt-schema-org",
+    "nuxt-seo-utils",
     "@pinia/nuxt",
     "@nuxt/eslint",
     "@vite-pwa/nuxt",
@@ -36,10 +41,14 @@ export default defineNuxtConfig({
     },
     head: {
       htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE, class: "dark" },
-      title: "Goat It Game",
+      title: "Goat It",
     },
   },
   css: ["~/assets/css/main.css"],
+  site: {
+    url: process.env.NUXT_PUBLIC_SITE_URL,
+    name: "Goat It",
+  },
   ui: {
     colorMode: false,
     experimental: { componentDetection: true },
@@ -109,6 +118,7 @@ export default defineNuxtConfig({
           "fr/question-themes.json",
           "fr/questions.json",
           "fr/game.json",
+          "fr/seo.json",
         ],
       },
       {
@@ -122,6 +132,7 @@ export default defineNuxtConfig({
           "en/question-themes.json",
           "en/questions.json",
           "en/game.json",
+          "en/seo.json",
         ],
       },
       {
@@ -135,6 +146,7 @@ export default defineNuxtConfig({
           "de/question-themes.json",
           "de/questions.json",
           "de/game.json",
+          "de/seo.json",
         ],
       },
       {
@@ -148,6 +160,7 @@ export default defineNuxtConfig({
           "es/question-themes.json",
           "es/questions.json",
           "es/game.json",
+          "es/seo.json",
         ],
       },
       {
@@ -161,6 +174,7 @@ export default defineNuxtConfig({
           "it/question-themes.json",
           "it/questions.json",
           "it/game.json",
+          "it/seo.json",
         ],
       },
       {
@@ -174,6 +188,7 @@ export default defineNuxtConfig({
           "pt/question-themes.json",
           "pt/questions.json",
           "pt/game.json",
+          "pt/seo.json",
         ],
       },
     ],

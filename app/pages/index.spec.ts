@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import { HOME_PAGE_PLAY_BUTTON_UI, HOME_PAGE_TITLE_KEY } from "@/pages/index.constants";
+import { HOME_PAGE_PLAY_BUTTON_UI } from "@/pages/index.constants";
 import HomePage from "@/pages/index.vue";
 
 describe("Home Page", () => {
@@ -18,11 +18,15 @@ describe("Home Page", () => {
     wrapper = await mountHomePage();
   });
 
-  it("should call useHead with a function that returns the page title translation key when mounted.", () => {
-    const useHeadFunction = vi.mocked(useHead).mock.calls[0]?.[0] as (() => { title?: string }) | undefined;
-    const headResult = useHeadFunction?.();
-
-    expect(headResult?.title).toBe(HOME_PAGE_TITLE_KEY);
+  it("should configure SEO meta tags when mounted.", () => {
+    expect(vi.mocked(useHead)).toHaveBeenCalledExactlyOnceWith({
+      title: "seo.home.title",
+      meta: [
+        { name: "description", content: "seo.home.description" },
+        { property: "og:title", content: "seo.home.title" },
+        { property: "og:description", content: "seo.home.description" },
+      ],
+    });
   });
 
   it("should render the h1 with brand translation key when mounted.", () => {

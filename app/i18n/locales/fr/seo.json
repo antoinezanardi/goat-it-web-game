@@ -1,0 +1,12 @@
+{
+  "seo": {
+    "home": {
+      "title": "Goat It",
+      "description": "Goat It — un jeu de quiz multijoueur. Relevez des défis avec des questions thématiques."
+    },
+    "game": {
+      "title": "Goat It — Jouer",
+      "description": "Relevez le défi ! Répondez aux questions et testez vos connaissances sur Goat It."
+    }
+  }
+}
