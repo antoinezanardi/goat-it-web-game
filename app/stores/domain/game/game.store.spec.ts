@@ -1,6 +1,6 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
-import { createFakeFindQuestionsQueryDto } from "@goat-it/schemas/testing/question";
+import { createFakeFindRandomQuestionsBodyDto } from "@goat-it/schemas/testing/question";
 
 import { createUseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import type { UseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
@@ -116,17 +116,15 @@ describe("useGameStore", () => {
       expect(fetchAsyncActionMock.execute).toHaveBeenCalledExactlyOnceWith(undefined);
     });
 
-    it("should call fetchRandomQuestions with query when called with query params.", async() => {
+    it("should call fetchRandomQuestions with body when called with body params.", async() => {
       const store = useGameStore();
-      const query = createFakeFindQuestionsQueryDto({
-        "sort-by": "createdAt",
-        "sort-order": "asc",
-        "limit": 20,
+      const body = createFakeFindRandomQuestionsBodyDto({
+        limit: 20,
       });
 
-      await store.fetchAndAppendRandomQuestions(query);
+      await store.fetchAndAppendRandomQuestions(body);
 
-      expect(fetchAsyncActionMock.execute).toHaveBeenCalledExactlyOnceWith(query);
+      expect(fetchAsyncActionMock.execute).toHaveBeenCalledExactlyOnceWith(body);
     });
 
     it("should append fetched questions to questions when fetchRandomQuestions resolves with data.", async() => {

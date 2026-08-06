@@ -37,6 +37,7 @@ const VITEST_PROJECT_COMMON_NUXT_INLINE_CONFIG: InlineConfig = {
   pool: "threads",
   isolate: false,
   testTimeout: 20_000,
+  hookTimeout: 20_000,
   deps: {
     optimizer: {
       client: {
