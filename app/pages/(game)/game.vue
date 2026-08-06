@@ -9,10 +9,10 @@ const { t } = useI18n();
 const gamePageTitle = computed<string>(() => t(GAME_PAGE_TITLE_KEY));
 
 useSeoMeta({
-  title: t("seo.game.title"),
-  description: t("seo.game.description"),
-  ogTitle: t("seo.game.title"),
-  ogDescription: t("seo.game.description"),
+  title: () => t("seo.game.title"),
+  description: () => t("seo.game.description"),
+  ogTitle: () => t("seo.game.title"),
+  ogDescription: () => t("seo.game.description"),
 });
 
 const { currentQuestion, advanceToNextQuestion, gameState } = useGame();

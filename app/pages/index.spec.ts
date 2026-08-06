@@ -19,7 +19,16 @@ describe("Home Page", () => {
   });
 
   it("should configure SEO meta tags when mounted.", () => {
-    expect(vi.mocked(useHead)).toHaveBeenCalledExactlyOnceWith({
+    const useHeadMock = vi.mocked(useHead);
+
+    const headInput = useHeadMock.mock.calls[0]?.[0] as
+      | { title: () => string; meta: { name?: string; property?: string; content: () => string }[] } |
+      undefined;
+
+    expect({
+      title: headInput?.title(),
+      meta: headInput?.meta.map(entry => (Object.assign(entry, { content: entry.content() }))),
+    }).toStrictEqual({
       title: "seo.home.title",
       meta: [
         { name: "description", content: "seo.home.description" },

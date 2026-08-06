@@ -18,6 +18,10 @@ export default defineNuxtConfig({
     buildDir: ".nuxt/test",
     nitro: { output: { dir: ".nuxt/test/output" } },
     i18n: { defaultLocale: "en" },
+    ogImage: { enabled: false },
+    pwa: { disable: true },
+    robots: { enabled: false },
+    schemaOrg: { enabled: false },
   },
   ssr: true,
   components: [
@@ -41,13 +45,14 @@ export default defineNuxtConfig({
     },
     head: {
       htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE, class: "dark" },
-      title: "Goat It",
+      titleTemplate: "%s",
     },
   },
   css: ["~/assets/css/main.css"],
   site: {
     url: process.env.NUXT_PUBLIC_SITE_URL,
     name: "Goat It",
+    indexable: true,
   },
   ui: {
     colorMode: false,
@@ -240,5 +245,12 @@ export default defineNuxtConfig({
       globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,otf,avif}"],
       navigateFallback: null,
     },
+  },
+  sitemap: {
+    zeroRuntime: true,
+    exclude: [
+      "/index.constants",
+      "/game.constants",
+    ],
   },
 });

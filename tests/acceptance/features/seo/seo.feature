@@ -17,10 +17,31 @@ Feature: 🔍 Technical SEO
       | property | og:title        | Goat It — Play                                                          |
       | property | og:description  | Take on the challenge! Answer questions and test your knowledge on Goat It. |
 
-  Scenario: 📋 Schema.org JSON-LD Website structured data is injected on home page
-    Given the user is on home page
-    Then the page should contain schema.org Website structured data
+  Scenario: 🤖 Robots.txt is served with sitemap reference
+    Given the user is on robots.txt page
+    Then the robots.txt response should reference the sitemap
 
-  Scenario: 📋 Schema.org JSON-LD Website structured data is injected on game page
+  Scenario: 🗺️ Sitemap.xml is served with all routes
+    Given the user is on sitemap.xml page
+    Then the sitemap.xml should contain the route "/"
+    And the sitemap.xml should contain the route "/game"
+
+  Scenario: 🗺️ Sitemap.xml contains only expected routes
+    Given the user is on sitemap.xml page
+    Then the sitemap.xml should contain exactly the expected routes
+
+  Scenario: 🔗 Canonical link tag is present on home page
+    Given the user is on home page
+    Then the canonical link should point to the current page
+
+  Scenario: 🔗 Canonical link tag is present on game page
     Given the user is on game page
-    Then the page should contain schema.org Website structured data
+    Then the canonical link should point to the current page
+
+  Scenario: 📋 Schema.org JSON-LD WebPage and WebSite structured data is injected on home page
+    Given the user is on home page
+    Then the page should contain schema.org WebPage and WebSite structured data
+
+  Scenario: 📋 Schema.org JSON-LD WebPage and WebSite structured data is injected on game page
+    Given the user is on game page
+    Then the page should contain schema.org WebPage and WebSite structured data
