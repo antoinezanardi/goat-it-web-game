@@ -21,6 +21,7 @@ jobs:
       environment-url: ${{ vars.DOCKER_HUB_STAGING_IMAGE_URL }}
       build-args: |
         NUXT_PUBLIC_DEFAULT_LOCALE=${{ vars.PREPRODUCTION_DEFAULT_LOCALE }}
+        NUXT_PUBLIC_SITE_URL=${{ vars.PREPRODUCTION_SITE_URL }}
     secrets:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}

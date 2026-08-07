@@ -18,10 +18,6 @@ export default defineNuxtConfig({
     buildDir: ".nuxt/test",
     nitro: { output: { dir: ".nuxt/test/output" } },
     i18n: { defaultLocale: "en" },
-    ogImage: { enabled: false },
-    pwa: { disable: true },
-    robots: { enabled: false },
-    schemaOrg: { enabled: false },
   },
   ssr: true,
   components: [

@@ -3,6 +3,7 @@ import { Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import { validateDataTableAndGetRows } from "#acceptance/features/support/helpers/datatable.helpers.ts";
+import { ACCEPTANCE_TESTS_SITE_URL } from "#acceptance/features/support/constants/hooks.constants.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 
 import { SEO_META_TAG_ROW_SCHEMA } from "./datatables/seo.datatables.schemas.ts";
@@ -13,9 +14,10 @@ Then(
     const rows = validateDataTableAndGetRows(dataTable, SEO_META_TAG_ROW_SCHEMA);
 
     for (const row of rows) {
+      const selector = `head meta[${row.type}="${row.key}"]`;
       // Acceptable as each meta tag assertion must be awaited sequentially to verify its content
       // oxlint-disable-next-line eslint/no-await-in-loop
-      await expect(this.page.locator(row.type === "name" ? `head meta[name="${row.key}"]` : `head meta[property="${row.key}"]`)).toHaveAttribute("content", row.content);
+      await expect(this.page.locator(selector)).toHaveAttribute("content", row.content);
     }
   },
 );
@@ -31,8 +33,9 @@ Then(
   /^the robots.txt response should reference the sitemap$/u,
   async function(this: GoatItWorld): Promise<void> {
     const content = await this.page.locator("body").textContent();
+    const sitemapUrl = `${new URL(ACCEPTANCE_TESTS_SITE_URL).origin}/sitemap.xml`;
 
-    expect(content).toContain("Sitemap:");
+    expect(content).toContain(`Sitemap: ${sitemapUrl}`);
   },
 );
 
