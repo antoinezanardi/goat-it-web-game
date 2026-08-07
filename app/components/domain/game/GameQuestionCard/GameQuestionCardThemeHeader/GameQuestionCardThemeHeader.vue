@@ -20,7 +20,10 @@ const themeIcon = computed(() => getThemeIcon(props.theme.slug));
     </span>
 
     <div class="min-w-0">
-      <p class="font-semibold leading-snug-plus text-(color:--game-theme-neon) text-base">
+      <p
+        class="font-semibold leading-snug-plus text-(color:--game-theme-neon) text-base"
+        data-testid="game-question-theme"
+      >
         {{ props.theme.label }}
       </p>
 
@@ -30,13 +33,19 @@ const themeIcon = computed(() => getThemeIcon(props.theme.slug));
           :name="getCategoryIcon(props.category)"
         />
 
-        <span class="font-medium text-(color:--game-theme-neon)">{{ $t(`questions.category.${props.category}`) }}</span>
+        <span
+          class="font-medium text-(color:--game-theme-neon)"
+          data-testid="game-question-category"
+        >
+          {{ $t(`questions.category.${props.category}`) }}
+        </span>
       </p>
     </div>
 
     <UBadge
       class="ml-auto"
       :color="getDifficultyColor(props.difficulty)"
+      data-testid="game-question-difficulty"
       :label="$t(`questions.difficulty.${props.difficulty}`)"
       size="lg"
       variant="subtle"
