@@ -64,6 +64,9 @@ export default defineNuxtConfig({
     "configs/**/*.ts",
     "eslint.config.ts",
   ],
+  routeRules: {
+    "/": { prerender: true },
+  },
   sourcemap: { client: "hidden" },
   experimental: {
     viteEnvironmentApi: true,
