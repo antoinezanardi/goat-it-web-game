@@ -47,4 +47,31 @@ describe("App Component", () => {
       expect(nuxtUIApp.props("tooltip")).toStrictEqual(APP_TOOLTIP_CONFIG);
     });
   });
+
+  describe("useHead", () => {
+    type AppHeadConfig = {
+      link: { rel: string; href: string }[];
+      meta: { name: string; content: string }[];
+    };
+
+    function getAppHeadConfig(): AppHeadConfig | undefined {
+      return vi.mocked(useHead).mock.calls[0]?.[0] as AppHeadConfig | undefined;
+    }
+
+    it("should call useHead with a link to the web manifest when mounted.", () => {
+      expect(getAppHeadConfig()?.link[0]).toStrictEqual({ rel: "manifest", href: "/manifest.webmanifest" });
+    });
+
+    it("should call useHead with an apple touch icon link when mounted.", () => {
+      expect(getAppHeadConfig()?.link[1]).toStrictEqual({ rel: "apple-touch-icon", href: "/pwa/apple-touch-icon.png" });
+    });
+
+    it("should call useHead with a theme-color meta when mounted.", () => {
+      expect(getAppHeadConfig()?.meta[0]).toStrictEqual({ name: "theme-color", content: "#18181b" });
+    });
+
+    it("should call useHead with a mobile-web-app-capable meta when mounted.", () => {
+      expect(getAppHeadConfig()?.meta[1]).toStrictEqual({ name: "mobile-web-app-capable", content: "yes" });
+    });
+  });
 });

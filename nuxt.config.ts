@@ -5,8 +5,14 @@ export default defineNuxtConfig({
     "@nuxtjs/i18n",
     "@vueuse/nuxt",
     "@nuxt/hints",
+    "@nuxtjs/robots",
+    "@nuxtjs/sitemap",
+    "nuxt-og-image",
+    "nuxt-schema-org",
+    "nuxt-seo-utils",
     "@pinia/nuxt",
     "@nuxt/eslint",
+    "@vite-pwa/nuxt",
   ],
   $test: {
     buildDir: ".nuxt/test",
@@ -34,12 +40,20 @@ export default defineNuxtConfig({
       mode: "out-in",
     },
     head: {
-      htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE },
-      title: "Goat It Game",
+      htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE, class: "dark" },
+      titleTemplate: "%s",
     },
   },
   css: ["~/assets/css/main.css"],
-  ui: { experimental: { componentDetection: true } },
+  site: {
+    url: process.env.NUXT_PUBLIC_SITE_URL,
+    name: "Goat It",
+    indexable: true,
+  },
+  ui: {
+    colorMode: false,
+    experimental: { componentDetection: true },
+  },
   runtimeConfig: {
     goatItApi: {
       baseUrl: "",
@@ -105,6 +119,7 @@ export default defineNuxtConfig({
           "fr/question-themes.json",
           "fr/questions.json",
           "fr/game.json",
+          "fr/seo.json",
         ],
       },
       {
@@ -118,6 +133,7 @@ export default defineNuxtConfig({
           "en/question-themes.json",
           "en/questions.json",
           "en/game.json",
+          "en/seo.json",
         ],
       },
       {
@@ -131,6 +147,7 @@ export default defineNuxtConfig({
           "de/question-themes.json",
           "de/questions.json",
           "de/game.json",
+          "de/seo.json",
         ],
       },
       {
@@ -144,6 +161,7 @@ export default defineNuxtConfig({
           "es/question-themes.json",
           "es/questions.json",
           "es/game.json",
+          "es/seo.json",
         ],
       },
       {
@@ -157,6 +175,7 @@ export default defineNuxtConfig({
           "it/question-themes.json",
           "it/questions.json",
           "it/game.json",
+          "it/seo.json",
         ],
       },
       {
@@ -170,6 +189,7 @@ export default defineNuxtConfig({
           "pt/question-themes.json",
           "pt/questions.json",
           "pt/game.json",
+          "pt/seo.json",
         ],
       },
     ],
@@ -185,4 +205,48 @@ export default defineNuxtConfig({
     },
   },
   pinia: { storesDirs: ["stores/**"] },
+  pwa: {
+    registerType: "autoUpdate",
+    manifest: {
+      name: "Goat It",
+      short_name: "Goat It",
+      description: "Un jeu de quiz multijoueur — relevez des défis avec des questions thématiques",
+      theme_color: "#18181b",
+      background_color: "#18181b",
+      display: "standalone",
+      orientation: "any",
+      scope: "/",
+      start_url: "/",
+      lang: "fr",
+      icons: [
+        { src: "/pwa/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+        { src: "/pwa/pwa-512x512.png", sizes: "512x512", type: "image/png" },
+        { src: "/pwa/pwa-512x512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      ],
+      screenshots: [
+        { src: "/pwa/screenshot-home.png", sizes: "1280x720", type: "image/png", form_factor: "wide" },
+        { src: "/pwa/screenshot-game.png", sizes: "1280x720", type: "image/png", form_factor: "wide" },
+      ],
+      shortcuts: [
+        {
+          name: "Jouer",
+          short_name: "Jouer",
+          url: "/game",
+          icons: [{ src: "/pwa/pwa-192x192.png", sizes: "192x192" }],
+        },
+      ],
+      categories: ["games"],
+    },
+    workbox: {
+      globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,otf,avif}"],
+      navigateFallback: null,
+    },
+  },
+  sitemap: {
+    zeroRuntime: true,
+    exclude: [
+      "/index.constants",
+      "/game.constants",
+    ],
+  },
 });

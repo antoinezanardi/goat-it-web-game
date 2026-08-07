@@ -1,15 +1,12 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
+import { version } from "~~/package.json";
 import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/VersionButton/version-button.constants";
 import VersionButton from "@/components/VersionButton/VersionButton.vue";
-
-vi.mock(import("~~/package.json"), () => ({
-  version: "1.0.0",
-}));
 
 describe("VersionButton Component", () => {
   let wrapper: VueWrapper;
@@ -25,7 +22,7 @@ describe("VersionButton Component", () => {
   it("should display v{version} text as the UButton label when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("label")).toBe("v1.0.0");
+    expect(button.props("label")).toBe(`v${version}`);
   });
 
   it("should render a UButton linking to the GitHub repository URL when mounted.", () => {
@@ -61,13 +58,13 @@ describe("VersionButton Component", () => {
   it("should set the UButton variant to outline when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("variant")).toBe("outline");
+    expect(button.props("variant")).toBe("subtle");
   });
 
   it("should set the UButton color to info when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("color")).toBe("info");
+    expect(button.props("color")).toBe("primary");
   });
 
   it("should set the UButton size to md when mounted.", () => {

@@ -31,6 +31,8 @@
     "fetch": "readonly",
     "getQuery": "readonly",
     "getRouterParam": "readonly",
+    "navigator": "readonly",
+    "onMounted": "readonly",
     "process": "readonly",
     "questionThemesRepository": "readonly",
     "questionsRepository": "readonly",
@@ -49,6 +51,8 @@
     "useColorMode": "readonly",
     "useFetch": "readonly",
     "useFetchStatus": "readonly",
+    "useGame": "readonly",
+    "useGameStore": "readonly",
     "useGoatItApiErrorToast": "readonly",
     "useHead": "readonly",
     "useHexColor": "readonly",
@@ -57,10 +61,10 @@
     "useNuxtApp": "readonly",
     "useOverlay": "readonly",
     "useQuestionThemesStore": "readonly",
-    "useQuestionsStore": "readonly",
     "useRoute": "readonly",
     "useRouter": "readonly",
     "useRuntimeConfig": "readonly",
+    "useSeoMeta": "readonly",
     "useTableFilters": "readonly",
     "useTableGlobalFilter": "readonly",
     "useTemplateRef": "readonly",
@@ -1437,7 +1441,8 @@
         "nuxt.config.ts"
       ],
       "rules": {
-        "node/no-process-env": "off"
+        "node/no-process-env": "off",
+        "unicorn/no-null": "off"
       }
     }
   ]

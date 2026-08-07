@@ -1,12 +1,12 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
-import { createFakeFindQuestionsQueryDto } from "@goat-it/schemas/testing/question";
+import { createFakeFindRandomQuestionsBodyDto } from "@goat-it/schemas/testing/question";
 
 import { createUseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import type { UseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-import type { useQuestionsStore as UseQuestionsStoreType } from "@/stores/domain/question/questions.store";
+import type { useGameStore as UseQuestionsStoreType } from "@/stores/domain/game/game.store";
 
 let fetchAsyncActionMock: UseAsyncActionMock;
 let capturedFetchAction: ((...arguments_: unknown[]) => Promise<unknown>) | undefined;
@@ -20,18 +20,18 @@ mockNuxtImport("useAsyncAction", () => (action: unknown, onError: unknown): UseA
   return fetchAsyncActionMock;
 });
 
-let useQuestionsStore: typeof UseQuestionsStoreType;
+let useGameStore: typeof UseQuestionsStoreType;
 
-describe("useQuestionsStore", () => {
+describe("useGameStore", () => {
   beforeEach(async() => {
     capturedFetchAction = undefined;
     capturedFetchOnError = undefined;
-    ({ useQuestionsStore } = await import("@/stores/domain/question/questions.store"));
+    ({ useGameStore } = await import("@/stores/domain/game/game.store"));
   });
 
   describe("questions", () => {
     it("should expose an empty array as initial state when created.", () => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
 
       expect(store.questions).toStrictEqual([]);
     });
@@ -39,13 +39,13 @@ describe("useQuestionsStore", () => {
 
   describe("fetchStatus", () => {
     it("should reflect the fetchStatus value from useAsyncAction when created.", () => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
 
       expect(store.fetchStatus).toBe(fetchAsyncActionMock.fetchStatus.value);
     });
 
     it("should update when the fetchStatus changes to pending.", () => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
       fetchAsyncActionMock.fetchStatus.value = "pending";
 
       expect(store.fetchStatus).toBe("pending");
@@ -54,13 +54,13 @@ describe("useQuestionsStore", () => {
 
   describe("isPending", () => {
     it("should be false when fetchStatus is idle.", () => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
 
       expect(store.isPending).toBeFalsy();
     });
 
     it("should be true when fetchStatus is pending.", () => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
       fetchAsyncActionMock.fetchStatus.value = "pending";
 
       expect(store.isPending).toBeTruthy();
@@ -69,13 +69,13 @@ describe("useQuestionsStore", () => {
 
   describe("isSuccess", () => {
     it("should be false when fetchStatus is idle.", () => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
 
       expect(store.isSuccess).toBeFalsy();
     });
 
     it("should be true when fetchStatus is success.", () => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
       fetchAsyncActionMock.fetchStatus.value = "success";
 
       expect(store.isSuccess).toBeTruthy();
@@ -84,13 +84,13 @@ describe("useQuestionsStore", () => {
 
   describe("isError", () => {
     it("should be false when fetchStatus is idle.", () => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
 
       expect(store.isError).toBeFalsy();
     });
 
     it("should be true when fetchStatus is error.", () => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
       fetchAsyncActionMock.fetchStatus.value = "error";
 
       expect(store.isError).toBeTruthy();
@@ -99,7 +99,7 @@ describe("useQuestionsStore", () => {
 
   describe("fetchRandomQuestions", () => {
     it("should call the execute function from useAsyncAction when invoked.", async() => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
 
       await store.fetchRandomQuestions();
 
@@ -109,24 +109,22 @@ describe("useQuestionsStore", () => {
 
   describe("fetchAndAppendRandomQuestions", () => {
     it("should call fetchRandomQuestions without query when called without params.", async() => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
 
       await store.fetchAndAppendRandomQuestions();
 
       expect(fetchAsyncActionMock.execute).toHaveBeenCalledExactlyOnceWith(undefined);
     });
 
-    it("should call fetchRandomQuestions with query when called with query params.", async() => {
-      const store = useQuestionsStore();
-      const query = createFakeFindQuestionsQueryDto({
-        "sort-by": "createdAt",
-        "sort-order": "asc",
-        "limit": 20,
+    it("should call fetchRandomQuestions with body when called with body params.", async() => {
+      const store = useGameStore();
+      const body = createFakeFindRandomQuestionsBodyDto({
+        limit: 20,
       });
 
-      await store.fetchAndAppendRandomQuestions(query);
+      await store.fetchAndAppendRandomQuestions(body);
 
-      expect(fetchAsyncActionMock.execute).toHaveBeenCalledExactlyOnceWith(query);
+      expect(fetchAsyncActionMock.execute).toHaveBeenCalledExactlyOnceWith(body);
     });
 
     it("should append fetched questions to questions when fetchRandomQuestions resolves with data.", async() => {
@@ -134,7 +132,7 @@ describe("useQuestionsStore", () => {
         createFakeQuestion(),
         createFakeQuestion(),
       ];
-      const store = useQuestionsStore();
+      const store = useGameStore();
       fetchAsyncActionMock.execute.mockResolvedValue(fakeQuestions);
 
       await store.fetchAndAppendRandomQuestions();
@@ -145,7 +143,7 @@ describe("useQuestionsStore", () => {
     it("should preserve existing questions when appending a batch.", async() => {
       const initialQuestions = [createFakeQuestion()];
       const appendedQuestions = [createFakeQuestion(), createFakeQuestion()];
-      const store = useQuestionsStore();
+      const store = useGameStore();
       store.questions = initialQuestions;
       fetchAsyncActionMock.execute.mockResolvedValue(appendedQuestions);
 
@@ -155,7 +153,7 @@ describe("useQuestionsStore", () => {
     });
 
     it("should not mutate questions when fetchRandomQuestions resolves with undefined.", async() => {
-      const store = useQuestionsStore();
+      const store = useGameStore();
 
       await store.fetchAndAppendRandomQuestions();
 
@@ -165,13 +163,13 @@ describe("useQuestionsStore", () => {
 
   describe("useAsyncAction setup", () => {
     it("should pass the repository getRandom function as action to useAsyncAction when created.", () => {
-      useQuestionsStore();
+      useGameStore();
 
       expect(capturedFetchAction).toBe(questionsRepository($fetch).getRandom);
     });
 
     it("should call handleGoatItApiError with the error and cantFetch translation key when the fetch error callback is invoked.", () => {
-      useQuestionsStore();
+      useGameStore();
       const fakeError = new Error("fetch failed");
 
       capturedFetchOnError?.(fakeError);

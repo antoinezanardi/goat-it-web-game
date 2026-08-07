@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import type { $Fetch } from "nitropack";
-import { createFakeFindQuestionsQueryDto } from "@goat-it/schemas/testing/question";
+import { createFakeFindRandomQuestionsBodyDto } from "@goat-it/schemas/testing/question";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
@@ -22,27 +22,25 @@ describe(questionsRepository, () => {
   });
 
   describe("getRandom", () => {
-    it("should call fetch with the correct endpoint and undefined query when called without params.", async() => {
+    it("should call fetch with the correct endpoint and undefined body when called without params.", async() => {
       const repository = questionsRepository(fetchMock as $Fetch);
       fetchMock.mockResolvedValue([]);
 
       await repository.getRandom();
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions/random", { query: undefined });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions/search/random", { method: "POST", body: undefined });
     });
 
-    it("should call fetch with the correct endpoint and query when called with query params.", async() => {
+    it("should call fetch with the correct endpoint and body when called with body params.", async() => {
       const repository = questionsRepository(fetchMock as $Fetch);
       fetchMock.mockResolvedValue([]);
-      const query = createFakeFindQuestionsQueryDto({
-        "sort-by": "createdAt",
-        "sort-order": "asc",
-        "limit": 20,
+      const body = createFakeFindRandomQuestionsBodyDto({
+        limit: 20,
       });
 
-      await repository.getRandom(query);
+      await repository.getRandom(body);
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions/random", { query });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions/search/random", { method: "POST", body });
     });
 
     it("should return questions from fetch when called.", async() => {
