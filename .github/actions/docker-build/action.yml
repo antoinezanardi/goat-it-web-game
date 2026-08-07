@@ -33,6 +33,6 @@ runs:
             --platform ${{ inputs.platform }} \
             --build-arg NUXT_PUBLIC_SITE_URL="$NUXT_PUBLIC_SITE_URL" \
             --build-arg NUXT_PUBLIC_DEFAULT_LOCALE="$NUXT_PUBLIC_DEFAULT_LOCALE" \
-            --build-arg NUXT_GOAT_IT_API_BASE_URL="$NUXT_GOAT_IT_API_BASE_URL" \
-            --build-arg NUXT_GOAT_IT_API_GAME_KEY="$NUXT_GOAT_IT_API_GAME_KEY" \
+            --secret id=goat_it_api_base_url,env=NUXT_GOAT_IT_API_BASE_URL \
+            --secret id=goat_it_api_game_key,env=NUXT_GOAT_IT_API_GAME_KEY \
             -t goat-it-web-game .
