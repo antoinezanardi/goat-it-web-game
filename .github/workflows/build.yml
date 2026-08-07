@@ -11,6 +11,8 @@ concurrency:
 
 env:
   GH_TOKEN: ${{ github.token }}
+  NUXT_PUBLIC_SITE_URL: ${{ github.base_ref == 'develop' && vars.PREPRODUCTION_SITE_URL || vars.PRODUCTION_SITE_URL }}
+  NUXT_PUBLIC_DEFAULT_LOCALE: ${{ github.base_ref == 'develop' && vars.PREPRODUCTION_DEFAULT_LOCALE || vars.PRODUCTION_DEFAULT_LOCALE }}
 
 jobs:
   code-ql:
