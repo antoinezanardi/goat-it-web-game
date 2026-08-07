@@ -105,7 +105,7 @@
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/git": "^11.0.1",
     "@semantic-release/release-notes-generator": "^14.1.1",
-    "@tanstack/vue-table": "^9.0.0",
+    "@tanstack/vue-table": "^9.0.1",
     "@types/node": "^25.9.5",
     "@vite-pwa/nuxt": "^1.1.1",
     "@vitest/coverage-v8": "^4.1.10",
