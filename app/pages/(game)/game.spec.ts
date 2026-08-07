@@ -41,11 +41,24 @@ describe("Game Page", () => {
     wrapper = await mountGamePage();
   });
 
-  it("should call useHead with a function that returns the page title translation key when mounted.", () => {
-    const useHeadFunction = vi.mocked(useHead).mock.calls[0]?.[0] as (() => { title?: string }) | undefined;
-    const headResult = useHeadFunction?.();
+  it("should configure SEO meta tags when mounted.", () => {
+    const useHeadMock = vi.mocked(useHead);
 
-    expect(headResult?.title).toBe("game.pageTitle");
+    const headInput = useHeadMock.mock.calls[0]?.[0] as
+      | { title: () => string; meta: { name?: string; property?: string; content: () => string }[] } |
+      undefined;
+
+    expect({
+      title: headInput?.title(),
+      meta: headInput?.meta.map(entry => (Object.assign(entry, { content: entry.content() }))),
+    }).toStrictEqual({
+      title: "seo.game.title",
+      meta: [
+        { name: "description", content: "seo.game.description" },
+        { property: "og:title", content: "seo.game.title" },
+        { property: "og:description", content: "seo.game.description" },
+      ],
+    });
   });
 
   it("should render GameLoading when gameState is 'loading'.", async() => {

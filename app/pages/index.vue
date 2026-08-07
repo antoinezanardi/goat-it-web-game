@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { HOME_PAGE_PLAY_BUTTON_UI, HOME_PAGE_TITLE_KEY } from "@/pages/index.constants";
+import { HOME_PAGE_PLAY_BUTTON_UI } from "@/pages/index.constants";
 
 const { t } = useI18n();
 
-const homePageTitle = computed<string>(() => t(HOME_PAGE_TITLE_KEY));
-
-useHead(() => ({
-  title: homePageTitle.value,
-}));
+useSeoMeta({
+  title: () => t("seo.home.title"),
+  description: () => t("seo.home.description"),
+  ogTitle: () => t("seo.home.title"),
+  ogDescription: () => t("seo.home.description"),
+});
 </script>
 
 <template>

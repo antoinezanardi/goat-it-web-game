@@ -46,6 +46,9 @@ ENV NODE_ENV=production
 ARG NUXT_PUBLIC_DEFAULT_LOCALE
 ENV NUXT_PUBLIC_DEFAULT_LOCALE=${NUXT_PUBLIC_DEFAULT_LOCALE}
 
+ARG NUXT_PUBLIC_SITE_URL
+ENV NUXT_PUBLIC_SITE_URL=${NUXT_PUBLIC_SITE_URL}
+
 USER node
 
 WORKDIR /app
@@ -68,7 +71,6 @@ RUN pnpm run build
 
 FROM node:26.7.0-alpine AS production
 
-
 ENV NODE_ENV="production"
 ENV PORT=3002
 ENV HOST=0.0.0.0
@@ -82,6 +84,6 @@ COPY --from=build --chown=node:node /app/.output ./.output
 EXPOSE 3002
 
 HEALTHCHECK --interval=20s --timeout=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3001 || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3002 || exit 1
 
 CMD ["node", ".output/server/index.mjs"]
