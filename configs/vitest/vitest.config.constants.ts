@@ -1,9 +1,17 @@
 import path from "node:path";
 
+import type { ModuleOptions as SitemapModuleOptions } from "@nuxtjs/sitemap";
+import type { NuxtConfig } from "@nuxt/schema";
+import type { ModuleOptions as OgImageModuleOptions } from "nuxt-og-image";
 import type { TestProjectInlineConfiguration } from "vitest/config";
 import type { InlineConfig } from "vitest/node";
 
 import { VitestProjectNames } from "./vitest.config.enums.ts";
+
+type UnitTestNuxtOverrides = NuxtConfig & {
+  sitemap?: Partial<SitemapModuleOptions>;
+  ogImage?: Partial<OgImageModuleOptions>;
+};
 
 const processCwd = process.cwd();
 
@@ -14,15 +22,25 @@ const VITEST_BASE_RESOLVE_ALIASES = [
   { find: /^#shared\//u, replacement: `${path.resolve(processCwd, "shared")}/` },
   { find: /^#server\//u, replacement: `${path.resolve(processCwd, "server")}/` },
   { find: /^#build\//u, replacement: `${path.resolve(processCwd, ".nuxt")}/` },
-];
-
-const VITEST_NON_NUXT_RESOLVE_ALIASES = VITEST_BASE_RESOLVE_ALIASES;
+] as const;
 
 const VITEST_NODE_PROJECT_RESOLVE_ALIASES = [
   ...VITEST_BASE_RESOLVE_ALIASES,
   { find: /^ofetch$/u, replacement: path.resolve(processCwd, "node_modules/.pnpm/node_modules/ofetch") },
   { find: /^h3$/u, replacement: path.resolve(processCwd, "node_modules/.pnpm/node_modules/h3") },
-];
+] as const;
+
+const UNIT_TEST_NUXT_OVERRIDES: UnitTestNuxtOverrides = {
+  runtimeConfig: {
+    goatItApi: {
+      baseUrl: "https://api.goat-it.com",
+      gameKey: "test-game-key",
+    },
+  },
+  sitemap: { enabled: false },
+  ogImage: { enabled: false },
+  experimental: { viteEnvironmentApi: false },
+} as const;
 
 const VITEST_PROJECT_COMMON_INLINE_CONFIG: InlineConfig = {
   globals: true,
@@ -48,17 +66,10 @@ const VITEST_PROJECT_COMMON_NUXT_INLINE_CONFIG: InlineConfig = {
   },
   environmentOptions: {
     nuxt: {
-      overrides: {
-        runtimeConfig: {
-          goatItApi: {
-            baseUrl: "https://api.goat-it.com",
-            gameKey: "test-game-key",
-          },
-        },
-      },
+      overrides: UNIT_TEST_NUXT_OVERRIDES,
     },
   },
-};
+} as const;
 
 const VITEST_NUXT_PROJECT_SETUP_FILES = [
   path.resolve(processCwd, "tests/unit/setup/nuxt/reka-ui-dismissable-layer.nuxt.unit-setup.ts"),
@@ -120,7 +131,7 @@ const VITEST_IGNORED_STARTING_BY_LOGS = [
 
 const VITEST_REPOSITORIES_PROJECT_CONFIG: TestProjectInlineConfiguration = {
   resolve: {
-    alias: VITEST_NON_NUXT_RESOLVE_ALIASES,
+    alias: VITEST_BASE_RESOLVE_ALIASES,
   },
   test: {
     ...VITEST_PROJECT_COMMON_INLINE_CONFIG,
