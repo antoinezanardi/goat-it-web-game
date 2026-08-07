@@ -36,6 +36,40 @@ describe("useGame", () => {
     });
   });
 
+  describe("canGoBack", () => {
+    it("should be false when currentIndex is 0.", () => {
+      const game = useGame();
+
+      expect(game.canGoBack.value).toBe(false);
+    });
+
+    it("should be true when currentIndex is greater than 0.", async() => {
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+      store.questions = fakeQuestions;
+      await nextTick();
+      game.advanceToNextQuestion();
+      await nextTick();
+
+      expect(game.canGoBack.value).toBe(true);
+    });
+
+    it("should be false when currentIndex is 0 after going back.", async() => {
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+      store.questions = fakeQuestions;
+      await nextTick();
+      game.advanceToNextQuestion();
+      await nextTick();
+      game.goToPreviousQuestion();
+      await nextTick();
+
+      expect(game.canGoBack.value).toBe(false);
+    });
+  });
+
   describe("gameState", () => {
     it("should be 'loading' when questions are empty and a fetch is pending.", () => {
       const store = mockStore(useGameStore);
@@ -202,6 +236,30 @@ describe("useGame", () => {
       await nextTick();
 
       expect(game.currentQuestion.value).toStrictEqual(appendedQuestions[0]);
+    });
+  });
+
+  describe("goToPreviousQuestion", () => {
+    it("should decrement currentIndex when canGoBack is true.", async() => {
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+      store.questions = fakeQuestions;
+      await nextTick();
+      game.advanceToNextQuestion();
+      await nextTick();
+      game.goToPreviousQuestion();
+      await nextTick();
+
+      expect(game.currentQuestion.value).toStrictEqual(fakeQuestions[0]);
+    });
+
+    it("should not decrement currentIndex when currentIndex is already 0.", () => {
+      const game = useGame();
+
+      game.goToPreviousQuestion();
+
+      expect(game.currentQuestion.value).toBeUndefined();
     });
   });
 

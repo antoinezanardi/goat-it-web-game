@@ -13,14 +13,28 @@ Then(
 Then(
   /^the next question button should be visible$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.getByTestId("game-next-button")).toBeVisible();
+    await expect(this.page.getByTestId("game-next-question-button")).toBeVisible();
   },
 );
 
 Then(
   /^the next question button should be hidden$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.getByTestId("game-next-button")).not.toBeVisible();
+    await expect(this.page.getByTestId("game-next-question-button")).not.toBeVisible();
+  },
+);
+
+Then(
+  /^the previous question button should be visible$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expect(this.page.getByTestId("game-previous-question-button")).toBeVisible();
+  },
+);
+
+Then(
+  /^the previous question button should be hidden$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expect(this.page.getByTestId("game-previous-question-button")).toBeHidden();
   },
 );
 

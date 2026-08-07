@@ -15,6 +15,30 @@ Feature: 🎮 Game Page
     Given the user is on game page
     Then the no more questions message should be displayed
 
+  Scenario: 🎮 Previous button is hidden on first question
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    Then a game question should be displayed
+    And the previous question button should be hidden
+    And the next question button should be visible
+
+  Scenario: 🎮 Previous button appears after advancing to second question
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    When the user goes to the next question
+    Then a game question should be displayed
+    And the previous question button should be visible
+    And the next question button should be visible
+
+  Scenario: 🎮 Previous button navigates back to the first question
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    When the user goes to the next question
+    And the user goes to the previous question
+    Then a game question should be displayed
+    And the previous question button should be hidden
+    And the next question button should be visible
+
   Scenario: 🎮 "No more questions" message when all questions exhausted
     Given the database is populated with the question fixture set "five-active-questions"
     And the user is on game page

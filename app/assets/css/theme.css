@@ -56,3 +56,9 @@
   --ui-text-dimmed: var(--ui-text-muted);
   --ui-secondary: var(--ui-color-secondary-300);
 }
+
+.game-question-navigation-button--themed {
+  border: 1px solid var(--game-theme-border);
+  box-shadow: 0 0 8px var(--game-theme-glow-soft);
+  --ui-button-icon-color: var(--game-theme-neon);
+}

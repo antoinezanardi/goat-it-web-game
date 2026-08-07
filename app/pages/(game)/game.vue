@@ -15,7 +15,7 @@ useSeoMeta({
   ogDescription: () => t("seo.game.description"),
 });
 
-const { currentQuestion, advanceToNextQuestion, gameState } = useGame();
+const { canGoBack, currentQuestion, advanceToNextQuestion, gameState, goToPreviousQuestion } = useGame();
 
 const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveThemeColor(getPrimaryTheme(currentQuestion.value)?.color) : NEUTRAL_GREY_FALLBACK_THEME_COLOR));
 </script>
@@ -38,8 +38,10 @@ const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveTh
 
       <GamePlaying
         v-else-if="gameState === 'playing' && currentQuestion"
+        :can-go-back="canGoBack"
         :question="currentQuestion"
         @next="advanceToNextQuestion"
+        @previous="goToPreviousQuestion"
       />
 
       <GameNoMoreQuestions v-else/>

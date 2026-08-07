@@ -6,8 +6,10 @@ import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_PREFETCH_THRESHOLD } fro
 type GamePageState = "loading" | "playing" | "game-over";
 
 type UseGame = {
+  canGoBack: ComputedRef<boolean>;
   currentQuestion: ComputedRef<Question | undefined>;
   advanceToNextQuestion: () => void;
+  goToPreviousQuestion: () => void;
   initialize: () => Promise<void>;
   gameState: ComputedRef<GamePageState>;
 };
@@ -17,6 +19,7 @@ function useGame(): UseGame {
   const { questions, isPending } = storeToRefs(store);
 
   const currentIndex = ref<number>(0);
+  const canGoBack = computed<boolean>(() => currentIndex.value > 0);
   const isExhausted = ref<boolean>(false);
   const hasTriggeredPrefetch = ref<boolean>(false);
 
@@ -76,14 +79,22 @@ function useGame(): UseGame {
     }
   });
 
+  function goToPreviousQuestion(): void {
+    if (canGoBack.value) {
+      currentIndex.value--;
+    }
+  }
+
   function advanceToNextQuestion(): void {
     if (!isGameOver.value) {
       currentIndex.value++;
     }
   }
   return {
+    canGoBack,
     currentQuestion,
     advanceToNextQuestion,
+    goToPreviousQuestion,
     initialize,
     gameState,
   };
