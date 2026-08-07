@@ -1,5 +1,41 @@
 # 🐐👑 Goat It Web Admin Versioning Changelog
 
+## [1.2.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.1.0...v1.2.0) (2026-08-07)
+
+### 🚀 Features
+
+* **game:** prevent duplicate questions via excluded-ids and game-over UI ([#111](https://github.com/antoinezanardi/goat-it-web-game/issues/111)) ([2e40202](https://github.com/antoinezanardi/goat-it-web-game/commit/2e40202590105f9096eb1028617900ba9cab0117))
+* **home:** background and stylized play button ([#105](https://github.com/antoinezanardi/goat-it-web-game/issues/105)) ([97f34f0](https://github.com/antoinezanardi/goat-it-web-game/commit/97f34f0e141e18bee6b3ac741d984fa8865b0c8c))
+* **nuxt-seo:** add five Nuxt SEO modules with i18n meta tags ([#119](https://github.com/antoinezanardi/goat-it-web-game/issues/119)) ([25692df](https://github.com/antoinezanardi/goat-it-web-game/commit/25692df0dda51c8001373d9f6f9aae825d5134df))
+* **pwa:** add PWA support ([#100](https://github.com/antoinezanardi/goat-it-web-game/issues/100)) ([ee47fcf](https://github.com/antoinezanardi/goat-it-web-game/commit/ee47fcf61539ddd46f498c8ce0649856abda6274))
+* **questions:** update API to use body for fetching random questions ([#118](https://github.com/antoinezanardi/goat-it-web-game/issues/118)) ([ff5356d](https://github.com/antoinezanardi/goat-it-web-game/commit/ff5356db1a5950a9d58d8b10220fae087c1db9af))
+
+### 🎨 Styles
+
+* **app:** stick to dark mode ([#99](https://github.com/antoinezanardi/goat-it-web-game/issues/99)) ([158cd3b](https://github.com/antoinezanardi/goat-it-web-game/commit/158cd3b1b1a6ac1bdb840c63a4f580e0188fb05a))
+
+### 🔩 Refactor
+
+* **game:** extract page states into dedicated components with transitions ([#114](https://github.com/antoinezanardi/goat-it-web-game/issues/114)) ([0a5da6d](https://github.com/antoinezanardi/goat-it-web-game/commit/0a5da6d8fcad9035a10b8be343111670bf515a44))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `@cucumber/cucumber` | `^13.2.1` |
+| `@eslint/config-inspector` | `^3.2.0` |
+| `@nuxt/eslint` | `^1.17.0` |
+| `@tanstack/vue-table` | `v9` |
+| `@vitest/eslint-plugin` | `^1.6.26` |
+| `eslint-plugin-oxlint` | `^1.77.0` |
+| `eslint-plugin-unicorn` | `v73` |
+| `nuxt` | `^4.5.2` |
+| `oxlint` | `^1.77.0` |
+| `semantic-release` | `^25.0.9` |
+| `vite` | `^8.2.1` |
+| `node.js` | `v26.6.0` |
+| `pnpm` | `v11.20.0` |
+
 ## [1.1.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.0.0...v1.1.0) (2026-08-02)
 
 ### 🚀 Features
