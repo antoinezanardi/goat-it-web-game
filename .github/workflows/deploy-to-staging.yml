@@ -25,6 +25,8 @@ jobs:
     secrets:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      NUXT_GOAT_IT_API_BASE_URL: ${{ secrets.PREPRODUCTION_GOAT_IT_API_BASE_URL }}
+      NUXT_GOAT_IT_API_GAME_KEY: ${{ secrets.PREPRODUCTION_GOAT_IT_API_GAME_KEY }}
 
   deploy-to-preproduction:
     name: Deploy to preproduction server 🚀

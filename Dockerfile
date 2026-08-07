@@ -67,7 +67,9 @@ COPY --chown=node:node public ./public
 
 COPY --chown=node:node --from=development /app/node_modules ./node_modules
 
-RUN pnpm run build
+RUN --mount=type=secret,id=goat_it_api_base_url,env=NUXT_GOAT_IT_API_BASE_URL \
+    --mount=type=secret,id=goat_it_api_game_key,env=NUXT_GOAT_IT_API_GAME_KEY \
+    pnpm run build
 
 FROM node:26.7.0-alpine AS production
 

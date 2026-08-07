@@ -13,6 +13,8 @@ env:
   GH_TOKEN: ${{ github.token }}
   NUXT_PUBLIC_SITE_URL: ${{ github.base_ref == 'develop' && vars.PREPRODUCTION_SITE_URL || vars.PRODUCTION_SITE_URL }}
   NUXT_PUBLIC_DEFAULT_LOCALE: ${{ github.base_ref == 'develop' && vars.PREPRODUCTION_DEFAULT_LOCALE || vars.PRODUCTION_DEFAULT_LOCALE }}
+  NUXT_GOAT_IT_API_BASE_URL: ${{ github.base_ref == 'develop' && secrets.PREPRODUCTION_GOAT_IT_API_BASE_URL || secrets.PRODUCTION_GOAT_IT_API_BASE_URL }}
+  NUXT_GOAT_IT_API_GAME_KEY: ${{ github.base_ref == 'develop' && secrets.PREPRODUCTION_GOAT_IT_API_GAME_KEY || secrets.PRODUCTION_GOAT_IT_API_GAME_KEY }}
 
 jobs:
   code-ql:
