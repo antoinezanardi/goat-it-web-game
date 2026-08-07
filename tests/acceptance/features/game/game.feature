@@ -27,3 +27,26 @@ Feature: 🎮 Game Page
     And the no more questions message should be displayed
     When the user clicks the back to home button
     Then the user should be on home page
+
+  Scenario: 🎮 Question card displays all content correctly
+    Given the database is populated with the question fixture set "single-question"
+    And the user is on game page
+    Then the question card should be displayed
+    And the question theme should be "Geography"
+    And the question category should be "Trivia"
+    And the question difficulty should be "Easy"
+    And the question statement should be "What is the capital of France?"
+    And the question answer should be "Paris"
+    And the question source link "en.wikipedia.org" should be visible
+    And the question source link "britannica.com" should be visible
+    When the user expands the question context accordion
+    Then the question context should be "Paris has been the capital of France since the 10th century."
+    And the question trivia item "Paris is known as the City of Light" should be visible
+    And the question trivia item "The Eiffel Tower was built in 1889" should be visible
+
+  Scenario: 🎮 Source link opens in new tab with correct URL
+    Given the database is populated with the question fixture set "single-question"
+    And the user is on game page
+    Then the question card should be displayed
+    When the user clicks on the question source link "en.wikipedia.org"
+    Then a new tab should have been opened with URL "https://en.wikipedia.org/wiki/Paris"

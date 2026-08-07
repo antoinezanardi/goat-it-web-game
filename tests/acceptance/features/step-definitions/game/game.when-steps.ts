@@ -1,4 +1,5 @@
 import { When } from "@cucumber/cucumber";
+import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 
@@ -27,5 +28,29 @@ When(
   /^the user clicks the back to home button$/u,
   async function(this: GoatItWorld): Promise<void> {
     await this.page.getByRole("link", { name: "Back to Home" }).click();
+  },
+);
+
+When(
+  /^the user expands the question context accordion$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const trigger = this.page.getByTestId("game-question-context-accordion-trigger");
+    await expect(trigger).toBeVisible();
+    await trigger.click();
+  },
+);
+
+When(
+  /^the user clicks on the question source link "(?<domain>[^"]*)"$/u,
+  async function(this: GoatItWorld, domain: string): Promise<void> {
+    const sourceNav = this.page.getByTestId("game-question-source-links");
+    const link = sourceNav.getByText(domain, { exact: true });
+    await expect(link).toBeVisible();
+
+    const [openedTabPage] = await Promise.all([
+      this.context.waitForEvent("page"),
+      link.click(),
+    ]);
+    this.openedTabPage = openedTabPage;
   },
 );

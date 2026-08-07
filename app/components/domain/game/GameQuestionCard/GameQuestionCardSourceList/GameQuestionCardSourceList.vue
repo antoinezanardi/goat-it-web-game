@@ -16,6 +16,7 @@ function getSourceLinkLabel(url: string): string {
   <nav
     :aria-label="$t('questions.sourcesAriaLabel')"
     class="flex flex-wrap gap-x-3 gap-y-2"
+    data-testid="game-question-source-links"
   >
     <span class="font-medium shrink-0 text-fg-secondary text-xs">
       {{ $t("questions.sourceLabel", { "count": sourceUrls.length }) }}:
