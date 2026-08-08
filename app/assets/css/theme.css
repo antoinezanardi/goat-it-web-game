@@ -40,7 +40,7 @@
   --game-theme-glow-soft: color-mix(in oklch, var(--game-theme-neon) 15%, transparent);
   --game-theme-focus: var(--game-theme-neon);
 
-  transition: --game-theme-color 350ms ease-out;
+  transition: --game-theme-color var(--game-theme-transition-duration) var(--game-theme-transition-easing);
 }
 
 @media (prefers-reduced-motion: reduce) {
