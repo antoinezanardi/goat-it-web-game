@@ -20,7 +20,7 @@ Then(
 Then(
   /^the next question button should be hidden$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.getByTestId("game-next-question-button")).not.toBeVisible();
+    await expect(this.page.getByTestId("game-next-question-button")).toBeHidden();
   },
 );
 

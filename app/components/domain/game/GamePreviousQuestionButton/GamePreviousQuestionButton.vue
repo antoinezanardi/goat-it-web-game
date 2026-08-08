@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { GamePreviousQuestionButtonEmits, GamePreviousQuestionButtonProps } from "@/components/domain/game/GamePreviousQuestionButton/game-previous-question-button.types";
+import { GAME_PREVIOUS_QUESTION_BUTTON_UI } from "@/components/domain/game/GamePreviousQuestionButton/game-previous-question-button.constants";
 
 const props = defineProps<GamePreviousQuestionButtonProps>();
 const emit = defineEmits<GamePreviousQuestionButtonEmits>();
@@ -8,10 +9,6 @@ const { t } = useI18n();
 const buttonClass = computed<string | undefined>(() => (props.disabled ? undefined : "game-question-navigation-button--themed"));
 
 const ariaLabel = computed<string>(() => t("game.previousQuestionTooltip"));
-
-const buttonUi = computed<Record<string, string | undefined>>(() => ({
-  base: "ring-0 bg-surface-interactive",
-}));
 
 function onClick(): void {
   emit("click");
@@ -29,7 +26,7 @@ function onClick(): void {
       :disabled="props.disabled"
       icon="i-lucide-arrow-left"
       size="lg"
-      :ui="buttonUi"
+      :ui="GAME_PREVIOUS_QUESTION_BUTTON_UI"
       variant="outline"
       @click="onClick"
     />

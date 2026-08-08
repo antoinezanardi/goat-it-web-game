@@ -13,7 +13,7 @@ describe("GamePlaying Component", () => {
   let wrapper: VueWrapper;
 
   async function mountGamePlayingComponent(options: MountSuspendedOptions<typeof GamePlaying> = {}): Promise<VueWrapper> {
-    return mountSuspended(GamePlaying, { props: { canGoBack: false, question: fakeQuestion }, ...options });
+    return mountSuspended(GamePlaying, { props: { canGoToPreviousQuestion: false, question: fakeQuestion }, ...options });
   }
 
   beforeEach(async() => {
@@ -39,14 +39,14 @@ describe("GamePlaying Component", () => {
     expect(wrapper.emitted("next")).toBeDefined();
   });
 
-  it("should not render GamePreviousQuestionButton when canGoBack is false.", () => {
+  it("should not render GamePreviousQuestionButton when canGoToPreviousQuestion is false.", () => {
     const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
 
     expect(previousButton.exists()).toBeFalsy();
   });
 
-  it("should render GamePreviousQuestionButton when canGoBack is true.", async() => {
-    await wrapper.setProps({ canGoBack: true });
+  it("should render GamePreviousQuestionButton when canGoToPreviousQuestion is true.", async() => {
+    await wrapper.setProps({ canGoToPreviousQuestion: true });
 
     const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
 
@@ -54,7 +54,7 @@ describe("GamePlaying Component", () => {
   });
 
   it("should emit previous when GamePreviousQuestionButton emits click.", async() => {
-    await wrapper.setProps({ canGoBack: true });
+    await wrapper.setProps({ canGoToPreviousQuestion: true });
 
     const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
     getWrapperVm(previousButton).$emit("click");

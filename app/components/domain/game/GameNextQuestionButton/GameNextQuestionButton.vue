@@ -19,7 +19,6 @@ function onClick(): void {
 
 <template>
   <UButton
-    block
     class="font-semibold h-10 md:self-end md:w-auto rounded-lg text-fg-primary text-sm"
     :class="buttonClass"
     color="neutral"

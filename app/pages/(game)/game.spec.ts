@@ -13,7 +13,7 @@ import type { UseGame } from "~/composables/domain/useGame/useGame";
 import type { Question } from "#shared/types/question.types";
 import GamePage from "@/pages/(game)/game.vue";
 
-let canGoBack: Ref<boolean>;
+let canGoToPreviousQuestion: Ref<boolean>;
 let currentQuestion: Ref<Question | undefined>;
 let advanceToNextQuestion: Mock<() => void>;
 let goToPreviousQuestion: Mock<() => void>;
@@ -22,7 +22,7 @@ let gameState: Ref<"loading" | "playing" | "game-over">;
 mockNuxtImport(
   "useGame",
   () => (): UseGame => ({
-    canGoBack: computed(() => canGoBack.value),
+    canGoToPreviousQuestion: computed(() => canGoToPreviousQuestion.value),
     currentQuestion: computed(() => currentQuestion.value),
     advanceToNextQuestion,
     goToPreviousQuestion,
@@ -39,7 +39,7 @@ describe("Game Page", () => {
   }
 
   beforeEach(async() => {
-    canGoBack = ref<boolean>(false);
+    canGoToPreviousQuestion = ref<boolean>(false);
     currentQuestion = ref<Question | undefined>(undefined);
     advanceToNextQuestion = vi.fn<() => void>();
     goToPreviousQuestion = vi.fn<() => void>();
@@ -87,25 +87,25 @@ describe("Game Page", () => {
     expect(gamePlaying.props("question")).toStrictEqual(fakeQuestion);
   });
 
-  it("should pass canGoBack as false to GamePlaying when the composable reports it as false.", async() => {
+  it("should pass canGoToPreviousQuestion as false to GamePlaying when the composable reports it as false.", async() => {
     currentQuestion.value = createFakeQuestion();
     gameState.value = "playing";
     await nextTick();
 
     const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
 
-    expect(gamePlaying.props("canGoBack")).toBe(false);
+    expect(gamePlaying.props("canGoToPreviousQuestion")).toBe(false);
   });
 
-  it("should pass canGoBack as true to GamePlaying when the composable reports it as true.", async() => {
+  it("should pass canGoToPreviousQuestion as true to GamePlaying when the composable reports it as true.", async() => {
     currentQuestion.value = createFakeQuestion();
-    canGoBack.value = true;
+    canGoToPreviousQuestion.value = true;
     gameState.value = "playing";
     await nextTick();
 
     const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
 
-    expect(gamePlaying.props("canGoBack")).toBe(true);
+    expect(gamePlaying.props("canGoToPreviousQuestion")).toBe(true);
   });
 
   it("should render GameNoMoreQuestions when gameState is 'game-over'.", async() => {

@@ -36,11 +36,11 @@ describe("useGame", () => {
     });
   });
 
-  describe("canGoBack", () => {
+  describe("canGoToPreviousQuestion", () => {
     it("should be false when currentIndex is 0.", () => {
       const game = useGame();
 
-      expect(game.canGoBack.value).toBe(false);
+      expect(game.canGoToPreviousQuestion.value).toBe(false);
     });
 
     it("should be true when currentIndex is greater than 0.", async() => {
@@ -52,7 +52,7 @@ describe("useGame", () => {
       game.advanceToNextQuestion();
       await nextTick();
 
-      expect(game.canGoBack.value).toBe(true);
+      expect(game.canGoToPreviousQuestion.value).toBe(true);
     });
 
     it("should be false when currentIndex is 0 after going back.", async() => {
@@ -66,7 +66,7 @@ describe("useGame", () => {
       game.goToPreviousQuestion();
       await nextTick();
 
-      expect(game.canGoBack.value).toBe(false);
+      expect(game.canGoToPreviousQuestion.value).toBe(false);
     });
   });
 
@@ -240,7 +240,7 @@ describe("useGame", () => {
   });
 
   describe("goToPreviousQuestion", () => {
-    it("should decrement currentIndex when canGoBack is true.", async() => {
+    it("should decrement currentIndex when canGoToPreviousQuestion is true.", async() => {
       const store = mockStore(useGameStore);
       const game = useGame();
       const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];

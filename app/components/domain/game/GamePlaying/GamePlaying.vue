@@ -22,18 +22,17 @@ function onPreviousGameQuestion(): void {
       />
     </div>
 
-    <div class="bottom-0 flex gap-3 items-center max-w-3xl md:justify-between mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 sticky w-full">
+    <div class="bottom-0 flex gap-3 items-center justify-between max-w-3xl mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 sticky w-full">
       <div class="h-10 shrink-0 w-10">
         <Transition name="fade">
-          <GamePreviousQuestionButton
-            v-if="props.canGoBack"
-            @click="onPreviousGameQuestion"
-          />
+          <span v-if="props.canGoToPreviousQuestion">
+            <GamePreviousQuestionButton @click="onPreviousGameQuestion"/>
+          </span>
         </Transition>
       </div>
 
       <GameNextQuestionButton
-        class="flex-1 md:flex-none md:self-end md:w-auto"
+        class="md:flex-none md:self-end md:w-auto"
         @click="onNextGameQuestion"
       />
     </div>
