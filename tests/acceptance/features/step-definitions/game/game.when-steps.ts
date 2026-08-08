@@ -6,7 +6,14 @@ import type { GoatItWorld } from "#acceptance/features/support/types/world.types
 When(
   /^the user goes to the next question$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await this.page.getByTestId("game-next-button").click();
+    await this.page.getByTestId("game-next-question-button").click();
+  },
+);
+
+When(
+  /^the user goes to the previous question$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.getByTestId("game-previous-question-button").click();
   },
 );
 
@@ -19,7 +26,7 @@ When(
     for (let index = 0; index < clicks; index++) {
       // Acceptable as each click must be sequential to let the page render the next question
       // oxlint-disable-next-line eslint/no-await-in-loop
-      await this.page.getByTestId("game-next-button").click();
+      await this.page.getByTestId("game-next-question-button").click();
     }
   },
 );

@@ -3,6 +3,7 @@
     "pageTitle": "Goat It Game",
     "loadingQuestions": "Fragen werden geladen...",
     "nextQuestion": "Nächste Frage",
+    "previousQuestionTooltip": "Zur vorherigen Frage zurück",
     "noMoreQuestions": "Du hast alle gesehen! Schau bald wieder vorbei für neue Fragen.",
     "backToHome": "Zurück zur Startseite"
   }

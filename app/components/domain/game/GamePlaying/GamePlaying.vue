@@ -7,6 +7,10 @@ const emit = defineEmits<GamePlayingEmits>();
 function onNextGameQuestion(): void {
   emit("next");
 }
+
+function onPreviousGameQuestion(): void {
+  emit("previous");
+}
 </script>
 
 <template>
@@ -18,8 +22,19 @@ function onNextGameQuestion(): void {
       />
     </div>
 
-    <div class="bottom-0 flex flex-col max-w-3xl mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 sticky w-full">
-      <GameNextButton @click="onNextGameQuestion"/>
+    <div class="bottom-0 flex gap-3 items-center justify-between max-w-3xl mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 sticky w-full">
+      <div class="h-10 shrink-0 w-10">
+        <Transition name="fade">
+          <span v-if="props.canGoToPreviousQuestion">
+            <GamePreviousQuestionButton @click="onPreviousGameQuestion"/>
+          </span>
+        </Transition>
+      </div>
+
+      <GameNextQuestionButton
+        class="md:flex-none md:self-end md:w-auto"
+        @click="onNextGameQuestion"
+      />
     </div>
   </div>
 </template>

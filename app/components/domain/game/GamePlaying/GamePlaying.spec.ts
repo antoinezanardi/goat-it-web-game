@@ -13,7 +13,7 @@ describe("GamePlaying Component", () => {
   let wrapper: VueWrapper;
 
   async function mountGamePlayingComponent(options: MountSuspendedOptions<typeof GamePlaying> = {}): Promise<VueWrapper> {
-    return mountSuspended(GamePlaying, { props: { question: fakeQuestion }, ...options });
+    return mountSuspended(GamePlaying, { props: { canGoToPreviousQuestion: false, question: fakeQuestion }, ...options });
   }
 
   beforeEach(async() => {
@@ -26,16 +26,39 @@ describe("GamePlaying Component", () => {
     expect(questionCard.props("question")).toStrictEqual(fakeQuestion);
   });
 
-  it("should render GameNextButton when mounted.", () => {
-    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
+  it("should render GameNextQuestionButton when mounted.", () => {
+    const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
 
     expect(nextButton.exists()).toBeTruthy();
   });
 
-  it("should emit next when GameNextButton emits click.", () => {
-    const nextButton = wrapper.findComponent({ name: "GameNextButton" });
+  it("should emit next when GameNextQuestionButton emits click.", () => {
+    const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
     getWrapperVm(nextButton).$emit("click");
 
     expect(wrapper.emitted("next")).toBeDefined();
+  });
+
+  it("should not render GamePreviousQuestionButton when canGoToPreviousQuestion is false.", () => {
+    const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
+
+    expect(previousButton.exists()).toBeFalsy();
+  });
+
+  it("should render GamePreviousQuestionButton when canGoToPreviousQuestion is true.", async() => {
+    await wrapper.setProps({ canGoToPreviousQuestion: true });
+
+    const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
+
+    expect(previousButton.exists()).toBeTruthy();
+  });
+
+  it("should emit previous when GamePreviousQuestionButton emits click.", async() => {
+    await wrapper.setProps({ canGoToPreviousQuestion: true });
+
+    const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
+    getWrapperVm(previousButton).$emit("click");
+
+    expect(wrapper.emitted("previous")).toBeDefined();
   });
 });

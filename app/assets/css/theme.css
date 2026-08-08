@@ -21,6 +21,9 @@
 }
 
 .game-theme-scope {
+  --game-theme-transition-duration: 350ms;
+  --game-theme-transition-easing: ease-out;
+
   --game-theme-neon-l-floor: 0.85;
 
   --game-theme-neon: oklch(
@@ -37,11 +40,12 @@
   --game-theme-glow-soft: color-mix(in oklch, var(--game-theme-neon) 15%, transparent);
   --game-theme-focus: var(--game-theme-neon);
 
-  transition: --game-theme-color 350ms ease-out;
+  transition: --game-theme-color var(--game-theme-transition-duration) var(--game-theme-transition-easing);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .game-theme-scope {
+    --game-theme-transition-duration: 0ms;
     transition-duration: 0ms;
   }
 }
@@ -55,4 +59,19 @@
   --ui-text-muted: var(--ui-color-neutral-300);
   --ui-text-dimmed: var(--ui-text-muted);
   --ui-secondary: var(--ui-color-secondary-300);
+}
+
+.game-question-navigation-button--themed {
+  border: 1px solid var(--game-theme-border);
+  box-shadow: 0 0 8px var(--game-theme-glow-soft);
+  --ui-button-icon-color: var(--game-theme-neon);
+
+  transition: border-color var(--game-theme-transition-duration) var(--game-theme-transition-easing),
+    box-shadow var(--game-theme-transition-duration) var(--game-theme-transition-easing),
+    color var(--game-theme-transition-duration) var(--game-theme-transition-easing);
+}
+
+.game-question-accordion--themed {
+  transition: border-color var(--game-theme-transition-duration) var(--game-theme-transition-easing),
+    color var(--game-theme-transition-duration) var(--game-theme-transition-easing);
 }

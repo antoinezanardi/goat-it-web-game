@@ -15,6 +15,10 @@ permission:
     "rtk pnpm run test:acceptance *": "allow"
     "pnpm run lint *": "allow"
     "rtk pnpm run lint *": "allow"
+    "pnpm run lint:oxlint:fix *": "allow"
+    "rtk pnpm run lint:oxlint:fix *": "allow"
+    "pnpm run lint:eslint:fix *": "allow"
+    "rtk pnpm run lint:eslint:fix *": "allow"
     "pnpm run typecheck *": "allow"
     "rtk pnpm run typecheck *": "allow"
     "pnpm ls *": "allow"
@@ -59,6 +63,14 @@ permission:
     "rtk tree *": "allow"
     "sort *": "allow"
     "rtk sort *": "allow"
+    "printf *": "allow"
+    "rtk printf *": "allow"
+    "od *": "allow"
+    "rtk od *": "allow"
+    "sed *": "allow"
+    "rtk sed *": "allow"
+    "wc *": "allow"
+    "rtk wc *": "allow"
   task: deny
   webfetch: deny
 ---
