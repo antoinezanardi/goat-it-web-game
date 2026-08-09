@@ -67,7 +67,7 @@ onUnmounted(() => {
     </div>
 
     <div
-      class="w-full z-10"
+      class="relative w-full z-10"
       data-testid="card-transition-entering"
     >
       <GameQuestionCard
