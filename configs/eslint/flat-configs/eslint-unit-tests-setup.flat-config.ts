@@ -5,6 +5,14 @@ const ESLINT_UNIT_TESTS_SETUP_FLAT_CONFIG: Linter.Config = {
   files: ["tests/unit/setup/**/*.unit-setup.ts"],
   rules: {
     "unicorn/consistent-function-scoping": "off",
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        selector: ["variable"],
+        modifiers: ["exported"],
+        format: ["camelCase"],
+      },
+    ],
   },
 } as const;
 

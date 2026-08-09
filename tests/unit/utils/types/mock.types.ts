@@ -5,6 +5,10 @@ type ToMock<Stub> = {
   [Key in keyof Stub]: Stub[Key] extends (...arguments_: unknown[]) => unknown ? Mock<Stub[Key]> : Stub[Key];
 };
 
+type MockHolder<T> = {
+  instance: T;
+};
+
 type MockedPiniaStore<TStoreDefinition extends () => unknown> =
   TStoreDefinition extends StoreDefinition<
     infer Id,
@@ -29,5 +33,6 @@ type MockedPiniaStore<TStoreDefinition extends () => unknown> =
 
 export type {
   ToMock,
+  MockHolder,
   MockedPiniaStore,
 };

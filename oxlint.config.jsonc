@@ -1423,6 +1423,15 @@
         "node/no-process-env": "off"
       }
     },
+    // ---- Override for composable mock setup files -----
+    {
+      "files": [
+        "**/tests/unit/setup/nuxt/composables/*.nuxt.unit-setup.ts"
+      ],
+      "rules": {
+        "typescript/explicit-function-return-type": "off"
+      }
+    },
     // ---- Override for Cucumber step definitions and hooks -----
     {
       "files": [

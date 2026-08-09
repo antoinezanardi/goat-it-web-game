@@ -181,6 +181,7 @@ const VITEST_NUXT_PROJECT_CONFIG: TestProjectInlineConfiguration = {
       ...VITEST_NUXT_PROJECT_SETUP_FILES,
       ...VITEST_COMPOSABLES_MOCK_SETUP_FILES,
       ...VITEST_REPOSITORIES_MOCK_SETUP_FILES,
+      path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup.ts"),
     ],
   },
 } as const;

@@ -131,12 +131,21 @@ These setup files run automatically before tests in the relevant projects. You d
 The list below reflects what is registered at the time of writing, but **it will grow** as the project adds new composables.
 To see the current full list, scan `tests/unit/setup/nuxt/composables/` — every file there registers one global mock.
 
-| File                                  | Mock it registers | Mock factory                 | Notes                                                                             |
-|---------------------------------------|-------------------|------------------------------|-----------------------------------------------------------------------------------|
-| `use-fetch-status.nuxt.unit-setup.ts` | `useFetchStatus`  | `createUseFetchStatusMock()` | Returns `{fetchStatus, isIdle, isPending, isSuccess, isError, setFetchStatusTo*}` |
-| `use-async-action.nuxt.unit-setup.ts` | `useAsyncAction`  | `createUseAsyncActionMock()` | Returns `{execute, fetchStatus, isIdle, isPending, isSuccess, isError}`           |
-| `use-app-toast.nuxt.unit-setup.ts`    | `useAppToast`     | `createUseAppToastMock()`    | Returns `{addSuccessToast, addErrorToast}`                                        |
-| `use-color-mode.nuxt.unit-setup.ts`   | `useColorMode`    | `createUseColorModeMock()`   | Reactive getter/setter on `.value`, not spy-based                                 |
+| File                                        | Mock it registers         | Mock factory                           | Exported holder                   |
+|---------------------------------------------|---------------------------|----------------------------------------|-----------------------------------|
+| `use-fetch-status.nuxt.unit-setup.ts`       | `useFetchStatus`          | `createUseFetchStatusMock()`           | `useFetchStatusMock`              |
+| `use-async-action.nuxt.unit-setup.ts`       | `useAsyncAction`          | `createUseAsyncActionMock()`           | `useAsyncActionMock`              |
+| `use-app-toast.nuxt.unit-setup.ts`          | `useAppToast`             | `createUseAppToastMock()`              | `useAppToastMock`                 |
+| `use-goat-it-api-error-toast.nuxt.unit-setup.ts` | `useGoatItApiErrorToast` | `createUseGoatItApiErrorToastMock()`   | `useGoatItApiErrorToastMock`      |
+| `use-gsap.nuxt.unit-setup.ts`              | `useGSAP`                 | `createUseGSAPMock()`                  | `useGsapMock`                     |
+| `use-game.nuxt.unit-setup.ts`              | `useGame`                 | `createUseGameMock()`                  | `useGameMock`                     |
+
+Every setup file follows the `MockHolder<T>` pattern:
+
+- Exports a `const` holder (camelCase) of type `MockHolder<XxxMock>`.
+- The `mockNuxtImport` factory returns `holder.instance`.
+- `beforeEach` assigns a fresh mock via `createXxxMock()` to `holder.instance`.
+- Tests import the holder and mutate `.instance` before mount.
 
 #### Accessing and mutating a globally-mocked composable inside a component test
 
@@ -144,20 +153,25 @@ Because the mock is registered globally (via the setup file), you do **not** nee
 Call the composable directly inside the test body — you get back the same mock instance the component received during `setup()`.
 Mutate it, then `await nextTick()` to let the template react.
 
+**To mutate a composable whose setup file exports a `MockHolder`:**
+
 ```ts
-import { nextTick } from "vue";
+import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
+import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-it("should show dark mode tooltip when color mode is light.", async () => {
-  const colorMode = useColorMode();
-  colorMode.value = "light";
-  await nextTick();
+it("should render GamePlaying when gameState is playing.", async () => {
+  useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+  useGameMock.instance.gameStateRef.value = "playing";
+  const wrapper = await mountGamePage();
 
-  const tooltip = wrapper.getComponent<typeof UTooltip>("#my-tooltip");
-  expect(tooltip.props("text")).toBe("navigation.switchOnDarkMode");
+  const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+  expect(gamePlaying.exists()).toBeTruthy();
 });
 ```
 
-The same pattern works for any composable listed in the table above (e.g. `useI18n()`, `useRouter()`, `useAppToast()`).
+This pattern works for **any** composable whose setup file exports a `MockHolder` (all 6 composables in the table above). For the 4 composables that previously had no exported holder (`useAsyncAction`, `useFetchStatus`, `useAppToast`, `useGoatItApiErrorToast`), tests can now import the holder to override specific properties before mount.
+
+**Safe destructuring:** `const { instance } = useGameMock` at the top of a spec file works — the holder object identity never changes, only `.instance` does. However, accessing `.instance` via the holder reference is preferred for clarity.
 
 #### useI18n mock
 
@@ -332,6 +346,7 @@ describe("MyComponent Component", () => {
 - Call `mockStore(useXxxStore)` **after** `mountSuspended` inside `beforeEach`.
 - **Component tests use `createTestingPinia()`** from `@pinia/testing` (passed as a plugin). This is different from the `stores` project where `setActivePinia(createPinia())` runs automatically. Do not use `setActivePinia` in component tests.
 - `$t` returns the key as-is — assert translation keys directly: `expect(...).toBe("questionThemes.fields.label")`.
+- **Override globally-mocked composable state before mount**: Import the composable's `MockHolder` export from its setup file and mutate `.instance` properties. For `useGame`: set `useGameMock.instance.gameStateRef.value` and `useGameMock.instance.questionsRef.value`. For composables with `vi.fn()` methods: `useGameMock.instance.initialize.mockRejectedValue(new Error("fail"))`. Always do this **before** calling `mountSuspended` in the test body, or **before** the `beforeEach` mount if overriding once for the whole suite.
 - Mutate store state directly: `myStore.someField = value`, then re-mount if the template needs to re-render.
 - Always use `data-testid` to find child components and elements — see [Section 7.5](#75-finding-elements-and-components).
 - Check prop values with `component.props("propName")`.
@@ -1384,28 +1399,31 @@ Each non-trivial composable has a mock triplet in `tests/unit/utils/mocks/compos
 | `core/`  | `useFetchStatus/` | `createUseFetchStatusMock()`                         | `fetchStatus`, `isIdle`, `isPending`, `isSuccess`, `isError`, `setFetchStatusToPending`, `setFetchStatusToSuccess`, `setFetchStatusToError` |
 | `nuxt/`  | `createError/`    | `createCreateErrorMock()`                            | `Mock<typeof createError>`                                                                                                                  |
 | `nuxt/`  | `h3/`             | `createGetRouterParamMock()`, `createReadBodyMock()` | H3 utility mocks                                                                                                                            |
-| `nuxt/`  | `useColorMode/`   | `createUseColorModeMock(initialValue?)`              | Reactive `.value` getter/setter (not spy-based)                                                                                             |
 | `nuxt/`  | `useFetch/`       | `createFetchMock()`                                  | `vi.fn<$Fetch>()` — used internally by fetch setup file                                                                                     |
 | `nuxt/`  | `useI18n/`        | `createUseI18nMock()`                                | `t`, `locale`, `localeCodes`, `locales`, `setLocale` + constants + types                                                                    |
 | `nuxt/`  | `useRouter/`      | `createUseRouterMock()`                              | `getRoutes`, `currentRoute`, `push`, `afterEach`, `beforeResolve`, `beforeEach`, `onError` + constants + types                              |
 | `nuxt/`  | `useToast/`       | `createUseToastMock()`                               | `add`, `remove`, `clear`                                                                                                                    |
 | `ui/`    | `useAppToast/`    | `createUseAppToastMock()`                            | `addSuccessToast`, `addErrorToast`                                                                                                          |
+| `domain/` | `useGame/`       | `createUseGameMock()`                                | `canGoToPreviousQuestion`, `currentIndex`, `currentQuestion`, `questions`, `advanceToNextQuestion`, `goToPreviousQuestion`, `initialize`, `gameState`, `gameStateRef`, `questionsRef` |
 
 #### Mock factory pattern
 
 ```ts
 import { vi } from "vitest";
 import { computed, ref } from "vue";
+import type { Ref } from "vue";
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 import type { UseMyComposable } from "~/composables/.../useMyComposable";
 
-type UseMyComposableMock = ToMock<UseMyComposable>;
+type UseMyComposableMock = ToMock<UseMyComposable> & {
+  statusRef: Ref<string>;
+};
 
 function createUseMyComposableMock(): UseMyComposableMock {
-  const status = ref<string>("idle");
+  const statusRef = ref<string>("idle");
   return {
-    status,
-    isIdle: computed(() => status.value === "idle"),
+    status: computed(() => statusRef.value),
+    statusRef,
     doSomething: vi.fn<UseMyComposable["doSomething"]>(),
   };
 }
@@ -1413,6 +1431,8 @@ function createUseMyComposableMock(): UseMyComposableMock {
 export type { UseMyComposableMock };
 export { createUseMyComposableMock };
 ```
+
+**Ref suffix convention:** For every `ComputedRef` or `Ref` the real composable returns, the mock factory exposes the **underlying mutable ref** with a `Ref` suffix (e.g. `gameState` → `gameStateRef`). Tests mutate `holder.instance.gameStateRef.value` before mount, and the `computed` in the mock derives the visible property from that ref. Functions are always `vi.fn()`.
 
 ### 8.6 Repository mock files
 
@@ -1446,7 +1466,17 @@ export { createMyRepositoryMock };
 #### New composable mock
 
 1. Create `tests/unit/utils/mocks/composables/<category>/<ComposableName>/useXxx.mock.ts`.
-2. Create a setup file `tests/unit/setup/nuxt/composables/use-xxx.nuxt.unit-setup.ts` using `mockNuxtImport`.
+   - Export `type UseXxxMock` (extend `ToMock<UseXxx>` with mutable `Ref` properties suffixed `Ref`).
+   - Export `function createUseXxxMock(): UseXxxMock`.
+   - See [Mock factory pattern](#mock-factory-pattern) above for the exact structure.
+2. Create a setup file `tests/unit/setup/nuxt/composables/use-xxx.nuxt.unit-setup.ts` following the `MockHolder` pattern:
+   - Import `createUseXxxMock` + `UseXxxMock` from the mock file.
+   - Import `MockHolder` from `~~/tests/unit/utils/types/mock.types`.
+   - Declare `const xxxMock: MockHolder<UseXxxMock> = { instance: createUseXxxMock() }`.
+   - Use `mockNuxtImport("useXxx", () => (): UseXxxMock => xxxMock.instance)`.
+   - In `beforeEach`, assign `xxxMock.instance = createUseXxxMock()`.
+   - Export `{ xxxMock }`.
+   - Disable `typescript/explicit-function-return-type` on the `mockNuxtImport` line with an oxlint comment.
 3. Add the setup file path to `VITEST_COMPOSABLES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.constants.ts`.
 
 #### New repository mock
@@ -1603,18 +1633,64 @@ The `mockNuxtImport` factory runs once per module load (not per test). Reset `ca
 
 ### Using `mockNuxtImport` for a globally-mocked composable in component tests
 
-When a composable is already globally mocked (via setup files in `tests/unit/setup/nuxt/composables/`), do **not** add `mockNuxtImport("useFoo", ...)` in your component spec. Just call `useFoo()` directly in the test body — you get back the same mock instance the component received.
+When a composable is already globally mocked (via setup files in `tests/unit/setup/nuxt/composables/`), do **not** add `mockNuxtImport("useFoo", ...)` in your component spec. Instead, import the mock holder from the setup file and mutate `.instance` before mount:
 
 ```ts
 // Wrong — duplicates the global mock
-mockNuxtImport("useColorMode", () => () => createUseColorModeMock());
+mockNuxtImport("useGame", () => () => ({
+  gameState: computed(() => "playing"),
+  /* ... full interface ... */
+}));
 
-// Correct — use the global mock directly
-it("should show dark tooltip when color mode is light.", async () => {
-  const colorMode = useColorMode();
-  colorMode.value = "light";
+// Correct — import the global mock holder and mutate before mount
+import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
+
+it("should render GamePlaying when gameState is playing.", async () => {
+  useGameMock.instance.gameStateRef.value = "playing";
+  useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+  const wrapper = await mountGamePage();
+  // ... assert
+});
+```
+
+**For composables with `vi.fn()` methods**, override the mock implementation before mount:
+
+```ts
+it("should show error toast when initialize fails.", async () => {
+  useGameMock.instance.initialize.mockRejectedValue(new Error("fail"));
+  const wrapper = await mountGamePage();
+  await flushPromises();
+  expect(useAppToast().addErrorToast).toHaveBeenCalled();
+});
+```
+
+---
+
+### Mutating mock state after mount without `nextTick`
+
+When you mutate mock state after `mountSuspended` (not before), you must `await nextTick()` for Vue to re-render the template:
+
+```ts
+// Good — mutate before mount, no nextTick needed
+it("should render GamePlaying.", async () => {
+  useGameMock.instance.gameStateRef.value = "playing";
+  const wrapper = await mountGamePage();
+  // ... assert
+});
+
+// Good — mutate after mount, await nextTick
+it("should switch to game-over.", async () => {
+  const wrapper = await mountGamePage();
+  useGameMock.instance.gameStateRef.value = "game-over";
   await nextTick();
   // ... assert
+});
+
+// Wrong — mutate after mount, no nextTick
+it("should switch to game-over.", async () => {
+  const wrapper = await mountGamePage();
+  useGameMock.instance.gameStateRef.value = "game-over";
+  // template is stale — assertion will fail
 });
 ```
 
