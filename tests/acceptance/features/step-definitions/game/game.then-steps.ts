@@ -6,7 +6,9 @@ import type { GoatItWorld } from "#acceptance/features/support/types/world.types
 Then(
   /^a game question should be displayed$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.getByTestId("game-question")).toBeVisible();
+    const question = this.page.getByTestId("game-question");
+    await expect(question).toHaveCount(1);
+    await expect(question).toBeVisible();
   },
 );
 
@@ -48,7 +50,9 @@ Then(
 Then(
   /^the question card should be displayed$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.getByTestId("game-question")).toBeVisible();
+    const question = this.page.getByTestId("game-question");
+    await expect(question).toHaveCount(1);
+    await expect(question).toBeVisible();
   },
 );
 

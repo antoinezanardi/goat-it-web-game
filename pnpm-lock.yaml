@@ -184,6 +184,9 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      v-gsap-nuxt:
+        specifier: ^1.5.12
+        version: 1.5.12(magicast@0.5.4)
       validate-branch-name:
         specifier: ^1.3.2
         version: 1.3.2(typescript@6.0.3)
@@ -6261,6 +6264,9 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
+  gsap@3.15.0:
+    resolution: {integrity: sha512-dMW4CWBTUK1AEEDeZc1g4xpPGIrSf9fJF960qbTZmN/QwZIWY5wgliS6JWl9/25fpTGJrMRtSjGtOmPnfjZB+A==}
+
   gzip-size@7.0.0:
     resolution: {integrity: sha512-O1Ld7Dr+nqPnmGpdhzLmMTQ4vAsD+rHwMm1NLUmoUFFymBOMKxCCrtDxqdBRYXdeEPEi3SyoR4TizJLQrnKBNA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
@@ -9529,6 +9535,9 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  v-gsap-nuxt@1.5.12:
+    resolution: {integrity: sha512-ojOnvUPZGvFpFfpHUO37EgQjtfHwLs7ASqBqIjkZB5p6JwI0FH9VaprDJy8s5ZQAC/tKeWHEn6YFoyjw/git2Q==}
+
   valibot@1.4.2:
     resolution: {integrity: sha512-gjdCvJ6d3RyHAneqxMYMW9QMCwYMb3jpOO0IyHZV1bnRHFBHrX3VkIILt5XYR0WhwHiH7Mty8ovuPZ/O3gamrg==}
     peerDependencies:
@@ -12329,32 +12338,6 @@ snapshots:
       - vite
       - vue
 
-  '@nuxt/kit@3.21.10(magicast@0.5.2)':
-    dependencies:
-      c12: 3.3.4(magicast@0.5.2)
-      consola: 3.4.2
-      defu: 6.1.7
-      destr: 2.0.5
-      errx: 0.1.0
-      exsolve: 1.1.1
-      ignore: 7.0.6
-      jiti: 2.7.0
-      klona: 2.0.6
-      knitwork: 1.3.0
-      mlly: 1.8.2
-      ohash: 2.0.11
-      pathe: 2.0.3
-      pkg-types: 2.3.1
-      rc9: 3.0.1
-      scule: 1.3.0
-      semver: 7.8.5
-      tinyglobby: 0.2.17
-      ufo: 1.6.4
-      unctx: 2.5.0
-      untyped: 2.0.0
-    transitivePeerDependencies:
-      - magicast
-
   '@nuxt/kit@3.21.10(magicast@0.5.4)':
     dependencies:
       c12: 3.3.4(magicast@0.5.4)
@@ -12761,7 +12744,7 @@ snapshots:
     dependencies:
       '@clack/prompts': 1.7.0
       '@nuxt/devtools-kit': 2.7.0(magicast@0.5.4)(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0))
-      '@nuxt/kit': 3.21.10(magicast@0.5.2)
+      '@nuxt/kit': 3.21.10(magicast@0.5.4)
       c12: 3.3.4(magicast@0.5.2)
       consola: 3.4.2
       defu: 6.1.7
@@ -16858,6 +16841,8 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
+  gsap@3.15.0: {}
+
   gzip-size@7.0.0:
     dependencies:
       duplexer: 0.1.2
@@ -20810,6 +20795,14 @@ snapshots:
   util-arity@1.1.0: {}
 
   util-deprecate@1.0.2: {}
+
+  v-gsap-nuxt@1.5.12(magicast@0.5.4):
+    dependencies:
+      '@nuxt/kit': 3.21.10(magicast@0.5.4)
+      defu: 6.1.7
+      gsap: 3.15.0
+    transitivePeerDependencies:
+      - magicast
 
   valibot@1.4.2(typescript@6.0.3):
     optionalDependencies:

@@ -7,7 +7,9 @@ type GamePageState = "loading" | "playing" | "game-over";
 
 type UseGame = {
   canGoToPreviousQuestion: ComputedRef<boolean>;
+  currentIndex: Ref<number>;
   currentQuestion: ComputedRef<Question | undefined>;
+  questions: Ref<Question[]>;
   advanceToNextQuestion: () => void;
   goToPreviousQuestion: () => void;
   initialize: () => Promise<void>;
@@ -92,7 +94,9 @@ function useGame(): UseGame {
   }
   return {
     canGoToPreviousQuestion,
+    currentIndex,
     currentQuestion,
+    questions,
     advanceToNextQuestion,
     goToPreviousQuestion,
     initialize,

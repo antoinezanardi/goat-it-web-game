@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxt/eslint",
     "@vite-pwa/nuxt",
+    "v-gsap-nuxt",
   ],
   $test: {
     buildDir: ".nuxt/test",
