@@ -7,8 +7,6 @@ import type { UseGameMock } from "~~/tests/unit/utils/mocks/composables/domain/u
 
 const useGameMock: MockHolder<UseGameMock> = { instance: createUseGameMock() };
 
-// Acceptable as mock factory return type is inferred from createUseGameMock
-// oxlint-disable-next-line typescript/explicit-function-return-type
 mockNuxtImport("useGame", () => () => useGameMock.instance);
 
 beforeEach(() => {

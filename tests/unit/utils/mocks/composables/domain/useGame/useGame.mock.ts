@@ -4,10 +4,8 @@ import type { Ref } from "vue";
 
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
-import type { UseGame } from "~/composables/domain/useGame/useGame";
+import type { UseGame, GamePageState } from "~/composables/domain/useGame/useGame";
 import type { Question } from "#shared/types/question.types";
-
-type GamePageState = "loading" | "playing" | "game-over";
 
 type UseGameMock = ToMock<UseGame> & {
   gameStateRef: Ref<GamePageState>;

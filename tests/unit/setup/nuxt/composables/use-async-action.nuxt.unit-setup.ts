@@ -7,8 +7,6 @@ import type { UseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/c
 
 const useAsyncActionMock: MockHolder<UseAsyncActionMock> = { instance: createUseAsyncActionMock() };
 
-// Acceptable as mock factory return type is inferred from createUseAsyncActionMock
-// oxlint-disable-next-line typescript/explicit-function-return-type
 mockNuxtImport("useAsyncAction", () => () => useAsyncActionMock.instance);
 
 beforeEach(() => {

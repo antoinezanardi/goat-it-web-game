@@ -7,8 +7,6 @@ import type { UseGoatItApiErrorToastMock } from "~~/tests/unit/utils/mocks/compo
 
 const useGoatItApiErrorToastMock: MockHolder<UseGoatItApiErrorToastMock> = { instance: createUseGoatItApiErrorToastMock() };
 
-// Acceptable as mock factory return type is inferred from createUseGoatItApiErrorToastMock
-// oxlint-disable-next-line typescript/explicit-function-return-type
 mockNuxtImport("useGoatItApiErrorToast", () => () => useGoatItApiErrorToastMock.instance);
 
 beforeEach(() => {

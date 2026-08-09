@@ -7,8 +7,6 @@ import type { UseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/u
 
 const useAppToastMock: MockHolder<UseAppToastMock> = { instance: createUseAppToastMock() };
 
-// Acceptable as mock factory return type is inferred from createUseAppToastMock
-// oxlint-disable-next-line typescript/explicit-function-return-type
 mockNuxtImport("useAppToast", () => () => useAppToastMock.instance);
 
 beforeEach(() => {

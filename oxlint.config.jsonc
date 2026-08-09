@@ -1256,6 +1256,13 @@
         "typescript/no-magic-numbers": "off",
         "typescript/no-restricted-imports": "off",
         "typescript/no-unsafe-type-assertion": "off",
+        "import/max-dependencies": [
+          "error",
+          {
+            "max": 30,
+            "ignoreTypeImports": true
+          }
+        ],
         "import/no-default-export": "off",
         "import/no-anonymous-default-export": "off",
         "unicorn/filename-case": [

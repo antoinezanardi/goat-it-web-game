@@ -171,7 +171,7 @@ it("should render GamePlaying when gameState is playing.", async () => {
 
 This pattern works for **any** composable whose setup file exports a `MockHolder` (all 6 composables in the table above). For the 4 composables that previously had no exported holder (`useAsyncAction`, `useFetchStatus`, `useAppToast`, `useGoatItApiErrorToast`), tests can now import the holder to override specific properties before mount.
 
-**Safe destructuring:** `const { instance } = useGameMock` at the top of a spec file works — the holder object identity never changes, only `.instance` does. However, accessing `.instance` via the holder reference is preferred for clarity.
+Always access the current mock through the holder reference: `useGameMock.instance`. Do not destructure `{ instance }` from the holder at module scope — that captures the value at evaluation time and does not update when `beforeEach` replaces the mock.
 
 #### useI18n mock
 
@@ -1416,14 +1416,19 @@ import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 import type { UseMyComposable } from "~/composables/.../useMyComposable";
 
 type UseMyComposableMock = ToMock<UseMyComposable> & {
-  statusRef: Ref<string>;
+  fetchStatusRef: Ref<string>;
+  isIdleRef: Ref<boolean>;
 };
 
 function createUseMyComposableMock(): UseMyComposableMock {
-  const statusRef = ref<string>("idle");
+  const fetchStatusRef = ref<string>("idle");
   return {
-    status: computed(() => statusRef.value),
-    statusRef,
+    // Mutable Ref members — returned directly, no computed wrapper
+    fetchStatus: fetchStatusRef,
+    fetchStatusRef,
+    // ComputedRef members — derived from the underlying mutable ref
+    isIdle: computed(() => fetchStatusRef.value === "idle"),
+    isIdleRef: ref<boolean>(true),
     doSomething: vi.fn<UseMyComposable["doSomething"]>(),
   };
 }
@@ -1432,7 +1437,12 @@ export type { UseMyComposableMock };
 export { createUseMyComposableMock };
 ```
 
-**Ref suffix convention:** For every `ComputedRef` or `Ref` the real composable returns, the mock factory exposes the **underlying mutable ref** with a `Ref` suffix (e.g. `gameState` → `gameStateRef`). Tests mutate `holder.instance.gameStateRef.value` before mount, and the `computed` in the mock derives the visible property from that ref. Functions are always `vi.fn()`.
+**Ref suffix convention:** For every `ComputedRef` or `Ref` the real composable returns, the mock factory exposes the **underlying mutable ref** with a `Ref` suffix (e.g. `gameState` → `gameStateRef`). Tests mutate `holder.instance.gameStateRef.value` before mount.
+
+- **Mutable `Ref` members** (the real composable returns `Ref<T>`) — return the ref directly: `fetchStatus: fetchStatusRef`. Treat `fetchStatusRef` as the mutable hook for tests.
+- **`ComputedRef` members** (the real composable returns `ComputedRef<T>`) — wrap with `computed()` so the mock derives the visible property: `isIdle: computed(() => fetchStatusRef.value === "idle")`.
+
+Functions are always `vi.fn()`.
 
 ### 8.6 Repository mock files
 

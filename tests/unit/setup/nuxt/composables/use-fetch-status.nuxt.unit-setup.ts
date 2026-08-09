@@ -7,8 +7,6 @@ import type { UseFetchStatusMock } from "~~/tests/unit/utils/mocks/composables/c
 
 const useFetchStatusMock: MockHolder<UseFetchStatusMock> = { instance: createUseFetchStatusMock() };
 
-// Acceptable as mock factory return type is inferred from createUseFetchStatusMock
-// oxlint-disable-next-line typescript/explicit-function-return-type
 mockNuxtImport("useFetchStatus", () => () => useFetchStatusMock.instance);
 
 beforeEach(() => {

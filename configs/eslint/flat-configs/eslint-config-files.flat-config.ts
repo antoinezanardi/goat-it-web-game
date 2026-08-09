@@ -11,6 +11,13 @@ const ESLINT_CONFIG_FILES_FLAT_CONFIG: Linter.Config = {
   rules: {
     "@typescript-eslint/no-restricted-imports": "off",
     "@typescript-eslint/no-unsafe-type-assertion": "off",
+    "import/max-dependencies": [
+      "error",
+      {
+        max: 30,
+        ignoreTypeImports: true,
+      },
+    ],
     "import/no-default-export": "off",
     "import/no-internal-modules": "off",
     "import/no-anonymous-default-export": "off",
