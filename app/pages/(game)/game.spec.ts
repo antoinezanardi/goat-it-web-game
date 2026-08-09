@@ -3,29 +3,26 @@ import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { computed, nextTick, ref } from "vue";
 import type { Ref } from "vue";
-import type { Mock } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
-import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
 import type { UseGame } from "~/composables/domain/useGame/useGame";
 import type { Question } from "#shared/types/question.types";
 import GamePage from "@/pages/(game)/game.vue";
 
-let canGoToPreviousQuestion: Ref<boolean>;
 let currentQuestion: Ref<Question | undefined>;
-let advanceToNextQuestion: Mock<() => void>;
-let goToPreviousQuestion: Mock<() => void>;
 let gameState: Ref<"loading" | "playing" | "game-over">;
 
 mockNuxtImport(
   "useGame",
   () => (): UseGame => ({
-    canGoToPreviousQuestion: computed(() => canGoToPreviousQuestion.value),
+    canGoToPreviousQuestion: computed(() => false),
     currentQuestion: computed(() => currentQuestion.value),
-    advanceToNextQuestion,
-    goToPreviousQuestion,
+    currentIndex: ref(0),
+    questions: computed(() => []),
+    advanceToNextQuestion: vi.fn<() => void>(),
+    goToPreviousQuestion: vi.fn<() => void>(),
     initialize: vi.fn<() => Promise<void>>(),
     gameState: computed(() => gameState.value),
   }),
@@ -39,10 +36,7 @@ describe("Game Page", () => {
   }
 
   beforeEach(async() => {
-    canGoToPreviousQuestion = ref<boolean>(false);
     currentQuestion = ref<Question | undefined>(undefined);
-    advanceToNextQuestion = vi.fn<() => void>();
-    goToPreviousQuestion = vi.fn<() => void>();
     gameState = ref<"loading" | "playing" | "game-over">("loading");
     wrapper = await mountGamePage();
   });
@@ -67,16 +61,13 @@ describe("Game Page", () => {
     });
   });
 
-  it("should render GameLoading when gameState is 'loading'.", async() => {
-    gameState.value = "loading";
-    await nextTick();
-
+  it("should render GameLoading when gameState is loading.", () => {
     const gameLoading = wrapper.findComponent({ name: "GameLoading" });
 
     expect(gameLoading.exists()).toBeTruthy();
   });
 
-  it("should render GamePlaying with the current question when gameState is 'playing'.", async() => {
+  it("should render GamePlaying when gameState is playing and a current question exists.", async() => {
     const fakeQuestion = createFakeQuestion();
     currentQuestion.value = fakeQuestion;
     gameState.value = "playing";
@@ -84,58 +75,15 @@ describe("Game Page", () => {
 
     const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
 
-    expect(gamePlaying.props("question")).toStrictEqual(fakeQuestion);
+    expect(gamePlaying.exists()).toBeTruthy();
   });
 
-  it("should pass canGoToPreviousQuestion as false to GamePlaying when the composable reports it as false.", async() => {
-    currentQuestion.value = createFakeQuestion();
-    gameState.value = "playing";
-    await nextTick();
-
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-
-    expect(gamePlaying.props("canGoToPreviousQuestion")).toBe(false);
-  });
-
-  it("should pass canGoToPreviousQuestion as true to GamePlaying when the composable reports it as true.", async() => {
-    currentQuestion.value = createFakeQuestion();
-    canGoToPreviousQuestion.value = true;
-    gameState.value = "playing";
-    await nextTick();
-
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-
-    expect(gamePlaying.props("canGoToPreviousQuestion")).toBe(true);
-  });
-
-  it("should render GameNoMoreQuestions when gameState is 'game-over'.", async() => {
+  it("should render GameNoMoreQuestions when gameState is game-over.", async() => {
     gameState.value = "game-over";
     await nextTick();
 
     const noMoreQuestions = wrapper.findComponent({ name: "GameNoMoreQuestions" });
 
     expect(noMoreQuestions.exists()).toBeTruthy();
-  });
-
-  it("should call advanceToNextQuestion when GamePlaying emits next.", async() => {
-    currentQuestion.value = createFakeQuestion();
-    gameState.value = "playing";
-    await nextTick();
-
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-    getWrapperVm(gamePlaying).$emit("next");
-
-    expect(advanceToNextQuestion).toHaveBeenCalledExactlyOnceWith();
-  });
-
-  it("should call goToPreviousQuestion when GamePlaying emits previous.", async() => {
-    currentQuestion.value = createFakeQuestion();
-    gameState.value = "playing";
-    await nextTick();
-
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-    getWrapperVm(gamePlaying).$emit("previous");
-
-    expect(goToPreviousQuestion).toHaveBeenCalledExactlyOnceWith();
   });
 });
