@@ -1,16 +1,13 @@
 <script lang="ts" setup>
 import { GameQuestionCard } from "#components";
 
-import type { GameQuestionCardTransitionEmits, GameQuestionCardTransitionProps } from "@/components/domain/game/GamePlaying/GameQuestionCardTransition/game-question-card-transition.types";
+import { CARD_TRANSITION_DURATION_SECONDS, CARD_TRANSITION_ROTATION_DEGREES, CARD_TRANSITION_SLIDE_PERCENT } from "@/components/domain/game/GamePlaying/GameQuestionCardTransition/game-question-card-transition.constants";
+import type { GameQuestionCardTransitionDirection, GameQuestionCardTransitionEmits, GameQuestionCardTransitionProps } from "@/components/domain/game/GamePlaying/GameQuestionCardTransition/game-question-card-transition.types";
 
 const props = defineProps<GameQuestionCardTransitionProps>();
 const emit = defineEmits<GameQuestionCardTransitionEmits>();
 
 const gsap = useGSAP();
-
-const CARD_TRANSITION_SLIDE_PERCENT = 100;
-const CARD_TRANSITION_ROTATION_DEGREES = 6;
-const CARD_TRANSITION_DURATION_SECONDS = 0.4;
 
 const leavingCardReference = useTemplateRef<InstanceType<typeof GameQuestionCard>>("leavingCardReference");
 const enteringCardReference = useTemplateRef<InstanceType<typeof GameQuestionCard>>("enteringCardReference");
@@ -20,7 +17,7 @@ const gsapContext = shallowRef<{ revert: () => void }>();
 function animateCardTransition(
   leavingElement: HTMLElement,
   enteringElement: HTMLElement,
-  direction: "forward" | "backward",
+  direction: GameQuestionCardTransitionDirection,
 ): void {
   const isForward = direction === "forward";
   const leaveXPercent = isForward ? -CARD_TRANSITION_SLIDE_PERCENT : CARD_TRANSITION_SLIDE_PERCENT;
@@ -37,8 +34,7 @@ function animateCardTransition(
     onComplete: () => {
       emit("complete");
     },
-  })
-    .to(leavingElement, { xPercent: leaveXPercent, rotation: leaveRotation, opacity: 0, duration, ease: "expo.out" }, 0)
+  }).to(leavingElement, { xPercent: leaveXPercent, rotation: leaveRotation, opacity: 0, duration, ease: "expo.out" }, 0)
     .to(enteringElement, { xPercent: 0, rotation: 0, opacity: 1, duration, ease: "expo.out" }, 0);
 }
 
@@ -71,7 +67,7 @@ onUnmounted(() => {
     </div>
 
     <div
-      class="absolute left-0 top-0 w-full z-10"
+      class="w-full z-10"
       data-testid="card-transition-entering"
     >
       <GameQuestionCard

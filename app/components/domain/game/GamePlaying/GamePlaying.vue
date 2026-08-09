@@ -1,48 +1,25 @@
 <script lang="ts" setup>
 import type { Question } from "#shared/types/question.types";
+import { CARD_TRANSITION_SAFETY_TIMEOUT_MS } from "@/components/domain/game/GamePlaying/GameQuestionCardTransition/game-question-card-transition.constants";
+import type { GameQuestionCardTransitionDirection } from "@/components/domain/game/GamePlaying/GameQuestionCardTransition/game-question-card-transition.types";
+import type { GamePlayingEmits, GamePlayingProps } from "@/components/domain/game/GamePlaying/game-playing.types";
 
-const props = defineProps<{
-  /** Whether the user can navigate to the previous question. */
-  canGoToPreviousQuestion: boolean;
-  /** Index of the current question within the questions list. */
-  currentIndex: number;
-  /** The question currently displayed to the user. */
-  currentQuestion: Question;
-  /** The ordered list of questions available to the game. */
-  questions: Question[];
-}>();
-
-const emit = defineEmits<{
-  advance: [];
-  previous: [];
-}>();
-
-const SAFETY_TIMEOUT_MS = 600;
+const props = defineProps<GamePlayingProps>();
+const emit = defineEmits<GamePlayingEmits>();
 
 const leavingQuestion = ref<Question | undefined>(undefined);
 const enteringQuestion = ref<Question | undefined>(undefined);
-const transitionDirection = ref<"forward" | "backward">("forward");
+const transitionDirection = ref<GameQuestionCardTransitionDirection>("forward");
 const isTransitioning = ref<boolean>(false);
 // Acceptable as the timeout handle is only assigned inside startSafetyTimeout before it is ever read
 // oxlint-disable-next-line typescript/init-declarations
 let safetyTimeout: ReturnType<typeof setTimeout> | undefined;
 
-function startSafetyTimeout(): void {
-  safetyTimeout = setTimeout(() => {
-    isTransitioning.value = false;
-    if (leavingQuestion.value && enteringQuestion.value) {
-      if (transitionDirection.value === "forward") {
-        emit("advance");
-      } else {
-        emit("previous");
-      }
-      leavingQuestion.value = undefined;
-    }
-  }, SAFETY_TIMEOUT_MS);
-}
+function finishTransition(): void {
+  if (!isTransitioning.value) {
+    return;
+  }
 
-function onTransitionComplete(): void {
-  clearTimeout(safetyTimeout);
   if (transitionDirection.value === "forward") {
     emit("advance");
   } else {
@@ -50,6 +27,17 @@ function onTransitionComplete(): void {
   }
   leavingQuestion.value = undefined;
   isTransitioning.value = false;
+}
+
+function startSafetyTimeout(): void {
+  safetyTimeout = setTimeout(() => {
+    finishTransition();
+  }, CARD_TRANSITION_SAFETY_TIMEOUT_MS);
+}
+
+function onTransitionComplete(): void {
+  clearTimeout(safetyTimeout);
+  finishTransition();
 }
 
 function handleNext(): void {

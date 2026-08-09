@@ -1,13 +1,15 @@
 import type { Question } from "#shared/types/question.types";
 
+type GameQuestionCardTransitionDirection = "forward" | "backward";
+
 type GameQuestionCardTransitionProps = {
   leavingQuestion: Question;
   enteringQuestion: Question;
-  direction: "forward" | "backward";
+  direction: GameQuestionCardTransitionDirection;
 };
 
 type GameQuestionCardTransitionEmits = {
   complete: [];
 };
 
-export type { GameQuestionCardTransitionEmits, GameQuestionCardTransitionProps };
+export type { GameQuestionCardTransitionDirection, GameQuestionCardTransitionEmits, GameQuestionCardTransitionProps };

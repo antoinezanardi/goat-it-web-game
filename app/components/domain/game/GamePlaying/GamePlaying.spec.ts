@@ -1,7 +1,6 @@
 import type { VueWrapper } from "@vue/test-utils";
-import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Mock } from "vitest";
 import { nextTick } from "vue";
 import type { Ref } from "vue";
 
@@ -12,41 +11,17 @@ import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import type { Question } from "#shared/types/question.types";
 import GamePlaying from "@/components/domain/game/GamePlaying/GamePlaying.vue";
 
-type GsapSetSignature = (element: HTMLElement, variables: Record<string, number>) => void;
-
-type GsapTimelineToSignature = (target: HTMLElement, variables: Record<string, number | string>, position: number) => { to: Mock };
-
-type GsapTimelineSignature = (config: { onComplete?: () => void }) => { to: Mock };
-
-type GsapContextSignature = (callback: () => void) => { revert: Mock };
-
 type GamePlayingSetupState = {
   enteringQuestion: Ref<Question | undefined>;
-  leavingQuestion: Ref<Question | undefined>;
   handlePrevious: () => void;
+  isTransitioning: Ref<boolean>;
+  leavingQuestion: Ref<Question | undefined>;
+  transitionDirection: Ref<"forward" | "backward">;
 };
 
 function getGamePlayingSetupState(wrapper: VueWrapper): GamePlayingSetupState {
   return (wrapper as VueWrapper & { setupState: GamePlayingSetupState }).setupState;
 }
-
-// Acceptable as mock factory return type is inferred from vi.fn
-// oxlint-disable-next-line typescript/explicit-function-return-type
-mockNuxtImport("useGSAP", () => () => ({
-  // Acceptable as gsap.context requires the callback pattern
-  // oxlint-disable-next-line promise/prefer-await-to-callbacks
-  context: vi.fn<GsapContextSignature>(callback => {
-    // Acceptable as gsap.context invokes the callback synchronously
-    // oxlint-disable-next-line promise/prefer-await-to-callbacks
-    callback();
-
-    return { revert: vi.fn<() => void>() };
-  }),
-  set: vi.fn<GsapSetSignature>(),
-  timeline: vi.fn<GsapTimelineSignature>(() => ({
-    to: vi.fn<GsapTimelineToSignature>(() => ({ to: vi.fn<GsapTimelineToSignature>() })),
-  })),
-}));
 
 describe("GamePlaying Component", () => {
   let wrapper: VueWrapper;
@@ -390,26 +365,13 @@ describe("GamePlaying Component", () => {
       expect(wrapper.emitted("advance")).toHaveLength(1);
     });
 
-    it("should not emit advance when the safety timeout fires with no entering question.", async() => {
+    it("should not emit when the safety timeout fires after isTransitioning is already false.", async() => {
       const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
       getWrapperVm(nextButton).$emit("click");
       await nextTick();
 
       const setupState = getGamePlayingSetupState(wrapper);
-      setupState.enteringQuestion.value = undefined;
-      vi.advanceTimersByTime(safetyTimeoutMs);
-      await nextTick();
-
-      expect(wrapper.emitted("advance")).toBeUndefined();
-    });
-
-    it("should not emit advance when the safety timeout fires with no leaving question.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
-      await nextTick();
-
-      const setupState = getGamePlayingSetupState(wrapper);
-      setupState.leavingQuestion.value = undefined;
+      setupState.isTransitioning.value = false;
       vi.advanceTimersByTime(safetyTimeoutMs);
       await nextTick();
 
