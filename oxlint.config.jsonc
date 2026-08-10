@@ -33,6 +33,7 @@
     "getQuery": "readonly",
     "getRouterParam": "readonly",
     "navigator": "readonly",
+    "onBeforeRouteLeave": "readonly",
     "onMounted": "readonly",
     "onUnmounted": "readonly",
     "process": "readonly",

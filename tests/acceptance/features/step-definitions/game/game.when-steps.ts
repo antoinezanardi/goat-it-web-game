@@ -61,3 +61,10 @@ When(
     this.openedTabPage = openedTabPage;
   },
 );
+
+When(
+  /^the user navigates back$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.goBack();
+  },
+);

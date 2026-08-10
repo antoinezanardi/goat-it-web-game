@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { ConfirmDialog } from "#components";
+
 import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "~/composables/domain/question-theme/constants/question-theme.constants";
@@ -13,6 +15,28 @@ useSeoMeta({
   description: () => t("seo.game.description"),
   ogTitle: () => t("seo.game.title"),
   ogDescription: () => t("seo.game.description"),
+});
+
+const overlay = useOverlay();
+
+async function confirmLeave(): Promise<boolean> {
+  const modal = overlay.create(ConfirmDialog, {
+    props: {
+      icon: "i-lucide-triangle-alert",
+      title: t("game.leaveConfirmTitle"),
+      description: t("game.leaveConfirmDescription"),
+      primaryButtonLabel: t("game.leave"),
+    },
+  });
+
+  return await modal.open().result;
+}
+
+onBeforeRouteLeave(async() => {
+  if (gameState.value !== "playing") {
+    return true;
+  }
+  return await confirmLeave();
 });
 
 const {
