@@ -6,8 +6,6 @@ const props = defineProps<GamePreviousQuestionButtonProps>();
 const emit = defineEmits<GamePreviousQuestionButtonEmits>();
 const { t } = useI18n();
 
-const buttonClass = computed<string | undefined>(() => (props.disabled ? undefined : "game-question-navigation-button--themed"));
-
 const ariaLabel = computed<string>(() => t("game.previousQuestionTooltip"));
 
 function onClick(): void {
@@ -19,8 +17,7 @@ function onClick(): void {
   <UTooltip :text="ariaLabel">
     <UButton
       :aria-label="ariaLabel"
-      class="h-10 rounded-full w-10"
-      :class="buttonClass"
+      class="game-question-navigation-button--themed h-10 rounded-full w-10"
       color="neutral"
       data-testid="game-previous-question-button"
       :disabled="props.disabled"

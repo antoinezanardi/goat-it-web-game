@@ -31,10 +31,10 @@ describe("GamePreviousQuestionButton Component", () => {
     expect(wrapper.find("button").classes()).toContain("game-question-navigation-button--themed");
   });
 
-  it("should not apply the themed class when disabled.", async() => {
+  it("should apply the themed class when disabled.", async() => {
     await wrapper.setProps({ disabled: true });
 
-    expect(wrapper.find("button").classes()).not.toContain("game-question-navigation-button--themed");
+    expect(wrapper.find("button").classes()).toContain("game-question-navigation-button--themed");
   });
 
   it("should forward the disabled prop to the underlying button element when disabled is true.", async() => {
