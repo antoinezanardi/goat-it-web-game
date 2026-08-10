@@ -31,12 +31,13 @@ It covers the test infrastructure, every file type that needs tests, exact patte
    - [Finding elements and components](#75-finding-elements-and-components)
 8. [Mock infrastructure](#8-mock-infrastructure)
    - [ToMock type](#81-tomockt-type)
-   - [MockedPiniaStore type](#82-mockedpiniastoretstoredefinition-type)
-   - [mockStore helper](#83-mockstore-helper)
-   - [MountSuspendedOptions type](#84-mountsuspendedoptionscomponent-type)
-   - [Composable mock files](#85-composable-mock-files)
-   - [Repository mock files](#86-repository-mock-files)
-   - [Registering new mocks](#87-registering-new-mocks)
+   - [MockHolder type](#82-mockholdert-type)
+   - [MockedPiniaStore type](#83-mockedpiniastoretstoredefinition-type)
+   - [mockStore helper](#84-mockstore-helper)
+   - [MountSuspendedOptions type](#85-mountsuspendedoptionscomponent-type)
+   - [Composable mock files](#86-composable-mock-files)
+   - [Repository mock files](#87-repository-mock-files)
+   - [Registering new mocks](#88-registering-new-mocks)
 9. [Faketories](#9-faketories)
 10. [Naming conventions](#10-naming-conventions)
 11. [Common pitfalls](#11-common-pitfalls)
@@ -1350,7 +1351,26 @@ Use it to type your mock objects:
 type MyComposableMock = ToMock<MyComposable>;
 ```
 
-### 8.2 `MockedPiniaStore<TStoreDefinition>` type
+### 8.2 `MockHolder<T>` type
+
+Holds the current mock instance of a globally-mocked composable. Setup files in `tests/unit/setup/nuxt/composables/` declare a typed holder, register it once via `mockNuxtImport`, and replace `.instance` in `beforeEach` so every test gets a fresh mock:
+
+```ts
+// tests/unit/setup/nuxt/composables/use-xxx.nuxt.unit-setup.ts
+const xxxMock: MockHolder<XxxMock> = { instance: createXxxMock() };
+
+mockNuxtImport("useXxx", () => () => xxxMock.instance);
+
+beforeEach(() => {
+  xxxMock.instance = createXxxMock();
+});
+```
+
+Why it exists: the `mockNuxtImport` factory is evaluated once per module load, so destructuring the mock at module scope would capture a stale instance. The holder is a mutable reference — tests import it and always read the current mock through `xxxMock.instance`. Only used in unit tests.
+
+See [Composable mock files](#86-composable-mock-files) and [Registering new mocks](#88-registering-new-mocks) for the full pattern.
+
+### 8.3 `MockedPiniaStore<TStoreDefinition>` type
 
 Produces a typed Pinia store where all actions are replaced by Vitest `Mock` functions and getters are unwrapped from `ComputedRef`.
 
@@ -1358,7 +1378,7 @@ Produces a typed Pinia store where all actions are replaced by Vitest `Mock` fun
 type MyStoreMock = MockedPiniaStore<typeof useMyStore>;
 ```
 
-### 8.3 `mockStore` helper
+### 8.4 `mockStore` helper
 
 Casts `useStore()` to `MockedPiniaStore<typeof useStore>`. Use it after `mountSuspended` to get a typed store reference with mocked actions.
 
@@ -1369,7 +1389,7 @@ const myStore = mockStore(useMyStore);
 // myStore.someAction is a Mock; myStore.someState is writable
 ```
 
-### 8.4 `MountSuspendedOptions<Component>` type
+### 8.5 `MountSuspendedOptions<Component>` type
 
 A convenience type for the second argument of `mountSuspended`:
 
@@ -1381,7 +1401,7 @@ async function mountMyComponent(options: MountSuspendedOptions<typeof MyComponen
 }
 ```
 
-### 8.5 Composable mock files
+### 8.6 Composable mock files
 
 Each non-trivial composable has a mock triplet in `tests/unit/utils/mocks/composables/<category>/<ComposableName>/`:
 
@@ -1444,7 +1464,7 @@ export { createUseMyComposableMock };
 
 Functions are always `vi.fn()`.
 
-### 8.6 Repository mock files
+### 8.7 Repository mock files
 
 Repository mocks live in `tests/unit/utils/mocks/repositories/goat-it-api/<RepositoryName>/`.
 
@@ -1471,7 +1491,7 @@ export { createMyRepositoryMock };
 
 > **Note:** The mock must include all methods exported by the real repository. Currently the `questionThemesRepository` mock has 5 methods: `getAll`, `getById`, `create`, `patch`, `archive`.
 
-### 8.7 Registering new mocks
+### 8.8 Registering new mocks
 
 #### New composable mock
 
