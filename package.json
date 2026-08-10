@@ -129,7 +129,7 @@
     "nuxt-schema-org": "^6.2.8",
     "nuxt-seo-utils": "^8.3.3",
     "nuxt-site-config": "^4.2.0",
-    "nuxtseo-layer-devtools": "^5.3.10",
+    "nuxtseo-layer-devtools": "^5.3.12",
     "oxlint": "^1.77.0",
     "oxlint-tsgolint": "^7.0.2001",
     "pinia": "^4.0.2",
