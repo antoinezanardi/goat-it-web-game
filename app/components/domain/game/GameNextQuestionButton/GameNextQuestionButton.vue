@@ -1,16 +1,9 @@
 <script lang="ts" setup>
 import type { GameNextQuestionButtonEmits, GameNextQuestionButtonProps } from "@/components/domain/game/GameNextQuestionButton/game-next-question-button.types";
+import { GAME_NEXT_QUESTION_BUTTON_UI } from "@/components/domain/game/GameNextQuestionButton/game-next-question-button.constants";
 
 const props = defineProps<GameNextQuestionButtonProps>();
 const emit = defineEmits<GameNextQuestionButtonEmits>();
-
-const buttonClass = computed<string | undefined>(() => (props.disabled || props.loading ? undefined : "game-question-navigation-button--themed"));
-
-const buttonUi = computed<Record<string, string | undefined>>(() => ({
-  base: "ring-0 bg-surface-interactive",
-  label: "text-fg-primary",
-  trailingIcon: props.disabled || props.loading ? undefined : "text-(color:--game-theme-neon)",
-}));
 
 function onClick(): void {
   emit("click");
@@ -19,8 +12,7 @@ function onClick(): void {
 
 <template>
   <UButton
-    class="font-semibold h-10 md:self-end md:w-auto rounded-lg text-fg-primary text-sm"
-    :class="buttonClass"
+    class="font-semibold game-question-navigation-button--themed h-10 md:self-end md:w-auto rounded-lg text-fg-primary text-sm"
     color="neutral"
     data-testid="game-next-question-button"
     :disabled="props.disabled"
@@ -29,7 +21,7 @@ function onClick(): void {
     size="lg"
     trailing-icon="i-lucide-arrow-right"
     type="button"
-    :ui="buttonUi"
+    :ui="GAME_NEXT_QUESTION_BUTTON_UI"
     variant="outline"
     @click="onClick"
   />

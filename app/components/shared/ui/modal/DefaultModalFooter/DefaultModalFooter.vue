@@ -54,7 +54,10 @@ defineShortcuts({
       :label="closeButtonDisplayedLabel"
       @click="onClickFromCloseButton"
     >
-      <template #trailing>
+      <template
+        v-if="!disableShortcuts"
+        #trailing
+      >
         <UKbd
           data-testid="default-modal-footer-close-button-shortcut-escape"
           size="sm"
@@ -72,7 +75,10 @@ defineShortcuts({
       :loading="isPrimaryButtonLoading"
       @click="onClickFromPrimaryButton"
     >
-      <template #trailing>
+      <template
+        v-if="!disableShortcuts"
+        #trailing
+      >
         <UKbd
           data-testid="default-modal-footer-primary-button-shortcut-meta"
           size="sm"

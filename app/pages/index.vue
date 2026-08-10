@@ -14,11 +14,11 @@ useSeoMeta({
 <template>
   <div
     id="home-page"
-    class="bg-app-bg flex flex-col gap-6 items-center justify-center min-h-screen"
+    class="bg-app-bg flex flex-col gap-6 items-center justify-center min-h-dvh overflow-hidden"
   >
     <img
       :alt="t('home.brand')"
-      class="h-auto min-w-32 w-64"
+      class="h-auto md:w-64 min-w-32 sm:w-60 w-52"
       src="/img/logo/logo-512.avif"
     >
 
