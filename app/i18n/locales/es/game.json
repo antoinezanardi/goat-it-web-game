@@ -7,7 +7,7 @@
     "noMoreQuestions": "¡Ya las viste todas! Vuelve pronto para nuevas preguntas.",
     "backToHome": "Volver al inicio",
     "leaveConfirmTitle": "¿Salir del juego?",
-    "leaveConfirmDescription": "Perderás tu progreso. ¿Estás seguro de que quieres salir?",
+    "leaveConfirmDescription": "¿Estás seguro de que quieres salir de la partida actual?",
     "leave": "Salir"
   }
 }

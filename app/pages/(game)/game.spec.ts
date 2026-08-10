@@ -100,8 +100,12 @@ describe("Game Page", () => {
     expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(
       expect.any(Object),
       expect.objectContaining({
+        destroyOnClose: true,
         props: {
-          icon: "i-lucide-triangle-alert",
+          disableShortcuts: true,
+          dismissible: false,
+          icon: "i-lucide-log-out",
+          iconClass: "text-warning",
           title: "game.leaveConfirmTitle",
           description: "game.leaveConfirmDescription",
           primaryButtonLabel: "game.leave",

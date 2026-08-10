@@ -7,7 +7,7 @@ defineProps<DefaultModalTitleProps>();
 <template>
   <div class="default-modal-title flex gap-2 items-center">
     <UIcon
-      class="text-primary"
+      :class="iconClass ?? 'text-primary'"
       :name="icon"
     />
 

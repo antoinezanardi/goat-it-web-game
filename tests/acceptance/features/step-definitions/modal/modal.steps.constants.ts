@@ -1,5 +1,0 @@
-const MODAL_ANIMATION_SETTLE_MS = 300;
-
-export {
-  MODAL_ANIMATION_SETTLE_MS,
-};

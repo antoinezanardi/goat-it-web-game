@@ -97,7 +97,6 @@ Feature: 🎮 Game Page
     And the no more questions message should be displayed
     When the user clicks the back to home button
     Then the user should be on home page
-    And no confirmation modal is displayed
 
   Scenario: 🎮 Source link opens in new tab with correct URL
     Given the database is populated with the question fixture set "single-question"

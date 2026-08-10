@@ -1,8 +1,13 @@
 import type { Mock } from "vitest";
 
-type UseOverlayCreateReturnValue = {
-  close: Mock<(value: boolean) => void>;
-  open: Mock<() => { result: Promise<boolean> }>;
+type OverlayOpenReturnValue = {
+  result: Promise<boolean>;
+  then: Promise<boolean>["then"];
 };
 
-export type { UseOverlayCreateReturnValue };
+type UseOverlayCreateReturnValue = {
+  close: Mock<(value: boolean) => void>;
+  open: Mock<() => OverlayOpenReturnValue>;
+};
+
+export type { OverlayOpenReturnValue, UseOverlayCreateReturnValue };

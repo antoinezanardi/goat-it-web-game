@@ -1,7 +1,7 @@
 import type { Mock } from "vitest";
 import { vi } from "vitest";
 
-import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
+import type { OverlayOpenReturnValue, UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
 type UseOverlayMock = {
   create: Mock<() => UseOverlayCreateReturnValue>;
@@ -10,15 +10,17 @@ type UseOverlayMock = {
 function createUseOverlayMock(): UseOverlayMock {
   const create: Mock<() => UseOverlayCreateReturnValue> = vi.fn<() => UseOverlayCreateReturnValue>(() => {
     const deferred: { resolve?: (value: boolean) => void } = {};
-    const result: Promise<boolean> = new Promise(resolve => {
+    const resultPromise: Promise<boolean> = new Promise(resolve => {
       deferred.resolve = resolve;
     });
+
+    const openReturnValue: OverlayOpenReturnValue = Object.assign(resultPromise, { result: resultPromise });
 
     return {
       close: vi.fn<(value: boolean) => void>().mockImplementation((value: boolean) => {
         deferred.resolve?.(value);
       }),
-      open: vi.fn<() => { result: Promise<boolean> }>(() => ({ result })),
+      open: vi.fn<() => OverlayOpenReturnValue>(() => openReturnValue),
     };
   });
 

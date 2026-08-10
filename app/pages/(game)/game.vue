@@ -21,15 +21,19 @@ const overlay = useOverlay();
 
 async function confirmLeave(): Promise<boolean> {
   const modal = overlay.create(ConfirmDialog, {
+    destroyOnClose: true,
     props: {
-      icon: "i-lucide-triangle-alert",
+      disableShortcuts: true,
+      dismissible: false,
+      icon: "i-lucide-log-out",
+      iconClass: "text-warning",
       title: t("game.leaveConfirmTitle"),
       description: t("game.leaveConfirmDescription"),
       primaryButtonLabel: t("game.leave"),
     },
   });
 
-  return await modal.open().result;
+  return await modal.open();
 }
 
 onBeforeRouteLeave(async() => {
