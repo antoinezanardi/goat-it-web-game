@@ -1,6 +1,9 @@
 {
   "common": {
     "success": "Succès",
-    "error": "Erreur"
+    "error": "Erreur",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
   }
 }
