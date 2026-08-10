@@ -134,8 +134,8 @@ importers:
         specifier: ^4.5.2
         version: 4.5.2(6ec8f5b7c988ac9fe22f66eb32a130fb)
       nuxt-og-image:
-        specifier: ^6.7.7
-        version: 6.7.7(e547d658ffc1ffb9308f66afb889625e)
+        specifier: ^6.7.8
+        version: 6.7.8(e547d658ffc1ffb9308f66afb889625e)
       nuxt-schema-org:
         specifier: ^6.2.9
         version: 6.2.9(f0667f9093a1d9c2fcc6918ea402a71c)
@@ -7511,8 +7511,8 @@ packages:
   nuxt-define@1.0.0:
     resolution: {integrity: sha512-CYZ2WjU+KCyCDVzjYUM4eEpMF0rkPmkpiFrybTqqQCRpUbPt2h3snswWIpFPXTi+osRCY6Og0W/XLAQgDL4FfQ==}
 
-  nuxt-og-image@6.7.7:
-    resolution: {integrity: sha512-boESdqZIfqlS4O0WorINLXTGtFXswdvIFP2Q8SIPgAvj+8Qb9/T1pWvUvzNlPDzIRKrT7P7tMT4ShxFKcqv5CQ==}
+  nuxt-og-image@6.7.8:
+    resolution: {integrity: sha512-G7Vm+QNZf5LT85BupX0k8xuA+xjXUB/dY4stLuAIdFmv1CeNbnr5SkFGceRk35FHIK66nIim7wgRU4hGmxzH8Q==}
     engines: {node: '>=18.0.0'}
     hasBin: true
     peerDependencies:
@@ -14847,7 +14847,7 @@ snapshots:
       '@babel/types': 7.29.8
       '@vue/babel-helper-vue-transform-on': 2.0.1
       '@vue/babel-plugin-resolve-type': 2.0.1(@babel/core@7.29.0(supports-color@11.0.0))(supports-color@11.0.0)
-      '@vue/shared': 3.5.40
+      '@vue/shared': 3.5.41
     optionalDependencies:
       '@babel/core': 7.29.0(supports-color@11.0.0)
     transitivePeerDependencies:
@@ -14860,7 +14860,7 @@ snapshots:
       '@babel/helper-module-imports': 7.29.7(supports-color@11.0.0)
       '@babel/helper-plugin-utils': 7.29.7
       '@babel/parser': 7.29.8
-      '@vue/compiler-sfc': 3.5.40
+      '@vue/compiler-sfc': 3.5.41
     transitivePeerDependencies:
       - supports-color
 
@@ -18154,7 +18154,7 @@ snapshots:
 
   nuxt-define@1.0.0: {}
 
-  nuxt-og-image@6.7.7(e547d658ffc1ffb9308f66afb889625e):
+  nuxt-og-image@6.7.8(e547d658ffc1ffb9308f66afb889625e):
     dependencies:
       '@clack/prompts': 1.7.0
       '@nuxt/kit': 4.5.2(magic-string@1.1.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.3)(unplugin@3.3.0(esbuild@0.28.0)(rolldown@1.2.3)(rollup@4.60.3)(vite@8.2.1(@types/node@25.9.5)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))
