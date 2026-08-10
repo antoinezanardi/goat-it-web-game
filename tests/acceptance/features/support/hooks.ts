@@ -7,6 +7,7 @@ import type { Db, MongoClient } from "mongodb";
 
 import {
   ACCEPTANCE_TESTS_DEFAULT_LOCALE,
+  ACCEPTANCE_TESTS_OG_IMAGE_SECURITY_SECRET,
   ACCEPTANCE_TESTS_SITE_URL,
   BEFORE_ALL_TIMEOUT,
   BEFORE_TIMEOUT,
@@ -36,6 +37,7 @@ const { beforeEach, afterEach, afterAll, beforeAll } = createTest({
     NUXT_GOAT_IT_API_BASE_URL: sandboxBaseUrl,
     NUXT_GOAT_IT_API_GAME_KEY: SANDBOX_GAME_KEY,
     NUXT_PUBLIC_SITE_URL: ACCEPTANCE_TESTS_SITE_URL,
+    NUXT_OG_IMAGE_SECURITY_SECRET: ACCEPTANCE_TESTS_OG_IMAGE_SECURITY_SECRET,
   },
   browserOptions: {
     type: "chromium",

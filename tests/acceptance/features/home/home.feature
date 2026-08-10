@@ -3,7 +3,12 @@ Feature: 🏡 Home Page
 
   Scenario: 🏡 Home Page is displayed with correct title
     Given the user is on home page
-    Then the page title should be "Goat It"
+    Then the page title should be "Goat It — The game where the answer is guessed"
+
+  Scenario: 📝 Home Page displays the tagline and subtitle
+    Given the user is on home page
+    Then the text "The game where the answer is guessed." should be visible
+    And the text "You don't need to know everything. You just need to ask the right questions." should be visible
 
   Scenario: 🎮 Clicking PLAY navigates to game page
     Given the user is on home page

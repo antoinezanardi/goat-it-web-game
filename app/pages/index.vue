@@ -26,6 +26,14 @@ useSeoMeta({
       {{ t('home.brand') }}
     </h1>
 
+    <h2 class="font-semibold text-2xl text-fg-primary">
+      {{ t('home.tagline') }}
+    </h2>
+
+    <p class="italic text-fg-secondary text-lg">
+      {{ t('home.subtitle') }}
+    </p>
+
     <div id="home-play-button-container">
       <UButton
         id="home-play-button"

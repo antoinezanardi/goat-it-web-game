@@ -208,6 +208,12 @@ export default defineNuxtConfig({
       redirectOn: "root",
     },
   },
+  ogImage: {
+    security: {
+      secret: process.env.NUXT_OG_IMAGE_SECURITY_SECRET ?? "goat-it-og-image-dev-secret",
+      strict: true,
+    },
+  },
   pinia: { storesDirs: ["stores/**"] },
   pwa: {
     registerType: "autoUpdate",

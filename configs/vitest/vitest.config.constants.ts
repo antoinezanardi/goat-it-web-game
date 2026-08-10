@@ -84,6 +84,7 @@ const VITEST_NUXT_PROJECT_SETUP_FILES = [
   path.resolve(processCwd, "tests/unit/setup/nuxt/use-head.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/use-seo-meta.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/call-once.nuxt.unit-setup.ts"),
+  path.resolve(processCwd, "tests/unit/setup/nuxt/define-og-image.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/virtualizer.nuxt.unit-setup.ts"),
 ] as const;
 

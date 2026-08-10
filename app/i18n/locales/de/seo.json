@@ -1,12 +1,12 @@
 {
   "seo": {
     "home": {
-      "title": "Goat It",
-      "description": "Goat It — ein Multiplayer-Quizspiel. Stelle dich Herausforderungen mit thematischen Fragen."
+      "title": "Goat It — Das Spiel, bei dem die Antwort erraten wird",
+      "description": "Goat It ist ein Deduktionsspiel basierend auf kuriosen Fakten. Stelle dem Spielleiter deine Fragen, ermittle und finde die Antwort."
     },
     "game": {
-      "title": "Goat It — Spielen",
-      "description": "Nimm die Herausforderung an! Beantworte Fragen und teste dein Wissen auf Goat It."
+      "title": "Goat It — Ein Spiel starten",
+      "description": "Stelle dem Spielleiter deine Fragen, gleiche die Hinweise ab und finde die Antwort. Hinter jedem Spiel verbirgt sich ein kurioser Fakt."
     }
   }
 }

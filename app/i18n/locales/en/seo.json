@@ -1,12 +1,12 @@
 {
   "seo": {
     "home": {
-      "title": "Goat It",
-      "description": "Goat It — a multiplayer quiz game. Take on challenges with themed questions."
+      "title": "Goat It — The game where the answer is guessed",
+      "description": "Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer."
     },
     "game": {
-      "title": "Goat It — Play",
-      "description": "Take on the challenge! Answer questions and test your knowledge on Goat It."
+      "title": "Goat It — Start a game",
+      "description": "Ask the Game Master your questions, cross-reference the clues, and find the answer. An unusual fact lies behind every game."
     }
   }
 }

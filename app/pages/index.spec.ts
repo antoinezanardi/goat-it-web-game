@@ -44,6 +44,24 @@ describe("Home Page", () => {
     expect(h1.text()).toBe("home.brand");
   });
 
+  it("should render the h2 with tagline translation key when mounted.", () => {
+    const h2 = wrapper.find("h2");
+
+    expect(h2.text()).toBe("home.tagline");
+  });
+
+  it("should render the subtitle paragraph with italic class and translation key when mounted.", () => {
+    const subtitle = wrapper.find("p");
+
+    expect({
+      text: subtitle.text(),
+      hasItalicClass: subtitle.classes().includes("italic"),
+    }).toStrictEqual({
+      text: "home.subtitle",
+      hasItalicClass: true,
+    });
+  });
+
   it("should render the logo image with 512px src when mounted.", () => {
     const img = wrapper.find("img");
 

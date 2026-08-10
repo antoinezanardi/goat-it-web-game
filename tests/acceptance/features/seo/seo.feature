@@ -4,18 +4,42 @@ Feature: 🔍 Technical SEO
   Scenario: 🔍 Home page has SEO meta tags
     Given the user is on home page
     Then the following meta tags should be present:
-      | type     | key             | content                                                                   |
-      | name     | description     | Goat It — a multiplayer quiz game. Take on challenges with themed questions. |
-      | property | og:title        | Goat It                                                                   |
-      | property | og:description  | Goat It — a multiplayer quiz game. Take on challenges with themed questions. |
+      | type     | key             | content                                                                       |
+      | name     | description     | Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer. |
+      | property | og:title        | Goat It — The game where the answer is guessed                                |
+      | property | og:description  | Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer. |
 
   Scenario: 🔍 Game page has SEO meta tags
     Given the user is on game page
     Then the following meta tags should be present:
-      | type     | key             | content                                                                 |
-      | name     | description     | Take on the challenge! Answer questions and test your knowledge on Goat It. |
-      | property | og:title        | Goat It — Play                                                          |
-      | property | og:description  | Take on the challenge! Answer questions and test your knowledge on Goat It. |
+      | type     | key             | content                                                                       |
+      | name     | description     | Ask the Game Master your questions, cross-reference the clues, and find the answer. An unusual fact lies behind every game. |
+      | property | og:title        | Goat It — Start a game                                                        |
+      | property | og:description  | Ask the Game Master your questions, cross-reference the clues, and find the answer. An unusual fact lies behind every game. |
+
+  Scenario: 🖼️ Home page has og:image meta tag
+    Given the user is on home page
+    Then the meta tag with property "og:image" should be present
+
+  Scenario: 🖼️ Home page has twitter:image meta tag
+    Given the user is on home page
+    Then the meta tag with property "twitter:image" should be present
+
+  Scenario: 🖼️ Game page has og:image meta tag
+    Given the user is on game page
+    Then the meta tag with property "og:image" should be present
+
+  Scenario: 🖼️ Game page has twitter:image meta tag
+    Given the user is on game page
+    Then the meta tag with property "twitter:image" should be present
+
+  Scenario: 🖼️ Home page og:image returns a valid PNG image
+    Given the user is on home page
+    Then the og:image should return a valid PNG image
+
+  Scenario: 🖼️ Game page og:image returns a valid PNG image
+    Given the user is on game page
+    Then the og:image should return a valid PNG image
 
   Scenario: 🤖 Robots.txt is served with sitemap reference
     Given the user is on robots.txt page
