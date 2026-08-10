@@ -104,6 +104,6 @@ function useGame(): UseGame {
   };
 }
 
-export type { UseGame };
+export type { GamePageState, UseGame };
 
 export { useGame };

@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
-import { USE_GSAP_MOCK } from "~~/tests/unit/setup/nuxt/composables/use-gsap.nuxt.unit-setup";
+import { useGsapMock } from "~~/tests/unit/setup/nuxt/composables/use-gsap.nuxt.unit-setup";
+import { createUseGSAPMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useGsap/useGsap.mock";
 
 import { GameQuestionCardTransition } from "#components";
 
@@ -64,43 +65,45 @@ describe("GameQuestionCardTransition Component", () => {
   });
 
   it("should create a gsap context when mounted.", () => {
-    expect(USE_GSAP_MOCK.current.context).toHaveBeenCalledExactlyOnceWith(expect.any(Function));
+    expect(useGsapMock.instance.context).toHaveBeenCalledExactlyOnceWith(expect.any(Function));
   });
 
   it("should set the entering card to its initial state when transition direction is forward.", () => {
     const enteringCardElement = wrapper.find("[data-testid='card-transition-entering']").findComponent({ name: "GameQuestionCard" }).element as HTMLElement;
 
-    expect(USE_GSAP_MOCK.current.set).toHaveBeenCalledExactlyOnceWith(enteringCardElement, { xPercent: 100, rotation: 6, opacity: 0 });
+    expect(useGsapMock.instance.set).toHaveBeenCalledExactlyOnceWith(enteringCardElement, { xPercent: 100, rotation: 6, opacity: 0 });
   });
 
   it("should set the entering card to its initial state when transition direction is backward.", async() => {
     wrapper.unmount();
+    useGsapMock.instance = createUseGSAPMock();
     wrapper = await mountTransition({ props: { ...defaultProps, direction: "backward" } });
     const enteringCardElement = wrapper.find("[data-testid='card-transition-entering']").findComponent({ name: "GameQuestionCard" }).element as HTMLElement;
 
-    expect(USE_GSAP_MOCK.current.set).toHaveBeenCalledExactlyOnceWith(enteringCardElement, { xPercent: -100, rotation: -6, opacity: 0 });
+    expect(useGsapMock.instance.set).toHaveBeenCalledExactlyOnceWith(enteringCardElement, { xPercent: -100, rotation: -6, opacity: 0 });
   });
 
   it("should create a gsap timeline with an onComplete callback when mounted.", () => {
-    expect(USE_GSAP_MOCK.current.timeline).toHaveBeenCalledExactlyOnceWith({ onComplete: expect.any(Function) as () => void });
+    expect(useGsapMock.instance.timeline).toHaveBeenCalledExactlyOnceWith({ onComplete: expect.any(Function) as () => void });
   });
 
   it("should animate the leaving card out with expo.out ease when direction is forward.", () => {
     const leavingCardElement = wrapper.find("[data-testid='card-transition-leaving']").findComponent({ name: "GameQuestionCard" }).element as HTMLElement;
 
-    expect(USE_GSAP_MOCK.current.timelineTo).toHaveBeenNthCalledWith(1, leavingCardElement, { xPercent: -100, rotation: -6, opacity: 0, duration: 0.4, ease: "expo.out" }, 0);
+    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(1, leavingCardElement, { xPercent: -100, rotation: -6, opacity: 0, duration: 0.4, ease: "expo.out" }, 0);
   });
 
   it("should animate the leaving card out with mirrored values when direction is backward.", async() => {
     wrapper.unmount();
+    useGsapMock.instance = createUseGSAPMock();
     wrapper = await mountTransition({ props: { ...defaultProps, direction: "backward" } });
     const leavingCardElement = wrapper.find("[data-testid='card-transition-leaving']").findComponent({ name: "GameQuestionCard" }).element as HTMLElement;
 
-    expect(USE_GSAP_MOCK.current.timelineTo).toHaveBeenNthCalledWith(1, leavingCardElement, { xPercent: 100, rotation: 6, opacity: 0, duration: 0.4, ease: "expo.out" }, 0);
+    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(1, leavingCardElement, { xPercent: 100, rotation: 6, opacity: 0, duration: 0.4, ease: "expo.out" }, 0);
   });
 
   it("should emit complete when the timeline onComplete callback fires.", () => {
-    USE_GSAP_MOCK.current.capturedOnComplete.current?.();
+    useGsapMock.instance.capturedOnComplete.current?.();
 
     expect(wrapper.emitted("complete")).toStrictEqual([[]]);
   });
@@ -108,11 +111,12 @@ describe("GameQuestionCardTransition Component", () => {
   it("should revert the gsap context when the component unmounts.", () => {
     wrapper.unmount();
 
-    expect(USE_GSAP_MOCK.current.revert).toHaveBeenCalledExactlyOnceWith();
+    expect(useGsapMock.instance.revert).toHaveBeenCalledExactlyOnceWith();
   });
 
   it("should not animate the cards when the card elements are not rendered.", async() => {
     wrapper.unmount();
+    useGsapMock.instance = createUseGSAPMock();
     wrapper = await mountTransition({
       global: {
         stubs: {
@@ -124,15 +128,16 @@ describe("GameQuestionCardTransition Component", () => {
       },
     });
 
-    expect(USE_GSAP_MOCK.current.set).not.toHaveBeenCalled();
+    expect(useGsapMock.instance.set).not.toHaveBeenCalled();
   });
 
   it("should use a zero duration when prefers-reduced-motion is active.", async() => {
     vi.spyOn(globalThis, "matchMedia").mockReturnValue({ matches: true } as MediaQueryList);
     wrapper.unmount();
+    useGsapMock.instance = createUseGSAPMock();
     wrapper = await mountTransition();
     const leavingCardElement = wrapper.find("[data-testid='card-transition-leaving']").findComponent({ name: "GameQuestionCard" }).element as HTMLElement;
 
-    expect(USE_GSAP_MOCK.current.timelineTo).toHaveBeenNthCalledWith(1, leavingCardElement, { xPercent: -100, rotation: -6, opacity: 0, duration: 0, ease: "expo.out" }, 0);
+    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(1, leavingCardElement, { xPercent: -100, rotation: -6, opacity: 0, duration: 0, ease: "expo.out" }, 0);
   });
 });

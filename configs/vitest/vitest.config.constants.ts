@@ -93,6 +93,7 @@ const VITEST_COMPOSABLES_MOCK_SETUP_FILES: readonly string[] = [
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-app-toast.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-goat-it-api-error-toast.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-gsap.nuxt.unit-setup.ts"),
+  path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup.ts"),
 ] as const;
 
 const VITEST_COMPOSABLES_PROJECT_INCLUDES = ["app/composables/**/*.spec.ts"];
@@ -179,8 +180,8 @@ const VITEST_NUXT_PROJECT_CONFIG: TestProjectInlineConfiguration = {
     ],
     setupFiles: [
       ...VITEST_NUXT_PROJECT_SETUP_FILES,
-      ...VITEST_COMPOSABLES_MOCK_SETUP_FILES,
       ...VITEST_REPOSITORIES_MOCK_SETUP_FILES,
+      ...VITEST_COMPOSABLES_MOCK_SETUP_FILES,
     ],
   },
 } as const;
@@ -205,8 +206,8 @@ const VITEST_STORES_PROJECT_CONFIG: TestProjectInlineConfiguration = {
     include: [...VITEST_STORES_PROJECT_INCLUDES],
     setupFiles: [
       ...VITEST_NUXT_PROJECT_SETUP_FILES,
-      ...VITEST_COMPOSABLES_MOCK_SETUP_FILES,
       ...VITEST_REPOSITORIES_MOCK_SETUP_FILES,
+      ...VITEST_COMPOSABLES_MOCK_SETUP_FILES,
       path.resolve(processCwd, "tests/unit/setup/nuxt/stores.nuxt.unit-setup.ts"),
     ],
   },

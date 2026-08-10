@@ -1,32 +1,13 @@
 import type { VueWrapper } from "@vue/test-utils";
-import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { computed, nextTick, ref } from "vue";
-import type { Ref } from "vue";
+import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
+import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
 
-import type { UseGame } from "~/composables/domain/useGame/useGame";
-import type { Question } from "#shared/types/question.types";
 import GamePage from "@/pages/(game)/game.vue";
-
-let currentQuestion: Ref<Question | undefined>;
-let gameState: Ref<"loading" | "playing" | "game-over">;
-
-mockNuxtImport(
-  "useGame",
-  () => (): UseGame => ({
-    canGoToPreviousQuestion: computed(() => false),
-    currentQuestion: computed(() => currentQuestion.value),
-    currentIndex: ref(0),
-    questions: computed(() => []),
-    advanceToNextQuestion: vi.fn<() => void>(),
-    goToPreviousQuestion: vi.fn<() => void>(),
-    initialize: vi.fn<() => Promise<void>>(),
-    gameState: computed(() => gameState.value),
-  }),
-);
 
 describe("Game Page", () => {
   let wrapper: VueWrapper;
@@ -36,8 +17,6 @@ describe("Game Page", () => {
   }
 
   beforeEach(async() => {
-    currentQuestion = ref<Question | undefined>(undefined);
-    gameState = ref<"loading" | "playing" | "game-over">("loading");
     wrapper = await mountGamePage();
   });
 
@@ -69,8 +48,8 @@ describe("Game Page", () => {
 
   it("should render GamePlaying when gameState is playing and a current question exists.", async() => {
     const fakeQuestion = createFakeQuestion();
-    currentQuestion.value = fakeQuestion;
-    gameState.value = "playing";
+    useGameMock.instance.questionsRef.value = [fakeQuestion];
+    useGameMock.instance.gameStateRef.value = "playing";
     await nextTick();
 
     const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
@@ -79,7 +58,7 @@ describe("Game Page", () => {
   });
 
   it("should render GameNoMoreQuestions when gameState is game-over.", async() => {
-    gameState.value = "game-over";
+    useGameMock.instance.gameStateRef.value = "game-over";
     await nextTick();
 
     const noMoreQuestions = wrapper.findComponent({ name: "GameNoMoreQuestions" });

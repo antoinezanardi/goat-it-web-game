@@ -1256,6 +1256,13 @@
         "typescript/no-magic-numbers": "off",
         "typescript/no-restricted-imports": "off",
         "typescript/no-unsafe-type-assertion": "off",
+        "import/max-dependencies": [
+          "error",
+          {
+            "max": 30,
+            "ignoreTypeImports": true
+          }
+        ],
         "import/no-default-export": "off",
         "import/no-anonymous-default-export": "off",
         "unicorn/filename-case": [
@@ -1421,6 +1428,15 @@
       ],
       "rules": {
         "node/no-process-env": "off"
+      }
+    },
+    // ---- Override for composable mock setup files -----
+    {
+      "files": [
+        "**/tests/unit/setup/nuxt/composables/*.nuxt.unit-setup.ts"
+      ],
+      "rules": {
+        "typescript/explicit-function-return-type": "off"
       }
     },
     // ---- Override for Cucumber step definitions and hooks -----

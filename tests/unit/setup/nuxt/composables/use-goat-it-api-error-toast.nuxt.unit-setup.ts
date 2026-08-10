@@ -2,12 +2,15 @@ import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach } from "vitest";
 
 import { createUseGoatItApiErrorToastMock } from "~~/tests/unit/utils/mocks/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast.mock";
+import type { MockHolder } from "~~/tests/unit/utils/types/mock.types";
 import type { UseGoatItApiErrorToastMock } from "~~/tests/unit/utils/mocks/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast.mock";
 
-let useGoatItApiErrorToastMock: UseGoatItApiErrorToastMock = createUseGoatItApiErrorToastMock();
+const useGoatItApiErrorToastMock: MockHolder<UseGoatItApiErrorToastMock> = { instance: createUseGoatItApiErrorToastMock() };
 
-mockNuxtImport("useGoatItApiErrorToast", () => (): UseGoatItApiErrorToastMock => useGoatItApiErrorToastMock);
+mockNuxtImport("useGoatItApiErrorToast", () => () => useGoatItApiErrorToastMock.instance);
 
 beforeEach(() => {
-  useGoatItApiErrorToastMock = createUseGoatItApiErrorToastMock();
+  useGoatItApiErrorToastMock.instance = createUseGoatItApiErrorToastMock();
 });
+
+export { useGoatItApiErrorToastMock };

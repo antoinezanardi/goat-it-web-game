@@ -15,6 +15,7 @@ import { ESLINT_PAGES_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-p
 import { ESLINT_PAGES_UNIT_TESTS_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-pages-unit-tests.flat-config";
 import { ESLINT_CONSTANTS_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-constants.flat-config";
 import { ESLINT_TYPES_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-types-flat-config";
+import { ESLINT_COMPOSABLE_MOCK_SETUPS_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-composable-mock-setups.flat-config";
 import { ESLINT_UNIT_TESTS_SETUP_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-unit-tests-setup.flat-config";
 import { ESLINT_LAYOUTS_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-layouts.flat-config";
 import { ESLINT_UNICORN_FLAT_CONFIG } from "./configs/eslint/flat-configs/eslint-unicorn.flat-config";
@@ -37,6 +38,7 @@ export default withNuxt(
   ESLINT_LAYOUTS_FLAT_CONFIG,
   ESLINT_CONFIG_FILES_FLAT_CONFIG,
   ESLINT_UNIT_TESTS_SETUP_FLAT_CONFIG,
+  ESLINT_COMPOSABLE_MOCK_SETUPS_FLAT_CONFIG,
   ESLINT_TESTS_FLAT_CONFIG,
   ESLINT_TYPESCRIPT_DECLARATIONS_FLAT_CONFIG,
   ESLINT_TESTS_COMPOSABLES_MOCKS_FLAT_CONFIG,
