@@ -41,3 +41,15 @@ When(
     await this.page.locator("body").click({ position: { x: 10, y: 10 } });
   },
 );
+
+When(
+  /^the user clicks on the primary button in the modal$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = this.page.getByRole("dialog").first();
+    await expect(dialog).toBeVisible();
+
+    const primaryButton = dialog.getByTestId("default-modal-footer-primary-button");
+    await expect(primaryButton).toBeVisible();
+    await primaryButton.click();
+  },
+);

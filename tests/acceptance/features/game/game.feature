@@ -68,6 +68,36 @@ Feature: 🎮 Game Page
     And the question trivia item "Paris is known as the City of Light" should be visible
     And the question trivia item "The Eiffel Tower was built in 1889" should be visible
 
+  Scenario: 🚪 Confirm leave while playing
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on home page
+    When the user clicks on the link with name "Play"
+    Then the user should be on game page
+    And a game question should be displayed
+    When the user navigates back
+    Then a confirmation modal should be displayed
+    When the user clicks on the primary button in the modal
+    Then the user should be on home page
+
+  Scenario: 🚪 Cancel leave while playing
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on home page
+    When the user clicks on the link with name "Play"
+    Then the user should be on game page
+    And a game question should be displayed
+    When the user navigates back
+    Then a confirmation modal should be displayed
+    When the user clicks on the close button in the modal footer
+    Then a game question should be displayed
+
+  Scenario: 🚪 Navigate from game over without confirmation
+    Given the user is on home page
+    When the user clicks on the link with name "Play"
+    Then the user should be on game page
+    And the no more questions message should be displayed
+    When the user clicks the back to home button
+    Then the user should be on home page
+
   Scenario: 🎮 Source link opens in new tab with correct URL
     Given the database is populated with the question fixture set "single-question"
     And the user is on game page

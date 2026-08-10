@@ -5,6 +5,9 @@
     "nextQuestion": "Next question",
     "previousQuestionTooltip": "Go back to previous question",
     "noMoreQuestions": "You're all caught up! Check back soon for fresh questions.",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "leaveConfirmTitle": "Leave Game?",
+    "leaveConfirmDescription": "Are you sure you want to leave the current game?",
+    "leave": "Leave"
   }
 }

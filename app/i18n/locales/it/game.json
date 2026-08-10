@@ -5,6 +5,9 @@
     "nextQuestion": "Prossima domanda",
     "previousQuestionTooltip": "Torna alla domanda precedente",
     "noMoreQuestions": "Hai visto tutto! Torna presto per nuove domande.",
-    "backToHome": "Torna alla home"
+    "backToHome": "Torna alla home",
+    "leaveConfirmTitle": "Abbandonare la partita?",
+    "leaveConfirmDescription": "Sei sicuro di voler abbandonare la partita in corso?",
+    "leave": "Esci"
   }
 }

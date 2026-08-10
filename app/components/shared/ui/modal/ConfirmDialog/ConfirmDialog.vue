@@ -38,6 +38,7 @@ function onPrimaryButtonClickFromFooter(): void {
       <DefaultModalTitle
         data-testid="confirm-dialog-title"
         :icon="icon"
+        :icon-class="iconClass"
         :title="title"
       />
     </template>
@@ -52,6 +53,7 @@ function onPrimaryButtonClickFromFooter(): void {
       <DefaultModalFooter
         :close-button-label="closeButtonLabel"
         data-testid="confirm-dialog-footer"
+        :disable-shortcuts="disableShortcuts"
         :primary-button-label="primaryButtonLabel"
         @close-modal="onCloseModalFromFooter"
         @primary-button-click="onPrimaryButtonClickFromFooter"

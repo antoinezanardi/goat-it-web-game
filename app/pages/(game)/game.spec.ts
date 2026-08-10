@@ -1,13 +1,37 @@
 import type { VueWrapper } from "@vue/test-utils";
-import { mountSuspended } from "@nuxt/test-utils/runtime";
+import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
+import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup";
+import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
 import GamePage from "@/pages/(game)/game.vue";
+
+let capturedLeaveGuard: (() => Promise<boolean>) | undefined;
+
+mockNuxtImport("onBeforeRouteLeave", () => (guard: () => Promise<boolean>): void => {
+  capturedLeaveGuard = guard;
+});
+
+function getCapturedLeaveGuard(): () => Promise<boolean> {
+  if (!capturedLeaveGuard) {
+    throw new Error("Expected onBeforeRouteLeave guard to have been captured");
+  }
+  return capturedLeaveGuard;
+}
+
+function getCreatedModalInstance(): UseOverlayCreateReturnValue {
+  const createResult = useOverlayMock.instance.create.mock.results[0];
+
+  if (createResult?.type !== "return") {
+    throw new Error("Expected overlay.create() to have returned a modal instance");
+  }
+  return createResult.value;
+}
 
 describe("Game Page", () => {
   let wrapper: VueWrapper;
@@ -17,6 +41,7 @@ describe("Game Page", () => {
   }
 
   beforeEach(async() => {
+    capturedLeaveGuard = undefined;
     wrapper = await mountGamePage();
   });
 
@@ -64,5 +89,71 @@ describe("Game Page", () => {
     const noMoreQuestions = wrapper.findComponent({ name: "GameNoMoreQuestions" });
 
     expect(noMoreQuestions.exists()).toBeTruthy();
+  });
+
+  it("should show confirmation when navigating away while gameState is playing.", () => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+
+    const guardPromise = getCapturedLeaveGuard()();
+
+    expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(
+      expect.any(Object),
+      expect.objectContaining({
+        destroyOnClose: true,
+        props: {
+          disableShortcuts: true,
+          dismissible: false,
+          icon: "i-lucide-log-out",
+          iconClass: "text-warning",
+          title: "game.leaveConfirmTitle",
+          description: "game.leaveConfirmDescription",
+          primaryButtonLabel: "game.leave",
+        },
+      }),
+    );
+
+    getCreatedModalInstance().close(true);
+    void guardPromise;
+  });
+
+  it("should allow navigation when user confirms (Leave) the confirmation.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+
+    const guardPromise = getCapturedLeaveGuard()();
+    getCreatedModalInstance().close(true);
+
+    const isAllowed = await guardPromise;
+
+    expect(isAllowed).toBe(true);
+  });
+
+  it("should cancel navigation when user dismisses (Cancel) the confirmation.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+
+    const guardPromise = getCapturedLeaveGuard()();
+    getCreatedModalInstance().close(false);
+
+    const isAllowed = await guardPromise;
+
+    expect(isAllowed).toBe(false);
+  });
+
+  it("should allow navigation without confirmation when gameState is not playing.", async() => {
+    useGameMock.instance.gameStateRef.value = "game-over";
+
+    const isAllowed = await getCapturedLeaveGuard()();
+
+    expect(isAllowed).toBe(true);
+  });
+
+  it("should not show overlay when gameState is not playing.", async() => {
+    useGameMock.instance.gameStateRef.value = "loading";
+
+    await getCapturedLeaveGuard()();
+
+    expect(useOverlayMock.instance.create).not.toHaveBeenCalled();
   });
 });
