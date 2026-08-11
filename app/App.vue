@@ -6,9 +6,7 @@ const { fetchAndStoreQuestionThemes } = questionThemesStore;
 
 void callOnce(fetchAndStoreQuestionThemes);
 
-const { t } = useI18n();
-
-defineOgImage("Image.takumi", { tagline: t("home.tagline") });
+defineOgImage("Image.takumi");
 
 useHead({
   link: [

@@ -14,7 +14,7 @@ Feature: 🔍 Technical SEO
     Then the following meta tags should be present:
       | type     | key             | content                                                                       |
       | name     | description     | Ask the Game Master your questions, cross-reference the clues, and find the answer. An unusual fact lies behind every game. |
-      | property | og:title        | Goat It — Start a game                                                        |
+      | property | og:title        | Goat It – Play                                                                |
       | property | og:description  | Ask the Game Master your questions, cross-reference the clues, and find the answer. An unusual fact lies behind every game. |
 
   Scenario: 🖼️ Home page has og:image meta tag

@@ -7,7 +7,7 @@ Feature: 🏡 Home Page
 
   Scenario: 📝 Home Page displays the tagline and subtitle
     Given the user is on home page
-    Then the text "The game where the answer is guessed." should be visible
+    Then the text "The game where the answer is guessed" should be visible
     And the text "You don't need to know everything. You just need to ask the right questions." should be visible
 
   Scenario: 🎮 Clicking PLAY navigates to game page

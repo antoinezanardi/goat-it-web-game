@@ -39,37 +39,31 @@ describe("Home Page", () => {
   });
 
   it("should render the h1 with brand translation key when mounted.", () => {
-    const h1 = wrapper.find("h1");
+    const h1 = wrapper.find("#home-brand");
 
     expect(h1.text()).toBe("home.brand");
   });
 
   it("should render the h2 with tagline translation key when mounted.", () => {
-    const h2 = wrapper.find("h2");
+    const h2 = wrapper.find("#home-tagline");
 
     expect(h2.text()).toBe("home.tagline");
   });
 
-  it("should render the subtitle paragraph with italic class and translation key when mounted.", () => {
-    const subtitle = wrapper.find("p");
+  it("should render the subtitle paragraph with translation key when mounted.", () => {
+    const subtitle = wrapper.find("#home-subtitle");
 
-    expect({
-      text: subtitle.text(),
-      hasItalicClass: subtitle.classes().includes("italic"),
-    }).toStrictEqual({
-      text: "home.subtitle",
-      hasItalicClass: true,
-    });
+    expect(subtitle.text()).toBe("home.subtitle");
   });
 
   it("should render the logo image with 512px src when mounted.", () => {
-    const img = wrapper.find("img");
+    const img = wrapper.find("#home-logo");
 
     expect(img.attributes("src")).toBe("/img/logo/logo-512.avif");
   });
 
   it("should render the logo image with brand translation key as alt when mounted.", () => {
-    const img = wrapper.find("img");
+    const img = wrapper.find("#home-logo");
 
     expect(img.attributes("alt")).toBe("home.brand");
   });

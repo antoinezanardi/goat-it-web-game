@@ -35,4 +35,5 @@ runs:
             --build-arg NUXT_PUBLIC_DEFAULT_LOCALE="$NUXT_PUBLIC_DEFAULT_LOCALE" \
             --secret id=goat_it_api_base_url,env=NUXT_GOAT_IT_API_BASE_URL \
             --secret id=goat_it_api_game_key,env=NUXT_GOAT_IT_API_GAME_KEY \
+            --secret id=goat_it_og_image_security_secret,env=NUXT_OG_IMAGE_SECURITY_SECRET \
             -t goat-it-web-game .

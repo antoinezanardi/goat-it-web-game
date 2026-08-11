@@ -1,29 +1,35 @@
 <script lang="ts" setup>
-import type { OgImageProps } from "@/components/OgImage/og-image.types";
-
-defineProps<OgImageProps>();
-
 const BRAND_NAME = "Goat It";
 const LOGO_ALT = "Goat It Logo";
+const TAGLINE = "Le jeu où la réponse se devine";
 </script>
 
 <template>
-  <div class="bg-[#18181b] flex flex-col h-full items-center justify-center p-12 w-full">
+  <div
+    id="og-image-root"
+    class="bg-[#18181b] flex flex-col h-full items-center justify-center p-12 w-full"
+  >
     <img
+      id="og-image-logo"
       :alt="LOGO_ALT"
       class="h-32 mb-8 w-auto"
       src="/img/logo/logo-source.png"
     >
 
-    <h1 class="font-bold mb-4 text-6xl text-white">
+    <h1
+      id="og-image-brand"
+      class="font-bold text-6xl text-white"
+    >
       {{ BRAND_NAME }}
     </h1>
 
+    <hr class="border-t border-white my-4 w-44">
+
     <p
-      v-if="tagline"
-      class="opacity-80 text-3xl text-center text-white"
+      id="og-image-tagline"
+      class="font-bold mt-2 text-4xl text-center text-white"
     >
-      {{ tagline }}
+      {{ TAGLINE }}
     </p>
   </div>
 </template>

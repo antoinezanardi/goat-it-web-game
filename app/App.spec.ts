@@ -76,10 +76,10 @@ describe("App Component", () => {
   });
 
   describe("defineOgImage", () => {
-    it("should call defineOgImage with the correct component and tagline when mounted.", () => {
+    it("should call defineOgImage with the correct component when mounted.", () => {
       const defineOgImageMock = vi.mocked(defineOgImage);
 
-      expect(defineOgImageMock).toHaveBeenCalledExactlyOnceWith("Image.takumi", { tagline: "home.tagline" });
+      expect(defineOgImageMock).toHaveBeenCalledExactlyOnceWith("Image.takumi");
     });
   });
 });
