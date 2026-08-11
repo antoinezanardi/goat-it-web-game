@@ -5,6 +5,7 @@ export default defineNuxtConfig({
     "@nuxtjs/i18n",
     "@vueuse/nuxt",
     "@nuxt/hints",
+    "@nuxt/content",
     "@nuxtjs/robots",
     "@nuxtjs/sitemap",
     "nuxt-og-image",
@@ -51,6 +52,11 @@ export default defineNuxtConfig({
     name: "Goat It",
     indexable: true,
   },
+  content: {
+    experimental: {
+      sqliteConnector: "native",
+    },
+  },
   ui: {
     colorMode: false,
     experimental: { componentDetection: true },
@@ -67,6 +73,7 @@ export default defineNuxtConfig({
   ],
   routeRules: {
     "/": { prerender: true },
+    "/rules": { prerender: true },
   },
   sourcemap: { client: "hidden" },
   experimental: {
@@ -99,6 +106,7 @@ export default defineNuxtConfig({
       include: [
         "../tests/",
         "../eslint.config.ts",
+        "../content.config.ts",
         "../configs/",
       ],
     },

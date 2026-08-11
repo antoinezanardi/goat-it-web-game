@@ -7,6 +7,10 @@
     "game": {
       "title": "Goat It – Gioca",
       "description": "Fai le tue domande al Maestro del Gioco, incrocia gli indizi e trova la risposta. Un fatto insolito si nasconde dietro ogni partita."
+    },
+    "rules": {
+      "title": "Come giocare a Goat It? — Regole del gioco",
+      "description": "Scopri come giocare a Goat It: il principio, il ruolo del Game Master, come condurre l'indagine, e tutti i nostri consigli."
     }
   }
 }

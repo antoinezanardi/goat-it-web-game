@@ -1,6 +1,8 @@
 {
   "errors": {
     "unknown": "Se ha producido un error desconocido. Inténtelo de nuevo más tarde.",
+    "generic": "Se ha producido un error. Por favor, inténtalo de nuevo más tarde.",
+    "pageNotFound": "Página no encontrada.",
     "goatItApi": {}
   }
 }

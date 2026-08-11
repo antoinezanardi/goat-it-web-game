@@ -7,6 +7,10 @@
     "game": {
       "title": "Goat It – Spielen",
       "description": "Stelle dem Spielleiter deine Fragen, gleiche die Hinweise ab und finde die Antwort. Hinter jedem Spiel verbirgt sich ein kurioser Fakt."
+    },
+    "rules": {
+      "title": "Wie spielt man Goat It? — Spielregeln",
+      "description": "Erfahre, wie man Goat It spielt: das Prinzip, die Rolle des Spielleiters, wie man ermittelt, und all unsere Tipps."
     }
   }
 }

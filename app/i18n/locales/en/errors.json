@@ -1,6 +1,8 @@
 {
   "errors": {
     "unknown": "An unknown error occurred. Please try again later.",
+    "generic": "An error occurred. Please try again later.",
+    "pageNotFound": "Page not found.",
     "goatItApi": {}
   }
 }

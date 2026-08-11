@@ -40,6 +40,7 @@
     "process": "readonly",
     "questionThemesRepository": "readonly",
     "questionsRepository": "readonly",
+    "queryCollection": "readonly",
     "reactive": "readonly",
     "readBody": "readonly",
     "ref": "readonly",
@@ -54,6 +55,7 @@
     "useAppConfig": "readonly",
     "useAppToast": "readonly",
     "useAsyncAction": "readonly",
+    "useAsyncData": "readonly",
     "useColorMode": "readonly",
     "useFetch": "readonly",
     "useFetchStatus": "readonly",
@@ -1262,6 +1264,7 @@
         "nuxt.config.ts",
         "**/app/app.config.ts",
         "eslint.config.ts",
+        "content.config.ts",
         "**/configs/**/*.{js,mjs,ts}"
       ],
       "rules": {

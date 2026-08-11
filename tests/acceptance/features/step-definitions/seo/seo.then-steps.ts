@@ -57,7 +57,7 @@ Then(
 Then(
   /^the sitemap.xml should contain exactly the expected routes$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const expectedRoutes = ["/", "/game"];
+    const expectedRoutes = ["/", "/game", "/rules"];
     const baseUrl = new URL(this.page.url()).origin;
     const response = await this.page.request.get(`${baseUrl}/sitemap.xml`);
     const content = await response.text();
