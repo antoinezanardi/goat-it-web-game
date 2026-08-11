@@ -1,5 +1,53 @@
 # 🐐👑 Goat It Web Admin Versioning Changelog
 
+## [1.3.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.2.0...v1.3.0) (2026-08-11)
+
+### 🚀 Features
+
+* **app:** prerender home page with routeRules ([#128](https://github.com/antoinezanardi/goat-it-web-game/issues/128)) ([871d95e](https://github.com/antoinezanardi/goat-it-web-game/commit/871d95eab229ca79253c0997baa47b82382b1cc2))
+* **game:** add GSAP-powered slide transition between question card ([#135](https://github.com/antoinezanardi/goat-it-web-game/issues/135)) ([0f34fca](https://github.com/antoinezanardi/goat-it-web-game/commit/0f34fca4901b48155530737de7708f51e0170ba1))
+* **game:** add leave-game confirmation modal ([#145](https://github.com/antoinezanardi/goat-it-web-game/issues/145)) ([565b1f6](https://github.com/antoinezanardi/goat-it-web-game/commit/565b1f602f3a1b10fa41f45280259cfc3cc19d84))
+* **game:** add previous question navigation button ([#131](https://github.com/antoinezanardi/goat-it-web-game/issues/131)) ([03d6934](https://github.com/antoinezanardi/goat-it-web-game/commit/03d6934b0d2376b6e082bf2c7edf8ed2be4649be))
+* **modals:** implement modal system ([#144](https://github.com/antoinezanardi/goat-it-web-game/issues/144)) ([7f802ed](https://github.com/antoinezanardi/goat-it-web-game/commit/7f802ede03c32f6e1b0ea51463470bb894356f48))
+* **seo:** add OG image, update SEO metadata ([#151](https://github.com/antoinezanardi/goat-it-web-game/issues/151)) ([d88a2be](https://github.com/antoinezanardi/goat-it-web-game/commit/d88a2beb639c9c10761a87a73a38ef37bece6bc5))
+
+### 🐛 Bug Fixes
+
+* **display:** remove overflows and polish game ui ([#148](https://github.com/antoinezanardi/goat-it-web-game/issues/148)) ([8343e00](https://github.com/antoinezanardi/goat-it-web-game/commit/8343e0066a6484d93089a0fba7b5e26f8d7072a8))
+
+### 🔩 Refactor
+
+* **mocks:** introduce MockHolder<T> pattern for global composable mock ([#138](https://github.com/antoinezanardi/goat-it-web-game/issues/138)) ([e2b53f3](https://github.com/antoinezanardi/goat-it-web-game/commit/e2b53f341895b1140526b9a423e42dfd55ab0eb1))
+
+### ✅ Tests
+
+* **game:** add single-question fixture and question-card content assertions ([#127](https://github.com/antoinezanardi/goat-it-web-game/issues/127)) ([e8c2ddb](https://github.com/antoinezanardi/goat-it-web-game/commit/e8c2ddbf9d43078bca7c42233bef8fe9c2b4bd2b))
+
+### 🧹 Chore
+
+* **vitest:** disable nuxt seo modules and vite environment api in unit tests ([#124](https://github.com/antoinezanardi/goat-it-web-game/issues/124)) ([f991fbc](https://github.com/antoinezanardi/goat-it-web-game/commit/f991fbc0d860f0ae4c83bdbc54a91c073f462de4))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `@goat-it/schemas` | `^0.0.20` |
+| `@iconify-json/lucide` | `^1.2.123` |
+| `@nuxtjs/robots` | `^6.1.4` |
+| `@nuxtjs/sitemap` | `^8.3.4` |
+| `@tanstack/vue-table` | `^9.1.2` |
+| `@vitest/eslint-plugin` | `^1.6.27` |
+| `conventional-changelog-writer` | `^9.2.1` |
+| `eslint` | `^10.8.1` |
+| `eslint-plugin-oxlint` | `^1.78.0` |
+| `happy-dom` | `^20.11.2` |
+| `nuxt-og-image` | `^6.7.8` |
+| `nuxt-schema-org` | `^6.2.9` |
+| `nuxt-site-config` | `^4.2.1` |
+| `nuxtseo-layer-devtools` | `^5.3.12` |
+| `oxlint` | `^1.78.0` |
+| `pnpm` | `v11.21.0` |
+
 ## [1.2.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.1.0...v1.2.0) (2026-08-07)
 
 ### 🚀 Features
