@@ -208,13 +208,19 @@ export default defineNuxtConfig({
       redirectOn: "root",
     },
   },
+  ogImage: {
+    security: {
+      secret: process.env.NUXT_OG_IMAGE_SECURITY_SECRET ?? "goat-it-og-image-dev-secret",
+      strict: true,
+    },
+  },
   pinia: { storesDirs: ["stores/**"] },
   pwa: {
     registerType: "autoUpdate",
     manifest: {
-      name: "Goat It",
+      name: "Goat It — Le jeu où la réponse se devine",
       short_name: "Goat It",
-      description: "Un jeu de quiz multijoueur — relevez des défis avec des questions thématiques",
+      description: "Goat It est un jeu de déduction basé sur des faits insolites. Posez vos questions au Maître du Jeu, menez l'enquête et trouvez la réponse.",
       theme_color: "#18181b",
       background_color: "#18181b",
       display: "standalone",

@@ -6,6 +6,8 @@ const { fetchAndStoreQuestionThemes } = questionThemesStore;
 
 void callOnce(fetchAndStoreQuestionThemes);
 
+defineOgImage("Image.takumi");
+
 useHead({
   link: [
     { rel: "manifest", href: "/manifest.webmanifest" },

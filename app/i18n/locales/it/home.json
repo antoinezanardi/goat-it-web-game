@@ -1,8 +1,9 @@
 {
   "home": {
     "brand": "Goat It",
-    "pageTitle": "Goat It Game",
     "playButton": "Gioca",
+    "tagline": "Il gioco in cui la risposta si intuisce",
+    "subtitle": "Non devi sapere tutto. Devi solo fare le domande giuste.",
     "githubTooltip": "Questo progetto è open-source su GitHub, dai un'occhiata!"
   }
 }

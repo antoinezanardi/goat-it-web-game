@@ -19,6 +19,7 @@
     "defineModel": "readonly",
     "defineNuxtConfig": "readonly",
     "defineNuxtPlugin": "readonly",
+    "defineOgImage": "readonly",
     "defineOptions": "readonly",
     "definePageMeta": "readonly",
     "defineShortcuts": "readonly",
