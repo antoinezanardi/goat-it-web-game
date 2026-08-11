@@ -3,7 +3,11 @@
     "pageTitle": "Goat It Game",
     "loadingQuestions": "Carregando perguntas...",
     "nextQuestion": "Próxima pergunta",
+    "previousQuestionTooltip": "Voltar à pergunta anterior",
     "noMoreQuestions": "Você já viu todas! Volte em breve para novas perguntas.",
-    "backToHome": "Voltar ao início"
+    "backToHome": "Voltar ao início",
+    "leaveConfirmTitle": "Sair do jogo?",
+    "leaveConfirmDescription": "Tem certeza de que deseja sair do jogo atual?",
+    "leave": "Sair"
   }
 }

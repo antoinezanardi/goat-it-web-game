@@ -1,31 +1,37 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { computed, nextTick, ref } from "vue";
-import type { Ref } from "vue";
-import type { Mock } from "vitest";
+import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
-import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
+import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
+import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup";
+import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
-import type { UseGame } from "~/composables/domain/useGame/useGame";
-import type { Question } from "#shared/types/question.types";
 import GamePage from "@/pages/(game)/game.vue";
 
-let currentQuestion: Ref<Question | undefined>;
-let advanceToNextQuestion: Mock<() => void>;
-let gameState: Ref<"loading" | "playing" | "game-over">;
+let capturedLeaveGuard: (() => Promise<boolean>) | undefined;
 
-mockNuxtImport(
-  "useGame",
-  () => (): UseGame => ({
-    currentQuestion: computed(() => currentQuestion.value),
-    advanceToNextQuestion,
-    initialize: vi.fn<() => Promise<void>>(),
-    gameState: computed(() => gameState.value),
-  }),
-);
+mockNuxtImport("onBeforeRouteLeave", () => (guard: () => Promise<boolean>): void => {
+  capturedLeaveGuard = guard;
+});
+
+function getCapturedLeaveGuard(): () => Promise<boolean> {
+  if (!capturedLeaveGuard) {
+    throw new Error("Expected onBeforeRouteLeave guard to have been captured");
+  }
+  return capturedLeaveGuard;
+}
+
+function getCreatedModalInstance(): UseOverlayCreateReturnValue {
+  const createResult = useOverlayMock.instance.create.mock.results[0];
+
+  if (createResult?.type !== "return") {
+    throw new Error("Expected overlay.create() to have returned a modal instance");
+  }
+  return createResult.value;
+}
 
 describe("Game Page", () => {
   let wrapper: VueWrapper;
@@ -35,9 +41,7 @@ describe("Game Page", () => {
   }
 
   beforeEach(async() => {
-    currentQuestion = ref<Question | undefined>(undefined);
-    advanceToNextQuestion = vi.fn<() => void>();
-    gameState = ref<"loading" | "playing" | "game-over">("loading");
+    capturedLeaveGuard = undefined;
     wrapper = await mountGamePage();
   });
 
@@ -61,28 +65,25 @@ describe("Game Page", () => {
     });
   });
 
-  it("should render GameLoading when gameState is 'loading'.", async() => {
-    gameState.value = "loading";
-    await nextTick();
-
+  it("should render GameLoading when gameState is loading.", () => {
     const gameLoading = wrapper.findComponent({ name: "GameLoading" });
 
     expect(gameLoading.exists()).toBeTruthy();
   });
 
-  it("should render GamePlaying with the current question when gameState is 'playing'.", async() => {
+  it("should render GamePlaying when gameState is playing and a current question exists.", async() => {
     const fakeQuestion = createFakeQuestion();
-    currentQuestion.value = fakeQuestion;
-    gameState.value = "playing";
+    useGameMock.instance.questionsRef.value = [fakeQuestion];
+    useGameMock.instance.gameStateRef.value = "playing";
     await nextTick();
 
     const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
 
-    expect(gamePlaying.props("question")).toStrictEqual(fakeQuestion);
+    expect(gamePlaying.exists()).toBeTruthy();
   });
 
-  it("should render GameNoMoreQuestions when gameState is 'game-over'.", async() => {
-    gameState.value = "game-over";
+  it("should render GameNoMoreQuestions when gameState is game-over.", async() => {
+    useGameMock.instance.gameStateRef.value = "game-over";
     await nextTick();
 
     const noMoreQuestions = wrapper.findComponent({ name: "GameNoMoreQuestions" });
@@ -90,14 +91,69 @@ describe("Game Page", () => {
     expect(noMoreQuestions.exists()).toBeTruthy();
   });
 
-  it("should call advanceToNextQuestion when GamePlaying emits next.", async() => {
-    currentQuestion.value = createFakeQuestion();
-    gameState.value = "playing";
-    await nextTick();
+  it("should show confirmation when navigating away while gameState is playing.", () => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
 
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-    getWrapperVm(gamePlaying).$emit("next");
+    const guardPromise = getCapturedLeaveGuard()();
 
-    expect(advanceToNextQuestion).toHaveBeenCalledExactlyOnceWith();
+    expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(
+      expect.any(Object),
+      expect.objectContaining({
+        destroyOnClose: true,
+        props: {
+          disableShortcuts: true,
+          dismissible: false,
+          icon: "i-lucide-log-out",
+          iconClass: "text-warning",
+          title: "game.leaveConfirmTitle",
+          description: "game.leaveConfirmDescription",
+          primaryButtonLabel: "game.leave",
+        },
+      }),
+    );
+
+    getCreatedModalInstance().close(true);
+    void guardPromise;
+  });
+
+  it("should allow navigation when user confirms (Leave) the confirmation.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+
+    const guardPromise = getCapturedLeaveGuard()();
+    getCreatedModalInstance().close(true);
+
+    const isAllowed = await guardPromise;
+
+    expect(isAllowed).toBe(true);
+  });
+
+  it("should cancel navigation when user dismisses (Cancel) the confirmation.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+
+    const guardPromise = getCapturedLeaveGuard()();
+    getCreatedModalInstance().close(false);
+
+    const isAllowed = await guardPromise;
+
+    expect(isAllowed).toBe(false);
+  });
+
+  it("should allow navigation without confirmation when gameState is not playing.", async() => {
+    useGameMock.instance.gameStateRef.value = "game-over";
+
+    const isAllowed = await getCapturedLeaveGuard()();
+
+    expect(isAllowed).toBe(true);
+  });
+
+  it("should not show overlay when gameState is not playing.", async() => {
+    useGameMock.instance.gameStateRef.value = "loading";
+
+    await getCapturedLeaveGuard()();
+
+    expect(useOverlayMock.instance.create).not.toHaveBeenCalled();
   });
 });

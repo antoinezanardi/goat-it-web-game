@@ -9,8 +9,9 @@ defineProps<GameQuestionCardContextAccordionProps>();
   <UCollapsible :ui="GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI">
     <UButton
       block
-      class="bg-content border border-(color:--game-theme-border) group justify-between min-h-10 rounded-lg"
+      class="bg-content border border-(color:--game-theme-border) game-question-accordion--themed group justify-between min-h-10 rounded-lg"
       color="neutral"
+      data-testid="game-question-context-accordion-trigger"
       leading-icon="i-lucide-file-text"
       trailing-icon="i-lucide-chevron-down"
       :ui="GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI"
@@ -22,10 +23,11 @@ defineProps<GameQuestionCardContextAccordionProps>();
     </UButton>
 
     <template #content>
-      <div class="bg-content border border-(color:--game-theme-border) mt-1 p-4 rounded-lg">
+      <div class="bg-content border border-(color:--game-theme-border) game-question-accordion--themed mt-1 p-4 rounded-lg">
         <p
           v-if="context"
           class="leading-body text-fg-primary text-sm"
+          data-testid="game-question-context"
         >
           {{ context }}
         </p>
@@ -33,6 +35,7 @@ defineProps<GameQuestionCardContextAccordionProps>();
         <ul
           v-if="trivia?.length"
           class="leading-body list-disc mt-2 ps-5 space-y-1 text-fg-primary text-sm"
+          data-testid="game-question-trivia"
         >
           <li
             v-for="(item, index) in trivia"

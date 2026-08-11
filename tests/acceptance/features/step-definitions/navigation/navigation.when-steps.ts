@@ -7,3 +7,10 @@ When(/^the user reloads the page$/u, async function(this: GoatItWorld): Promise<
   await this.page.reload();
   await waitForPageLoadStates(this);
 });
+
+When(
+  /^the user navigates back$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.goBack();
+  },
+);

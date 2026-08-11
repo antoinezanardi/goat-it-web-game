@@ -74,4 +74,12 @@ describe("App Component", () => {
       expect(getAppHeadConfig()?.meta[1]).toStrictEqual({ name: "mobile-web-app-capable", content: "yes" });
     });
   });
+
+  describe("defineOgImage", () => {
+    it("should call defineOgImage with the correct component when mounted.", () => {
+      const defineOgImageMock = vi.mocked(defineOgImage);
+
+      expect(defineOgImageMock).toHaveBeenCalledExactlyOnceWith("Image.takumi");
+    });
+  });
 });

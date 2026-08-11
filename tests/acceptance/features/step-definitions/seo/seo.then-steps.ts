@@ -8,6 +8,8 @@ import type { GoatItWorld } from "#acceptance/features/support/types/world.types
 
 import { SEO_META_TAG_ROW_SCHEMA } from "./datatables/seo.datatables.schemas.ts";
 
+const HTTP_STATUS_OK = 200;
+
 Then(
   /^the following meta tags should be present:$/u,
   async function(this: GoatItWorld, dataTable: DataTable): Promise<void> {
@@ -25,7 +27,7 @@ Then(
 Then(
   /^the meta tag with property "(?<property>[^"]*)" should be present$/u,
   async function(this: GoatItWorld, property: string): Promise<void> {
-    await expect(this.page.locator(`head meta[property="${property}"]`)).toBeAttached();
+    await expect(this.page.locator(`head meta[property="${property}"], head meta[name="${property}"]`)).toBeAttached();
   },
 );
 
@@ -138,5 +140,28 @@ Then(
 
     expect(allGraphTypes).toContain("WebSite");
     expect(allGraphTypes).toContain("WebPage");
+  },
+);
+
+Then(
+  /^the og:image should return a valid PNG image$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const metaLocator = this.page.locator("head meta[property=\"og:image\"]");
+
+    await expect(metaLocator).toBeAttached();
+
+    const ogImageUrl = await metaLocator.getAttribute("content");
+
+    if (ogImageUrl === null) {
+      throw new Error("Expected og:image meta tag to have a content attribute.");
+    }
+
+    const ogImagePath = new URL(ogImageUrl, this.page.url()).pathname;
+    const localOgImageUrl = new URL(ogImagePath, this.page.url());
+
+    const response = await this.page.request.get(localOgImageUrl.toString());
+
+    expect(response.status()).toBe(HTTP_STATUS_OK);
+    expect(response.headers()["content-type"]).toContain("image/png");
   },
 );

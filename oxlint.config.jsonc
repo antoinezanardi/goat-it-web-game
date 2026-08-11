@@ -19,6 +19,7 @@
     "defineModel": "readonly",
     "defineNuxtConfig": "readonly",
     "defineNuxtPlugin": "readonly",
+    "defineOgImage": "readonly",
     "defineOptions": "readonly",
     "definePageMeta": "readonly",
     "defineShortcuts": "readonly",
@@ -26,13 +27,16 @@
     "defineSlots": "readonly",
     "defineStore": "readonly",
     "document": "readonly",
+    "HTMLElement": "readonly",
     "KeyboardEvent": "readonly",
     "window": "readonly",
     "fetch": "readonly",
     "getQuery": "readonly",
     "getRouterParam": "readonly",
     "navigator": "readonly",
+    "onBeforeRouteLeave": "readonly",
     "onMounted": "readonly",
+    "onUnmounted": "readonly",
     "process": "readonly",
     "questionThemesRepository": "readonly",
     "questionsRepository": "readonly",
@@ -40,7 +44,9 @@
     "readBody": "readonly",
     "ref": "readonly",
     "refDebounced": "readonly",
+    "clearTimeout": "readonly",
     "setTimeout": "readonly",
+    "shallowRef": "readonly",
     "storeToRefs": "readonly",
     "toRef": "readonly",
     "toValue": "readonly",
@@ -51,6 +57,7 @@
     "useColorMode": "readonly",
     "useFetch": "readonly",
     "useFetchStatus": "readonly",
+    "useGSAP": "readonly",
     "useGame": "readonly",
     "useGameStore": "readonly",
     "useGoatItApiErrorToast": "readonly",
@@ -135,6 +142,7 @@
     "eslint/getter-return": "error",
     "eslint/grouped-accessor-pairs": "error",
     "eslint/guard-for-in": "error",
+    "eslint/id-denylist": "off",
     "eslint/id-length": [
       "error",
       {
@@ -345,6 +353,10 @@
     "eslint/no-warning-comments": "off",
     "eslint/no-with": "error",
     "eslint/object-shorthand": "error",
+    "eslint/one-var": [
+      "error",
+      "never"
+    ],
     "eslint/operator-assignment": [
       "error",
       "always"
@@ -431,6 +443,10 @@
     "import/unambiguous": "error",
     // ---- Node Rules ----
     "node/callback-return": "error",
+    "node/exports-style": [
+      "error",
+      "exports"
+    ],
     "node/global-require": "error",
     "node/handle-callback-err": "error",
     "node/no-mixed-requires": "error",
@@ -439,12 +455,14 @@
     "node/no-path-concat": "error",
     "node/no-process-env": "error",
     "node/no-sync": "off",
+    "node/no-top-level-await": "error",
     // ---- Oxc rules ----
     "oxc/approx-constant": "error",
     "oxc/bad-array-method-on-arguments": "error",
     "oxc/bad-bitwise-operator": "error",
     "oxc/bad-char-at-comparison": "error",
     "oxc/bad-comparison-sequence": "error",
+    "oxc/bad-match-all-arg": "error",
     "oxc/bad-min-max-func": "error",
     "oxc/bad-object-literal-comparison": "error",
     "oxc/bad-replace-all-arg": "error",
@@ -1124,6 +1142,7 @@
         "vitest/no-test-return-statement": "error",
         "vitest/no-unneeded-async-expect-function": "error",
         "vitest/padding-around-after-all-blocks": "error",
+        "vitest/padding-around-test-blocks": "error",
         "vitest/prefer-called-exactly-once-with": "error",
         "vitest/prefer-called-once": "error",
         "vitest/prefer-called-times": "off",
@@ -1248,9 +1267,17 @@
       "rules": {
         "eslint/no-magic-numbers": "off",
         "node/no-process-env": "off",
+        "node/no-top-level-await": "off",
         "typescript/no-magic-numbers": "off",
         "typescript/no-restricted-imports": "off",
         "typescript/no-unsafe-type-assertion": "off",
+        "import/max-dependencies": [
+          "error",
+          {
+            "max": 30,
+            "ignoreTypeImports": true
+          }
+        ],
         "import/no-default-export": "off",
         "import/no-anonymous-default-export": "off",
         "unicorn/filename-case": [
@@ -1416,6 +1443,15 @@
       ],
       "rules": {
         "node/no-process-env": "off"
+      }
+    },
+    // ---- Override for composable mock setup files -----
+    {
+      "files": [
+        "**/tests/unit/setup/nuxt/composables/*.nuxt.unit-setup.ts"
+      ],
+      "rules": {
+        "typescript/explicit-function-return-type": "off"
       }
     },
     // ---- Override for Cucumber step definitions and hooks -----

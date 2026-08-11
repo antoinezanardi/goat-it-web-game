@@ -1,12 +1,12 @@
 {
   "seo": {
     "home": {
-      "title": "Goat It",
-      "description": "Goat It — un juego de preguntas multijugador. Acepta desafíos con preguntas temáticas."
+      "title": "Goat It — El juego donde la respuesta se adivina",
+      "description": "Goat It es un juego de deducción basado en hechos insólitos. Haz tus preguntas al Maestro del Juego, investiga y encuentra la respuesta."
     },
     "game": {
-      "title": "Goat It — Jugar",
-      "description": "¡Acepta el desafío! Responde preguntas y pon a prueba tus conocimientos en Goat It."
+      "title": "Goat It – Jugar",
+      "description": "Haz tus preguntas al Maestro del Juego, cruza las pistas y encuentra la respuesta. Un hecho insólito se esconde detrás de cada partida."
     }
   }
 }

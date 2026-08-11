@@ -1,11 +1,15 @@
 import type { Question } from "#shared/types/question.types";
 
 type GamePlayingProps = {
-  question: Question;
+  canGoToPreviousQuestion: boolean;
+  currentIndex: number;
+  currentQuestion: Question;
+  questions: Question[];
 };
 
 type GamePlayingEmits = {
-  next: [];
+  advance: [];
+  previous: [];
 };
 
 export type { GamePlayingEmits, GamePlayingProps };
