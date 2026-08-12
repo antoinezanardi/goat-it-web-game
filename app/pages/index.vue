@@ -63,6 +63,7 @@ useSeoMeta({
 
     <UButton
       id="home-how-to-play-button"
+      data-testid="home-how-to-play-button"
       icon="i-lucide-help-circle"
       :label="t('home.howToPlay')"
       size="lg"
@@ -113,9 +114,5 @@ useSeoMeta({
 #home-play-button-container:hover::before {
   filter: blur(0.8em);
   opacity: 1;
-}
-
-#home-how-to-play-button {
-  --ui-primary: #0e3fb0;
 }
 </style>

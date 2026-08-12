@@ -65,6 +65,9 @@ COPY --chown=node:node shared ./shared
 COPY --chown=node:node modules ./modules
 COPY --chown=node:node public ./public
 
+COPY --chown=node:node content.config.ts ./
+COPY --chown=node:node content ./content
+
 COPY --chown=node:node --from=development /app/node_modules ./node_modules
 
 RUN --mount=type=secret,id=goat_it_api_base_url,env=NUXT_GOAT_IT_API_BASE_URL \

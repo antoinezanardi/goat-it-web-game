@@ -41,6 +41,10 @@ export default defineNuxtConfig({
       name: "page",
       mode: "out-in",
     },
+    layoutTransition: {
+      name: "layout",
+      mode: "out-in",
+    },
     head: {
       htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE, class: "dark" },
       titleTemplate: "%s",

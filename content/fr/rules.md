@@ -1,174 +1,111 @@
----
-title: "Comment jouer à Goat It ?"
-description: "Règles du jeu Goat It"
----
-
 # Comment jouer à Goat It ?
 
 ## 🐐 Le principe
 
 **Goat It est un jeu de déduction animé par un Maître du Jeu.**
 
-Une carte pose une question dont les joueurs ne connaissent pas forcément la réponse. Et c'est justement le principe : **il n'est pas nécessaire de connaître la réponse pour la trouver.**
-
-Les joueurs doivent enquêter, poser les bonnes questions au Maître du Jeu, confronter leurs hypothèses et utiliser les informations obtenues pour déduire progressivement la solution.
+Une question est posée aux joueurs, mais ils ne connaissent pas forcément la réponse. Leur objectif est de la trouver en posant des questions, en confrontant leurs hypothèses et en utilisant les réponses du MJ pour réduire progressivement les possibilités.
 
 > **Le but n'est pas de savoir. Le but est de trouver.**
 
+Vos connaissances peuvent aider, mais elles ne sont pas indispensables.
+
 ---
 
-## 🎭 Le rôle du Maître du Jeu
+## 🎭 Une application pour le Maître du Jeu
 
-Goat It est conçu pour être utilisé par **un Maître du Jeu (MJ)** qui anime la partie avec les autres joueurs.
+**Goat It est conçu pour être utilisé par le Maître du Jeu.**
 
-Le MJ utilise l'application pour afficher les questions et connaître les réponses.
+Les joueurs n'ont pas besoin de l'application : ils jouent autour du MJ, qui dispose de la question, de la réponse, du contexte, des anecdotes et des sources nécessaires pour animer l'enquête.
 
-Son rôle est de :
+Le MJ présente la question, répond aux joueurs et révèle la solution une fois l'enquête terminée.
 
-- Annoncer la catégorie, le thème et la difficulté de la question.
-- Lire la question aux joueurs.
-- Répondre à leurs questions, seulement par **oui ou non**.
-- Maintenir le mystère jusqu'à ce que les joueurs trouvent la réponse.
-- Révéler la solution et son explication une fois qu'un joueur a trouvé la bonne réponse.
+---
 
-**Le MJ connaît la réponse. Les joueurs, eux, doivent la trouver.**
+## ❓ La règle d'or
 
-L'application ne joue donc pas à la place du MJ : **elle lui fournit les enquêtes et les réponses nécessaires pour animer la partie.**
+**Le MJ ne peut répondre uniquement que par Oui ou Non, ou trancher entre deux propositions.**
+
+> « Est-ce un animal ? » → **Oui**
+> « Est-ce un mammifère ? » → **Oui**
+> « Est-ce un félin ? » → **Non**
+
+Les questions doivent donc pouvoir recevoir une réponse binaire.
+
+> ✅ « Est-ce un chat ? » – **Réponse binaire, c'est valide !**
+> ✅ « Est-ce un homme ou une femme ? » – **Départage entre deux propositions, c'est valide !**
+> ❌ « Quelle est la race de l'animal ? » – **Cette question n'est pas recevable, car elle n'attend pas une réponse binaire.**
+
+Le MJ répond toujours honnêtement et avec une certaine rigueur pour ne pas perdre les joueurs dans leurs déductions.
 
 ---
 
 ## 🕵️ Mener l'enquête
 
-Chaque manche commence avec une question.
+Avant de commencer, le MJ annonce **la catégorie, le thème, la difficulté et la question**. Ces informations donnent aux joueurs un premier cadre pour commencer leur raisonnement.
 
-Par exemple :
+Les joueurs peuvent ensuite poser **autant de questions qu'ils le souhaitent**, discuter entre eux et proposer leurs hypothèses.
 
-> 🇸🇪 **En Suède, quelle obligation précise ont les propriétaires de chats envers leur animal deux fois par jour ?**
+> « Est-ce quelque chose de vivant ? » → **Non**
+> « Est-ce un objet ? » → **Oui**
+> « Est-ce fabriqué par l'être humain ? » → **Oui**
 
-Les joueurs ne sont pas censés connaître cette information.
+Une mauvaise réponse n'entraîne aucune pénalité. L'important est d'utiliser chaque réponse pour faire avancer l'enquête.
 
-Ils doivent partir de la question et **chercher la réponse par déduction**.
-
-Ils peuvent poser des questions au Maître du Jeu pour obtenir des informations et éliminer progressivement les mauvaises pistes.
-
-Par exemple :
-
-> « Est-ce que ça concerne la nourriture ? »
-
-MJ: **Non.**
-
-> « Est-ce que ça concerne les animaux ? »
-
-MJ: **Oui.**
-
-> « Est-ce que le propriétaire doit le promener ? »
-
-**Non.**
-
-Les joueurs affinent alors leurs hypothèses jusqu'à trouver la réponse.
-
-**Chaque réponse du MJ est une nouvelle information qui permet de réduire les possibilités.**
+**Il n'existe pas une seule bonne façon de jouer : chaque question peut demander une approche différente.**
 
 ---
 
-## 💬 Les questions des joueurs
+## 🎭 Le MJ reste maître de l'enquête
 
-Les questions sont **au cœur de Goat It**.
+Le MJ doit rester honnête, mais **il reste maître de la partie**.
 
-Les joueurs peuvent poser autant de questions qu'ils le souhaitent pour faire avancer leur raisonnement, sans aucune limite.
+Il peut reformuler une question, corriger une mauvaise compréhension, signaler qu'une piste n'est pas pertinente ou donner un indice si les joueurs sont bloqués.
 
-Le Maître du Jeu répond uniquement avec **oui ou non**, sans donner d'indice supplémentaire (sauf si les joueurs pataugent trop).
+Il peut également accepter une réponse qui n'est pas formulée exactement comme celle de la carte, si le concept recherché est compris.
 
----
-
-## 🧠 Ce que les joueurs peuvent faire
-
-### ✅ Poser des questions
-
-C'est la mécanique principale du jeu.
-
-### ✅ Proposer une réponse
-
-Les joueurs peuvent annoncer leurs hypothèses au fur et à mesure de l'enquête.
-
-### ✅ Se tromper
-
-Une mauvaise réponse n'est pas un problème.
-
-Au contraire, elle peut permettre de mieux comprendre la direction à prendre.
-
-### ✅ Échanger entre eux
-
-Les joueurs peuvent discuter, confronter leurs idées et rebondir sur les questions des autres.
-
-### ✅ Écouter les réponses du MJ
-
-Une information donnée à un joueur est une information donnée à **tout le groupe**.
-
-Il faut donc écouter les questions et les réponses des autres joueurs.
+> **Le rôle du MJ est de faire vivre une bonne enquête, pas de piéger les joueurs.**
 
 ---
 
-## 🚫 Ce que les joueurs ne peuvent pas faire
+## 📚 Trouver la réponse
 
-### ❌ Demander directement la réponse au MJ
+Lorsqu'un joueur pense avoir trouvé, il peut proposer sa réponse.
 
-Le but est de **déduire la réponse**, pas de la demander.
+**Le MJ décide si elle correspond suffisamment à la solution.** Il n'est pas nécessaire de reprendre la formulation exacte de la carte : c'est la compréhension du concept qui compte.
 
-### ❌ Chercher directement la réponse sur Internet
+Une fois la réponse trouvée, le MJ révèle le contexte et les anecdotes de la question.
 
-Goat It est un jeu de déduction : utiliser Google ou une autre source pour trouver directement la réponse retire tout l'intérêt de l'enquête.
-
----
-
-## 🌍 Des questions sur tous les sujets
-
-Les enquêtes de Goat It explorent de nombreux domaines :
-
-- 🕰️ **Histoire & Civilisations**
-- 🌍 **Géographie & Voyages**
-- 🐾 **Animaux**
-- 🌿 **Nature & Environnement**
-- 🚀 **Espace & Astronomie**
-- 👥 **Société & Vie quotidienne**
-- 💊 **Corps & Santé**
-- 🥐 **Gastronomie**
-- 📰 **Faits divers**
-- 🎶 **Musique**
-- 🎥 **Cinéma & Séries**
-- 🎲 **Loisirs & Jeux**
-- 🎾 **Sports & Exploits**
-- 🎭 **Livres & Beaux-Arts**
-- 🧪 **Sciences & Innovations**
-- 🗣️ **Langue & Mots**
-- 🔮 **Croyances & Mythes**
-
-Le sujet change, mais le principe reste le même :
-
-> **Posez les bonnes questions. Éliminez les possibilités. Trouvez la réponse.**
+> **On ne cherche pas seulement à trouver la réponse. On découvre aussi l'histoire qui se cache derrière.**
 
 ---
 
-## 💡 Le secret pour bien jouer
+## 🚫 Pas de recherche externe
 
-Il n'est pas nécessaire d'être le joueur qui connaît le plus de choses.
+Les joueurs ne doivent pas utiliser Google, Wikipédia, ChatGPT ou toute autre source externe pour trouver directement la réponse.
 
-Au contraire, les meilleures enquêtes sont souvent celles où **personne ne connaît la réponse au départ**.
+> **Le but est de chercher ensemble, pas de trouver dans son coin !**
 
-Demandez-vous plutôt :
+---
 
-> **« Quelle question pourrais-je poser pour éliminer le plus de possibilités ? »**
+## 👥 Jouer ensemble
 
-Écoutez les réponses données aux autres joueurs.
+Les joueurs peuvent discuter librement, confronter leurs hypothèses et rebondir sur les questions des autres.
 
-Une question qui semble anodine peut parfois donner **l'indice qui débloque toute l'enquête**.
+**Toutes les réponses du MJ sont des informations pour tout le groupe.**
+
+Goat It peut se jouer à partir de **2 personnes : 1 MJ et 1 joueur**, mais les enquêtes deviennent généralement plus intéressantes à plusieurs.
+
+Le rôle de MJ peut être librement transmis d'une enquête à l'autre. C'est même recommandé pour renouveler le style d'animation des enquêtes !
 
 ---
 
 ## 🐐 Prêt à mener l'enquête ?
 
-**Réunissez quelques joueurs, choisissez un Maître du Jeu et lancez votre première question.**
+Choisissez un Maître du Jeu, réunissez les joueurs et lancez une première question.
 
 Vous ne connaissez pas la réponse ?
 
 **Parfait. C'est exactement le principe de Goat It.**
+
+> **Pas besoin de tout connaître. Il suffit de poser les bonnes questions.**

@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
+import type { UButton } from "#components";
+
 import { HOME_HOW_TO_PLAY_BUTTON_UI, HOME_PAGE_PLAY_BUTTON_UI } from "@/pages/index.constants";
 import HomePage from "@/pages/index.vue";
 
@@ -100,39 +102,39 @@ describe("Home Page", () => {
 
   describe("How to Play button", () => {
     it("should render a How to Play UButton with label home.howToPlay when mounted.", () => {
-      const button = wrapper.findAllComponents({ name: "UButton" }).at(1);
+      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
 
-      expect(button?.attributes("label")).toBe("home.howToPlay");
+      expect(button.attributes("label")).toBe("home.howToPlay");
     });
 
     it("should render a How to Play UButton linking to /rules when mounted.", () => {
-      const button = wrapper.findAllComponents({ name: "UButton" }).at(1);
+      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
 
-      expect(button?.attributes("to")).toBe("/rules");
+      expect(button.attributes("to")).toBe("/rules");
     });
 
     it("should render a How to Play UButton with the HOW_TO_PLAY button UI config when mounted.", () => {
-      const button = wrapper.findAllComponents({ name: "UButton" }).at(1);
+      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
 
-      expect(button?.props("ui")).toStrictEqual(HOME_HOW_TO_PLAY_BUTTON_UI);
+      expect(button.props("ui")).toStrictEqual(HOME_HOW_TO_PLAY_BUTTON_UI);
     });
 
     it("should render a How to Play UButton with the help-circle icon when mounted.", () => {
-      const button = wrapper.findAllComponents({ name: "UButton" }).at(1);
+      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
 
-      expect(button?.props("icon")).toBe("i-lucide-help-circle");
+      expect(button.props("icon")).toBe("i-lucide-help-circle");
     });
 
     it("should render a How to Play UButton with variant solid when mounted.", () => {
-      const button = wrapper.findAllComponents({ name: "UButton" }).at(1);
+      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
 
-      expect(button?.attributes("variant")).toBe("solid");
+      expect(button.attributes("variant")).toBe("solid");
     });
 
     it("should render a How to Play UButton with size lg when mounted.", () => {
-      const button = wrapper.findAllComponents({ name: "UButton" }).at(1);
+      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
 
-      expect(button?.attributes("size")).toBe("lg");
+      expect(button.attributes("size")).toBe("lg");
     });
   });
 });
