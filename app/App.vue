@@ -26,7 +26,9 @@ useHead({
     :tooltip="APP_TOOLTIP_CONFIG"
   >
     <UMain>
-      <NuxtPage/>
+      <NuxtLayout>
+        <NuxtPage/>
+      </NuxtLayout>
     </UMain>
   </UApp>
 </template>

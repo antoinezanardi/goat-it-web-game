@@ -4,8 +4,8 @@ const HOME_PAGE_PLAY_BUTTON_UI = {
 } as const;
 
 const HOME_HOW_TO_PLAY_BUTTON_UI = {
-  base: "fixed bottom-6 left-6",
-  label: "text-fg-secondary",
+  base: "fixed bottom-6 left-6 text-white",
+  label: "text-white font-semibold",
 } as const;
 
 export {

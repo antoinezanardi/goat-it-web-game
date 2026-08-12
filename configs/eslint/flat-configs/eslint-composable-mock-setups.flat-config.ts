@@ -4,7 +4,10 @@ import { NAMING_CONVENTION_DEFAULT_CONFIG } from "../eslint.constants";
 
 const ESLINT_COMPOSABLE_MOCK_SETUPS_FLAT_CONFIG: Linter.Config = {
   name: "goat-it/composable-mock-setups",
-  files: ["tests/unit/setup/nuxt/composables/*.nuxt.unit-setup.ts"],
+  files: [
+    "tests/unit/setup/nuxt/composables/*.nuxt.unit-setup.ts",
+    "tests/unit/setup/nuxt/*.nuxt.unit-setup.ts",
+  ],
   rules: {
     "@typescript-eslint/naming-convention": [
       "error",

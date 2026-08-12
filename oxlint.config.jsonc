@@ -926,7 +926,8 @@
         "**/app/components/**/*.vue"
       ],
       "rules": {
-        "import/unambiguous": "off"
+        "import/unambiguous": "off",
+        "node/no-top-level-await": "off"
       }
     },
     // ---- Override for pages files -----
@@ -936,6 +937,7 @@
       ],
       "rules": {
         "import/unambiguous": "off",
+        "node/no-top-level-await": "off",
         "unicorn/filename-case": [
           "error",
           {

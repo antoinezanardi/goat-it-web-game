@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Ref } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import { definePageMetaMock } from "~~/tests/unit/setup/nuxt/define-page-meta.nuxt.unit-setup";
 
 import RulesPage from "@/pages/(docs)/rules.vue";
 
@@ -24,12 +25,7 @@ const { useAsyncDataMock } = vi.hoisted(() => ({
   useAsyncDataMock: vi.fn<AsyncDataMockSignature>(),
 }));
 
-const { definePageMetaMock } = vi.hoisted(() => ({
-  definePageMetaMock: vi.fn<() => void>(),
-}));
-
 mockNuxtImport("useAsyncData", () => useAsyncDataMock);
-mockNuxtImport("definePageMeta", () => definePageMetaMock);
 
 describe("Rules Page", () => {
   let wrapper: VueWrapper;
@@ -125,14 +121,14 @@ describe("Rules Page", () => {
   });
 
   describe("definePageMeta", () => {
-    it("should call definePageMeta with docs layout when mounted.", async() => {
+    it("should call definePageMeta with docs-layout layout when mounted.", async() => {
       useAsyncDataMock.mockReturnValue({
         data: ref<null>(null),
         status: ref("pending"),
       });
       wrapper = await mountRulesPage();
 
-      expect(definePageMetaMock).toHaveBeenCalledExactlyOnceWith({ layout: "docs" });
+      expect(definePageMetaMock).toHaveBeenCalledExactlyOnceWith({ layout: "docs-layout" });
     });
   });
 

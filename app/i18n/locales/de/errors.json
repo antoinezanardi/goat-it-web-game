@@ -1,7 +1,7 @@
 {
   "errors": {
     "unknown": "Ein unbekannter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
-    "generic": "Ein Fehler ist aufgetreten. Bitte versuche es später erneut.",
+    "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
     "pageNotFound": "Seite nicht gefunden.",
     "goatItApi": {}
   }

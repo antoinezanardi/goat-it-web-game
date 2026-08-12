@@ -4,17 +4,17 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import DocsLayout from "@/layouts/docs.vue";
+import DocsLayout from "@/layouts/DocsLayout/DocsLayout.vue";
 
 describe("DocsLayout Layout", () => {
   let wrapper: VueWrapper;
 
-  async function mountDocumentationLayout(options: MountSuspendedOptions<typeof DocsLayout> = {}): Promise<VueWrapper> {
+  async function mountDocsLayout(options: MountSuspendedOptions<typeof DocsLayout> = {}): Promise<VueWrapper> {
     return mountSuspended(DocsLayout, { shallow: true, ...options });
   }
 
   beforeEach(async() => {
-    wrapper = await mountDocumentationLayout({
+    wrapper = await mountDocsLayout({
       slots: { default: "<div id='page-content'>Content</div>" },
     });
   });

@@ -46,7 +46,7 @@ Feature: 🔍 Technical SEO
     Then the following meta tags should be present:
       | type     | key             | content                                                                         |
       | name     | description     | Learn how to play Goat It: the concept, the Game Master's role, how to investigate, and all our tips. |
-      | property | og:title        | How to play Goat It? — Game rules                                                |
+      | property | og:title        | Goat It – How to play ?                                                         |
       | property | og:description  | Learn how to play Goat It: the concept, the Game Master's role, how to investigate, and all our tips. |
 
   Scenario: 🖼️ Rules page has og:image meta tag

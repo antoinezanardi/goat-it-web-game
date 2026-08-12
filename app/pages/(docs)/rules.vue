@@ -3,7 +3,7 @@ import type { Collections } from "@nuxt/content";
 
 const { locale, t, defaultLocale } = useI18n();
 
-definePageMeta({ layout: "docs" });
+definePageMeta({ layout: "docs-layout" });
 
 useSeoMeta({
   title: () => t("seo.rules.title"),
@@ -14,8 +14,6 @@ useSeoMeta({
 
 const collection = computed(() => `content_${locale.value}` as keyof Collections);
 
-// Acceptable as top-level await is the Nuxt-idiomatic pattern for resolving useAsyncData during page setup
-// oxlint-disable-next-line node/no-top-level-await
 const { data: page, status } = await useAsyncData(`rules-${locale.value}`, async() => {
   const content = await queryCollection(collection.value).path("/rules").first();
   if (!content && locale.value !== defaultLocale) {

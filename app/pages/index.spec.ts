@@ -123,10 +123,16 @@ describe("Home Page", () => {
       expect(button?.props("icon")).toBe("i-lucide-help-circle");
     });
 
-    it("should render a How to Play UButton with variant subtle when mounted.", () => {
+    it("should render a How to Play UButton with variant solid when mounted.", () => {
       const button = wrapper.findAllComponents({ name: "UButton" }).at(1);
 
-      expect(button?.attributes("variant")).toBe("subtle");
+      expect(button?.attributes("variant")).toBe("solid");
+    });
+
+    it("should render a How to Play UButton with size lg when mounted.", () => {
+      const button = wrapper.findAllComponents({ name: "UButton" }).at(1);
+
+      expect(button?.attributes("size")).toBe("lg");
     });
   });
 });
