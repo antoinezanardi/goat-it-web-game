@@ -100,7 +100,7 @@
     "@nuxtjs/i18n": "^10.6.0",
     "@nuxtjs/robots": "^6.1.4",
     "@nuxtjs/sitemap": "^8.3.4",
-    "@pinia/nuxt": "^1.0.1",
+    "@pinia/nuxt": "^1.0.2",
     "@pinia/testing": "^2.0.1",
     "@playwright/test": "^1.62.1",
     "@semantic-release/changelog": "^7.0.0",
