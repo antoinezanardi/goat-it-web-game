@@ -2,4 +2,98 @@
 title: "¿Cómo jugar a Goat It?"
 description: "Reglas del juego Goat It"
 ---
-# TBD
+
+# ¿Cómo jugar a Goat It?
+
+## 🐐 El principio
+
+**Goat It es un juego de deducción dirigido por un Director de Juego (DJ).**
+
+Se plantea una pregunta a los jugadores, pero no necesariamente conocen la respuesta. Su objetivo es encontrarla conversando, contrastando sus hipótesis y descartando posibilidades de forma progresiva gracias a las respuestas del DJ.
+
+> **El objetivo no es saber. El objetivo es descubrir.**
+
+Vuestros conocimientos pueden ayudar, pero no son imprescindibles: lo importante es razonar juntos y hacer las preguntas adecuadas.
+
+**Solo una persona utiliza la aplicación: el DJ.**
+La aplicación le proporciona la pregunta, la respuesta, el contexto, las anécdotas y las fuentes necesarias para dirigir la investigación.
+
+Goat It se puede jugar desde **2 personas: 1 DJ y 1 jugador**, pero las investigaciones suelen ser más interesantes cuando participan más personas. El papel de DJ puede pasar a otra persona después de cada investigación para variar los estilos de dirección.
+
+---
+
+## ❓ La regla de oro
+
+El DJ responde únicamente **Sí**, **No**, o elige entre **dos opciones**.
+
+Por tanto, las preguntas deben poder responderse de forma binaria.
+
+> ✅ «¿Es un animal?»
+>
+> ✅ «¿Es un mamífero?»
+>
+> ✅ «¿Es un hombre o una mujer?»
+>
+> ❌ «¿Cuál es la raza del animal?»
+
+Los jugadores pueden hacer tantas preguntas como quieran, debatir libremente y proponer sus hipótesis.
+
+> «¿Es algo vivo?» → **No**
+>
+> «¿Es un objeto?» → **Sí**
+>
+> «¿Está fabricado por el ser humano?» → **Sí**
+
+Cada respuesta del DJ es información útil para todo el grupo. Una pista o una propuesta equivocada no conlleva ninguna penalización: también permite descartar posibilidades.
+
+---
+
+## 🎭 El DJ guía la investigación
+
+Antes de comenzar, el DJ puede anunciar **la categoría, el tema y la dificultad** para dar a los jugadores un primer marco de reflexión.
+
+Responde con honestidad y rigor para que los jugadores puedan apoyarse en sus respuestas y avanzar en su deducción. Pero también tiene libertad para adaptar la forma de dirigir la partida.
+
+El DJ puede, en particular:
+
+- reformular una pregunta que no admita claramente una respuesta binaria;
+- corregir un malentendido o una interpretación errónea;
+- señalar que una pista parece poco relevante;
+- dar una pista si el grupo se bloquea;
+- aceptar una formulación diferente de la indicada en la carta, siempre que se haya comprendido el concepto buscado.
+
+> **El papel del DJ es hacer que la investigación sea divertida, no tender trampas a los jugadores.**
+
+No existe una única forma correcta de jugar: cada pregunta puede requerir un enfoque distinto.
+
+---
+
+## 📚 Encontrar la respuesta
+
+Cuando un jugador cree haber encontrado la respuesta, puede proponerla al grupo.
+
+El DJ decide si se corresponde suficientemente con la solución. No es necesario repetir exactamente la formulación de la carta: **lo que importa es comprender el concepto.**
+
+Una vez terminada la investigación, el DJ puede revelar el contexto, las anécdotas y las fuentes asociadas a la respuesta.
+
+> **No solo se busca una respuesta. También se descubre la historia que se esconde detrás.**
+
+---
+
+## 🚫 Sin búsquedas externas
+
+Los jugadores no deben utilizar Google, Wikipedia, ChatGPT ni ninguna otra fuente externa para encontrar directamente la respuesta.
+
+La investigación debe realizarse alrededor de la mesa, a partir de las conversaciones entre los jugadores y de las respuestas del DJ.
+
+> **¡El objetivo es buscar juntos, no encontrar la respuesta por separado!**
+
+---
+
+## 🐐 Os toca jugar
+
+Elegid a vuestro DJ, reunid a los jugadores y comenzad vuestra primera investigación.
+
+¿No conocéis la respuesta?
+
+> **Perfecto. No hace falta saberlo todo: basta con hacer las preguntas adecuadas.**

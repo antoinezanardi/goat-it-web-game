@@ -17,7 +17,7 @@ RUN mkdir -p "$PNPM_HOME" && chown node:node "$PNPM_HOME"
 
 FROM base AS development
 
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash python3 make g++ build-base
 
 USER node
 
@@ -37,6 +37,8 @@ RUN pnpm install --frozen-lockfile
 COPY --chown=node:node app app/
 COPY --chown=node:node server server/
 COPY --chown=node:node shared shared/
+COPY --chown=node:node content.config.ts ./
+COPY --chown=node:node content ./content
 
 CMD [ "pnpm", "run", "start:dev" ]
 

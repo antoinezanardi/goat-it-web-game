@@ -3,4 +3,4 @@ Feature: 📖 Rules Page
 
   Scenario: 📖 Rules page loads and displays content
     Given the user is on rules page
-    Then the text "TBD" should be visible
+    Then the text "How to play Goat It?" should be visible
