@@ -53,7 +53,7 @@
 :root,
 .dark {
   --ui-info: var(--ui-color-info-300);
-  --ui-primary: var(--ui-color-primary-600);
+  --ui-primary: var(--ui-color-primary-800);
   --ui-text: var(--ui-color-neutral-100);
   --ui-text-toned: var(--ui-color-neutral-200);
   --ui-text-muted: var(--ui-color-neutral-300);

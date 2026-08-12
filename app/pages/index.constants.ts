@@ -3,4 +3,12 @@ const HOME_PAGE_PLAY_BUTTON_UI = {
   label: "text-white font-bold uppercase tracking-widest",
 } as const;
 
-export { HOME_PAGE_PLAY_BUTTON_UI };
+const HOME_HOW_TO_PLAY_BUTTON_UI = {
+  base: "fixed bottom-6 left-6 text-white",
+  label: "text-white font-semibold",
+} as const;
+
+export {
+  HOME_HOW_TO_PLAY_BUTTON_UI,
+  HOME_PAGE_PLAY_BUTTON_UI,
+};

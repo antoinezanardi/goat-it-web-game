@@ -6,6 +6,7 @@ const ESLINT_CONFIG_FILES_FLAT_CONFIG: Linter.Config = {
     "nuxt.config.ts",
     "app/app.config.ts",
     "eslint.config.ts",
+    "content.config.ts",
     "configs/**/*.{js,mjs,ts}",
   ],
   rules: {

@@ -19,3 +19,8 @@ Feature: 🏡 Home Page
     Given the user is on home page
     When the user clicks on the version button
     Then a new tab should have been opened with URL "https://github.com/antoinezanardi/goat-it-web-game"
+
+  Scenario: ❓ Clicking "How to play?" navigates to rules page
+    Given the user is on home page
+    When the user clicks on the text "How to play?"
+    Then the user should be on rules page

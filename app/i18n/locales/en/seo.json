@@ -7,6 +7,10 @@
     "game": {
       "title": "Goat It – Play",
       "description": "Ask the Game Master your questions, cross-reference the clues, and find the answer. An unusual fact lies behind every game."
+    },
+    "rules": {
+      "title": "Goat It – How to play ?",
+      "description": "Learn how to play Goat It: the concept, the Game Master's role, how to investigate, and all our tips."
     }
   }
 }

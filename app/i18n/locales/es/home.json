@@ -1,6 +1,7 @@
 {
   "home": {
     "brand": "Goat It",
+    "howToPlay": "¿Cómo jugar?",
     "playButton": "Jugar",
     "tagline": "El juego donde la respuesta se adivina",
     "subtitle": "No necesitas saberlo todo. Solo necesitas hacer las preguntas correctas.",

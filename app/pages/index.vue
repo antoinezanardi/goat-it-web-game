@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { HOME_PAGE_PLAY_BUTTON_UI } from "@/pages/index.constants";
+import { HOME_HOW_TO_PLAY_BUTTON_UI, HOME_PAGE_PLAY_BUTTON_UI } from "@/pages/index.constants";
 
 const { t } = useI18n();
 
@@ -60,6 +60,17 @@ useSeoMeta({
     </div>
 
     <VersionButton/>
+
+    <UButton
+      id="home-how-to-play-button"
+      data-testid="home-how-to-play-button"
+      icon="i-lucide-help-circle"
+      :label="t('home.howToPlay')"
+      size="lg"
+      to="/rules"
+      :ui="HOME_HOW_TO_PLAY_BUTTON_UI"
+      variant="solid"
+    />
   </div>
 </template>
 
