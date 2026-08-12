@@ -23,10 +23,20 @@ Call `resolve-library-id` with:
 - `libraryName`: The library name as it appears in `package.json` (e.g., `@nuxt/ui`, `vueuse`, `zod`).
 - `query`: A short description of what to look up — this improves Context7's relevance ranking.
 
+**If a call returns no relevant match (or only plugins/forks), DO NOT conclude the library is missing.** You have up to 3 resolve calls — budget them as retries:
+
+1. Retry with the **human-readable product name** instead of the package name (e.g., `Tailwind` / `Tailwind CSS` for `tailwindcss`, `ESLint` for `eslint`).
+2. Retry with the **official docs site name** (e.g., `tailwindcss.com`).
+3. Retry with a query that names the product explicitly and neutrally (e.g., `"Tailwind CSS core framework documentation"`) — avoid feature keywords (`@theme`, `configuration`) that can steer ranking toward plugins.
+
+Only after **all 3 calls** fail to surface the core library may you state it is not in the index — and then suggest refinements, never just report absence.
+
 From the results, select the best match:
 - **Highest Source Reputation** (High > Medium > Low).
 - **Version-specific ID** if the resolution step returned a version matching (or close to) the installed version.
 - **Highest Benchmark Score** as a tiebreaker.
+- **Core product beats name substring.** A result titled with the exact product name (e.g., "Tailwind CSS") describing the framework itself outranks any repo whose ID merely *contains* the package name (e.g., `fluid-tailwindcss`). Flag plugin-style results (description containing "plugin", "for", "collection of") for exclusion when searching for a core framework.
+- **Prefer official docs-site IDs** — `/tailwindlabs/<project>`, `/websites/<project>`, `/vercel/<project>` with High reputation are the primary sources over community forks.
 
 ## Matching Versions
 
@@ -43,6 +53,8 @@ When the resolution returns version-specific IDs (e.g., `/nuxt/ui` with `v2.22.0
 
 If no version-specific ID is available (the resolution returns a single base ID), use the base ID and note that the version could not be verified.
 
+Docs-site IDs (e.g., `/tailwindlabs/tailwindcss.com`) may expose branch-style labels like `__branch__v4-beta-docs`; treat these as "latest" unless the installed version matches a labeled version.
+
 ## Fetching Documentation
 
 Call `query-docs` with:
@@ -52,11 +64,11 @@ Call `query-docs` with:
 
 **Query categories** — for each library, fetch one query per relevant category:
 
-| Category | Example Query |
-|---|---|
-| **API Reference** | `"UButton component all props API reference"` |
-| **Usage Patterns** | `"UButton common usage patterns examples"` |
-| **Configuration** | `"UButton theme configuration app.config.ts"` |
+| Category           | Example Query                                 |
+|--------------------|-----------------------------------------------|
+| **API Reference**  | `"UButton component all props API reference"` |
+| **Usage Patterns** | `"UButton common usage patterns examples"`    |
+| **Configuration**  | `"UButton theme configuration app.config.ts"` |
 
 Only fetch categories that are relevant to the problem. If the caller only needs API signatures, skip Usage Patterns and Configuration.
 
@@ -113,4 +125,5 @@ When a gap exists:
 - **Problem-contextual output** — never return a generic API dump. Every library's section must explain how it serves the specific problem described in the input.
 - **One query per concept** — split multi-concept needs into separate `query-docs` calls.
 - **Prefer official sources** — when multiple matches exist, prefer official/primary packages over community forks.
-- **Library name input format** — use the package name exactly as it appears in `package.json` (e.g., `@nuxt/ui`, not `nuxt-ui`).
+- **Library name input format** — use the package name exactly as it appears in `package.json` (e.g., `@nuxt/ui`, not `nuxt-ui`). For core frameworks that share their name with many plugins (e.g., `tailwindcss`, `eslint`), switch to the human-readable product name on retry.
+- **Never report a library as missing from Context7 after fewer than 3 resolve attempts with varied names** (package name → product name → docs site name).

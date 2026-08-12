@@ -1,9 +1,8 @@
 ---
 description: Fetches up-to-date library documentation via Context7 for the goat-it-web-game project. Dispatched by brainstormer and plan-writer when they need current API docs for a design problem. Never relies on training data.
-mode: subagent
+mode: primary
 model: opencode-go/deepseek-v4-flash
 temperature: 0.1
-hidden: true
 steps: 60
 permission:
   edit: deny
