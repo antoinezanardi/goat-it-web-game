@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import { version } from "~~/package.json";
-import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/VersionButton/version-button.constants";
+import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/domain/home/VersionButton/version-button.constants";
 </script>
 
 <template>
   <div
-    class="bottom-4 fixed right-4 z-50"
+    class="flex items-center"
     data-testid="github-version-button"
   >
     <UTooltip :text="$t('home.githubTooltip')">
       <UButton
-        color="primary"
+        color="neutral"
         :href="GITHUB_REPO_URL"
         icon="i-lucide-github"
         :label="`v${version}`"
@@ -18,7 +18,7 @@ import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/VersionButton/v
         size="md"
         target="_blank"
         :ui="VERSION_BUTTON_UI"
-        variant="subtle"
+        variant="outline"
       />
     </UTooltip>
   </div>

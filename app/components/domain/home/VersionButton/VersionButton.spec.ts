@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import { version } from "~~/package.json";
-import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/VersionButton/version-button.constants";
-import VersionButton from "@/components/VersionButton/VersionButton.vue";
+import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/domain/home/VersionButton/version-button.constants";
+import VersionButton from "@/components/domain/home/VersionButton/VersionButton.vue";
 
 describe("VersionButton Component", () => {
   let wrapper: VueWrapper;
@@ -58,13 +58,13 @@ describe("VersionButton Component", () => {
   it("should set the UButton variant to outline when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("variant")).toBe("subtle");
+    expect(button.props("variant")).toBe("outline");
   });
 
-  it("should set the UButton color to info when mounted.", () => {
+  it("should set the UButton color to neutral when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("color")).toBe("primary");
+    expect(button.props("color")).toBe("neutral");
   });
 
   it("should set the UButton size to md when mounted.", () => {
@@ -84,4 +84,19 @@ describe("VersionButton Component", () => {
 
     expect(container.exists()).toBe(true);
   });
+
+  it("should render the container with vertical alignment classes when mounted.", () => {
+    const container = wrapper.find("[data-testid='github-version-button']");
+
+    expect(container.classes()).toStrictEqual(expect.arrayContaining(["flex", "items-center"]));
+  });
+
+  it.each(["fixed", "bottom-4", "right-4", "z-50"])(
+    "should not apply the %s positioning class to the container when mounted.",
+    positioningClass => {
+      const container = wrapper.find("[data-testid='github-version-button']");
+
+      expect(container.classes()).not.toContain(positioningClass);
+    },
+  );
 });
