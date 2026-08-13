@@ -55,16 +55,16 @@ describe("VersionButton Component", () => {
     expect(button.props("ui")).toStrictEqual(VERSION_BUTTON_UI);
   });
 
-  it("should set the UButton variant to subtle when mounted.", () => {
+  it("should set the UButton variant to outline when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("variant")).toBe("subtle");
+    expect(button.props("variant")).toBe("outline");
   });
 
-  it("should set the UButton color to primary when mounted.", () => {
+  it("should set the UButton color to neutral when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("color")).toBe("primary");
+    expect(button.props("color")).toBe("neutral");
   });
 
   it("should set the UButton size to md when mounted.", () => {
@@ -83,6 +83,12 @@ describe("VersionButton Component", () => {
     const container = wrapper.find("[data-testid='github-version-button']");
 
     expect(container.exists()).toBe(true);
+  });
+
+  it("should render the container with vertical alignment classes when mounted.", () => {
+    const container = wrapper.find("[data-testid='github-version-button']");
+
+    expect(container.classes()).toStrictEqual(expect.arrayContaining(["flex", "items-center"]));
   });
 
   it.each(["fixed", "bottom-4", "right-4", "z-50"])(
