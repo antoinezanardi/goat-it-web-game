@@ -1,13 +1,10 @@
 <script lang="ts" setup>
 import { version } from "~~/package.json";
-import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/VersionButton/version-button.constants";
+import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/domain/home/VersionButton/version-button.constants";
 </script>
 
 <template>
-  <div
-    class="bottom-4 fixed right-4 z-50"
-    data-testid="github-version-button"
-  >
+  <div data-testid="github-version-button">
     <UTooltip :text="$t('home.githubTooltip')">
       <UButton
         color="primary"

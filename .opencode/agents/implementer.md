@@ -71,6 +71,8 @@ permission:
     "rtk sed *": "allow"
     "wc *": "allow"
     "rtk wc *": "allow"
+    "cut *": "allow"
+    "rtk cut *": "allow"
   task: deny
   webfetch: deny
 ---

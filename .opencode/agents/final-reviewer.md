@@ -42,6 +42,8 @@ permission:
     "rtk echo *": "allow"
     "wc *": "allow"
     "rtk wc *": "allow"
+    "git check-ignore *": "allow"
+    "rtk git check-ignore *": "allow"
   task: deny
 ---
 

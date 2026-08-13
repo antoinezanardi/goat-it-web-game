@@ -4,9 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import type { UButton } from "#components";
-
-import { HOME_HOW_TO_PLAY_BUTTON_UI, HOME_PAGE_PLAY_BUTTON_UI } from "@/pages/index.constants";
 import HomePage from "@/pages/index.vue";
 
 describe("Home Page", () => {
@@ -70,71 +67,15 @@ describe("Home Page", () => {
     expect(img.attributes("alt")).toBe("home.brand");
   });
 
-  it("should render a UButton linking to /game when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.attributes("to")).toBe("/game");
+  it("should render the HomePlayButton component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "HomePlayButton" }).exists()).toBe(true);
   });
 
-  it("should render a UButton with the translated PLAY button label when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.attributes("label")).toBe("home.playButton");
+  it("should render the HomeFooter component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "HomeFooter" }).exists()).toBe(true);
   });
 
-  it("should render a UButton with size xl when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.attributes("size")).toBe("xl");
-  });
-
-  it("should render a UButton with the HOME_PAGE_PLAY_BUTTON_UI ui config when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.props("ui")).toStrictEqual(HOME_PAGE_PLAY_BUTTON_UI);
-  });
-
-  it("should render VersionButton when mounted.", () => {
-    const versionButton = wrapper.findComponent({ name: "VersionButton" });
-
-    expect(versionButton.exists()).toBe(true);
-  });
-
-  describe("How to Play button", () => {
-    it("should render a How to Play UButton with label home.howToPlay when mounted.", () => {
-      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
-
-      expect(button.attributes("label")).toBe("home.howToPlay");
-    });
-
-    it("should render a How to Play UButton linking to /rules when mounted.", () => {
-      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
-
-      expect(button.attributes("to")).toBe("/rules");
-    });
-
-    it("should render a How to Play UButton with the HOW_TO_PLAY button UI config when mounted.", () => {
-      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
-
-      expect(button.props("ui")).toStrictEqual(HOME_HOW_TO_PLAY_BUTTON_UI);
-    });
-
-    it("should render a How to Play UButton with the help-circle icon when mounted.", () => {
-      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
-
-      expect(button.props("icon")).toBe("i-lucide-help-circle");
-    });
-
-    it("should render a How to Play UButton with variant solid when mounted.", () => {
-      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
-
-      expect(button.attributes("variant")).toBe("solid");
-    });
-
-    it("should render a How to Play UButton with size lg when mounted.", () => {
-      const button = wrapper.findComponent<typeof UButton>("[data-testid='home-how-to-play-button']");
-
-      expect(button.attributes("size")).toBe("lg");
-    });
+  it("should not apply justify-center to the root container when mounted.", () => {
+    expect(wrapper.find("#home-page").classes()).not.toContain("justify-center");
   });
 });
