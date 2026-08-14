@@ -67,7 +67,7 @@ describe("App Component", () => {
     });
 
     it("should call useHead with a theme-color meta when mounted.", () => {
-      expect(getAppHeadConfig()?.meta[0]).toStrictEqual({ name: "theme-color", content: "#18181b" });
+      expect(getAppHeadConfig()?.meta[0]).toStrictEqual({ name: "theme-color", content: "#09090b" });
     });
 
     it("should call useHead with a mobile-web-app-capable meta when mounted.", () => {
