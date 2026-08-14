@@ -1,9 +1,9 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
-@import "./theme.css";
+@import "./tokens.css";
+@import "./nuxt-ui.css";
+@import "./game-theme.css";
 @import "./transitions.css";
-
-@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   html {
@@ -14,7 +14,8 @@
     background-color: var(--color-app-bg);
   }
 
-  div[role="region"] > span[aria-hidden="true"] {
-    display: none !important;
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 }

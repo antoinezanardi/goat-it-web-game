@@ -1,0 +1,18 @@
+:root,
+.dark {
+  --ui-info: var(--ui-color-info-300);
+  --ui-primary: var(--ui-color-primary-800);
+  --ui-text: var(--ui-color-neutral-100);
+  --ui-text-toned: var(--ui-color-neutral-200);
+  --ui-text-muted: var(--ui-color-neutral-300);
+  --ui-text-dimmed: var(--ui-text-muted);
+  --ui-secondary: var(--ui-color-secondary-300);
+
+  --ui-bg: var(--color-card);
+  --ui-bg-muted: var(--color-content);
+  --ui-bg-elevated: var(--color-content);
+  --ui-bg-accented: var(--color-surface-interactive);
+  --ui-border: var(--color-stroke-subtle);
+  --ui-border-muted: var(--color-stroke-subtle);
+  --ui-border-accented: var(--color-stroke-subtle);
+}

@@ -5,9 +5,6 @@ export default defineAppConfig({
       neutral: "zinc",
     },
     button: {
-      slots: {
-        base: "cursor-pointer",
-      },
       compoundVariants: [
         {
           color: "primary",
@@ -17,9 +14,6 @@ export default defineAppConfig({
           },
         },
       ],
-    },
-    link: {
-      base: "cursor-pointer",
     },
   },
 });

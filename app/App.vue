@@ -14,7 +14,7 @@ useHead({
     { rel: "apple-touch-icon", href: "/pwa/apple-touch-icon.png" },
   ],
   meta: [
-    { name: "theme-color", content: "#18181b" },
+    { name: "theme-color", content: "#09090b" },
     { name: "mobile-web-app-capable", content: "yes" },
   ],
 });
