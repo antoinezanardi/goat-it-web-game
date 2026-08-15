@@ -8,12 +8,14 @@ defineSlots<DocsPageShellSlots>();
 
 <template>
   <UPage class="max-w-7xl mx-auto px-6 w-full">
-    <div class="max-w-3xl mx-auto w-full">
+    <div class="max-w-3xl mx-auto py-8 w-full">
       <DocsBackLink/>
 
       <slot/>
 
-      <DocsBackLink/>
+      <div class="mt-8">
+        <DocsBackLink/>
+      </div>
     </div>
 
     <template #right>

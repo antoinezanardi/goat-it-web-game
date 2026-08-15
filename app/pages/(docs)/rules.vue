@@ -3,8 +3,6 @@ import type { Collections } from "@nuxt/content";
 
 const { locale, t, defaultLocale } = useI18n();
 
-definePageMeta({ layout: "docs-layout" });
-
 useSeoMeta({
   title: () => t("seo.rules.title"),
   description: () => t("seo.rules.description"),

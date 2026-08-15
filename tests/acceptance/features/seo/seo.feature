@@ -6,7 +6,7 @@ Feature: 🔍 Technical SEO
     Then the following meta tags should be present:
       | type     | key             | content                                                                       |
       | name     | description     | Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer. |
-      | property | og:title        | Goat It — The game where the answer is guessed                                |
+      | property | og:title        | Goat It – The game where the answer is guessed                                |
       | property | og:description  | Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer. |
 
   Scenario: 🔍 Game page has SEO meta tags

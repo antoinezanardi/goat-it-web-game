@@ -1,9 +1,21 @@
 .docs-prose h1 {
   font-weight: 800;
-  background-image: linear-gradient(to right, #f5f5f7, #c4b5fd);
+  text-align: center;
+  padding-block: 1.5rem;
+  background-image: linear-gradient(to right, var(--color-fg-primary), var(--color-violet-300));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+.docs-prose h1::after {
+  content: "";
+  display: block;
+  width: 120px;
+  height: 2px;
+  margin: 16px auto 0;
+  background-color: var(--color-violet-300);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-violet-300) 70%, transparent), 0 0 18px color-mix(in srgb, var(--color-violet-600) 40%, transparent);
 }
 
 .docs-prose h2 {
@@ -19,7 +31,7 @@
   left: 0;
   width: 120px;
   height: 2px;
-  background-color: #7c3aed;
+  background-color: var(--color-violet-600);
   filter: blur(6px);
   opacity: 0.55;
   margin-top: -2px;
@@ -31,8 +43,13 @@
   width: 120px;
   height: 2px;
   margin-top: 8px;
-  background-color: #c4b5fd;
-  box-shadow: 0 0 8px rgba(196, 181, 253, 0.7), 0 0 18px rgba(124, 58, 237, 0.4);
+  background-color: var(--color-violet-300);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-violet-300) 70%, transparent), 0 0 18px color-mix(in srgb, var(--color-violet-600) 40%, transparent);
+}
+
+.docs-prose h2 a:hover > span,
+.docs-prose h2 a:focus-visible > span {
+  color: var(--color-violet-300);
 }
 
 .docs-prose h3 {
@@ -41,7 +58,7 @@
 }
 
 .docs-prose p {
-  color: var(--color-fg-secondary);
+  color: color-mix(in srgb, var(--color-fg-primary) 65%, var(--color-fg-secondary));
   line-height: var(--leading-body);
 }
 
@@ -51,24 +68,25 @@
 
 .docs-prose blockquote {
   background-color: var(--color-card);
-  border-left: 3px solid #7c3aed;
-  box-shadow: 0 0 14px rgba(124, 58, 237, 0.18);
+  border-left: 3px solid var(--color-violet-300);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-violet-300) 50%, transparent), 0 0 12px color-mix(in srgb, var(--color-violet-600) 25%, transparent);
   border-top-right-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
+  padding-block: 0.75rem;
 }
 
 .docs-prose a {
-  color: #c4b5fd;
+  color: var(--color-violet-300);
 }
 
 .docs-prose ul,
 .docs-prose ol {
-  color: var(--color-fg-secondary);
+  color: color-mix(in srgb, var(--color-fg-primary) 65%, var(--color-fg-secondary));
 }
 
 .docs-prose ul ::marker,
 .docs-prose ol ::marker {
-  color: #c4b5fd;
+  color: var(--color-violet-300);
 }
 
 .docs-prose code {
@@ -91,8 +109,8 @@
 }
 
 .docs-toc [data-slot="indicatorActive"] {
-  background-color: #c4b5fd;
-  box-shadow: 0 0 8px rgba(196, 181, 253, 0.7), 0 0 18px rgba(124, 58, 237, 0.4);
+  background-color: var(--color-violet-300);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-violet-300) 70%, transparent), 0 0 18px color-mix(in srgb, var(--color-violet-600) 40%, transparent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
