@@ -32,9 +32,16 @@ permission:
     "pnpm run test:unit *": "allow"
     "pnpm run test:acceptance *": "allow"
     "pnpm ls *": "allow"
+    "rg *": "allow"
+    "sed *": "allow"
+    "wc *": "allow"
+    "sort *": "allow"
+    "cut *": "allow"
   task:
     "*": "deny"
     "gatekeeper": "allow"
+    "docs-fetcher": "allow"
+    "explore": "allow"
   webfetch: allow
 ---
 

@@ -1,0 +1,102 @@
+.docs-prose h1 {
+  font-weight: 800;
+  background-image: linear-gradient(to right, #f5f5f7, #c4b5fd);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.docs-prose h2 {
+  position: relative;
+  color: var(--color-fg-primary);
+  font-weight: 700;
+}
+
+.docs-prose h2::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 120px;
+  height: 2px;
+  background-color: #7c3aed;
+  filter: blur(6px);
+  opacity: 0.55;
+  margin-top: -2px;
+}
+
+.docs-prose h2::after {
+  content: "";
+  display: block;
+  width: 120px;
+  height: 2px;
+  margin-top: 8px;
+  background-color: #c4b5fd;
+  box-shadow: 0 0 8px rgba(196, 181, 253, 0.7), 0 0 18px rgba(124, 58, 237, 0.4);
+}
+
+.docs-prose h3 {
+  color: var(--color-fg-primary);
+  font-weight: 600;
+}
+
+.docs-prose p {
+  color: var(--color-fg-secondary);
+  line-height: var(--leading-body);
+}
+
+.docs-prose strong {
+  color: var(--color-fg-primary);
+}
+
+.docs-prose blockquote {
+  background-color: var(--color-card);
+  border-left: 3px solid #7c3aed;
+  box-shadow: 0 0 14px rgba(124, 58, 237, 0.18);
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.docs-prose a {
+  color: #c4b5fd;
+}
+
+.docs-prose ul,
+.docs-prose ol {
+  color: var(--color-fg-secondary);
+}
+
+.docs-prose ul ::marker,
+.docs-prose ol ::marker {
+  color: #c4b5fd;
+}
+
+.docs-prose code {
+  background-color: var(--color-content);
+  border: 1px solid var(--color-stroke-subtle);
+  border-radius: 0.25rem;
+}
+
+.docs-prose hr {
+  border-color: var(--color-stroke-subtle);
+}
+
+.docs-toc a[data-slot="link"] {
+  color: var(--color-fg-secondary);
+  border-left: 2px solid transparent;
+}
+
+.docs-toc a[data-slot="link"].text-primary {
+  color: var(--color-fg-primary);
+}
+
+.docs-toc [data-slot="indicatorActive"] {
+  background-color: #c4b5fd;
+  box-shadow: 0 0 8px rgba(196, 181, 253, 0.7), 0 0 18px rgba(124, 58, 237, 0.4);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

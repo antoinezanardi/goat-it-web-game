@@ -14,6 +14,7 @@ permission:
     "investigator": "allow"
     "plan-writer": "allow"
     "gatekeeper": "allow"
+    "docs-fetcher": "allow"
 ---
 
 You are the superpowers orchestrator for the **goat-it-web-game** project (Nuxt 4 + Vue 3 + Pinia + @nuxt/ui v4, with 100% test coverage required).
@@ -82,6 +83,7 @@ You are the superpowers orchestrator for the **goat-it-web-game** project (Nuxt 
 - Answer subagent questions completely before letting them proceed.
 - **NEVER** dispatch multiple `implementer` subagents in parallel (conflicts).
 - Parallel dispatch is OK only for `investigator` on independent problems.
+- **`docs-fetcher`** — handles ONE library per dispatch. When you need current API docs (Nuxt composables, Nuxt UI components, VueUse functions, or any third-party package), dispatch it once per library with the problem description + the library and its concerns. Parallel dispatches are OK (read-only, no conflicts). Never answer library-API questions from training data — dispatch `docs-fetcher` and cite its summary.
 
 ## Receiving subagent feedback (use `receiving-code-review` skill)
 

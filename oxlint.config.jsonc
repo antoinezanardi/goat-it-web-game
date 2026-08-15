@@ -41,6 +41,7 @@
     "questionThemesRepository": "readonly",
     "questionsRepository": "readonly",
     "queryCollection": "readonly",
+    "queryCollectionSearchSections": "readonly",
     "reactive": "readonly",
     "readBody": "readonly",
     "ref": "readonly",
@@ -69,6 +70,7 @@
     "useLocalizedValue": "readonly",
     "useNuxtApp": "readonly",
     "useOverlay": "readonly",
+    "usePreferredReducedMotion": "readonly",
     "useQuestionThemesStore": "readonly",
     "useRoute": "readonly",
     "useRouter": "readonly",
@@ -79,6 +81,7 @@
     "useTemplateRef": "readonly",
     "useToast": "readonly",
     "useTranslationCompleteness": "readonly",
+    "useWindowScroll": "readonly",
     "useZodLocale": "readonly",
     "watch": "readonly",
     "withDefaults": "readonly"

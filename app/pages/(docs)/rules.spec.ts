@@ -1,6 +1,7 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ref } from "vue";
 import type { Ref } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
@@ -51,8 +52,8 @@ describe("Rules Page", () => {
       expect(wrapper.text()).not.toContain("errors.generic");
     });
 
-    it("should not render ContentRenderer when status is pending.", () => {
-      expect(wrapper.findComponent({ name: "ContentRenderer" }).exists()).toBe(false);
+    it("should not render DocsPageShell when status is pending.", () => {
+      expect(wrapper.findComponent({ name: "DocsPageShell" }).exists()).toBe(false);
     });
 
     it("should call useAsyncData when mounted.", () => {
@@ -69,14 +70,32 @@ describe("Rules Page", () => {
   describe("when content loads successfully.", () => {
     beforeEach(async() => {
       useAsyncDataMock.mockReturnValue({
-        data: ref({ title: "How to play", description: "Rules" }),
+        data: ref([{ title: "How to play", description: "Rules" }, []]),
         status: ref("success"),
       });
       wrapper = await mountRulesPage();
     });
 
+    it("should render DocsPageShell when status is success.", () => {
+      expect(wrapper.findComponent({ name: "DocsPageShell" }).exists()).toBe(true);
+    });
+
+    it("should pass the sections to DocsPageShell when status is success.", () => {
+      const docsPageShell = wrapper.findComponent({ name: "DocsPageShell" });
+
+      expect(docsPageShell.props("sections")).toStrictEqual([]);
+    });
+
     it("should render ContentRenderer with the page data when status is success.", () => {
-      expect(wrapper.findComponent({ name: "ContentRenderer" }).exists()).toBe(true);
+      const contentRenderer = wrapper.findComponent({ name: "ContentRenderer" });
+
+      expect(contentRenderer.props("value")).toStrictEqual({ title: "How to play", description: "Rules" });
+    });
+
+    it("should render ContentRenderer with the docs-prose class when status is success.", () => {
+      const contentRenderer = wrapper.findComponent({ name: "ContentRenderer" });
+
+      expect(contentRenderer.props("class")).toBe("docs-prose");
     });
 
     it("should not render LoadingSpinner when status is success.", () => {
@@ -97,8 +116,8 @@ describe("Rules Page", () => {
       expect(wrapper.text()).toContain("errors.pageNotFound");
     });
 
-    it("should not render ContentRenderer when data is null.", () => {
-      expect(wrapper.findComponent({ name: "ContentRenderer" }).exists()).toBe(false);
+    it("should not render DocsPageShell when data is null.", () => {
+      expect(wrapper.findComponent({ name: "DocsPageShell" }).exists()).toBe(false);
     });
   });
 
@@ -115,8 +134,8 @@ describe("Rules Page", () => {
       expect(wrapper.text()).toContain("errors.generic");
     });
 
-    it("should not render ContentRenderer when status is error.", () => {
-      expect(wrapper.findComponent({ name: "ContentRenderer" }).exists()).toBe(false);
+    it("should not render DocsPageShell when status is error.", () => {
+      expect(wrapper.findComponent({ name: "DocsPageShell" }).exists()).toBe(false);
     });
   });
 

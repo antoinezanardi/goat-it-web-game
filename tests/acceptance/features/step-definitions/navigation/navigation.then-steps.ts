@@ -31,3 +31,10 @@ Then(
     expect(new URL(actual).pathname).toContain(expectedPathname);
   },
 );
+
+Then(
+  /^the page should be scrolled to the top$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expect.poll(async() => this.page.evaluate(() => window.scrollY)).toBe(0);
+  },
+);

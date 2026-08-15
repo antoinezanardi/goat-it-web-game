@@ -14,3 +14,21 @@ When(
     await this.page.goBack();
   },
 );
+
+When(
+  /^the user scrolls down past (?<pixels>\d+) pixels$/u,
+  async function(this: GoatItWorld, pixels: string): Promise<void> {
+    await this.page.mouse.move(0, 0);
+    await this.page.mouse.wheel(0, Number(pixels) + 1);
+  },
+);
+
+When(
+  /^the user scrolls to the "(?<heading>[^"]*)" heading$/u,
+  async function(this: GoatItWorld, heading: string): Promise<void> {
+    await this.page.getByTestId("docs-toc").waitFor({ state: "visible" });
+    await this.page.getByRole("heading", { name: heading }).scrollIntoViewIfNeeded();
+    await this.page.mouse.move(0, 0);
+    await this.page.mouse.wheel(0, 1);
+  },
+);
