@@ -3,7 +3,7 @@ name: context7
 description: Internal skill for the docs-fetcher agent. Fetches version-aware library documentation via Context7 MCP and synthesizes problem-contextual structured summaries. Never rely on training data — always fetch current docs.
 ---
 
-This skill is used by the `docs-fetcher` subagent to fetch up-to-date, version-aware documentation for libraries via Context7 MCP. The docs-fetcher receives a problem description + list of libraries and returns a structured summary that explains how each library serves the use case.
+This skill is used by the `docs-fetcher` subagent to fetch up-to-date, version-aware documentation for libraries via Context7 MCP. Each `docs-fetcher` dispatch handles **exactly one library** — the caller dispatches it once per library (parallel dispatches OK). It receives a problem description + one library and returns a structured summary explaining how that library serves the use case.
 
 ## Version Resolution
 
@@ -23,7 +23,7 @@ Call `resolve-library-id` with:
 - `libraryName`: The library name as it appears in `package.json` (e.g., `@nuxt/ui`, `vueuse`, `zod`).
 - `query`: A short description of what to look up — this improves Context7's relevance ranking.
 
-**If a call returns no relevant match (or only plugins/forks), DO NOT conclude the library is missing.** You have up to 3 resolve calls — budget them as retries:
+**If a call returns no relevant match (or only plugins/forks), DO NOT conclude the library is missing.** You have up to 3 resolve calls for this session — budget them as retries for the session's single library:
 
 1. Retry with the **human-readable product name** instead of the package name (e.g., `Tailwind` / `Tailwind CSS` for `tailwindcss`, `ESLint` for `eslint`).
 2. Retry with the **official docs site name** (e.g., `tailwindcss.com`).
@@ -62,7 +62,12 @@ Call `query-docs` with:
 - `libraryId`: The selected Context7 library ID (including version if applicable, e.g., `/nuxt/ui/v4.0.1`).
 - `query`: What to look up, scoped to a single concept.
 
-**Query categories** — for each library, fetch one query per relevant category:
+**Hard budget: at most 3 `query-docs` calls per session.** Context7 caps its query tool at 3 calls per question, and one `docs-fetcher` dispatch is one question. This budget covers the session's single library. Plan your queries before calling:
+
+- **One library per dispatch** — the caller re-dispatches you for each additional library.
+- **Map the budget to the categories below** — one call per relevant category, up to 3 calls total.
+
+**Query categories** — fetch one query per relevant category:
 
 | Category           | Example Query                                 |
 |--------------------|-----------------------------------------------|
@@ -72,7 +77,9 @@ Call `query-docs` with:
 
 Only fetch categories that are relevant to the problem. If the caller only needs API signatures, skip Usage Patterns and Configuration.
 
-**Split multi-topic queries** — make separate `query-docs` calls per concept. Combined queries dilute ranking and return shallow results.
+**If the problem needs more than 3 concepts for this library:** pick the 3 most relevant and add the rest to the summary under a "Not fetched — re-dispatch" note. Never exceed the budget.
+
+**Split multi-topic queries** — make separate `query-docs` calls per concept (within budget). Combined queries dilute ranking and return shallow results.
 
 ## Synthesizing the Structured Summary
 
@@ -121,8 +128,9 @@ When a gap exists:
 
 ## Guidelines
 
+- **One library per dispatch** — if the caller lists multiple libraries, handle the first (or the one explicitly requested) and report that the others need separate dispatches. Never exceed the 3-call `query-docs` budget.
 - **Source URLs are mandatory** — every claim, code example, and API signature must link to its Context7 source.
-- **Problem-contextual output** — never return a generic API dump. Every library's section must explain how it serves the specific problem described in the input.
+- **Problem-contextual output** — never return a generic API dump. The summary must explain how the library serves the specific problem described in the input.
 - **One query per concept** — split multi-concept needs into separate `query-docs` calls.
 - **Prefer official sources** — when multiple matches exist, prefer official/primary packages over community forks.
 - **Library name input format** — use the package name exactly as it appears in `package.json` (e.g., `@nuxt/ui`, not `nuxt-ui`). For core frameworks that share their name with many plugins (e.g., `tailwindcss`, `eslint`), switch to the human-readable product name on retry.

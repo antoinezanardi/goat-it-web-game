@@ -4,6 +4,7 @@
 @import "./nuxt-ui.css";
 @import "./game-theme.css";
 @import "./transitions.css";
+@import "./docs.css";
 
 @layer base {
   html {
