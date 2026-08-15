@@ -76,8 +76,9 @@ export default defineNuxtConfig({
     "eslint.config.ts",
   ],
   routeRules: {
-    "/": { prerender: true },
-    "/rules": { prerender: true },
+    "/": { prerender: true, appLayout: "default-layout" },
+    "/game": { appLayout: "default-layout" },
+    "/rules": { prerender: true, appLayout: "docs-layout" },
   },
   sourcemap: { client: "hidden" },
   experimental: {
@@ -236,7 +237,7 @@ export default defineNuxtConfig({
   pwa: {
     registerType: "autoUpdate",
     manifest: {
-      name: "Goat It — Le jeu où la réponse se devine",
+      name: "Goat It – Le jeu où la réponse se devine",
       short_name: "Goat It",
       description: "Goat It est un jeu de déduction basé sur des faits insolites. Posez vos questions au Maître du Jeu, menez l'enquête et trouvez la réponse.",
       theme_color: "#09090b",

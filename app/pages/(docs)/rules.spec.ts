@@ -5,7 +5,6 @@ import { ref } from "vue";
 import type { Ref } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
-import { definePageMetaMock } from "~~/tests/unit/setup/nuxt/define-page-meta.nuxt.unit-setup";
 
 import RulesPage from "@/pages/(docs)/rules.vue";
 
@@ -136,18 +135,6 @@ describe("Rules Page", () => {
 
     it("should not render DocsPageShell when status is error.", () => {
       expect(wrapper.findComponent({ name: "DocsPageShell" }).exists()).toBe(false);
-    });
-  });
-
-  describe("definePageMeta", () => {
-    it("should call definePageMeta with docs-layout layout when mounted.", async() => {
-      useAsyncDataMock.mockReturnValue({
-        data: ref<null>(null),
-        status: ref("pending"),
-      });
-      wrapper = await mountRulesPage();
-
-      expect(definePageMetaMock).toHaveBeenCalledExactlyOnceWith({ layout: "docs-layout" });
     });
   });
 

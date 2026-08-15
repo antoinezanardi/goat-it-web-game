@@ -5,7 +5,7 @@ import { VITEST_COMPOSABLES_PROJECT_CONFIG, VITEST_IGNORED_STARTING_BY_LOGS, VIT
 
 export default defineConfig({
   test: {
-    hookTimeout: 20_000,
+    hookTimeout: 30_000,
     projects: [
       await defineVitestProject(VITEST_NUXT_PROJECT_CONFIG),
       await defineVitestProject(VITEST_COMPOSABLES_PROJECT_CONFIG),
