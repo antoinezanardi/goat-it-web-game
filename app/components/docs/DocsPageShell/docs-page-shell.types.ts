@@ -4,4 +4,8 @@ type DocsPageShellProps = {
   sections: DocsTocSection[];
 };
 
-export type { DocsPageShellProps };
+type DocsPageShellSlots = {
+  default: () => unknown;
+};
+
+export type { DocsPageShellProps, DocsPageShellSlots };

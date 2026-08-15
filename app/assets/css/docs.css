@@ -61,10 +61,6 @@
   color: #c4b5fd;
 }
 
-.docs-prose a:hover {
-  text-decoration: underline;
-}
-
 .docs-prose ul,
 .docs-prose ol {
   color: var(--color-fg-secondary);
@@ -92,7 +88,11 @@
 
 .docs-toc a[data-slot="link"].text-primary {
   color: var(--color-fg-primary);
-  border-left-color: #a78bfa;
+}
+
+.docs-toc [data-slot="indicatorActive"] {
+  background-color: #c4b5fd;
+  box-shadow: 0 0 8px rgba(196, 181, 253, 0.7), 0 0 18px rgba(124, 58, 237, 0.4);
 }
 
 @media (prefers-reduced-motion: no-preference) {

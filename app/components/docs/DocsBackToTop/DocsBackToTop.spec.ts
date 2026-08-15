@@ -7,7 +7,6 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup";
 import { useWindowScrollMock } from "~~/tests/unit/setup/nuxt/composables/use-window-scroll.nuxt.unit-setup";
 
-import { DOCS_BACK_TO_TOP_BUTTON_UI } from "@/components/docs/DocsBackToTop/docs-back-to-top.constants";
 import DocsBackToTop from "@/components/docs/DocsBackToTop/DocsBackToTop.vue";
 
 describe("DocsBackToTop Component", () => {
@@ -33,10 +32,10 @@ describe("DocsBackToTop Component", () => {
     expect(button.props("icon")).toBe("i-lucide-arrow-up");
   });
 
-  it("should render the button with the DOCS_BACK_TO_TOP_BUTTON_UI ui config when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
+  it("should render the tooltip with the backToTop text translation key when mounted.", () => {
+    const tooltip = wrapper.findComponent({ name: "UTooltip" });
 
-    expect(button.props("ui")).toStrictEqual(DOCS_BACK_TO_TOP_BUTTON_UI);
+    expect(tooltip.attributes("text")).toBe("docs.backToTop");
   });
 
   it("should wrap the button in a fade transition when mounted.", () => {

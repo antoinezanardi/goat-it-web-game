@@ -13,6 +13,13 @@ export default defineAppConfig({
             base: "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]",
           },
         },
+        {
+          color: "primary",
+          variant: "ghost",
+          class: {
+            base: "text-fg-primary",
+          },
+        },
       ],
     },
   },

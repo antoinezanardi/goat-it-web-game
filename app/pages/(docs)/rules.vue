@@ -16,15 +16,22 @@ const collection = computed(() => `content_${locale.value}` as keyof Collections
 
 const { data, status } = await useAsyncData(`rules-${locale.value}`, async() => {
   const page = await queryCollection(collection.value).path("/rules").first();
+
+  if (!page && locale.value !== defaultLocale) {
+    const fallbackPage = await queryCollection(`content_${defaultLocale}`).path("/rules").first();
+    const fallbackSections = await queryCollectionSearchSections(`content_${defaultLocale}`, {
+      minHeading: "h2",
+      maxHeading: "h3",
+    }).where("path", "=", "/rules");
+
+    return [fallbackPage, fallbackSections] as [typeof fallbackPage, typeof fallbackSections];
+  }
+
   const sections = await queryCollectionSearchSections(collection.value, {
     minHeading: "h2",
     maxHeading: "h3",
   }).where("path", "=", "/rules");
-  if (!page && locale.value !== defaultLocale) {
-    const fallbackPage = await queryCollection(`content_${defaultLocale}`).path("/rules").first();
 
-    return [fallbackPage, sections] as [typeof fallbackPage, typeof sections];
-  }
   return [page, sections] as [typeof page, typeof sections];
 }, { watch: [locale] });
 

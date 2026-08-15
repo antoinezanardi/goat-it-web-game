@@ -15,7 +15,6 @@ describe("DocsPageShell Component", () => {
   async function mountDocsPageShell(options: MountSuspendedOptions<typeof DocsPageShell> = {}): Promise<VueWrapper> {
     return mountSuspended(DocsPageShell, {
       props: { sections: defaultSections },
-      shallow: true,
       slots: { default: "<div id='page-content'>Content</div>" },
       ...options,
     });
@@ -25,8 +24,12 @@ describe("DocsPageShell Component", () => {
     wrapper = await mountDocsPageShell();
   });
 
-  it("should render the DocsBackLink component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "DocsBackLink" }).exists()).toBe(true);
+  it("should render a UPage when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UPage" }).exists()).toBe(true);
+  });
+
+  it("should render the DocsBackLink component twice when mounted.", () => {
+    expect(wrapper.findAllComponents({ name: "DocsBackLink" })).toHaveLength(2);
   });
 
   it("should render the DocsBackToTop component when mounted.", () => {

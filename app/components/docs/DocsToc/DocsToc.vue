@@ -28,6 +28,7 @@ watch(
   <UContentToc
     class="docs-toc hidden lg:block lg:self-start lg:sticky lg:top-7"
     data-testid="docs-toc"
+    highlight
     :links="links"
     :title="$t('docs.onThisPage')"
     :ui="DOCS_TOC_UI"
