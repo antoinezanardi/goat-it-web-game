@@ -8,6 +8,7 @@ const ESLINT_CONFIG_FILES_FLAT_CONFIG: Linter.Config = {
     "eslint.config.ts",
     "content.config.ts",
     "configs/**/*.{js,mjs,ts}",
+    "app/config/**/*",
   ],
   rules: {
     "@typescript-eslint/no-restricted-imports": "off",

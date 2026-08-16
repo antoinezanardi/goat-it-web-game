@@ -1270,7 +1270,8 @@
         "**/app/app.config.ts",
         "eslint.config.ts",
         "content.config.ts",
-        "**/configs/**/*.{js,mjs,ts}"
+        "**/configs/**/*.{js,mjs,ts}",
+        "**/app/config/**/*.config.ts"
       ],
       "rules": {
         "eslint/no-magic-numbers": "off",
