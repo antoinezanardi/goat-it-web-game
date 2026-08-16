@@ -1,7 +1,7 @@
 import type { Mock } from "vitest";
 import { vi } from "vitest";
 
-import type { GsapContextAddSignature, GsapContextSignature, GsapSetSignature, GsapTimelineSignature, GsapTimelineToSignature } from "./useGsap.mock.types";
+import type { GsapContextAddSignature, GsapContextSignature, GsapSetSignature, GsapTimelineSignature, GsapTimelineToSignature } from "~~/tests/unit/utils/mocks/composables/nuxt/useGsap/useGsap.mock.types.ts";
 
 type UseGSAPMock = {
   add: Mock<GsapContextAddSignature>;

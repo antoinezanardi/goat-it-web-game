@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { GameQuestionCard } from "#components";
 
+import type { Question } from "#shared/types/question.types";
 import { CARD_TRANSITION_DURATION_SECONDS, CARD_TRANSITION_ROTATION_DEGREES, CARD_TRANSITION_SLIDE_PERCENT } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.constants";
 import type { GameQuestionCardSwitcherDirection, GameQuestionCardSwitcherEmits, GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
+import type { GsapContext } from "@/composables/core/gsap/gsap.types";
 
 const props = defineProps<GameQuestionCardSwitcherProps>();
 const emit = defineEmits<GameQuestionCardSwitcherEmits>();
@@ -12,7 +14,10 @@ const gsap = useGSAP();
 const leavingCardReference = useTemplateRef<InstanceType<typeof GameQuestionCard>>("leavingCardReference");
 const enteringCardReference = useTemplateRef<InstanceType<typeof GameQuestionCard>>("enteringCardReference");
 
-const gsapContext = shallowRef<{ add: (callback: () => void) => void; revert: () => void }>();
+const leavingCardQuestion = computed(() => props.leavingQuestion ?? props.question);
+const enteringCardQuestion = computed(() => props.enteringQuestion ?? props.question);
+
+const gsapContext = shallowRef<GsapContext>();
 
 function animateCardTransition(
   leavingElement: HTMLElement,
@@ -49,20 +54,22 @@ onMounted(() => {
   });
 });
 
+function handleQuestionChange([leavingQuestion, enteringQuestion]: readonly [Question | undefined, Question | undefined]): void {
+  if (!leavingQuestion || !enteringQuestion) {
+    return;
+  }
+
+  const leavingElement = leavingCardReference.value?.$el;
+  const enteringElement = enteringCardReference.value?.$el;
+
+  if (leavingElement instanceof HTMLElement && enteringElement instanceof HTMLElement) {
+    gsapContext.value?.add(() => animateCardTransition(leavingElement, enteringElement, props.direction));
+  }
+}
+
 watch(
   () => [props.leavingQuestion, props.enteringQuestion] as const,
-  ([leavingQuestion, enteringQuestion]) => {
-    if (!leavingQuestion || !enteringQuestion) {
-      return;
-    }
-
-    const leavingElement = leavingCardReference.value?.$el;
-    const enteringElement = enteringCardReference.value?.$el;
-
-    if (leavingElement instanceof HTMLElement && enteringElement instanceof HTMLElement) {
-      gsapContext.value?.add(() => animateCardTransition(leavingElement, enteringElement, props.direction));
-    }
-  },
+  handleQuestionChange,
   { flush: "post" },
 );
 
@@ -79,7 +86,7 @@ onUnmounted(() => {
     >
       <GameQuestionCard
         ref="leavingCardReference"
-        :question="props.leavingQuestion ?? props.question"
+        :question="leavingCardQuestion"
       />
     </div>
 
@@ -89,7 +96,7 @@ onUnmounted(() => {
     >
       <GameQuestionCard
         ref="enteringCardReference"
-        :question="props.enteringQuestion ?? props.question"
+        :question="enteringCardQuestion"
       />
     </div>
   </div>
