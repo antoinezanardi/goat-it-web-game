@@ -6,6 +6,8 @@ type GsapTimelineToSignature = (target: HTMLElement, variables: Record<string, n
 
 type GsapTimelineSignature = (config: { onComplete?: () => void }) => { to: Mock };
 
-type GsapContextSignature = (callback: () => void) => { revert: Mock };
+type GsapContextAddSignature = (callback: () => void) => void;
 
-export type { GsapContextSignature, GsapSetSignature, GsapTimelineSignature, GsapTimelineToSignature };
+type GsapContextSignature = (callback: () => void) => { add: Mock<GsapContextAddSignature>; revert: Mock };
+
+export type { GsapContextAddSignature, GsapContextSignature, GsapSetSignature, GsapTimelineSignature, GsapTimelineToSignature };
