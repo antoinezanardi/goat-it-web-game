@@ -51,6 +51,7 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
 
       <GameQuestionCardContextAccordion
         v-if="hasContextSection"
+        :key="props.question.id"
         class="mt-4"
         :context="props.question.content.context"
         :trivia="props.question.content.trivia"

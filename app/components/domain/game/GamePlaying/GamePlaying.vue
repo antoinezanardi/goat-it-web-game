@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { Question } from "#shared/types/question.types";
-import { CARD_TRANSITION_SAFETY_TIMEOUT_MS } from "@/components/domain/game/GamePlaying/GameQuestionCardTransition/game-question-card-transition.constants";
-import type { GameQuestionCardTransitionDirection } from "@/components/domain/game/GamePlaying/GameQuestionCardTransition/game-question-card-transition.types";
+import { CARD_TRANSITION_SAFETY_TIMEOUT_MS } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.constants";
+import type { GameQuestionCardSwitcherDirection } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
 import type { GamePlayingEmits, GamePlayingProps } from "@/components/domain/game/GamePlaying/game-playing.types";
 
 const props = defineProps<GamePlayingProps>();
@@ -9,7 +9,7 @@ const emit = defineEmits<GamePlayingEmits>();
 
 const leavingQuestion = ref<Question | undefined>(undefined);
 const enteringQuestion = ref<Question | undefined>(undefined);
-const transitionDirection = ref<GameQuestionCardTransitionDirection>("forward");
+const transitionDirection = ref<GameQuestionCardSwitcherDirection>("forward");
 const isTransitioning = ref<boolean>(false);
 // Acceptable as the timeout handle is only assigned inside startSafetyTimeout before it is ever read
 // oxlint-disable-next-line typescript/init-declarations
@@ -26,6 +26,7 @@ function finishTransition(): void {
     emit("previous");
   }
   leavingQuestion.value = undefined;
+  enteringQuestion.value = undefined;
   isTransitioning.value = false;
 }
 
@@ -94,19 +95,13 @@ onUnmounted(() => {
 <template>
   <div class="flex flex-1 flex-col">
     <div class="flex flex-1 items-center justify-center py-6">
-      <GameQuestionCardTransition
-        v-if="leavingQuestion && enteringQuestion"
+      <GameQuestionCardSwitcher
         class="w-full"
         :direction="transitionDirection"
         :entering-question="enteringQuestion"
         :leaving-question="leavingQuestion"
-        @complete="onTransitionComplete"
-      />
-
-      <GameQuestionCard
-        v-else
-        class="w-full"
         :question="props.currentQuestion"
+        @complete="onTransitionComplete"
       />
     </div>
 
