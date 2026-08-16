@@ -1,5 +1,52 @@
 # 🐐👑 Goat It Web Admin Versioning Changelog
 
+## [1.4.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.3.0...v1.4.0) (2026-08-16)
+
+### 🚀 Features
+
+* **fonts:** self-host Geist font to remove build-time download ([#179](https://github.com/antoinezanardi/goat-it-web-game/issues/179)) ([e9f6bfb](https://github.com/antoinezanardi/goat-it-web-game/commit/e9f6bfbeb033d936d1bb82efa728ab4eb9d3a471))
+* **rules:** add /rules page with Nuxt Content v3 and i18n markdown ([#156](https://github.com/antoinezanardi/goat-it-web-game/issues/156)) ([6a38038](https://github.com/antoinezanardi/goat-it-web-game/commit/6a38038e5d815f96445eb7e755e06e463c3aec5a))
+* **rules:** add docs reading style with sticky TOC, back link and back-to-top button ([#172](https://github.com/antoinezanardi/goat-it-web-game/issues/172)) ([9c9f76f](https://github.com/antoinezanardi/goat-it-web-game/commit/9c9f76fcbb89664a8202b109e32c23acac0ed6f6))
+* **rules:** polish docs page and fix layout transitions ([f02c7f0](https://github.com/antoinezanardi/goat-it-web-game/commit/f02c7f06a3cd6bffdd3096aeee6d7a7cea504902))
+* **rules:** polish docs page and fix layout transitions ([#175](https://github.com/antoinezanardi/goat-it-web-game/issues/175)) ([b127908](https://github.com/antoinezanardi/goat-it-web-game/commit/b1279082392873df7cd8f757067bf65d2530d579))
+* **theme:** define neon arcade button styles with AAA contrast ([#177](https://github.com/antoinezanardi/goat-it-web-game/issues/177)) ([512d74b](https://github.com/antoinezanardi/goat-it-web-game/commit/512d74b4b5728951ead9e6a2b2cdc41c254dd39e))
+
+### 🐛 Bug Fixes
+
+* **acceptance:** wait for app hydration before page interactions ([#176](https://github.com/antoinezanardi/goat-it-web-game/issues/176)) ([25fb890](https://github.com/antoinezanardi/goat-it-web-game/commit/25fb890b83f23d5fa41dd87fdc9e99a200859a38))
+
+### 📖 Docs
+
+* **agents:** add docs-fetcher subagent with context7 skill ([#162](https://github.com/antoinezanardi/goat-it-web-game/issues/162)) ([e98325d](https://github.com/antoinezanardi/goat-it-web-game/commit/e98325d58d17f0388371415600f3f80888602bb7))
+
+### 🔩 Refactor
+
+* **home:** extract play button and footer into domain components ([#163](https://github.com/antoinezanardi/goat-it-web-game/issues/163)) ([266a185](https://github.com/antoinezanardi/goat-it-web-game/commit/266a185fb8c8b71d7b9e5518981e0a5022fb645f))
+* **theming:** restructure CSS and align tokens with Nuxt UI best practices ([#169](https://github.com/antoinezanardi/goat-it-web-game/issues/169)) ([337c074](https://github.com/antoinezanardi/goat-it-web-game/commit/337c0744522601133e0f7ace569f02dbee0fe8ba))
+
+### 🔁 CI
+
+* **semantic-release:** sync develop with release commit after publishing ([#153](https://github.com/antoinezanardi/goat-it-web-game/issues/153)) ([e9e63bd](https://github.com/antoinezanardi/goat-it-web-game/commit/e9e63bd0d60d3fe47d1a0f4a2bc1ea4d384d0c2c))
+
+### 🧹 Chore
+
+* **ai:** remove rtk ([#167](https://github.com/antoinezanardi/goat-it-web-game/issues/167)) ([d86656b](https://github.com/antoinezanardi/goat-it-web-game/commit/d86656bb3229750bcbf8af42c15fd08e19b518c7))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `commitlint monorepo` | `^21.2.2` |
+| `@axe-core/playwright` | `^4.13.0` |
+| `@faker-js/faker` | `^10.6.0` |
+| `@pinia/nuxt` | `^1.0.2` |
+| `@takumi-rs/core` | `^2.9.2` |
+| `nuxt-seo-utils` | `^8.4.2` |
+| `nuxt-site-config` | `^4.2.3` |
+| `pinia` | `^4.0.3` |
+| `pnpm` | `v11.22.0` |
+| `vue-language-tools monorepo` | `^3.3.10` |
+
 ## [1.3.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.2.0...v1.3.0) (2026-08-11)
 
 ### 🚀 Features
