@@ -66,6 +66,16 @@ describe("App Component", () => {
       expect(getAppHeadConfig()?.link[1]).toStrictEqual({ rel: "apple-touch-icon", href: "/pwa/apple-touch-icon.png" });
     });
 
+    it("should call useHead with a preload link for the Geist latin font when mounted.", () => {
+      expect(getAppHeadConfig()?.link[2]).toStrictEqual({
+        rel: "preload",
+        href: "/fonts/Geist/geist-latin.woff2",
+        as: "font",
+        type: "font/woff2",
+        crossorigin: "",
+      });
+    });
+
     it("should call useHead with a theme-color meta when mounted.", () => {
       expect(getAppHeadConfig()?.meta[0]).toStrictEqual({ name: "theme-color", content: "#09090b" });
     });
