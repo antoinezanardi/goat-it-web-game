@@ -64,6 +64,7 @@ export default defineNuxtConfig({
   ui: {
     colorMode: false,
     experimental: { componentDetection: true },
+    fonts: false,
   },
   runtimeConfig: {
     goatItApi: {
@@ -79,6 +80,7 @@ export default defineNuxtConfig({
     "/": { prerender: true, appLayout: "default-layout" },
     "/game": { appLayout: "default-layout" },
     "/rules": { prerender: true, appLayout: "docs-layout" },
+    "/fonts/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
   },
   sourcemap: { client: "hidden" },
   experimental: {

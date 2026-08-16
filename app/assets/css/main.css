@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+@import "./fonts.css";
 @import "./tokens.css";
 @import "./nuxt-ui.css";
 @import "./game-theme.css";
