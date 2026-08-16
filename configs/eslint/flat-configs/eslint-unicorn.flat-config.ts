@@ -49,6 +49,7 @@ const ESLINT_UNICORN_FLAT_CONFIG: Linter.Config = {
           env: true,
           Env: true,
           docs: true,
+          Docs: true,
           props: true,
         },
       },

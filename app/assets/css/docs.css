@@ -1,0 +1,120 @@
+.docs-prose h1 {
+  font-weight: 800;
+  text-align: center;
+  padding-block: 1.5rem;
+  background-image: linear-gradient(to right, var(--color-fg-primary), var(--color-violet-300));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.docs-prose h1::after {
+  content: "";
+  display: block;
+  width: 120px;
+  height: 2px;
+  margin: 16px auto 0;
+  background-color: var(--color-violet-300);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-violet-300) 70%, transparent), 0 0 18px color-mix(in srgb, var(--color-violet-600) 40%, transparent);
+}
+
+.docs-prose h2 {
+  position: relative;
+  color: var(--color-fg-primary);
+  font-weight: 700;
+}
+
+.docs-prose h2::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 120px;
+  height: 2px;
+  background-color: var(--color-violet-600);
+  filter: blur(6px);
+  opacity: 0.55;
+  margin-top: -2px;
+}
+
+.docs-prose h2::after {
+  content: "";
+  display: block;
+  width: 120px;
+  height: 2px;
+  margin-top: 8px;
+  background-color: var(--color-violet-300);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-violet-300) 70%, transparent), 0 0 18px color-mix(in srgb, var(--color-violet-600) 40%, transparent);
+}
+
+.docs-prose h2 a:hover > span,
+.docs-prose h2 a:focus-visible > span {
+  color: var(--color-violet-300);
+}
+
+.docs-prose h3 {
+  color: var(--color-fg-primary);
+  font-weight: 600;
+}
+
+.docs-prose p {
+  color: color-mix(in srgb, var(--color-fg-primary) 65%, var(--color-fg-secondary));
+  line-height: var(--leading-body);
+}
+
+.docs-prose strong {
+  color: var(--color-fg-primary);
+}
+
+.docs-prose blockquote {
+  background-color: var(--color-card);
+  border-left: 3px solid var(--color-violet-300);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-violet-300) 50%, transparent), 0 0 12px color-mix(in srgb, var(--color-violet-600) 25%, transparent);
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  padding-block: 0.75rem;
+}
+
+.docs-prose a {
+  color: var(--color-violet-300);
+}
+
+.docs-prose ul,
+.docs-prose ol {
+  color: color-mix(in srgb, var(--color-fg-primary) 65%, var(--color-fg-secondary));
+}
+
+.docs-prose ul ::marker,
+.docs-prose ol ::marker {
+  color: var(--color-violet-300);
+}
+
+.docs-prose code {
+  background-color: var(--color-content);
+  border: 1px solid var(--color-stroke-subtle);
+  border-radius: 0.25rem;
+}
+
+.docs-prose hr {
+  border-color: var(--color-stroke-subtle);
+}
+
+.docs-toc a[data-slot="link"] {
+  color: var(--color-fg-secondary);
+  border-left: 2px solid transparent;
+}
+
+.docs-toc a[data-slot="link"].text-primary {
+  color: var(--color-fg-primary);
+}
+
+.docs-toc [data-slot="indicatorActive"] {
+  background-color: var(--color-violet-300);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-violet-300) 70%, transparent), 0 0 18px color-mix(in srgb, var(--color-violet-600) 40%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

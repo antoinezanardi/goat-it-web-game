@@ -15,6 +15,23 @@
   }
 }
 
+.layout-enter-active,
+.layout-leave-active {
+  transition: opacity .2s ease-in-out;
+}
+
+.layout-enter-from,
+.layout-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layout-enter-active,
+  .layout-leave-active {
+    transition: none;
+  }
+}
+
 .fade-slide-up-enter-active {
   transition: opacity .3s ease-out, transform .3s ease-out;
 }

@@ -7,7 +7,7 @@ Feature: 📱 Progressive Web App
 
   Scenario: 📱 The theme color meta tag is present with the correct value
     Given the user is on home page
-    Then the theme color meta tag should have content "#18181b"
+    Then the theme color meta tag should have content "#09090b"
 
   Scenario: 📱 The apple touch icon link is present in the document head
     Given the user is on home page

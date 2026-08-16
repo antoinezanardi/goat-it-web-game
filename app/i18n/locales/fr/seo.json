@@ -1,12 +1,16 @@
 {
   "seo": {
     "home": {
-      "title": "Goat It — Le jeu où la réponse se devine",
+      "title": "Goat It – Le jeu où la réponse se devine",
       "description": "Goat It est un jeu de déduction basé sur des faits insolites. Posez vos questions au Maître du Jeu, menez l'enquête et trouvez la réponse."
     },
     "game": {
       "title": "Goat It – Jouer",
       "description": "Posez vos questions au Maître du Jeu, recoupez les indices et trouvez la réponse. Un fait insolite se cache derrière chaque partie."
+    },
+    "rules": {
+      "title": "Goat It – Comment jouer ?",
+      "description": "Découvrez comment jouer à Goat It : le principe, le rôle du Maître du Jeu, comment mener l'enquête, et tous nos conseils."
     }
   }
 }

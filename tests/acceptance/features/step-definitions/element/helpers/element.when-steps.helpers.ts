@@ -5,7 +5,7 @@ import type { GoatItWorld } from "#acceptance/features/support/types/world.types
 import type { LocatorRole } from "#acceptance/features/support/types/playwright.types.ts";
 
 async function resolveVisibleRoleLocator(world: GoatItWorld, role: LocatorRole, name: string, isExact: boolean): Promise<Locator> {
-  const locator = world.page.getByRole(role, { name, exact: isExact });
+  const locator = world.page.getByRole(role, { name, exact: isExact }).first();
 
   await expect(locator).toBeVisible();
 

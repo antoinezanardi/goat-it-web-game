@@ -40,6 +40,8 @@
     "process": "readonly",
     "questionThemesRepository": "readonly",
     "questionsRepository": "readonly",
+    "queryCollection": "readonly",
+    "queryCollectionSearchSections": "readonly",
     "reactive": "readonly",
     "readBody": "readonly",
     "ref": "readonly",
@@ -54,6 +56,7 @@
     "useAppConfig": "readonly",
     "useAppToast": "readonly",
     "useAsyncAction": "readonly",
+    "useAsyncData": "readonly",
     "useColorMode": "readonly",
     "useFetch": "readonly",
     "useFetchStatus": "readonly",
@@ -67,6 +70,7 @@
     "useLocalizedValue": "readonly",
     "useNuxtApp": "readonly",
     "useOverlay": "readonly",
+    "usePreferredReducedMotion": "readonly",
     "useQuestionThemesStore": "readonly",
     "useRoute": "readonly",
     "useRouter": "readonly",
@@ -77,6 +81,7 @@
     "useTemplateRef": "readonly",
     "useToast": "readonly",
     "useTranslationCompleteness": "readonly",
+    "useWindowScroll": "readonly",
     "useZodLocale": "readonly",
     "watch": "readonly",
     "withDefaults": "readonly"
@@ -924,7 +929,8 @@
         "**/app/components/**/*.vue"
       ],
       "rules": {
-        "import/unambiguous": "off"
+        "import/unambiguous": "off",
+        "node/no-top-level-await": "off"
       }
     },
     // ---- Override for pages files -----
@@ -934,6 +940,7 @@
       ],
       "rules": {
         "import/unambiguous": "off",
+        "node/no-top-level-await": "off",
         "unicorn/filename-case": [
           "error",
           {
@@ -1262,7 +1269,9 @@
         "nuxt.config.ts",
         "**/app/app.config.ts",
         "eslint.config.ts",
-        "**/configs/**/*.{js,mjs,ts}"
+        "content.config.ts",
+        "**/configs/**/*.{js,mjs,ts}",
+        "**/app/config/**/*.config.ts"
       ],
       "rules": {
         "eslint/no-magic-numbers": "off",

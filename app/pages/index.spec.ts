@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import { HOME_PAGE_PLAY_BUTTON_UI } from "@/pages/index.constants";
 import HomePage from "@/pages/index.vue";
 
 describe("Home Page", () => {
@@ -68,33 +67,15 @@ describe("Home Page", () => {
     expect(img.attributes("alt")).toBe("home.brand");
   });
 
-  it("should render a UButton linking to /game when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.attributes("to")).toBe("/game");
+  it("should render the HomePlayButton component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "HomePlayButton" }).exists()).toBe(true);
   });
 
-  it("should render a UButton with the translated PLAY button label when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.attributes("label")).toBe("home.playButton");
+  it("should render the HomeFooter component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "HomeFooter" }).exists()).toBe(true);
   });
 
-  it("should render a UButton with size xl when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.attributes("size")).toBe("xl");
-  });
-
-  it("should render a UButton with the HOME_PAGE_PLAY_BUTTON_UI ui config when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.props("ui")).toStrictEqual(HOME_PAGE_PLAY_BUTTON_UI);
-  });
-
-  it("should render VersionButton when mounted.", () => {
-    const versionButton = wrapper.findComponent({ name: "VersionButton" });
-
-    expect(versionButton.exists()).toBe(true);
+  it("should not apply justify-center to the root container when mounted.", () => {
+    expect(wrapper.find("#home-page").classes()).not.toContain("justify-center");
   });
 });

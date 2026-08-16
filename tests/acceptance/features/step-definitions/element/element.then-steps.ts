@@ -16,3 +16,10 @@ Then(
     await expect(this.page.getByTestId(testId)).toBeHidden();
   },
 );
+
+Then(
+  /^the "(?<heading>[^"]*)" heading should be in the viewport$/u,
+  async function(this: GoatItWorld, heading: string): Promise<void> {
+    await expect(this.page.getByRole("heading", { name: heading })).toBeInViewport();
+  },
+);

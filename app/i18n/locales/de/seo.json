@@ -1,12 +1,16 @@
 {
   "seo": {
     "home": {
-      "title": "Goat It — Das Spiel, bei dem die Antwort erraten wird",
+      "title": "Goat It – Das Spiel, bei dem die Antwort erraten wird",
       "description": "Goat It ist ein Deduktionsspiel basierend auf kuriosen Fakten. Stelle dem Spielleiter deine Fragen, ermittle und finde die Antwort."
     },
     "game": {
       "title": "Goat It – Spielen",
       "description": "Stelle dem Spielleiter deine Fragen, gleiche die Hinweise ab und finde die Antwort. Hinter jedem Spiel verbirgt sich ein kurioser Fakt."
+    },
+    "rules": {
+      "title": "Goat It – Spielregeln",
+      "description": "Erfahre, wie man Goat It spielt: das Prinzip, die Rolle des Spielleiters, wie man ermittelt, und all unsere Tipps."
     }
   }
 }

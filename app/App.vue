@@ -12,9 +12,10 @@ useHead({
   link: [
     { rel: "manifest", href: "/manifest.webmanifest" },
     { rel: "apple-touch-icon", href: "/pwa/apple-touch-icon.png" },
+    { rel: "preload", href: "/fonts/Geist/geist-latin.woff2", as: "font", type: "font/woff2", crossorigin: "" },
   ],
   meta: [
-    { name: "theme-color", content: "#18181b" },
+    { name: "theme-color", content: "#09090b" },
     { name: "mobile-web-app-capable", content: "yes" },
   ],
 });
@@ -26,7 +27,9 @@ useHead({
     :tooltip="APP_TOOLTIP_CONFIG"
   >
     <UMain>
-      <NuxtPage/>
+      <NuxtLayout>
+        <NuxtPage/>
+      </NuxtLayout>
     </UMain>
   </UApp>
 </template>

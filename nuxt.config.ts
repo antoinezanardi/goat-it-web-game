@@ -5,6 +5,7 @@ export default defineNuxtConfig({
     "@nuxtjs/i18n",
     "@vueuse/nuxt",
     "@nuxt/hints",
+    "@nuxt/content",
     "@nuxtjs/robots",
     "@nuxtjs/sitemap",
     "nuxt-og-image",
@@ -40,6 +41,10 @@ export default defineNuxtConfig({
       name: "page",
       mode: "out-in",
     },
+    layoutTransition: {
+      name: "layout",
+      mode: "out-in",
+    },
     head: {
       htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE, class: "dark" },
       titleTemplate: "%s",
@@ -51,9 +56,15 @@ export default defineNuxtConfig({
     name: "Goat It",
     indexable: true,
   },
+  content: {
+    experimental: {
+      sqliteConnector: "native",
+    },
+  },
   ui: {
     colorMode: false,
     experimental: { componentDetection: true },
+    fonts: false,
   },
   runtimeConfig: {
     goatItApi: {
@@ -66,7 +77,10 @@ export default defineNuxtConfig({
     "eslint.config.ts",
   ],
   routeRules: {
-    "/": { prerender: true },
+    "/": { prerender: true, appLayout: "default-layout" },
+    "/game": { appLayout: "default-layout" },
+    "/rules": { prerender: true, appLayout: "docs-layout" },
+    "/fonts/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
   },
   sourcemap: { client: "hidden" },
   experimental: {
@@ -99,6 +113,7 @@ export default defineNuxtConfig({
       include: [
         "../tests/",
         "../eslint.config.ts",
+        "../content.config.ts",
         "../configs/",
       ],
     },
@@ -124,6 +139,7 @@ export default defineNuxtConfig({
           "fr/questions.json",
           "fr/game.json",
           "fr/seo.json",
+          "fr/docs.json",
         ],
       },
       {
@@ -138,6 +154,7 @@ export default defineNuxtConfig({
           "en/questions.json",
           "en/game.json",
           "en/seo.json",
+          "en/docs.json",
         ],
       },
       {
@@ -152,6 +169,7 @@ export default defineNuxtConfig({
           "de/questions.json",
           "de/game.json",
           "de/seo.json",
+          "de/docs.json",
         ],
       },
       {
@@ -166,6 +184,7 @@ export default defineNuxtConfig({
           "es/questions.json",
           "es/game.json",
           "es/seo.json",
+          "es/docs.json",
         ],
       },
       {
@@ -180,6 +199,7 @@ export default defineNuxtConfig({
           "it/questions.json",
           "it/game.json",
           "it/seo.json",
+          "it/docs.json",
         ],
       },
       {
@@ -194,6 +214,7 @@ export default defineNuxtConfig({
           "pt/questions.json",
           "pt/game.json",
           "pt/seo.json",
+          "pt/docs.json",
         ],
       },
     ],
@@ -218,11 +239,11 @@ export default defineNuxtConfig({
   pwa: {
     registerType: "autoUpdate",
     manifest: {
-      name: "Goat It — Le jeu où la réponse se devine",
+      name: "Goat It – Le jeu où la réponse se devine",
       short_name: "Goat It",
       description: "Goat It est un jeu de déduction basé sur des faits insolites. Posez vos questions au Maître du Jeu, menez l'enquête et trouvez la réponse.",
-      theme_color: "#18181b",
-      background_color: "#18181b",
+      theme_color: "#09090b",
+      background_color: "#09090b",
       display: "standalone",
       orientation: "any",
       scope: "/",

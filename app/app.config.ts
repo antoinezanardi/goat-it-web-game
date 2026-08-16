@@ -1,25 +1,16 @@
+import { NUXT_UI_BUTTONS_CONFIG } from "@/config/buttons.config.ts";
+
 export default defineAppConfig({
   ui: {
     colors: {
       primary: "blue",
+      secondary: "violet",
+      success: "emerald",
+      info: "cyan",
+      warning: "orange",
+      error: "red",
       neutral: "zinc",
     },
-    button: {
-      slots: {
-        base: "cursor-pointer",
-      },
-      compoundVariants: [
-        {
-          color: "primary",
-          variant: "solid",
-          class: {
-            base: "text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]",
-          },
-        },
-      ],
-    },
-    link: {
-      base: "cursor-pointer",
-    },
+    button: NUXT_UI_BUTTONS_CONFIG,
   },
 });

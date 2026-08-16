@@ -6,7 +6,7 @@ Feature: 🔍 Technical SEO
     Then the following meta tags should be present:
       | type     | key             | content                                                                       |
       | name     | description     | Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer. |
-      | property | og:title        | Goat It — The game where the answer is guessed                                |
+      | property | og:title        | Goat It – The game where the answer is guessed                                |
       | property | og:description  | Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer. |
 
   Scenario: 🔍 Game page has SEO meta tags
@@ -41,6 +41,34 @@ Feature: 🔍 Technical SEO
     Given the user is on game page
     Then the og:image should return a valid PNG image
 
+  Scenario: 🔍 Rules page has SEO meta tags
+    Given the user is on rules page
+    Then the following meta tags should be present:
+      | type     | key             | content                                                                         |
+      | name     | description     | Learn how to play Goat It: the concept, the Game Master's role, how to investigate, and all our tips. |
+      | property | og:title        | Goat It – How to play ?                                                         |
+      | property | og:description  | Learn how to play Goat It: the concept, the Game Master's role, how to investigate, and all our tips. |
+
+  Scenario: 🖼️ Rules page has og:image meta tag
+    Given the user is on rules page
+    Then the meta tag with property "og:image" should be present
+
+  Scenario: 🖼️ Rules page has twitter:image meta tag
+    Given the user is on rules page
+    Then the meta tag with property "twitter:image" should be present
+
+  Scenario: 🖼️ Rules page og:image returns a valid PNG image
+    Given the user is on rules page
+    Then the og:image should return a valid PNG image
+
+  Scenario: 🔗 Canonical link tag is present on rules page
+    Given the user is on rules page
+    Then the canonical link should point to the current page
+
+  Scenario: 📋 Schema.org JSON-LD WebPage and WebSite structured data is injected on rules page
+    Given the user is on rules page
+    Then the page should contain schema.org WebPage and WebSite structured data
+
   Scenario: 🤖 Robots.txt is served with sitemap reference
     Given the user is on robots.txt page
     Then the robots.txt response should reference the sitemap
@@ -49,6 +77,7 @@ Feature: 🔍 Technical SEO
     Given the user is on sitemap.xml page
     Then the sitemap.xml should contain the route "/"
     And the sitemap.xml should contain the route "/game"
+    And the sitemap.xml should contain the route "/rules"
 
   Scenario: 🗺️ Sitemap.xml contains only expected routes
     Given the user is on sitemap.xml page
