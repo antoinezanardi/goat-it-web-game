@@ -48,12 +48,14 @@ type FixtureRegistry = {
     "two-english-only-question-themes": FixtureDefinition<QuestionThemeFixtureDocument>;
     "five-question-themes": FixtureDefinition<QuestionThemeFixtureDocument>;
     "sixty-question-themes": FixtureDefinition<QuestionThemeFixtureDocument>;
+    "multiple-question-themes": FixtureDefinition<QuestionThemeFixtureDocument>;
   };
   "question": {
     "single-question": FixtureDefinition<QuestionFixtureDocument>;
     "two-english-only-questions": FixtureDefinition<QuestionFixtureDocument>;
     "five-active-questions": FixtureDefinition<QuestionFixtureDocument>;
     "sixty-questions": FixtureDefinition<QuestionFixtureDocument>;
+    "multiple-themes-question": FixtureDefinition<QuestionFixtureDocument>;
   };
 };
 

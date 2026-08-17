@@ -5,7 +5,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
-import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
+import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSecondaryThemes, getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
 
 describe(getSourceDomain, () => {
   it("should extract the hostname when a full HTTPS URL is provided.", () => {
@@ -87,5 +87,49 @@ describe(getPrimaryTheme, () => {
     });
 
     expect(getPrimaryTheme(question)).toBeUndefined();
+  });
+});
+
+describe(getSecondaryThemes, () => {
+  it("should return an empty array when the question has no secondary themes.", () => {
+    const question = createFakeQuestion({
+      themes: [createFakeQuestionThemeAssignment({ isPrimary: true })],
+    });
+
+    expect(getSecondaryThemes(question)).toStrictEqual([]);
+  });
+
+  it("should return an empty array when the question has no themes.", () => {
+    const question = createFakeQuestion({ themes: [] });
+
+    expect(getSecondaryThemes(question)).toStrictEqual([]);
+  });
+
+  it("should return the secondary theme when the question has exactly one.", () => {
+    const secondaryTheme = createFakeQuestionTheme({ label: "Secondary Theme" });
+    const question = createFakeQuestion({
+      themes: [
+        createFakeQuestionThemeAssignment({ isPrimary: true }),
+        createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryTheme }),
+      ],
+    });
+
+    expect(getSecondaryThemes(question)).toStrictEqual([secondaryTheme]);
+  });
+
+  it("should return all secondary themes in their original order when the question has multiple secondary themes.", () => {
+    const firstSecondary = createFakeQuestionTheme({ label: "First Secondary" });
+    const secondSecondary = createFakeQuestionTheme({ label: "Second Secondary" });
+    const otherPrimary = createFakeQuestionTheme({ label: "Other Primary" });
+    const question = createFakeQuestion({
+      themes: [
+        createFakeQuestionThemeAssignment({ isPrimary: true }),
+        createFakeQuestionThemeAssignment({ isPrimary: false, theme: firstSecondary }),
+        createFakeQuestionThemeAssignment({ isPrimary: true, theme: otherPrimary }),
+        createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondSecondary }),
+      ],
+    });
+
+    expect(getSecondaryThemes(question)).toStrictEqual([firstSecondary, secondSecondary]);
   });
 });

@@ -74,10 +74,10 @@ describe("GameQuestionCard Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardThemeHeader" }).exists()).toBe(true);
   });
 
-  it("should pass the question category to the theme header when primary theme exists.", () => {
+  it("should pass the question to the theme header when primary theme exists.", () => {
     const header = wrapper.findComponent({ name: "GameQuestionCardThemeHeader" });
 
-    expect(header.props("category")).toBe("trivia");
+    expect(header.props("question")).toBe(defaultProps.question);
   });
 
   it("should not render the theme header when no primary theme is found.", async() => {

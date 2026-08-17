@@ -1,11 +1,7 @@
-import type { QuestionCategory, QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
-
-import type { QuestionTheme } from "#shared/types/question-theme.types";
+import type { Question } from "#shared/types/question.types";
 
 type GameQuestionCardThemeHeaderProps = {
-  theme: QuestionTheme;
-  difficulty: QuestionCognitiveDifficulty;
-  category: QuestionCategory;
+  question: Question;
 };
 
 export type { GameQuestionCardThemeHeaderProps };

@@ -1,8 +1,10 @@
 import { FIVE_QUESTION_THEMES_FIXTURE_SET } from "#acceptance/features/support/fixtures/question-theme/sets/five-question-themes.fixture-set.ts";
+import { MULTIPLE_QUESTION_THEMES_FIXTURE_SET } from "#acceptance/features/support/fixtures/question-theme/sets/multiple-question-themes.fixture-set.ts";
 import { SINGLE_QUESTION_THEMES_FIXTURE_SET } from "#acceptance/features/support/fixtures/question-theme/sets/single-question-themes.fixture-set.ts";
 import { SIXTY_QUESTION_THEMES_FIXTURE_SET } from "#acceptance/features/support/fixtures/question-theme/sets/sixty-question-themes.fixture-set.ts";
 import { TWO_ENGLISH_ONLY_QUESTION_THEMES_FIXTURE_SET } from "#acceptance/features/support/fixtures/question-theme/sets/two-english-only-question-themes.fixture-set.ts";
 import { FIVE_ACTIVE_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/five-active-questions.fixture-set.ts";
+import { MULTIPLE_THEMES_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/multiple-themes-question.fixture-set.ts";
 import { SINGLE_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-question.fixture-set.ts";
 import { SIXTY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/sixty-questions.fixture-set.ts";
 import { TWO_ENGLISH_ONLY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/two-english-only-questions.fixture-set.ts";
@@ -27,6 +29,9 @@ const FIXTURE_REGISTRY: FixtureRegistry = {
     "two-english-only-question-themes": {
       data: TWO_ENGLISH_ONLY_QUESTION_THEMES_FIXTURE_SET,
     },
+    "multiple-question-themes": {
+      data: MULTIPLE_QUESTION_THEMES_FIXTURE_SET,
+    },
   },
   "question": {
     "single-question": {
@@ -44,6 +49,10 @@ const FIXTURE_REGISTRY: FixtureRegistry = {
     "two-english-only-questions": {
       data: TWO_ENGLISH_ONLY_QUESTIONS_FIXTURE_SET,
       dependencies: [["question-theme", "two-english-only-question-themes"]],
+    },
+    "multiple-themes-question": {
+      data: MULTIPLE_THEMES_QUESTION_FIXTURE_SET,
+      dependencies: [["question-theme", "multiple-question-themes"]],
     },
   },
 } as const;

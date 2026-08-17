@@ -18,6 +18,10 @@
     "sourcesAriaLabel": "Fuentes",
     "sourceOpensInNewTab": "Se abre en una nueva pestaña",
     "sourceLabel": "Fuente | Fuentes",
-    "sourceTooltip": "Visitar {url} para más información"
+    "sourceTooltip": "Visitar {url} para más información",
+    "themeStack": {
+      "otherThemes": "y {count} otro tema | y {count} otros temas",
+      "primaryBadge": "Principal"
+    }
   }
 }

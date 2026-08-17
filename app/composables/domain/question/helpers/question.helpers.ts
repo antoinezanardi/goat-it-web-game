@@ -8,6 +8,10 @@ function getPrimaryTheme(question: Question): QuestionTheme | undefined {
   return question.themes.find(t => t.isPrimary)?.theme;
 }
 
+function getSecondaryThemes(question: Question): QuestionTheme[] {
+  return question.themes.filter(t => !t.isPrimary).map(t => t.theme);
+}
+
 function getSourceDomain(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./u, "");
@@ -32,4 +36,4 @@ function getDifficultyRingClass(difficulty: QuestionCognitiveDifficulty): string
   return DIFFICULTY_RING_CLASS_MAP[difficulty];
 }
 
-export { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSourceDomain };
+export { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSecondaryThemes, getSourceDomain };
