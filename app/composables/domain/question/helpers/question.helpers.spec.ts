@@ -5,7 +5,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
-import { getCategoryIcon, getDifficultyColor, getPrimaryTheme, getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
+import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
 
 describe(getSourceDomain, () => {
   it("should extract the hostname when a full HTTPS URL is provided.", () => {
@@ -39,6 +39,26 @@ describe(getDifficultyColor, () => {
     { difficulty: "hard", color: "error" },
   ])("should return the $color color when difficulty is $difficulty.", ({ difficulty, color }) => {
     expect(getDifficultyColor(difficulty)).toBe(color);
+  });
+});
+
+describe(getDifficultyIcon, () => {
+  it.each<{ difficulty: QuestionCognitiveDifficulty; icon: string }>([
+    { difficulty: "easy", icon: "i-lucide-brain" },
+    { difficulty: "medium", icon: "i-lucide-brain-cog" },
+    { difficulty: "hard", icon: "i-lucide-brain-circuit" },
+  ])("should return the $icon icon when difficulty is $difficulty.", ({ difficulty, icon }) => {
+    expect(getDifficultyIcon(difficulty)).toBe(icon);
+  });
+});
+
+describe(getDifficultyRingClass, () => {
+  it.each<{ difficulty: QuestionCognitiveDifficulty; ringClass: string }>([
+    { difficulty: "easy", ringClass: "ring-success/50" },
+    { difficulty: "medium", ringClass: "ring-warning/50" },
+    { difficulty: "hard", ringClass: "ring-error/50" },
+  ])("should return the $ringClass ring class when difficulty is $difficulty.", ({ difficulty, ringClass }) => {
+    expect(getDifficultyRingClass(difficulty)).toBe(ringClass);
   });
 });
 

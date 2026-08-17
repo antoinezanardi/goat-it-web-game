@@ -1,10 +1,10 @@
 {
   "questions": {
     "cantFetch": "Impossibile caricare le domande. Riprova più tardi.",
-    "difficulty": {
-      "easy": "Facile",
-      "medium": "Media",
-      "hard": "Difficile"
+    "difficultyTooltip": {
+      "easy": "Questa domanda è facile da dedurre",
+      "medium": "Questa domanda è moderatamente difficile da dedurre",
+      "hard": "Questa domanda è difficile da dedurre"
     },
     "category": {
       "trivia": "Curiosità",

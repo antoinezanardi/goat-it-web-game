@@ -3,6 +3,7 @@ import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
+import { GAME_QUESTION_DIFFICULTY_TOOLTIP_TEXT_MAP } from "#acceptance/features/step-definitions/game/game.steps.constants.ts";
 
 Then(
   /^a game question should be displayed$/u,
@@ -79,8 +80,13 @@ Then(
   /^the question difficulty should be "(?<difficulty>[^"]*)"$/u,
   async function(this: GoatItWorld, difficulty: string): Promise<void> {
     const question = getVisibleGameQuestionCard(this.page);
+    const difficultyBadge = question.getByTestId("game-question-difficulty");
 
-    await expect(question.getByTestId("game-question-difficulty")).toHaveText(difficulty);
+    await expect(difficultyBadge).toBeVisible();
+    await difficultyBadge.hover();
+
+    const tooltipText = GAME_QUESTION_DIFFICULTY_TOOLTIP_TEXT_MAP[difficulty] ?? difficulty;
+    await expect(this.page.locator("[role=\"tooltip\"]")).toHaveText(tooltipText);
   },
 );
 

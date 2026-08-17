@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
-import { getCategoryIcon, getDifficultyColor } from "~/composables/domain/question/helpers/question.helpers";
+import { getCategoryIcon } from "~/composables/domain/question/helpers/question.helpers";
 import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 const props = defineProps<GameQuestionCardThemeHeaderProps>();
@@ -42,13 +42,9 @@ const themeIcon = computed(() => getThemeIcon(props.theme.slug));
       </p>
     </div>
 
-    <UBadge
+    <GameQuestionCardDifficultyBadge
       class="ml-auto"
-      :color="getDifficultyColor(props.difficulty)"
-      data-testid="game-question-difficulty"
-      :label="$t(`questions.difficulty.${props.difficulty}`)"
-      size="lg"
-      variant="subtle"
+      :difficulty="props.difficulty"
     />
   </header>
 </template>
