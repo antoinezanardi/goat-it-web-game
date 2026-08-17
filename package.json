@@ -38,7 +38,6 @@
   ],
   "packageManager": "pnpm@11.22.0",
   "imports": {
-    "~~/*": "./*",
     "#acceptance/*": "./tests/acceptance/*",
     "#shared/*": "./shared/*"
   },
