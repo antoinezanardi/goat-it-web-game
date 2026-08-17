@@ -7,17 +7,20 @@ const props = defineProps<GameQuestionCardDifficultyBadgeProps>();
 const { t } = useI18n();
 
 const tooltipText = computed<string>(() => t(`questions.difficultyTooltip.${props.difficulty}`));
+const ringClass = computed<string>(() => getDifficultyRingClass(props.difficulty));
+const difficultyColor = computed<"success" | "warning" | "error">(() => getDifficultyColor(props.difficulty));
+const difficultyIcon = computed<string>(() => getDifficultyIcon(props.difficulty));
 </script>
 
 <template>
   <UTooltip :text="tooltipText">
     <UBadge
       :aria-label="tooltipText"
-      class="ring-2 rounded-full"
-      :class="getDifficultyRingClass(difficulty)"
-      :color="getDifficultyColor(difficulty)"
+      class="p-2 ring-2 rounded-full"
+      :class="ringClass"
+      :color="difficultyColor"
       data-testid="game-question-difficulty"
-      :icon="getDifficultyIcon(difficulty)"
+      :icon="difficultyIcon"
       size="lg"
       square
       variant="subtle"

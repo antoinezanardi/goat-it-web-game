@@ -3,7 +3,6 @@ import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
-import { GAME_QUESTION_DIFFICULTY_TOOLTIP_TEXT_MAP } from "#acceptance/features/step-definitions/game/game.steps.constants.ts";
 
 Then(
   /^a game question should be displayed$/u,
@@ -85,7 +84,12 @@ Then(
     await expect(difficultyBadge).toBeVisible();
     await difficultyBadge.hover();
 
-    const tooltipText = GAME_QUESTION_DIFFICULTY_TOOLTIP_TEXT_MAP[difficulty] ?? difficulty;
+    const gameQuestionDifficultyTooltip: Readonly<Record<string, string>> = {
+      easy: "This question is easy to deduce",
+      medium: "This question is moderately difficult to deduce",
+      hard: "This question is hard to deduce",
+    };
+    const tooltipText = gameQuestionDifficultyTooltip[difficulty.toLowerCase()] ?? difficulty;
     await expect(this.page.locator("[role=\"tooltip\"]")).toHaveText(tooltipText);
   },
 );
