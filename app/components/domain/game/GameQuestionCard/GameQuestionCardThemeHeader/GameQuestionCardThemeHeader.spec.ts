@@ -40,48 +40,20 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(themeIcon?.classes()).toContain("text-(color:--game-theme-neon)");
   });
 
-  it("should render the UBadge component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UBadge" }).exists()).toBe(true);
+  it("should render the GameQuestionCardDifficultyBadge component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "GameQuestionCardDifficultyBadge" }).exists()).toBe(true);
   });
 
-  it("should set the UBadge color to warning when difficulty is medium.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
+  it("should pass the difficulty prop to the GameQuestionCardDifficultyBadge when mounted.", () => {
+    const badge = wrapper.findComponent({ name: "GameQuestionCardDifficultyBadge" });
 
-    expect(badge.props("color")).toBe("warning");
+    expect(badge.props("difficulty")).toBe("medium");
   });
 
-  it("should set the UBadge color to success when difficulty is easy.", async() => {
-    await wrapper.setProps({ difficulty: "easy" });
+  it("should apply the ml-auto class to the GameQuestionCardDifficultyBadge when mounted.", () => {
+    const badge = wrapper.findComponent({ name: "GameQuestionCardDifficultyBadge" });
 
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("color")).toBe("success");
-  });
-
-  it("should set the UBadge color to error when difficulty is hard.", async() => {
-    await wrapper.setProps({ difficulty: "hard" });
-
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("color")).toBe("error");
-  });
-
-  it("should set the UBadge label from the difficulty i18n key when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("label")).toBe("questions.difficulty.medium");
-  });
-
-  it("should set the UBadge variant to subtle when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("variant")).toBe("subtle");
-  });
-
-  it("should set the UBadge size to lg when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("size")).toBe("lg");
+    expect(badge.classes()).toContain("ml-auto");
   });
 
   it.each([

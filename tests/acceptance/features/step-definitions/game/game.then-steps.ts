@@ -79,8 +79,18 @@ Then(
   /^the question difficulty should be "(?<difficulty>[^"]*)"$/u,
   async function(this: GoatItWorld, difficulty: string): Promise<void> {
     const question = getVisibleGameQuestionCard(this.page);
+    const difficultyBadge = question.getByTestId("game-question-difficulty");
 
-    await expect(question.getByTestId("game-question-difficulty")).toHaveText(difficulty);
+    await expect(difficultyBadge).toBeVisible();
+    await difficultyBadge.hover();
+
+    const gameQuestionDifficultyTooltip: Readonly<Record<string, string>> = {
+      easy: "This question is easy to deduce",
+      medium: "This question is moderately difficult to deduce",
+      hard: "This question is hard to deduce",
+    };
+    const tooltipText = gameQuestionDifficultyTooltip[difficulty.toLowerCase()] ?? difficulty;
+    await expect(this.page.locator("[role=\"tooltip\"]")).toHaveText(tooltipText);
   },
 );
 

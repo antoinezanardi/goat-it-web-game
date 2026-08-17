@@ -1,10 +1,10 @@
 {
   "questions": {
     "cantFetch": "Impossible de charger les questions. Veuillez réessayer plus tard.",
-    "difficulty": {
-      "easy": "Facile",
-      "medium": "Moyenne",
-      "hard": "Difficile"
+    "difficultyTooltip": {
+      "easy": "Cette question est facile à déduire",
+      "medium": "Cette question est moyennement difficile à déduire",
+      "hard": "Cette question est difficile à déduire"
     },
     "category": {
       "trivia": "Savoir & faits insolites",

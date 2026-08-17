@@ -1,10 +1,10 @@
 {
   "questions": {
     "cantFetch": "Fragen konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
-    "difficulty": {
-      "easy": "Leicht",
-      "medium": "Mittel",
-      "hard": "Schwer"
+    "difficultyTooltip": {
+      "easy": "Diese Frage ist leicht zu erschließen",
+      "medium": "Diese Frage ist mittelschwer zu erschließen",
+      "hard": "Diese Frage ist schwer zu erschließen"
     },
     "category": {
       "trivia": "Wissenswertes",

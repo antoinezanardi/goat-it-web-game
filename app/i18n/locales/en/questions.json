@@ -1,10 +1,10 @@
 {
   "questions": {
     "cantFetch": "Unable to load questions. Please try again later.",
-    "difficulty": {
-      "easy": "Easy",
-      "medium": "Medium",
-      "hard": "Hard"
+    "difficultyTooltip": {
+      "easy": "This question is easy to deduce",
+      "medium": "This question is moderately difficult to deduce",
+      "hard": "This question is hard to deduce"
     },
     "category": {
       "trivia": "Trivia",
