@@ -81,7 +81,7 @@ onUnmounted(() => {
 <template>
   <div class="game-question-card-switcher-wrapper relative">
     <div
-      class="absolute left-0 top-0 w-full"
+      class="absolute left-0 top-0 w-full will-change-transform"
       data-testid="card-transition-leaving"
     >
       <GameQuestionCard
@@ -91,7 +91,7 @@ onUnmounted(() => {
     </div>
 
     <div
-      class="relative w-full z-10"
+      class="relative w-full will-change-transform z-10"
       data-testid="card-transition-entering"
     >
       <GameQuestionCard

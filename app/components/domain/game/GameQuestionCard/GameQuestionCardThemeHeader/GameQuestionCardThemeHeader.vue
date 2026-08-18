@@ -31,7 +31,7 @@ function handleOtherThemesClick(): void {
     <div class="min-w-0">
       <p class="flex flex-wrap gap-x-2 items-baseline leading-snug-plus">
         <span
-          class="font-semibold text-(--game-theme-neon) text-lg"
+          class="font-semibold md:text-lg text-(--game-theme-neon) text-base"
           data-testid="game-question-theme"
         >
           {{ primaryTheme?.label }}
