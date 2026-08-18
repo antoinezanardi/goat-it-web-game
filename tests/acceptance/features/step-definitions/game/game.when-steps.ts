@@ -75,10 +75,10 @@ When(
 );
 
 When(
-  /^the user clicks on the "and (?<count>\d+) other themes?" text$/u,
+  /^the user clicks on the "\+(?<count>\d+) other themes?" text$/u,
   async function(this: GoatItWorld, count: string): Promise<void> {
     const question = getVisibleGameQuestionCard(this.page);
-    const labelRegex = new RegExp(`and ${count} other themes?`, "iu");
+    const labelRegex = new RegExp(`\\+${count} other themes?`, "iu");
 
     await question.getByText(labelRegex).click();
   },

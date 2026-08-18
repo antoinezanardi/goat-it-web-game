@@ -80,14 +80,14 @@ describe("GameQuestionCard Component", () => {
     expect(header.props("question")).toBe(defaultProps.question);
   });
 
-  it("should not render the theme header when no primary theme is found.", async() => {
+  it("should still render the theme header when the question has no primary theme.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
-        themes: [createFakeQuestionThemeAssignment({ isPrimary: false })],
+        themes: [createFakeQuestionThemeAssignment({ isPrimary: false }), createFakeQuestionThemeAssignment({ isPrimary: false })],
       }),
     });
 
-    expect(wrapper.findComponent({ name: "GameQuestionCardThemeHeader" }).exists()).toBe(false);
+    expect(wrapper.findComponent({ name: "GameQuestionCardThemeHeader" }).exists()).toBe(true);
   });
 
   it("should render the statement component when mounted.", () => {

@@ -20,7 +20,7 @@
     "sourceLabel": "Fuente | Fuentes",
     "sourceTooltip": "Visitar {url} para más información",
     "themeStack": {
-      "otherThemes": "y {count} otro tema | y {count} otros temas",
+      "otherThemes": "+{count} otro tema | +{count} otros temas",
       "primaryBadge": "Principal"
     }
   }

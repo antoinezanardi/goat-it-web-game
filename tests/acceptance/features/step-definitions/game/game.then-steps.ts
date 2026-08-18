@@ -151,10 +151,10 @@ Then(
 );
 
 Then(
-  /^the "and (?<count>\d+) other themes?" text should be visible$/u,
+  /^the "\+(?<count>\d+) other themes?" text should be visible$/u,
   async function(this: GoatItWorld, count: string): Promise<void> {
     const question = getVisibleGameQuestionCard(this.page);
-    const labelRegex = new RegExp(`and ${count} other themes?`, "iu");
+    const labelRegex = new RegExp(`\\+${count} other themes?`, "iu");
 
     await expect(question.getByText(labelRegex)).toBeVisible();
   },

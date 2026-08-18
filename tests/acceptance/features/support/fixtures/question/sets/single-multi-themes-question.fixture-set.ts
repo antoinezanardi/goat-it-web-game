@@ -1,12 +1,8 @@
 import { ObjectId } from "mongodb";
 
-import {
-  MULTIPLE_QUESTION_THEMES_FIXTURE_GEOGRAPHY_ENTRY,
-  MULTIPLE_QUESTION_THEMES_FIXTURE_HISTORY_ENTRY,
-  MULTIPLE_QUESTION_THEMES_FIXTURE_SCIENCE_ENTRY,
-} from "../../question-theme/sets/multiple-question-themes.fixture-set.ts";
+import { FIVE_QUESTION_THEMES_FIXTURE_CINEMA_ENTRY, FIVE_QUESTION_THEMES_FIXTURE_HISTORY_ENTRY, FIVE_QUESTION_THEMES_FIXTURE_SCIENCE_ENTRY } from "../../question-theme/sets/five-question-themes.fixture-set.ts";
 
-const MULTIPLE_THEMES_QUESTION_FIXTURE_SET = [
+const SINGLE_MULTI_THEMES_QUESTION_FIXTURE_SET = [
   {
     _id: new ObjectId("90d4e5f6a7b8c9d0e1f2a3b4"),
     category: "explanation",
@@ -14,24 +10,24 @@ const MULTIPLE_THEMES_QUESTION_FIXTURE_SET = [
     updatedAt: new Date("2024-01-01T00:00:00.000Z"),
     themes: [
       {
-        themeId: MULTIPLE_QUESTION_THEMES_FIXTURE_GEOGRAPHY_ENTRY._id,
+        themeId: FIVE_QUESTION_THEMES_FIXTURE_HISTORY_ENTRY._id,
         isHint: false,
         isPrimary: true,
       },
       {
-        themeId: MULTIPLE_QUESTION_THEMES_FIXTURE_HISTORY_ENTRY._id,
+        themeId: FIVE_QUESTION_THEMES_FIXTURE_SCIENCE_ENTRY._id,
         isHint: false,
         isPrimary: false,
       },
       {
-        themeId: MULTIPLE_QUESTION_THEMES_FIXTURE_SCIENCE_ENTRY._id,
+        themeId: FIVE_QUESTION_THEMES_FIXTURE_CINEMA_ENTRY._id,
         isHint: false,
         isPrimary: false,
       },
     ],
     content: {
       statement: {
-        en: "This question spans geography, history, and science.",
+        en: "This question spans history, science, and cinema.",
       },
       answer: {
         en: "Multi-theme answer",
@@ -54,5 +50,5 @@ const MULTIPLE_THEMES_QUESTION_FIXTURE_SET = [
 ] as const;
 
 export {
-  MULTIPLE_THEMES_QUESTION_FIXTURE_SET,
+  SINGLE_MULTI_THEMES_QUESTION_FIXTURE_SET,
 };

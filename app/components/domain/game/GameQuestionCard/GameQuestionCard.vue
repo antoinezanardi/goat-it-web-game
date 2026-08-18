@@ -32,7 +32,6 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
       data-testid="game-question-body"
     >
       <GameQuestionCardThemeHeader
-        v-if="primaryTheme"
         :question="props.question"
       />
 

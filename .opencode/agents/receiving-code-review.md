@@ -37,6 +37,8 @@ permission:
     "wc *": "allow"
     "sort *": "allow"
     "cut *": "allow"
+    "xargs *": "allow"
+    "mkdir *": "allow"
   task:
     "*": "deny"
     "gatekeeper": "allow"

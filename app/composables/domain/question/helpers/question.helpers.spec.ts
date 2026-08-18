@@ -5,7 +5,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
-import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSecondaryThemes, getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
+import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSecondaryThemes, getSourceDomain, hasSecondaryThemes } from "~/composables/domain/question/helpers/question.helpers";
 
 describe(getSourceDomain, () => {
   it("should extract the hostname when a full HTTPS URL is provided.", () => {
@@ -131,5 +131,32 @@ describe(getSecondaryThemes, () => {
     });
 
     expect(getSecondaryThemes(question)).toStrictEqual([firstSecondary, secondSecondary]);
+  });
+});
+
+describe(hasSecondaryThemes, () => {
+  it("should return false when the question has no secondary themes.", () => {
+    const question = createFakeQuestion({
+      themes: [createFakeQuestionThemeAssignment({ isPrimary: true })],
+    });
+
+    expect(hasSecondaryThemes(question)).toBe(false);
+  });
+
+  it("should return false when the question has no themes.", () => {
+    const question = createFakeQuestion({ themes: [] });
+
+    expect(hasSecondaryThemes(question)).toBe(false);
+  });
+
+  it("should return true when the question has at least one secondary theme.", () => {
+    const question = createFakeQuestion({
+      themes: [
+        createFakeQuestionThemeAssignment({ isPrimary: true }),
+        createFakeQuestionThemeAssignment({ isPrimary: false }),
+      ],
+    });
+
+    expect(hasSecondaryThemes(question)).toBe(true);
   });
 });

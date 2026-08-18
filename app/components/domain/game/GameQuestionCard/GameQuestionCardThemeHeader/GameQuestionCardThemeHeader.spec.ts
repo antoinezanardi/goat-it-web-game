@@ -1,7 +1,7 @@
 import type { QuestionCategory } from "@goat-it/schemas/question";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
@@ -15,7 +15,7 @@ import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/
 
 describe("GameQuestionCardThemeHeader Component", () => {
   const primaryTheme = createFakeQuestionTheme({ label: "Histoire", slug: "history-civilizations" });
-  const secondaryTheme = createFakeQuestionTheme();
+  const secondaryTheme = createFakeQuestionTheme({ slug: "geography-travels" });
 
   const defaultProps: GameQuestionCardThemeHeaderProps = {
     question: createFakeQuestion({
@@ -43,10 +43,14 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(wrapper.text()).toContain("Histoire");
   });
 
-  it("should render the theme icon with the neon color class when component is mounted.", () => {
-    const themeIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-landmark");
+  it("should render the GameQuestionCardThemeStack component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "GameQuestionCardThemeStack" }).exists()).toBe(true);
+  });
 
-    expect(themeIcon?.classes()).toContain("text-(color:--game-theme-neon)");
+  it("should pass the question prop to the GameQuestionCardThemeStack when mounted.", () => {
+    const stack = wrapper.findComponent({ name: "GameQuestionCardThemeStack" });
+
+    expect(stack.props("question")).toBe(defaultProps.question);
   });
 
   it("should render the GameQuestionCardDifficultyBadge component when mounted.", () => {
@@ -98,41 +102,8 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(wrapper.text()).toContain(`questions.category.${category}`);
   });
 
-  it("should not render the GameQuestionCardThemeStack component when the question has only a primary theme.", () => {
-    expect(wrapper.findComponent({ name: "GameQuestionCardThemeStack" }).exists()).toBe(false);
-  });
-
   it("should not render the other themes trigger when the question has only a primary theme.", () => {
     expect(wrapper.find("[data-testid='theme-other-themes-trigger']").exists()).toBe(false);
-  });
-
-  it("should render the GameQuestionCardThemeStack component when the question has secondary themes.", async() => {
-    await wrapper.setProps({
-      question: createFakeQuestion({
-        ...defaultProps.question,
-        themes: [
-          createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme }),
-          createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryTheme }),
-        ],
-      }),
-    });
-
-    expect(wrapper.findComponent({ name: "GameQuestionCardThemeStack" }).exists()).toBe(true);
-  });
-
-  it("should pass the question prop to the GameQuestionCardThemeStack when secondary themes exist.", async() => {
-    const multiThemeQuestion = createFakeQuestion({
-      ...defaultProps.question,
-      themes: [
-        createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme }),
-        createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryTheme }),
-      ],
-    });
-    await wrapper.setProps({ question: multiThemeQuestion });
-
-    const stack = wrapper.findComponent({ name: "GameQuestionCardThemeStack" });
-
-    expect(stack.props("question")).toStrictEqual(multiThemeQuestion);
   });
 
   it("should render the other themes trigger when the question has secondary themes.", async() => {
@@ -147,6 +118,37 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
 
     expect(wrapper.find("[data-testid='theme-other-themes-trigger']").exists()).toBe(true);
+  });
+
+  it("should render the other themes trigger with the i18n key when the question has secondary themes.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultProps.question,
+        themes: [
+          createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryTheme }),
+        ],
+      }),
+    });
+
+    expect(wrapper.find("[data-testid='theme-other-themes-trigger']").text()).toContain("questions.themeStack.otherThemes");
+  });
+
+  it("should call t with the secondary themes count when the question has secondary themes.", async() => {
+    const i18n = useI18n();
+    const tSpy = vi.spyOn(i18n, "t");
+
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultProps.question,
+        themes: [
+          createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryTheme }),
+        ],
+      }),
+    });
+
+    expect(tSpy).toHaveBeenCalledWith("questions.themeStack.otherThemes", { count: 1 });
   });
 
   it("should toggle the theme stack popover when the other themes trigger is clicked.", async() => {
@@ -166,18 +168,5 @@ describe("GameQuestionCardThemeHeader Component", () => {
     const popover = wrapper.findComponent({ name: "UPopover" });
 
     expect(popover.props("open")).toBe(true);
-  });
-
-  it("should render the theme icon with default empty slug when no primary theme exists.", async() => {
-    await wrapper.setProps({
-      question: createFakeQuestion({
-        ...defaultProps.question,
-        themes: [],
-      }),
-    });
-
-    const themeIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-circle-help");
-
-    expect(themeIcon?.classes()).toContain("text-(color:--game-theme-neon)");
   });
 });

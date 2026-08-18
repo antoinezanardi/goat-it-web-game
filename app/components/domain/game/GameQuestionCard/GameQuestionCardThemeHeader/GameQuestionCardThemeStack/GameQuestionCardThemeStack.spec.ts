@@ -1,6 +1,6 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
@@ -14,7 +14,7 @@ import { GameQuestionCardThemeStack } from "#components";
 
 import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
-type GameQuestionCardThemeStackVm = ComponentVm & { otherThemesLabel: string; toggleOpen: () => void };
+type GameQuestionCardThemeStackVm = ComponentVm & { toggleOpen: () => void };
 
 describe("GameQuestionCardThemeStack Component", () => {
   const primaryTheme = createFakeQuestionTheme({ slug: "geography-travels", color: "#33A1FF", label: "Geography" });
@@ -69,6 +69,18 @@ describe("GameQuestionCardThemeStack Component", () => {
     expect(secondaryContainer.classes()).not.toContain("z-10");
   });
 
+  it("should apply a slight anticlockwise rotation to the secondary icon container when mounted.", () => {
+    const secondaryContainer = wrapper.find(`[data-testid='theme-stack-icon-${secondaryThemeOne.slug}']`);
+
+    expect(secondaryContainer.classes()).toContain("-rotate-6");
+  });
+
+  it("should apply a slightly smaller scale to the secondary icon container when mounted.", () => {
+    const secondaryContainer = wrapper.find(`[data-testid='theme-stack-icon-${secondaryThemeOne.slug}']`);
+
+    expect(secondaryContainer.classes()).toContain("scale-90");
+  });
+
   it("should apply the primary z-index class to the primary icon container when mounted.", () => {
     const primaryContainer = wrapper.find(`[data-testid='theme-stack-icon-${primaryTheme.slug}']`);
 
@@ -87,10 +99,8 @@ describe("GameQuestionCardThemeStack Component", () => {
     expect(secondaryContainer.attributes("style")).toContain("border-color: #FF5733");
   });
 
-  it("should expose the other themes label containing the i18n key when mounted.", () => {
-    const vm = getWrapperVm<GameQuestionCardThemeStackVm>(wrapper);
-
-    expect(vm.otherThemesLabel).toContain("questions.themeStack.otherThemes");
+  it("should enable the stack trigger when the question has more than one theme.", () => {
+    expect(wrapper.find("[data-testid='theme-stack-trigger']").attributes("disabled")).toBeUndefined();
   });
 
   it("should toggle the popover open when the stack trigger is clicked.", async() => {
@@ -125,48 +135,22 @@ describe("GameQuestionCardThemeStack Component", () => {
     expect(popover.props("open")).toBe(false);
   });
 
-  it("should render a popover row for every theme when opened.", async() => {
+  it("should pass all question themes to the popover content when mounted.", async() => {
     await wrapper.find("[data-testid='theme-stack-trigger']").trigger("click");
     await nextTick();
 
-    const allPopoverContents = [...document.body.querySelectorAll("[data-testid='theme-popover-content']")];
-    const popoverContent = allPopoverContents.at(-1);
-    const rows = popoverContent?.querySelectorAll("[data-testid='theme-popover-row']");
+    const popoverContent = wrapper.findComponent({ name: "GameQuestionCardThemeStackPopoverContent" });
 
-    expect(rows).toHaveLength(3);
+    expect(popoverContent.props("themes")).toStrictEqual([primaryTheme, secondaryThemeOne, secondaryThemeTwo]);
   });
 
-  it("should render the primary theme first in the popover when opened.", async() => {
+  it("should pass the primary theme slug to the popover content when mounted.", async() => {
     await wrapper.find("[data-testid='theme-stack-trigger']").trigger("click");
     await nextTick();
 
-    const allPopoverContents = [...document.body.querySelectorAll("[data-testid='theme-popover-content']")];
-    const popoverContent = allPopoverContents.at(-1);
-    const firstRow = popoverContent?.querySelector("[data-testid='theme-popover-row']");
+    const popoverContent = wrapper.findComponent({ name: "GameQuestionCardThemeStackPopoverContent" });
 
-    expect(firstRow?.textContent).toContain("Geography");
-  });
-
-  it("should render the primary badge only on the primary theme row when opened.", async() => {
-    await wrapper.find("[data-testid='theme-stack-trigger']").trigger("click");
-    await nextTick();
-
-    const allPopoverContents = [...document.body.querySelectorAll("[data-testid='theme-popover-content']")];
-    const popoverContent = allPopoverContents.at(-1);
-    const badges = popoverContent?.querySelectorAll("[data-testid='theme-primary-badge']");
-
-    expect(badges).toHaveLength(1);
-  });
-
-  it("should render the primary badge on the correct row when opened.", async() => {
-    await wrapper.find("[data-testid='theme-stack-trigger']").trigger("click");
-    await nextTick();
-
-    const allPopoverContents = [...document.body.querySelectorAll("[data-testid='theme-popover-content']")];
-    const popoverContent = allPopoverContents.at(-1);
-    const firstBadge = popoverContent?.querySelector("[data-testid='theme-primary-badge']");
-
-    expect(firstBadge?.closest("[data-testid='theme-popover-row']")?.textContent).toContain("Geography");
+    expect(popoverContent.props("primaryThemeSlug")).toBe(primaryTheme.slug);
   });
 
   it("should render only secondary theme icons when no primary theme is present.", async() => {
@@ -183,40 +167,33 @@ describe("GameQuestionCardThemeStack Component", () => {
     expect(icons).toHaveLength(1);
   });
 
-  describe("other themes label pluralization", () => {
-    it("should call t with a count of 1 when there is one secondary theme.", async() => {
-      const i18n = useI18n();
-      const tSpy = vi.spyOn(i18n, "t");
-
-      const mountedWrapper = await mountStack({
-        props: {
-          question: createFakeQuestion({
-            themes: [
-              createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme }),
-              createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryThemeOne }),
-            ],
-          }),
-        },
-      });
-
-      const mountedVm = getWrapperVm<GameQuestionCardThemeStackVm>(mountedWrapper);
-      void mountedVm.otherThemesLabel;
-
-      expect(tSpy).toHaveBeenCalledWith("questions.themeStack.otherThemes", { count: 1 });
+  it("should disable the stack trigger when the question has only one theme.", async() => {
+    const wrapperSingleTheme = await mountStack({
+      props: {
+        question: createFakeQuestion({
+          themes: [createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme })],
+        }),
+      },
     });
 
-    it("should call t with a count of 2 when there are two secondary themes.", async() => {
-      const i18n = useI18n();
-      const tSpy = vi.spyOn(i18n, "t");
+    expect(wrapperSingleTheme.find("[data-testid='theme-stack-trigger']").attributes("disabled")).toBeDefined();
+  });
 
-      const mountedWrapper = await mountStack({
-        props: { question: defaultProps.question },
-      });
-
-      const mountedVm = getWrapperVm<GameQuestionCardThemeStackVm>(mountedWrapper);
-      void mountedVm.otherThemesLabel;
-
-      expect(tSpy).toHaveBeenCalledWith("questions.themeStack.otherThemes", { count: 2 });
+  it("should not open the popover when toggleOpen is called and the question has only one theme.", async() => {
+    const wrapperSingleTheme = await mountStack({
+      props: {
+        question: createFakeQuestion({
+          themes: [createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme })],
+        }),
+      },
     });
+
+    const vm = getWrapperVm<GameQuestionCardThemeStackVm>(wrapperSingleTheme);
+    vm.toggleOpen();
+    await nextTick();
+
+    const popover = wrapperSingleTheme.findComponent({ name: "UPopover" });
+
+    expect(popover.props("open")).toBe(false);
   });
 });
