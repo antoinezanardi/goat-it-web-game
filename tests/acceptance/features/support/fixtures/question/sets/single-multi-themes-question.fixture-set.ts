@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-import { FIVE_QUESTION_THEMES_FIXTURE_CINEMA_ENTRY, FIVE_QUESTION_THEMES_FIXTURE_HISTORY_ENTRY, FIVE_QUESTION_THEMES_FIXTURE_SCIENCE_ENTRY } from "../../question-theme/sets/five-question-themes.fixture-set.ts";
+import { FIVE_QUESTION_THEMES_FIXTURE_CINEMA_ENTRY, FIVE_QUESTION_THEMES_FIXTURE_HISTORY_ENTRY, FIVE_QUESTION_THEMES_FIXTURE_SCIENCE_ENTRY } from "#acceptance/features/support/fixtures/question-theme/sets/five-question-themes.fixture-set.ts";
 
 const SINGLE_MULTI_THEMES_QUESTION_FIXTURE_SET = [
   {

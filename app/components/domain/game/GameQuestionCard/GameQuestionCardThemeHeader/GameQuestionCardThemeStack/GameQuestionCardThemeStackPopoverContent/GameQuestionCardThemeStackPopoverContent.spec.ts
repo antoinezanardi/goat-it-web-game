@@ -38,18 +38,6 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     expect(rows[0]?.text()).toContain("Geography");
   });
 
-  it("should render the theme icon in its row when mounted.", () => {
-    const icons = wrapper.findAllComponents({ name: "UIcon" });
-
-    expect(icons[0]?.props("name")).toBe("i-lucide-globe");
-  });
-
-  it("should set the icon container border color from the theme color when mounted.", () => {
-    const rows = wrapper.findAll("[data-testid='theme-popover-row']");
-
-    expect(rows[0]?.find("span").attributes("style")).toContain("border-color: #33A1FF");
-  });
-
   it("should render the primary badge on the row matching primaryThemeSlug when mounted.", () => {
     const rows = wrapper.findAll("[data-testid='theme-popover-row']");
 

@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
 import type { QuestionTheme } from "#shared/types/question-theme.types";
+import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
 import { getPrimaryTheme, getSecondaryThemes } from "~/composables/domain/question/helpers/question.helpers";
-import { getThemeIcon, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 const props = defineProps<GameQuestionCardThemeStackProps>();
 
-const open = ref(false);
+const isPopoverOpen = ref(false);
 
 const primaryTheme = computed(() => getPrimaryTheme(props.question));
 const secondaryThemes = computed(() => getSecondaryThemes(props.question));
@@ -18,7 +18,7 @@ function toggleOpen(): void {
   if (!isInteractive.value) {
     return;
   }
-  open.value = !open.value;
+  isPopoverOpen.value = !isPopoverOpen.value;
 }
 
 function isPrimaryTheme(theme: QuestionTheme): boolean {
@@ -26,27 +26,11 @@ function isPrimaryTheme(theme: QuestionTheme): boolean {
 }
 
 function resolveIconContainerClass(theme: QuestionTheme): string {
-  return isPrimaryTheme(theme) ? "z-10 border-(color:--game-theme-border) shadow-[0_0_8px_var(--game-theme-glow-soft)]" : "-rotate-6 scale-90";
+  return isPrimaryTheme(theme) ? "z-10" : "-rotate-6 scale-85";
 }
 
-function resolveIconContainerStyle(theme: QuestionTheme): Record<string, string> | undefined {
-  if (isPrimaryTheme(theme)) {
-    return undefined;
-  }
-  const color = resolveThemeColor(theme.color);
-
-  return {
-    borderColor: color,
-    boxShadow: `0 0 8px color-mix(in srgb, ${color} 40%, transparent)`,
-  };
-}
-
-function resolveIconClass(theme: QuestionTheme): string {
-  return isPrimaryTheme(theme) ? "text-(color:--game-theme-neon)" : "";
-}
-
-function resolveIconStyle(theme: QuestionTheme): Record<string, string> | undefined {
-  return isPrimaryTheme(theme) ? undefined : { color: resolveThemeColor(theme.color) };
+function resolveIconSize(theme: QuestionTheme): GameQuestionCardThemeIconSize {
+  return isPrimaryTheme(theme) ? "md" : "sm";
 }
 
 defineExpose({
@@ -56,31 +40,23 @@ defineExpose({
 
 <template>
   <UPopover
-    v-model:open="open"
+    v-model:open="isPopoverOpen"
     mode="click"
   >
     <button
-      class="-space-x-3 cursor-pointer disabled:cursor-not-allowed flex items-center"
+      class="-space-x-4 cursor-pointer disabled:cursor-default flex items-center"
       data-testid="theme-stack-trigger"
       :disabled="!isInteractive"
       type="button"
-      @keydown.enter.prevent="toggleOpen"
     >
-      <span
+      <GameQuestionCardThemeIcon
         v-for="theme in stackThemes"
         :key="theme.slug"
-        class="bg-content border inline-flex items-center justify-center relative rounded-lg shrink-0 size-10"
         :class="resolveIconContainerClass(theme)"
         :data-testid="`theme-stack-icon-${theme.slug}`"
-        :style="resolveIconContainerStyle(theme)"
-      >
-        <UIcon
-          class="size-8"
-          :class="resolveIconClass(theme)"
-          :name="getThemeIcon(theme.slug)"
-          :style="resolveIconStyle(theme)"
-        />
-      </span>
+        :size="resolveIconSize(theme)"
+        :theme="theme"
+      />
     </button>
 
     <template #content>

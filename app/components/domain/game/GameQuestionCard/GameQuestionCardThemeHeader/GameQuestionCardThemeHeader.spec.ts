@@ -86,7 +86,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
   it("should apply the game-theme-neon color class to the category icon when mounted.", () => {
     const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-sparkle");
 
-    expect(categoryIcon?.classes()).toContain("text-(color:--game-theme-neon)");
+    expect(categoryIcon?.classes()).toContain("text-(--game-theme-neon)");
   });
 
   it.each<{ category: QuestionCategory }>([

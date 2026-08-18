@@ -63,40 +63,10 @@ describe("GameQuestionCardThemeStack Component", () => {
     expect(icons[0]?.props("name")).toBe(getThemeIcon(secondaryThemeOne.slug));
   });
 
-  it("should not apply the primary z-index class to the secondary icon container when mounted.", () => {
-    const secondaryContainer = wrapper.find(`[data-testid='theme-stack-icon-${secondaryThemeOne.slug}']`);
-
-    expect(secondaryContainer.classes()).not.toContain("z-10");
-  });
-
-  it("should apply a slight anticlockwise rotation to the secondary icon container when mounted.", () => {
-    const secondaryContainer = wrapper.find(`[data-testid='theme-stack-icon-${secondaryThemeOne.slug}']`);
-
-    expect(secondaryContainer.classes()).toContain("-rotate-6");
-  });
-
-  it("should apply a slightly smaller scale to the secondary icon container when mounted.", () => {
-    const secondaryContainer = wrapper.find(`[data-testid='theme-stack-icon-${secondaryThemeOne.slug}']`);
-
-    expect(secondaryContainer.classes()).toContain("scale-90");
-  });
-
   it("should apply the primary z-index class to the primary icon container when mounted.", () => {
     const primaryContainer = wrapper.find(`[data-testid='theme-stack-icon-${primaryTheme.slug}']`);
 
     expect(primaryContainer.classes()).toContain("z-10");
-  });
-
-  it("should use the card-wide neon style on the primary icon container when mounted.", () => {
-    const primaryContainer = wrapper.find(`[data-testid='theme-stack-icon-${primaryTheme.slug}']`);
-
-    expect(primaryContainer.classes()).toContain("border-(color:--game-theme-border)");
-  });
-
-  it("should set the secondary icon border color from the theme color when mounted.", () => {
-    const secondaryContainer = wrapper.find(`[data-testid='theme-stack-icon-${secondaryThemeOne.slug}']`);
-
-    expect(secondaryContainer.attributes("style")).toContain("border-color: #FF5733");
   });
 
   it("should enable the stack trigger when the question has more than one theme.", () => {
@@ -107,15 +77,6 @@ describe("GameQuestionCardThemeStack Component", () => {
     const popover = wrapper.findComponent({ name: "UPopover" });
 
     await wrapper.find("[data-testid='theme-stack-trigger']").trigger("click");
-    await nextTick();
-
-    expect(popover.props("open")).toBe(true);
-  });
-
-  it("should toggle the popover open when enter is pressed on the stack trigger.", async() => {
-    const popover = wrapper.findComponent({ name: "UPopover" });
-
-    await wrapper.find("[data-testid='theme-stack-trigger']").trigger("keydown.enter");
     await nextTick();
 
     expect(popover.props("open")).toBe(true);

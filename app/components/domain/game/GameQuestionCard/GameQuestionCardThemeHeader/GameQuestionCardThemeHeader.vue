@@ -31,31 +31,33 @@ function handleOtherThemesClick(): void {
     <div class="min-w-0">
       <p class="flex flex-wrap gap-x-2 items-baseline leading-snug-plus">
         <span
-          class="font-semibold text-(color:--game-theme-neon) text-base"
+          class="font-semibold text-(--game-theme-neon) text-lg"
           data-testid="game-question-theme"
         >
           {{ primaryTheme?.label }}
         </span>
 
-        <button
+        <UButton
           v-if="hasOtherThemes"
-          class="hover:underline text-(color:--game-theme-neon) text-left text-sm"
+          class="rounded-lg"
+          color="neutral"
           data-testid="theme-other-themes-trigger"
-          type="button"
+          size="xs"
+          variant="subtle"
           @click="handleOtherThemesClick"
         >
           {{ otherThemesLabel }}
-        </button>
+        </UButton>
       </p>
 
       <p class="flex gap-1 items-center leading-snug-plus mt-0.5 text-sm">
         <UIcon
-          class="size-4 text-(color:--game-theme-neon)"
+          class="size-4 text-(--game-theme-neon)"
           :name="getCategoryIcon(category)"
         />
 
         <span
-          class="font-medium text-(color:--game-theme-neon)"
+          class="font-medium text-(--game-theme-neon)"
           data-testid="game-question-category"
         >
           {{ $t(`questions.category.${category}`) }}
