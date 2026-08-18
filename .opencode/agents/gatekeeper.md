@@ -1,7 +1,7 @@
 ---
 description: Runs the full quality gate (lint → typecheck → unit → acceptance) with auto-fix for the goat-it-web-game project. Dispatched by orchestrator after all tasks, or by receiving-code-review after applying fixes.
 mode: subagent
-model: opencode-go/deepseek-v4-flash
+model: opencode-go/mimo-v2.5
 temperature: 0.2
 hidden: true
 steps: 120

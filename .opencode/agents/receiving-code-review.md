@@ -1,7 +1,7 @@
 ---
 description: Triages and evaluates code review feedback (PR comments, peer review) for the goat-it-web-game project. Reads → restates → verifies → evaluates → responds with technical rigor and apply fixes if user agrees.
 mode: primary
-model: opencode-go/deepseek-v4-pro
+model: opencode-go/mimo-v2.5-pro
 temperature: 0.3
 steps: 80
 hidden: false
@@ -37,6 +37,8 @@ permission:
     "wc *": "allow"
     "sort *": "allow"
     "cut *": "allow"
+    "xargs *": "allow"
+    "mkdir *": "allow"
   task:
     "*": "deny"
     "gatekeeper": "allow"

@@ -104,3 +104,19 @@ Feature: 🎮 Game Page
     Then the question card should be displayed
     When the user clicks on the question source link "en.wikipedia.org"
     Then a new tab should have been opened with URL "https://en.wikipedia.org/wiki/Paris"
+
+  @question-card-themes
+  Scenario: 🎮 Question card displays multiple themes
+    Given the database is populated with the question fixture set "single-multi-themes-question"
+    And the user is on game page
+    Then the question card should be displayed
+    And the theme icon stack should be visible
+    And the "+2 other themes" text should be visible
+    When the user clicks on the theme icon stack
+    Then the themes popover should contain "History"
+    And the themes popover should contain "Science"
+    And the themes popover should contain "Cinema"
+    And the primary theme "History" should be flagged in the themes popover
+    When the user closes the themes popover
+    And the user clicks on the "+2 other themes" text
+    Then the themes popover should be visible

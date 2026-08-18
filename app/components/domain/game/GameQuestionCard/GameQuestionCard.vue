@@ -32,10 +32,7 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
       data-testid="game-question-body"
     >
       <GameQuestionCardThemeHeader
-        v-if="primaryTheme"
-        :category="props.question.category"
-        :difficulty="props.question.cognitiveDifficulty"
-        :theme="primaryTheme"
+        :question="props.question"
       />
 
       <GameQuestionCardStatement

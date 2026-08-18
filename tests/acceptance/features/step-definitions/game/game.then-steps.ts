@@ -140,3 +140,48 @@ Then(
     await expect(triviaList.getByText(text, { exact: true })).toBeVisible();
   },
 );
+
+Then(
+  /^the theme icon stack should be visible$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+
+    await expect(question.getByTestId("theme-stack-trigger")).toBeVisible();
+  },
+);
+
+Then(
+  /^the "\+(?<count>\d+) other themes?" text should be visible$/u,
+  async function(this: GoatItWorld, count: string): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+    const labelRegex = new RegExp(`\\+${count} other themes?`, "iu");
+
+    await expect(question.getByText(labelRegex)).toBeVisible();
+  },
+);
+
+Then(
+  /^the themes popover should contain "(?<label>[^"]*)"$/u,
+  async function(this: GoatItWorld, label: string): Promise<void> {
+    const popover = this.page.getByTestId("theme-popover-content");
+
+    await expect(popover.getByText(label, { exact: true })).toBeVisible();
+  },
+);
+
+Then(
+  /^the primary theme "(?<label>[^"]*)" should be flagged in the themes popover$/u,
+  async function(this: GoatItWorld, label: string): Promise<void> {
+    const popover = this.page.getByTestId("theme-popover-content");
+    const row = popover.locator("[data-testid='theme-popover-row']").filter({ hasText: label });
+
+    await expect(row.getByTestId("theme-primary-badge")).toBeVisible();
+  },
+);
+
+Then(
+  /^the themes popover should be visible$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expect(this.page.getByTestId("theme-popover-content")).toBeVisible();
+  },
+);

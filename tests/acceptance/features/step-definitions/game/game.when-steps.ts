@@ -64,3 +64,29 @@ When(
     this.openedTabPage = openedTabPage;
   },
 );
+
+When(
+  /^the user clicks on the theme icon stack$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+
+    await question.getByTestId("theme-stack-trigger").click();
+  },
+);
+
+When(
+  /^the user clicks on the "\+(?<count>\d+) other themes?" text$/u,
+  async function(this: GoatItWorld, count: string): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+    const labelRegex = new RegExp(`\\+${count} other themes?`, "iu");
+
+    await question.getByText(labelRegex).click();
+  },
+);
+
+When(
+  /^the user closes the themes popover$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
+  },
+);

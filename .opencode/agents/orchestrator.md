@@ -1,7 +1,7 @@
 ---
 description: Orchestrates the full superpowers development cycle for the goat-it-web-game Nuxt 4 project. Coordinates specialist subagents per task (plan → TDD implementation → final review → finish). Default primary agent.
 mode: primary
-model: opencode-go/deepseek-v4-pro
+model: opencode-go/minimax-m3
 temperature: 0.3
 steps: 200
 permission:
