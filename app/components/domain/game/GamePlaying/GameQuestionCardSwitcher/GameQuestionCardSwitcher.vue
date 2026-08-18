@@ -79,7 +79,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="game-question-card-switcher-wrapper relative will-change-transform">
+  <div class="game-question-card-switcher-wrapper relative">
     <div
       class="absolute left-0 top-0 w-full will-change-transform"
       data-testid="card-transition-leaving"
