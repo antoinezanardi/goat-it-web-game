@@ -27,6 +27,7 @@ permission:
     "find *": "allow"
     "echo *": "allow"
     "pnpm run lint *": "allow"
+    "pnpm run lint:*:fix *": "allow"
     "pnpm run typecheck *": "allow"
     "pnpm run build *": "allow"
     "pnpm run test:unit *": "allow"

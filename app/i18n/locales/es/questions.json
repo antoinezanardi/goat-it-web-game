@@ -21,7 +21,8 @@
     "sourceTooltip": "Visitar {url} para más información",
     "themeStack": {
       "otherThemes": "+{count} otro tema | +{count} otros temas",
-      "primaryBadge": "Principal"
+      "primaryBadge": "Principal",
+      "hintBadge": "Pista"
     }
   }
 }

@@ -59,4 +59,26 @@ describe("GameQuestionCardThemeIcon Component", () => {
 
     expect(icon.classes()).toContain("size-7");
   });
+
+  it("should apply the default solid border class when isHint is omitted.", () => {
+    expect(wrapper.classes()).toContain("border");
+  });
+
+  it("should apply the default solid border class when isHint is false.", async() => {
+    await wrapper.setProps({ isHint: false });
+
+    expect(wrapper.classes()).toContain("border");
+  });
+
+  it("should apply the dashed border class when isHint is true.", async() => {
+    await wrapper.setProps({ isHint: true });
+
+    expect(wrapper.classes()).toContain("border-dashed");
+  });
+
+  it("should apply the 2px border class when isHint is true.", async() => {
+    await wrapper.setProps({ isHint: true });
+
+    expect(wrapper.classes()).toContain("border-2");
+  });
 });

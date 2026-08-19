@@ -16,6 +16,10 @@ function hasSecondaryThemes(question: Question): boolean {
   return getSecondaryThemes(question).length > 0;
 }
 
+function isPrimaryThemeHint(question: Question): boolean {
+  return question.themes.find(theme => theme.isPrimary)?.isHint ?? false;
+}
+
 function getSourceDomain(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./u, "");
@@ -40,4 +44,14 @@ function getDifficultyRingClass(difficulty: QuestionCognitiveDifficulty): string
   return DIFFICULTY_RING_CLASS_MAP[difficulty];
 }
 
-export { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSecondaryThemes, getSourceDomain, hasSecondaryThemes };
+export {
+  getCategoryIcon,
+  getDifficultyColor,
+  getDifficultyIcon,
+  getDifficultyRingClass,
+  getPrimaryTheme,
+  getSecondaryThemes,
+  getSourceDomain,
+  hasSecondaryThemes,
+  isPrimaryThemeHint,
+};

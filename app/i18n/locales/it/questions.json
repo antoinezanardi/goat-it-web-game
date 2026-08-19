@@ -21,7 +21,8 @@
     "sourceTooltip": "Visita {url} per maggiori informazioni",
     "themeStack": {
       "otherThemes": "+{count} altro tema | +{count} altri temi",
-      "primaryBadge": "Principale"
+      "primaryBadge": "Principale",
+      "hintBadge": "Suggerimento"
     }
   }
 }

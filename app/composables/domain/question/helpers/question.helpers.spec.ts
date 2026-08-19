@@ -5,7 +5,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
-import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSecondaryThemes, getSourceDomain, hasSecondaryThemes } from "~/composables/domain/question/helpers/question.helpers";
+import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSecondaryThemes, getSourceDomain, hasSecondaryThemes, isPrimaryThemeHint } from "~/composables/domain/question/helpers/question.helpers";
 
 describe(getSourceDomain, () => {
   it("should extract the hostname when a full HTTPS URL is provided.", () => {
@@ -158,5 +158,23 @@ describe(hasSecondaryThemes, () => {
     });
 
     expect(hasSecondaryThemes(question)).toBe(true);
+  });
+});
+
+describe(isPrimaryThemeHint, () => {
+  it.each<{ isPrimary: boolean; isHint: boolean; expected: boolean }>([
+    { isPrimary: true, isHint: true, expected: true },
+    { isPrimary: true, isHint: false, expected: false },
+    { isPrimary: false, isHint: true, expected: false },
+    { isPrimary: false, isHint: false, expected: false },
+  ])("should return $expected when primary is $isPrimary and hint is $isHint.", ({ isPrimary, isHint, expected }) => {
+    const question = createFakeQuestion({
+      themes: [
+        createFakeQuestionThemeAssignment({ isPrimary, isHint }),
+        createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false }),
+      ],
+    });
+
+    expect(isPrimaryThemeHint(question)).toBe(expected);
   });
 });

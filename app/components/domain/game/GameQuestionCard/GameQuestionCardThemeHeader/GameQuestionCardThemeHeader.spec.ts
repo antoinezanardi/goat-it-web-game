@@ -12,6 +12,7 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 import { GameQuestionCardThemeHeader } from "#components";
 
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
+import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
 
 describe("GameQuestionCardThemeHeader Component", () => {
   const primaryTheme = createFakeQuestionTheme({ label: "Histoire", slug: "history-civilizations" });
@@ -21,7 +22,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
     question: createFakeQuestion({
       category: "trivia",
       cognitiveDifficulty: "medium",
-      themes: [createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme })],
+      themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme })],
     }),
   };
 
@@ -111,8 +112,8 @@ describe("GameQuestionCardThemeHeader Component", () => {
       question: createFakeQuestion({
         ...defaultProps.question,
         themes: [
-          createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme }),
-          createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
         ],
       }),
     });
@@ -125,8 +126,8 @@ describe("GameQuestionCardThemeHeader Component", () => {
       question: createFakeQuestion({
         ...defaultProps.question,
         themes: [
-          createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme }),
-          createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
         ],
       }),
     });
@@ -142,8 +143,8 @@ describe("GameQuestionCardThemeHeader Component", () => {
       question: createFakeQuestion({
         ...defaultProps.question,
         themes: [
-          createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme }),
-          createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
         ],
       }),
     });
@@ -156,8 +157,8 @@ describe("GameQuestionCardThemeHeader Component", () => {
       question: createFakeQuestion({
         ...defaultProps.question,
         themes: [
-          createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme }),
-          createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
         ],
       }),
     });
@@ -168,5 +169,67 @@ describe("GameQuestionCardThemeHeader Component", () => {
     const popover = wrapper.findComponent({ name: "UPopover" });
 
     expect(popover.props("open")).toBe(true);
+  });
+
+  it("should render the primary hint chip when the primary theme is a hint.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultProps.question,
+        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
+      }),
+    });
+
+    expect(wrapper.find("[data-testid='theme-primary-hint-chip']").exists()).toBe(true);
+  });
+
+  it("should render the mic-off icon inside the primary hint chip when the primary theme is a hint.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultProps.question,
+        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
+      }),
+    });
+
+    const chip = wrapper.find("[data-testid='theme-primary-hint-chip']");
+    const icon = chip.findComponent({ name: "UIcon" });
+
+    expect(icon.props("name")).toBe(QUESTION_HINT_ICON);
+  });
+
+  it("should set the aria-label on the primary hint chip from the i18n key when the primary theme is a hint.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultProps.question,
+        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
+      }),
+    });
+
+    const chip = wrapper.find("[data-testid='theme-primary-hint-chip']");
+
+    expect(chip.attributes("aria-label")).toBe("questions.themeStack.hintBadge");
+  });
+
+  it("should set role img on the primary hint chip when the primary theme is a hint.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultProps.question,
+        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
+      }),
+    });
+
+    const chip = wrapper.find("[data-testid='theme-primary-hint-chip']");
+
+    expect(chip.attributes("role")).toBe("img");
+  });
+
+  it("should not render the primary hint chip when the primary theme is not a hint.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultProps.question,
+        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme })],
+      }),
+    });
+
+    expect(wrapper.find("[data-testid='theme-primary-hint-chip']").exists()).toBe(false);
   });
 });

@@ -1,8 +1,7 @@
-import type { QuestionTheme } from "#shared/types/question-theme.types";
+import type { QuestionThemeAssignment } from "#shared/types/question.types";
 
 type GameQuestionCardThemeStackPopoverContentProps = {
-  themes: QuestionTheme[];
-  primaryThemeSlug?: string;
+  themes: QuestionThemeAssignment[];
 };
 
 export type { GameQuestionCardThemeStackPopoverContentProps };
