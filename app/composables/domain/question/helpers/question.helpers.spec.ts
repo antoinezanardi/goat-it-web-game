@@ -165,6 +165,7 @@ describe(isPrimaryThemeHint, () => {
   it.each<{ isPrimary: boolean; isHint: boolean; expected: boolean }>([
     { isPrimary: true, isHint: true, expected: true },
     { isPrimary: true, isHint: false, expected: false },
+    { isPrimary: false, isHint: true, expected: false },
     { isPrimary: false, isHint: false, expected: false },
   ])("should return $expected when primary is $isPrimary and hint is $isHint.", ({ isPrimary, isHint, expected }) => {
     const question = createFakeQuestion({

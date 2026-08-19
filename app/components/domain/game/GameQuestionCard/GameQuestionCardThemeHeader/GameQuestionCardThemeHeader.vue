@@ -31,7 +31,7 @@ function handleOtherThemesClick(): void {
     />
 
     <div class="min-w-0">
-      <p class="flex flex-wrap gap-x-2 items-baseline leading-snug-plus">
+      <p class="flex flex-wrap gap-x-2 items-center leading-snug-plus">
         <span
           class="font-semibold md:text-lg text-(--game-theme-neon) text-base"
           data-testid="game-question-theme"
@@ -42,7 +42,7 @@ function handleOtherThemesClick(): void {
         <span
           v-if="isPrimaryHint"
           :aria-label="t('questions.themeStack.hintBadge')"
-          class="border border-dashed border-warning inline-flex items-center justify-center rounded-full size-6 text-warning"
+          class="border-2 border-dashed border-warning inline-flex items-center justify-center rounded-full size-7 text-warning"
           data-testid="theme-primary-hint-chip"
           role="img"
         >
