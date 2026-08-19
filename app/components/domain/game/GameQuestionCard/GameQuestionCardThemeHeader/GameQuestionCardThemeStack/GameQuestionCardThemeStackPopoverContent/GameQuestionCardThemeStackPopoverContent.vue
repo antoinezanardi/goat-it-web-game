@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import type { GameQuestionCardThemeStackPopoverContentProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/GameQuestionCardThemeStackPopoverContent/game-question-card-theme-stack-popover-content.types";
+import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
 
 const props = defineProps<GameQuestionCardThemeStackPopoverContentProps>();
 
 const { t } = useI18n();
-
-const HINT_ICON = "i-lucide-mic-off";
 </script>
 
 <template>
@@ -45,7 +44,7 @@ const HINT_ICON = "i-lucide-mic-off";
         class="border border-dashed"
         color="warning"
         data-testid="theme-hint-badge"
-        :icon="HINT_ICON"
+        :icon="QUESTION_HINT_ICON"
         :label="t('questions.themeStack.hintBadge')"
         size="xs"
         variant="subtle"

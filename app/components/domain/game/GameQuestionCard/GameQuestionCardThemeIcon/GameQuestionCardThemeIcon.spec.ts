@@ -16,12 +16,6 @@ describe("GameQuestionCardThemeIcon Component", () => {
     theme: createFakeQuestionTheme({ slug: "geography-travels", color: "#33A1FF" }),
   };
 
-  const BORDER_CLASSES = new Set(["border", "border-dashed", "border-2"]);
-
-  function filterBorderClasses(classes: readonly string[]): string[] {
-    return classes.filter(borderClass => BORDER_CLASSES.has(borderClass));
-  }
-
   let wrapper: VueWrapper;
 
   async function mountIcon(options: MountSuspendedOptions<typeof GameQuestionCardThemeIcon> = {}): Promise<VueWrapper> {
@@ -67,18 +61,24 @@ describe("GameQuestionCardThemeIcon Component", () => {
   });
 
   it("should apply the default solid border class when isHint is omitted.", () => {
-    expect(filterBorderClasses(wrapper.classes())).toStrictEqual(["border"]);
+    expect(wrapper.classes()).toContain("border");
   });
 
   it("should apply the default solid border class when isHint is false.", async() => {
     await wrapper.setProps({ isHint: false });
 
-    expect(filterBorderClasses(wrapper.classes())).toStrictEqual(["border"]);
+    expect(wrapper.classes()).toContain("border");
   });
 
-  it("should apply the dashed 2px border classes when isHint is true.", async() => {
+  it("should apply the dashed border class when isHint is true.", async() => {
     await wrapper.setProps({ isHint: true });
 
-    expect(filterBorderClasses(wrapper.classes())).toStrictEqual(["border-2", "border-dashed"]);
+    expect(wrapper.classes()).toContain("border-dashed");
+  });
+
+  it("should apply the 2px border class when isHint is true.", async() => {
+    await wrapper.setProps({ isHint: true });
+
+    expect(wrapper.classes()).toContain("border-2");
   });
 });

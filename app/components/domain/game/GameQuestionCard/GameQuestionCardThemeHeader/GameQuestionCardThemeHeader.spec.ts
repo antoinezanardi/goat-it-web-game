@@ -12,6 +12,7 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 import { GameQuestionCardThemeHeader } from "#components";
 
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
+import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
 
 describe("GameQuestionCardThemeHeader Component", () => {
   const primaryTheme = createFakeQuestionTheme({ label: "Histoire", slug: "history-civilizations" });
@@ -192,7 +193,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
     const chip = wrapper.find("[data-testid='theme-primary-hint-chip']");
     const icon = chip.findComponent({ name: "UIcon" });
 
-    expect(icon.props("name")).toBe("i-lucide-mic-off");
+    expect(icon.props("name")).toBe(QUESTION_HINT_ICON);
   });
 
   it("should set the aria-label on the primary hint chip from the i18n key when the primary theme is a hint.", async() => {
@@ -206,6 +207,19 @@ describe("GameQuestionCardThemeHeader Component", () => {
     const chip = wrapper.find("[data-testid='theme-primary-hint-chip']");
 
     expect(chip.attributes("aria-label")).toBe("questions.themeStack.hintBadge");
+  });
+
+  it("should set role img on the primary hint chip when the primary theme is a hint.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultProps.question,
+        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
+      }),
+    });
+
+    const chip = wrapper.find("[data-testid='theme-primary-hint-chip']");
+
+    expect(chip.attributes("role")).toBe("img");
   });
 
   it("should not render the primary hint chip when the primary theme is not a hint.", async() => {

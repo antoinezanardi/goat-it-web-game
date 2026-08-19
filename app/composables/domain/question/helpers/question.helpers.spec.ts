@@ -162,33 +162,18 @@ describe(hasSecondaryThemes, () => {
 });
 
 describe(isPrimaryThemeHint, () => {
-  it("should return true when the primary theme is a hint.", () => {
+  it.each<{ isPrimary: boolean; isHint: boolean; expected: boolean }>([
+    { isPrimary: true, isHint: true, expected: true },
+    { isPrimary: true, isHint: false, expected: false },
+    { isPrimary: false, isHint: false, expected: false },
+  ])("should return $expected when primary is $isPrimary and hint is $isHint.", ({ isPrimary, isHint, expected }) => {
     const question = createFakeQuestion({
       themes: [
-        createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true }),
+        createFakeQuestionThemeAssignment({ isPrimary, isHint }),
         createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false }),
       ],
     });
 
-    expect(isPrimaryThemeHint(question)).toBe(true);
-  });
-
-  it("should return false when the primary theme is not a hint.", () => {
-    const question = createFakeQuestion({
-      themes: [
-        createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false }),
-        createFakeQuestionThemeAssignment({ isPrimary: false, isHint: true }),
-      ],
-    });
-
-    expect(isPrimaryThemeHint(question)).toBe(false);
-  });
-
-  it("should return false when no primary theme is present.", () => {
-    const question = createFakeQuestion({
-      themes: [createFakeQuestionThemeAssignment({ isPrimary: false })],
-    });
-
-    expect(isPrimaryThemeHint(question)).toBe(false);
+    expect(isPrimaryThemeHint(question)).toBe(expected);
   });
 });

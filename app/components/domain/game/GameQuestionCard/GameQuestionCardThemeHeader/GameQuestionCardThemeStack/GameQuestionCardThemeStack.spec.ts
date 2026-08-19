@@ -105,7 +105,11 @@ describe("GameQuestionCardThemeStack Component", () => {
     expect(popoverContent.props("themes")).toStrictEqual(defaultProps.question.themes);
   });
 
-  it("should pass isHint false to the first stacked icon when mounted.", async() => {
+  it.each<{ index: number; expected: boolean }>([
+    { index: 0, expected: false },
+    { index: 1, expected: true },
+    { index: 2, expected: true },
+  ])("should pass isHint $expected to stacked icon at index $index when mounted.", async({ index, expected }) => {
     const wrapperWithHints = await mountStack({
       props: {
         question: createFakeQuestion({
@@ -120,43 +124,7 @@ describe("GameQuestionCardThemeStack Component", () => {
 
     const icons = wrapperWithHints.findAllComponents({ name: "GameQuestionCardThemeIcon" });
 
-    expect(icons[0]?.props("isHint")).toBe(false);
-  });
-
-  it("should pass isHint true to the second stacked icon when mounted.", async() => {
-    const wrapperWithHints = await mountStack({
-      props: {
-        question: createFakeQuestion({
-          themes: [
-            createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme }),
-            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryThemeOne }),
-            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: true, theme: secondaryThemeTwo }),
-          ],
-        }),
-      },
-    });
-
-    const icons = wrapperWithHints.findAllComponents({ name: "GameQuestionCardThemeIcon" });
-
-    expect(icons[1]?.props("isHint")).toBe(true);
-  });
-
-  it("should pass isHint true to the primary (last) stacked icon when mounted.", async() => {
-    const wrapperWithHints = await mountStack({
-      props: {
-        question: createFakeQuestion({
-          themes: [
-            createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme }),
-            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryThemeOne }),
-            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: true, theme: secondaryThemeTwo }),
-          ],
-        }),
-      },
-    });
-
-    const icons = wrapperWithHints.findAllComponents({ name: "GameQuestionCardThemeIcon" });
-
-    expect(icons[2]?.props("isHint")).toBe(true);
+    expect(icons[index]?.props("isHint")).toBe(expected);
   });
 
   it("should render only secondary theme icons when no primary theme is present.", async() => {
