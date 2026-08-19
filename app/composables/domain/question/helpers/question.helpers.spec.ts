@@ -5,7 +5,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
-import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSecondaryThemes, getSourceDomain, hasSecondaryThemes } from "~/composables/domain/question/helpers/question.helpers";
+import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getPrimaryTheme, getSecondaryThemes, getSourceDomain, hasSecondaryThemes, isPrimaryThemeHint } from "~/composables/domain/question/helpers/question.helpers";
 
 describe(getSourceDomain, () => {
   it("should extract the hostname when a full HTTPS URL is provided.", () => {
@@ -158,5 +158,37 @@ describe(hasSecondaryThemes, () => {
     });
 
     expect(hasSecondaryThemes(question)).toBe(true);
+  });
+});
+
+describe(isPrimaryThemeHint, () => {
+  it("should return true when the primary theme is a hint.", () => {
+    const question = createFakeQuestion({
+      themes: [
+        createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true }),
+        createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false }),
+      ],
+    });
+
+    expect(isPrimaryThemeHint(question)).toBe(true);
+  });
+
+  it("should return false when the primary theme is not a hint.", () => {
+    const question = createFakeQuestion({
+      themes: [
+        createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false }),
+        createFakeQuestionThemeAssignment({ isPrimary: false, isHint: true }),
+      ],
+    });
+
+    expect(isPrimaryThemeHint(question)).toBe(false);
+  });
+
+  it("should return false when no primary theme is present.", () => {
+    const question = createFakeQuestion({
+      themes: [createFakeQuestionThemeAssignment({ isPrimary: false })],
+    });
+
+    expect(isPrimaryThemeHint(question)).toBe(false);
   });
 });

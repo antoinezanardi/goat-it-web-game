@@ -185,3 +185,32 @@ Then(
     await expect(this.page.getByTestId("theme-popover-content")).toBeVisible();
   },
 );
+
+Then(
+  /^the primary theme hint chip should be visible$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+
+    await expect(question.getByTestId("theme-primary-hint-chip")).toBeVisible();
+  },
+);
+
+Then(
+  /^the hint theme "(?<label>[^"]*)" should be flagged in the themes popover$/u,
+  async function(this: GoatItWorld, label: string): Promise<void> {
+    const popover = this.page.getByTestId("theme-popover-content");
+    const row = popover.locator("[data-testid='theme-popover-row']").filter({ hasText: label });
+
+    await expect(row.getByTestId("theme-hint-badge")).toBeVisible();
+  },
+);
+
+Then(
+  /^the non-hint theme "(?<label>[^"]*)" should not be flagged in the themes popover$/u,
+  async function(this: GoatItWorld, label: string): Promise<void> {
+    const popover = this.page.getByTestId("theme-popover-content");
+    const row = popover.locator("[data-testid='theme-popover-row']").filter({ hasText: label });
+
+    await expect(row.getByTestId("theme-hint-badge")).toBeHidden();
+  },
+);

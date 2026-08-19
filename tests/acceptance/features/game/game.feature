@@ -120,3 +120,15 @@ Feature: 🎮 Game Page
     When the user closes the themes popover
     And the user clicks on the "+2 other themes" text
     Then the themes popover should be visible
+
+  @question-card-hint-themes
+  Scenario: 🎮 Question card flags hint themes
+    Given the database is populated with the question fixture set "single-multi-themes-question"
+    And the user is on game page
+    Then the question card should be displayed
+    And the question theme should be "History"
+    And the primary theme hint chip should be visible
+    When the user clicks on the theme icon stack
+    Then the hint theme "History" should be flagged in the themes popover
+    And the hint theme "Science" should be flagged in the themes popover
+    And the non-hint theme "Cinema" should not be flagged in the themes popover

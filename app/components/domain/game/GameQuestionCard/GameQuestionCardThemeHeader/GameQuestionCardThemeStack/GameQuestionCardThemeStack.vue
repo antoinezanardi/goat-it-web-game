@@ -1,17 +1,19 @@
 <script lang="ts" setup>
 import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
-import type { QuestionTheme } from "#shared/types/question-theme.types";
+import type { QuestionThemeAssignment } from "#shared/types/question.types";
 import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
-import { getPrimaryTheme, getSecondaryThemes } from "~/composables/domain/question/helpers/question.helpers";
 
 const props = defineProps<GameQuestionCardThemeStackProps>();
 
 const isPopoverOpen = ref(false);
 
-const primaryTheme = computed(() => getPrimaryTheme(props.question));
-const secondaryThemes = computed(() => getSecondaryThemes(props.question));
-const themes = computed<QuestionTheme[]>(() => props.question.themes.map(assignment => assignment.theme));
-const stackThemes = computed<QuestionTheme[]>(() => (primaryTheme.value === undefined ? secondaryThemes.value : [...secondaryThemes.value, primaryTheme.value]));
+const orderedAssignments = computed<QuestionThemeAssignment[]>(() => {
+  const secondary = props.question.themes.filter(assignment => !assignment.isPrimary);
+  const primary = props.question.themes.find(assignment => assignment.isPrimary);
+
+  return primary === undefined ? secondary : [...secondary, primary];
+});
+
 const isInteractive = computed<boolean>(() => props.question.themes.length > 1);
 
 function toggleOpen(): void {
@@ -21,16 +23,12 @@ function toggleOpen(): void {
   isPopoverOpen.value = !isPopoverOpen.value;
 }
 
-function isPrimaryTheme(theme: QuestionTheme): boolean {
-  return theme.slug === primaryTheme.value?.slug;
+function resolveIconContainerClass(assignment: QuestionThemeAssignment): string {
+  return assignment.isPrimary ? "z-10" : "-rotate-6 scale-85";
 }
 
-function resolveIconContainerClass(theme: QuestionTheme): string {
-  return isPrimaryTheme(theme) ? "z-10" : "-rotate-6 scale-85";
-}
-
-function resolveIconSize(theme: QuestionTheme): GameQuestionCardThemeIconSize {
-  return isPrimaryTheme(theme) ? "md" : "sm";
+function resolveIconSize(assignment: QuestionThemeAssignment): GameQuestionCardThemeIconSize {
+  return assignment.isPrimary ? "md" : "sm";
 }
 
 defineExpose({
@@ -50,20 +48,18 @@ defineExpose({
       type="button"
     >
       <GameQuestionCardThemeIcon
-        v-for="theme in stackThemes"
-        :key="theme.slug"
-        :class="resolveIconContainerClass(theme)"
-        :data-testid="`theme-stack-icon-${theme.slug}`"
-        :size="resolveIconSize(theme)"
-        :theme="theme"
+        v-for="assignment in orderedAssignments"
+        :key="assignment.theme.slug"
+        :class="resolveIconContainerClass(assignment)"
+        :data-testid="`theme-stack-icon-${assignment.theme.slug}`"
+        :is-hint="assignment.isHint"
+        :size="resolveIconSize(assignment)"
+        :theme="assignment.theme"
       />
     </button>
 
     <template #content>
-      <GameQuestionCardThemeStackPopoverContent
-        :primary-theme-slug="primaryTheme?.slug"
-        :themes="themes"
-      />
+      <GameQuestionCardThemeStackPopoverContent :themes="props.question.themes"/>
     </template>
   </UPopover>
 </template>

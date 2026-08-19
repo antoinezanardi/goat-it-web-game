@@ -24,9 +24,9 @@ describe("GameQuestionCardThemeStack Component", () => {
   const defaultProps = {
     question: createFakeQuestion({
       themes: [
-        createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme }),
-        createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryThemeOne }),
-        createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryThemeTwo }),
+        createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
+        createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryThemeOne }),
+        createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryThemeTwo }),
       ],
     }),
   };
@@ -96,29 +96,74 @@ describe("GameQuestionCardThemeStack Component", () => {
     expect(popover.props("open")).toBe(false);
   });
 
-  it("should pass all question themes to the popover content when mounted.", async() => {
+  it("should pass the full theme assignment array to the popover content when mounted.", async() => {
     await wrapper.find("[data-testid='theme-stack-trigger']").trigger("click");
     await nextTick();
 
     const popoverContent = wrapper.findComponent({ name: "GameQuestionCardThemeStackPopoverContent" });
 
-    expect(popoverContent.props("themes")).toStrictEqual([primaryTheme, secondaryThemeOne, secondaryThemeTwo]);
+    expect(popoverContent.props("themes")).toStrictEqual(defaultProps.question.themes);
   });
 
-  it("should pass the primary theme slug to the popover content when mounted.", async() => {
-    await wrapper.find("[data-testid='theme-stack-trigger']").trigger("click");
-    await nextTick();
+  it("should pass isHint false to the first stacked icon when mounted.", async() => {
+    const wrapperWithHints = await mountStack({
+      props: {
+        question: createFakeQuestion({
+          themes: [
+            createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme }),
+            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryThemeOne }),
+            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: true, theme: secondaryThemeTwo }),
+          ],
+        }),
+      },
+    });
 
-    const popoverContent = wrapper.findComponent({ name: "GameQuestionCardThemeStackPopoverContent" });
+    const icons = wrapperWithHints.findAllComponents({ name: "GameQuestionCardThemeIcon" });
 
-    expect(popoverContent.props("primaryThemeSlug")).toBe(primaryTheme.slug);
+    expect(icons[0]?.props("isHint")).toBe(false);
+  });
+
+  it("should pass isHint true to the second stacked icon when mounted.", async() => {
+    const wrapperWithHints = await mountStack({
+      props: {
+        question: createFakeQuestion({
+          themes: [
+            createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme }),
+            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryThemeOne }),
+            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: true, theme: secondaryThemeTwo }),
+          ],
+        }),
+      },
+    });
+
+    const icons = wrapperWithHints.findAllComponents({ name: "GameQuestionCardThemeIcon" });
+
+    expect(icons[1]?.props("isHint")).toBe(true);
+  });
+
+  it("should pass isHint true to the primary (last) stacked icon when mounted.", async() => {
+    const wrapperWithHints = await mountStack({
+      props: {
+        question: createFakeQuestion({
+          themes: [
+            createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme }),
+            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryThemeOne }),
+            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: true, theme: secondaryThemeTwo }),
+          ],
+        }),
+      },
+    });
+
+    const icons = wrapperWithHints.findAllComponents({ name: "GameQuestionCardThemeIcon" });
+
+    expect(icons[2]?.props("isHint")).toBe(true);
   });
 
   it("should render only secondary theme icons when no primary theme is present.", async() => {
     const wrapperNoPrimary = await mountStack({
       props: {
         question: createFakeQuestion({
-          themes: [createFakeQuestionThemeAssignment({ isPrimary: false, theme: secondaryThemeOne })],
+          themes: [createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryThemeOne })],
         }),
       },
     });
@@ -132,7 +177,7 @@ describe("GameQuestionCardThemeStack Component", () => {
     const wrapperSingleTheme = await mountStack({
       props: {
         question: createFakeQuestion({
-          themes: [createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme })],
+          themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme })],
         }),
       },
     });
@@ -144,7 +189,7 @@ describe("GameQuestionCardThemeStack Component", () => {
     const wrapperSingleTheme = await mountStack({
       props: {
         question: createFakeQuestion({
-          themes: [createFakeQuestionThemeAssignment({ isPrimary: true, theme: primaryTheme })],
+          themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme })],
         }),
       },
     });

@@ -4,6 +4,7 @@ import { getThemeIcon, resolveThemeColor } from "~/composables/domain/question-t
 
 const props = withDefaults(defineProps<GameQuestionCardThemeIconProps>(), {
   size: "md",
+  isHint: false,
 });
 
 const iconName = computed(() => getThemeIcon(props.theme.slug));
@@ -16,7 +17,8 @@ const glowStyle = computed(() => `0 0 8px color-mix(in oklch, ${neonColor.value}
 
 <template>
   <span
-    class="bg-content border inline-flex items-center justify-center p-1 relative rounded-lg shrink-0"
+    class="bg-content inline-flex items-center justify-center p-1 relative rounded-lg shrink-0"
+    :class="props.isHint ? 'border-2 border-dashed' : 'border'"
     :style="{ 'borderColor': borderStyle, 'boxShadow': glowStyle }"
   >
     <UIcon

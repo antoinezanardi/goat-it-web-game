@@ -11,12 +11,12 @@ const SINGLE_MULTI_THEMES_QUESTION_FIXTURE_SET = [
     themes: [
       {
         themeId: FIVE_QUESTION_THEMES_FIXTURE_HISTORY_ENTRY._id,
-        isHint: false,
+        isHint: true,
         isPrimary: true,
       },
       {
         themeId: FIVE_QUESTION_THEMES_FIXTURE_SCIENCE_ENTRY._id,
-        isHint: false,
+        isHint: true,
         isPrimary: false,
       },
       {

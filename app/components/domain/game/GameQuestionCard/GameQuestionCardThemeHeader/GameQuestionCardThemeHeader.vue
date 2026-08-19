@@ -2,13 +2,16 @@
 import { GameQuestionCardThemeStack } from "#components";
 
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
-import { getCategoryIcon, getPrimaryTheme, getSecondaryThemes, hasSecondaryThemes } from "~/composables/domain/question/helpers/question.helpers";
+import { getCategoryIcon, getPrimaryTheme, getSecondaryThemes, hasSecondaryThemes, isPrimaryThemeHint } from "~/composables/domain/question/helpers/question.helpers";
 
 const props = defineProps<GameQuestionCardThemeHeaderProps>();
 
 const { t } = useI18n();
 
+const HINT_ICON = "i-lucide-mic-off";
+
 const category = computed(() => props.question.category);
+const isPrimaryHint = computed(() => isPrimaryThemeHint(props.question));
 const difficulty = computed(() => props.question.cognitiveDifficulty);
 const primaryTheme = computed(() => getPrimaryTheme(props.question));
 const hasOtherThemes = computed(() => hasSecondaryThemes(props.question));
@@ -35,6 +38,18 @@ function handleOtherThemesClick(): void {
           data-testid="game-question-theme"
         >
           {{ primaryTheme?.label }}
+        </span>
+
+        <span
+          v-if="isPrimaryHint"
+          :aria-label="t('questions.themeStack.hintBadge')"
+          class="border border-dashed border-warning inline-flex items-center justify-center rounded-full size-5 text-warning"
+          data-testid="theme-primary-hint-chip"
+        >
+          <UIcon
+            class="size-3"
+            :name="HINT_ICON"
+          />
         </span>
 
         <UButton

@@ -5,6 +5,7 @@ type GameQuestionCardThemeIconSize = "md" | "sm";
 type GameQuestionCardThemeIconProps = {
   theme: QuestionTheme;
   size?: GameQuestionCardThemeIconSize;
+  isHint?: boolean;
 };
 
 export type { GameQuestionCardThemeIconProps, GameQuestionCardThemeIconSize };
