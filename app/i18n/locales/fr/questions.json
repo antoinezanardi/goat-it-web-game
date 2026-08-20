@@ -22,7 +22,8 @@
     "themeStack": {
       "otherThemes": "+{count} autre thème | +{count} autres thèmes",
       "primaryBadge": "Principal",
-      "hintBadge": "Indice"
+      "hintBadge": "Indice",
+      "hintTooltip": "Le thème principal est un indice pour la réponse"
     }
   }
 }

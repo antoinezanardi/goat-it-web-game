@@ -127,8 +127,10 @@ Feature: 🎮 Game Page
     And the user is on game page
     Then the question card should be displayed
     And the question theme should be "History"
-    And the primary theme hint chip should be visible
+    And the primary theme hint badge should be visible
+    And hovering the primary theme hint badge shows the popover "The primary theme is a hint for the answer"
     When the user clicks on the theme icon stack
     Then the hint theme "History" should be flagged in the themes popover
     And the hint theme "Science" should be flagged in the themes popover
     And the non-hint theme "Cinema" should not be flagged in the themes popover
+    And hovering the "History" hint badge in the themes popover shows the popover "The primary theme is a hint for the answer"

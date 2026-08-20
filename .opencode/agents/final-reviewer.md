@@ -27,6 +27,7 @@ permission:
     "echo *": "allow"
     "wc *": "allow"
     "git check-ignore *": "allow"
+    "od *": "allow"
   task: deny
 ---
 

@@ -1,6 +1,7 @@
 import type { VueWrapper } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
@@ -19,12 +20,17 @@ describe("GameQuestionCardDifficultyBadge Component", () => {
     return mountSuspended(GameQuestionCardDifficultyBadge, {
       props: defaultProps,
       shallow: false,
+      attachTo: document.body,
       ...options,
     });
   }
 
   beforeEach(async() => {
     wrapper = await mountBadge();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("should render the UBadge component when mounted.", () => {
@@ -103,14 +109,32 @@ describe("GameQuestionCardDifficultyBadge Component", () => {
     expect(badge.attributes("aria-label")).toBe("questions.difficultyTooltip.medium");
   });
 
-  it("should wrap the badge in a UTooltip when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UTooltip" }).exists()).toBe(true);
+  it("should wrap the badge in a UPopover when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UPopover" }).exists()).toBe(true);
   });
 
-  it("should set the UTooltip text to the difficulty tooltip i18n key when difficulty is medium.", () => {
-    const tooltip = wrapper.findComponent({ name: "UTooltip" });
+  it("should set the UPopover mode to hover when mounted.", () => {
+    const popover = wrapper.findComponent({ name: "UPopover" });
 
-    expect(tooltip.props("text")).toBe("questions.difficultyTooltip.medium");
+    expect(popover.props("mode")).toBe("hover");
+  });
+
+  it("should enable touch on the UPopover when mounted.", () => {
+    const popover = wrapper.findComponent({ name: "UPopover" });
+
+    expect(popover.props("enableTouch")).toBe(true);
+  });
+
+  it("should render the difficulty tooltip popover content when the badge is hovered.", async() => {
+    vi.useFakeTimers();
+
+    await wrapper.find("[data-testid='game-question-difficulty']").trigger("pointerenter");
+    vi.advanceTimersByTime(1000);
+    await flushPromises();
+
+    const content = document.body.querySelector("[data-testid='game-question-difficulty-popover']");
+
+    expect(content?.textContent).toBe("questions.difficultyTooltip.medium");
   });
 
   it("should apply the data-testid attribute to the badge when mounted.", () => {

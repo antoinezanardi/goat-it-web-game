@@ -90,7 +90,7 @@ Then(
       hard: "This question is hard to deduce",
     };
     const tooltipText = gameQuestionDifficultyTooltip[difficulty.toLowerCase()] ?? difficulty;
-    await expect(this.page.locator("[role=\"tooltip\"]")).toHaveText(tooltipText);
+    await expect(this.page.getByTestId("game-question-difficulty-popover")).toHaveText(tooltipText);
   },
 );
 
@@ -187,11 +187,11 @@ Then(
 );
 
 Then(
-  /^the primary theme hint chip should be visible$/u,
+  /^the primary theme hint badge should be visible$/u,
   async function(this: GoatItWorld): Promise<void> {
     const question = getVisibleGameQuestionCard(this.page);
 
-    await expect(question.getByTestId("theme-primary-hint-chip")).toBeVisible();
+    await expect(question.getByTestId("game-question-hint")).toBeVisible();
   },
 );
 
@@ -212,5 +212,32 @@ Then(
     const row = popover.locator("[data-testid='theme-popover-row']").filter({ hasText: label });
 
     await expect(row.getByTestId("theme-hint-badge")).toBeHidden();
+  },
+);
+
+Then(
+  /^hovering the primary theme hint badge shows the popover "(?<text>[^"]*)"$/u,
+  async function(this: GoatItWorld, text: string): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+    const hintBadge = question.getByTestId("game-question-hint");
+
+    await expect(hintBadge).toBeVisible();
+    await hintBadge.hover();
+
+    await expect(this.page.getByTestId("game-question-hint-popover")).toHaveText(text);
+  },
+);
+
+Then(
+  /^hovering the "(?<label>[^"]*)" hint badge in the themes popover shows the popover "(?<text>[^"]*)"$/u,
+  async function(this: GoatItWorld, label: string, text: string): Promise<void> {
+    const popover = this.page.getByTestId("theme-popover-content");
+    const row = popover.locator("[data-testid='theme-popover-row']").filter({ hasText: label });
+    const hintBadge = row.getByTestId("theme-hint-badge");
+
+    await expect(hintBadge).toBeVisible();
+    await hintBadge.hover();
+
+    await expect(this.page.getByTestId("theme-hint-popover")).toHaveText(text);
   },
 );

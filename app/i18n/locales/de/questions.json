@@ -22,7 +22,8 @@
     "themeStack": {
       "otherThemes": "+{count} weiteres Thema | +{count} weitere Themen",
       "primaryBadge": "Primär",
-      "hintBadge": "Hinweis"
+      "hintBadge": "Hinweis",
+      "hintTooltip": "Das Hauptthema ist ein Hinweis auf die Antwort"
     }
   }
 }

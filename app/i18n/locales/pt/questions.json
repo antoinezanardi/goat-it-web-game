@@ -22,7 +22,8 @@
     "themeStack": {
       "otherThemes": "+{count} outro tema | +{count} outros temas",
       "primaryBadge": "Principal",
-      "hintBadge": "Dica"
+      "hintBadge": "Dica",
+      "hintTooltip": "O tema principal é uma dica para a resposta"
     }
   }
 }

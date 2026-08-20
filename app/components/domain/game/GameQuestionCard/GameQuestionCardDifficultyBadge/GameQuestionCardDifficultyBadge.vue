@@ -13,7 +13,10 @@ const difficultyIcon = computed<string>(() => getDifficultyIcon(props.difficulty
 </script>
 
 <template>
-  <UTooltip :text="tooltipText">
+  <UPopover
+    enable-touch
+    mode="hover"
+  >
     <UBadge
       :aria-label="tooltipText"
       class="p-2 ring-2 rounded-full"
@@ -25,5 +28,14 @@ const difficultyIcon = computed<string>(() => getDifficultyIcon(props.difficulty
       square
       variant="subtle"
     />
-  </UTooltip>
+
+    <template #content>
+      <div
+        class="px-3 py-2 text-sm"
+        data-testid="game-question-difficulty-popover"
+      >
+        {{ tooltipText }}
+      </div>
+    </template>
+  </UPopover>
 </template>
