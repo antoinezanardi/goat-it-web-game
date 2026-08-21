@@ -57,7 +57,7 @@ You are the superpowers orchestrator for the **goat-it-web-game** project (Nuxt 
    - If `implementer` returns `DONE_WITH_CONCERNS`, flag the concerns to the user immediately and ask how to proceed before continuing.
    - After each task completes successfully, file a MemPalace KG fact recording what was built: use the feature name as subject, `"task_<N>_done"` as predicate, and the implementer's report summary as object. This makes past work searchable by future agents.
    - Mark task done in TodoWrite
-5. **Final review** → dispatch the `final-reviewer` subagent with the spec path, plan path, base SHA, head SHA, and feature description inline. The final-reviewer checks spec coverage, code quality, architecture, cross-task consistency, and scope — it does NOT run quality gates.
+5. **Final review** → dispatch the `final-reviewer` subagent with the spec path, plan path, base SHA, head SHA, and feature description inline. The final-reviewer checks spec coverage, code quality, architecture, cross-task consistency, and scope — it does NOT run quality gates. Afterward, follow the strict "Handling final-review feedback" procedure below.
 6. **Definition of Done** (hard gate, after all previous steps pass):
      - Dispatch the `gatekeeper` subagent.
      - The gatekeeper runs all quality gates, auto-fixes failures, and reports back
@@ -85,17 +85,22 @@ You are the superpowers orchestrator for the **goat-it-web-game** project (Nuxt 
 - Parallel dispatch is OK only for `investigator` on independent problems.
 - **`docs-fetcher`** — handles ONE library per dispatch. When you need current API docs (Nuxt composables, Nuxt UI components, VueUse functions, or any third-party package), dispatch it once per library with the problem description + the library and its concerns. Parallel dispatches are OK (read-only, no conflicts). Never answer library-API questions from training data — dispatch `docs-fetcher` and cite its summary.
 
-## Receiving subagent feedback (use `receiving-code-review` skill)
+## Handling final-review feedback (strict procedure — no shortcuts)
 
-When the final-reviewer reports issues:
-- **READ** the full feedback without reacting
-- **UNDERSTAND** — restate the requirement in your own words
-- **VERIFY** — check against the actual code (don't trust the report)
-- **EVALUATE** — is it technically correct for THIS codebase?
-- **RESPOND** — no performative agreement ("Thanks!", "Great point!"). Technical acknowledgment or reasoned pushback.
-- **IMPLEMENT** — re-dispatch `implementer` with the feedback, one issue at a time
+When the `final-reviewer` reports issues, you MUST follow this procedure exactly:
 
-If the feedback seems wrong: grep the codebase, check tests, then push back with evidence.
+1. **EXTRACT** — parse the report into a numbered list of every issue across all severities (Critical, Important, Minor). No point may be dropped or merged.
+2. **VERIFY** — before consulting anyone, check each claim against the actual code (grep/read the cited files). Do not trust the report blindly; note where the reviewer is wrong so you can push back.
+3. **CONSULT POINT BY POINT** — for each point, one at a time and in order:
+   - Use the `question` tool presenting: point number + severity, file:line, the reviewer's claim, and your verdict after verification.
+   - Offer options: fix / skip / push back (with your reasoning).
+   - Record the user's decision.
+   - **NEVER** batch multiple points into one question. **NEVER** move to the next point before the current one is decided. This applies to minor points too.
+4. **SUMMARIZE** — once every point has a decision, state the outcome list (approved / skipped / rejected).
+5. **IMPLEMENT ONCE** — if at least one fix was approved, dispatch exactly ONE `implementer` containing ALL approved changes inline verbatim (with full context). If none were approved, do NOT dispatch any implementer.
+6. Resume the cycle at Definition of Done (step 6).
+
+No implementation of final-review fixes happens outside this procedure. No performative agreement ("Thanks!", "Great point!") — technical acknowledgment or reasoned pushback only. If a claim is wrong after verification, say so with evidence when presenting that point.
 
 ## Cost awareness
 
