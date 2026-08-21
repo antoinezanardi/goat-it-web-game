@@ -42,10 +42,10 @@ describe("GameQuestionCardHintBadge Component", () => {
     expect(badge.props("square")).toBe(true);
   });
 
-  it("should set the UBadge size to lg when mounted.", () => {
+  it("should set the UBadge size to md when mounted.", () => {
     const badge = wrapper.findComponent({ name: "UBadge" });
 
-    expect(badge.props("size")).toBe("lg");
+    expect(badge.props("size")).toBe("md");
   });
 
   it("should set the UBadge variant to subtle when mounted.", () => {
@@ -54,29 +54,14 @@ describe("GameQuestionCardHintBadge Component", () => {
     expect(badge.props("variant")).toBe("subtle");
   });
 
-  it("should apply the border-2 class to the UBadge when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
+  it.each(["border-2", "border-dashed", "border-warning", "rounded-full"])(
+    "should apply the %s class to the UBadge when mounted.",
+    cssClass => {
+      const badge = wrapper.findComponent({ name: "UBadge" });
 
-    expect(badge.classes()).toContain("border-2");
-  });
-
-  it("should apply the border-dashed class to the UBadge when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.classes()).toContain("border-dashed");
-  });
-
-  it("should apply the border-warning class to the UBadge when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.classes()).toContain("border-warning");
-  });
-
-  it("should apply the rounded-full class to the UBadge when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.classes()).toContain("rounded-full");
-  });
+      expect(badge.classes()).toContain(cssClass);
+    },
+  );
 
   it("should apply the data-testid attribute to the badge when mounted.", () => {
     expect(wrapper.find("[data-testid='game-question-hint']").exists()).toBe(true);
@@ -85,7 +70,7 @@ describe("GameQuestionCardHintBadge Component", () => {
   it("should set the UBadge aria-label to the hint tooltip i18n key when mounted.", () => {
     const badge = wrapper.findComponent({ name: "UBadge" });
 
-    expect(badge.attributes("aria-label")).toBe("questions.themeStack.hintTooltip");
+    expect(badge.attributes("aria-label")).toBe("questions.themeStack.primaryThemeHintTooltip");
   });
 
   it("should wrap the badge in a UPopover when mounted.", () => {
@@ -113,6 +98,6 @@ describe("GameQuestionCardHintBadge Component", () => {
 
     const content = document.body.querySelector("[data-testid='game-question-hint-popover']");
 
-    expect(content?.textContent).toBe("questions.themeStack.hintTooltip");
+    expect(content?.textContent).toBe("questions.themeStack.primaryThemeHintTooltip");
   });
 });

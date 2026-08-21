@@ -23,7 +23,8 @@
       "otherThemes": "+{count} outro tema | +{count} outros temas",
       "primaryBadge": "Principal",
       "hintBadge": "Dica",
-      "hintTooltip": "O tema principal é uma dica para a resposta"
+      "primaryThemeHintTooltip": "O tema principal é uma dica para a resposta",
+      "themeHintTooltip": "Este tema é uma dica para a resposta"
     }
   }
 }

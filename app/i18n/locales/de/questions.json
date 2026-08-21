@@ -23,7 +23,8 @@
       "otherThemes": "+{count} weiteres Thema | +{count} weitere Themen",
       "primaryBadge": "Primär",
       "hintBadge": "Hinweis",
-      "hintTooltip": "Das Hauptthema ist ein Hinweis auf die Antwort"
+      "primaryThemeHintTooltip": "Das Hauptthema ist ein Hinweis auf die Antwort",
+      "themeHintTooltip": "Dieses Thema ist ein Hinweis auf die Antwort"
     }
   }
 }

@@ -23,7 +23,8 @@
       "otherThemes": "+{count} autre thème | +{count} autres thèmes",
       "primaryBadge": "Principal",
       "hintBadge": "Indice",
-      "hintTooltip": "Le thème principal est un indice pour la réponse"
+      "primaryThemeHintTooltip": "Le thème principal est un indice pour la réponse",
+      "themeHintTooltip": "Ce thème est un indice pour la réponse"
     }
   }
 }

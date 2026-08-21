@@ -31,6 +31,8 @@ function handleOtherThemesClick(): void {
 
     <div class="min-w-0">
       <p class="flex flex-wrap gap-x-2 items-center leading-snug-plus">
+        <GameQuestionCardHintBadge v-if="isPrimaryHint"/>
+
         <span
           class="font-semibold md:text-lg text-(--game-theme-neon) text-base"
           data-testid="game-question-theme"
@@ -68,8 +70,6 @@ function handleOtherThemesClick(): void {
 
     <div class="flex flex-col gap-2 items-center ml-auto">
       <GameQuestionCardDifficultyBadge :difficulty="difficulty"/>
-
-      <GameQuestionCardHintBadge v-if="isPrimaryHint"/>
     </div>
   </header>
 </template>

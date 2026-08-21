@@ -84,44 +84,19 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     expect(rows[1]?.find("[data-testid='theme-hint-badge']").exists()).toBe(false);
   });
 
-  it("should render the primary badge when a row is both primary and hint.", async() => {
+  it.each([
+    { isPrimary: true, isHint: true, badge: "theme-primary-badge", expected: true },
+    { isPrimary: true, isHint: true, badge: "theme-hint-badge", expected: true },
+    { isPrimary: false, isHint: true, badge: "theme-primary-badge", expected: false },
+    { isPrimary: false, isHint: true, badge: "theme-hint-badge", expected: true },
+  ])("should render $badge=$expected when isPrimary=$isPrimary and isHint=$isHint.", async({ isPrimary, isHint, badge, expected }) => {
     await wrapper.setProps({
-      themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
+      themes: [createFakeQuestionThemeAssignment({ isPrimary, isHint, theme: primaryTheme })],
     });
 
     const row = wrapper.find("[data-testid='theme-popover-row']");
 
-    expect(row.find("[data-testid='theme-primary-badge']").exists()).toBe(true);
-  });
-
-  it("should render the hint badge when a row is both primary and hint.", async() => {
-    await wrapper.setProps({
-      themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
-    });
-
-    const row = wrapper.find("[data-testid='theme-popover-row']");
-
-    expect(row.find("[data-testid='theme-hint-badge']").exists()).toBe(true);
-  });
-
-  it("should not render the primary badge when a row is hint-only.", async() => {
-    await wrapper.setProps({
-      themes: [createFakeQuestionThemeAssignment({ isPrimary: false, isHint: true, theme: primaryTheme })],
-    });
-
-    const row = wrapper.find("[data-testid='theme-popover-row']");
-
-    expect(row.find("[data-testid='theme-primary-badge']").exists()).toBe(false);
-  });
-
-  it("should render the hint badge when a row is hint-only.", async() => {
-    await wrapper.setProps({
-      themes: [createFakeQuestionThemeAssignment({ isPrimary: false, isHint: true, theme: primaryTheme })],
-    });
-
-    const row = wrapper.find("[data-testid='theme-popover-row']");
-
-    expect(row.find("[data-testid='theme-hint-badge']").exists()).toBe(true);
+    expect(row.find(`[data-testid='${badge}']`).exists()).toBe(expected);
   });
 
   it("should pass isHint true to the first row's theme icon when mounted.", () => {
@@ -175,6 +150,6 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
 
     const content = document.body.querySelector("[data-testid='theme-hint-popover']");
 
-    expect(content?.textContent).toBe("questions.themeStack.hintTooltip");
+    expect(content?.textContent).toBe("questions.themeStack.themeHintTooltip");
   });
 });

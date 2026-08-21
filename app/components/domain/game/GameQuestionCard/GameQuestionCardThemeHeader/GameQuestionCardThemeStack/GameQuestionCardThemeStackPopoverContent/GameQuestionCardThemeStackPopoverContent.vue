@@ -15,7 +15,7 @@ const { t } = useI18n();
     <li
       v-for="assignment in props.themes"
       :key="assignment.theme.slug"
-      class="flex gap-2 items-start p-1.5"
+      class="flex gap-2 items-center p-1.5"
       data-testid="theme-popover-row"
     >
       <GameQuestionCardThemeIcon
@@ -40,7 +40,6 @@ const { t } = useI18n();
             data-testid="theme-primary-badge"
             :icon="QUESTION_PRIMARY_ICON"
             :label="t('questions.themeStack.primaryBadge')"
-            size="xs"
             variant="subtle"
           />
 
@@ -56,7 +55,6 @@ const { t } = useI18n();
               data-testid="theme-hint-badge"
               :icon="QUESTION_HINT_ICON"
               :label="t('questions.themeStack.hintBadge')"
-              size="xs"
               variant="subtle"
             />
 
@@ -65,7 +63,7 @@ const { t } = useI18n();
                 class="px-3 py-2 text-sm"
                 data-testid="theme-hint-popover"
               >
-                {{ t("questions.themeStack.hintTooltip") }}
+                {{ t("questions.themeStack.themeHintTooltip") }}
               </div>
             </template>
           </UPopover>

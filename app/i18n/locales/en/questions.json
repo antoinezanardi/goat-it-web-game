@@ -23,7 +23,8 @@
       "otherThemes": "+{count} other theme | +{count} other themes",
       "primaryBadge": "Primary",
       "hintBadge": "Hint",
-      "hintTooltip": "The primary theme is a hint for the answer"
+      "primaryThemeHintTooltip": "The primary theme is a hint for the answer",
+      "themeHintTooltip": "This theme is a hint for the answer"
     }
   }
 }

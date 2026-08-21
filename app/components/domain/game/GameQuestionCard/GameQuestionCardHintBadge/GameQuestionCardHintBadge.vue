@@ -10,12 +10,12 @@ const { t } = useI18n();
     mode="hover"
   >
     <UBadge
-      :aria-label="t('questions.themeStack.hintTooltip')"
-      class="border-2 border-dashed border-warning p-2 rounded-full"
+      :aria-label="t('questions.themeStack.primaryThemeHintTooltip')"
+      class="border-2 border-dashed border-warning p-1 rounded-full"
       color="warning"
       data-testid="game-question-hint"
       :icon="QUESTION_HINT_ICON"
-      size="lg"
+      size="md"
       square
       variant="subtle"
     />
@@ -25,7 +25,7 @@ const { t } = useI18n();
         class="px-3 py-2 text-sm"
         data-testid="game-question-hint-popover"
       >
-        {{ t("questions.themeStack.hintTooltip") }}
+        {{ t("questions.themeStack.primaryThemeHintTooltip") }}
       </div>
     </template>
   </UPopover>

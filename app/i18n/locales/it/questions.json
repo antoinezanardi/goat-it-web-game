@@ -23,7 +23,8 @@
       "otherThemes": "+{count} altro tema | +{count} altri temi",
       "primaryBadge": "Principale",
       "hintBadge": "Suggerimento",
-      "hintTooltip": "Il tema principale è un indizio per la risposta"
+      "primaryThemeHintTooltip": "Il tema principale è un indizio per la risposta",
+      "themeHintTooltip": "Questo tema è un indizio per la risposta"
     }
   }
 }
