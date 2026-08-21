@@ -147,8 +147,8 @@ importers:
         specifier: ^6.7.8
         version: 6.7.8(f8783623fa359d0edbfb3267a586981e)
       nuxt-schema-org:
-        specifier: ^6.2.9
-        version: 6.2.9(9040a6df20b0179a7b52b3f7f4e6e051)
+        specifier: ^6.3.0
+        version: 6.3.0(9040a6df20b0179a7b52b3f7f4e6e051)
       nuxt-seo-utils:
         specifier: ^8.4.2
         version: 8.4.2(a70fe19a6c54b54284e1e23d465b70e3)
@@ -8127,8 +8127,8 @@ packages:
       zod:
         optional: true
 
-  nuxt-schema-org@6.2.9:
-    resolution: {integrity: sha512-YC0E2zStImEN0Ut7ZgnbdzTq/Go/W11USQBbo9Ac3GT3ALFDtxJ8HPuDePQDDIKeNI5Qtfz2nSPEhTSG5q6t/Q==}
+  nuxt-schema-org@6.3.0:
+    resolution: {integrity: sha512-QLuGIsZOJZJEKo1KPQ/629IpC7AF+nAEaBNLtUPq/oES2hGIuyUryANf8/jerUqU+FsbvTuvc7Lsbwb8FEwvzA==}
     peerDependencies:
       '@unhead/vue': ^2.0.7 || ^3.0.0
       unhead: ^2.0.7 || ^3.0.0
@@ -19788,12 +19788,12 @@ snapshots:
       - vue
       - webpack
 
-  nuxt-schema-org@6.2.9(9040a6df20b0179a7b52b3f7f4e6e051):
+  nuxt-schema-org@6.3.0(9040a6df20b0179a7b52b3f7f4e6e051):
     dependencies:
       '@nuxt/kit': 4.5.2(magic-string@1.1.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.0)(rolldown@1.2.5)(rollup@4.60.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))
       defu: 6.1.7
       nuxt-site-config: 4.2.3(@nuxt/schema@4.5.2)(magic-string@1.1.0)(magicast@0.5.4)(nuxt@4.5.2(d9cc3c3225750e74cd208f9add02a6a3))(oxc-parser@0.143.0)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.0)(rolldown@1.2.5)(rollup@4.60.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0))(vue@3.5.40(typescript@6.0.3))(zod@4.4.3)
-      nuxtseo-shared: 5.3.12(80750723e7e70bcc4dbed89adbffdb88)
+      nuxtseo-shared: 5.3.14(80750723e7e70bcc4dbed89adbffdb88)
       pkg-types: 2.3.1
       ufo: 1.6.4
     optionalDependencies:
