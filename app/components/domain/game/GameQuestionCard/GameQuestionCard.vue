@@ -32,10 +32,7 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
       data-testid="game-question-body"
     >
       <GameQuestionCardThemeHeader
-        v-if="primaryTheme"
-        :category="props.question.category"
-        :difficulty="props.question.cognitiveDifficulty"
-        :theme="primaryTheme"
+        :question="props.question"
       />
 
       <GameQuestionCardStatement
@@ -51,6 +48,7 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
 
       <GameQuestionCardContextAccordion
         v-if="hasContextSection"
+        :key="props.question.id"
         class="mt-4"
         :context="props.question.content.context"
         :trivia="props.question.content.trivia"

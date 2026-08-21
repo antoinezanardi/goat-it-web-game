@@ -2,6 +2,7 @@ import { When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
+import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
 
 When(
   /^the user goes to the next question$/u,
@@ -41,7 +42,8 @@ When(
 When(
   /^the user expands the question context accordion$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const trigger = this.page.getByTestId("game-question-context-accordion-trigger");
+    const question = getVisibleGameQuestionCard(this.page);
+    const trigger = question.getByTestId("game-question-context-accordion-trigger");
     await expect(trigger).toBeVisible();
     await trigger.click();
   },
@@ -50,7 +52,8 @@ When(
 When(
   /^the user clicks on the question source link "(?<domain>[^"]*)"$/u,
   async function(this: GoatItWorld, domain: string): Promise<void> {
-    const sourceNav = this.page.getByTestId("game-question-source-links");
+    const question = getVisibleGameQuestionCard(this.page);
+    const sourceNav = question.getByTestId("game-question-source-links");
     const link = sourceNav.getByText(domain, { exact: true });
     await expect(link).toBeVisible();
 
@@ -59,5 +62,31 @@ When(
       link.click(),
     ]);
     this.openedTabPage = openedTabPage;
+  },
+);
+
+When(
+  /^the user clicks on the theme icon stack$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+
+    await question.getByTestId("theme-stack-trigger").click();
+  },
+);
+
+When(
+  /^the user clicks on the "\+(?<count>\d+) other themes?" text$/u,
+  async function(this: GoatItWorld, count: string): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+    const labelRegex = new RegExp(`\\+${count} other themes?`, "iu");
+
+    await question.getByText(labelRegex).click();
+  },
+);
+
+When(
+  /^the user closes the themes popover$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
   },
 );

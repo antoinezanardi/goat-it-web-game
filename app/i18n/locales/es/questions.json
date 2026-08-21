@@ -1,10 +1,10 @@
 {
   "questions": {
     "cantFetch": "No se pudieron cargar las preguntas. Inténtelo de nuevo más tarde.",
-    "difficulty": {
-      "easy": "Fácil",
-      "medium": "Media",
-      "hard": "Difícil"
+    "difficultyTooltip": {
+      "easy": "Esta pregunta es fácil de deducir",
+      "medium": "Esta pregunta es moderadamente difícil de deducir",
+      "hard": "Esta pregunta es difícil de deducir"
     },
     "category": {
       "trivia": "Curiosidades",
@@ -18,6 +18,13 @@
     "sourcesAriaLabel": "Fuentes",
     "sourceOpensInNewTab": "Se abre en una nueva pestaña",
     "sourceLabel": "Fuente | Fuentes",
-    "sourceTooltip": "Visitar {url} para más información"
+    "sourceTooltip": "Visitar {url} para más información",
+    "themeStack": {
+      "otherThemes": "+{count} otro tema | +{count} otros temas",
+      "primaryBadge": "Principal",
+      "hintBadge": "Pista",
+      "primaryThemeHintTooltip": "El tema principal es una pista para la respuesta",
+      "themeHintTooltip": "Este tema es una pista para la respuesta"
+    }
   }
 }

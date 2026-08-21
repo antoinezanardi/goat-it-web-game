@@ -1,10 +1,10 @@
 {
   "questions": {
     "cantFetch": "Unable to load questions. Please try again later.",
-    "difficulty": {
-      "easy": "Easy",
-      "medium": "Medium",
-      "hard": "Hard"
+    "difficultyTooltip": {
+      "easy": "This question is easy to deduce",
+      "medium": "This question is moderately difficult to deduce",
+      "hard": "This question is hard to deduce"
     },
     "category": {
       "trivia": "Trivia",
@@ -18,6 +18,13 @@
     "sourcesAriaLabel": "Sources",
     "sourceOpensInNewTab": "Opens in a new tab",
     "sourceLabel": "Source | Sources",
-    "sourceTooltip": "Visit {url} for more info"
+    "sourceTooltip": "Visit {url} for more info",
+    "themeStack": {
+      "otherThemes": "+{count} other theme | +{count} other themes",
+      "primaryBadge": "Primary",
+      "hintBadge": "Hint",
+      "primaryThemeHintTooltip": "The primary theme is a hint for the answer",
+      "themeHintTooltip": "This theme is a hint for the answer"
+    }
   }
 }

@@ -1,54 +1,80 @@
 <script lang="ts" setup>
+import { GameQuestionCardThemeStack } from "#components";
+
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
-import { getCategoryIcon, getDifficultyColor } from "~/composables/domain/question/helpers/question.helpers";
-import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { getCategoryIcon, getPrimaryTheme, getSecondaryThemes, hasSecondaryThemes, isPrimaryThemeHint } from "~/composables/domain/question/helpers/question.helpers";
 
 const props = defineProps<GameQuestionCardThemeHeaderProps>();
 
-const themeIcon = computed(() => getThemeIcon(props.theme.slug));
+const { t } = useI18n();
+
+const category = computed(() => props.question.category);
+const isPrimaryHint = computed(() => isPrimaryThemeHint(props.question));
+const difficulty = computed(() => props.question.cognitiveDifficulty);
+const primaryTheme = computed(() => getPrimaryTheme(props.question));
+const hasOtherThemes = computed(() => hasSecondaryThemes(props.question));
+const otherThemesLabel = computed(() => t("questions.themeStack.otherThemes", { count: getSecondaryThemes(props.question).length }));
+
+const themeStackReference = useTemplateRef<InstanceType<typeof GameQuestionCardThemeStack>>("themeStackRef");
+
+function handleOtherThemesClick(): void {
+  themeStackReference.value?.toggleOpen();
+}
 </script>
 
 <template>
   <header class="flex gap-3 items-center">
-    <span
-      class="bg-content border border-(color:--game-theme-border) flex items-center justify-center rounded-lg shadow-[0_0_8px_var(--game-theme-glow-soft)] shrink-0 size-10"
-    >
-      <UIcon
-        class="size-8 text-(color:--game-theme-neon)"
-        :name="themeIcon"
-      />
-    </span>
+    <GameQuestionCardThemeStack
+      ref="themeStackRef"
+      :question="props.question"
+    />
 
     <div class="min-w-0">
-      <p
-        class="font-semibold leading-snug-plus text-(color:--game-theme-neon) text-base"
-        data-testid="game-question-theme"
-      >
-        {{ props.theme.label }}
-      </p>
+      <div class="flex flex-wrap gap-x-1.5">
+        <p class="flex gap-x-1.5 items-center leading-snug-plus">
+          <GameQuestionCardHintBadge
+            v-if="isPrimaryHint"
+            class="-ml-1"
+          />
+
+          <span
+            class="font-semibold md:text-lg text-(--game-theme-neon) text-base"
+            data-testid="game-question-theme"
+          >
+            {{ primaryTheme?.label }}
+          </span>
+        </p>
+
+        <UButton
+          v-if="hasOtherThemes"
+          class="rounded-lg"
+          color="neutral"
+          data-testid="theme-other-themes-trigger"
+          size="xs"
+          variant="subtle"
+          @click="handleOtherThemesClick"
+        >
+          {{ otherThemesLabel }}
+        </UButton>
+      </div>
 
       <p class="flex gap-1 items-center leading-snug-plus mt-0.5 text-sm">
         <UIcon
-          class="size-4 text-(color:--game-theme-neon)"
-          :name="getCategoryIcon(props.category)"
+          class="size-4 text-(--game-theme-neon)"
+          :name="getCategoryIcon(category)"
         />
 
         <span
-          class="font-medium text-(color:--game-theme-neon)"
+          class="font-medium text-(--game-theme-neon)"
           data-testid="game-question-category"
         >
-          {{ $t(`questions.category.${props.category}`) }}
+          {{ $t(`questions.category.${category}`) }}
         </span>
       </p>
     </div>
 
-    <UBadge
-      class="ml-auto"
-      :color="getDifficultyColor(props.difficulty)"
-      data-testid="game-question-difficulty"
-      :label="$t(`questions.difficulty.${props.difficulty}`)"
-      size="lg"
-      variant="subtle"
-    />
+    <div class="flex flex-col gap-2 items-center ml-auto">
+      <GameQuestionCardDifficultyBadge :difficulty="difficulty"/>
+    </div>
   </header>
 </template>

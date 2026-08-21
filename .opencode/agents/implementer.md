@@ -1,7 +1,7 @@
 ---
 description: Implements one very detailed task from an implementation plan for the goat-it-web-game project (Nuxt 4 + Vue 3 + @nuxt/ui v4, 100% test coverage).
 mode: subagent
-model: opencode-go/deepseek-v4-flash
+model: opencode-go/mimo-v2.5
 temperature: 0.2
 hidden: true
 steps: 80
@@ -41,6 +41,7 @@ permission:
     "sed *": "allow"
     "wc *": "allow"
     "cut *": "allow"
+    "docker compose *": "allow"
   task: deny
   webfetch: deny
 ---

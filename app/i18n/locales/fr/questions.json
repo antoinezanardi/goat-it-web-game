@@ -1,10 +1,10 @@
 {
   "questions": {
     "cantFetch": "Impossible de charger les questions. Veuillez réessayer plus tard.",
-    "difficulty": {
-      "easy": "Facile",
-      "medium": "Moyenne",
-      "hard": "Difficile"
+    "difficultyTooltip": {
+      "easy": "Cette question est facile à déduire",
+      "medium": "Cette question est moyennement difficile à déduire",
+      "hard": "Cette question est difficile à déduire"
     },
     "category": {
       "trivia": "Savoir & faits insolites",
@@ -18,6 +18,13 @@
     "sourcesAriaLabel": "Sources",
     "sourceOpensInNewTab": "S'ouvre dans un nouvel onglet",
     "sourceLabel": "Source | Sources",
-    "sourceTooltip": "Visiter {url} pour plus d'infos"
+    "sourceTooltip": "Visiter {url} pour plus d'infos",
+    "themeStack": {
+      "otherThemes": "+{count} autre thème | +{count} autres thèmes",
+      "primaryBadge": "Principal",
+      "hintBadge": "Indice",
+      "primaryThemeHintTooltip": "Le thème principal est un indice pour la réponse",
+      "themeHintTooltip": "Ce thème est un indice pour la réponse"
+    }
   }
 }
