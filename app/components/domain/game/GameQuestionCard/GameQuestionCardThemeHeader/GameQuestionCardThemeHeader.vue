@@ -3,7 +3,6 @@ import { GameQuestionCardThemeStack } from "#components";
 
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
 import { getCategoryIcon, getPrimaryTheme, getSecondaryThemes, hasSecondaryThemes, isPrimaryThemeHint } from "~/composables/domain/question/helpers/question.helpers";
-import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
 
 const props = defineProps<GameQuestionCardThemeHeaderProps>();
 
@@ -32,24 +31,13 @@ function handleOtherThemesClick(): void {
 
     <div class="min-w-0">
       <p class="flex flex-wrap gap-x-2 items-center leading-snug-plus">
+        <GameQuestionCardHintBadge v-if="isPrimaryHint"/>
+
         <span
           class="font-semibold md:text-lg text-(--game-theme-neon) text-base"
           data-testid="game-question-theme"
         >
           {{ primaryTheme?.label }}
-        </span>
-
-        <span
-          v-if="isPrimaryHint"
-          :aria-label="t('questions.themeStack.hintBadge')"
-          class="border-2 border-dashed border-warning inline-flex items-center justify-center rounded-full size-7 text-warning"
-          data-testid="theme-primary-hint-chip"
-          role="img"
-        >
-          <UIcon
-            class="size-4"
-            :name="QUESTION_HINT_ICON"
-          />
         </span>
 
         <UButton
@@ -80,9 +68,8 @@ function handleOtherThemesClick(): void {
       </p>
     </div>
 
-    <GameQuestionCardDifficultyBadge
-      class="ml-auto"
-      :difficulty="difficulty"
-    />
+    <div class="flex flex-col gap-2 items-center ml-auto">
+      <GameQuestionCardDifficultyBadge :difficulty="difficulty"/>
+    </div>
   </header>
 </template>

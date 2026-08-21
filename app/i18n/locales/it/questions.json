@@ -22,7 +22,9 @@
     "themeStack": {
       "otherThemes": "+{count} altro tema | +{count} altri temi",
       "primaryBadge": "Principale",
-      "hintBadge": "Suggerimento"
+      "hintBadge": "Suggerimento",
+      "primaryThemeHintTooltip": "Il tema principale è un indizio per la risposta",
+      "themeHintTooltip": "Questo tema è un indizio per la risposta"
     }
   }
 }

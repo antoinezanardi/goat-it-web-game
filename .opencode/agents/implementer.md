@@ -41,6 +41,7 @@ permission:
     "sed *": "allow"
     "wc *": "allow"
     "cut *": "allow"
+    "docker compose *": "allow"
   task: deny
   webfetch: deny
 ---

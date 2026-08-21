@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { GameQuestionCardThemeStackPopoverContentProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/GameQuestionCardThemeStackPopoverContent/game-question-card-theme-stack-popover-content.types";
-import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
+import { QUESTION_HINT_ICON, QUESTION_PRIMARY_ICON } from "~/composables/domain/question/constants/question.constants";
 
 const props = defineProps<GameQuestionCardThemeStackPopoverContentProps>();
 
@@ -24,31 +24,51 @@ const { t } = useI18n();
         :theme="assignment.theme"
       />
 
-      <span class="font-medium text-sm">
-        {{ assignment.theme.label }}
-      </span>
+      <div class="min-w-0">
+        <span class="font-medium text-sm">
+          {{ assignment.theme.label }}
+        </span>
 
-      <UBadge
-        v-if="assignment.isPrimary"
-        key="primary-badge"
-        color="neutral"
-        data-testid="theme-primary-badge"
-        :label="t('questions.themeStack.primaryBadge')"
-        size="xs"
-        variant="subtle"
-      />
+        <div
+          v-if="assignment.isPrimary || assignment.isHint"
+          class="flex flex-wrap gap-1 mt-1"
+        >
+          <UBadge
+            v-if="assignment.isPrimary"
+            key="primary-badge"
+            color="primary"
+            data-testid="theme-primary-badge"
+            :icon="QUESTION_PRIMARY_ICON"
+            :label="t('questions.themeStack.primaryBadge')"
+            variant="subtle"
+          />
 
-      <UBadge
-        v-if="assignment.isHint"
-        key="hint-badge"
-        class="border border-dashed"
-        color="warning"
-        data-testid="theme-hint-badge"
-        :icon="QUESTION_HINT_ICON"
-        :label="t('questions.themeStack.hintBadge')"
-        size="xs"
-        variant="subtle"
-      />
+          <UPopover
+            v-if="assignment.isHint"
+            enable-touch
+            mode="hover"
+          >
+            <UBadge
+              key="hint-badge"
+              class="border border-dashed"
+              color="warning"
+              data-testid="theme-hint-badge"
+              :icon="QUESTION_HINT_ICON"
+              :label="t('questions.themeStack.hintBadge')"
+              variant="subtle"
+            />
+
+            <template #content>
+              <div
+                class="px-3 py-2 text-sm"
+                data-testid="theme-hint-popover"
+              >
+                {{ t("questions.themeStack.themeHintTooltip") }}
+              </div>
+            </template>
+          </UPopover>
+        </div>
+      </div>
     </li>
   </ul>
 </template>

@@ -12,7 +12,6 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 import { GameQuestionCardThemeHeader } from "#components";
 
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
-import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
 
 describe("GameQuestionCardThemeHeader Component", () => {
   const primaryTheme = createFakeQuestionTheme({ label: "Histoire", slug: "history-civilizations" });
@@ -64,10 +63,10 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(badge.props("difficulty")).toBe("medium");
   });
 
-  it("should apply the ml-auto class to the GameQuestionCardDifficultyBadge when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "GameQuestionCardDifficultyBadge" });
+  it.each(["ml-auto", "flex", "flex-col"])("should apply the %s class to the difficulty badge container when mounted.", cssClass => {
+    const container = wrapper.find(".ml-auto");
 
-    expect(badge.classes()).toContain("ml-auto");
+    expect(container.classes()).toContain(cssClass);
   });
 
   it.each<{ category: QuestionCategory; icon: string }>([
@@ -171,7 +170,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(popover.props("open")).toBe(true);
   });
 
-  it("should render the primary hint chip when the primary theme is a hint.", async() => {
+  it("should render the GameQuestionCardHintBadge when the primary theme is a hint.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
         ...defaultProps.question,
@@ -179,50 +178,10 @@ describe("GameQuestionCardThemeHeader Component", () => {
       }),
     });
 
-    expect(wrapper.find("[data-testid='theme-primary-hint-chip']").exists()).toBe(true);
+    expect(wrapper.findComponent({ name: "GameQuestionCardHintBadge" }).exists()).toBe(true);
   });
 
-  it("should render the mic-off icon inside the primary hint chip when the primary theme is a hint.", async() => {
-    await wrapper.setProps({
-      question: createFakeQuestion({
-        ...defaultProps.question,
-        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
-      }),
-    });
-
-    const chip = wrapper.find("[data-testid='theme-primary-hint-chip']");
-    const icon = chip.findComponent({ name: "UIcon" });
-
-    expect(icon.props("name")).toBe(QUESTION_HINT_ICON);
-  });
-
-  it("should set the aria-label on the primary hint chip from the i18n key when the primary theme is a hint.", async() => {
-    await wrapper.setProps({
-      question: createFakeQuestion({
-        ...defaultProps.question,
-        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
-      }),
-    });
-
-    const chip = wrapper.find("[data-testid='theme-primary-hint-chip']");
-
-    expect(chip.attributes("aria-label")).toBe("questions.themeStack.hintBadge");
-  });
-
-  it("should set role img on the primary hint chip when the primary theme is a hint.", async() => {
-    await wrapper.setProps({
-      question: createFakeQuestion({
-        ...defaultProps.question,
-        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
-      }),
-    });
-
-    const chip = wrapper.find("[data-testid='theme-primary-hint-chip']");
-
-    expect(chip.attributes("role")).toBe("img");
-  });
-
-  it("should not render the primary hint chip when the primary theme is not a hint.", async() => {
+  it("should not render the GameQuestionCardHintBadge when the primary theme is not a hint.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
         ...defaultProps.question,
@@ -230,6 +189,6 @@ describe("GameQuestionCardThemeHeader Component", () => {
       }),
     });
 
-    expect(wrapper.find("[data-testid='theme-primary-hint-chip']").exists()).toBe(false);
+    expect(wrapper.findComponent({ name: "GameQuestionCardHintBadge" }).exists()).toBe(false);
   });
 });
