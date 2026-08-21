@@ -133,4 +133,4 @@ Feature: 🎮 Game Page
     Then the hint theme "History" should be flagged in the themes popover
     And the hint theme "Science" should be flagged in the themes popover
     And the non-hint theme "Cinema" should not be flagged in the themes popover
-    And hovering the "History" hint badge in the themes popover shows the popover "The primary theme is a hint for the answer"
+    And hovering the "History" hint badge in the themes popover shows the popover "This theme is a hint for the answer"
