@@ -1,5 +1,49 @@
 # 🐐👑 Goat It Web Admin Versioning Changelog
 
+## [1.5.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.4.0...v1.5.0) (2026-08-21)
+
+### 🚀 Features
+
+* **game-question-card:** convert difficulty & hint badges to touch-friendly popover ([#196](https://github.com/antoinezanardi/goat-it-web-game/issues/196)) ([2f0db9c](https://github.com/antoinezanardi/goat-it-web-game/commit/2f0db9c95735ae694f1b3fd09097fe35ee809c7d))
+* **game:** display secondary themes on question card ([#185](https://github.com/antoinezanardi/goat-it-web-game/issues/185)) ([5343b13](https://github.com/antoinezanardi/goat-it-web-game/commit/5343b1340e60ce254676c55c2d836e64676c2446))
+* **game:** extract difficulty badge into icon-only circle badge with… ([#183](https://github.com/antoinezanardi/goat-it-web-game/issues/183)) ([d2c29e2](https://github.com/antoinezanardi/goat-it-web-game/commit/d2c29e29d33b490a61a31ae5f8deaec1279f5c77))
+* **game:** surface theme isHint flag on question card ([#192](https://github.com/antoinezanardi/goat-it-web-game/issues/192)) ([61e6b56](https://github.com/antoinezanardi/goat-it-web-game/commit/61e6b56fc9045da4bf1e80892dae2e179bc5392a))
+
+### 🐛 Bug Fixes
+
+* **game:** prevent card halo animation reset during card transitions ([#182](https://github.com/antoinezanardi/goat-it-web-game/issues/182)) ([b5c871d](https://github.com/antoinezanardi/goat-it-web-game/commit/b5c871d8cf67917ad8a261f1158bae61afc98a61))
+* **question-cards:** improve cards various animations ([#187](https://github.com/antoinezanardi/goat-it-web-game/issues/187)) ([7c52fef](https://github.com/antoinezanardi/goat-it-web-game/commit/7c52fef3c0a28c2fd8295b08cddaa293f8286755))
+* **theme:** scope dark button colors to buttons only ([#180](https://github.com/antoinezanardi/goat-it-web-game/issues/180)) ([3c715c1](https://github.com/antoinezanardi/goat-it-web-game/commit/3c715c14b8b325d81476365850df6a022655ee2f))
+
+### 🎨 Styles
+
+* **game-question-card:** better alignments for game question headers ([#201](https://github.com/antoinezanardi/goat-it-web-game/issues/201)) ([1ec073b](https://github.com/antoinezanardi/goat-it-web-game/commit/1ec073b28a051a8771317c54123958b5e44ff44c))
+
+### 🧹 Chore
+
+* sync release v1.4.0 from main [skip ci] ([090bfb5](https://github.com/antoinezanardi/goat-it-web-game/commit/090bfb570b943c0513f6ac9931822940791c3c90))
+* trigger release ([8341184](https://github.com/antoinezanardi/goat-it-web-game/commit/8341184e40cfc198dd9e1cc95d2b6b9482dab549))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `@eslint/config-inspector` | `^3.3.0` |
+| `@iconify-json/lucide` | `^1.2.124` |
+| `@nuxt/ui` | `^4.11.0` |
+| `@nuxtjs/robots` | `^6.2.0` |
+| `@nuxtjs/sitemap` | `^8.5.0` |
+| `@takumi-rs/core` | `^2.10.0` |
+| `eslint` | `^10.9.0` |
+| `happy-dom` | `^20.11.6` |
+| `nuxt-schema-org` | `^6.3.0` |
+| `nuxtseo-layer-devtools` | `^5.3.14` |
+| `unhead` | `^3.4.0` |
+| `vite` | `^8.2.2` |
+| `oxlint monorepo` | `^1.79.0` |
+| `vitest monorepo` | `^4.1.11` |
+| `vue-language-tools monorepo` | `^3.3.11` |
+
 ## [1.4.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.3.0...v1.4.0) (2026-08-16)
 
 ### 🚀 Features
