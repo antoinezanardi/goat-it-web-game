@@ -11,7 +11,7 @@ const { t } = useI18n();
   >
     <UBadge
       :aria-label="t('questions.themeStack.primaryThemeHintTooltip')"
-      class="border-2 border-dashed border-warning p-1 rounded-full"
+      class="border-2 border-dashed border-warning my-0.5 p-1 rounded-full"
       color="warning"
       data-testid="game-question-hint"
       :icon="QUESTION_HINT_ICON"

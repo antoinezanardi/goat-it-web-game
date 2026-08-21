@@ -30,15 +30,20 @@ function handleOtherThemesClick(): void {
     />
 
     <div class="min-w-0">
-      <p class="flex flex-wrap gap-x-2 items-center leading-snug-plus">
-        <GameQuestionCardHintBadge v-if="isPrimaryHint"/>
+      <div class="flex flex-wrap gap-x-1.5">
+        <p class="flex gap-x-1.5 items-center leading-snug-plus">
+          <GameQuestionCardHintBadge
+            v-if="isPrimaryHint"
+            class="-ml-1"
+          />
 
-        <span
-          class="font-semibold md:text-lg text-(--game-theme-neon) text-base"
-          data-testid="game-question-theme"
-        >
-          {{ primaryTheme?.label }}
-        </span>
+          <span
+            class="font-semibold md:text-lg text-(--game-theme-neon) text-base"
+            data-testid="game-question-theme"
+          >
+            {{ primaryTheme?.label }}
+          </span>
+        </p>
 
         <UButton
           v-if="hasOtherThemes"
@@ -51,7 +56,7 @@ function handleOtherThemesClick(): void {
         >
           {{ otherThemesLabel }}
         </UButton>
-      </p>
+      </div>
 
       <p class="flex gap-1 items-center leading-snug-plus mt-0.5 text-sm">
         <UIcon
