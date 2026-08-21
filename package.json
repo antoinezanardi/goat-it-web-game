@@ -99,7 +99,7 @@
     "@nuxt/ui": "^4.11.0",
     "@nuxtjs/i18n": "^10.6.0",
     "@nuxtjs/robots": "^6.2.0",
-    "@nuxtjs/sitemap": "^8.4.0",
+    "@nuxtjs/sitemap": "^8.5.0",
     "@pinia/nuxt": "^1.0.2",
     "@pinia/testing": "^2.0.1",
     "@playwright/test": "^1.62.1",
