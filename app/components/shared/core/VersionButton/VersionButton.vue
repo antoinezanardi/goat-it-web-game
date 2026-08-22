@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { version } from "~~/package.json";
-import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/domain/home/VersionButton/version-button.constants";
+import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/shared/core/VersionButton/version-button.constants";
 </script>
 
 <template>

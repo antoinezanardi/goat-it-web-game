@@ -45,7 +45,7 @@ permission:
     "gatekeeper": "allow"
     "docs-fetcher": "allow"
     "explore": "allow"
-  webfetch: allow
+  webfetch: "allow"
 ---
 
 You are the **receiving-code-review** agent. You evaluate code review feedback with technical rigor — no performative agreement, no blind implementation.

@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import { version } from "~~/package.json";
-import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/domain/home/VersionButton/version-button.constants";
-import VersionButton from "@/components/domain/home/VersionButton/VersionButton.vue";
+import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/shared/core/VersionButton/version-button.constants";
+import VersionButton from "@/components/shared/core/VersionButton/VersionButton.vue";
 
 describe("VersionButton Component", () => {
   let wrapper: VueWrapper;

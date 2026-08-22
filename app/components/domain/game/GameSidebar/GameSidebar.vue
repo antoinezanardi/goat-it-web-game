@@ -53,7 +53,9 @@ function onUpdateOpen(value: boolean): void {
     </template>
 
     <template #footer>
-      <VersionButton/>
+      <div class="flex gap-2 items-center justify-center w-full">
+        <VersionButton/>
+      </div>
     </template>
   </USlideover>
 </template>
