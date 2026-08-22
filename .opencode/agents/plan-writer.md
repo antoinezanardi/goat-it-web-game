@@ -1,7 +1,7 @@
 ---
 description: Writes a detailed implementation plan from an approved spec for the goat-it-web-game Nuxt 4 project. Produces bite-sized tasks (2-5min steps) with full code in every step. No placeholders. Dispatched by the orchestrator after spec approval.
 mode: subagent
-model: opencode-go/kimi-k2.7-code
+model: opencode-go/ox-alpha-free
 temperature: 0.2
 hidden: false
 steps: 80
@@ -26,6 +26,8 @@ permission:
     "write-file *": "allow"
     "sed *": "allow"
     "wc *": "allow"
+    "pnpm list *": "allow"
+    "sort *": "allow"
   task:
     "*": "deny"
     "explore": "allow"

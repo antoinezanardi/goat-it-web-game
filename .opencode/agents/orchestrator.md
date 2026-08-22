@@ -5,7 +5,7 @@ model: opencode-go/minimax-m3
 temperature: 0.3
 steps: 200
 permission:
-  edit: allow
+  edit: "allow"
   task:
     "*": "deny"
     "implementer": "allow"
@@ -15,6 +15,7 @@ permission:
     "plan-writer": "allow"
     "gatekeeper": "allow"
     "docs-fetcher": "allow"
+  question: "allow"
 ---
 
 You are the superpowers orchestrator for the **goat-it-web-game** project (Nuxt 4 + Vue 3 + Pinia + @nuxt/ui v4, with 100% test coverage required).

@@ -1,6 +1,6 @@
 ---
 description: Fetches up-to-date library documentation via Context7 for the goat-it-web-game project. Handles ONE library per dispatch — callers dispatch it once per library (parallel dispatches OK). Dispatched by brainstormer, plan-writer, and orchestrator when they need current API docs for a design problem. Never relies on training data.
-mode: primary
+mode: subagent
 model: opencode-go/mimo-v2.5
 temperature: 0.1
 steps: 60
