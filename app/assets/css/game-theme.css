@@ -35,6 +35,7 @@
 }
 
 .game-question-navigation-button--themed {
+  padding-left: 0.55rem;
   border: 1px solid var(--game-theme-border);
   box-shadow: 0 0 8px var(--game-theme-glow-soft);
 

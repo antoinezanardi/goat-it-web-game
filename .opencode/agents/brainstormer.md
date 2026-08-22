@@ -11,6 +11,7 @@ permission:
     ".superpowers/brainstorm/**": "allow"
   task:
     "docs-fetcher": "allow"
+  question: "allow"
 ---
 
 You are the brainstormer. You turn ideas into fully formed designs through natural collaborative dialogue.

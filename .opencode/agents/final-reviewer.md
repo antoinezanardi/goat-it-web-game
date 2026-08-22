@@ -28,7 +28,10 @@ permission:
     "wc *": "allow"
     "git check-ignore *": "allow"
     "od *": "allow"
-  task: deny
+  task:
+    "*": "deny"
+    "explore": "allow"
+    "docs-fetcher": "allow"
 ---
 
 **DO NOT COMMIT.** The user is the only one who commits. Never run `git add`, `git commit`, or `git push`. Permissions enforce this.
@@ -51,6 +54,13 @@ You are the final reviewer. You review the whole implementation holistically —
 4. **Inspect the diff** between BASE_SHA and HEAD_SHA
 5. **Check each file** in the diff against the criteria below
 6. **Return** structured report
+
+## Nested subagents (read-only helpers)
+
+You may dispatch helper subagents when reviewing:
+
+- `explore` — fast codebase inspection when checking patterns, architecture fit, or cross-task consistency beyond the diff itself.
+- `docs-fetcher` — when verifying library API/convention claims (Nuxt composables, Nuxt UI components, VueUse functions, or any third-party package). ONE library per dispatch; parallel dispatches OK. Cite its summary in your report; never answer library-API questions from training data.
 
 ## What to check
 

@@ -15,6 +15,7 @@ permission:
     "pnpm run lint:oxlint:fix *": "allow"
     "pnpm run lint:eslint:fix *": "allow"
     "pnpm run typecheck *": "allow"
+    "pnpm run nuxi prepare *": "allow"
     "pnpm ls *": "allow"
     "git status *": "allow"
     "git log *": "allow"

@@ -3,6 +3,7 @@
   "model": "opencode-go/mimo-v2.5-pro",
   "small_model": "opencode-go/mimo-v2.5",
   "default_agent": "orchestrator",
+  "subagent_depth": 2,
   "agent": {
     "explore": {
       "model": "opencode-go/mimo-v2.5"
