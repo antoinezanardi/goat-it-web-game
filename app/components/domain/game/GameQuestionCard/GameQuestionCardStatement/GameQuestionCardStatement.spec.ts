@@ -9,15 +9,15 @@ import { GameQuestionCardStatement } from "#components";
 import type { GameQuestionCardStatementProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardStatement/game-question-card-statement.types";
 
 describe("GameQuestionCardStatement Component", () => {
-  const defaultProps: GameQuestionCardStatementProps = {
+  const defaultGameQuestionCardStatementProps: GameQuestionCardStatementProps = {
     text: "What is the capital of France?",
-  };
+  } as const;
 
   let wrapper: VueWrapper;
 
   async function mountStatement(options: MountSuspendedOptions<typeof GameQuestionCardStatement> = {}): Promise<VueWrapper> {
     return mountSuspended(GameQuestionCardStatement, {
-      props: defaultProps,
+      props: defaultGameQuestionCardStatementProps,
       shallow: false,
       ...options,
     });
@@ -25,6 +25,10 @@ describe("GameQuestionCardStatement Component", () => {
 
   beforeEach(async() => {
     wrapper = await mountStatement();
+  });
+
+  it("should render GameQuestionCardStatement when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render the question label when mounted.", () => {
@@ -41,5 +45,11 @@ describe("GameQuestionCardStatement Component", () => {
 
   it("should render the icon when mounted.", () => {
     expect(wrapper.findComponent({ name: "UIcon" }).exists()).toBeTruthy();
+  });
+
+  it("should render the icon with the question label icon name when mounted.", () => {
+    const icon = wrapper.findComponent({ name: "UIcon" });
+
+    expect(icon.props("name")).toBe("i-lucide-help-circle");
   });
 });

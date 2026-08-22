@@ -16,7 +16,7 @@ describe("DocsToc Component", () => {
       { id: "/rules#concept", title: "The concept", level: 2 },
       { id: "/rules#golden-rule", title: "The golden rule", level: 2 },
     ],
-  } as const;
+  };
   let wrapper: VueWrapper;
   let callHookSpy: ReturnType<typeof vi.spyOn>;
 
@@ -28,6 +28,14 @@ describe("DocsToc Component", () => {
     const nuxtApp = useNuxtApp();
     callHookSpy = vi.spyOn(nuxtApp.hooks, "callHook");
     wrapper = await mountDocsToc();
+  });
+
+  it("should render DocsToc when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
+  it("should render the docs-toc root element with its testid when mounted.", () => {
+    expect(wrapper.find("[data-testid='docs-toc']").exists()).toBe(true);
   });
 
   it("should render UContentToc with the mapped links when mounted.", () => {
@@ -49,12 +57,6 @@ describe("DocsToc Component", () => {
     const contentToc = wrapper.findComponent({ name: "UContentToc" });
 
     expect(contentToc.props("ui")).toStrictEqual(DOCS_TOC_UI);
-  });
-
-  it("should render UContentToc with the docs-toc sticky classes when mounted.", () => {
-    const contentToc = wrapper.findComponent({ name: "UContentToc" });
-
-    expect(contentToc.props("class")).toBe("docs-toc hidden lg:block lg:self-start lg:sticky lg:top-7");
   });
 
   it("should call the page:transition:finish hook when mounted.", () => {

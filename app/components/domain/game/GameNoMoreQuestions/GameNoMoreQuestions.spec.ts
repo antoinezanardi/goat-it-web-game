@@ -17,8 +17,18 @@ describe("GameNoMoreQuestions Component", () => {
     wrapper = await mountGameNoMoreQuestionsComponent();
   });
 
+  it("should render GameNoMoreQuestions when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should render the no more questions message when mounted.", () => {
     expect(wrapper.text()).toContain("game.noMoreQuestions");
+  });
+
+  it("should render the party-popper icon when mounted.", () => {
+    const icon = wrapper.findComponent({ name: "UIcon" });
+
+    expect(icon.props("name")).toBe("i-lucide-party-popper");
   });
 
   it("should render the back to home button with correct label when mounted.", () => {

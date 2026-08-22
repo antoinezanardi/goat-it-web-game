@@ -53,47 +53,38 @@ describe("useGameStore", () => {
   });
 
   describe("isPending", () => {
-    it("should be false when fetchStatus is idle.", () => {
+    it.each<{ fetchStatus: "idle" | "pending"; expected: boolean }>([
+      { fetchStatus: "idle", expected: false },
+      { fetchStatus: "pending", expected: true },
+    ])("should be $expected when fetchStatus is $fetchStatus.", ({ fetchStatus, expected }) => {
       const store = useGameStore();
+      fetchAsyncActionMock.fetchStatus.value = fetchStatus;
 
-      expect(store.isPending).toBeFalsy();
-    });
-
-    it("should be true when fetchStatus is pending.", () => {
-      const store = useGameStore();
-      fetchAsyncActionMock.fetchStatus.value = "pending";
-
-      expect(store.isPending).toBeTruthy();
+      expect(store.isPending).toBe(expected);
     });
   });
 
   describe("isSuccess", () => {
-    it("should be false when fetchStatus is idle.", () => {
+    it.each<{ fetchStatus: "idle" | "success"; expected: boolean }>([
+      { fetchStatus: "idle", expected: false },
+      { fetchStatus: "success", expected: true },
+    ])("should be $expected when fetchStatus is $fetchStatus.", ({ fetchStatus, expected }) => {
       const store = useGameStore();
+      fetchAsyncActionMock.fetchStatus.value = fetchStatus;
 
-      expect(store.isSuccess).toBeFalsy();
-    });
-
-    it("should be true when fetchStatus is success.", () => {
-      const store = useGameStore();
-      fetchAsyncActionMock.fetchStatus.value = "success";
-
-      expect(store.isSuccess).toBeTruthy();
+      expect(store.isSuccess).toBe(expected);
     });
   });
 
   describe("isError", () => {
-    it("should be false when fetchStatus is idle.", () => {
+    it.each<{ fetchStatus: "idle" | "error"; expected: boolean }>([
+      { fetchStatus: "idle", expected: false },
+      { fetchStatus: "error", expected: true },
+    ])("should be $expected when fetchStatus is $fetchStatus.", ({ fetchStatus, expected }) => {
       const store = useGameStore();
+      fetchAsyncActionMock.fetchStatus.value = fetchStatus;
 
-      expect(store.isError).toBeFalsy();
-    });
-
-    it("should be true when fetchStatus is error.", () => {
-      const store = useGameStore();
-      fetchAsyncActionMock.fetchStatus.value = "error";
-
-      expect(store.isError).toBeTruthy();
+      expect(store.isError).toBe(expected);
     });
   });
 

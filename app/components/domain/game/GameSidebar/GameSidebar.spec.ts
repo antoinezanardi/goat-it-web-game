@@ -24,6 +24,10 @@ describe("GameSidebar Component", () => {
     wrapper = await mountGameSidebar();
   });
 
+  it("should render GameSidebar when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should have the data-testid attribute when mounted.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")).not.toBeNull();
   });
@@ -54,6 +58,12 @@ describe("GameSidebar Component", () => {
     const link = wrapper.findComponent({ name: "ULink" });
 
     expect(link.props("to")).toBe("/");
+  });
+
+  it("should render the house icon on the back to home link when mounted.", () => {
+    const icon = wrapper.findComponent({ name: "UIcon" });
+
+    expect(icon.props("name")).toBe("i-lucide-house");
   });
 
   it("should render the VersionButton component when mounted.", () => {

@@ -20,6 +20,14 @@ describe("VersionButton Component", () => {
     wrapper = await mountVersionButton();
   });
 
+  it("should render VersionButton when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
+  it("should render the version button root with the correct data-testid when mounted.", () => {
+    expect(wrapper.find("[data-testid='github-version-button']").exists()).toBe(true);
+  });
+
   it("should display v{version} text as the UButton label when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
@@ -36,6 +44,12 @@ describe("VersionButton Component", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
     expect(button.props("ui")).toStrictEqual(VERSION_BUTTON_UI);
+  });
+
+  it("should render the UButton github icon when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
+
+    expect(button.props("icon")).toBe("i-lucide-github");
   });
 
   it("should render the tooltip with the translated githubTooltip key when mounted.", () => {

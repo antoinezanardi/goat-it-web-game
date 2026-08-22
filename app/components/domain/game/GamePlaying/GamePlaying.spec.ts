@@ -2,9 +2,9 @@ import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
-import type { Ref } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
@@ -13,16 +13,16 @@ import { GamePlaying } from "#components";
 import type { GamePlayingProps } from "@/components/domain/game/GamePlaying/game-playing.types";
 import type { Question } from "#shared/types/question.types";
 
-type GamePlayingSetupState = {
-  enteringQuestion: Ref<Question | undefined>;
+type GamePlayingSetupState = ComponentVm & {
+  enteringQuestion: Question | undefined;
   handlePrevious: () => void;
-  isTransitioning: Ref<boolean>;
-  leavingQuestion: Ref<Question | undefined>;
-  transitionDirection: Ref<"forward" | "backward">;
+  isTransitioning: boolean;
+  leavingQuestion: Question | undefined;
+  transitionDirection: "forward" | "backward";
 };
 
 function getGamePlayingSetupState(wrapper: VueWrapper): GamePlayingSetupState {
-  return (wrapper as VueWrapper & { setupState: GamePlayingSetupState }).setupState;
+  return getWrapperVm<GamePlayingSetupState>(wrapper);
 }
 
 describe("GamePlaying Component", () => {
@@ -30,20 +30,14 @@ describe("GamePlaying Component", () => {
   let firstQuestion: Question;
   let secondQuestion: Question;
   let thirdQuestion: Question;
-
-  const getDefaultGamePlayingProps = (): GamePlayingProps => ({
-    canGoToPreviousQuestion: false,
-    currentIndex: 0,
-    currentQuestion: firstQuestion,
-    questions: [firstQuestion, secondQuestion],
-  } as const);
+  let defaultGamePlayingProps: GamePlayingProps;
 
   async function mountGamePlayingComponent(options: MountSuspendedOptions<typeof GamePlaying> = {}): Promise<VueWrapper> {
     const { props: propsOverride, ...restOptions } = options;
 
     return mountSuspended(GamePlaying, {
       shallow: false,
-      props: propsOverride ?? getDefaultGamePlayingProps(),
+      props: propsOverride ?? defaultGamePlayingProps,
       ...restOptions,
     });
   }
@@ -52,7 +46,17 @@ describe("GamePlaying Component", () => {
     firstQuestion = createFakeQuestion();
     secondQuestion = createFakeQuestion();
     thirdQuestion = createFakeQuestion();
+    defaultGamePlayingProps = {
+      canGoToPreviousQuestion: false,
+      currentIndex: 0,
+      currentQuestion: firstQuestion,
+      questions: [firstQuestion, secondQuestion],
+    };
     wrapper = await mountGamePlayingComponent();
+  });
+
+  it("should render GamePlaying when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   describe("rendering", () => {
@@ -434,7 +438,7 @@ describe("GamePlaying Component", () => {
       await nextTick();
 
       const setupState = getGamePlayingSetupState(wrapper);
-      setupState.isTransitioning.value = false;
+      setupState.isTransitioning = false;
       vi.advanceTimersByTime(safetyTimeoutMs);
       await nextTick();
 

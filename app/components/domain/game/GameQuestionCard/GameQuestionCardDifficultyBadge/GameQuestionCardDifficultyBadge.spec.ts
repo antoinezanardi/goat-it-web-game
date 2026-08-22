@@ -11,8 +11,8 @@ import type { GameQuestionCardDifficultyBadgeProps } from "@/components/domain/g
 
 describe("GameQuestionCardDifficultyBadge Component", () => {
   const defaultGameQuestionCardDifficultyBadgeProps: GameQuestionCardDifficultyBadgeProps = {
-    difficulty: "medium" as const,
-  };
+    difficulty: "medium",
+  } as const;
 
   let wrapper: VueWrapper;
 
@@ -31,6 +31,10 @@ describe("GameQuestionCardDifficultyBadge Component", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it("should render GameQuestionCardDifficultyBadge when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render the UBadge component when mounted.", () => {

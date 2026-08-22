@@ -11,7 +11,7 @@ import type { GameQuestionCardAnswerProps } from "@/components/domain/game/GameQ
 describe("GameQuestionCardAnswer Component", () => {
   const defaultGameQuestionCardAnswerProps: GameQuestionCardAnswerProps = {
     text: "Paris",
-  };
+  } as const;
 
   let wrapper: VueWrapper;
 
@@ -27,6 +27,10 @@ describe("GameQuestionCardAnswer Component", () => {
     wrapper = await mountGameQuestionCardAnswer();
   });
 
+  it("should render GameQuestionCardAnswer when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should render the answer label when mounted.", () => {
     expect(wrapper.text()).toContain("questions.answerLabel");
   });
@@ -40,6 +44,8 @@ describe("GameQuestionCardAnswer Component", () => {
   });
 
   it("should render the lightbulb icon when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UIcon" }).exists()).toBeTruthy();
+    const icon = wrapper.findComponent({ name: "UIcon" });
+
+    expect(icon.props("name")).toBe("i-lucide-lightbulb");
   });
 });

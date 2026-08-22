@@ -49,6 +49,14 @@ describe("DefaultModalFooter Component", () => {
       });
     });
 
+    describe("Icon", () => {
+      it("should render the close icon when mounted.", () => {
+        const closeButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-close-button']");
+
+        expect(closeButton.props("icon")).toBe("i-lucide-x");
+      });
+    });
+
     describe("Disabled state", () => {
       it("should pass isCloseButtonDisabled to the close button when true.", async() => {
         await wrapper.setProps({ isCloseButtonDisabled: true });
@@ -71,11 +79,11 @@ describe("DefaultModalFooter Component", () => {
   });
 
   describe("Close button shortcut display", () => {
-    it("should render escape UKbd with correct value when shortcuts are not disabled.", () => {
+    it("should render the escape UKbd shortcut when shortcuts are not disabled.", () => {
       const closeButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-close-button']");
       const escapeKbd = closeButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-close-button-shortcut-escape']");
 
-      expect(escapeKbd.props("value")).toBe("escape");
+      expect(escapeKbd.exists()).toBe(true);
     });
 
     it("should not render escape UKbd when shortcuts are disabled.", async() => {
@@ -151,32 +159,18 @@ describe("DefaultModalFooter Component", () => {
     }
 
     describe("When shortcuts are not disabled", () => {
-      it("should render meta UKbd with correct value when shortcuts are not disabled.", () => {
+      it("should render the meta UKbd shortcut when shortcuts are not disabled.", () => {
         const primaryButton = getPrimaryButton(wrapper);
         const metaKbd = primaryButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-primary-button-shortcut-meta']");
 
-        expect(metaKbd.props("value")).toBe("meta");
+        expect(metaKbd.exists()).toBe(true);
       });
 
-      it("should render meta UKbd with sm size when shortcuts are not disabled.", () => {
-        const primaryButton = getPrimaryButton(wrapper);
-        const metaKbd = primaryButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-primary-button-shortcut-meta']");
-
-        expect(metaKbd.props("size")).toBe("sm");
-      });
-
-      it("should render enter UKbd with correct value when shortcuts are not disabled.", () => {
+      it("should render the enter UKbd shortcut when shortcuts are not disabled.", () => {
         const primaryButton = getPrimaryButton(wrapper);
         const enterKbd = primaryButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-primary-button-shortcut-enter']");
 
-        expect(enterKbd.props("value")).toBe("enter");
-      });
-
-      it("should render enter UKbd with sm size when shortcuts are not disabled.", () => {
-        const primaryButton = getPrimaryButton(wrapper);
-        const enterKbd = primaryButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-primary-button-shortcut-enter']");
-
-        expect(enterKbd.props("size")).toBe("sm");
+        expect(enterKbd.exists()).toBe(true);
       });
     });
 

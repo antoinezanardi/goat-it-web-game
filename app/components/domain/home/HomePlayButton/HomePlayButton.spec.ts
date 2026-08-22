@@ -19,6 +19,10 @@ describe("HomePlayButton Component", () => {
     wrapper = await mountHomePlayButton();
   });
 
+  it("should render HomePlayButton when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should render the gradient wrapper with the correct data-testid when mounted.", () => {
     expect(wrapper.find("[data-testid='home-play-button']").exists()).toBe(true);
   });

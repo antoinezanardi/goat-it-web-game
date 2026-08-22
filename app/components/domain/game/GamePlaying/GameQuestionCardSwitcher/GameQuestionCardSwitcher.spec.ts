@@ -40,6 +40,10 @@ describe("GameQuestionCardSwitcher Component", () => {
     wrapper = await mountGameQuestionCardSwitcher();
   });
 
+  it("should render GameQuestionCardSwitcher when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should render the leaving question card when mounted.", () => {
     expect(wrapper.find("[data-testid='card-transition-leaving']").findComponent({ name: "GameQuestionCard" }).exists()).toBe(true);
   });

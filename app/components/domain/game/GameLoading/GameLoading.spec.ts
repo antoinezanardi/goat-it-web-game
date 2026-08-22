@@ -17,6 +17,10 @@ describe("GameLoading Component", () => {
     wrapper = await mountGameLoadingComponent();
   });
 
+  it("should render GameLoading when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should render a LoadingSpinner when mounted.", () => {
     const spinner = wrapper.findComponent(LoadingSpinner);
 

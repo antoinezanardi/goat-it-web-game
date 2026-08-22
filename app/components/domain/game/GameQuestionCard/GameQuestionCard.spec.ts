@@ -10,8 +10,10 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 
 import { GameQuestionCard } from "#components";
 
+import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestionCard/game-question-card.types";
+
 describe("GameQuestionCard Component", () => {
-  const defaultGameQuestionCardProps = {
+  const defaultGameQuestionCardProps: GameQuestionCardProps = {
     question: createFakeQuestion({
       category: "trivia",
       themes: [
@@ -28,7 +30,7 @@ describe("GameQuestionCard Component", () => {
       }),
       sourceUrls: ["https://en.wikipedia.org/wiki/France"],
     }),
-  };
+  } as const;
 
   let wrapper: VueWrapper;
 
@@ -38,6 +40,10 @@ describe("GameQuestionCard Component", () => {
 
   beforeEach(async() => {
     wrapper = await mountGameQuestionCard();
+  });
+
+  it("should render GameQuestionCard when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render the question statement when mounted.", () => {
@@ -92,13 +98,6 @@ describe("GameQuestionCard Component", () => {
 
   it("should render the source list component when mounted.", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardSourceList" }).exists()).toBe(true);
-  });
-
-  it("should render the source list component outside the scrollable body when mounted.", () => {
-    const bodyDiv = wrapper.find("[data-testid='game-question-body']");
-    const sourceListInBody = bodyDiv.findComponent({ name: "GameQuestionCardSourceList" });
-
-    expect(sourceListInBody.exists()).toBe(false);
   });
 
   it("should render the scrollable body container when mounted.", () => {

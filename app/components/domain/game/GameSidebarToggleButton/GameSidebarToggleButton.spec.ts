@@ -17,6 +17,20 @@ describe("GameSidebarToggleButton Component", () => {
     wrapper = await mountGameSidebarToggleButton();
   });
 
+  it("should render GameSidebarToggleButton when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
+  it("should render a UButton when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UButton" }).exists()).toBeTruthy();
+  });
+
+  it("should set the UButton icon to the menu icon when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
+
+    expect(button.props("icon")).toBe("i-lucide-menu");
+  });
+
   it("should emit click when the button is clicked.", async() => {
     await wrapper.find("button").trigger("click");
 

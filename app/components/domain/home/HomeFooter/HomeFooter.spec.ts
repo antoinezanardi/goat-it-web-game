@@ -20,8 +20,16 @@ describe("HomeFooter Component", () => {
     wrapper = await mountHomeFooter();
   });
 
+  it("should render HomeFooter when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should render the footer root with the correct data-testid when mounted.", () => {
     expect(wrapper.find("[data-testid='home-footer']").exists()).toBe(true);
+  });
+
+  it("should render the How to Play button with the correct data-testid when mounted.", () => {
+    expect(wrapper.find("[data-testid='home-how-to-play-button']").exists()).toBe(true);
   });
 
   it("should render a How to Play UButton with the howToPlay label translation key when mounted.", () => {

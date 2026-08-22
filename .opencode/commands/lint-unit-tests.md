@@ -9,7 +9,7 @@ Audit unit test spec files against the repository conventions defined in `docs/u
 
 The audit is **static analysis only** — never execute tests. Deep semantic checks (branch/slot/state coverage) are out of scope; coverage remains delegated to `pnpm run test:unit:cov`.
 
-To protect the main context, spec files are NEVER read by the main agent: after classification, audit work is dispatched to parallel `general` subagents that return only structured violation summaries. The main agent aggregates, reports, asks for approval, then applies fixes.
+To protect the main context during the **audit phase**, spec files are NEVER read by the main agent: after classification, audit work is dispatched to parallel `general` subagents that return only structured violation summaries. During the **fix phase**, the main agent may read and edit spec files directly for small fix-forwards; bulk category fixes remain delegated to subagents. The main agent aggregates, reports, asks for approval, then applies fixes.
 
 Report all violations once in-chat, then use the question tool to validate with the user which violations to fix. **Never modify any file before explicit user approval.**
 
@@ -51,11 +51,11 @@ Audit subagents apply this checklist verbatim. Violations are recorded with rule
 
 - **[U1] Location & naming** — Spec colocated with source as `SourceFile.spec.ts`. Exceptions: layouts → `spec/` subfolder; i18n → `app/i18n/specs/`.
 - **[U2] Explicit vitest imports** — `describe`, `it`, `expect`, `vi`, etc. imported from `"vitest"` in every test file. No reliance on globals.
-- **[U3] Describe label rule** — Components: string `"<Name> Component"`. Pages: string `"<Name> Page"`. Layouts: string `"<Name> Layout"`. Server handlers: outer string `"Server Goat It API <Resource> <Method> Handler"` + inner `describe(handlerFn, ...)`. Functions/composables/stores/repositories: symbol reference (`describe(myFn, ...)`) or free-form string only when no single symbol applies. Never a direct component/page/layout reference.
+- **[U3] Describe label rule** — Components: string `"<Name> Component"`. Pages: string `"<Name> Page"`. Layouts: string `"<Name> Layout"`. Server handlers: outer string `"Server Goat It API <Resource> <Method> Handler"` + inner `describe(handlerFn, ...)`. Stores: string form `describe("useXxxStore", ...)` or symbol reference (docs §6.5 pattern). Functions/composables/repositories: symbol reference (`describe(myFn, ...)`); free-form string only when no single symbol applies. Never a direct component/page/layout reference, and never a free-form grouping string wrapping symbol describes.
 - **[U4] Single-call assertions** — No `toHaveBeenCalledTimes(1)` combined with `toHaveBeenCalledWith(...)`. Use `toHaveBeenCalledExactlyOnceWith(...)`.
 - **[U5] Error swallowing** — No `.catch(() => null)`. Use try/catch with `void error` when asserting side effects of throwing code.
 - **[U6] Translation keys** — Assertions compare translation keys, never translated prose strings.
-- **[U7] Type safety** — No `any`; no unsafe assertions without an `// Acceptable as ...` + `// oxlint-disable-next-line ...` comment pair.
+- **[U7] Type safety** — No `any`; no unsafe assertions without an `// Acceptable as ...` + `// oxlint-disable-next-line ...` comment pair. Exceptions — bare `as` casts accepted as-is: those mirroring a documented docs example (e.g. store specs' `capturedAction = action as () => Promise<...>` per §6.5), and the following established codebase patterns: DOM element casts (`.element as HTMLElement`), mock-shape casts in tests (`expect.any(Function) as () => void`, `{ matches: true } as MediaQueryList`), runtime-config/error narrowing in server helper specs (`as unknown as ReturnType<typeof useRuntimeConfig>`, `error as H3Error`), and repository shape-test casts (`expect.any(Function) as () => Promise<Entity[]>`).
 - **[U8] Faketory sources** — Fake data from `tests/unit/utils/faketories/` or `@goat-it/schemas/testing/*`. No local DTO faketories.
 - **[U9] Global mocks** — No `mockNuxtImport("useFoo", ...)` in component/store specs for composables already globally mocked via setup files (import the MockHolder instead).
 - **[U10] `it.each` usage** — Always use `it.each` for parameterized tests. Don't write multiple `it(...)` for the same test with different inputs. `it.each` should always be typed like `it.each<T>([...])`.
@@ -64,10 +64,12 @@ Audit subagents apply this checklist verbatim. Violations are recorded with rule
 
 - **[C1] Import** — Component imported from `#components`. Exceptions: `App.vue` and `OgImage.takumi.vue` imported from direct path.
 - **[C2] Describe label** — String form `"<ComponentName> Component"`, not a reference.
-- **[C3] Default props const** — Declared as `const defaultXxxProps: XxxProps = { ... } as const` typed to the component props type at the top of `describe`, before the mount helper. When a component has at least one prop, even optional, it must have a default props const.
+- **[C3] Default props const** — Declared as `const defaultXxxProps: XxxProps = { ... } as const` typed to the component props type at the top of `describe`, before the mount helper. When a component has at least one prop, even optional, it must have a default props const. If `as const` genuinely cannot compile (deep-readonly mismatch with mutable arrays/faketory values in the props type), omit `as const` and keep the typed annotation.
 - **[C4] Mount helper** — `async function mountXxx(options: MountSuspendedOptions<typeof Xxx> = {})` spreading options after defaults.
-- **[C5] No shallow** — `shallow: true` is forbidden in component tests.
+- **[C5] No shallow** — `shallow: true` is forbidden in component tests. Exception: `App.vue` (root app shell) keeps `shallow: true`.
 - **[C6] Store access order** — When a store is used: `createTestingPinia()` plugin, then `mockStore(useXxxStore)` strictly after `mountSuspended` in `beforeEach`.
+- **[C7] Shared wrapper lifecycle** — `let wrapper: VueWrapper` declared at the top of `describe`; `beforeEach` assigns it via the mount helper so every test consumes a freshly-reset wrapper.
+- **[C8] VM/setupState access** — Accessing component internals (`setupState`, exposed methods, template refs) must go through `getWrapperVm<T>` from `~~/tests/unit/utils/helpers/vtu.helpers` with a local VM type extending `ComponentVm` (e.g. `type XxxVm = ComponentVm & { toggleOpen: () => void }`). Never cast the wrapper directly (`wrapper as VueWrapper & { setupState: ... }`). Note: the instance proxy unwraps refs — type ref members as their inner value (e.g. `isTransitioning: boolean`) and assign through the proxy instead of mutating `.value`.
 
 #### Page checks
 
@@ -75,8 +77,9 @@ Audit subagents apply this checklist verbatim. Violations are recorded with rule
 - **[P2] Shallow** — `shallow: true` present in the mount helper defaults.
 - **[P3] Describe label** — String form `"<PageName> Page"`.
 - **[P4] definePageMeta assertion** — Present when the page defines metadata.
-- **[P5] useHead assertion** — Uses the extraction pattern `vi.mocked(useHead).mock.calls[0]?.[0]` + call.
+- **[P5] useHead assertion** — Uses the extraction pattern `vi.mocked(useHead).mock.calls[0]?.[0]` + call. Page SEO is asserted through `useHead` even when `useSeoMeta` is also globally mocked — this is the established pattern; do NOT flag it as vacuous.
 - **[P6] Mount helper** — Same signature pattern as components.
+- **[P7] Shared wrapper lifecycle** — Same rule as [C7]: module-level `let wrapper`, reassigned through the mount helper in every `beforeEach`.
 
 #### Layout checks
 
@@ -84,6 +87,7 @@ Audit subagents apply this checklist verbatim. Violations are recorded with rule
 - **[L2] Import** — Direct path import, not `#components`.
 - **[L3] Describe label** — String form `"<LayoutName> Layout"`.
 - **[L4] Shallow** — `shallow: true` present.
+- **[L5] Shared wrapper lifecycle** — Same rule as [C7]: module-level `let wrapper`, reassigned through the mount helper in every `beforeEach`.
 
 #### Worthiness checks (components, pages, layouts)
 
@@ -92,8 +96,9 @@ A test is **worthy** when it pins behaviour that can vary; it is **unworthy** wh
 Worthy — each item below should be exercised by at least one test in the spec:
 
 - **Branches** — every point where rendering or output can take two or more paths: `v-if` / `v-else-if` / `v-else` / `v-show` (both sides), ternaries and short-circuits inside template expressions (`:class="cond ? a : b"`), function-driven rendered content (`{{ formatX(...) }}`), and state-dependent render states (loading / empty / populated / error).
+- **Child component presence** — every child Vue component rendered by the template has its presence asserted at least once in the spec (`findComponent({ name: "X" }).exists()` / `.findComponent(Xxx)` / `.findComponent("[data-testid='…']")` — all three count as presence assertions), even when its rendering is not conditional. Vue components are contract surfaces (props/emits/slots), unlike plain HTML tags, so their presence is always worth pinning.
 - **Emits** — every event the component can emit, payload asserted; conditional events also assert absence on the non-emitting path.
-- **Dynamically-bound props** — every `:`-bound prop forwarded to children, asserted via `.props()`.
+- **Dynamically-bound props** — every `:`-bound prop forwarded to children is asserted, preferably via `.props()`. Exception: when `.props()` is genuinely not possible — e.g. the binding falls through to a native DOM element rather than a Vue component, or the receiving component is a third-party stub without accessible source — asserting via `.attributes()` on the rendered element is acceptable.
 - **i18n in DOM** — every `$t()` / `$tc()` / `t()` usage rendered by the template is asserted by its key somewhere in the spec, even when the usage is static.
 - **Named slots** — every named slot exercised at least once.
 - **Reactive updates** — prop mutations via `setProps`, or mock-holder/store mutations followed by `await nextTick()`, with re-render assertions.
@@ -103,18 +108,19 @@ Unworthy — asserting any of these in a spec is a violation:
 - Static Tailwind/utility classes that no binding ever touches.
 - Static props or attributes without `:` binding (e.g. `variant="subtle"`, `color="neutral"`) — implementation constants.
 - Any markup constant that cannot change with props, watch, computed or emits.
-- Unconditional component presence (`findComponent({ name: "X" }).exists()`) when the component has no `v-if`/`v-else`/`v-show` — only the wrapper existence test is allowed unconditionally.
+
+Child component presence is never unworthy — see the "Child component presence" worthy item above.
 
 Checks:
 
 - **[W1] Unworthy assertions** — Spec contains no assertions on unworthy items.
 - **[W2] i18n key coverage** — Every i18n usage rendered by the source template is asserted by key in the spec. The auditor reads the paired source `.vue` file to enumerate them.
-- **[W3] Wrapper existence** — The first test after the mount helper must be `it("should render <ComponentName> when mounted.", () => { expect(wrapper.exists()).toBeTruthy(); })`.
+- **[W3] Wrapper existence** — The first test after the mount helper must be `it("should render <Name> when mounted.", () => { expect(wrapper.exists()).toBeTruthy(); })` where `<Name>` is the component, page or layout display name.
 - **[W4] data-testid presence** — Every element with a `data-testid` in the source template must have its presence asserted at least once in the spec, even when not conditionally rendered.
-- **[W5] Icons name** – Every icon name rendered by the source template must be asserted by its `name` prop, even when the usage is static.
+- **[W5] Icons name** – Every icon rendered by the source template must be asserted via its icon prop (`name` on UIcon, or `icon` / `leading-icon` / `trailing-icon` on components like UButton/UBadge), even when the usage is static.
 - **[W6] Link to** – Every link to rendered by the source template must be asserted by its `to` prop, even when the usage is static.
 
-Missing branch/slot coverage detection stays out of audit scope — it is enforced by `pnpm run test:unit:cov`. Only W1 and W2 are audited.
+Missing branch/slot coverage detection stays out of audit scope — it is enforced by `pnpm run test:unit:cov`.
 
 #### Composable checks
 
@@ -122,6 +128,7 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 - **[CO2] Typing** — `import type { useFoo as UseFooType }` + module-level `let useFoo: typeof UseFooType`.
 - **[CO3] Module-level mocks** — Each mocked dependency declared at module level with `mockNuxtImport(...)` factory referencing it.
 - **[CO4] beforeEach order** — Mocks recreated before the dynamic composable import.
+- **[CO5] Store access order** — When a composable harness mounts a component that uses a store, apply [C6]: `createTestingPinia()` first, then `mockStore(useXxxStore)` strictly after the mount call.
 
 #### Store checks
 
@@ -151,7 +158,7 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 
 #### Node helper/mapper checks
 
-- **[N1] Pure tests** — No mocking infrastructure.
+- **[N1] Pure tests** — No mocking infrastructure of the unit under test or its collaborators. Exception: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, spying on global timers) are allowed to test time-dependent helpers deterministically.
 - **[N2] Aliases** — Imports use `#server/utils/...` or `#shared/utils/...`.
 
 #### i18n translation checks
@@ -164,7 +171,7 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 
 The main agent must NOT read spec files itself — that is what overflows context. Instead:
 
-1. **Batch** — Group the classified specs by type, up to ~8 files per group (single-file input → one group of one).
+1. **Batch** — Group the classified specs by type in batches of 4 files per group (single-file input → one group of one; smaller remainders are acceptable).
 2. **Dispatch** — Launch one `general` subagent per group via the Task tool, in parallel waves of at most ~6 concurrent tasks. Mark each task as read-only research/audit work.
 3. **Prompt** — Use exactly this template per group, filling `<TYPE>` and `<PROJECT>`, listing the file paths:
 
@@ -184,14 +191,13 @@ The main agent must NOT read spec files itself — that is what overflows contex
       read each paired source `.vue` file to enumerate its i18n usages and dynamic
       bindings. Consult `docs/unit-testing.md` only when needed to judge a pattern
       against the conventions.
-   3. Count applicable checks passed vs applied per file, and record every violation
-      with its tag + line number(s). Multiple occurrences of the same rule in one file
-      collapse into a single entry listing all lines.
+   3. Record every violation with its tag + line number(s). Multiple occurrences of
+      the same rule in one file collapse into a single entry listing all lines.
 
    Return EXACTLY this structure for each file, in the same order, nothing else:
 
    FILE: <path>
-   CHECKS: <passed>/<applied>
+   STATUS: ✅ PASSED / ❌ FAILED / ⚠️ NEEDS HUMAN JUDGMENT
    VIOLATIONS:
    - [<tag>] :<lines> — <description including the expected pattern>
    WARNINGS:
@@ -200,7 +206,7 @@ The main agent must NOT read spec files itself — that is what overflows contex
    Omit VIOLATIONS/WARNINGS sections when empty. No prose before or after.
    ```
 
-4. **Collect & retry** — If an agent fails or returns malformed output, retry once; if it still fails, mark its files ⚠️ `unaudited — manual review` in the report.
+4. **Collect & retry** — If an agent fails or returns truncated/malformed output, re-dispatch once with HALF the files per batch (split into two tasks); if it still fails, mark its files ⚠️ `unaudited — manual review` in the report.
 
 ### 6. Report
 
@@ -209,10 +215,10 @@ Emit exactly one report block:
 ```markdown
 # Unit Test Lint Report — <total> files scanned (<passed> passed)
 
-| Status | File                                 | Type       | Checks | Violations |
-|--------|--------------------------------------|------------|--------|------------|
-| ❌     | app/pages/index.spec.ts              | page       | 10/12  | V1, V2     |
-| ⚠️     | app/composables/core/useGame.spec.ts | composable | 9/10   | V3         |
+| Status | File                                 | Type       | Violations |
+|--------|--------------------------------------|------------|------------|
+| ❌     | app/pages/index.spec.ts              | page       | V1, V2     |
+| ⚠️     | app/composables/core/useGame.spec.ts | composable | V3         |
 
 (✅ pass · ❌ violation · ⚠️ needs human judgment)
 ```
@@ -220,32 +226,31 @@ Emit exactly one report block:
 Table lists **only failing/warning files**, ordered by path. Then list every violation, numbered sequentially:
 
 ```markdown
-**V1** `app/pages/index.spec.ts:38` — [P2] Missing `shallow: true` in mount helper **V2** `app/stores/domain/game/game.store.spec.ts:31,45` — [U5] `toHaveBeenCalledTimes(1)` + `toHaveBeenCalledWith` → use `toHaveBeenCalledExactlyOnceWith(...)`
+**V1** `app/pages/index.spec.ts:38` — [P2] Missing `shallow: true` in mount helper
+**V2** `app/stores/domain/game/game.store.spec.ts:31,45` — [U5] `toHaveBeenCalledTimes(1)` + `toHaveBeenCalledWith` → use `toHaveBeenCalledExactlyOnceWith(...)`
 ```
 
 Format per violation: ID → backticked `file:line(s)` → `[rule tag]` → concise description including the expected pattern.
 
-### 7. Interactive fix approval
+### 7. Category-based fix approval
 
-Immediately after the report, ask the user what to fix using the question tool with options such as:
+Immediately after the report, group every reported violation by rule tag into fix **categories** (e.g. `W3 — wrapper-existence first tests`, `C3 — default props consts`, `U10 — typed it.each`). Present the categories to the user via the question tool so they can approve which to fix, one category at a time (also offer "all categories" and "nothing — report only"; always allow a custom answer with specific categories/violation IDs).
 
-1. All violations
-2. Only mechanical fixes (label renames, missing periods/shallow flags, assertion rewrites, import fixes)
-3. Per-file groups (one option per failing file)
-4. Nothing — report only
-
-Always allow a custom answer (specific violation IDs).
-
-Classify before asking: **mechanical** = unambiguous single-file edits; **judgmental** = requires writing new test logic (missing ZodError path, uncovered methods, Pattern A/B/C choice). State the split in the question description so the user can decide informedly.
+Classify before asking: **mechanical** = unambiguous single-file edits; **judgmental** = requires writing new test logic or removal decisions that may affect coverage. State the split in the question description so the user can decide informedly.
 
 ### 8. Fix selected violations
 
-For every approved violation:
+Work through approved categories ONE at a time:
 
+- For each category, list every file it touches and dispatch fixes in batches of 4 files per `general` subagent task (smaller remainders fine), in parallel waves of at most ~6 tasks.
+- Each batch prompt must contain: exact file paths, the violations to fix with their tags/lines, the expected pattern from `docs/unit-testing.md`, scoped verification (`pnpm run test:unit <spec paths>` must pass; revert a single fix if irrecoverable), and the structured `FILE / STATUS / NOTES` return format.
 - Apply corrections following the exact patterns from `docs/unit-testing.md` — never invent alternatives.
-- Judgmental items may require adding new test cases; write them per the file-type pattern.
+- Judgmental items may require adding or removing test cases; write them per the file-type pattern.
 - Respect repo conventions: no comments (except allowed lint-disable/JSDoc forms), correct import grouping/order, no `any`.
-- Do NOT touch anything beyond the approved violations.
+- Known linter constraints while editing: at most ONE `expect()` call per test body (`vitest(max-expects)`); hooks must live inside `describe` blocks (`vitest(require-top-level-describe)`).
+- When a category is done, run focused lint + tests across its modified files and fix forward until green BEFORE moving to the next category.
+- After each completed category, report its outcome (files changed, violations fixed, verification results) and ask the user whether to proceed to the next approved/pending category — do not chain categories silently.
+- Do NOT touch anything beyond the approved categories' violations.
 - Do NOT commit.
 
 ### 9. Verify (focused only)

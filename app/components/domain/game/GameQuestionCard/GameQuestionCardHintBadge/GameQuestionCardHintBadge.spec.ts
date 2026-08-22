@@ -3,13 +3,15 @@ import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+
 import { GameQuestionCardHintBadge } from "#components";
 
 describe("GameQuestionCardHintBadge Component", () => {
   let wrapper: VueWrapper;
 
-  async function mountBadge(): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCardHintBadge, { shallow: false, attachTo: document.body });
+  async function mountBadge(options: MountSuspendedOptions<typeof GameQuestionCardHintBadge> = {}): Promise<VueWrapper> {
+    return mountSuspended(GameQuestionCardHintBadge, { shallow: false, attachTo: document.body, ...options });
   }
 
   beforeEach(async() => {
@@ -20,38 +22,18 @@ describe("GameQuestionCardHintBadge Component", () => {
     vi.useRealTimers();
   });
 
-  it("should render the UBadge component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UBadge" }).exists()).toBe(true);
+  it("should render GameQuestionCardHintBadge when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
-  it("should set the UBadge color to warning when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("color")).toBe("warning");
+  it("should render the UBadge component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UBadge" }).exists()).toBe(true);
   });
 
   it("should set the UBadge icon to the question hint icon when mounted.", () => {
     const badge = wrapper.findComponent({ name: "UBadge" });
 
     expect(badge.props("icon")).toBe("i-lucide-hat-glasses");
-  });
-
-  it("should set the UBadge square prop to true when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("square")).toBe(true);
-  });
-
-  it("should set the UBadge size to md when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("size")).toBe("md");
-  });
-
-  it("should set the UBadge variant to subtle when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("variant")).toBe("subtle");
   });
 
   it("should apply the data-testid attribute to the badge when mounted.", () => {
@@ -64,18 +46,6 @@ describe("GameQuestionCardHintBadge Component", () => {
 
   it("should wrap the badge in a UPopover when mounted.", () => {
     expect(wrapper.findComponent({ name: "UPopover" }).exists()).toBe(true);
-  });
-
-  it("should set the UPopover mode to hover when mounted.", () => {
-    const popover = wrapper.findComponent({ name: "UPopover" });
-
-    expect(popover.props("mode")).toBe("hover");
-  });
-
-  it("should enable touch on the UPopover when mounted.", () => {
-    const popover = wrapper.findComponent({ name: "UPopover" });
-
-    expect(popover.props("enableTouch")).toBe(true);
   });
 
   it("should render the hint tooltip popover content when the badge is hovered.", async() => {

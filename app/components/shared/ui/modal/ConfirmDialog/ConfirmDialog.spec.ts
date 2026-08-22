@@ -17,7 +17,7 @@ describe("ConfirmDialog Component", () => {
     icon: "i-lucide-archive",
     title: "Archive this theme?",
     description: "This theme will be archived.",
-  };
+  } as const;
 
   async function mountConfirmDialogComponent(options: MountSuspendedOptions<typeof ConfirmDialog> = {}): Promise<VueWrapper> {
     return mountSuspended(ConfirmDialog, {
@@ -30,7 +30,7 @@ describe("ConfirmDialog Component", () => {
     wrapper = await mountConfirmDialogComponent();
   });
 
-  it("should render the confirm dialog component when mounted.", () => {
+  it("should render ConfirmDialog when mounted.", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
@@ -39,6 +39,12 @@ describe("ConfirmDialog Component", () => {
       const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
 
       expect(modal.props("open")).toBe(true);
+    });
+
+    it("should render the modal with the correct data-testid when mounted.", () => {
+      const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
+
+      expect(getWrapperVm(modal).$attrs["data-testid"]).toBe("confirm-dialog-modal");
     });
 
     it("should close the modal when the modal emits update:open with false.", async() => {

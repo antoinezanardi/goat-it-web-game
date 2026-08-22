@@ -18,10 +18,26 @@ describe("DocsBackLink Component", () => {
     wrapper = await mountDocsBackLink();
   });
 
+  it("should render DocsBackLink when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should render a UButton with the backHome label translation key when mounted.", () => {
     const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
 
     expect(button.props("label")).toBe("docs.backHome");
+  });
+
+  it("should render the back-link icon when mounted.", () => {
+    const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
+
+    expect(button.props("icon")).toBe("i-lucide-arrow-left");
+  });
+
+  it("should link to the home page when mounted.", () => {
+    const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
+
+    expect(button.props("to")).toBe("/");
   });
 
   it("should render the button with the docs-back-link testid when mounted.", () => {

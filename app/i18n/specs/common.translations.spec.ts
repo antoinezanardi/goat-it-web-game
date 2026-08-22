@@ -9,38 +9,16 @@ import itCommon from "~/i18n/locales/it/common.json";
 import ptCommon from "~/i18n/locales/pt/common.json";
 
 describe("common.json translations", () => {
-  it("should have the same keys in english as in french when context is common.", () => {
-    const crushedFrCommonKeys = Object.keys(crush(frCommon)).toSorted();
-    const crushedEnCommonKeys = Object.keys(crush(enCommon)).toSorted();
+  it.each<[string, typeof frCommon]>([
+    ["de", deCommon],
+    ["en", enCommon],
+    ["es", esCommon],
+    ["it", itCommon],
+    ["pt", ptCommon],
+  ])("should have the same keys in every locale as in french when context is common.", (_locale, commonTranslations) => {
+    const crushedReferenceKeys = Object.keys(crush(frCommon)).toSorted();
+    const crushedCommonKeys = Object.keys(crush(commonTranslations)).toSorted();
 
-    expect(crushedEnCommonKeys).toStrictEqual(crushedFrCommonKeys);
-  });
-
-  it("should have the same keys in english as in german when context is common.", () => {
-    const crushedDeCommonKeys = Object.keys(crush(deCommon)).toSorted();
-    const crushedEnCommonKeys = Object.keys(crush(enCommon)).toSorted();
-
-    expect(crushedEnCommonKeys).toStrictEqual(crushedDeCommonKeys);
-  });
-
-  it("should have the same keys in english as in spanish when context is common.", () => {
-    const crushedEsCommonKeys = Object.keys(crush(esCommon)).toSorted();
-    const crushedEnCommonKeys = Object.keys(crush(enCommon)).toSorted();
-
-    expect(crushedEnCommonKeys).toStrictEqual(crushedEsCommonKeys);
-  });
-
-  it("should have the same keys in english as in italian when context is common.", () => {
-    const crushedItCommonKeys = Object.keys(crush(itCommon)).toSorted();
-    const crushedEnCommonKeys = Object.keys(crush(enCommon)).toSorted();
-
-    expect(crushedEnCommonKeys).toStrictEqual(crushedItCommonKeys);
-  });
-
-  it("should have the same keys in english as in portuguese when context is common.", () => {
-    const crushedPtCommonKeys = Object.keys(crush(ptCommon)).toSorted();
-    const crushedEnCommonKeys = Object.keys(crush(enCommon)).toSorted();
-
-    expect(crushedEnCommonKeys).toStrictEqual(crushedPtCommonKeys);
+    expect(crushedCommonKeys).toStrictEqual<string[]>(crushedReferenceKeys);
   });
 });

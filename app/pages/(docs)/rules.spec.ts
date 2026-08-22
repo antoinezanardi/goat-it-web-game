@@ -43,6 +43,10 @@ describe("Rules Page", () => {
       wrapper = await mountRulesPage();
     });
 
+    it("should render Rules Page when mounted.", () => {
+      expect(wrapper.exists()).toBeTruthy();
+    });
+
     it("should render LoadingSpinner when status is pending.", () => {
       expect(wrapper.findComponent({ name: "LoadingSpinner" }).exists()).toBe(true);
     });

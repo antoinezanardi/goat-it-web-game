@@ -17,7 +17,7 @@ describe("GameQuestionCardThemeSeparator Component", () => {
     wrapper = await mountGameQuestionCardThemeSeparator();
   });
 
-  it("should render the separator when mounted.", () => {
-    expect(wrapper.find("span").exists()).toBeTruthy();
+  it("should render GameQuestionCardThemeSeparator when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 });

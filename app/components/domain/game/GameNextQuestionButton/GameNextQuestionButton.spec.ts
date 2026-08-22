@@ -21,6 +21,14 @@ describe("GameNextQuestionButton Component", () => {
     wrapper = await mountButton();
   });
 
+  it("should render GameNextQuestionButton when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
+  it("should set the trailing icon on the UButton when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UButton" }).props("trailingIcon")).toBe("i-lucide-arrow-right");
+  });
+
   it("should render the next question label translation key when mounted.", () => {
     expect(wrapper.findComponent({ name: "UButton" }).props("label")).toBe("game.nextQuestion");
   });

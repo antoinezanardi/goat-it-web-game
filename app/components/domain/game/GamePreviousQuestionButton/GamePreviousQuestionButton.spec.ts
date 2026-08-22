@@ -6,15 +6,27 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import { GamePreviousQuestionButton } from "#components";
 
+import type { GamePreviousQuestionButtonProps } from "@/components/domain/game/GamePreviousQuestionButton/game-previous-question-button.types";
+
 describe("GamePreviousQuestionButton Component", () => {
+  const defaultGamePreviousQuestionButtonProps: GamePreviousQuestionButtonProps = { disabled: false } as const;
+
   let wrapper: VueWrapper;
 
   async function mountGamePreviousQuestionButton(options: MountSuspendedOptions<typeof GamePreviousQuestionButton> = {}): Promise<VueWrapper> {
-    return mountSuspended(GamePreviousQuestionButton, { shallow: false, ...options });
+    return mountSuspended(GamePreviousQuestionButton, {
+      props: defaultGamePreviousQuestionButtonProps,
+      shallow: false,
+      ...options,
+    });
   }
 
   beforeEach(async() => {
     wrapper = await mountGamePreviousQuestionButton();
+  });
+
+  it("should render GamePreviousQuestionButton when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should emit click when the button is clicked.", async() => {
@@ -41,5 +53,9 @@ describe("GamePreviousQuestionButton Component", () => {
     const tooltip = wrapper.findComponent({ name: "UTooltip" });
 
     expect(tooltip.attributes("text")).toBe("game.previousQuestionTooltip");
+  });
+
+  it("should render the arrow-left icon when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UButton" }).props("icon")).toBe("i-lucide-arrow-left");
   });
 });

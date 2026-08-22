@@ -22,8 +22,18 @@ describe("LoadingSpinner Component", () => {
       wrapper = await mountLoadingSpinner();
     });
 
+    it("should render LoadingSpinner when mounted.", () => {
+      expect(wrapper.exists()).toBeTruthy();
+    });
+
     it("should render the spinner icon with the correct test id when mounted.", () => {
       expect(wrapper.find("[data-testid='loading-spinner']").exists()).toBeTruthy();
+    });
+
+    it("should render the loader circle icon when mounted.", () => {
+      const icon = wrapper.findComponent({ name: "UIcon" });
+
+      expect(icon.props("name")).toBe("i-lucide-loader-circle");
     });
 
     it("should not render the label element when no label prop is provided.", () => {

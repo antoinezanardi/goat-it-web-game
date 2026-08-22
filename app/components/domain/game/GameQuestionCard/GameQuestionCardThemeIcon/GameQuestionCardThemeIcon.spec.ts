@@ -26,6 +26,10 @@ describe("GameQuestionCardThemeIcon Component", () => {
     wrapper = await mountIcon();
   });
 
+  it("should render GameQuestionCardThemeIcon when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should render the icon resolved from the theme slug when mounted.", () => {
     const icon = wrapper.findComponent({ name: "UIcon" });
 
@@ -44,41 +48,25 @@ describe("GameQuestionCardThemeIcon Component", () => {
     expect(wrapper.attributes("style")).toContain("box-shadow:");
   });
 
-  it("should apply the md icon size class when size is md.", async() => {
-    await wrapper.setProps({ size: "md" });
+  it.each<{ size: "md" | "sm"; expectedClass: string }>([
+    { size: "md", expectedClass: "size-8" },
+    { size: "sm", expectedClass: "size-7" },
+  ])("should apply the $expectedClass icon size class when size is $size.", async({ size, expectedClass }) => {
+    await wrapper.setProps({ size });
 
     const icon = wrapper.findComponent({ name: "UIcon" });
 
-    expect(icon.classes()).toContain("size-8");
+    expect(icon.classes()).toContain(expectedClass);
   });
 
-  it("should apply the sm icon size class when size is sm.", async() => {
-    await wrapper.setProps({ size: "sm" });
+  it.each<{ hintLabel: string; isHint?: boolean; expectedClass: string }>([
+    { hintLabel: "omitted", expectedClass: "border" },
+    { hintLabel: "false", isHint: false, expectedClass: "border" },
+    { hintLabel: "true", isHint: true, expectedClass: "border-dashed" },
+    { hintLabel: "true", isHint: true, expectedClass: "border-2" },
+  ])("should apply the $expectedClass border class when isHint is $hintLabel.", async({ isHint, expectedClass }) => {
+    const hintWrapper = await mountIcon({ props: { ...defaultProps, isHint } });
 
-    const icon = wrapper.findComponent({ name: "UIcon" });
-
-    expect(icon.classes()).toContain("size-7");
-  });
-
-  it("should apply the default solid border class when isHint is omitted.", () => {
-    expect(wrapper.classes()).toContain("border");
-  });
-
-  it("should apply the default solid border class when isHint is false.", async() => {
-    await wrapper.setProps({ isHint: false });
-
-    expect(wrapper.classes()).toContain("border");
-  });
-
-  it("should apply the dashed border class when isHint is true.", async() => {
-    await wrapper.setProps({ isHint: true });
-
-    expect(wrapper.classes()).toContain("border-dashed");
-  });
-
-  it("should apply the 2px border class when isHint is true.", async() => {
-    await wrapper.setProps({ isHint: true });
-
-    expect(wrapper.classes()).toContain("border-2");
+    expect(hintWrapper.classes()).toContain(expectedClass);
   });
 });
