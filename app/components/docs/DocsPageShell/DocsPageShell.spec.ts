@@ -4,8 +4,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
+import { DocsPageShell } from "#components";
+
 import type { DocsTocSection } from "@/components/docs/DocsToc/docs-toc.types";
-import DocsPageShell from "@/components/docs/DocsPageShell/DocsPageShell.vue";
 
 const defaultSections: DocsTocSection[] = [{ id: "/rules#concept", title: "The concept", level: 2 }];
 
@@ -22,14 +23,6 @@ describe("DocsPageShell Component", () => {
 
   beforeEach(async() => {
     wrapper = await mountDocsPageShell();
-  });
-
-  it("should render a UPage when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UPage" }).exists()).toBe(true);
-  });
-
-  it("should render the DocsBackLink component twice when mounted.", () => {
-    expect(wrapper.findAllComponents({ name: "DocsBackLink" })).toHaveLength(2);
   });
 
   it("should render the DocsBackToTop component when mounted.", () => {

@@ -7,11 +7,17 @@ import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
 import { GameSidebar } from "#components";
 
+import type { GameSidebarProps } from "@/components/domain/game/GameSidebar/game-sidebar.types";
+
 describe("GameSidebar Component", () => {
   let wrapper: VueWrapper;
 
+  const defaultGameSidebarProps: GameSidebarProps = {
+    open: true,
+  } as const;
+
   async function mountSidebar(options: MountSuspendedOptions<typeof GameSidebar> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameSidebar, { shallow: false, props: { open: true }, attachTo: document.body, ...options });
+    return mountSuspended(GameSidebar, { props: defaultGameSidebarProps, attachTo: document.body, ...options });
   }
 
   beforeEach(async() => {

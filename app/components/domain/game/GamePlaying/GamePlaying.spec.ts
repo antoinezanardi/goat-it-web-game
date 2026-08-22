@@ -8,8 +8,10 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
+import { GamePlaying } from "#components";
+
+import type { GamePlayingProps } from "@/components/domain/game/GamePlaying/game-playing.types";
 import type { Question } from "#shared/types/question.types";
-import GamePlaying from "@/components/domain/game/GamePlaying/GamePlaying.vue";
 
 type GamePlayingSetupState = {
   enteringQuestion: Ref<Question | undefined>;
@@ -29,17 +31,19 @@ describe("GamePlaying Component", () => {
   let secondQuestion: Question;
   let thirdQuestion: Question;
 
+  const getDefaultGamePlayingProps = (): GamePlayingProps => ({
+    canGoToPreviousQuestion: false,
+    currentIndex: 0,
+    currentQuestion: firstQuestion,
+    questions: [firstQuestion, secondQuestion],
+  } as const);
+
   async function mountGamePlayingComponent(options: MountSuspendedOptions<typeof GamePlaying> = {}): Promise<VueWrapper> {
     const { props: propsOverride, ...restOptions } = options;
 
     return mountSuspended(GamePlaying, {
       shallow: false,
-      props: propsOverride ?? {
-        canGoToPreviousQuestion: false,
-        currentIndex: 0,
-        currentQuestion: firstQuestion,
-        questions: [firstQuestion, secondQuestion],
-      },
+      props: propsOverride ?? getDefaultGamePlayingProps(),
       ...restOptions,
     });
   }

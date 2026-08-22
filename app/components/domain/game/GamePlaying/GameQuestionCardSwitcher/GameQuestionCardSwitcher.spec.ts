@@ -31,7 +31,7 @@ describe("GameQuestionCardSwitcher Component", () => {
   }
 
   async function mountSwitcher(options: MountSuspendedOptions<typeof GameQuestionCardSwitcher> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCardSwitcher, { props: defaultProps, shallow: false, ...options });
+    return mountSuspended(GameQuestionCardSwitcher, { props: defaultProps, ...options });
   }
 
   beforeEach(async() => {
@@ -58,18 +58,6 @@ describe("GameQuestionCardSwitcher Component", () => {
     const enteringCard = wrapper.find("[data-testid='card-transition-entering']").findComponent({ name: "GameQuestionCard" });
 
     expect(enteringCard.props("question")).toBe(defaultProps.question);
-  });
-
-  it("should position the wrapper relatively when mounted.", () => {
-    expect(wrapper.find(".game-question-card-switcher-wrapper").classes()).toContain("relative");
-  });
-
-  it("should position the leaving card container absolutely when mounted.", () => {
-    expect(wrapper.find("[data-testid='card-transition-leaving']").classes()).toContain("absolute");
-  });
-
-  it("should apply the z-10 class to the entering card container when mounted.", () => {
-    expect(wrapper.find("[data-testid='card-transition-entering']").classes()).toContain("z-10");
   });
 
   it("should hide the leaving card when mounted.", () => {

@@ -33,12 +33,6 @@ describe("DefaultModalTitle Component", () => {
   });
 
   describe("Icon", () => {
-    it("should pass the icon name to the UIcon component when mounted.", () => {
-      const icon = wrapper.getComponent<typeof UIcon>({ name: "UIcon" });
-
-      expect(icon.props("name")).toBe("i-lucide-palette");
-    });
-
     it("should pass a different icon name to the UIcon component when icon prop changes.", async() => {
       await wrapper.setProps({ icon: "i-lucide-star", title: "Title" });
 

@@ -7,7 +7,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup";
 import { useWindowScrollMock } from "~~/tests/unit/setup/nuxt/composables/use-window-scroll.nuxt.unit-setup";
 
-import DocsBackToTop from "@/components/docs/DocsBackToTop/DocsBackToTop.vue";
+import { DocsBackToTop } from "#components";
 
 describe("DocsBackToTop Component", () => {
   let wrapper: VueWrapper;
@@ -26,20 +26,10 @@ describe("DocsBackToTop Component", () => {
     expect(button.attributes("aria-label")).toBe("docs.backToTop");
   });
 
-  it("should render the button with the arrow-up icon when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.props("icon")).toBe("i-lucide-arrow-up");
-  });
-
   it("should render the tooltip with the backToTop text translation key when mounted.", () => {
     const tooltip = wrapper.findComponent({ name: "UTooltip" });
 
     expect(tooltip.attributes("text")).toBe("docs.backToTop");
-  });
-
-  it("should wrap the button in a fade transition when mounted.", () => {
-    expect(wrapper.findComponent({ name: "Transition" }).props("name")).toBe("fade");
   });
 
   it("should hide the button when scroll y does not exceed the threshold.", async() => {

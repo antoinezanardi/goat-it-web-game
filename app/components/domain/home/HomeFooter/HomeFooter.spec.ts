@@ -30,12 +30,6 @@ describe("HomeFooter Component", () => {
     expect(footer.element.tagName).toBe("FOOTER");
   });
 
-  it("should render the footer root with vertical alignment and padding classes when mounted.", () => {
-    const footer = wrapper.find("[data-testid='home-footer']");
-
-    expect(footer.classes()).toStrictEqual(expect.arrayContaining(["flex", "items-center", "justify-between", "px-6", "py-4"]));
-  });
-
   it("should render a How to Play UButton with the howToPlay label translation key when mounted.", () => {
     const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
 

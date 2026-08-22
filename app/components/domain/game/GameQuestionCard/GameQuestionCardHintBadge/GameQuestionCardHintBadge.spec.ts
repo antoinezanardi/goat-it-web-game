@@ -54,23 +54,12 @@ describe("GameQuestionCardHintBadge Component", () => {
     expect(badge.props("variant")).toBe("subtle");
   });
 
-  it.each(["border-2", "border-dashed", "border-warning", "rounded-full"])(
-    "should apply the %s class to the UBadge when mounted.",
-    cssClass => {
-      const badge = wrapper.findComponent({ name: "UBadge" });
-
-      expect(badge.classes()).toContain(cssClass);
-    },
-  );
-
   it("should apply the data-testid attribute to the badge when mounted.", () => {
     expect(wrapper.find("[data-testid='game-question-hint']").exists()).toBe(true);
   });
 
   it("should set the UBadge aria-label to the hint tooltip i18n key when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.attributes("aria-label")).toBe("questions.themeStack.primaryThemeHintTooltip");
+    expect(wrapper.find("[data-testid='game-question-hint']").attributes("aria-label")).toBe("questions.themeStack.primaryThemeHintTooltip");
   });
 
   it("should wrap the badge in a UPopover when mounted.", () => {

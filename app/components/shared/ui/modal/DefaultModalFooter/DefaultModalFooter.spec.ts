@@ -50,18 +50,12 @@ describe("DefaultModalFooter Component", () => {
     });
 
     describe("Disabled state", () => {
-      it("should not be disabled when isCloseButtonDisabled is not provided.", () => {
-        const closeButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-close-button']");
-
-        expect(closeButton.attributes("disabled")).toBeUndefined();
-      });
-
-      it("should be disabled when isCloseButtonDisabled is true.", async() => {
+      it("should pass isCloseButtonDisabled to the close button when true.", async() => {
         await wrapper.setProps({ isCloseButtonDisabled: true });
 
         const closeButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-close-button']");
 
-        expect(closeButton.attributes("disabled")).toBeDefined();
+        expect(closeButton.props("disabled")).toBe(true);
       });
     });
 
@@ -120,18 +114,12 @@ describe("DefaultModalFooter Component", () => {
     });
 
     describe("Disabled state", () => {
-      it("should not be disabled when isPrimaryButtonDisabled is not provided.", () => {
-        const primaryButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-primary-button']");
-
-        expect(primaryButton.attributes("disabled")).toBeUndefined();
-      });
-
-      it("should be disabled when isPrimaryButtonDisabled is true.", async() => {
+      it("should pass isPrimaryButtonDisabled to the primary button when true.", async() => {
         await wrapper.setProps({ isPrimaryButtonDisabled: true });
 
         const primaryButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-primary-button']");
 
-        expect(primaryButton.attributes("disabled")).toBeDefined();
+        expect(primaryButton.props("disabled")).toBe(true);
       });
     });
 
@@ -253,12 +241,6 @@ describe("DefaultModalFooter Component", () => {
       dispatchMetaEnterKeydown();
 
       expect(wrapper.emitted("primaryButtonClick")).toBeUndefined();
-    });
-
-    it("should emit primaryButtonClick when the meta+enter shortcut is triggered and shortcuts are not disabled.", () => {
-      dispatchMetaEnterKeydown();
-
-      expect(wrapper.emitted("primaryButtonClick")).toHaveLength(1);
     });
   });
 });

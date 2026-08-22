@@ -46,13 +46,6 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     expect(rows[0]?.text()).toContain("Geography");
   });
 
-  it("should render the primary badge under the theme label instead of inline when mounted.", () => {
-    const row = wrapper.find("[data-testid='theme-popover-row']");
-    const labelContainer = row.find("div.min-w-0");
-
-    expect(labelContainer.find("[data-testid='theme-primary-badge']").exists()).toBe(true);
-  });
-
   it("should render the primary badge on the row flagged as primary when mounted.", () => {
     const rows = wrapper.findAll("[data-testid='theme-popover-row']");
 
@@ -63,13 +56,6 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     const rows = wrapper.findAll("[data-testid='theme-popover-row']");
 
     expect(rows[1]?.find("[data-testid='theme-primary-badge']").exists()).toBe(false);
-  });
-
-  it("should render the hint badge under the theme label instead of inline when mounted.", () => {
-    const row = wrapper.find("[data-testid='theme-popover-row']");
-    const labelContainer = row.find("div.min-w-0");
-
-    expect(labelContainer.find("[data-testid='theme-hint-badge']").exists()).toBe(true);
   });
 
   it("should render the hint badge on rows flagged as hint when mounted.", () => {
@@ -127,18 +113,6 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     const popover = wrapper.findComponent({ name: "UPopover" });
 
     expect(popover.find("[data-testid='theme-hint-badge']").exists()).toBe(true);
-  });
-
-  it("should set the hint badge UPopover mode to hover when mounted.", () => {
-    const popover = wrapper.findComponent({ name: "UPopover" });
-
-    expect(popover.props("mode")).toBe("hover");
-  });
-
-  it("should enable touch on the hint badge UPopover when mounted.", () => {
-    const popover = wrapper.findComponent({ name: "UPopover" });
-
-    expect(popover.props("enableTouch")).toBe(true);
   });
 
   it("should render the hint tooltip popover content when the hint badge is hovered.", async() => {

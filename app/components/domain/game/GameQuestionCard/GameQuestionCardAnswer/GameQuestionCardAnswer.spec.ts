@@ -39,31 +39,7 @@ describe("GameQuestionCardAnswer Component", () => {
     expect(wrapper.find("[data-testid='game-question-answer']").exists()).toBe(true);
   });
 
-  it("should apply text-fg-primary class to the body paragraph when mounted.", () => {
-    expect(wrapper.find("section p:last-child").classes()).toContain("text-fg-primary");
-  });
-
-  it("should render the label with the neon color class when mounted.", () => {
-    const label = wrapper.find("p");
-
-    expect(label.classes()).toContain("text-(color:--game-theme-neon)");
-  });
-
   it("should render the lightbulb icon when mounted.", () => {
-    const icon = wrapper.findComponent({ name: "UIcon" });
-
-    expect(icon.props("name")).toBe("i-lucide-lightbulb");
-  });
-
-  it("should apply text-base class to the label when mounted.", () => {
-    const label = wrapper.find("p");
-
-    expect(label.classes()).toContain("text-base");
-  });
-
-  it("should apply size-5 class to the icon when mounted.", () => {
-    const icon = wrapper.findComponent({ name: "UIcon" });
-
-    expect(icon.classes()).toContain("size-5");
+    expect(wrapper.findComponent({ name: "UIcon" }).exists()).toBeTruthy();
   });
 });

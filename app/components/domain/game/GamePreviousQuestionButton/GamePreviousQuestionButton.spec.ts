@@ -27,16 +27,6 @@ describe("GamePreviousQuestionButton Component", () => {
     expect(wrapper.find("[data-testid='game-previous-question-button']").exists()).toBe(true);
   });
 
-  it("should apply the themed class when not disabled.", () => {
-    expect(wrapper.find("button").classes()).toContain("game-question-navigation-button--themed");
-  });
-
-  it("should apply the themed class when disabled.", async() => {
-    await wrapper.setProps({ disabled: true });
-
-    expect(wrapper.find("button").classes()).toContain("game-question-navigation-button--themed");
-  });
-
   it("should forward the disabled prop to the underlying button element when disabled is true.", async() => {
     await wrapper.setProps({ disabled: true });
 

@@ -59,7 +59,7 @@ describe("GameQuestionCardSourceList Component", () => {
   });
 
   it("should render the source label key before the colon when multiple sources are provided.", () => {
-    const label = wrapper.find("nav span");
+    const label = wrapper.find("[data-testid='game-question-source-label']");
 
     expect(label.text()).toContain("questions.sourceLabel:");
   });
@@ -68,21 +68,9 @@ describe("GameQuestionCardSourceList Component", () => {
     const singleWrapper = await mountSourceList({
       props: { sourceUrls: ["https://en.wikipedia.org/wiki/Goat"] },
     });
-    const label = singleWrapper.find("nav span");
+    const label = singleWrapper.find("[data-testid='game-question-source-label']");
 
     expect(label.text()).toContain("questions.sourceLabel:");
-  });
-
-  it("should apply text-fg-secondary class to the source label when sourceUrls are provided.", () => {
-    const label = wrapper.find("nav span");
-
-    expect(label.classes()).toContain("text-fg-secondary");
-  });
-
-  it("should apply shrink-0 class to the source label when sourceUrls are provided.", () => {
-    const label = wrapper.find("nav span");
-
-    expect(label.classes()).toContain("shrink-0");
   });
 
   it("should wrap each link in a UTooltip when sourceUrls are provided.", () => {

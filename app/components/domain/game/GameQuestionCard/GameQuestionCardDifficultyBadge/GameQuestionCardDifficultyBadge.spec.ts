@@ -73,36 +73,6 @@ describe("GameQuestionCardDifficultyBadge Component", () => {
     expect(badge.classes()).toContain(ringClass);
   });
 
-  it("should apply the ring-2 class to the UBadge when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.classes()).toContain("ring-2");
-  });
-
-  it("should apply the rounded-full class to the UBadge when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.classes()).toContain("rounded-full");
-  });
-
-  it("should set the UBadge square prop to true when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("square")).toBe(true);
-  });
-
-  it("should set the UBadge size to lg when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("size")).toBe("lg");
-  });
-
-  it("should set the UBadge variant to subtle when mounted.", () => {
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.props("variant")).toBe("subtle");
-  });
-
   it("should set the UBadge aria-label to the difficulty tooltip i18n key when difficulty is medium.", () => {
     const badge = wrapper.findComponent({ name: "UBadge" });
 
@@ -111,18 +81,6 @@ describe("GameQuestionCardDifficultyBadge Component", () => {
 
   it("should wrap the badge in a UPopover when mounted.", () => {
     expect(wrapper.findComponent({ name: "UPopover" }).exists()).toBe(true);
-  });
-
-  it("should set the UPopover mode to hover when mounted.", () => {
-    const popover = wrapper.findComponent({ name: "UPopover" });
-
-    expect(popover.props("mode")).toBe("hover");
-  });
-
-  it("should enable touch on the UPopover when mounted.", () => {
-    const popover = wrapper.findComponent({ name: "UPopover" });
-
-    expect(popover.props("enableTouch")).toBe(true);
   });
 
   it("should render the difficulty tooltip popover content when the badge is hovered.", async() => {

@@ -63,12 +63,6 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(badge.props("difficulty")).toBe("medium");
   });
 
-  it.each(["ml-auto", "flex", "flex-col"])("should apply the %s class to the difficulty badge container when mounted.", cssClass => {
-    const container = wrapper.find(".ml-auto");
-
-    expect(container.classes()).toContain(cssClass);
-  });
-
   it.each<{ category: QuestionCategory; icon: string }>([
     { category: "trivia", icon: "i-lucide-sparkle" },
     { category: "lexicon", icon: "i-lucide-languages" },
@@ -81,12 +75,6 @@ describe("GameQuestionCardThemeHeader Component", () => {
     const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === icon);
 
     expect(categoryIcon).toBeDefined();
-  });
-
-  it("should apply the game-theme-neon color class to the category icon when mounted.", () => {
-    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-sparkle");
-
-    expect(categoryIcon?.classes()).toContain("text-(--game-theme-neon)");
   });
 
   it.each<{ category: QuestionCategory }>([

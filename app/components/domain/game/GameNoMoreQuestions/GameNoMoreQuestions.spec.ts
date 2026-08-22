@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import GameNoMoreQuestions from "@/components/domain/game/GameNoMoreQuestions/GameNoMoreQuestions.vue";
+import { GameNoMoreQuestions } from "#components";
 
 describe("GameNoMoreQuestions Component", () => {
   let wrapper: VueWrapper;

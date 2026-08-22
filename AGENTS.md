@@ -254,6 +254,7 @@ Available skills: `acceptance-testing`, `brainstorming`, `nuxt`, `nuxt-ui`, `rec
 Slash commands available in OpenCode sessions:
 
 - `/complete-i18n`   – Translate all French locale JSON files into every other locale.
+- `/lint-unit-tests` – Audit spec files against unit testing conventions, then fix user-approved violations.
 - `/write-unit-test` – Write a complete, passing unit test for a given source file.
 - `/write-acceptance-test` – Write a complete acceptance test (feature + steps) for a given page/feature.
 
