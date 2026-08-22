@@ -19,11 +19,11 @@ describe("DocsLayout Layout", () => {
     });
   });
 
-  it("should render the slot content when mounted.", () => {
-    expect(wrapper.find("#page-content").exists()).toBe(true);
+  it("should render DocsLayout when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
-  it("should render the docs-layout container when mounted.", () => {
-    expect(wrapper.find("#docs-layout").exists()).toBe(true);
+  it("should render the slot content when mounted.", () => {
+    expect(wrapper.find("#page-content").exists()).toBe(true);
   });
 });

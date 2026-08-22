@@ -12,6 +12,7 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 
 import { GameQuestionCardThemeStack } from "#components";
 
+import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
 import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 type GameQuestionCardThemeStackVm = ComponentVm & { toggleOpen: () => void };
@@ -21,7 +22,7 @@ describe("GameQuestionCardThemeStack Component", () => {
   const secondaryThemeOne = createFakeQuestionTheme({ slug: "history-civilizations", color: "#FF5733", label: "History" });
   const secondaryThemeTwo = createFakeQuestionTheme({ slug: "sciences-innovations", color: "#00C853", label: "Science" });
 
-  const defaultProps = {
+  const defaultGameQuestionCardThemeStackProps: GameQuestionCardThemeStackProps = {
     question: createFakeQuestion({
       themes: [
         createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
@@ -29,16 +30,20 @@ describe("GameQuestionCardThemeStack Component", () => {
         createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryThemeTwo }),
       ],
     }),
-  };
+  } as const;
 
   let wrapper: VueWrapper;
 
   async function mountStack(options: MountSuspendedOptions<typeof GameQuestionCardThemeStack> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCardThemeStack, { props: defaultProps, shallow: false, ...options });
+    return mountSuspended(GameQuestionCardThemeStack, { props: defaultGameQuestionCardThemeStackProps, shallow: false, ...options });
   }
 
   beforeEach(async() => {
     wrapper = await mountStack();
+  });
+
+  it("should render GameQuestionCardThemeStack when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render the theme stack trigger when mounted.", () => {
@@ -102,7 +107,7 @@ describe("GameQuestionCardThemeStack Component", () => {
 
     const popoverContent = wrapper.findComponent({ name: "GameQuestionCardThemeStackPopoverContent" });
 
-    expect(popoverContent.props("themes")).toStrictEqual(defaultProps.question.themes);
+    expect(popoverContent.props("themes")).toStrictEqual(defaultGameQuestionCardThemeStackProps.question.themes);
   });
 
   it.each<{ index: number; expected: boolean }>([

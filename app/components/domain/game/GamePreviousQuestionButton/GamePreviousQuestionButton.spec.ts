@@ -6,15 +6,27 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import { GamePreviousQuestionButton } from "#components";
 
+import type { GamePreviousQuestionButtonProps } from "@/components/domain/game/GamePreviousQuestionButton/game-previous-question-button.types";
+
 describe("GamePreviousQuestionButton Component", () => {
+  const defaultGamePreviousQuestionButtonProps: GamePreviousQuestionButtonProps = { disabled: false } as const;
+
   let wrapper: VueWrapper;
 
-  async function mountButton(options: MountSuspendedOptions<typeof GamePreviousQuestionButton> = {}): Promise<VueWrapper> {
-    return mountSuspended(GamePreviousQuestionButton, { shallow: false, ...options });
+  async function mountGamePreviousQuestionButton(options: MountSuspendedOptions<typeof GamePreviousQuestionButton> = {}): Promise<VueWrapper> {
+    return mountSuspended(GamePreviousQuestionButton, {
+      props: defaultGamePreviousQuestionButtonProps,
+      shallow: false,
+      ...options,
+    });
   }
 
   beforeEach(async() => {
-    wrapper = await mountButton();
+    wrapper = await mountGamePreviousQuestionButton();
+  });
+
+  it("should render GamePreviousQuestionButton when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should emit click when the button is clicked.", async() => {
@@ -25,16 +37,6 @@ describe("GamePreviousQuestionButton Component", () => {
 
   it("should have the data-testid attribute when mounted.", () => {
     expect(wrapper.find("[data-testid='game-previous-question-button']").exists()).toBe(true);
-  });
-
-  it("should apply the themed class when not disabled.", () => {
-    expect(wrapper.find("button").classes()).toContain("game-question-navigation-button--themed");
-  });
-
-  it("should apply the themed class when disabled.", async() => {
-    await wrapper.setProps({ disabled: true });
-
-    expect(wrapper.find("button").classes()).toContain("game-question-navigation-button--themed");
   });
 
   it("should forward the disabled prop to the underlying button element when disabled is true.", async() => {
@@ -51,5 +53,9 @@ describe("GamePreviousQuestionButton Component", () => {
     const tooltip = wrapper.findComponent({ name: "UTooltip" });
 
     expect(tooltip.attributes("text")).toBe("game.previousQuestionTooltip");
+  });
+
+  it("should render the arrow-left icon when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UButton" }).props("icon")).toBe("i-lucide-arrow-left");
   });
 });

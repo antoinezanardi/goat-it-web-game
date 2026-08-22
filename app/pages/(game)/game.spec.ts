@@ -46,6 +46,10 @@ describe("Game Page", () => {
     wrapper = await mountGamePage();
   });
 
+  it("should render Game Page when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should configure SEO meta tags when mounted.", () => {
     const useHeadMock = vi.mocked(useHead);
 
@@ -64,6 +68,10 @@ describe("Game Page", () => {
         { property: "og:description", content: "seo.game.description" },
       ],
     });
+  });
+
+  it("should render the page title translation key when mounted.", () => {
+    expect(wrapper.text()).toContain("game.pageTitle");
   });
 
   it("should render GameLoading when gameState is loading.", () => {
@@ -101,7 +109,6 @@ describe("Game Page", () => {
     expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(
       expect.any(Object),
       expect.objectContaining({
-        destroyOnClose: true,
         props: {
           disableShortcuts: true,
           dismissible: false,

@@ -5,27 +5,37 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import { DOCS_TOC_UI } from "@/components/docs/DocsToc/docs-toc.constants";
-import type { DocsTocSection } from "@/components/docs/DocsToc/docs-toc.types";
-import DocsToc from "@/components/docs/DocsToc/DocsToc.vue";
+import { DocsToc } from "#components";
 
-const defaultSections: DocsTocSection[] = [
-  { id: "/rules#concept", title: "The concept", level: 2 },
-  { id: "/rules#golden-rule", title: "The golden rule", level: 2 },
-];
+import { DOCS_TOC_UI } from "@/components/docs/DocsToc/docs-toc.constants";
+import type { DocsTocProps } from "@/components/docs/DocsToc/docs-toc.types";
 
 describe("DocsToc Component", () => {
+  const defaultDocsTocProps: DocsTocProps = {
+    sections: [
+      { id: "/rules#concept", title: "The concept", level: 2 },
+      { id: "/rules#golden-rule", title: "The golden rule", level: 2 },
+    ],
+  };
   let wrapper: VueWrapper;
   let callHookSpy: ReturnType<typeof vi.spyOn>;
 
   async function mountDocsToc(options: MountSuspendedOptions<typeof DocsToc> = {}): Promise<VueWrapper> {
-    return mountSuspended(DocsToc, { props: { sections: defaultSections }, shallow: true, ...options });
+    return mountSuspended(DocsToc, { props: defaultDocsTocProps, ...options });
   }
 
   beforeEach(async() => {
     const nuxtApp = useNuxtApp();
     callHookSpy = vi.spyOn(nuxtApp.hooks, "callHook");
     wrapper = await mountDocsToc();
+  });
+
+  it("should render DocsToc when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
+  it("should render the docs-toc root element with its testid when mounted.", () => {
+    expect(wrapper.find("[data-testid='docs-toc']").exists()).toBe(true);
   });
 
   it("should render UContentToc with the mapped links when mounted.", () => {
@@ -49,18 +59,12 @@ describe("DocsToc Component", () => {
     expect(contentToc.props("ui")).toStrictEqual(DOCS_TOC_UI);
   });
 
-  it("should render UContentToc with the docs-toc sticky classes when mounted.", () => {
-    const contentToc = wrapper.findComponent({ name: "UContentToc" });
-
-    expect(contentToc.props("class")).toBe("docs-toc hidden lg:block lg:self-start lg:sticky lg:top-7");
-  });
-
   it("should call the page:transition:finish hook when mounted.", () => {
     expect(callHookSpy).toHaveBeenCalledExactlyOnceWith("page:transition:finish");
   });
 
   it("should call the page:transition:finish hook again when sections change.", async() => {
-    await wrapper.setProps({ sections: [...defaultSections, { id: "/rules#answer", title: "Finding the answer", level: 2 }] });
+    await wrapper.setProps({ sections: [...defaultDocsTocProps.sections, { id: "/rules#answer", title: "Finding the answer", level: 2 }] });
     await flushPromises();
 
     expect(callHookSpy).toHaveBeenNthCalledWith(2, "page:transition:finish");

@@ -4,8 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import GameLoading from "@/components/domain/game/GameLoading/GameLoading.vue";
-import LoadingSpinner from "@/components/shared/ui/LoadingSpinner/LoadingSpinner.vue";
+import { GameLoading, LoadingSpinner } from "#components";
 
 describe("GameLoading Component", () => {
   let wrapper: VueWrapper;
@@ -16,6 +15,10 @@ describe("GameLoading Component", () => {
 
   beforeEach(async() => {
     wrapper = await mountGameLoadingComponent();
+  });
+
+  it("should render GameLoading when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render a LoadingSpinner when mounted.", () => {

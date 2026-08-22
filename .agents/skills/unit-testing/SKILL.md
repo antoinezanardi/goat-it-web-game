@@ -75,6 +75,13 @@ The `repositories` and `node` projects have **no Nuxt environment**. No `mountSu
 
 - `$t` returns the key as-is. Assert the translation key string, never the translated text.
 
+### Test worthiness (components, pages, layouts)
+
+A worthy test pins behaviour that can vary; an unworthy test pins markup constants. See `docs/unit-testing.md` §6.11.
+
+- **Worthy:** branches (both sides of every `v-if`/`v-else-if`/`v-else`/`v-show`, ternaries and short-circuits in template expressions, function-driven rendering like `{{ formatX(...) }}`, loading/empty/populated/error states) · emits with payload · `:`-bound child props via `.props()` · every `$t()`/`$tc()` in the template asserted by key (even when static) · every named slot exercised · reactive updates (`setProps` or mock mutation + `await nextTick()`).
+- **Unworthy — asserting these is a violation:** static Tailwind classes never touched by a binding; unbound static props/attributes (`variant="subtle"`, `color="neutral"`); any markup constant that cannot vary with props/watch/computed/emits.
+
 ### Dynamic imports in composable and store tests
 
 - `vi.resetModules()` runs automatically before every test (via `vtu-config.nuxt.unit-setup.ts`). You never call it yourself.
@@ -98,6 +105,8 @@ The `repositories` and `node` projects have **no Nuxt environment**. No `mountSu
 - [ ] Only test props that are **dynamically bound** (prefixed with `:` in the template). Skip static string props without `:` (e.g. `variant="subtle"`, `color="neutral"`)
 - [ ] Every named slot in the template must be exercised by at least one test
 - [ ] Cover loading/empty/populated states
+- [ ] Every `$t()`/`$tc()` in the template asserted by key (even static ones)
+- [ ] No unworthy assertions (static classes, unbound props, markup constants)
 
 ### Page (`nuxt` project)
 
@@ -107,6 +116,8 @@ The `repositories` and `node` projects have **no Nuxt environment**. No `mountSu
 - [ ] Assert `definePageMeta` was called with expected metadata
 - [ ] Assert `useHead` via `vi.mocked(useHead).mock.calls[0]?.[0]` — extract and call the function argument
 - [ ] Cover conditional render states (loading, empty, etc.)
+- [ ] Every `$t()`/`$tc()` in the template asserted by key (even static ones)
+- [ ] No unworthy assertions (static classes, unbound props, markup constants)
 
 ### Layout (`nuxt` project)
 
@@ -114,6 +125,8 @@ The `repositories` and `node` projects have **no Nuxt environment**. No `mountSu
 - [ ] Import directly (not from `#components`)
 - [ ] `describe("MyLayout Layout", ...)` — string label in the form `"<LayoutName> Layout"`
 - [ ] `shallow: true`
+- [ ] Every `$t()`/`$tc()` in the template asserted by key (even static ones)
+- [ ] No unworthy assertions (static classes, unbound props, markup constants)
 
 ### Composable (`composables` project)
 

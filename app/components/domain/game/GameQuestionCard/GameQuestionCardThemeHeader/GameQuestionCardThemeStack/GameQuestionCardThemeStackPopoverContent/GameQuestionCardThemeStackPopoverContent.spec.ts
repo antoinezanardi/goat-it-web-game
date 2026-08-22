@@ -9,11 +9,14 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 
 import { GameQuestionCardThemeStackPopoverContent } from "#components";
 
+import type { GameQuestionCardThemeStackPopoverContentProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/GameQuestionCardThemeStackPopoverContent/game-question-card-theme-stack-popover-content.types";
+import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
+
 describe("GameQuestionCardThemeStackPopoverContent Component", () => {
   const primaryTheme = createFakeQuestionTheme({ slug: "geography-travels", color: "#33A1FF", label: "Geography" });
   const secondaryTheme = createFakeQuestionTheme({ slug: "history-civilizations", color: "#FF5733", label: "History" });
 
-  const defaultProps = {
+  const defaultGameQuestionCardThemeStackPopoverContentProps: GameQuestionCardThemeStackPopoverContentProps = {
     themes: [
       createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme }),
       createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
@@ -23,7 +26,12 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
   let wrapper: VueWrapper;
 
   async function mountPopoverContent(options: MountSuspendedOptions<typeof GameQuestionCardThemeStackPopoverContent> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCardThemeStackPopoverContent, { props: defaultProps, shallow: false, attachTo: document.body, ...options });
+    return mountSuspended(GameQuestionCardThemeStackPopoverContent, {
+      props: defaultGameQuestionCardThemeStackPopoverContentProps,
+      shallow: false,
+      attachTo: document.body,
+      ...options,
+    });
   }
 
   beforeEach(async() => {
@@ -32,6 +40,14 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it("should render GameQuestionCardThemeStackPopoverContent when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
+  it("should render the root list with the theme-popover-content testid when mounted.", () => {
+    expect(wrapper.find("[data-testid='theme-popover-content']").exists()).toBe(true);
   });
 
   it("should render one popover row per theme assignment when mounted.", () => {
@@ -46,13 +62,6 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     expect(rows[0]?.text()).toContain("Geography");
   });
 
-  it("should render the primary badge under the theme label instead of inline when mounted.", () => {
-    const row = wrapper.find("[data-testid='theme-popover-row']");
-    const labelContainer = row.find("div.min-w-0");
-
-    expect(labelContainer.find("[data-testid='theme-primary-badge']").exists()).toBe(true);
-  });
-
   it("should render the primary badge on the row flagged as primary when mounted.", () => {
     const rows = wrapper.findAll("[data-testid='theme-popover-row']");
 
@@ -63,13 +72,6 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     const rows = wrapper.findAll("[data-testid='theme-popover-row']");
 
     expect(rows[1]?.find("[data-testid='theme-primary-badge']").exists()).toBe(false);
-  });
-
-  it("should render the hint badge under the theme label instead of inline when mounted.", () => {
-    const row = wrapper.find("[data-testid='theme-popover-row']");
-    const labelContainer = row.find("div.min-w-0");
-
-    expect(labelContainer.find("[data-testid='theme-hint-badge']").exists()).toBe(true);
   });
 
   it("should render the hint badge on rows flagged as hint when mounted.", () => {
@@ -84,7 +86,7 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     expect(rows[1]?.find("[data-testid='theme-hint-badge']").exists()).toBe(false);
   });
 
-  it.each([
+  it.each<{ isPrimary: boolean; isHint: boolean; badge: string; expected: boolean }>([
     { isPrimary: true, isHint: true, badge: "theme-primary-badge", expected: true },
     { isPrimary: true, isHint: true, badge: "theme-hint-badge", expected: true },
     { isPrimary: false, isHint: true, badge: "theme-primary-badge", expected: false },
@@ -99,46 +101,30 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     expect(row.find(`[data-testid='${badge}']`).exists()).toBe(expected);
   });
 
-  it("should pass isHint true to the first row's theme icon when mounted.", () => {
+  it.each<{ index: number; expected: boolean }>([
+    { index: 0, expected: true },
+    { index: 1, expected: false },
+  ])("should pass isHint $expected to the row at index $index's theme icon when mounted.", ({ index, expected }) => {
     const icons = wrapper.findAllComponents({ name: "GameQuestionCardThemeIcon" });
 
-    expect(icons[0]?.props("isHint")).toBe(true);
+    expect(icons[index]?.props("isHint")).toBe(expected);
   });
 
-  it("should pass isHint false to the second row's theme icon when mounted.", () => {
-    const icons = wrapper.findAllComponents({ name: "GameQuestionCardThemeIcon" });
+  it.each<{ badge: string; prop: "icon" | "label"; expected: string }>([
+    { badge: "theme-primary-badge", prop: "icon", expected: "i-lucide-star" },
+    { badge: "theme-primary-badge", prop: "label", expected: "questions.themeStack.primaryBadge" },
+    { badge: "theme-hint-badge", prop: "icon", expected: QUESTION_HINT_ICON },
+    { badge: "theme-hint-badge", prop: "label", expected: "questions.themeStack.hintBadge" },
+  ])("should set the $badge $prop to $expected when mounted.", ({ badge, prop, expected }) => {
+    const badgeComponent = wrapper.findAllComponents({ name: "UBadge" }).find(comp => comp.attributes("data-testid") === badge);
 
-    expect(icons[1]?.props("isHint")).toBe(false);
-  });
-
-  it("should set the primary badge icon to the question primary icon when mounted.", () => {
-    const primaryBadge = wrapper.findAllComponents({ name: "UBadge" }).find(comp => comp.attributes("data-testid") === "theme-primary-badge");
-
-    expect(primaryBadge?.props("icon")).toBe("i-lucide-star");
-  });
-
-  it("should set the primary badge color to primary when mounted.", () => {
-    const primaryBadge = wrapper.findAllComponents({ name: "UBadge" }).find(comp => comp.attributes("data-testid") === "theme-primary-badge");
-
-    expect(primaryBadge?.props("color")).toBe("primary");
+    expect(badgeComponent?.props(prop)).toBe(expected);
   });
 
   it("should wrap the hint badge in a UPopover when mounted.", () => {
     const popover = wrapper.findComponent({ name: "UPopover" });
 
     expect(popover.find("[data-testid='theme-hint-badge']").exists()).toBe(true);
-  });
-
-  it("should set the hint badge UPopover mode to hover when mounted.", () => {
-    const popover = wrapper.findComponent({ name: "UPopover" });
-
-    expect(popover.props("mode")).toBe("hover");
-  });
-
-  it("should enable touch on the hint badge UPopover when mounted.", () => {
-    const popover = wrapper.findComponent({ name: "UPopover" });
-
-    expect(popover.props("enableTouch")).toBe(true);
   });
 
   it("should render the hint tooltip popover content when the hint badge is hovered.", async() => {

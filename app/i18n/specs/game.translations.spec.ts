@@ -9,38 +9,16 @@ import itGame from "~/i18n/locales/it/game.json";
 import ptGame from "~/i18n/locales/pt/game.json";
 
 describe("game.json translations", () => {
-  it("should have the same keys in english as in french when context is game.", () => {
-    const crushedFrGameKeys = Object.keys(crush(frGame)).toSorted();
-    const crushedEnGameKeys = Object.keys(crush(enGame)).toSorted();
+  it.each<[string, typeof frGame]>([
+    ["de", deGame],
+    ["en", enGame],
+    ["es", esGame],
+    ["it", itGame],
+    ["pt", ptGame],
+  ])("should have the same keys in every locale as in french when context is game.", (_locale, gameTranslations) => {
+    const crushedReferenceKeys = Object.keys(crush(frGame)).toSorted();
+    const crushedGameKeys = Object.keys(crush(gameTranslations)).toSorted();
 
-    expect(crushedEnGameKeys).toStrictEqual(crushedFrGameKeys);
-  });
-
-  it("should have the same keys in english as in german when context is game.", () => {
-    const crushedDeGameKeys = Object.keys(crush(deGame)).toSorted();
-    const crushedEnGameKeys = Object.keys(crush(enGame)).toSorted();
-
-    expect(crushedEnGameKeys).toStrictEqual(crushedDeGameKeys);
-  });
-
-  it("should have the same keys in english as in spanish when context is game.", () => {
-    const crushedEsGameKeys = Object.keys(crush(esGame)).toSorted();
-    const crushedEnGameKeys = Object.keys(crush(enGame)).toSorted();
-
-    expect(crushedEnGameKeys).toStrictEqual(crushedEsGameKeys);
-  });
-
-  it("should have the same keys in english as in italian when context is game.", () => {
-    const crushedItGameKeys = Object.keys(crush(itGame)).toSorted();
-    const crushedEnGameKeys = Object.keys(crush(enGame)).toSorted();
-
-    expect(crushedEnGameKeys).toStrictEqual(crushedItGameKeys);
-  });
-
-  it("should have the same keys in english as in portuguese when context is game.", () => {
-    const crushedPtGameKeys = Object.keys(crush(ptGame)).toSorted();
-    const crushedEnGameKeys = Object.keys(crush(enGame)).toSorted();
-
-    expect(crushedEnGameKeys).toStrictEqual(crushedPtGameKeys);
+    expect(crushedGameKeys).toStrictEqual<string[]>(crushedReferenceKeys);
   });
 });

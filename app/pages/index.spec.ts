@@ -17,6 +17,10 @@ describe("Home Page", () => {
     wrapper = await mountHomePage();
   });
 
+  it("should render Home Page when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should configure SEO meta tags when mounted.", () => {
     const useHeadMock = vi.mocked(useHead);
 
@@ -55,12 +59,6 @@ describe("Home Page", () => {
     expect(subtitle.text()).toBe("home.subtitle");
   });
 
-  it("should render the logo image with 512px src when mounted.", () => {
-    const img = wrapper.find("#home-logo");
-
-    expect(img.attributes("src")).toBe("/img/logo/logo-512.avif");
-  });
-
   it("should render the logo image with brand translation key as alt when mounted.", () => {
     const img = wrapper.find("#home-logo");
 
@@ -73,9 +71,5 @@ describe("Home Page", () => {
 
   it("should render the HomeFooter component when mounted.", () => {
     expect(wrapper.findComponent({ name: "HomeFooter" }).exists()).toBe(true);
-  });
-
-  it("should not apply justify-center to the root container when mounted.", () => {
-    expect(wrapper.find("#home-page").classes()).not.toContain("justify-center");
   });
 });

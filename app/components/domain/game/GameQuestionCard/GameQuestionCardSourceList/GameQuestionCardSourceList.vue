@@ -18,7 +18,10 @@ function getSourceLinkLabel(url: string): string {
     class="flex flex-wrap gap-x-3 gap-y-2"
     data-testid="game-question-source-links"
   >
-    <span class="font-medium shrink-0 text-fg-secondary text-xs">
+    <span
+      class="font-medium shrink-0 text-fg-secondary text-xs"
+      data-testid="game-question-source-label"
+    >
       {{ $t("questions.sourceLabel", { "count": sourceUrls.length }) }}:
     </span>
 

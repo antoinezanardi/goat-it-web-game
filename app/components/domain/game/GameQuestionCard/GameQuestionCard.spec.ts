@@ -10,8 +10,10 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 
 import { GameQuestionCard } from "#components";
 
+import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestionCard/game-question-card.types";
+
 describe("GameQuestionCard Component", () => {
-  const defaultProps = {
+  const defaultGameQuestionCardProps: GameQuestionCardProps = {
     question: createFakeQuestion({
       category: "trivia",
       themes: [
@@ -28,16 +30,20 @@ describe("GameQuestionCard Component", () => {
       }),
       sourceUrls: ["https://en.wikipedia.org/wiki/France"],
     }),
-  };
+  } as const;
 
   let wrapper: VueWrapper;
 
-  async function mountCard(options: MountSuspendedOptions<typeof GameQuestionCard> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCard, { props: defaultProps, shallow: false, ...options });
+  async function mountGameQuestionCard(options: MountSuspendedOptions<typeof GameQuestionCard> = {}): Promise<VueWrapper> {
+    return mountSuspended(GameQuestionCard, { props: defaultGameQuestionCardProps, shallow: false, ...options });
   }
 
   beforeEach(async() => {
-    wrapper = await mountCard();
+    wrapper = await mountGameQuestionCard();
+  });
+
+  it("should render GameQuestionCard when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render the question statement when mounted.", () => {
@@ -58,18 +64,6 @@ describe("GameQuestionCard Component", () => {
     expect(article.attributes("style")).toContain("--game-theme-color: #B8860B");
   });
 
-  it("should apply flex class to the article when mounted.", () => {
-    const article = wrapper.find("[data-testid='game-question']");
-
-    expect(article.classes()).toContain("flex");
-  });
-
-  it("should apply flex-col class to the article when mounted.", () => {
-    const article = wrapper.find("[data-testid='game-question']");
-
-    expect(article.classes()).toContain("flex-col");
-  });
-
   it("should render the theme header component when mounted.", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardThemeHeader" }).exists()).toBe(true);
   });
@@ -77,7 +71,7 @@ describe("GameQuestionCard Component", () => {
   it("should pass the question to the theme header when primary theme exists.", () => {
     const header = wrapper.findComponent({ name: "GameQuestionCardThemeHeader" });
 
-    expect(header.props("question")).toBe(defaultProps.question);
+    expect(header.props("question")).toBe(defaultGameQuestionCardProps.question);
   });
 
   it("should still render the theme header when the question has no primary theme.", async() => {
@@ -106,33 +100,8 @@ describe("GameQuestionCard Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardSourceList" }).exists()).toBe(true);
   });
 
-  it("should render the source list component outside the scrollable body when mounted.", () => {
-    const bodyDiv = wrapper.find("[data-testid='game-question-body']");
-    const sourceListInBody = bodyDiv.findComponent({ name: "GameQuestionCardSourceList" });
-
-    expect(sourceListInBody.exists()).toBe(false);
-  });
-
-  it.each([
-    { cssClass: "overflow-y-auto" },
-    { cssClass: "flex-1" },
-    { cssClass: "min-h-0" },
-  ])("should apply $cssClass class to the scrollable body div when mounted.", ({ cssClass }) => {
-    const bodyDiv = wrapper.find("[data-testid='game-question-body']");
-
-    expect(bodyDiv.classes()).toContain(cssClass);
-  });
-
-  it("should apply shrink-0 class to the source list when mounted.", () => {
-    const sourceList = wrapper.findComponent({ name: "GameQuestionCardSourceList" });
-
-    expect(sourceList.classes()).toContain("shrink-0");
-  });
-
-  it("should apply pt-4 class to the source list when mounted.", () => {
-    const sourceList = wrapper.findComponent({ name: "GameQuestionCardSourceList" });
-
-    expect(sourceList.classes()).toContain("pt-4");
+  it("should render the scrollable body container when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-question-body']").exists()).toBe(true);
   });
 
   it("should render the context accordion when context is present.", () => {
@@ -142,7 +111,7 @@ describe("GameQuestionCard Component", () => {
   it("should render the context accordion when trivia is present but context is empty.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
-        ...defaultProps.question,
+        ...defaultGameQuestionCardProps.question,
         content: createFakeQuestionContent({ context: undefined, trivia: ["Only trivia"] }),
       }),
     });
@@ -153,22 +122,11 @@ describe("GameQuestionCard Component", () => {
   it("should not render the context accordion when both context and trivia are empty.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
-        ...defaultProps.question,
+        ...defaultGameQuestionCardProps.question,
         content: createFakeQuestionContent({ context: undefined, trivia: undefined }),
       }),
     });
 
     expect(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).exists()).toBe(false);
-  });
-
-  it.each([
-    { cssClass: "game-theme-scope" },
-    { cssClass: "relative" },
-    { cssClass: "h-[calc(100dvh-10rem)]" },
-    { cssClass: "md:max-h-[650px]" },
-  ])("should apply $cssClass class to the article when mounted.", ({ cssClass }) => {
-    const article = wrapper.find("[data-testid='game-question']");
-
-    expect(article.classes()).toContain(cssClass);
   });
 });
