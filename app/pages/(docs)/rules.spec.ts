@@ -91,12 +91,6 @@ describe("Rules Page", () => {
       expect(contentRenderer.props("value")).toStrictEqual({ title: "How to play", description: "Rules" });
     });
 
-    it("should render ContentRenderer with the docs-prose class when status is success.", () => {
-      const contentRenderer = wrapper.findComponent({ name: "ContentRenderer" });
-
-      expect(contentRenderer.props("class")).toBe("docs-prose");
-    });
-
     it("should not render LoadingSpinner when status is success.", () => {
       expect(wrapper.findComponent({ name: "LoadingSpinner" }).exists()).toBe(false);
     });

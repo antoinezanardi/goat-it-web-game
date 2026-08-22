@@ -9,12 +9,12 @@ import { GameSidebarToggleButton } from "#components";
 describe("GameSidebarToggleButton Component", () => {
   let wrapper: VueWrapper;
 
-  async function mountButton(options: MountSuspendedOptions<typeof GameSidebarToggleButton> = {}): Promise<VueWrapper> {
+  async function mountGameSidebarToggleButton(options: MountSuspendedOptions<typeof GameSidebarToggleButton> = {}): Promise<VueWrapper> {
     return mountSuspended(GameSidebarToggleButton, { shallow: false, ...options });
   }
 
   beforeEach(async() => {
-    wrapper = await mountButton();
+    wrapper = await mountGameSidebarToggleButton();
   });
 
   it("should emit click when the button is clicked.", async() => {
@@ -34,6 +34,6 @@ describe("GameSidebarToggleButton Component", () => {
   it("should render the tooltip with the i18n text key when mounted.", () => {
     const tooltip = wrapper.findComponent({ name: "UTooltip" });
 
-    expect(tooltip.attributes("text")).toBe("game.menuTooltip");
+    expect(tooltip.props("text")).toBe("game.menuTooltip");
   });
 });

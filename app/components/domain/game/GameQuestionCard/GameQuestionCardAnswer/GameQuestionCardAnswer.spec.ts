@@ -9,22 +9,22 @@ import { GameQuestionCardAnswer } from "#components";
 import type { GameQuestionCardAnswerProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardAnswer/game-question-card-answer.types";
 
 describe("GameQuestionCardAnswer Component", () => {
-  const defaultProps: GameQuestionCardAnswerProps = {
+  const defaultGameQuestionCardAnswerProps: GameQuestionCardAnswerProps = {
     text: "Paris",
   };
 
   let wrapper: VueWrapper;
 
-  async function mountAnswer(options: MountSuspendedOptions<typeof GameQuestionCardAnswer> = {}): Promise<VueWrapper> {
+  async function mountGameQuestionCardAnswer(options: MountSuspendedOptions<typeof GameQuestionCardAnswer> = {}): Promise<VueWrapper> {
     return mountSuspended(GameQuestionCardAnswer, {
-      props: defaultProps,
+      props: defaultGameQuestionCardAnswerProps,
       shallow: false,
       ...options,
     });
   }
 
   beforeEach(async() => {
-    wrapper = await mountAnswer();
+    wrapper = await mountGameQuestionCardAnswer();
   });
 
   it("should render the answer label when mounted.", () => {

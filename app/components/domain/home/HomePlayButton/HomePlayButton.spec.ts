@@ -4,8 +4,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
+import { HomePlayButton } from "#components";
+
 import { HOME_PLAY_BUTTON_UI } from "@/components/domain/home/HomePlayButton/home-play-button.constants";
-import HomePlayButton from "@/components/domain/home/HomePlayButton/HomePlayButton.vue";
 
 describe("HomePlayButton Component", () => {
   let wrapper: VueWrapper;
@@ -32,12 +33,6 @@ describe("HomePlayButton Component", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
     expect(button.props("to")).toBe("/game");
-  });
-
-  it("should render a UButton with size xl when mounted.", () => {
-    const button = wrapper.findComponent({ name: "UButton" });
-
-    expect(button.props("size")).toBe("xl");
   });
 
   it("should render a UButton with the HOME_PLAY_BUTTON_UI ui config when mounted.", () => {

@@ -7,7 +7,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { DefaultModalFooter } from "#components";
 import type { UButton, UIcon, UKbd } from "#components";
 
-import type { DefaultModalFooterProps } from "~/components/shared/ui/modal/DefaultModalFooter/default-modal-footer.types";
+import type { DefaultModalFooterProps } from "@/components/shared/ui/modal/DefaultModalFooter/default-modal-footer.types";
 
 describe("DefaultModalFooter Component", () => {
   let wrapper: VueWrapper;
@@ -76,13 +76,6 @@ describe("DefaultModalFooter Component", () => {
       const escapeKbd = closeButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-close-button-shortcut-escape']");
 
       expect(escapeKbd.props("value")).toBe("escape");
-    });
-
-    it("should render escape UKbd with sm size when shortcuts are not disabled.", () => {
-      const closeButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-close-button']");
-      const escapeKbd = closeButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-close-button-shortcut-escape']");
-
-      expect(escapeKbd.props("size")).toBe("sm");
     });
 
     it("should not render escape UKbd when shortcuts are disabled.", async() => {

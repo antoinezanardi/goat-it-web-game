@@ -14,10 +14,10 @@ import type { Question } from "#shared/types/question.types";
 import type { GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
 
 describe("GameQuestionCardSwitcher Component", () => {
-  const defaultProps: GameQuestionCardSwitcherProps = {
+  const defaultGameQuestionCardSwitcherProps: GameQuestionCardSwitcherProps = {
     direction: "forward",
     question: createFakeQuestion(),
-  };
+  } as const;
 
   let wrapper: VueWrapper;
   let leavingQuestion: Question;
@@ -30,14 +30,14 @@ describe("GameQuestionCardSwitcher Component", () => {
     };
   }
 
-  async function mountSwitcher(options: MountSuspendedOptions<typeof GameQuestionCardSwitcher> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCardSwitcher, { props: defaultProps, ...options });
+  async function mountGameQuestionCardSwitcher(options: MountSuspendedOptions<typeof GameQuestionCardSwitcher> = {}): Promise<VueWrapper> {
+    return mountSuspended(GameQuestionCardSwitcher, { props: defaultGameQuestionCardSwitcherProps, ...options });
   }
 
   beforeEach(async() => {
     leavingQuestion = createFakeQuestion();
     enteringQuestion = createFakeQuestion();
-    wrapper = await mountSwitcher();
+    wrapper = await mountGameQuestionCardSwitcher();
   });
 
   it("should render the leaving question card when mounted.", () => {
@@ -51,13 +51,13 @@ describe("GameQuestionCardSwitcher Component", () => {
   it("should pass the current question to the leaving card when no transition is active.", () => {
     const leavingCard = wrapper.find("[data-testid='card-transition-leaving']").findComponent({ name: "GameQuestionCard" });
 
-    expect(leavingCard.props("question")).toBe(defaultProps.question);
+    expect(leavingCard.props("question")).toBe(defaultGameQuestionCardSwitcherProps.question);
   });
 
   it("should pass the current question to the entering card when no transition is active.", () => {
     const enteringCard = wrapper.find("[data-testid='card-transition-entering']").findComponent({ name: "GameQuestionCard" });
 
-    expect(enteringCard.props("question")).toBe(defaultProps.question);
+    expect(enteringCard.props("question")).toBe(defaultGameQuestionCardSwitcherProps.question);
   });
 
   it("should hide the leaving card when mounted.", () => {
@@ -174,7 +174,7 @@ describe("GameQuestionCardSwitcher Component", () => {
   it("should not animate the cards when the card elements are not rendered.", async() => {
     wrapper.unmount();
     useGsapMock.instance = createUseGSAPMock();
-    wrapper = await mountSwitcher({
+    wrapper = await mountGameQuestionCardSwitcher({
       global: {
         stubs: {
           GameQuestionCard: {

@@ -5,21 +5,23 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import { DOCS_TOC_UI } from "@/components/docs/DocsToc/docs-toc.constants";
-import type { DocsTocSection } from "@/components/docs/DocsToc/docs-toc.types";
-import DocsToc from "@/components/docs/DocsToc/DocsToc.vue";
+import { DocsToc } from "#components";
 
-const defaultSections: DocsTocSection[] = [
-  { id: "/rules#concept", title: "The concept", level: 2 },
-  { id: "/rules#golden-rule", title: "The golden rule", level: 2 },
-];
+import { DOCS_TOC_UI } from "@/components/docs/DocsToc/docs-toc.constants";
+import type { DocsTocProps } from "@/components/docs/DocsToc/docs-toc.types";
 
 describe("DocsToc Component", () => {
+  const defaultDocsTocProps: DocsTocProps = {
+    sections: [
+      { id: "/rules#concept", title: "The concept", level: 2 },
+      { id: "/rules#golden-rule", title: "The golden rule", level: 2 },
+    ],
+  } as const;
   let wrapper: VueWrapper;
   let callHookSpy: ReturnType<typeof vi.spyOn>;
 
   async function mountDocsToc(options: MountSuspendedOptions<typeof DocsToc> = {}): Promise<VueWrapper> {
-    return mountSuspended(DocsToc, { props: { sections: defaultSections }, shallow: true, ...options });
+    return mountSuspended(DocsToc, { props: defaultDocsTocProps, ...options });
   }
 
   beforeEach(async() => {
@@ -60,7 +62,7 @@ describe("DocsToc Component", () => {
   });
 
   it("should call the page:transition:finish hook again when sections change.", async() => {
-    await wrapper.setProps({ sections: [...defaultSections, { id: "/rules#answer", title: "Finding the answer", level: 2 }] });
+    await wrapper.setProps({ sections: [...defaultDocsTocProps.sections, { id: "/rules#answer", title: "Finding the answer", level: 2 }] });
     await flushPromises();
 
     expect(callHookSpy).toHaveBeenNthCalledWith(2, "page:transition:finish");

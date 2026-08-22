@@ -8,7 +8,7 @@ describe("Object Helpers", () => {
       expect(isRecord({ key: "value" })).toBe(true);
     });
 
-    it.each([
+    it.each<{ input: unknown; label: string }>([
       { input: null, label: "null" },
       { input: ["a", "b"], label: "an array" },
       { input: "string", label: "a string" },

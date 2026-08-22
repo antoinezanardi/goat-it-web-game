@@ -4,7 +4,7 @@ import { isNonEmptyString } from "#shared/utils/helpers/string/string.helpers";
 
 describe("String Helpers", () => {
   describe(isNonEmptyString, () => {
-    it.each([
+    it.each<{ input: string | undefined; expected: boolean; description: string }>([
       { input: "hello", expected: true, description: "a non-empty string" },
       { input: "", expected: false, description: "an empty string" },
       { input: undefined, expected: false, description: "undefined" },

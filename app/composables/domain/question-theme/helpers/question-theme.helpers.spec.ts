@@ -33,7 +33,7 @@ describe("Question Theme Helpers", () => {
   });
 
   describe(resolveThemeColor, () => {
-    it.each([
+    it.each<[string, string | undefined, string]>([
       ["a valid #rrggbb color", "#B8860B", "#B8860B"],
       ["a short #rgb color", "#F00", "#A1A1AA"],
       ["an invalid string", "not-a-color", "#A1A1AA"],

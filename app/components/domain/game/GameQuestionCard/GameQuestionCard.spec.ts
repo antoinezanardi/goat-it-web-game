@@ -11,7 +11,7 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 import { GameQuestionCard } from "#components";
 
 describe("GameQuestionCard Component", () => {
-  const defaultProps = {
+  const defaultGameQuestionCardProps = {
     question: createFakeQuestion({
       category: "trivia",
       themes: [
@@ -32,12 +32,12 @@ describe("GameQuestionCard Component", () => {
 
   let wrapper: VueWrapper;
 
-  async function mountCard(options: MountSuspendedOptions<typeof GameQuestionCard> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCard, { props: defaultProps, shallow: false, ...options });
+  async function mountGameQuestionCard(options: MountSuspendedOptions<typeof GameQuestionCard> = {}): Promise<VueWrapper> {
+    return mountSuspended(GameQuestionCard, { props: defaultGameQuestionCardProps, shallow: false, ...options });
   }
 
   beforeEach(async() => {
-    wrapper = await mountCard();
+    wrapper = await mountGameQuestionCard();
   });
 
   it("should render the question statement when mounted.", () => {
@@ -65,7 +65,7 @@ describe("GameQuestionCard Component", () => {
   it("should pass the question to the theme header when primary theme exists.", () => {
     const header = wrapper.findComponent({ name: "GameQuestionCardThemeHeader" });
 
-    expect(header.props("question")).toBe(defaultProps.question);
+    expect(header.props("question")).toBe(defaultGameQuestionCardProps.question);
   });
 
   it("should still render the theme header when the question has no primary theme.", async() => {
@@ -112,7 +112,7 @@ describe("GameQuestionCard Component", () => {
   it("should render the context accordion when trivia is present but context is empty.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
-        ...defaultProps.question,
+        ...defaultGameQuestionCardProps.question,
         content: createFakeQuestionContent({ context: undefined, trivia: ["Only trivia"] }),
       }),
     });
@@ -123,7 +123,7 @@ describe("GameQuestionCard Component", () => {
   it("should not render the context accordion when both context and trivia are empty.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
-        ...defaultProps.question,
+        ...defaultGameQuestionCardProps.question,
         content: createFakeQuestionContent({ context: undefined, trivia: undefined }),
       }),
     });

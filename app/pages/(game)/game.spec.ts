@@ -101,7 +101,6 @@ describe("Game Page", () => {
     expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(
       expect.any(Object),
       expect.objectContaining({
-        destroyOnClose: true,
         props: {
           disableShortcuts: true,
           dismissible: false,

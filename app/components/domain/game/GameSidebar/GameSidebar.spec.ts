@@ -16,12 +16,12 @@ describe("GameSidebar Component", () => {
     open: true,
   } as const;
 
-  async function mountSidebar(options: MountSuspendedOptions<typeof GameSidebar> = {}): Promise<VueWrapper> {
+  async function mountGameSidebar(options: MountSuspendedOptions<typeof GameSidebar> = {}): Promise<VueWrapper> {
     return mountSuspended(GameSidebar, { props: defaultGameSidebarProps, attachTo: document.body, ...options });
   }
 
   beforeEach(async() => {
-    wrapper = await mountSidebar();
+    wrapper = await mountGameSidebar();
   });
 
   it("should have the data-testid attribute when mounted.", () => {

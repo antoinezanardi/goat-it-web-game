@@ -41,6 +41,6 @@ describe("VersionButton Component", () => {
   it("should render the tooltip with the translated githubTooltip key when mounted.", () => {
     const tooltip = wrapper.findComponent({ name: "UTooltip" });
 
-    expect(tooltip.attributes("text")).toBe("home.githubTooltip");
+    expect(tooltip.props("text")).toBe("home.githubTooltip");
   });
 });

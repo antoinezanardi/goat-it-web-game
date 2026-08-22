@@ -8,7 +8,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { ConfirmDialog } from "#components";
 import type { DefaultModalFooter, DefaultModalTitle, UModal } from "#components";
 
-import type { ConfirmDialogProps } from "~/components/shared/ui/modal/ConfirmDialog/confirm-dialog.types";
+import type { ConfirmDialogProps } from "@/components/shared/ui/modal/ConfirmDialog/confirm-dialog.types";
 
 describe("ConfirmDialog Component", () => {
   let wrapper: VueWrapper;

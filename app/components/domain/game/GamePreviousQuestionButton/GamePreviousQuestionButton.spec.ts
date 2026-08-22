@@ -9,12 +9,12 @@ import { GamePreviousQuestionButton } from "#components";
 describe("GamePreviousQuestionButton Component", () => {
   let wrapper: VueWrapper;
 
-  async function mountButton(options: MountSuspendedOptions<typeof GamePreviousQuestionButton> = {}): Promise<VueWrapper> {
+  async function mountGamePreviousQuestionButton(options: MountSuspendedOptions<typeof GamePreviousQuestionButton> = {}): Promise<VueWrapper> {
     return mountSuspended(GamePreviousQuestionButton, { shallow: false, ...options });
   }
 
   beforeEach(async() => {
-    wrapper = await mountButton();
+    wrapper = await mountGamePreviousQuestionButton();
   });
 
   it("should emit click when the button is clicked.", async() => {

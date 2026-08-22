@@ -52,18 +52,17 @@ Audit subagents apply this checklist verbatim. Violations are recorded with rule
 - **[U1] Location & naming** — Spec colocated with source as `SourceFile.spec.ts`. Exceptions: layouts → `spec/` subfolder; i18n → `app/i18n/specs/`.
 - **[U2] Explicit vitest imports** — `describe`, `it`, `expect`, `vi`, etc. imported from `"vitest"` in every test file. No reliance on globals.
 - **[U3] Describe label rule** — Components: string `"<Name> Component"`. Pages: string `"<Name> Page"`. Layouts: string `"<Name> Layout"`. Server handlers: outer string `"Server Goat It API <Resource> <Method> Handler"` + inner `describe(handlerFn, ...)`. Functions/composables/stores/repositories: symbol reference (`describe(myFn, ...)`) or free-form string only when no single symbol applies. Never a direct component/page/layout reference.
-- **[U4] Test names** — Every `it(...)` matches `"should <action> when <condition>."` and ends with a period.
-- **[U5] Single-call assertions** — No `toHaveBeenCalledTimes(1)` combined with `toHaveBeenCalledWith(...)`. Use `toHaveBeenCalledExactlyOnceWith(...)`.
-- **[U6] Error swallowing** — No `.catch(() => null)`. Use try/catch with `void error` when asserting side effects of throwing code.
-- **[U7] Translation keys** — Assertions compare translation keys, never translated prose strings.
-- **[U8] Type safety** — No `any`; no unsafe assertions without an `// Acceptable as ...` + `// oxlint-disable-next-line ...` comment pair.
-- **[U9] Faketory sources** — Fake data from `tests/unit/utils/faketories/` or `@goat-it/schemas/testing/*`. No local DTO faketories.
-- **[U10] Global mocks** — No `mockNuxtImport("useFoo", ...)` in component/store specs for composables already globally mocked via setup files (import the MockHolder instead).
-- **[U11] `it.each` usage** — Always use `it.each` for parameterized tests. Don't write multiple `it(...)` for the same test with different inputs. `it.each` should always be typed like `it.each<T>([...])`.
+- **[U4] Single-call assertions** — No `toHaveBeenCalledTimes(1)` combined with `toHaveBeenCalledWith(...)`. Use `toHaveBeenCalledExactlyOnceWith(...)`.
+- **[U5] Error swallowing** — No `.catch(() => null)`. Use try/catch with `void error` when asserting side effects of throwing code.
+- **[U6] Translation keys** — Assertions compare translation keys, never translated prose strings.
+- **[U7] Type safety** — No `any`; no unsafe assertions without an `// Acceptable as ...` + `// oxlint-disable-next-line ...` comment pair.
+- **[U8] Faketory sources** — Fake data from `tests/unit/utils/faketories/` or `@goat-it/schemas/testing/*`. No local DTO faketories.
+- **[U9] Global mocks** — No `mockNuxtImport("useFoo", ...)` in component/store specs for composables already globally mocked via setup files (import the MockHolder instead).
+- **[U10] `it.each` usage** — Always use `it.each` for parameterized tests. Don't write multiple `it(...)` for the same test with different inputs. `it.each` should always be typed like `it.each<T>([...])`.
 
 #### Component checks
 
-- **[C1] Import** — Component imported from `#components`.
+- **[C1] Import** — Component imported from `#components`. Exceptions: `App.vue` and `OgImage.takumi.vue` imported from direct path.
 - **[C2] Describe label** — String form `"<ComponentName> Component"`, not a reference.
 - **[C3] Default props const** — Declared as `const defaultXxxProps: XxxProps = { ... } as const` typed to the component props type at the top of `describe`, before the mount helper. When a component has at least one prop, even optional, it must have a default props const.
 - **[C4] Mount helper** — `async function mountXxx(options: MountSuspendedOptions<typeof Xxx> = {})` spreading options after defaults.
@@ -98,18 +97,22 @@ Worthy — each item below should be exercised by at least one test in the spec:
 - **i18n in DOM** — every `$t()` / `$tc()` / `t()` usage rendered by the template is asserted by its key somewhere in the spec, even when the usage is static.
 - **Named slots** — every named slot exercised at least once.
 - **Reactive updates** — prop mutations via `setProps`, or mock-holder/store mutations followed by `await nextTick()`, with re-render assertions.
-- **Icons name** – every icon name rendered by the template is asserted by its `name` prop, even when the usage is static.
 
 Unworthy — asserting any of these in a spec is a violation:
 
 - Static Tailwind/utility classes that no binding ever touches.
 - Static props or attributes without `:` binding (e.g. `variant="subtle"`, `color="neutral"`) — implementation constants.
 - Any markup constant that cannot change with props, watch, computed or emits.
+- Unconditional component presence (`findComponent({ name: "X" }).exists()`) when the component has no `v-if`/`v-else`/`v-show` — only the wrapper existence test is allowed unconditionally.
 
 Checks:
 
 - **[W1] Unworthy assertions** — Spec contains no assertions on unworthy items.
 - **[W2] i18n key coverage** — Every i18n usage rendered by the source template is asserted by key in the spec. The auditor reads the paired source `.vue` file to enumerate them.
+- **[W3] Wrapper existence** — The first test after the mount helper must be `it("should render <ComponentName> when mounted.", () => { expect(wrapper.exists()).toBeTruthy(); })`.
+- **[W4] data-testid presence** — Every element with a `data-testid` in the source template must have its presence asserted at least once in the spec, even when not conditionally rendered.
+- **[W5] Icons name** – Every icon name rendered by the source template must be asserted by its `name` prop, even when the usage is static.
+- **[W6] Link to** – Every link to rendered by the source template must be asserted by its `to` prop, even when the usage is static.
 
 Missing branch/slot coverage detection stays out of audit scope — it is enforced by `pnpm run test:unit:cov`. Only W1 and W2 are audited.
 
@@ -150,13 +153,12 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 
 - **[N1] Pure tests** — No mocking infrastructure.
 - **[N2] Aliases** — Imports use `#server/utils/...` or `#shared/utils/...`.
-- **[N3] Mapper expectations** — Expected entities built via entity faketory spread from the DTO (dates converted ISO → `Date`).
 
 #### i18n translation checks
 
 - **[T1] Location** — Specs live in `app/i18n/specs/`, never colocated.
 - **[T2] Flattening** — Uses `crush` from `radashi`.
-- **[T3] Parity assertion** — `Object.keys(crush(x)).toSorted()` compared against French keys.
+- **[T3] Parity assertion** — `Object.keys(crush(x)).toSorted()` compared against English keys.
 
 ### 5. Dispatch audit subagents
 

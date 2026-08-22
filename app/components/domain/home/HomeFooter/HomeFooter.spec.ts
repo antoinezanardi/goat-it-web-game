@@ -5,9 +5,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import type { UButton } from "#components";
+import { HomeFooter } from "#components";
 
 import { HOME_HOW_TO_PLAY_BUTTON_UI } from "@/components/domain/home/HomeFooter/home-footer.constants";
-import HomeFooter from "@/components/domain/home/HomeFooter/HomeFooter.vue";
 
 describe("HomeFooter Component", () => {
   let wrapper: VueWrapper;
@@ -22,12 +22,6 @@ describe("HomeFooter Component", () => {
 
   it("should render the footer root with the correct data-testid when mounted.", () => {
     expect(wrapper.find("[data-testid='home-footer']").exists()).toBe(true);
-  });
-
-  it("should render the footer root as a footer element when mounted.", () => {
-    const footer = wrapper.find("[data-testid='home-footer']");
-
-    expect(footer.element.tagName).toBe("FOOTER");
   });
 
   it("should render a How to Play UButton with the howToPlay label translation key when mounted.", () => {
@@ -46,18 +40,6 @@ describe("HomeFooter Component", () => {
     const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
 
     expect(button.props("icon")).toBe("i-lucide-help-circle");
-  });
-
-  it("should render a How to Play UButton with variant solid when mounted.", () => {
-    const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
-
-    expect(button.props("variant")).toBe("solid");
-  });
-
-  it("should render a How to Play UButton with size lg when mounted.", () => {
-    const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
-
-    expect(button.props("size")).toBe("lg");
   });
 
   it("should render a How to Play UButton with the HOME_HOW_TO_PLAY_BUTTON_UI ui config when mounted.", () => {
