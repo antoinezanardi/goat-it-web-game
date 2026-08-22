@@ -5,6 +5,7 @@ import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
 import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
@@ -155,5 +156,27 @@ describe("Game Page", () => {
     await getCapturedLeaveGuard()();
 
     expect(useOverlayMock.instance.create).not.toHaveBeenCalled();
+  });
+
+  it("should open the sidebar when the toggle button emits click.", async() => {
+    const toggleButton = wrapper.findComponent({ name: "GameSidebarToggleButton" });
+    getWrapperVm(toggleButton).$emit("click");
+    await nextTick();
+
+    const sidebar = wrapper.findComponent({ name: "GameSidebar" });
+
+    expect(sidebar.props("open")).toBe(true);
+  });
+
+  it("should close the sidebar when GameSidebar emits update:open with false.", async() => {
+    const toggleButton = wrapper.findComponent({ name: "GameSidebarToggleButton" });
+    getWrapperVm(toggleButton).$emit("click");
+    await nextTick();
+
+    const sidebar = wrapper.findComponent({ name: "GameSidebar" });
+    getWrapperVm(sidebar).$emit("update:open", false);
+    await nextTick();
+
+    expect(sidebar.props("open")).toBe(false);
   });
 });

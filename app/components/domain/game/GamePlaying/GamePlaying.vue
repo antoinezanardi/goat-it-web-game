@@ -94,7 +94,7 @@ onUnmounted(() => {
 
 <template>
   <div class="flex flex-1 flex-col">
-    <div class="flex flex-1 items-center justify-center py-6">
+    <div class="flex flex-1 items-center justify-center mt-14 py-4">
       <GameQuestionCardSwitcher
         class="w-full"
         :direction="transitionDirection"
@@ -105,7 +105,7 @@ onUnmounted(() => {
       />
     </div>
 
-    <div class="bottom-0 flex gap-3 items-center justify-between max-w-3xl mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 sticky w-full">
+    <div class="bottom-0 flex gap-3 items-center justify-between max-w-3xl mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 sticky w-full">
       <div class="h-10 shrink-0 w-10">
         <Transition name="fade">
           <span v-if="props.canGoToPreviousQuestion">
