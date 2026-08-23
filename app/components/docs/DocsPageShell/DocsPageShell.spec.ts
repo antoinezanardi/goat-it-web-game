@@ -12,7 +12,7 @@ import type { DocsPageShellProps } from "@/components/docs/DocsPageShell/docs-pa
 const defaultSections: DocsTocSection[] = [{ id: "/rules#concept", title: "The concept", level: 2 }];
 
 describe("DocsPageShell Component", () => {
-  const defaultDocsPageShellProps: DocsPageShellProps = { sections: defaultSections };
+  const defaultDocsPageShellProps: DocsPageShellProps = { sections: defaultSections } as const;
 
   let wrapper: VueWrapper;
 

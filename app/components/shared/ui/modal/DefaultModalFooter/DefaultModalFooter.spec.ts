@@ -156,6 +156,20 @@ describe("DefaultModalFooter Component", () => {
 
         expect(leadingIcon.props("name")).toBe("i-lucide-loader-circle");
       });
+
+      it("should not set loading on the primary button when isPrimaryButtonLoading is not provided.", () => {
+        const primaryButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-primary-button']");
+
+        expect(primaryButton.props("loading")).toBeFalsy();
+      });
+
+      it("should set loading on the primary button when isPrimaryButtonLoading is true.", async() => {
+        await wrapper.setProps({ isPrimaryButtonLoading: true });
+
+        const primaryButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-primary-button']");
+
+        expect(primaryButton.props("loading")).toBe(true);
+      });
     });
 
     describe("Click", () => {

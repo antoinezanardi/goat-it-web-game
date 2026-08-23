@@ -12,6 +12,7 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 
 import { GameQuestionCardThemeStack } from "#components";
 
+import type { QuestionTheme } from "#shared/types/question-theme.types";
 import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
 import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
 import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
@@ -141,6 +142,16 @@ describe("GameQuestionCardThemeStack Component", () => {
     const icons = wrapper.findAllComponents({ name: "GameQuestionCardThemeIcon" });
 
     expect(icons[index]?.props("size")).toBe(expected);
+  });
+
+  it.each<{ index: number; expected: QuestionTheme }>([
+    { index: 0, expected: secondaryThemeOne },
+    { index: 1, expected: secondaryThemeTwo },
+    { index: 2, expected: primaryTheme },
+  ])("should pass the stack position at index $index's theme to its theme icon when mounted.", ({ index, expected }) => {
+    const icons = wrapper.findAllComponents({ name: "GameQuestionCardThemeIcon" });
+
+    expect(icons[index]?.props("theme")).toBe(expected);
   });
 
   it("should render only secondary theme icons when no primary theme is present.", async() => {

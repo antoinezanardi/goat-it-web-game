@@ -9,7 +9,7 @@ Audit unit test spec files against the repository conventions defined in `docs/u
 
 The audit is **static analysis only** — never execute tests. Deep semantic checks (branch/slot/state coverage) are out of scope; coverage remains delegated to `pnpm run test:unit:cov`.
 
-To protect the main context during the **audit phase**, spec files are NEVER read by the main agent: after classification, audit work is dispatched to parallel `general` subagents that return only structured violation summaries. During the **fix phase**, the main agent may read and edit spec files directly for small fix-forwards; bulk category fixes remain delegated to subagents. The main agent aggregates, reports, asks for approval, then applies fixes.
+To protect the main context during the **audit phase**, spec files are NEVER read by the main agent: after classification, audit work is dispatched to parallel `general` subagents that return only structured violation summaries. During the **fix phase**, the main agent may read and edit spec files directly only for mechanical categories touching at most 2 files (step 8, *Direct fix allowance*); all other fixes remain delegated to subagents. The main agent aggregates, reports, asks for approval, then applies fixes.
 
 Report all violations once in-chat, then use the question tool to validate with the user which violations to fix. **Never modify any file before explicit user approval.**
 
@@ -22,7 +22,7 @@ Report all violations once in-chat, then use the question tool to validate with 
 
 ### 2. Determine scope
 
-- Paths given in the prompt → resolve each to its spec file.
+- Paths given in the prompt → resolve each to its spec file (non-colocated cases follow §3/[U1]: a layout source path maps to its `spec/` subfolder spec; an i18n locale JSON maps to its matching `app/i18n/specs/*.translations.spec.ts`).
 - No paths → glob all `*.spec.ts` under `app/`, `server/`, `shared/`.
 
 ### 3. Classify each spec file
@@ -58,7 +58,16 @@ Audit subagents apply this checklist verbatim. Violations are recorded with rule
 - **[U7] Type safety** — No `any`; no unsafe assertions without an `// Acceptable as ...` + `// oxlint-disable-next-line ...` comment pair. Exceptions — bare `as` casts accepted as-is: those mirroring a documented docs example (e.g. store specs' `capturedAction = action as () => Promise<...>` per §6.5), and the following established codebase patterns: DOM element casts (`.element as HTMLElement`), mock-shape casts in tests (`expect.any(Function) as () => void`, `{ matches: true } as MediaQueryList`), runtime-config/error narrowing in server helper specs (`as unknown as ReturnType<typeof useRuntimeConfig>`, `error as H3Error`), and repository shape-test casts (`expect.any(Function) as () => Promise<Entity[]>`).
 - **[U8] Faketory sources** — Fake data from `tests/unit/utils/faketories/` or `@goat-it/schemas/testing/*`. No local DTO faketories.
 - **[U9] Global mocks** — No `mockNuxtImport("useFoo", ...)` in component/store specs for composables already globally mocked via setup files (import the MockHolder instead).
-- **[U10] `it.each` usage** — Always use `it.each` for parameterized tests. Don't write multiple `it(...)` for the same test with different inputs. `it.each` should always be typed like `it.each<T>([...])`.
+- **[U10] `it.each` usage** — Always use `it.each` for parameterized tests. Don't write multiple `it(...)` for the same test with different inputs. `it.each` should always be typed like `it.each<T>([...])`. Do NOT flag tests that describe semantically different conditions or edge cases (e.g. zero-delay immediate resolution vs delayed resolution) as mergeable — only pure input duplicates of identical test logic count.
+
+#### Established patterns — do NOT flag
+
+These recurring shapes are accepted codebase conventions. Auditors must not report them as violations or warnings:
+
+- Worthiness `.attributes()` fallbacks where `.props()` is impractical (e.g. asserting a `text` prop that falls through to a stub) — covered by the "Dynamically-bound props" worthy-item exception; existing sibling-spec usages confirm the convention.
+- Count-only `findAllComponents({ name: "..." })` usage that never indexes positionally into siblings.
+- `getWrapperVm<T>` + local `ComponentVm` extension asserting derived computed values when the rendered output itself is not observable in happy-dom (see [C8]).
+- Environment-coupled server helper specs stubbing `useRuntimeConfig` / h3 globals (see [N1] exception).
 
 #### Component checks
 
@@ -158,8 +167,8 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 
 #### Node helper/mapper checks
 
-- **[N1] Pure tests** — No mocking infrastructure of the unit under test or its collaborators. Exception: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, spying on global timers) are allowed to test time-dependent helpers deterministically.
-- **[N2] Aliases** — Imports use `#server/utils/...` or `#shared/utils/...`.
+- **[N1] Pure tests** — No mocking infrastructure of the unit under test or its collaborators. Exception: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, spying on global timers) are allowed to test time-dependent helpers deterministically. Environment-coupled server helpers (`server/utils/goat-it-api/helpers/goat-it-api.helpers.ts`) may stub `useRuntimeConfig` and h3 globals — established exception, never flagged.
+- **[N2] Aliases** — Server helper specs import via `#server/utils/...`; shared helper specs via `#shared/utils/...`; app-local helper/mapper specs (e.g. under `app/components/` or `app/composables/`) via `@/`.
 
 #### i18n translation checks
 
@@ -169,7 +178,7 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 
 ### 5. Dispatch audit subagents
 
-The main agent must NOT read spec files itself — that is what overflows context. Instead:
+During the audit phase the main agent must NOT read spec files itself — that is what overflows context (the fix-phase direct-fix allowance in step 8 is the only exception). Instead:
 
 1. **Batch** — Group the classified specs by type in batches of 4 files per group (single-file input → one group of one; smaller remainders are acceptable).
 2. **Dispatch** — Launch one `general` subagent per group via the Task tool, in parallel waves of at most ~6 concurrent tasks. Mark each task as read-only research/audit work.
@@ -184,9 +193,10 @@ The main agent must NOT read spec files itself — that is what overflows contex
    - <path2>
 
    Steps:
-   1. Read `.opencode/commands/lint-unit-tests.md` section 4 and apply the Universal
-      checks plus the "<Type> checks" block — and, when auditing components, pages or
-      layouts, the "Worthiness checks" block — to every listed file.
+   1. Read `.opencode/commands/lint-unit-tests.md` section 4 IN FULL and apply the
+      Universal checks, the "Established patterns — do NOT flag" block, the exact
+      "<Type> checks" block named for this group's type — and, when auditing components,
+      pages or layouts, the "Worthiness checks" block — to every listed file.
    2. Read each listed spec file completely; for components, pages and layouts also
       read each paired source `.vue` file to enumerate its i18n usages and dynamic
       bindings. Consult `docs/unit-testing.md` only when needed to judge a pattern
@@ -206,7 +216,7 @@ The main agent must NOT read spec files itself — that is what overflows contex
    Omit VIOLATIONS/WARNINGS sections when empty. No prose before or after.
    ```
 
-4. **Collect & retry** — If an agent fails or returns truncated/malformed output, re-dispatch once with HALF the files per batch (split into two tasks); if it still fails, mark its files ⚠️ `unaudited — manual review` in the report.
+4. **Collect & retry** — If an agent fails or returns truncated/malformed output, re-dispatch ONCE with HALF the files per batch (split into two tasks), preserving the original single-type grouping. If it still fails, mark its files ⚠️ `unaudited — manual review` in the report.
 
 ### 6. Report
 
@@ -218,12 +228,12 @@ Emit exactly one report block:
 | Status | File                                 | Type       | Violations |
 |--------|--------------------------------------|------------|------------|
 | ❌     | app/pages/index.spec.ts              | page       | V1, V2     |
-| ⚠️     | app/composables/core/useGame.spec.ts | composable | V3         |
+| ⚠️     | app/composables/core/useGame.spec.ts | composable | —          |
 
 (✅ pass · ❌ violation · ⚠️ needs human judgment)
 ```
 
-Table lists **only failing/warning files**, ordered by path. Then list every violation, numbered sequentially:
+Table lists **only failing/warning files**, ordered by path — one row per file. Status precedence: a file with both violations and warnings shows ❌ (violations outrank warnings); list its violation IDs in the Violations column and mention the warnings in their entries below. Then list every violation, numbered sequentially:
 
 ```markdown
 **V1** `app/pages/index.spec.ts:38` — [P2] Missing `shallow: true` in mount helper
@@ -232,9 +242,11 @@ Table lists **only failing/warning files**, ordered by path. Then list every vio
 
 Format per violation: ID → backticked `file:line(s)` → `[rule tag]` → concise description including the expected pattern.
 
+Warnings carry no IDs — list them after the violations as unnumbered bullets, one per finding, in the form `- \`file:line(s)\` — <description>`.
+
 ### 7. Category-based fix approval
 
-Immediately after the report, group every reported violation by rule tag into fix **categories** (e.g. `W3 — wrapper-existence first tests`, `C3 — default props consts`, `U10 — typed it.each`). Present the categories to the user via the question tool so they can approve which to fix, one category at a time (also offer "all categories" and "nothing — report only"; always allow a custom answer with specific categories/violation IDs).
+Immediately after the report, group every reported violation AND actionable warning (skip report-only warnings already accepted as conventions) by rule tag into fix **categories** (e.g. `W3 — wrapper-existence first tests`, `C3 — default props consts`, `U10 — typed it.each`). Present the categories to the user via the question tool so they can approve which to fix, one category at a time (also offer "all categories" and "nothing — report only"; always allow a custom answer with specific categories/violation IDs).
 
 Classify before asking: **mechanical** = unambiguous single-file edits; **judgmental** = requires writing new test logic or removal decisions that may affect coverage. State the split in the question description so the user can decide informedly.
 
@@ -242,20 +254,22 @@ Classify before asking: **mechanical** = unambiguous single-file edits; **judgme
 
 Work through approved categories ONE at a time:
 
-- For each category, list every file it touches and dispatch fixes in batches of 4 files per `general` subagent task (smaller remainders fine), in parallel waves of at most ~6 tasks.
-- Each batch prompt must contain: exact file paths, the violations to fix with their tags/lines, the expected pattern from `docs/unit-testing.md`, scoped verification (`pnpm run test:unit <spec paths>` must pass; revert a single fix if irrecoverable), and the structured `FILE / STATUS / NOTES` return format.
+- **Direct fix allowance** — a mechanical category touching at most 2 files may be applied directly by the main agent (read + edit + scoped verification per section 9) instead of dispatching subagents.
+- For each remaining category, list every file it touches and dispatch fixes in batches of 4 files per `general` subagent task (smaller remainders fine), in parallel waves of at most ~6 tasks.
+- Each batch prompt must contain: exact file paths, the violations to fix with their tags/lines, the expected pattern from `docs/unit-testing.md`, scoped verification (`pnpm run test:unit <spec paths>` plus focused eslint/oxlint fixes must pass; revert a single fix if irrecoverable), and the structured `FILE / STATUS / NOTES` return format. Also declare any known working-tree modifications that predate the batch so the subagent does not misattribute them.
 - Apply corrections following the exact patterns from `docs/unit-testing.md` — never invent alternatives.
 - Judgmental items may require adding or removing test cases; write them per the file-type pattern.
+- **happy-dom CSS constraint** — when the surface to pin is an inline `style` binding computed with modern CSS functions (`oklch()`, `color-mix()`, …), `.attributes("style")` assertions are impossible: happy-dom silently drops unparseable CSS during serialization. Pin the underlying computed/ref value via the [C8] pattern instead (`getWrapperVm<T>` + local `ComponentVm` extension) and note why in the fix NOTES.
 - Respect repo conventions: no comments (except allowed lint-disable/JSDoc forms), correct import grouping/order, no `any`.
 - Known linter constraints while editing: at most ONE `expect()` call per test body (`vitest(max-expects)`); hooks must live inside `describe` blocks (`vitest(require-top-level-describe)`).
-- When a category is done, run focused lint + tests across its modified files and fix forward until green BEFORE moving to the next category.
+- When a category is done, run focused lint + tests across its modified files **plus** `pnpm run test:unit:cov` (full coverage gate — fixes may add or reshape tests), and fix forward until green BEFORE moving to the next category.
 - After each completed category, report its outcome (files changed, violations fixed, verification results) and ask the user whether to proceed to the next approved/pending category — do not chain categories silently.
 - Do NOT touch anything beyond the approved categories' violations.
 - Do NOT commit.
 
 ### 9. Verify (focused only)
 
-Run scoped checks on modified files only — do NOT run full suites:
+Run scoped checks on modified files only — do NOT run other full suites, except the per-category `pnpm run test:unit:cov` gate mandated by step 8:
 
 ```bash
 pnpm run test:unit <modified-spec-paths>
@@ -265,6 +279,16 @@ pnpm run lint:oxlint:fix <modified-paths>
 
 If a focused test fails because the fix revealed a real convention conflict (e.g. renaming a describe broke a snapshot), fix forward and re-run until green.
 
+Once every approved category is fixed, run the FULL quality gate on the whole repository (AGENTS.md gates, acceptance excluded):
+
+```bash
+pnpm run lint:fix
+pnpm run typecheck
+pnpm run test:unit:cov
+```
+
+Fix forward and re-run from the failing command until all three pass.
+
 ### 10. Finish
 
 Report concisely:
@@ -272,4 +296,20 @@ Report concisely:
 - Files audited vs files changed.
 - Violations fixed by rule tag; violations left untouched (if any).
 - Focused test + lint results.
-- Reminder that deep coverage was not assessed here — suggest `pnpm run test:unit:cov` if new tests were added.
+- If fixes were applied: report the per-category `pnpm run test:unit:cov` outcomes and the final full-gate results from step 9.
+- If nothing was fixed, keep reminding that deep coverage was not assessed and suggest `pnpm run test:unit:cov`.
+
+### 11. Lessons learned
+
+After the finish report, run a short retrospective and offer to improve **this command**:
+
+1. **Collect findings** from the session:
+   - Warnings/violations the user accepted as-is (candidate whitelist entries) and categories they rejected.
+   - Checklist rules applied too strictly or too loosely (false positives, missed patterns, ambiguous wording the agent had to interpret).
+   - Subagent friction: truncated/malformed output, retries, prescribed fix mechanics that proved impossible, improvised deviations.
+   - Any explicit user feedback during approval questions or fix reviews.
+2. **Propose improvements** — map each finding to a concrete edit of `.opencode/commands/lint-unit-tests.md` (checklist rule, established-patterns entry, report format, dispatch/retry/fix-phase protocol). Present them as a table: improvement → lessons addressed, then ask via the question tool which to apply (allow multiple selection plus custom answers).
+3. **Never modify the command without explicit user approval.**
+4. **Apply approved edits** directly, verify each landed by re-reading/grepping the edited sections, and report where each change lives (section + approximate line).
+
+Skip this step only when the user explicitly closes the session first; otherwise always offer it — even a clean audit may yield protocol refinements.

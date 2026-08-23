@@ -3,7 +3,9 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
 import { GameQuestionCardThemeIcon } from "#components";
 
@@ -11,10 +13,18 @@ import type { GameQuestionCardThemeIconProps } from "@/components/domain/game/Ga
 import { QUESTION_THEME_UNKNOWN_ICON } from "~/composables/domain/question-theme/constants/question-theme.constants";
 import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
+type GameQuestionCardThemeIconVm = ComponentVm & {
+  borderStyle: string;
+  neonColor: string;
+};
+
 describe("GameQuestionCardThemeIcon Component", () => {
   const defaultGameQuestionCardThemeIconProps: GameQuestionCardThemeIconProps = {
     theme: createFakeQuestionTheme({ slug: "geography-travels", color: "#33A1FF" }),
   } as const;
+
+  const expectedNeonColor = "oklch(from #33A1FF max(l, 0.85) c h)";
+  const expectedBorderStyle = `color-mix(in oklch, ${expectedNeonColor} 55%, transparent)`;
 
   let wrapper: VueWrapper;
 
@@ -46,6 +56,18 @@ describe("GameQuestionCardThemeIcon Component", () => {
 
   it("should set inline glow shadow derived from the theme color when mounted.", () => {
     expect(wrapper.attributes("style")).toContain("box-shadow:");
+  });
+
+  it("should derive the border style color mix from the theme color when mounted.", () => {
+    const vm = getWrapperVm<GameQuestionCardThemeIconVm>(wrapper);
+
+    expect(vm.borderStyle).toBe(expectedBorderStyle);
+  });
+
+  it("should derive the neon color from the theme color when mounted.", () => {
+    const vm = getWrapperVm<GameQuestionCardThemeIconVm>(wrapper);
+
+    expect(vm.neonColor).toBe(expectedNeonColor);
   });
 
   it.each<{ size: "md" | "sm"; expectedClass: string }>([

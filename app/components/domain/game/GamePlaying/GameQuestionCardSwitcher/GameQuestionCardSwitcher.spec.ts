@@ -160,6 +160,10 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(wrapper.emitted("complete")).toStrictEqual([[]]);
   });
 
+  it("should not emit complete when no card transition runs.", () => {
+    expect(wrapper.emitted("complete")).toBeUndefined();
+  });
+
   it("should not create a new timeline when the transition state is cleared.", async() => {
     await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
     await nextTick();
