@@ -91,6 +91,78 @@ describe("Game Page", () => {
     expect(gamePlaying.exists()).toBeTruthy();
   });
 
+  it("should forward canGoToPreviousQuestion as true to GamePlaying when a previous question is available.", async() => {
+    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+    useGameMock.instance.questionsRef.value = fakeQuestions;
+    useGameMock.instance.currentIndex.value = 1;
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+
+    expect(gamePlaying.props("canGoToPreviousQuestion")).toBe(true);
+  });
+
+  it("should forward currentIndex to GamePlaying when gameState is playing.", async() => {
+    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+    useGameMock.instance.questionsRef.value = fakeQuestions;
+    useGameMock.instance.currentIndex.value = 1;
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+
+    expect(gamePlaying.props("currentIndex")).toBe(1);
+  });
+
+  it("should forward currentQuestion to GamePlaying when gameState is playing.", async() => {
+    const fakeQuestion = createFakeQuestion();
+    useGameMock.instance.questionsRef.value = [fakeQuestion];
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+
+    expect(gamePlaying.props("currentQuestion")).toStrictEqual(fakeQuestion);
+  });
+
+  it("should forward questions to GamePlaying when gameState is playing.", async() => {
+    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+    useGameMock.instance.questionsRef.value = fakeQuestions;
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+
+    expect(gamePlaying.props("questions")).toStrictEqual(fakeQuestions);
+  });
+
+  it("should call advanceToNextQuestion when GamePlaying emits advance.", async() => {
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+    getWrapperVm(gamePlaying).$emit("advance");
+    await nextTick();
+
+    expect(useGameMock.instance.advanceToNextQuestion).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("should call goToPreviousQuestion when GamePlaying emits previous.", async() => {
+    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+    useGameMock.instance.questionsRef.value = fakeQuestions;
+    useGameMock.instance.currentIndex.value = 1;
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+    getWrapperVm(gamePlaying).$emit("previous");
+    await nextTick();
+
+    expect(useGameMock.instance.goToPreviousQuestion).toHaveBeenCalledExactlyOnceWith();
+  });
+
   it("should render GameNoMoreQuestions when gameState is game-over.", async() => {
     useGameMock.instance.gameStateRef.value = "game-over";
     await nextTick();

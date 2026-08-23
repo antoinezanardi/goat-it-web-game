@@ -68,6 +68,18 @@ describe("ConfirmDialog Component", () => {
 
       expect(title.props("title")).toBe("Archive this theme?");
     });
+
+    it("should pass the custom icon class to the default modal title when iconClass prop is provided.", async() => {
+      wrapper = await mountConfirmDialogComponent({
+        props: {
+          ...defaultConfirmDialogProps,
+          iconClass: "text-primary",
+        },
+      });
+      const title = wrapper.findComponent<typeof DefaultModalTitle>("[data-testid='confirm-dialog-title']");
+
+      expect(title.props("iconClass")).toBe("text-primary");
+    });
   });
 
   describe("Description", () => {
@@ -113,6 +125,18 @@ describe("ConfirmDialog Component", () => {
       const footer = wrapper.findComponent<typeof DefaultModalFooter>("[data-testid='confirm-dialog-footer']");
 
       expect(footer.props("closeButtonLabel")).toBe("Never mind");
+    });
+
+    it("should pass disableShortcuts as true to the footer when the prop is set to true.", async() => {
+      wrapper = await mountConfirmDialogComponent({
+        props: {
+          ...defaultConfirmDialogProps,
+          disableShortcuts: true,
+        },
+      });
+      const footer = wrapper.findComponent<typeof DefaultModalFooter>("[data-testid='confirm-dialog-footer']");
+
+      expect(footer.props("disableShortcuts")).toBe(true);
     });
 
     it("should emit close with false when the footer emits closeModal.", () => {

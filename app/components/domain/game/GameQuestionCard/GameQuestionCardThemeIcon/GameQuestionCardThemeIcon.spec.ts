@@ -12,14 +12,14 @@ import { QUESTION_THEME_UNKNOWN_ICON } from "~/composables/domain/question-theme
 import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 describe("GameQuestionCardThemeIcon Component", () => {
-  const defaultProps: GameQuestionCardThemeIconProps = {
+  const defaultGameQuestionCardThemeIconProps: GameQuestionCardThemeIconProps = {
     theme: createFakeQuestionTheme({ slug: "geography-travels", color: "#33A1FF" }),
-  };
+  } as const;
 
   let wrapper: VueWrapper;
 
   async function mountIcon(options: MountSuspendedOptions<typeof GameQuestionCardThemeIcon> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCardThemeIcon, { props: defaultProps, shallow: false, ...options });
+    return mountSuspended(GameQuestionCardThemeIcon, { props: defaultGameQuestionCardThemeIconProps, shallow: false, ...options });
   }
 
   beforeEach(async() => {
@@ -65,7 +65,7 @@ describe("GameQuestionCardThemeIcon Component", () => {
     { hintLabel: "true", isHint: true, expectedClass: "border-dashed" },
     { hintLabel: "true", isHint: true, expectedClass: "border-2" },
   ])("should apply the $expectedClass border class when isHint is $hintLabel.", async({ isHint, expectedClass }) => {
-    const hintWrapper = await mountIcon({ props: { ...defaultProps, isHint } });
+    const hintWrapper = await mountIcon({ props: { ...defaultGameQuestionCardThemeIconProps, isHint } });
 
     expect(hintWrapper.classes()).toContain(expectedClass);
   });

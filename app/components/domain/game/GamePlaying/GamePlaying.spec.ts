@@ -26,11 +26,18 @@ function getGamePlayingSetupState(wrapper: VueWrapper): GamePlayingSetupState {
 }
 
 describe("GamePlaying Component", () => {
+  const firstQuestion: Question = createFakeQuestion();
+  const secondQuestion: Question = createFakeQuestion();
+  const thirdQuestion: Question = createFakeQuestion();
+
+  const defaultGamePlayingProps: GamePlayingProps = {
+    canGoToPreviousQuestion: false,
+    currentIndex: 0,
+    currentQuestion: firstQuestion,
+    questions: [firstQuestion, secondQuestion],
+  };
+
   let wrapper: VueWrapper;
-  let firstQuestion: Question;
-  let secondQuestion: Question;
-  let thirdQuestion: Question;
-  let defaultGamePlayingProps: GamePlayingProps;
 
   async function mountGamePlayingComponent(options: MountSuspendedOptions<typeof GamePlaying> = {}): Promise<VueWrapper> {
     const { props: propsOverride, ...restOptions } = options;
@@ -43,15 +50,6 @@ describe("GamePlaying Component", () => {
   }
 
   beforeEach(async() => {
-    firstQuestion = createFakeQuestion();
-    secondQuestion = createFakeQuestion();
-    thirdQuestion = createFakeQuestion();
-    defaultGamePlayingProps = {
-      canGoToPreviousQuestion: false,
-      currentIndex: 0,
-      currentQuestion: firstQuestion,
-      questions: [firstQuestion, secondQuestion],
-    };
     wrapper = await mountGamePlayingComponent();
   });
 

@@ -34,6 +34,10 @@ describe("GameQuestionCardContextAccordion Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
+  it("should render UCollapsible when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UCollapsible" }).exists()).toBe(true);
+  });
+
   it("should render the accordion trigger with its testid when mounted.", () => {
     expect(wrapper.find("[data-testid='game-question-context-accordion-trigger']").exists()).toBe(true);
   });

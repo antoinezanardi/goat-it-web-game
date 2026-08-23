@@ -10,6 +10,7 @@ import {
   extractLocaleFromEvent,
   handleGoatItApiError,
 } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import type { CreateGoatItApiEndpointOptions, GoatItApiResourceName } from "#server/utils/goat-it-api/goat-it-api.types";
 
 vi.stubGlobal("useRuntimeConfig", vi.fn());
 
@@ -56,47 +57,25 @@ function getThrowableError(function_: () => void): H3Error {
 describe(createGoatItApiEndpoint, () => {
   beforeEach(mockGoatItApiEnvironment);
 
-  it("should create the correct endpoint for a given resource name when called.", () => {
-    const resourceName = "question-themes";
-    const expectedEndpoint = "/question-themes";
-    const endpoint = createGoatItApiEndpoint(resourceName);
+  it.each<{
+    description: string;
+    resourceName: GoatItApiResourceName;
+    options?: CreateGoatItApiEndpointOptions;
+    expectedEndpoint: string;
+  }>([
+    { description: "no options", resourceName: "question-themes", expectedEndpoint: "/question-themes" },
+    { description: "an id option", resourceName: "question-themes", options: { id: "abc123" }, expectedEndpoint: "/question-themes/abc123" },
+    { description: "a suffix option", resourceName: "questions", options: { suffix: "search/random" }, expectedEndpoint: "/questions/search/random" },
+    { description: "an empty id option", resourceName: "question-themes", options: { id: "" }, expectedEndpoint: "/question-themes" },
+    { description: "an empty suffix option", resourceName: "questions", options: { suffix: "" }, expectedEndpoint: "/questions" },
+  ])(
+    "should create the endpoint '$expectedEndpoint' for resource '$resourceName' when called with $description.",
+    ({ resourceName, options, expectedEndpoint }) => {
+      const endpoint = createGoatItApiEndpoint(resourceName, options);
 
-    expect(endpoint).toBe(expectedEndpoint);
-  });
-
-  it("should create the correct endpoint with id for a given resource name when called.", () => {
-    const resourceName = "question-themes";
-    const id = "abc123";
-    const expectedEndpoint = "/question-themes/abc123";
-    const endpoint = createGoatItApiEndpoint(resourceName, { id });
-
-    expect(endpoint).toBe(expectedEndpoint);
-  });
-
-  it("should create the correct endpoint with suffix for a given resource name when called.", () => {
-    const resourceName = "questions";
-    const suffix = "search/random";
-    const expectedEndpoint = "/questions/search/random";
-    const endpoint = createGoatItApiEndpoint(resourceName, { suffix });
-
-    expect(endpoint).toBe(expectedEndpoint);
-  });
-
-  it("should create the correct endpoint without id when empty string id is provided.", () => {
-    const resourceName = "question-themes";
-    const expectedEndpoint = "/question-themes";
-    const endpoint = createGoatItApiEndpoint(resourceName, { id: "" });
-
-    expect(endpoint).toBe(expectedEndpoint);
-  });
-
-  it("should create the correct endpoint without suffix when empty string suffix is provided.", () => {
-    const resourceName = "questions";
-    const expectedEndpoint = "/questions";
-    const endpoint = createGoatItApiEndpoint(resourceName, { suffix: "" });
-
-    expect(endpoint).toBe(expectedEndpoint);
-  });
+      expect(endpoint).toBe(expectedEndpoint);
+    },
+  );
 });
 
 describe(extractLocaleFromEvent, () => {
@@ -192,131 +171,111 @@ describe(createGoatItApiFetchOptions, () => {
   });
 });
 
+type GoatItApiFetchErrorTestCase = {
+  description: string;
+  errorData: unknown;
+  expectedStatusCode: number;
+  expectedMessage: string;
+};
+
+type GoatItApiErrorCodeDataTestCase = {
+  description: string;
+  errorData: unknown;
+  expectedData: { errorCode?: string };
+};
+
 describe(handleGoatItApiError, () => {
   beforeEach(mockGoatItApiEnvironment);
 
-  describe("when error is a FetchError with valid ApiResponseExceptionDto data", () => {
-    it("should throw H3Error when called.", () => {
-      const fetchError = new FetchError("Conflict");
-      fetchError.data = {
-        statusCode: 409,
-        message: "Question theme is referenced by live questions",
-        error: "Conflict",
-        errorCode: "questionThemeReferencedByLiveQuestions",
-      };
+  const validErrorDataWithErrorCode = {
+    statusCode: 409,
+    message: "Question theme is referenced by live questions",
+    error: "Conflict",
+    errorCode: "questionThemeReferencedByLiveQuestions",
+  };
+  const validErrorDataWithoutErrorCode = {
+    statusCode: 400,
+    message: "The request could not be understood",
+    error: "Bad Request",
+  };
+  const invalidErrorData = { unexpected: "shape" };
 
-      expect(() => handleGoatItApiError(fetchError)).toThrow(H3Error);
-    });
+  const fetchErrorTestCases: GoatItApiFetchErrorTestCase[] = [
+    {
+      description: "valid ApiResponseExceptionDto data with errorCode",
+      errorData: validErrorDataWithErrorCode,
+      expectedStatusCode: 409,
+      expectedMessage: "Question theme is referenced by live questions",
+    },
+    {
+      description: "valid ApiResponseExceptionDto data without errorCode",
+      errorData: validErrorDataWithoutErrorCode,
+      expectedStatusCode: 400,
+      expectedMessage: "The request could not be understood",
+    },
+    {
+      description: "invalid data that does not match ApiResponseExceptionDto",
+      errorData: invalidErrorData,
+      expectedStatusCode: 500,
+      expectedMessage: "Internal server error",
+    },
+  ];
 
-    it("should throw H3Error with status code from the parsed API error when called.", () => {
-      const fetchError = new FetchError("Conflict");
-      fetchError.data = {
-        statusCode: 409,
-        message: "Question theme is referenced by live questions",
-        error: "Conflict",
-        errorCode: "questionThemeReferencedByLiveQuestions",
-      };
-      const error = getThrowableError(() => handleGoatItApiError(fetchError));
+  const errorCodeDataTestCases: GoatItApiErrorCodeDataTestCase[] = [
+    {
+      description: "valid ApiResponseExceptionDto data with errorCode",
+      errorData: validErrorDataWithErrorCode,
+      expectedData: { errorCode: "questionThemeReferencedByLiveQuestions" },
+    },
+    {
+      description: "valid ApiResponseExceptionDto data without errorCode",
+      errorData: validErrorDataWithoutErrorCode,
+      expectedData: { errorCode: undefined },
+    },
+  ];
 
-      expect(error.statusCode).toBe(409);
-    });
+  function createFailingFetchError(data: unknown): FetchError {
+    const fetchError = new FetchError("Goat It API error");
 
-    it("should throw H3Error with message from the parsed API error when called.", () => {
-      const fetchError = new FetchError("Conflict");
-      fetchError.data = {
-        statusCode: 409,
-        message: "Question theme is referenced by live questions",
-        error: "Conflict",
-        errorCode: "questionThemeReferencedByLiveQuestions",
-      };
+    fetchError.data = data;
 
-      expect(() => handleGoatItApiError(fetchError)).toThrow("Question theme is referenced by live questions");
-    });
+    return fetchError;
+  }
 
-    it("should throw H3Error with error code in data from the parsed API error when called.", () => {
-      const fetchError = new FetchError("Conflict");
-      fetchError.data = {
-        statusCode: 409,
-        message: "Question theme is referenced by live questions",
-        error: "Conflict",
-        errorCode: "questionThemeReferencedByLiveQuestions",
-      };
-      const error = getThrowableError(() => handleGoatItApiError(fetchError));
+  describe("when error is a FetchError", () => {
+    it.each(fetchErrorTestCases)(
+      "should throw an H3Error when error data is $description.",
+      ({ errorData }) => {
+        expect(() => handleGoatItApiError(createFailingFetchError(errorData))).toThrow(H3Error);
+      },
+    );
 
-      expect(error.data).toStrictEqual({ errorCode: "questionThemeReferencedByLiveQuestions" });
-    });
-  });
+    it.each(fetchErrorTestCases)(
+      "should throw an H3Error with status code $expectedStatusCode when error data is $description.",
+      ({ errorData, expectedStatusCode }) => {
+        const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(errorData)));
 
-  describe("when error is a FetchError with valid ApiResponseExceptionDto data but no errorCode", () => {
-    it("should throw H3Error when called.", () => {
-      const fetchError = new FetchError("Bad Request");
-      fetchError.data = {
-        statusCode: 400,
-        message: "The request could not be understood",
-        error: "Bad Request",
-      };
+        expect(error.statusCode).toBe(expectedStatusCode);
+      },
+    );
 
-      expect(() => handleGoatItApiError(fetchError)).toThrow(H3Error);
-    });
+    it.each(fetchErrorTestCases)(
+      "should throw an H3Error with the message '$expectedMessage' when error data is $description.",
+      ({ errorData, expectedMessage }) => {
+        const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(errorData)));
 
-    it("should throw H3Error with status code from the parsed API error when called.", () => {
-      const fetchError = new FetchError("Bad Request");
-      fetchError.data = {
-        statusCode: 400,
-        message: "The request could not be understood",
-        error: "Bad Request",
-      };
-      const error = getThrowableError(() => handleGoatItApiError(fetchError));
+        expect(error.message).toBe(expectedMessage);
+      },
+    );
 
-      expect(error.statusCode).toBe(400);
-    });
+    it.each(errorCodeDataTestCases)(
+      "should throw an H3Error with the parsed errorCode in data when error data is $description.",
+      ({ errorData, expectedData }) => {
+        const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(errorData)));
 
-    it("should throw H3Error with message from the parsed API error when called.", () => {
-      const fetchError = new FetchError("Bad Request");
-      fetchError.data = {
-        statusCode: 400,
-        message: "The request could not be understood",
-        error: "Bad Request",
-      };
-
-      expect(() => handleGoatItApiError(fetchError)).toThrow("The request could not be understood");
-    });
-
-    it("should throw H3Error with undefined error code in data when called.", () => {
-      const fetchError = new FetchError("Bad Request");
-      fetchError.data = {
-        statusCode: 400,
-        message: "The request could not be understood",
-        error: "Bad Request",
-      };
-      const error = getThrowableError(() => handleGoatItApiError(fetchError));
-
-      expect(error.data).toStrictEqual({ errorCode: undefined });
-    });
-  });
-
-  describe("when error is a FetchError with invalid data that does not match ApiResponseExceptionDto", () => {
-    it("should throw H3Error when called.", () => {
-      const fetchError = new FetchError("Unknown error");
-      fetchError.data = { unexpected: "shape" };
-
-      expect(() => handleGoatItApiError(fetchError)).toThrow(H3Error);
-    });
-
-    it("should throw H3Error with 500 status code when called.", () => {
-      const fetchError = new FetchError("Unknown error");
-      fetchError.data = { unexpected: "shape" };
-      const error = getThrowableError(() => handleGoatItApiError(fetchError));
-
-      expect(error.statusCode).toBe(500);
-    });
-
-    it("should throw H3Error with internal server error message when called.", () => {
-      const fetchError = new FetchError("Unknown error");
-      fetchError.data = { unexpected: "shape" };
-
-      expect(() => handleGoatItApiError(fetchError)).toThrow("Internal server error");
-    });
+        expect(error.data).toStrictEqual(expectedData);
+      },
+    );
   });
 
   it("should re-throw the original error when error is not a FetchError.", () => {

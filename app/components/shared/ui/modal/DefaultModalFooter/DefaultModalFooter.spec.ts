@@ -28,7 +28,7 @@ describe("DefaultModalFooter Component", () => {
     wrapper = await mountDefaultModalFooterComponent();
   });
 
-  it("should render the default modal footer component when mounted.", () => {
+  it("should render DefaultModalFooter when mounted.", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
@@ -46,6 +46,14 @@ describe("DefaultModalFooter Component", () => {
         const closeButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-close-button']");
 
         expect(closeButton.props("label")).toBe("common.cancel");
+      });
+    });
+
+    describe("Aria-label", () => {
+      it("should set the common.close i18n key as aria-label when closeButtonLabel prop is not provided.", () => {
+        const closeButton = wrapper.find("[data-testid='default-modal-footer-close-button']");
+
+        expect(closeButton.attributes("aria-label")).toBe("common.close");
       });
     });
 
@@ -105,6 +113,14 @@ describe("DefaultModalFooter Component", () => {
       });
     });
 
+    describe("Aria-label", () => {
+      it("should set the primaryButtonLabel prop as aria-label when mounted.", () => {
+        const primaryButton = wrapper.find("[data-testid='default-modal-footer-primary-button']");
+
+        expect(primaryButton.attributes("aria-label")).toBe("common.create");
+      });
+    });
+
     describe("Icon", () => {
       it("should pass the primaryButtonIcon prop to the primary button when mounted.", () => {
         const primaryButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-primary-button']");
@@ -159,18 +175,14 @@ describe("DefaultModalFooter Component", () => {
     }
 
     describe("When shortcuts are not disabled", () => {
-      it("should render the meta UKbd shortcut when shortcuts are not disabled.", () => {
+      it.each<{ shortcut: "meta" | "enter" }>([
+        { shortcut: "meta" },
+        { shortcut: "enter" },
+      ])("should render the $shortcut UKbd shortcut when shortcuts are not disabled.", ({ shortcut }) => {
         const primaryButton = getPrimaryButton(wrapper);
-        const metaKbd = primaryButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-primary-button-shortcut-meta']");
+        const shortcutKbd = primaryButton.findComponent<typeof UKbd>(`[data-testid='default-modal-footer-primary-button-shortcut-${shortcut}']`);
 
-        expect(metaKbd.exists()).toBe(true);
-      });
-
-      it("should render the enter UKbd shortcut when shortcuts are not disabled.", () => {
-        const primaryButton = getPrimaryButton(wrapper);
-        const enterKbd = primaryButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-primary-button-shortcut-enter']");
-
-        expect(enterKbd.exists()).toBe(true);
+        expect(shortcutKbd.exists()).toBe(true);
       });
     });
 
@@ -179,18 +191,14 @@ describe("DefaultModalFooter Component", () => {
         await wrapper.setProps({ disableShortcuts: true });
       });
 
-      it("should not render the meta UKbd shortcut element when shortcuts are disabled.", () => {
+      it.each<{ shortcut: "meta" | "enter" }>([
+        { shortcut: "meta" },
+        { shortcut: "enter" },
+      ])("should not render the $shortcut UKbd shortcut element when shortcuts are disabled.", ({ shortcut }) => {
         const primaryButton = getPrimaryButton(wrapper);
-        const metaKbd = primaryButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-primary-button-shortcut-meta']");
+        const shortcutKbd = primaryButton.findComponent<typeof UKbd>(`[data-testid='default-modal-footer-primary-button-shortcut-${shortcut}']`);
 
-        expect(metaKbd.exists()).toBeFalsy();
-      });
-
-      it("should not render the enter UKbd shortcut element when shortcuts are disabled.", () => {
-        const primaryButton = getPrimaryButton(wrapper);
-        const enterKbd = primaryButton.findComponent<typeof UKbd>("[data-testid='default-modal-footer-primary-button-shortcut-enter']");
-
-        expect(enterKbd.exists()).toBeFalsy();
+        expect(shortcutKbd.exists()).toBeFalsy();
       });
     });
   });

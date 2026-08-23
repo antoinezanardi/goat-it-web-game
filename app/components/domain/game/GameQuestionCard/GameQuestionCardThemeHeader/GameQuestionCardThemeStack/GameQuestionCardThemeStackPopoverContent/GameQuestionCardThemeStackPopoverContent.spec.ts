@@ -9,6 +9,7 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 
 import { GameQuestionCardThemeStackPopoverContent } from "#components";
 
+import type { QuestionTheme } from "#shared/types/question-theme.types";
 import type { GameQuestionCardThemeStackPopoverContentProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/GameQuestionCardThemeStackPopoverContent/game-question-card-theme-stack-popover-content.types";
 import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
 
@@ -62,28 +63,15 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     expect(rows[0]?.text()).toContain("Geography");
   });
 
-  it("should render the primary badge on the row flagged as primary when mounted.", () => {
+  it.each<{ index: number; badge: string; expected: boolean }>([
+    { index: 0, badge: "theme-primary-badge", expected: true },
+    { index: 1, badge: "theme-primary-badge", expected: false },
+    { index: 0, badge: "theme-hint-badge", expected: true },
+    { index: 1, badge: "theme-hint-badge", expected: false },
+  ])("should render $badge=$expected on the row at index $index when mounted.", ({ index, badge, expected }) => {
     const rows = wrapper.findAll("[data-testid='theme-popover-row']");
 
-    expect(rows[0]?.find("[data-testid='theme-primary-badge']").exists()).toBe(true);
-  });
-
-  it("should not render the primary badge on rows not flagged as primary when mounted.", () => {
-    const rows = wrapper.findAll("[data-testid='theme-popover-row']");
-
-    expect(rows[1]?.find("[data-testid='theme-primary-badge']").exists()).toBe(false);
-  });
-
-  it("should render the hint badge on rows flagged as hint when mounted.", () => {
-    const rows = wrapper.findAll("[data-testid='theme-popover-row']");
-
-    expect(rows[0]?.find("[data-testid='theme-hint-badge']").exists()).toBe(true);
-  });
-
-  it("should not render the hint badge on rows not flagged as hint when mounted.", () => {
-    const rows = wrapper.findAll("[data-testid='theme-popover-row']");
-
-    expect(rows[1]?.find("[data-testid='theme-hint-badge']").exists()).toBe(false);
+    expect(rows[index]?.find(`[data-testid='${badge}']`).exists()).toBe(expected);
   });
 
   it.each<{ isPrimary: boolean; isHint: boolean; badge: string; expected: boolean }>([
@@ -108,6 +96,15 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     const icons = wrapper.findAllComponents({ name: "GameQuestionCardThemeIcon" });
 
     expect(icons[index]?.props("isHint")).toBe(expected);
+  });
+
+  it.each<{ index: number; expected: QuestionTheme }>([
+    { index: 0, expected: primaryTheme },
+    { index: 1, expected: secondaryTheme },
+  ])("should pass the row at index $index's theme to its theme icon when mounted.", ({ index, expected }) => {
+    const icons = wrapper.findAllComponents({ name: "GameQuestionCardThemeIcon" });
+
+    expect(icons[index]?.props("theme")).toBe(expected);
   });
 
   it.each<{ badge: string; prop: "icon" | "label"; expected: string }>([

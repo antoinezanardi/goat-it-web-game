@@ -34,6 +34,14 @@ describe("App Component", () => {
     expect(wrapper.findComponent({ name: "NuxtPage" }).exists()).toBeTruthy();
   });
 
+  it("should render NuxtLayout component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "NuxtLayout" }).exists()).toBeTruthy();
+  });
+
+  it("should render UMain component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UMain" }).exists()).toBeTruthy();
+  });
+
   describe("Nuxt UI App", () => {
     it.each<[string, typeof APP_TOAST_CONFIG | typeof APP_TOOLTIP_CONFIG]>([
       ["toaster", APP_TOAST_CONFIG],

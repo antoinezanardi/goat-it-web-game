@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
+import type { AsyncDataRequestStatus } from "#app";
+import type { UseFetchStatus } from "@/composables/core/useFetchStatus/useFetchStatus";
 import { useFetchStatus } from "@/composables/core/useFetchStatus/useFetchStatus";
+
+type FetchStatusComputationCase = {
+  status: AsyncDataRequestStatus;
+  setStatus: (composable: UseFetchStatus) => void;
+  expected: boolean;
+};
 
 describe(useFetchStatus, () => {
   describe("fetchStatus", () => {
@@ -12,130 +20,110 @@ describe(useFetchStatus, () => {
   });
 
   describe("isIdle", () => {
-    it("should be true when status is idle.", () => {
-      const { isIdle } = useFetchStatus();
+    it.each<FetchStatusComputationCase>([
+      { status: "idle", setStatus: (): void => undefined, expected: true },
+      {
+        status: "pending",
+        setStatus: ({ setFetchStatusToPending }: UseFetchStatus): void => setFetchStatusToPending(),
+        expected: false,
+      },
+      {
+        status: "success",
+        setStatus: ({ setFetchStatusToSuccess }: UseFetchStatus): void => setFetchStatusToSuccess(),
+        expected: false,
+      },
+      {
+        status: "error",
+        setStatus: ({ setFetchStatusToError }: UseFetchStatus): void => setFetchStatusToError(),
+        expected: false,
+      },
+    ])("should be $expected when fetch status is $status.", ({ setStatus, expected }) => {
+      const composable = useFetchStatus();
 
-      expect(isIdle.value).toBeTruthy();
-    });
+      setStatus(composable);
 
-    it("should be false when status is pending.", () => {
-      const { isIdle, setFetchStatusToPending } = useFetchStatus();
-
-      setFetchStatusToPending();
-
-      expect(isIdle.value).toBeFalsy();
-    });
-
-    it("should be false when status is success.", () => {
-      const { isIdle, setFetchStatusToSuccess } = useFetchStatus();
-
-      setFetchStatusToSuccess();
-
-      expect(isIdle.value).toBeFalsy();
-    });
-
-    it("should be false when status is error.", () => {
-      const { isIdle, setFetchStatusToError } = useFetchStatus();
-
-      setFetchStatusToError();
-
-      expect(isIdle.value).toBeFalsy();
+      expect(composable.isIdle.value).toBe(expected);
     });
   });
 
   describe("isPending", () => {
-    it("should be false when status is idle.", () => {
-      const { isPending } = useFetchStatus();
+    it.each<FetchStatusComputationCase>([
+      { status: "idle", setStatus: (): void => undefined, expected: false },
+      {
+        status: "pending",
+        setStatus: ({ setFetchStatusToPending }: UseFetchStatus): void => setFetchStatusToPending(),
+        expected: true,
+      },
+      {
+        status: "success",
+        setStatus: ({ setFetchStatusToSuccess }: UseFetchStatus): void => setFetchStatusToSuccess(),
+        expected: false,
+      },
+      {
+        status: "error",
+        setStatus: ({ setFetchStatusToError }: UseFetchStatus): void => setFetchStatusToError(),
+        expected: false,
+      },
+    ])("should be $expected when fetch status is $status.", ({ setStatus, expected }) => {
+      const composable = useFetchStatus();
 
-      expect(isPending.value).toBeFalsy();
-    });
+      setStatus(composable);
 
-    it("should be true when status is pending.", () => {
-      const { isPending, setFetchStatusToPending } = useFetchStatus();
-
-      setFetchStatusToPending();
-
-      expect(isPending.value).toBeTruthy();
-    });
-
-    it("should be false when status is success.", () => {
-      const { isPending, setFetchStatusToSuccess } = useFetchStatus();
-
-      setFetchStatusToSuccess();
-
-      expect(isPending.value).toBeFalsy();
-    });
-
-    it("should be false when status is error.", () => {
-      const { isPending, setFetchStatusToError } = useFetchStatus();
-
-      setFetchStatusToError();
-
-      expect(isPending.value).toBeFalsy();
+      expect(composable.isPending.value).toBe(expected);
     });
   });
 
   describe("isSuccess", () => {
-    it("should be false when status is idle.", () => {
-      const { isSuccess } = useFetchStatus();
+    it.each<FetchStatusComputationCase>([
+      { status: "idle", setStatus: (): void => undefined, expected: false },
+      {
+        status: "pending",
+        setStatus: ({ setFetchStatusToPending }: UseFetchStatus): void => setFetchStatusToPending(),
+        expected: false,
+      },
+      {
+        status: "success",
+        setStatus: ({ setFetchStatusToSuccess }: UseFetchStatus): void => setFetchStatusToSuccess(),
+        expected: true,
+      },
+      {
+        status: "error",
+        setStatus: ({ setFetchStatusToError }: UseFetchStatus): void => setFetchStatusToError(),
+        expected: false,
+      },
+    ])("should be $expected when fetch status is $status.", ({ setStatus, expected }) => {
+      const composable = useFetchStatus();
 
-      expect(isSuccess.value).toBeFalsy();
-    });
+      setStatus(composable);
 
-    it("should be false when status is pending.", () => {
-      const { isSuccess, setFetchStatusToPending } = useFetchStatus();
-
-      setFetchStatusToPending();
-
-      expect(isSuccess.value).toBeFalsy();
-    });
-
-    it("should be true when status is success.", () => {
-      const { isSuccess, setFetchStatusToSuccess } = useFetchStatus();
-
-      setFetchStatusToSuccess();
-
-      expect(isSuccess.value).toBeTruthy();
-    });
-
-    it("should be false when status is error.", () => {
-      const { isSuccess, setFetchStatusToError } = useFetchStatus();
-
-      setFetchStatusToError();
-
-      expect(isSuccess.value).toBeFalsy();
+      expect(composable.isSuccess.value).toBe(expected);
     });
   });
 
   describe("isError", () => {
-    it("should be false when status is idle.", () => {
-      const { isError } = useFetchStatus();
+    it.each<FetchStatusComputationCase>([
+      { status: "idle", setStatus: (): void => undefined, expected: false },
+      {
+        status: "pending",
+        setStatus: ({ setFetchStatusToPending }: UseFetchStatus): void => setFetchStatusToPending(),
+        expected: false,
+      },
+      {
+        status: "success",
+        setStatus: ({ setFetchStatusToSuccess }: UseFetchStatus): void => setFetchStatusToSuccess(),
+        expected: false,
+      },
+      {
+        status: "error",
+        setStatus: ({ setFetchStatusToError }: UseFetchStatus): void => setFetchStatusToError(),
+        expected: true,
+      },
+    ])("should be $expected when fetch status is $status.", ({ setStatus, expected }) => {
+      const composable = useFetchStatus();
 
-      expect(isError.value).toBeFalsy();
-    });
+      setStatus(composable);
 
-    it("should be false when status is pending.", () => {
-      const { isError, setFetchStatusToPending } = useFetchStatus();
-
-      setFetchStatusToPending();
-
-      expect(isError.value).toBeFalsy();
-    });
-
-    it("should be false when status is success.", () => {
-      const { isError, setFetchStatusToSuccess } = useFetchStatus();
-
-      setFetchStatusToSuccess();
-
-      expect(isError.value).toBeFalsy();
-    });
-
-    it("should be true when status is error.", () => {
-      const { isError, setFetchStatusToError } = useFetchStatus();
-
-      setFetchStatusToError();
-
-      expect(isError.value).toBeTruthy();
+      expect(composable.isError.value).toBe(expected);
     });
   });
 

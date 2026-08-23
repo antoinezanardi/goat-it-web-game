@@ -88,8 +88,20 @@ describe("GameQuestionCard Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardStatement" }).exists()).toBe(true);
   });
 
+  it("should pass the question statement to the statement component when mounted.", () => {
+    const statement = wrapper.findComponent({ name: "GameQuestionCardStatement" });
+
+    expect(statement.props("text")).toBe("What is the capital of France?");
+  });
+
   it("should render the answer component when mounted.", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardAnswer" }).exists()).toBe(true);
+  });
+
+  it("should pass the question answer to the answer component when mounted.", () => {
+    const answer = wrapper.findComponent({ name: "GameQuestionCardAnswer" });
+
+    expect(answer.props("text")).toBe("Paris");
   });
 
   it("should render the separator component when mounted.", () => {
@@ -100,12 +112,30 @@ describe("GameQuestionCard Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardSourceList" }).exists()).toBe(true);
   });
 
+  it("should pass the question source urls to the source list component when mounted.", () => {
+    const sourceList = wrapper.findComponent({ name: "GameQuestionCardSourceList" });
+
+    expect(sourceList.props("sourceUrls")).toStrictEqual(["https://en.wikipedia.org/wiki/France"]);
+  });
+
   it("should render the scrollable body container when mounted.", () => {
     expect(wrapper.find("[data-testid='game-question-body']").exists()).toBe(true);
   });
 
   it("should render the context accordion when context is present.", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).exists()).toBe(true);
+  });
+
+  it("should pass the question context to the context accordion when context is present.", () => {
+    const accordion = wrapper.findComponent({ name: "GameQuestionCardContextAccordion" });
+
+    expect(accordion.props("context")).toBe("France is in Europe.");
+  });
+
+  it("should pass the question trivia to the context accordion when trivia is present.", () => {
+    const accordion = wrapper.findComponent({ name: "GameQuestionCardContextAccordion" });
+
+    expect(accordion.props("trivia")).toStrictEqual(["Fact 1", "Fact 2"]);
   });
 
   it("should render the context accordion when trivia is present but context is empty.", async() => {

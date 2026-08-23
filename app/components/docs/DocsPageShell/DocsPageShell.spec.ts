@@ -32,6 +32,10 @@ describe("DocsPageShell Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
+  it("should render the UPage component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UPage" }).exists()).toBe(true);
+  });
+
   it("should render the DocsBackLink components when mounted.", () => {
     expect(wrapper.findAllComponents({ name: "DocsBackLink" })).toHaveLength(2);
   });

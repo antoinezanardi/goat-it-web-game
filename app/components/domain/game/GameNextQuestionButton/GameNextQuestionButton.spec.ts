@@ -6,6 +6,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import { GameNextQuestionButton } from "#components";
 
+import { GAME_NEXT_QUESTION_BUTTON_UI } from "@/components/domain/game/GameNextQuestionButton/game-next-question-button.constants";
 import type { GameNextQuestionButtonProps } from "@/components/domain/game/GameNextQuestionButton/game-next-question-button.types";
 
 describe("GameNextQuestionButton Component", () => {
@@ -31,6 +32,10 @@ describe("GameNextQuestionButton Component", () => {
 
   it("should render the next question label translation key when mounted.", () => {
     expect(wrapper.findComponent({ name: "UButton" }).props("label")).toBe("game.nextQuestion");
+  });
+
+  it("should render UButton with the GAME_NEXT_QUESTION_BUTTON_UI ui config when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UButton" }).props("ui")).toStrictEqual(GAME_NEXT_QUESTION_BUTTON_UI);
   });
 
   it("should emit click when the button is clicked.", async() => {
