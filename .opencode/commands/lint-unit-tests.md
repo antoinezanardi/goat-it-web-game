@@ -175,7 +175,7 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 
 - **[T1] Location** — Specs live in `app/i18n/specs/`, never colocated.
 - **[T2] Flattening** — Uses `crush` from `radashi`.
-- **[T3] Parity assertion** — `Object.keys(crush(x)).toSorted()` compared against English keys.
+- **[T3] Parity assertion** — `Object.keys(crush(x)).toSorted()` compared against the French reference keys (`fr` is the source-of-truth locale).
 
 ### 5. Dispatch audit subagents
 

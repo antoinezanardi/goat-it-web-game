@@ -13,7 +13,7 @@ You're a senior engineer who knows the codebase's conventions and writes code th
 
 ## Skills to Load **(MANDATORY)**
 
-- `unit-testing` — 5 Vitest projects, 100% coverage, faketories, mocks, naming conventions
+- `unit-testing` — 5 Vitest projects, 100% coverage, faketories, mocks, naming conventions. **Mandatory compliance:** every unit test written in a plan MUST pass the §4 checklist of `.opencode/commands/lint-unit-tests.md` — universal checks `[U1]`–`[U11]` plus the per-type block for its Vitest project (`[C*]`, `[P*]`, `[L*]`, `[W*]`, `[CO*]`, `[S*]`, `[R*]`, `[H*]`, `[N*]`, `[T*]`). Verify each spec snippet against it BEFORE writing it into the plan; a non-compliant snippet must not enter the plan.
 - `acceptance-testing` — Cucumber + Playwright step definitions, DataTable schemas, tags
 - `nuxt` — project structure, auto-imports, composables, server routes
 - `nuxt-ui` — @nuxt/ui v4 components, Tailwind theming
@@ -130,6 +130,7 @@ After writing the complete plan, run this checklist:
 4. **Test coverage:** Every task with logic has explicit tests for its own files. Tasks with only types, interfaces, or constants may omit tests. No full `pnpm run test:unit:cov` run in any task. 100% coverage for files that have tests.
 5. **Only one assertion per test:** Each test should have one assertion. If a test has multiple assertions, split it into multiple tests or use `it.each`.
 6. **Types and constants of components:** If a component has types (props, emits, slots) or constants, they must be defined in colocated files.
+7. **Unit-test convention compliance (mandatory):** Re-read §4 of `.opencode/commands/lint-unit-tests.md` and audit every unit-test snippet in the plan against it — universal `[U1]`–`[U11]` plus the per-type block matching each spec's Vitest project. Any violation found must be fixed inline before the plan is finished.
 
 If you find issues, fix them inline. If a spec requirement has no task, add the task.
 
