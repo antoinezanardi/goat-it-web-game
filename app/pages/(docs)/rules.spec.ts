@@ -95,6 +95,28 @@ describe("Rules Page", () => {
       expect(contentRenderer.props("value")).toStrictEqual({ title: "How to play", description: "Rules" });
     });
 
+    it("should render the start game button when status is success.", () => {
+      expect(wrapper.find("[data-testid='docs-start-game-button']").exists()).toBe(true);
+    });
+
+    it("should pass the game route to the start game button when status is success.", () => {
+      const startGameButton = wrapper.findComponent({ name: "UButton" });
+
+      expect(startGameButton.props("to")).toBe("/game");
+    });
+
+    it("should render the play icon on the start game button when status is success.", () => {
+      const startGameButton = wrapper.findComponent({ name: "UButton" });
+
+      expect(startGameButton.props("icon")).toBe("i-lucide-play");
+    });
+
+    it("should pass the start game i18n key as the label of the start game button when status is success.", () => {
+      const startGameButton = wrapper.findComponent({ name: "UButton" });
+
+      expect(startGameButton.props("label")).toBe("docs.startGame");
+    });
+
     it("should not render LoadingSpinner when status is success.", () => {
       expect(wrapper.findComponent({ name: "LoadingSpinner" }).exists()).toBe(false);
     });

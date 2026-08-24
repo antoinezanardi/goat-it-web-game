@@ -36,7 +36,7 @@ Por isso, as perguntas devem poder ser respondidas de forma binária.
 >
 > ❌ «Qual é a raça do animal?»
 
-Os jogadores podem fazer quantas perguntas quiserem, discutir livremente e apresentar as suas hipóteses.
+Os jogadores podem fazer quantas perguntas quiserem, em qualquer ordem, discutir livremente e apresentar as suas hipóteses.
 
 > «É algo vivo?» → **Não**
 >
@@ -45,6 +45,24 @@ Os jogadores podem fazer quantas perguntas quiserem, discutir livremente e apres
 > «É fabricado pelo ser humano?» → **Sim**
 
 Cada resposta do MJ é uma informação útil para todo o grupo. Uma pista ou uma proposta errada não implica qualquer penalização: também permite eliminar possibilidades.
+
+---
+
+::example-round
+#trigger
+Exemplo completo de ronda
+
+#default
+**Carta:** Categoria: Animais · Dificuldade: Fácil
+
+**MJ:** «Aqui está a vossa carta. Categoria: Animais, dificuldade: Fácil. Quando estiverem prontos!»
+
+- «É um mamífero?» → **Sim**
+- «Vive em liberdade?» → **Sim**
+- «É maior do que um ser humano?» → **Sim**
+- «Tem tromba?» → **Sim**
+- «É um elefante?» → **Sim!** 🎉
+::
 
 ---
 
@@ -82,7 +100,7 @@ Depois de terminada a investigação, o MJ pode revelar o contexto, as curiosida
 
 ## 🚫 Sem pesquisa externa
 
-Os jogadores não devem utilizar Google, Wikipédia, ChatGPT ou qualquer outra fonte externa para encontrar diretamente a resposta.
+Os jogadores não devem utilizar Google, Wikipédia, IA ou qualquer outra fonte externa para encontrar diretamente a resposta.
 
 A investigação deve decorrer à volta da mesa, a partir das conversas entre os jogadores e das respostas do MJ.
 

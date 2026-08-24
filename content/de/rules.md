@@ -11,7 +11,7 @@ description: "Goat It Spielregeln"
 
 Den Spielenden wird eine Frage gestellt, deren Antwort sie nicht unbedingt kennen. Ihr Ziel ist es, sie durch Diskussionen, den Vergleich ihrer Hypothesen und das schrittweise Ausschließen von Möglichkeiten mithilfe der Antworten der Spielleitung herauszufinden.
 
-> **Es geht nicht darum, es zu wissen. Es geht darum, es herauszufinden.**
+> **Es geht nicht darum, zu wissen. Es geht um das gemeinsame Herausfinden.**
 
 Euer Wissen kann hilfreich sein, ist aber nicht unverzichtbar: Entscheidend ist, gemeinsam zu überlegen und die richtigen Fragen zu stellen.
 
@@ -24,7 +24,7 @@ Goat It kann bereits ab **2 Personen gespielt werden: 1 Spielleitung und 1 spiel
 
 ## ❓ Die goldene Regel
 
-Die Spielleitung antwortet nur mit **Ja**, **Nein** oder entscheidet zwischen **zwei Möglichkeiten**.
+Die Spielleitung antwortet nur mit **ja**, **nein** oder entscheidet zwischen **zwei Möglichkeiten**.
 
 Fragen müssen daher mit einer binären Antwort beantwortbar sein.
 
@@ -36,7 +36,7 @@ Fragen müssen daher mit einer binären Antwort beantwortbar sein.
 >
 > ❌ „Welche Rasse hat das Tier?“
 
-Die Spielenden können so viele Fragen stellen, wie sie möchten, frei diskutieren und ihre Hypothesen äußern.
+Die Spielenden können so viele Fragen stellen, wie sie möchten, in beliebiger Reihenfolge, frei diskutieren und ihre Hypothesen äußern.
 
 > „Ist es etwas Lebendiges?“ → **Nein**
 >
@@ -48,9 +48,27 @@ Jede Antwort der Spielleitung ist eine nützliche Information für die gesamte G
 
 ---
 
+::example-round
+#trigger
+Komplette Beispielrunde
+
+#default
+**Karte:** Kategorie: Tiere · Schwierigkeit: Leicht
+
+**Spielleitung:** „Hier ist eure Karte. Kategorie: Tiere, Schwierigkeit: Leicht. Wann ihr wollt!"
+
+- „Ist es ein Säugetier?" → **Ja**
+- „Lebt es in der Wildnis?" → **Ja**
+- „Ist es größer als ein Mensch?" → **Ja**
+- „Hat es einen Rüssel?" → **Ja**
+- „Ist es ein Elefant?" → **Ja!** 🎉
+::
+
+---
+
 ## 🎭 Die Spielleitung führt durch die Ermittlung
 
-Vor Beginn kann die Spielleitung **Kategorie, Thema und Schwierigkeitsgrad** nennen, um den Spielenden einen ersten Denkrahmen zu geben.
+Vor Beginn kann die Spielleitung **Kategorie, Thema und Schwierigkeitsgrad** nennen, um den Spielenden einen Rahmen für ihre Ermittlungen zu geben.
 
 Sie antwortet ehrlich und sorgfältig, damit die Spielenden ihre Antworten nutzen können, um die Deduktion voranzubringen. Gleichzeitig kann sie die Leitung der Partie flexibel anpassen.
 
@@ -82,7 +100,7 @@ Nach Abschluss der Ermittlung kann die Spielleitung den Kontext, die Anekdoten u
 
 ## 🚫 Keine externe Recherche
 
-Die Spielenden dürfen Google, Wikipedia, ChatGPT oder andere externe Quellen nicht verwenden, um die Antwort direkt zu finden.
+Die Spielenden dürfen weder Google, Wikipedia, AI noch andere externe Quellen verwenden, um die Antwort direkt zu finden.
 
 Die Ermittlung soll am Tisch stattfinden – auf Grundlage der Gespräche zwischen den Spielenden und der Antworten der Spielleitung.
 

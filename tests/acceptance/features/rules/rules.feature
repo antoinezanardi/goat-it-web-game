@@ -27,3 +27,7 @@ Feature: 📖 Rules Page
   Scenario: 📖 Rules page should navigate to the home page when clicking the back link
     When the user clicks on the link with name "Back to home"
     Then the user should be on home page
+
+  Scenario: 📖 Rules page should navigate to the game page when clicking the start a game button
+    When the user clicks on the link with name "Start a game"
+    Then the user should be on game page

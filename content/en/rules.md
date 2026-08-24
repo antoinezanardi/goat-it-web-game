@@ -36,7 +36,7 @@ Questions must therefore be answerable with a binary response.
 >
 > ❌ “What breed is the animal?”
 
-Players may ask as many questions as they like, discuss freely, and suggest their hypotheses.
+Players may ask as many questions as they like, in any order, discuss freely, and suggest their hypotheses.
 
 > “Is it something alive?” → **No**
 >
@@ -45,6 +45,24 @@ Players may ask as many questions as they like, discuss freely, and suggest thei
 > “Is it made by humans?” → **Yes**
 
 Every answer from the GM is useful information for the entire group. A wrong lead or guess carries no penalty: it also helps rule out possibilities.
+
+---
+
+::example-round
+#trigger
+Complete example round
+
+#default
+**Card:** Category: Animals · Difficulty: Easy
+
+**GM:** "Here's your card. Category: Animals, difficulty: Easy. Whenever you're ready!"
+
+- "Is it a mammal?" → **Yes**
+- "Does it live in the wild?" → **Yes**
+- "Is it bigger than a human?" → **Yes**
+- "Does it have a trunk?" → **Yes**
+- "Is it an elephant?" → **Yes!** 🎉
+::
 
 ---
 
@@ -82,7 +100,7 @@ Once the investigation is over, the GM may reveal the context, anecdotes, and so
 
 ## 🚫 No external research
 
-Players must not use Google, Wikipedia, ChatGPT, or any other external source to find the answer directly.
+Players must not use Google, Wikipedia, AI, or any other external source to find the answer directly.
 
 The investigation must take place around the table, based on discussions between players and the GM’s answers.
 

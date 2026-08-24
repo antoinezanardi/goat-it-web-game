@@ -17,3 +17,15 @@ When(
     await dialog.getByRole("link", { name: "Back to Home" }).click();
   },
 );
+
+When(
+  /^the user clicks the rules link in the game sidebar$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = this.page.getByRole("dialog");
+    const openedTabPromise = this.context.waitForEvent("page");
+
+    await dialog.getByRole("link", { name: "Rules", exact: true }).click();
+
+    this.openedTabPage = await openedTabPromise;
+  },
+);

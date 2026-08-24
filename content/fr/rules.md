@@ -36,7 +36,7 @@ Les questions doivent donc pouvoir recevoir une réponse binaire.
 >
 > ❌ « Quelle est la race de l'animal ? »
 
-Les joueurs peuvent poser autant de questions qu'ils le souhaitent, discuter librement et proposer leurs hypothèses.
+Les joueurs peuvent poser autant de questions qu'ils le souhaitent, dans n'importe quel ordre, discuter librement et proposer leurs hypothèses.
 
 > « Est-ce quelque chose de vivant ? » → **Non**
 >
@@ -45,6 +45,24 @@ Les joueurs peuvent poser autant de questions qu'ils le souhaitent, discuter lib
 > « Est-ce fabriqué par l'être humain ? » → **Oui**
 
 Chaque réponse du MJ est une information utile pour l'ensemble du groupe. Une mauvaise piste ou une mauvaise proposition n'entraîne aucune pénalité : elle permet aussi d'écarter des possibilités.
+
+---
+
+::example-round
+#trigger
+Exemple complet de manche
+
+#default
+**Carte :** Catégorie : Animaux · Difficulté : Facile
+
+**MJ :** « Voici votre carte. Catégorie : Animaux, difficulté : Facile. Quand vous voulez ! »
+
+- « Est-ce un mammifère ? » → **Oui**
+- « Vit-il à l'état sauvage ? » → **Oui**
+- « Est-il plus grand qu'un humain ? » → **Oui**
+- « A-t-il une trompe ? » → **Oui**
+- « Est-ce un éléphant ? » → **Oui !** 🎉
+::
 
 ---
 
@@ -82,7 +100,7 @@ Une fois l'enquête terminée, le MJ peut révéler le contexte, les anecdotes e
 
 ## 🚫 Pas de recherche externe
 
-Les joueurs ne doivent pas utiliser Google, Wikipédia, ChatGPT ou toute autre source externe pour trouver directement la réponse.
+Les joueurs ne doivent pas utiliser Google, Wikipédia, IA ou toute autre source externe pour trouver directement la réponse.
 
 L'enquête doit se faire autour de la table, à partir des échanges entre les joueurs et des réponses du MJ.
 

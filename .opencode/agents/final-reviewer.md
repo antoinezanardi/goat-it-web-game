@@ -28,6 +28,7 @@ permission:
     "wc *": "allow"
     "git check-ignore *": "allow"
     "od *": "allow"
+    "xxd *": "allow"
   task:
     "*": "deny"
     "explore": "allow"

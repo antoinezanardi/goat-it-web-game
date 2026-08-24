@@ -27,3 +27,15 @@ Feature: 🧭 Game Page Sidebar
     When the user opens the game sidebar
     And the user clicks the back to home link in the game sidebar
     Then a confirmation modal should be displayed
+
+  Scenario: 🧭 Sidebar displays the rules link
+    Given the user is on game page
+    When the user opens the game sidebar
+    Then the game sidebar rules link should be visible
+
+  Scenario: 🧭 Clicking the rules link in the sidebar opens the rules page in a new tab
+    Given the user is on game page
+    And the no more questions message should be displayed
+    When the user opens the game sidebar
+    And the user clicks the rules link in the game sidebar
+    Then the rules page should have been opened in a new tab

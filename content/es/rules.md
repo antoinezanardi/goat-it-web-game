@@ -36,7 +36,7 @@ Por tanto, las preguntas deben poder responderse de forma binaria.
 >
 > ❌ «¿Cuál es la raza del animal?»
 
-Los jugadores pueden hacer tantas preguntas como quieran, debatir libremente y proponer sus hipótesis.
+Los jugadores pueden hacer tantas preguntas como quieran, en cualquier orden, debatir libremente y proponer sus hipótesis.
 
 > «¿Es algo vivo?» → **No**
 >
@@ -45,6 +45,24 @@ Los jugadores pueden hacer tantas preguntas como quieran, debatir libremente y p
 > «¿Está fabricado por el ser humano?» → **Sí**
 
 Cada respuesta del DJ es información útil para todo el grupo. Una pista o una propuesta equivocada no conlleva ninguna penalización: también permite descartar posibilidades.
+
+---
+
+::example-round
+#trigger
+Ejemplo completo de ronda
+
+#default
+**Carta:** Categoría: Animales · Dificultad: Fácil
+
+**DJ:** «Aquí tenéis la carta. Categoría: Animales, dificultad: Fácil. ¡Cuando estéis listos!»
+
+- «¿Es un mamífero?» → **Sí**
+- «¿Vive en libertad?» → **Sí**
+- «¿Es más grande que un ser humano?» → **Sí**
+- «¿Tiene trompa?» → **Sí**
+- «¿Es un elefante?» → **¡Sí!** 🎉
+::
 
 ---
 
@@ -82,7 +100,7 @@ Una vez terminada la investigación, el DJ puede revelar el contexto, las anécd
 
 ## 🚫 Sin búsquedas externas
 
-Los jugadores no deben utilizar Google, Wikipedia, ChatGPT ni ninguna otra fuente externa para encontrar directamente la respuesta.
+Los jugadores no deben utilizar Google, Wikipedia, IA ni ninguna otra fuente externa para encontrar directamente la respuesta.
 
 La investigación debe realizarse alrededor de la mesa, a partir de las conversaciones entre los jugadores y de las respuestas del DJ.
 
