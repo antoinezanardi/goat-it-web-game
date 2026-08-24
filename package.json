@@ -106,7 +106,7 @@
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/git": "^11.0.1",
     "@semantic-release/release-notes-generator": "^14.1.1",
-    "@takumi-rs/core": "^2.10.0",
+    "@takumi-rs/core": "^2.12.0",
     "@tanstack/vue-table": "^9.1.2",
     "@types/node": "^25.9.5",
     "@vite-pwa/nuxt": "^1.1.1",
