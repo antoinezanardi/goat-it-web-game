@@ -5,8 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import type { UButton } from "#components";
-
-import DocsBackLink from "@/components/docs/DocsBackLink/DocsBackLink.vue";
+import { DocsBackLink } from "#components";
 
 describe("DocsBackLink Component", () => {
   let wrapper: VueWrapper;
@@ -19,10 +18,8 @@ describe("DocsBackLink Component", () => {
     wrapper = await mountDocsBackLink();
   });
 
-  it("should render a UButton with the arrow-left icon when mounted.", () => {
-    const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
-
-    expect(button.props("icon")).toBe("i-lucide-arrow-left");
+  it("should render DocsBackLink when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render a UButton with the backHome label translation key when mounted.", () => {
@@ -31,16 +28,16 @@ describe("DocsBackLink Component", () => {
     expect(button.props("label")).toBe("docs.backHome");
   });
 
-  it("should render a UButton linking to the home page when mounted.", () => {
+  it("should render the back-link icon when mounted.", () => {
+    const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
+
+    expect(button.props("icon")).toBe("i-lucide-arrow-left");
+  });
+
+  it("should link to the home page when mounted.", () => {
     const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
 
     expect(button.props("to")).toBe("/");
-  });
-
-  it("should render a UButton with the ghost variant when mounted.", () => {
-    const button = wrapper.findComponent<typeof UButton>({ name: "UButton" });
-
-    expect(button.props("variant")).toBe("ghost");
   });
 
   it("should render the button with the docs-back-link testid when mounted.", () => {

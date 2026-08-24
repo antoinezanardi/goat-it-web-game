@@ -11,7 +11,7 @@ import { getRandomQuestionsHandler } from "#server/api/goat-it-api/questions/han
 
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
 
-describe("Server Goat It API Questions Search Random Handler", () => {
+describe("Server Goat It API Questions Search Random Post Handler", () => {
   const mockedEvent = createFakeH3Event();
 
   beforeEach(() => {

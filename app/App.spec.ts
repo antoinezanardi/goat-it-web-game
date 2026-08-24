@@ -1,18 +1,14 @@
+import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
-import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import type { Mock } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 
 import App from "@/App.vue";
+import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
 import { APP_TOAST_CONFIG, APP_TOOLTIP_CONFIG } from "~/app.constants";
-
-let fetchAndStoreQuestionThemesMock: Mock<() => Promise<void>>;
-
-mockNuxtImport("useQuestionThemesStore", () => (): { fetchAndStoreQuestionThemes: Mock<() => Promise<void>> } => ({
-  fetchAndStoreQuestionThemes: fetchAndStoreQuestionThemesMock,
-}));
 
 describe("App Component", () => {
   let wrapper: VueWrapper;
@@ -22,8 +18,12 @@ describe("App Component", () => {
   }
 
   beforeEach(async() => {
-    fetchAndStoreQuestionThemesMock = vi.fn<() => Promise<void>>();
-    wrapper = await mountAppComponent();
+    wrapper = await mountAppComponent({ plugins: [createTestingPinia()] });
+    mockStore(useQuestionThemesStore);
+  });
+
+  it("should render App when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render UApp component when mounted.", () => {
@@ -34,54 +34,43 @@ describe("App Component", () => {
     expect(wrapper.findComponent({ name: "NuxtPage" }).exists()).toBeTruthy();
   });
 
+  it("should render NuxtLayout component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "NuxtLayout" }).exists()).toBeTruthy();
+  });
+
+  it("should render UMain component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UMain" }).exists()).toBeTruthy();
+  });
+
   describe("Nuxt UI App", () => {
-    it("should pass toaster props to the Nuxt UI App component when mounted.", () => {
+    it.each<[string, typeof APP_TOAST_CONFIG | typeof APP_TOOLTIP_CONFIG]>([
+      ["toaster", APP_TOAST_CONFIG],
+      ["tooltip", APP_TOOLTIP_CONFIG],
+    ])("should pass the %s config prop to the Nuxt UI App component when mounted.", (propertyName, config) => {
       const nuxtUIApp = wrapper.getComponent({ name: "App" });
 
-      expect(nuxtUIApp.props("toaster")).toStrictEqual(APP_TOAST_CONFIG);
-    });
-
-    it("should pass tooltip props to the Nuxt UI App component when mounted.", () => {
-      const nuxtUIApp = wrapper.getComponent({ name: "App" });
-
-      expect(nuxtUIApp.props("tooltip")).toStrictEqual(APP_TOOLTIP_CONFIG);
+      expect(nuxtUIApp.props(propertyName)).toStrictEqual(config);
     });
   });
 
   describe("useHead", () => {
     type AppHeadConfig = {
-      link: { rel: string; href: string }[];
-      meta: { name: string; content: string }[];
+      link: Record<string, unknown>[];
+      meta: Record<string, unknown>[];
     };
 
     function getAppHeadConfig(): AppHeadConfig | undefined {
       return vi.mocked(useHead).mock.calls[0]?.[0] as AppHeadConfig | undefined;
     }
 
-    it("should call useHead with a link to the web manifest when mounted.", () => {
-      expect(getAppHeadConfig()?.link[0]).toStrictEqual({ rel: "manifest", href: "/manifest.webmanifest" });
-    });
-
-    it("should call useHead with an apple touch icon link when mounted.", () => {
-      expect(getAppHeadConfig()?.link[1]).toStrictEqual({ rel: "apple-touch-icon", href: "/pwa/apple-touch-icon.png" });
-    });
-
-    it("should call useHead with a preload link for the Geist latin font when mounted.", () => {
-      expect(getAppHeadConfig()?.link[2]).toStrictEqual({
-        rel: "preload",
-        href: "/fonts/Geist/geist-latin.woff2",
-        as: "font",
-        type: "font/woff2",
-        crossorigin: "",
-      });
-    });
-
-    it("should call useHead with a theme-color meta when mounted.", () => {
-      expect(getAppHeadConfig()?.meta[0]).toStrictEqual({ name: "theme-color", content: "#09090b" });
-    });
-
-    it("should call useHead with a mobile-web-app-capable meta when mounted.", () => {
-      expect(getAppHeadConfig()?.meta[1]).toStrictEqual({ name: "mobile-web-app-capable", content: "yes" });
+    it.each<{ selector: "link" | "meta"; index: number; entry: Record<string, unknown> }>([
+      { selector: "link", index: 0, entry: { rel: "manifest", href: "/manifest.webmanifest" } },
+      { selector: "link", index: 1, entry: { rel: "apple-touch-icon", href: "/pwa/apple-touch-icon.png" } },
+      { selector: "link", index: 2, entry: { rel: "preload", href: "/fonts/Geist/geist-latin.woff2", as: "font", type: "font/woff2", crossorigin: "" } },
+      { selector: "meta", index: 0, entry: { name: "theme-color", content: "#09090b" } },
+      { selector: "meta", index: 1, entry: { name: "mobile-web-app-capable", content: "yes" } },
+    ])("should call useHead with the correct $selector entry at index $index when mounted.", ({ selector, index, entry }) => {
+      expect(getAppHeadConfig()?.[selector][index]).toStrictEqual(entry);
     });
   });
 

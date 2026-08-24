@@ -3,7 +3,9 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
 import { GameQuestionCardThemeIcon } from "#components";
 
@@ -11,19 +13,31 @@ import type { GameQuestionCardThemeIconProps } from "@/components/domain/game/Ga
 import { QUESTION_THEME_UNKNOWN_ICON } from "~/composables/domain/question-theme/constants/question-theme.constants";
 import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
+type GameQuestionCardThemeIconVm = ComponentVm & {
+  borderStyle: string;
+  neonColor: string;
+};
+
 describe("GameQuestionCardThemeIcon Component", () => {
-  const defaultProps: GameQuestionCardThemeIconProps = {
+  const defaultGameQuestionCardThemeIconProps: GameQuestionCardThemeIconProps = {
     theme: createFakeQuestionTheme({ slug: "geography-travels", color: "#33A1FF" }),
-  };
+  } as const;
+
+  const expectedNeonColor = "oklch(from #33A1FF max(l, 0.85) c h)";
+  const expectedBorderStyle = `color-mix(in oklch, ${expectedNeonColor} 55%, transparent)`;
 
   let wrapper: VueWrapper;
 
   async function mountIcon(options: MountSuspendedOptions<typeof GameQuestionCardThemeIcon> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCardThemeIcon, { props: defaultProps, shallow: false, ...options });
+    return mountSuspended(GameQuestionCardThemeIcon, { props: defaultGameQuestionCardThemeIconProps, shallow: false, ...options });
   }
 
   beforeEach(async() => {
     wrapper = await mountIcon();
+  });
+
+  it("should render GameQuestionCardThemeIcon when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render the icon resolved from the theme slug when mounted.", () => {
@@ -44,41 +58,37 @@ describe("GameQuestionCardThemeIcon Component", () => {
     expect(wrapper.attributes("style")).toContain("box-shadow:");
   });
 
-  it("should apply the md icon size class when size is md.", async() => {
-    await wrapper.setProps({ size: "md" });
+  it("should derive the border style color mix from the theme color when mounted.", () => {
+    const vm = getWrapperVm<GameQuestionCardThemeIconVm>(wrapper);
+
+    expect(vm.borderStyle).toBe(expectedBorderStyle);
+  });
+
+  it("should derive the neon color from the theme color when mounted.", () => {
+    const vm = getWrapperVm<GameQuestionCardThemeIconVm>(wrapper);
+
+    expect(vm.neonColor).toBe(expectedNeonColor);
+  });
+
+  it.each<{ size: "md" | "sm"; expectedClass: string }>([
+    { size: "md", expectedClass: "size-8" },
+    { size: "sm", expectedClass: "size-7" },
+  ])("should apply the $expectedClass icon size class when size is $size.", async({ size, expectedClass }) => {
+    await wrapper.setProps({ size });
 
     const icon = wrapper.findComponent({ name: "UIcon" });
 
-    expect(icon.classes()).toContain("size-8");
+    expect(icon.classes()).toContain(expectedClass);
   });
 
-  it("should apply the sm icon size class when size is sm.", async() => {
-    await wrapper.setProps({ size: "sm" });
+  it.each<{ hintLabel: string; isHint?: boolean; expectedClass: string }>([
+    { hintLabel: "omitted", expectedClass: "border" },
+    { hintLabel: "false", isHint: false, expectedClass: "border" },
+    { hintLabel: "true", isHint: true, expectedClass: "border-dashed" },
+    { hintLabel: "true", isHint: true, expectedClass: "border-2" },
+  ])("should apply the $expectedClass border class when isHint is $hintLabel.", async({ isHint, expectedClass }) => {
+    const hintWrapper = await mountIcon({ props: { ...defaultGameQuestionCardThemeIconProps, isHint } });
 
-    const icon = wrapper.findComponent({ name: "UIcon" });
-
-    expect(icon.classes()).toContain("size-7");
-  });
-
-  it("should apply the default solid border class when isHint is omitted.", () => {
-    expect(wrapper.classes()).toContain("border");
-  });
-
-  it("should apply the default solid border class when isHint is false.", async() => {
-    await wrapper.setProps({ isHint: false });
-
-    expect(wrapper.classes()).toContain("border");
-  });
-
-  it("should apply the dashed border class when isHint is true.", async() => {
-    await wrapper.setProps({ isHint: true });
-
-    expect(wrapper.classes()).toContain("border-dashed");
-  });
-
-  it("should apply the 2px border class when isHint is true.", async() => {
-    await wrapper.setProps({ isHint: true });
-
-    expect(wrapper.classes()).toContain("border-2");
+    expect(hintWrapper.classes()).toContain(expectedClass);
   });
 });

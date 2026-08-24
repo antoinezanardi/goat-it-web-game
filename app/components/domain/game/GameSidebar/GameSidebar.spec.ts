@@ -7,15 +7,26 @@ import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
 import { GameSidebar } from "#components";
 
+import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
+import type { GameSidebarProps } from "@/components/domain/game/GameSidebar/game-sidebar.types";
+
 describe("GameSidebar Component", () => {
   let wrapper: VueWrapper;
 
-  async function mountSidebar(options: MountSuspendedOptions<typeof GameSidebar> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameSidebar, { shallow: false, props: { open: true }, attachTo: document.body, ...options });
+  const defaultGameSidebarProps: GameSidebarProps = {
+    open: true,
+  } as const;
+
+  async function mountGameSidebar(options: MountSuspendedOptions<typeof GameSidebar> = {}): Promise<VueWrapper> {
+    return mountSuspended(GameSidebar, { props: defaultGameSidebarProps, attachTo: document.body, ...options });
   }
 
   beforeEach(async() => {
-    wrapper = await mountSidebar();
+    wrapper = await mountGameSidebar();
+  });
+
+  it("should render GameSidebar when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should have the data-testid attribute when mounted.", () => {
@@ -34,6 +45,12 @@ describe("GameSidebar Component", () => {
     expect(slideover.props("title")).toBe("home.brand");
   });
 
+  it("should pass the GAME_SIDEBAR_UI ui config to USlideover when mounted.", () => {
+    const slideover = wrapper.findComponent({ name: "USlideover" });
+
+    expect(slideover.props("ui")).toStrictEqual(GAME_SIDEBAR_UI);
+  });
+
   it("should render the brand text in the header when mounted.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")?.textContent).toContain("home.brand");
   });
@@ -48,6 +65,12 @@ describe("GameSidebar Component", () => {
     const link = wrapper.findComponent({ name: "ULink" });
 
     expect(link.props("to")).toBe("/");
+  });
+
+  it("should render the house icon on the back to home link when mounted.", () => {
+    const icon = wrapper.findComponent({ name: "UIcon" });
+
+    expect(icon.props("name")).toBe("i-lucide-house");
   });
 
   it("should render the VersionButton component when mounted.", () => {

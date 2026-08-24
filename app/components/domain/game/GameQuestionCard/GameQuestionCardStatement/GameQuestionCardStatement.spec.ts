@@ -9,15 +9,15 @@ import { GameQuestionCardStatement } from "#components";
 import type { GameQuestionCardStatementProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardStatement/game-question-card-statement.types";
 
 describe("GameQuestionCardStatement Component", () => {
-  const defaultProps: GameQuestionCardStatementProps = {
+  const defaultGameQuestionCardStatementProps: GameQuestionCardStatementProps = {
     text: "What is the capital of France?",
-  };
+  } as const;
 
   let wrapper: VueWrapper;
 
   async function mountStatement(options: MountSuspendedOptions<typeof GameQuestionCardStatement> = {}): Promise<VueWrapper> {
     return mountSuspended(GameQuestionCardStatement, {
-      props: defaultProps,
+      props: defaultGameQuestionCardStatementProps,
       shallow: false,
       ...options,
     });
@@ -25,6 +25,10 @@ describe("GameQuestionCardStatement Component", () => {
 
   beforeEach(async() => {
     wrapper = await mountStatement();
+  });
+
+  it("should render GameQuestionCardStatement when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render the question label when mounted.", () => {
@@ -39,25 +43,13 @@ describe("GameQuestionCardStatement Component", () => {
     expect(wrapper.find("[data-testid='game-question-statement']").exists()).toBe(true);
   });
 
-  it("should apply text-fg-primary class to the body paragraph when mounted.", () => {
-    expect(wrapper.find("section p:last-child").classes()).toContain("text-fg-primary");
+  it("should render the icon when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UIcon" }).exists()).toBeTruthy();
   });
 
-  it("should render the label with the neon color class when mounted.", () => {
-    const label = wrapper.find("p");
-
-    expect(label.classes()).toContain("text-(color:--game-theme-neon)");
-  });
-
-  it("should apply text-base class to the label when mounted.", () => {
-    const label = wrapper.find("p");
-
-    expect(label.classes()).toContain("text-base");
-  });
-
-  it("should apply size-5 class to the icon when mounted.", () => {
+  it("should render the icon with the question label icon name when mounted.", () => {
     const icon = wrapper.findComponent({ name: "UIcon" });
 
-    expect(icon.classes()).toContain("size-5");
+    expect(icon.props("name")).toBe("i-lucide-help-circle");
   });
 });

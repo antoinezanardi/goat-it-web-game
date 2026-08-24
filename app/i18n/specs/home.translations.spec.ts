@@ -9,38 +9,16 @@ import itHome from "~/i18n/locales/it/home.json";
 import ptHome from "~/i18n/locales/pt/home.json";
 
 describe("home.json translations", () => {
-  it("should have the same keys in english as in french when context is home.", () => {
-    const crushedFrHomeKeys = Object.keys(crush(frHome)).toSorted();
-    const crushedEnHomeKeys = Object.keys(crush(enHome)).toSorted();
+  it.each<[string, typeof frHome]>([
+    ["de", deHome],
+    ["en", enHome],
+    ["es", esHome],
+    ["it", itHome],
+    ["pt", ptHome],
+  ])("should have the same keys in every locale as in french when context is home.", (_locale, homeTranslations) => {
+    const crushedReferenceKeys = Object.keys(crush(frHome)).toSorted();
+    const crushedHomeKeys = Object.keys(crush(homeTranslations)).toSorted();
 
-    expect(crushedEnHomeKeys).toStrictEqual(crushedFrHomeKeys);
-  });
-
-  it("should have the same keys in english as in german when context is home.", () => {
-    const crushedDeHomeKeys = Object.keys(crush(deHome)).toSorted();
-    const crushedEnHomeKeys = Object.keys(crush(enHome)).toSorted();
-
-    expect(crushedEnHomeKeys).toStrictEqual(crushedDeHomeKeys);
-  });
-
-  it("should have the same keys in english as in spanish when context is home.", () => {
-    const crushedEsHomeKeys = Object.keys(crush(esHome)).toSorted();
-    const crushedEnHomeKeys = Object.keys(crush(enHome)).toSorted();
-
-    expect(crushedEnHomeKeys).toStrictEqual(crushedEsHomeKeys);
-  });
-
-  it("should have the same keys in english as in italian when context is home.", () => {
-    const crushedItHomeKeys = Object.keys(crush(itHome)).toSorted();
-    const crushedEnHomeKeys = Object.keys(crush(enHome)).toSorted();
-
-    expect(crushedEnHomeKeys).toStrictEqual(crushedItHomeKeys);
-  });
-
-  it("should have the same keys in english as in portuguese when context is home.", () => {
-    const crushedPtHomeKeys = Object.keys(crush(ptHome)).toSorted();
-    const crushedEnHomeKeys = Object.keys(crush(enHome)).toSorted();
-
-    expect(crushedEnHomeKeys).toStrictEqual(crushedPtHomeKeys);
+    expect(crushedHomeKeys).toStrictEqual<string[]>(crushedReferenceKeys);
   });
 });

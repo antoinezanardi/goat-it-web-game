@@ -9,38 +9,16 @@ import itErrors from "~/i18n/locales/it/errors.json";
 import ptErrors from "~/i18n/locales/pt/errors.json";
 
 describe("errors.json translations", () => {
-  it("should have the same keys in english as in french when context is errors.", () => {
-    const crushedFrErrorsKeys = Object.keys(crush(frErrors)).toSorted();
-    const crushedEnErrorsKeys = Object.keys(crush(enErrors)).toSorted();
+  it.each<[string, typeof frErrors]>([
+    ["de", deErrors],
+    ["en", enErrors],
+    ["es", esErrors],
+    ["it", itErrors],
+    ["pt", ptErrors],
+  ])("should have the same keys in every locale as in french when context is errors.", (_locale, errorsTranslations) => {
+    const crushedReferenceKeys = Object.keys(crush(frErrors)).toSorted();
+    const crushedErrorsKeys = Object.keys(crush(errorsTranslations)).toSorted();
 
-    expect(crushedEnErrorsKeys).toStrictEqual(crushedFrErrorsKeys);
-  });
-
-  it("should have the same keys in english as in german when context is errors.", () => {
-    const crushedDeErrorsKeys = Object.keys(crush(deErrors)).toSorted();
-    const crushedEnErrorsKeys = Object.keys(crush(enErrors)).toSorted();
-
-    expect(crushedEnErrorsKeys).toStrictEqual(crushedDeErrorsKeys);
-  });
-
-  it("should have the same keys in english as in spanish when context is errors.", () => {
-    const crushedEsErrorsKeys = Object.keys(crush(esErrors)).toSorted();
-    const crushedEnErrorsKeys = Object.keys(crush(enErrors)).toSorted();
-
-    expect(crushedEnErrorsKeys).toStrictEqual(crushedEsErrorsKeys);
-  });
-
-  it("should have the same keys in english as in italian when context is errors.", () => {
-    const crushedItErrorsKeys = Object.keys(crush(itErrors)).toSorted();
-    const crushedEnErrorsKeys = Object.keys(crush(enErrors)).toSorted();
-
-    expect(crushedEnErrorsKeys).toStrictEqual(crushedItErrorsKeys);
-  });
-
-  it("should have the same keys in english as in portuguese when context is errors.", () => {
-    const crushedPtErrorsKeys = Object.keys(crush(ptErrors)).toSorted();
-    const crushedEnErrorsKeys = Object.keys(crush(enErrors)).toSorted();
-
-    expect(crushedEnErrorsKeys).toStrictEqual(crushedPtErrorsKeys);
+    expect(crushedErrorsKeys).toStrictEqual<string[]>(crushedReferenceKeys);
   });
 });

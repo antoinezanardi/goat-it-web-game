@@ -6,17 +6,21 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import { GameQuestionCardSourceList } from "#components";
 
+import type { GameQuestionCardSourceListProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardSourceList/game-question-card-source-list.types";
+
 describe("GameQuestionCardSourceList Component", () => {
-  const defaultSourceUrls = [
-    "https://en.wikipedia.org/wiki/Goat",
-    "https://www.britannica.com/animal/goat",
-  ];
+  const defaultGameQuestionCardSourceListProps: GameQuestionCardSourceListProps = {
+    sourceUrls: [
+      "https://en.wikipedia.org/wiki/Goat",
+      "https://www.britannica.com/animal/goat",
+    ],
+  };
 
   let wrapper: VueWrapper;
 
   async function mountSourceList(options: MountSuspendedOptions<typeof GameQuestionCardSourceList> = {}): Promise<VueWrapper> {
     return mountSuspended(GameQuestionCardSourceList, {
-      props: { sourceUrls: defaultSourceUrls },
+      props: defaultGameQuestionCardSourceListProps,
       shallow: false,
       ...options,
     });
@@ -26,8 +30,29 @@ describe("GameQuestionCardSourceList Component", () => {
     wrapper = await mountSourceList();
   });
 
+  it("should render GameQuestionCardSourceList when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
+  it("should render a ULink per source URL when sourceUrls are provided.", () => {
+    expect(wrapper.findAllComponents({ name: "ULink" })).toHaveLength(2);
+  });
+
+  it.each<{ index: number; url: string }>([
+    { index: 0, url: "https://en.wikipedia.org/wiki/Goat" },
+    { index: 1, url: "https://www.britannica.com/animal/goat" },
+  ])("should pass the source URL as the to prop of each ULink when sources are provided.", ({ index, url }) => {
+    const links = wrapper.findAllComponents({ name: "ULink" });
+
+    expect(links[index]?.props("to")).toBe(url);
+  });
+
   it("should render a nav element with the correct aria-label when sourceUrls are provided.", () => {
     expect(wrapper.find("nav").attributes("aria-label")).toBe("questions.sourcesAriaLabel");
+  });
+
+  it("should render the nav element with the game-question-source-links testid when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-question-source-links']").exists()).toBe(true);
   });
 
   it("should render one link per URL when sourceUrls are provided.", () => {
@@ -38,51 +63,18 @@ describe("GameQuestionCardSourceList Component", () => {
     expect(wrapper.text()).toContain("en.wikipedia.org");
   });
 
-  it("should set target to _blank on each link when sourceUrls are provided.", () => {
-    const links = wrapper.findAll("a");
-
-    for (const link of links) {
-      expect(link.attributes("target")).toBe("_blank");
-    }
-  });
-
-  it("should set rel to noopener noreferrer on each link when sourceUrls are provided.", () => {
-    const links = wrapper.findAll("a");
-
-    for (const link of links) {
-      expect(link.attributes("rel")).toBe("noopener noreferrer");
-    }
-  });
-
   it("should include the sourceTooltip i18n key in the aria-label of the first link when sourceUrls are provided.", () => {
     expect(wrapper.find("a").attributes("aria-label")).toContain("questions.sourceTooltip");
   });
 
-  it("should render the source label key before the colon when multiple sources are provided.", () => {
-    const label = wrapper.find("nav span");
+  it.each<{ sourceUrls: string[] }>([
+    { sourceUrls: ["https://en.wikipedia.org/wiki/Goat", "https://www.britannica.com/animal/goat"] },
+    { sourceUrls: ["https://en.wikipedia.org/wiki/Goat"] },
+  ])("should render the source label key before the colon when sources are provided.", async({ sourceUrls }) => {
+    const sourceWrapper = await mountSourceList({ props: { sourceUrls } });
+    const label = sourceWrapper.find("[data-testid='game-question-source-label']");
 
     expect(label.text()).toContain("questions.sourceLabel:");
-  });
-
-  it("should render the source label key before the colon when a single source is provided.", async() => {
-    const singleWrapper = await mountSourceList({
-      props: { sourceUrls: ["https://en.wikipedia.org/wiki/Goat"] },
-    });
-    const label = singleWrapper.find("nav span");
-
-    expect(label.text()).toContain("questions.sourceLabel:");
-  });
-
-  it("should apply text-fg-secondary class to the source label when sourceUrls are provided.", () => {
-    const label = wrapper.find("nav span");
-
-    expect(label.classes()).toContain("text-fg-secondary");
-  });
-
-  it("should apply shrink-0 class to the source label when sourceUrls are provided.", () => {
-    const label = wrapper.find("nav span");
-
-    expect(label.classes()).toContain("shrink-0");
   });
 
   it("should wrap each link in a UTooltip when sourceUrls are provided.", () => {
@@ -95,5 +87,13 @@ describe("GameQuestionCardSourceList Component", () => {
     const firstTooltip = wrapper.findAllComponents({ name: "UTooltip" })[0];
 
     expect(firstTooltip?.props("text")).toBe("questions.sourceTooltip");
+  });
+
+  it("should render the external link icon on each link when mounted.", () => {
+    const icons = wrapper.findAllComponents({ name: "UIcon" });
+
+    for (const icon of icons) {
+      expect(icon.props("name")).toBe("i-lucide-external-link");
+    }
   });
 });

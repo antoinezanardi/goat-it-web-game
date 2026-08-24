@@ -1,7 +1,7 @@
 import type { QuestionCategory } from "@goat-it/schemas/question";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
@@ -17,19 +17,19 @@ describe("GameQuestionCardThemeHeader Component", () => {
   const primaryTheme = createFakeQuestionTheme({ label: "Histoire", slug: "history-civilizations" });
   const secondaryTheme = createFakeQuestionTheme({ slug: "geography-travels" });
 
-  const defaultProps: GameQuestionCardThemeHeaderProps = {
+  const defaultGameQuestionCardThemeHeaderProps: GameQuestionCardThemeHeaderProps = {
     question: createFakeQuestion({
       category: "trivia",
       cognitiveDifficulty: "medium",
       themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme })],
     }),
-  };
+  } as const;
 
   let wrapper: VueWrapper;
 
   async function mountHeader(options: MountSuspendedOptions<typeof GameQuestionCardThemeHeader> = {}): Promise<VueWrapper> {
     return mountSuspended(GameQuestionCardThemeHeader, {
-      props: defaultProps,
+      props: defaultGameQuestionCardThemeHeaderProps,
       shallow: false,
       ...options,
     });
@@ -39,8 +39,20 @@ describe("GameQuestionCardThemeHeader Component", () => {
     wrapper = await mountHeader();
   });
 
+  it("should render GameQuestionCardThemeHeader when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
+  });
+
   it("should render the theme label when mounted.", () => {
     expect(wrapper.text()).toContain("Histoire");
+  });
+
+  it("should render the theme label element with its testid when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-question-theme']").exists()).toBe(true);
+  });
+
+  it("should render the category label element with its testid when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-question-category']").exists()).toBe(true);
   });
 
   it("should render the GameQuestionCardThemeStack component when mounted.", () => {
@@ -50,7 +62,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
   it("should pass the question prop to the GameQuestionCardThemeStack when mounted.", () => {
     const stack = wrapper.findComponent({ name: "GameQuestionCardThemeStack" });
 
-    expect(stack.props("question")).toBe(defaultProps.question);
+    expect(stack.props("question")).toBe(defaultGameQuestionCardThemeHeaderProps.question);
   });
 
   it("should render the GameQuestionCardDifficultyBadge component when mounted.", () => {
@@ -63,12 +75,6 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(badge.props("difficulty")).toBe("medium");
   });
 
-  it.each(["ml-auto", "flex", "flex-col"])("should apply the %s class to the difficulty badge container when mounted.", cssClass => {
-    const container = wrapper.find(".ml-auto");
-
-    expect(container.classes()).toContain(cssClass);
-  });
-
   it.each<{ category: QuestionCategory; icon: string }>([
     { category: "trivia", icon: "i-lucide-sparkle" },
     { category: "lexicon", icon: "i-lucide-languages" },
@@ -76,17 +82,11 @@ describe("GameQuestionCardThemeHeader Component", () => {
     { category: "explanation", icon: "i-lucide-atom" },
   ])("should render the category icon $icon when category is $category.", async({ category, icon }) => {
     await wrapper.setProps({
-      question: createFakeQuestion({ ...defaultProps.question, category }),
+      question: createFakeQuestion({ ...defaultGameQuestionCardThemeHeaderProps.question, category }),
     });
     const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === icon);
 
     expect(categoryIcon).toBeDefined();
-  });
-
-  it("should apply the game-theme-neon color class to the category icon when mounted.", () => {
-    const categoryIcon = wrapper.findAllComponents({ name: "UIcon" }).find(comp => comp.props("name") === "i-lucide-sparkle");
-
-    expect(categoryIcon?.classes()).toContain("text-(--game-theme-neon)");
   });
 
   it.each<{ category: QuestionCategory }>([
@@ -96,7 +96,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
     { category: "explanation" },
   ])("should render the category label from the i18n key when category is $category.", async({ category }) => {
     await wrapper.setProps({
-      question: createFakeQuestion({ ...defaultProps.question, category }),
+      question: createFakeQuestion({ ...defaultGameQuestionCardThemeHeaderProps.question, category }),
     });
 
     expect(wrapper.text()).toContain(`questions.category.${category}`);
@@ -109,7 +109,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
   it("should render the other themes trigger when the question has secondary themes.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
-        ...defaultProps.question,
+        ...defaultGameQuestionCardThemeHeaderProps.question,
         themes: [
           createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
           createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
@@ -123,7 +123,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
   it("should render the other themes trigger with the i18n key when the question has secondary themes.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
-        ...defaultProps.question,
+        ...defaultGameQuestionCardThemeHeaderProps.question,
         themes: [
           createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
           createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
@@ -135,12 +135,9 @@ describe("GameQuestionCardThemeHeader Component", () => {
   });
 
   it("should call t with the secondary themes count when the question has secondary themes.", async() => {
-    const i18n = useI18n();
-    const tSpy = vi.spyOn(i18n, "t");
-
     await wrapper.setProps({
       question: createFakeQuestion({
-        ...defaultProps.question,
+        ...defaultGameQuestionCardThemeHeaderProps.question,
         themes: [
           createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
           createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
@@ -148,13 +145,13 @@ describe("GameQuestionCardThemeHeader Component", () => {
       }),
     });
 
-    expect(tSpy).toHaveBeenCalledWith("questions.themeStack.otherThemes", { count: 1 });
+    expect(useI18n().t).toHaveBeenCalledWith("questions.themeStack.otherThemes", { count: 1 });
   });
 
   it("should toggle the theme stack popover when the other themes trigger is clicked.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
-        ...defaultProps.question,
+        ...defaultGameQuestionCardThemeHeaderProps.question,
         themes: [
           createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
           createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
@@ -173,7 +170,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
   it("should render the GameQuestionCardHintBadge when the primary theme is a hint.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
-        ...defaultProps.question,
+        ...defaultGameQuestionCardThemeHeaderProps.question,
         themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
       }),
     });
@@ -184,7 +181,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
   it("should not render the GameQuestionCardHintBadge when the primary theme is not a hint.", async() => {
     await wrapper.setProps({
       question: createFakeQuestion({
-        ...defaultProps.question,
+        ...defaultGameQuestionCardThemeHeaderProps.question,
         themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme })],
       }),
     });

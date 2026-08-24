@@ -23,6 +23,7 @@ It covers the test infrastructure, every file type that needs tests, exact patte
    - [Server utils / mappers / helpers](#68-server-utils--mappers--helpers)
    - [Shared helpers](#69-shared-helpers)
    - [i18n translation parity](#610-i18n-translation-parity)
+   - [Test worthiness](#611-test-worthiness)
 7. [Component test utilities](#7-component-test-utilities)
    - [getWrapperVm and ComponentVm](#71-getwrappervmt-and-componentvm)
    - [wrapper.emitted()](#72-wrapperemitted)
@@ -352,6 +353,7 @@ describe("MyComponent Component", () => {
 - Always use `data-testid` to find child components and elements — see [Section 7.5](#75-finding-elements-and-components).
 - Check prop values with `component.props("propName")`.
 - Only test props that are **dynamically bound** (prefixed with `:` in the template, e.g. `:label="slug"`). Skip static string props without `:` (e.g. `variant="subtle"`, `color="neutral"`) — they are implementation constants, not behaviour to verify.
+- Only assert **worthy** things — see [Section 6.11](#611-test-worthiness) for what deserves a test and what must never be asserted.
 - Every named slot in the template must be exercised by at least one test to achieve 100% coverage.
 
 #### Example — finding child components and asserting props
@@ -1073,24 +1075,22 @@ import { describe, it, expect } from "vitest";
 
 import { isNonEmptyString } from "#shared/utils/helpers/string.helpers";
 
-describe("String Helpers", () => {
-  describe(isNonEmptyString, () => {
-    it("should return true when input is a non-empty string.", () => {
-      expect(isNonEmptyString("hello")).toBeTruthy();
-    });
+describe(isNonEmptyString, () => {
+  it("should return true when input is a non-empty string.", () => {
+    expect(isNonEmptyString("hello")).toBeTruthy();
+  });
 
-    it("should return false when input is an empty string.", () => {
-      expect(isNonEmptyString("")).toBeFalsy();
-    });
+  it("should return false when input is an empty string.", () => {
+    expect(isNonEmptyString("")).toBeFalsy();
+  });
 
-    it("should return false when input is undefined.", () => {
-      expect(isNonEmptyString()).toBeFalsy();
-    });
+  it("should return false when input is undefined.", () => {
+    expect(isNonEmptyString()).toBeFalsy();
   });
 });
 ```
 
-Use `#shared/utils/...` import alias. No mocking. Test all branches including edge cases.
+Use `#shared/utils/...` import alias. No mocking. Test all branches including edge cases. Each helper gets its own top-level symbol describe — no grouping string wrapper.
 
 ---
 
@@ -1121,6 +1121,51 @@ describe("my-feature.json translations", () => {
 - One test per locale pair per JSON file.
 - `crush` from `radashi` flattens nested JSON into dot-notation keys.
 - Assert sorted EN keys equal sorted FR keys.
+
+---
+
+### 6.11 Test worthiness
+
+Applies to **components, pages, and layouts**. A test is **worthy** when it pins behaviour that can vary; it is **unworthy** when it pins markup constants. Specs assert worthy surfaces only.
+
+#### Worthy — each surface should appear in the spec
+
+| Surface                 | What to assert                                                                                                                                                                                                                                            |
+|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Branches                | Both sides of every `v-if` / `v-else-if` / `v-else` / `v-show`; ternaries and short-circuits inside template expressions (`:class="cond ? a : b"`); function-driven rendering (`{{ formatX(...) }}`); state-dependent render states (loading / empty / populated / error). |
+| Emits                   | Every event the component can emit, payload asserted. Conditional events also assert absence on the non-emitting path.                                                                                                                                      |
+| Dynamically-bound props | Every prop prefixed with `:` forwarded to children, asserted via `.props()`.                                                                                                                                                                               |
+| i18n in DOM             | Every `$t()` / `$tc()` / `t()` rendered by the template asserted **by its key**, even when the usage is static.                                                                                                                                             |
+| Named slots             | Every named slot exercised by at least one test.                                                                                                                                                                                                           |
+| Reactive updates        | Prop mutations via `setProps`, or mock-holder/store mutations followed by `await nextTick()`, asserting the re-rendered output.                                                                                                                             |
+
+#### Unworthy — asserting these in a spec is a violation
+
+- Static Tailwind/utility classes that no binding ever touches.
+- Static props or attributes without a `:` binding (e.g. `variant="subtle"`, `color="neutral"`) — implementation constants.
+- Any markup constant that cannot change with props, watch, computed or emits.
+
+#### Example
+
+```ts
+// BAD — unworthy assertions
+it("should render the badge when mounted.", () => {
+  expect(badge.classes()).toContain("inline-flex items-center gap-1"); // static utility classes
+  expect(badge.props("variant")).toBe("subtle");                       // unbound static prop
+});
+
+// GOOD — worthy assertions
+it("should render the danger styling when status is error.", async () => {
+  await wrapper.setProps({ status: "error" }); // branch + reactive update
+  expect(badge.classes()).toContain("text-red-500");
+});
+
+it("should display the theme label translation key.", () => {
+  expect(wrapper.find("[data-testid='theme-label']").text()).toBe("questionThemes.fields.label"); // i18n key, even though static
+});
+```
+
+> Missing branch/slot coverage is enforced by `pnpm run test:unit:cov`. This section defines *what deserves an assertion*, not how coverage is measured.
 
 ---
 

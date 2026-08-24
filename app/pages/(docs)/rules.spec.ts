@@ -43,6 +43,10 @@ describe("Rules Page", () => {
       wrapper = await mountRulesPage();
     });
 
+    it("should render Rules Page when mounted.", () => {
+      expect(wrapper.exists()).toBeTruthy();
+    });
+
     it("should render LoadingSpinner when status is pending.", () => {
       expect(wrapper.findComponent({ name: "LoadingSpinner" }).exists()).toBe(true);
     });
@@ -89,12 +93,6 @@ describe("Rules Page", () => {
       const contentRenderer = wrapper.findComponent({ name: "ContentRenderer" });
 
       expect(contentRenderer.props("value")).toStrictEqual({ title: "How to play", description: "Rules" });
-    });
-
-    it("should render ContentRenderer with the docs-prose class when status is success.", () => {
-      const contentRenderer = wrapper.findComponent({ name: "ContentRenderer" });
-
-      expect(contentRenderer.props("class")).toBe("docs-prose");
     });
 
     it("should not render LoadingSpinner when status is success.", () => {
@@ -174,8 +172,9 @@ describe("Rules Page", () => {
       wrapper = await mountRulesPage();
 
       const options = useAsyncDataMock.mock.calls[0]?.[2];
+      const { locale } = useI18n();
 
-      expect(options?.watch).toBeDefined();
+      expect(options?.watch).toStrictEqual([locale]);
     });
   });
 });

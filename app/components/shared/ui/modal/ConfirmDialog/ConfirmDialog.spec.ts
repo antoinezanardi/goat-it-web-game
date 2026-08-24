@@ -8,7 +8,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { ConfirmDialog } from "#components";
 import type { DefaultModalFooter, DefaultModalTitle, UModal } from "#components";
 
-import type { ConfirmDialogProps } from "~/components/shared/ui/modal/ConfirmDialog/confirm-dialog.types";
+import type { ConfirmDialogProps } from "@/components/shared/ui/modal/ConfirmDialog/confirm-dialog.types";
 
 describe("ConfirmDialog Component", () => {
   let wrapper: VueWrapper;
@@ -17,7 +17,7 @@ describe("ConfirmDialog Component", () => {
     icon: "i-lucide-archive",
     title: "Archive this theme?",
     description: "This theme will be archived.",
-  };
+  } as const;
 
   async function mountConfirmDialogComponent(options: MountSuspendedOptions<typeof ConfirmDialog> = {}): Promise<VueWrapper> {
     return mountSuspended(ConfirmDialog, {
@@ -30,7 +30,7 @@ describe("ConfirmDialog Component", () => {
     wrapper = await mountConfirmDialogComponent();
   });
 
-  it("should render the confirm dialog component when mounted.", () => {
+  it("should render ConfirmDialog when mounted.", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
@@ -39,6 +39,12 @@ describe("ConfirmDialog Component", () => {
       const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
 
       expect(modal.props("open")).toBe(true);
+    });
+
+    it("should render the modal with the correct data-testid when mounted.", () => {
+      const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
+
+      expect(getWrapperVm(modal).$attrs["data-testid"]).toBe("confirm-dialog-modal");
     });
 
     it("should close the modal when the modal emits update:open with false.", async() => {
@@ -61,6 +67,18 @@ describe("ConfirmDialog Component", () => {
       const title = wrapper.findComponent<typeof DefaultModalTitle>("[data-testid='confirm-dialog-title']");
 
       expect(title.props("title")).toBe("Archive this theme?");
+    });
+
+    it("should pass the custom icon class to the default modal title when iconClass prop is provided.", async() => {
+      wrapper = await mountConfirmDialogComponent({
+        props: {
+          ...defaultConfirmDialogProps,
+          iconClass: "text-primary",
+        },
+      });
+      const title = wrapper.findComponent<typeof DefaultModalTitle>("[data-testid='confirm-dialog-title']");
+
+      expect(title.props("iconClass")).toBe("text-primary");
     });
   });
 
@@ -107,6 +125,18 @@ describe("ConfirmDialog Component", () => {
       const footer = wrapper.findComponent<typeof DefaultModalFooter>("[data-testid='confirm-dialog-footer']");
 
       expect(footer.props("closeButtonLabel")).toBe("Never mind");
+    });
+
+    it("should pass disableShortcuts as true to the footer when the prop is set to true.", async() => {
+      wrapper = await mountConfirmDialogComponent({
+        props: {
+          ...defaultConfirmDialogProps,
+          disableShortcuts: true,
+        },
+      });
+      const footer = wrapper.findComponent<typeof DefaultModalFooter>("[data-testid='confirm-dialog-footer']");
+
+      expect(footer.props("disableShortcuts")).toBe(true);
     });
 
     it("should emit close with false when the footer emits closeModal.", () => {

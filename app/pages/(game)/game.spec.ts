@@ -4,13 +4,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
+import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
 import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
 import GamePage from "@/pages/(game)/game.vue";
+import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "~/composables/domain/question-theme/constants/question-theme.constants";
 
 let capturedLeaveGuard: (() => Promise<boolean>) | undefined;
 
@@ -34,6 +38,8 @@ function getCreatedModalInstance(): UseOverlayCreateReturnValue {
   return createResult.value;
 }
 
+type GamePageVm = ComponentVm & { pageThemeColor: string };
+
 describe("Game Page", () => {
   let wrapper: VueWrapper;
 
@@ -44,6 +50,10 @@ describe("Game Page", () => {
   beforeEach(async() => {
     capturedLeaveGuard = undefined;
     wrapper = await mountGamePage();
+  });
+
+  it("should render Game Page when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should configure SEO meta tags when mounted.", () => {
@@ -66,6 +76,35 @@ describe("Game Page", () => {
     });
   });
 
+  it("should render the page title translation key when mounted.", () => {
+    expect(wrapper.text()).toContain("game.pageTitle");
+  });
+
+  it("should fall back to the neutral grey theme color when no current question exists.", () => {
+    const vm = getWrapperVm<GamePageVm>(wrapper);
+
+    expect(vm.pageThemeColor).toBe(NEUTRAL_GREY_FALLBACK_THEME_COLOR);
+  });
+
+  it("should resolve the current question primary theme color when playing.", async() => {
+    const fakeQuestion = createFakeQuestion({
+      themes: [
+        createFakeQuestionThemeAssignment({
+          isPrimary: true,
+          isHint: false,
+          theme: createFakeQuestionTheme({ slug: "geography-travels", color: "#33A1FF", label: "Geography" }),
+        }),
+      ],
+    });
+    useGameMock.instance.questionsRef.value = [fakeQuestion];
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const vm = getWrapperVm<GamePageVm>(wrapper);
+
+    expect(vm.pageThemeColor).toBe("#33A1FF");
+  });
+
   it("should render GameLoading when gameState is loading.", () => {
     const gameLoading = wrapper.findComponent({ name: "GameLoading" });
 
@@ -81,6 +120,78 @@ describe("Game Page", () => {
     const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
 
     expect(gamePlaying.exists()).toBeTruthy();
+  });
+
+  it("should forward canGoToPreviousQuestion as true to GamePlaying when a previous question is available.", async() => {
+    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+    useGameMock.instance.questionsRef.value = fakeQuestions;
+    useGameMock.instance.currentIndex.value = 1;
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+
+    expect(gamePlaying.props("canGoToPreviousQuestion")).toBe(true);
+  });
+
+  it("should forward currentIndex to GamePlaying when gameState is playing.", async() => {
+    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+    useGameMock.instance.questionsRef.value = fakeQuestions;
+    useGameMock.instance.currentIndex.value = 1;
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+
+    expect(gamePlaying.props("currentIndex")).toBe(1);
+  });
+
+  it("should forward currentQuestion to GamePlaying when gameState is playing.", async() => {
+    const fakeQuestion = createFakeQuestion();
+    useGameMock.instance.questionsRef.value = [fakeQuestion];
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+
+    expect(gamePlaying.props("currentQuestion")).toStrictEqual(fakeQuestion);
+  });
+
+  it("should forward questions to GamePlaying when gameState is playing.", async() => {
+    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+    useGameMock.instance.questionsRef.value = fakeQuestions;
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+
+    expect(gamePlaying.props("questions")).toStrictEqual(fakeQuestions);
+  });
+
+  it("should call advanceToNextQuestion when GamePlaying emits advance.", async() => {
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+    getWrapperVm(gamePlaying).$emit("advance");
+    await nextTick();
+
+    expect(useGameMock.instance.advanceToNextQuestion).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("should call goToPreviousQuestion when GamePlaying emits previous.", async() => {
+    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+    useGameMock.instance.questionsRef.value = fakeQuestions;
+    useGameMock.instance.currentIndex.value = 1;
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+    getWrapperVm(gamePlaying).$emit("previous");
+    await nextTick();
+
+    expect(useGameMock.instance.goToPreviousQuestion).toHaveBeenCalledExactlyOnceWith();
   });
 
   it("should render GameNoMoreQuestions when gameState is game-over.", async() => {
@@ -101,7 +212,6 @@ describe("Game Page", () => {
     expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(
       expect.any(Object),
       expect.objectContaining({
-        destroyOnClose: true,
         props: {
           disableShortcuts: true,
           dismissible: false,
