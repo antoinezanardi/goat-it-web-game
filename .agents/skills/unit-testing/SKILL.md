@@ -115,7 +115,7 @@ Counts reflect `configs/vitest/vitest.config.constants.ts` — scan it for the a
 A worthy test pins behaviour that can vary; an unworthy test pins markup constants. See `docs/unit-testing.md` §6.11.
 
 - **Worthy:** branches (both sides of every `v-if`/`v-else-if`/`v-else`/`v-show`, ternaries and short-circuits in template expressions, function-driven rendering like `{{ formatX(...) }}`, loading/empty/populated/error states) · child-component presence (every child Vue component asserted present ≥once, even unconditionally rendered) · emits with payload · `:`-bound child props via `.props()` (`.attributes()` fallback acceptable when `.props()` is impossible) · every `$t()`/`$tc()` asserted by key (even static) · icons via icon prop (even static) · links via `to` prop (even static) · named slots · reactive updates with `await nextTick()`.
-- **Unworthy — asserting these is a violation:** static Tailwind classes never touched by a binding; unbound static props/attributes (`variant="subtle"`, `color="neutral"`); markup constants that cannot vary with props/watch/computed/emits.
+- **Unworthy — asserting these is a violation:** static Tailwind classes never touched by a binding; unbound static props/attributes like `variant="subtle"` / `color="neutral"` (**exception:** the [W5]/[W6] static icon/link assertions stay mandatory despite being unbound); markup constants that cannot vary with props/watch/computed/emits.
 
 ### Accepted patterns — do NOT flag or "fix"
 
@@ -152,7 +152,7 @@ Tags match `.opencode/commands/lint-unit-tests.md` §4.
 - [ ] [C8] VM access only via `getWrapperVm<T>` + local type extending `ComponentVm`; never cast wrapper for `setupState`; instance proxy unwraps refs — type ref members as inner values
 - [ ] First test: `"should render <Name> when mounted."` asserting `wrapper.exists()` [W3]
 - [ ] Every source `data-testid` asserted present ≥once [W4]; every icon via icon prop even static [W5]; every link `to` even static [W6]
-- [ ] Assert translation keys [U6]; dynamically-bound props only; no unworthy assertions [W1]; i18n keys covered [W2]
+- [ ] Assert translation keys [U6]; dynamically-bound props only (except [W5]/[W6]); no unworthy assertions [W1]; i18n keys covered [W2]
 - [ ] Nested thematic describes allowed ("Close button" → "Label")
 
 ### Page ([P1]–[P7])

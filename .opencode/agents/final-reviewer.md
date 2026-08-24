@@ -206,8 +206,8 @@ No files are automatically ignored in the diff review.
 - `vue` — to understand Vue 3 patterns and best practices
 - `nuxt` — to understand project structure and conventions
 - `nuxt-ui` — to evaluate UI component usage
-- `unit-testing` — **mandatory whenever the diff contains spec/test files**; required for the section 10 audit
-- `acceptance-testing` — **mandatory whenever the diff touches `tests/acceptance/`**; required for the section 11 audit
+- `unit-testing` — **mandatory whenever the diff adds or modifies any `*.spec.ts`, faketory, mock file, or setup registration** (section 10 trigger); required for the section 10 audit
+- `acceptance-testing` — **mandatory whenever the diff adds or modifies anything under `tests/acceptance/` or a `.feature` file** (section 11 trigger); required for the section 11 audit
 
 ## Convention authority
 

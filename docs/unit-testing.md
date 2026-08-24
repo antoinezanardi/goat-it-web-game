@@ -362,7 +362,7 @@ describe("MyComponent Component", () => {
 - Always use `data-testid` to find child components and elements — see [Section 7.5](#75-finding-elements-and-components). Always pass the generic type: `findComponent<typeof ChildComponent>("[data-testid='…']")` — a bare string selector returns an untyped wrapper without `.props()` access.
 - Access component internals (exposed methods, computed values, template refs) only through `getWrapperVm<T>` with a local VM type extending `ComponentVm` — never by casting the wrapper to reach `setupState`. Note: the instance proxy unwraps refs, so type ref members as their inner value (`isTransitioning: boolean`, not `Ref<boolean>`) and assign through the proxy instead of mutating `.value`.
 - Check prop values with `component.props("propName")`.
-- Only test props that are **dynamically bound** (prefixed with `:` in the template, e.g. `:label="slug"`). Skip static string props without `:` (e.g. `variant="subtle"`, `color="neutral"`) — they are implementation constants, not behaviour to verify.
+- Only test props that are **dynamically bound** (prefixed with `:` in the template, e.g. `:label="slug"`). Skip static string props without `:` (e.g. `variant="subtle"`, `color="neutral"`) — they are implementation constants, not behaviour to verify. **Exception:** static icon usages ([W5]) and static link targets ([W6]) are still asserted via their props despite being unbound.
 - Only assert **worthy** things — see [Section 6.11](#611-test-worthiness) for what deserves a test and what must never be asserted.
 - Every named slot in the template must be exercised by at least one test to achieve 100% coverage.
 
@@ -1173,7 +1173,7 @@ On top of the worthy surfaces above, these checks are mandatory for components, 
 #### Unworthy — asserting these in a spec is a violation
 
 - Static Tailwind/utility classes that no binding ever touches.
-- Static props or attributes without a `:` binding (e.g. `variant="subtle"`, `color="neutral"`) — implementation constants.
+- Static props or attributes without a `:` binding (e.g. `variant="subtle"`, `color="neutral"`) — implementation constants. **Exception:** static icons ([W5]) and static link targets ([W6]) remain mandatory assertions despite being unbound.
 - Any markup constant that cannot change with props, watch, computed or emits.
 
 #### Example

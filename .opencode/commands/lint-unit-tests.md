@@ -116,7 +116,7 @@ Worthy — each item below should be exercised by at least one test in the spec:
 Unworthy — asserting any of these in a spec is a violation:
 
 - Static Tailwind/utility classes that no binding ever touches.
-- Static props or attributes without `:` binding (e.g. `variant="subtle"`, `color="neutral"`) — implementation constants.
+- Static props or attributes without `:` binding (e.g. `variant="subtle"`, `color="neutral"`) — implementation constants. Exceptions: static icons ([W5]) and static link targets ([W6]) must still be asserted even though unbound.
 - Any markup constant that cannot change with props, watch, computed or emits.
 
 Child component presence is never unworthy — see the "Child component presence" worthy item above.
