@@ -59,6 +59,7 @@ Audit subagents apply this checklist verbatim. Violations are recorded with rule
 - **[U8] Faketory sources** — Fake data from `tests/unit/utils/faketories/` or `@goat-it/schemas/testing/*`. No local DTO faketories.
 - **[U9] Global mocks** — No `mockNuxtImport("useFoo", ...)` in component/store specs for composables already globally mocked via setup files (import the MockHolder instead).
 - **[U10] `it.each` usage** — Always use `it.each` for parameterized tests. Don't write multiple `it(...)` for the same test with different inputs. `it.each` should always be typed like `it.each<T>([...])`. Do NOT flag tests that describe semantically different conditions or edge cases (e.g. zero-delay immediate resolution vs delayed resolution) as mergeable — only pure input duplicates of identical test logic count.
+- **[U11] Positional `findAllComponents`** — Never index positionally into `findAllComponents({ name: "..." })` when multiple sibling instances exist (e.g. `icons[0]`, `icons[2]`, `icons[index]`). Address each instance uniquely via its dynamic `data-testid` selector (per docs §7.5), typed as `findComponent<typeof Component>("[data-testid='...']")`; pin sibling order via a single assertion over the ordered testid/slug list. Count-only `findAllComponents(...)` without positional indexing remains exempt (see Established patterns).
 
 #### Established patterns — do NOT flag
 
@@ -259,6 +260,7 @@ Work through approved categories ONE at a time:
 - Each batch prompt must contain: exact file paths, the violations to fix with their tags/lines, the expected pattern from `docs/unit-testing.md`, scoped verification (`pnpm run test:unit <spec paths>` plus focused eslint/oxlint fixes must pass; revert a single fix if irrecoverable), and the structured `FILE / STATUS / NOTES` return format. Also declare any known working-tree modifications that predate the batch so the subagent does not misattribute them.
 - Apply corrections following the exact patterns from `docs/unit-testing.md` — never invent alternatives.
 - Judgmental items may require adding or removing test cases; write them per the file-type pattern.
+- **Component finds by `data-testid` must be typed** — when rewriting positional lookups, use `findComponent<typeof Component>("[data-testid='...']")` with the component type imported from `#components`; a bare `findComponent(string)` returns `WrapperLike`, which has no `.props()` access.
 - **happy-dom CSS constraint** — when the surface to pin is an inline `style` binding computed with modern CSS functions (`oklch()`, `color-mix()`, …), `.attributes("style")` assertions are impossible: happy-dom silently drops unparseable CSS during serialization. Pin the underlying computed/ref value via the [C8] pattern instead (`getWrapperVm<T>` + local `ComponentVm` extension) and note why in the fix NOTES.
 - Respect repo conventions: no comments (except allowed lint-disable/JSDoc forms), correct import grouping/order, no `any`.
 - Known linter constraints while editing: at most ONE `expect()` call per test body (`vitest(max-expects)`); hooks must live inside `describe` blocks (`vitest(require-top-level-describe)`).

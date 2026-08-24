@@ -4,13 +4,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
+import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
 import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
 import GamePage from "@/pages/(game)/game.vue";
+import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "~/composables/domain/question-theme/constants/question-theme.constants";
 
 let capturedLeaveGuard: (() => Promise<boolean>) | undefined;
 
@@ -33,6 +37,8 @@ function getCreatedModalInstance(): UseOverlayCreateReturnValue {
   }
   return createResult.value;
 }
+
+type GamePageVm = ComponentVm & { pageThemeColor: string };
 
 describe("Game Page", () => {
   let wrapper: VueWrapper;
@@ -72,6 +78,31 @@ describe("Game Page", () => {
 
   it("should render the page title translation key when mounted.", () => {
     expect(wrapper.text()).toContain("game.pageTitle");
+  });
+
+  it("should fall back to the neutral grey theme color when no current question exists.", () => {
+    const vm = getWrapperVm<GamePageVm>(wrapper);
+
+    expect(vm.pageThemeColor).toBe(NEUTRAL_GREY_FALLBACK_THEME_COLOR);
+  });
+
+  it("should resolve the current question primary theme color when playing.", async() => {
+    const fakeQuestion = createFakeQuestion({
+      themes: [
+        createFakeQuestionThemeAssignment({
+          isPrimary: true,
+          isHint: false,
+          theme: createFakeQuestionTheme({ slug: "geography-travels", color: "#33A1FF", label: "Geography" }),
+        }),
+      ],
+    });
+    useGameMock.instance.questionsRef.value = [fakeQuestion];
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    const vm = getWrapperVm<GamePageVm>(wrapper);
+
+    expect(vm.pageThemeColor).toBe("#33A1FF");
   });
 
   it("should render GameLoading when gameState is loading.", () => {

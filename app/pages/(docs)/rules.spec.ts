@@ -172,8 +172,9 @@ describe("Rules Page", () => {
       wrapper = await mountRulesPage();
 
       const options = useAsyncDataMock.mock.calls[0]?.[2];
+      const { locale } = useI18n();
 
-      expect(options?.watch).toBeDefined();
+      expect(options?.watch).toStrictEqual([locale]);
     });
   });
 });
