@@ -73,6 +73,15 @@
   border-top-right-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
   padding-block: 0.75rem;
+  padding-inline-end: 1rem;
+}
+
+.docs-prose .example-round-content {
+  background-color: var(--color-card);
+  border-left: 3px solid var(--color-violet-300);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-violet-300) 50%, transparent), 0 0 12px color-mix(in srgb, var(--color-violet-600) 25%, transparent);
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .docs-prose a {

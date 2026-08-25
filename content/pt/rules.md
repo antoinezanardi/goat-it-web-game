@@ -36,15 +36,78 @@ Por isso, as perguntas devem poder ser respondidas de forma binária.
 >
 > ❌ «Qual é a raça do animal?»
 
-Os jogadores podem fazer quantas perguntas quiserem, discutir livremente e apresentar as suas hipóteses.
+Os jogadores podem fazer quantas perguntas quiserem, em qualquer ordem, discutir livremente e apresentar as suas hipóteses.
 
-> «É algo vivo?» → **Não**
+> «É algo vivo?»\
+> ↳ **Não**
 >
-> «É um objeto?» → **Sim**
+> «É um objeto?»\
+> ↳ **Sim**
 >
-> «É fabricado pelo ser humano?» → **Sim**
+> «É fabricado pelo ser humano?»\
+> ↳ **Sim**
 
 Cada resposta do MJ é uma informação útil para todo o grupo. Uma pista ou uma proposta errada não implica qualquer penalização: também permite eliminar possibilidades.
+
+### Um pequeno exemplo?
+
+::example-round
+#triggerOpen
+Mostrar um exemplo completo de ronda
+
+#triggerClose
+Ocultar um exemplo completo de ronda
+
+#default
+**Carta:**
+
+- Tema: Animais
+- Categoria: Curiosidades
+- Dificuldade: Média
+
+**MJ:** «Aqui está a vossa carta: tema **Animais**, categoria **Curiosidades**, dificuldade **Média**. Pergunta: que animal já obrigou ao encerramento de uma pista do aeroporto de Nice em 2000? São vocês!»
+
+**Jogador 1:** «Este animal come-se?»
+
+**MJ:** «Sim.»
+
+**Jogador 2:** «De que cor é?»
+
+**MJ:** «Pergunta aberta! Só posso responder Sim ou Não, ou decidir entre duas propostas.»
+
+**Jogador 2:** «Antes verde ou antes cinzento?»
+
+**MJ:** «Cinzento.»
+
+**Jogador 3:** «Um elefante, então!»
+
+**MJ:** «Não! Mas continuem a investigar fazendo perguntas.»
+
+**Jogador 1:** «É um animal comum na zona do aeroporto de Nice?»
+
+*🔹 O MJ reserva tempo para reler o contexto e as curiosidades da carta para responder a esta pergunta…*
+
+**MJ:** «Sim, bastante comum!»
+
+**Jogador 3:** «Tem dentes?»
+
+**MJ:** «Sim… mas não é uma boa pista, não vos ajudará a raciocinar…»
+
+*O grupo está bloqueado.*
+
+**MJ:** «Vou ajudar-vos porque parecem estar bloqueados. Uma dica: este animal é antes lento…»
+
+**Jogador 2:** «Os caracóis?»
+
+**MJ:** «Exato, são caracóis!»
+
+*🔹 O MJ pode ler o resto da carta para encerrar a investigação e dar o contexto da pergunta.*
+
+**MJ:** «Explico-vos o contexto: em outubro de 2000, após chuvas fortes, milhares de caracóis invadiram a pista do aeroporto de Nice. Pequena curiosidade: foi preciso limpar três quilómetros de pista!»
+
+*🔹 O MJ pode depois passar à pergunta seguinte, ou deixar o papel de MJ a outro jogador para a próxima investigação.*
+
+::
 
 ---
 
@@ -82,7 +145,7 @@ Depois de terminada a investigação, o MJ pode revelar o contexto, as curiosida
 
 ## 🚫 Sem pesquisa externa
 
-Os jogadores não devem utilizar Google, Wikipédia, ChatGPT ou qualquer outra fonte externa para encontrar diretamente a resposta.
+Os jogadores não devem utilizar Google, Wikipédia, IA ou qualquer outra fonte externa para encontrar diretamente a resposta.
 
 A investigação deve decorrer à volta da mesa, a partir das conversas entre os jogadores e das respostas do MJ.
 

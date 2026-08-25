@@ -39,17 +39,32 @@ function onUpdateOpen(value: boolean): void {
     </template>
 
     <template #body>
-      <ULink
-        class="flex gap-1.5 items-center"
-        data-testid="game-sidebar-back-to-home-link"
-        to="/"
-      >
-        <UIcon
-          class="size-4"
-          name="i-lucide-house"
-        />
-        {{ t("game.backToHome") }}
-      </ULink>
+      <div class="flex flex-col gap-3">
+        <ULink
+          class="flex gap-1.5 items-center"
+          data-testid="game-sidebar-rules-link"
+          target="_blank"
+          to="/rules"
+        >
+          <UIcon
+            class="size-4"
+            name="i-lucide-book-open"
+          />
+          {{ t("game.rules") }}
+        </ULink>
+
+        <ULink
+          class="flex gap-1.5 items-center"
+          data-testid="game-sidebar-back-to-home-link"
+          to="/"
+        >
+          <UIcon
+            class="size-4"
+            name="i-lucide-house"
+          />
+          {{ t("game.backToHome") }}
+        </ULink>
+      </div>
     </template>
 
     <template #footer>

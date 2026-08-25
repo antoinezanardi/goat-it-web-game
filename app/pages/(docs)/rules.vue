@@ -56,6 +56,16 @@ const sections = computed(() => data.value?.[1] ?? []);
         class="docs-prose"
         :value="page"
       />
+
+      <div class="flex justify-center mt-8">
+        <UButton
+          data-testid="docs-start-game-button"
+          icon="i-lucide-play"
+          :label="$t('docs.startGame')"
+          size="lg"
+          to="/game"
+        />
+      </div>
     </DocsPageShell>
 
     <div v-else>

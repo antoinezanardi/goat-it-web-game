@@ -36,15 +36,78 @@ Questions must therefore be answerable with a binary response.
 >
 > ❌ “What breed is the animal?”
 
-Players may ask as many questions as they like, discuss freely, and suggest their hypotheses.
+Players may ask as many questions as they like, in any order, discuss freely, and suggest their hypotheses.
 
-> “Is it something alive?” → **No**
+> “Is it something alive?”\
+> ↳ **No**
 >
-> “Is it an object?” → **Yes**
+> “Is it an object?”\
+> ↳ **Yes**
 >
-> “Is it made by humans?” → **Yes**
+> “Is it made by humans?”\
+> ↳ **Yes**
 
 Every answer from the GM is useful information for the entire group. A wrong lead or guess carries no penalty: it also helps rule out possibilities.
+
+### A little example?
+
+::example-round
+#triggerOpen
+Show a complete example of a round
+
+#triggerClose
+Hide a complete example of a round
+
+#default
+**Card:**
+
+- Theme: Animals
+- Category: Trivia
+- Difficulty: Medium
+
+**GM:** "Here's your card: theme **Animals**, category **Trivia**, difficulty **Medium**. Question: which animal once forced the closure of a runway at Nice airport in 2000? Over to you!"
+
+**Player 1:** "Can this animal be eaten?"
+
+**GM:** "Yes."
+
+**Player 2:** "What color is it?"
+
+**GM:** "Open question! I can only answer Yes or No, or pick between two options."
+
+**Player 2:** "Rather green or rather gray?"
+
+**GM:** "Gray."
+
+**Player 3:** "An elephant, then!"
+
+**GM:** "No! But keep investigating by asking questions."
+
+**Player 1:** "Is it an animal common in the area around Nice airport?"
+
+*🔹 The GM takes the time to reread the context and anecdotes on the card to answer this question…*
+
+**GM:** "Yes, quite common!"
+
+**Player 3:** "Does it have teeth?"
+
+**GM:** "Yes… but that's not a good lead, it won't help your thinking…"
+
+*The group is stuck.*
+
+**GM:** "I'll help you since you seem stuck. A hint: this animal is rather slow…"
+
+**Player 2:** "Snails?"
+
+**GM:** "Exactly, they're snails!"
+
+*🔹 The GM can read the rest of the card to close the investigation and give the context of the question.*
+
+**GM:** "Let me explain the context: in October 2000, after heavy rains, thousands of snails invaded the tarmac of Nice airport. Fun fact: three kilometers of runway had to be cleaned!"
+
+*🔹 The GM can then move on to the next question, or hand the GM role over to another player for the next investigation.*
+
+::
 
 ---
 
@@ -82,7 +145,7 @@ Once the investigation is over, the GM may reveal the context, anecdotes, and so
 
 ## 🚫 No external research
 
-Players must not use Google, Wikipedia, ChatGPT, or any other external source to find the answer directly.
+Players must not use Google, Wikipedia, AI, or any other external source to find the answer directly.
 
 The investigation must take place around the table, based on discussions between players and the GM’s answers.
 

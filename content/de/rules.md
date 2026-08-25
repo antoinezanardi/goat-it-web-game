@@ -11,7 +11,7 @@ description: "Goat It Spielregeln"
 
 Den Spielenden wird eine Frage gestellt, deren Antwort sie nicht unbedingt kennen. Ihr Ziel ist es, sie durch Diskussionen, den Vergleich ihrer Hypothesen und das schrittweise Ausschließen von Möglichkeiten mithilfe der Antworten der Spielleitung herauszufinden.
 
-> **Es geht nicht darum, es zu wissen. Es geht darum, es herauszufinden.**
+> **Es geht nicht darum, zu wissen. Es geht um das gemeinsame Herausfinden.**
 
 Euer Wissen kann hilfreich sein, ist aber nicht unverzichtbar: Entscheidend ist, gemeinsam zu überlegen und die richtigen Fragen zu stellen.
 
@@ -24,7 +24,7 @@ Goat It kann bereits ab **2 Personen gespielt werden: 1 Spielleitung und 1 spiel
 
 ## ❓ Die goldene Regel
 
-Die Spielleitung antwortet nur mit **Ja**, **Nein** oder entscheidet zwischen **zwei Möglichkeiten**.
+Die Spielleitung antwortet nur mit **ja**, **nein** oder entscheidet zwischen **zwei Möglichkeiten**.
 
 Fragen müssen daher mit einer binären Antwort beantwortbar sein.
 
@@ -36,21 +36,84 @@ Fragen müssen daher mit einer binären Antwort beantwortbar sein.
 >
 > ❌ „Welche Rasse hat das Tier?“
 
-Die Spielenden können so viele Fragen stellen, wie sie möchten, frei diskutieren und ihre Hypothesen äußern.
+Die Spielenden können so viele Fragen stellen, wie sie möchten, in beliebiger Reihenfolge, frei diskutieren und ihre Hypothesen äußern.
 
-> „Ist es etwas Lebendiges?“ → **Nein**
+> „Ist es etwas Lebendiges?“\
+> ↳ **Nein**
 >
-> „Ist es ein Gegenstand?“ → **Ja**
+> „Ist es ein Gegenstand?“\
+> ↳ **Ja**
 >
-> „Wurde es von Menschen hergestellt?“ → **Ja**
+> „Wurde es von Menschen hergestellt?“\
+> ↳ **Ja**
 
 Jede Antwort der Spielleitung ist eine nützliche Information für die gesamte Gruppe. Eine falsche Spur oder ein falscher Vorschlag hat keine Nachteile: Sie helfen ebenfalls dabei, Möglichkeiten auszuschließen.
+
+### Ein kleines Beispiel?
+
+::example-round
+#triggerOpen
+Vollständige Beispielrunde einblenden
+
+#triggerClose
+Vollständige Beispielrunde ausblenden
+
+#default
+**Karte:**
+
+- Thema: Tiere
+- Kategorie: Wissenswertes
+- Schwierigkeit: Mittel
+
+**Spielleitung:** „Hier ist eure Karte: Thema **Tiere**, Kategorie **Wissenswertes**, Schwierigkeit **Mittel**. Frage: Welches Tier hat schon einmal die Sperrung einer Startbahn am Flughafen Nizza im Jahr 2000 erzwungen? Ihr seid dran!“
+
+**Spieler 1:** „Kann man dieses Tier essen?“
+
+**Spielleitung:** „Ja.“
+
+**Spieler 2:** „Welche Farbe hat es?“
+
+**Spielleitung:** „Offene Frage! Ich kann nur mit Ja oder Nein antworten oder zwischen zwei Vorschlägen entscheiden.“
+
+**Spieler 2:** „Eher grün oder eher grau?“
+
+**Spielleitung:** „Grau.“
+
+**Spieler 3:** „Also ein Elefant!“
+
+**Spielleitung:** „Nein! Aber investigiert weiter und stellt Fragen.“
+
+**Spieler 1:** „Ist das ein Tier, das in der Gegend des Flughafens Nizza häufig vorkommt?“
+
+*🔹 Die Spielleitung nimmt sich Zeit, den Kontext und die Anekdoten der Karte erneut zu lesen, um diese Frage zu beantworten…*
+
+**Spielleitung:** „Ja, ziemlich verbreitet!“
+
+**Spieler 3:** „Hat er Zähne?“
+
+**Spielleitung:** „Ja … aber das ist keine gute Spur, sie wird euch beim Nachdenken nicht helfen …“
+
+*Die Gruppe ist blockiert.*
+
+**Spielleitung:** „Ich helfe euch, da ihr wohl blockiert seid. Ein Hinweis: Dieses Tier ist eher langsam …“
+
+**Spieler 2:** „Schnecken?“
+
+**Spielleitung:** „Genau, es sind Schnecken!“
+
+*🔹 Die Spielleitung kann den Rest der Karte lesen, um die Ermittlung abzuschließen und den Kontext der Frage zu geben.*
+
+**Spielleitung:** „Ich erkläre euch den Kontext: Im Oktober 2000 haben nach starken Regenfällen tausende Schnecken das Vorfeld des Flughafens Nizza überrannt. Kleine Anekdote: Drei Kilometer Startbahn mussten gereinigt werden!“
+
+*🔹 Die Spielleitung kann anschließend zur nächsten Frage übergehen oder die Rolle der Spielleitung für die nächste Ermittlung an einen anderen Spieler abgeben.*
+
+::
 
 ---
 
 ## 🎭 Die Spielleitung führt durch die Ermittlung
 
-Vor Beginn kann die Spielleitung **Kategorie, Thema und Schwierigkeitsgrad** nennen, um den Spielenden einen ersten Denkrahmen zu geben.
+Vor Beginn kann die Spielleitung **Kategorie, Thema und Schwierigkeitsgrad** nennen, um den Spielenden einen Rahmen für ihre Ermittlungen zu geben.
 
 Sie antwortet ehrlich und sorgfältig, damit die Spielenden ihre Antworten nutzen können, um die Deduktion voranzubringen. Gleichzeitig kann sie die Leitung der Partie flexibel anpassen.
 
@@ -82,7 +145,7 @@ Nach Abschluss der Ermittlung kann die Spielleitung den Kontext, die Anekdoten u
 
 ## 🚫 Keine externe Recherche
 
-Die Spielenden dürfen Google, Wikipedia, ChatGPT oder andere externe Quellen nicht verwenden, um die Antwort direkt zu finden.
+Die Spielenden dürfen weder Google, Wikipedia, AI noch andere externe Quellen verwenden, um die Antwort direkt zu finden.
 
 Die Ermittlung soll am Tisch stattfinden – auf Grundlage der Gespräche zwischen den Spielenden und der Antworten der Spielleitung.
 

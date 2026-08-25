@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
+import type { ULink } from "#components";
 import { GameSidebar } from "#components";
 
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
@@ -19,6 +20,16 @@ describe("GameSidebar Component", () => {
 
   async function mountGameSidebar(options: MountSuspendedOptions<typeof GameSidebar> = {}): Promise<VueWrapper> {
     return mountSuspended(GameSidebar, { props: defaultGameSidebarProps, attachTo: document.body, ...options });
+  }
+
+  function findLinkByTestId(testId: string): VueWrapper<InstanceType<typeof ULink>> {
+    const allLinks = wrapper.findAllComponents<typeof ULink>({ name: "ULink" });
+    const matchedLink = allLinks.find(link => link.find(`[data-testid='${testId}']`).exists());
+
+    if (!matchedLink) {
+      throw new Error(`ULink with data-testid="${testId}" not found`);
+    }
+    return matchedLink;
   }
 
   beforeEach(async() => {
@@ -62,15 +73,39 @@ describe("GameSidebar Component", () => {
   });
 
   it("should render the back to home link pointing to the home page when mounted.", () => {
-    const link = wrapper.findComponent({ name: "ULink" });
+    const backToHomeLink = findLinkByTestId("game-sidebar-back-to-home-link");
 
-    expect(link.props("to")).toBe("/");
+    expect(backToHomeLink.props("to")).toBe("/");
   });
 
   it("should render the house icon on the back to home link when mounted.", () => {
-    const icon = wrapper.findComponent({ name: "UIcon" });
+    const backToHomeLink = findLinkByTestId("game-sidebar-back-to-home-link");
 
-    expect(icon.props("name")).toBe("i-lucide-house");
+    expect(backToHomeLink.findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-house");
+  });
+
+  it("should render the rules link with the correct label when mounted.", () => {
+    const link = document.body.querySelector("[data-testid='game-sidebar-rules-link']");
+
+    expect(link?.textContent).toContain("game.rules");
+  });
+
+  it("should render the rules link pointing to the rules page when mounted.", () => {
+    const rulesLink = findLinkByTestId("game-sidebar-rules-link");
+
+    expect(rulesLink.props("to")).toBe("/rules");
+  });
+
+  it("should open the rules link in a new tab when mounted.", () => {
+    const rulesLink = findLinkByTestId("game-sidebar-rules-link");
+
+    expect(rulesLink.props("target")).toBe("_blank");
+  });
+
+  it("should render the book icon on the rules link when mounted.", () => {
+    const rulesLink = findLinkByTestId("game-sidebar-rules-link");
+
+    expect(rulesLink.findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-book-open");
   });
 
   it("should render the VersionButton component when mounted.", () => {

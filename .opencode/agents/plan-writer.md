@@ -4,7 +4,7 @@ mode: subagent
 model: opencode-go/ox-alpha-free
 temperature: 0.2
 hidden: false
-steps: 80
+steps: 120
 permission:
   edit:
     "*": "deny"
@@ -28,6 +28,8 @@ permission:
     "wc *": "allow"
     "pnpm list *": "allow"
     "sort *": "allow"
+    "rg *": "allow"
+    "tree *": "allow"
   task:
     "*": "deny"
     "explore": "allow"
