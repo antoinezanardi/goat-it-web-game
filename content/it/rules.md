@@ -38,30 +38,75 @@ Le domande devono quindi poter ricevere una risposta binaria.
 
 I giocatori possono fare quante domande vogliono, in qualsiasi ordine, discutere liberamente e proporre le loro ipotesi.
 
-> «È qualcosa di vivo?» → **No**
+> «È qualcosa di vivo?»\
+> ↳ **No**
 >
-> «È un oggetto?» → **Sì**
+> «È un oggetto?»\
+> ↳ **Sì**
 >
-> «È fabbricato dall'essere umano?» → **Sì**
+> «È fabbricato dall'essere umano?»\
+> ↳ **Sì**
 
 Ogni risposta del GM è un'informazione utile per l'intero gruppo. Una pista sbagliata o un'ipotesi errata non comporta alcuna penalità: aiuta comunque a escludere delle possibilità.
 
----
+### Un piccolo esempio?
 
 ::example-round
-#trigger
-Esempio completo di turno
+#triggerOpen
+Mostra un esempio completo di turno
+
+#triggerClose
+Nascondi un esempio completo di turno
 
 #default
-**Carta:** Categoria: Animali · Difficoltà: Facile
+**Carta:**
 
-**GM:** «Ecco la vostra carta. Categoria: Animali, difficoltà: Facile. Quando volete!»
+- Tema: Animali
+- Categoria: Curiosità
+- Difficoltà: Media
 
-- «È un mammifero?» → **Sì**
-- «Vive nella natura?» → **Sì**
-- «È più grande di un essere umano?» → **Sì**
-- «Ha la proboscide?» → **Sì**
-- «È un elefante?» → **Sì!** 🎉
+**GM:** «Ecco la vostra carta: tema **Animali**, categoria **Curiosità**, difficoltà **Media**. Domanda: quale animale ha già costretto alla chiusura una pista dell'aeroporto di Nizza nel 2000? A voi!»
+
+**Giocatore 1:** «Si può mangiare questo animale?»
+
+**GM:** «Sì.»
+
+**Giocatore 2:** «Di che colore è?»
+
+**GM:** «Domanda aperta! Posso solo rispondere Sì o No, oppure scegliere tra due proposte.»
+
+**Giocatore 2:** «Più verde o più grigio?»
+
+**GM:** «Grigio.»
+
+**Giocatore 3:** «Allora è un elefante!»
+
+**GM:** «No! Ma continuate a indagare ponendo domande.»
+
+**Giocatore 1:** «È un animale comune nella zona dell'aeroporto di Nizza?»
+
+*🔹 Il GM si prende il tempo di rileggere il contesto e gli aneddoti della carta per rispondere a questa domanda…*
+
+**GM:** «Sì, piuttosto comune!»
+
+**Giocatore 3:** «Ha i denti?»
+
+**GM:** «Sì… ma non è una buona pista, non vi aiuterà nel ragionamento…»
+
+*Il gruppo è bloccato.*
+
+**GM:** «Vi aiuto perché sembrate bloccati. Un indizio: questo animale è piuttosto lento…»
+
+**Giocatore 2:** «Le lumache?»
+
+**GM:** «Esatto, sono lumache!»
+
+*🔹 Il GM può leggere il resto della carta per concludere l'indagine e dare il contesto della domanda.*
+
+**GM:** «Vi spiego il contesto: nell'ottobre 2000, dopo forti piogge, migliaia di lumache hanno invaso la pista dell'aeroporto di Nizza. Piccola curiosità: è stato necessario pulire tre chilometri di pista!»
+
+*🔹 Il GM può poi passare alla domanda successiva, oppure lasciare il ruolo di GM a un altro giocatore per la prossima indagine.*
+
 ::
 
 ---

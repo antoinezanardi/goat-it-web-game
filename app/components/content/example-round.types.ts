@@ -1,6 +1,7 @@
 type ExampleRoundSlots = {
   default?: () => unknown;
-  trigger?: () => unknown;
+  triggerOpen?: () => unknown;
+  triggerClose?: () => unknown;
 };
 
 export type { ExampleRoundSlots };

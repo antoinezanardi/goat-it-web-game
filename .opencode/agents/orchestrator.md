@@ -98,7 +98,7 @@ When the `final-reviewer` reports issues, you MUST follow this procedure exactly
    - Offer options: fix / skip / push back (with your reasoning). Skipping a **Critical** issue or a checklist violation (`[U*]`–`[T*]`, `[A]`) requires the user's explicit acknowledgment that the risk is accepted.
    - Record the user's decision.
    - **NEVER** batch multiple points into one question. **NEVER** move to the next point before the current one is decided. This applies to minor points too.
-   4. **SUMMARIZE** — once every point has a decision, state the outcome list (approved / skipped / rejected). If the reviewer's Assessment was `Needs changes before merge`, verify every Critical issue and every tagged violation has a recorded decision (fixed or explicitly accepted) — only then may the cycle resume at Definition of Done.
+4. **SUMMARIZE** — once every point has a decision, state the outcome list (approved / skipped / rejected). If the reviewer's Assessment was `Needs changes before merge`, verify every Critical issue and every tagged violation has a recorded decision (fixed or explicitly accepted) — only then may the cycle resume at Definition of Done.
 5. **IMPLEMENT ONCE** — if at least one fix was approved, dispatch exactly ONE `implementer` containing ALL approved changes inline verbatim (with full context). If none were approved, do NOT dispatch any implementer.
 6. Resume the cycle at Definition of Done (step 6).
 

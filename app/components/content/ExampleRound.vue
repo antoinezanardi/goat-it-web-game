@@ -1,30 +1,41 @@
 <script lang="ts" setup>
 import type { ExampleRoundSlots } from "@/components/content/example-round.types";
-import { EXAMPLE_ROUND_BUTTON_UI, EXAMPLE_ROUND_COLLAPSIBLE_UI } from "@/components/content/example-round.constants";
+import { EXAMPLE_ROUND_BUTTON_UI } from "@/components/content/example-round.constants";
 
 defineSlots<ExampleRoundSlots>();
+
+const isOpen = ref(false);
 </script>
 
 <template>
-  <UCollapsible :ui="EXAMPLE_ROUND_COLLAPSIBLE_UI">
+  <UCollapsible v-model:open="isOpen">
     <UButton
       block
-      class="bg-content group justify-between min-h-10 rounded-lg"
-      color="neutral"
+      class="group justify-between"
+      color="secondary"
       data-testid="example-round-trigger"
+      icon="i-lucide-drama"
       trailing-icon="i-lucide-chevron-down"
       :ui="EXAMPLE_ROUND_BUTTON_UI"
-      variant="outline"
+      variant="ghost"
     >
-      <span class="font-medium text-fg-primary text-sm">
-        <slot name="trigger"/>
+      <span class="font-medium text-sm">
+        <slot
+          v-if="isOpen"
+          name="triggerClose"
+        />
+
+        <slot
+          v-else
+          name="triggerOpen"
+        />
       </span>
     </UButton>
 
     <template #content>
-      <UCard class="mt-1">
+      <div class="example-round-content mt-1 px-4 py-3">
         <slot/>
-      </UCard>
+      </div>
     </template>
   </UCollapsible>
 </template>
