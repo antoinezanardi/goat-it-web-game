@@ -4,6 +4,12 @@
     "error": "Fehler",
     "close": "Schließen",
     "confirm": "Bestätigen",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "localeSuggestion": {
+      "title": "Möchtest du auf Deutsch spielen?",
+      "description": "Dieses Spiel ist in deiner Sprache verfügbar.",
+      "accept": "Auf Deutsch spielen",
+      "decline": "Nein danke"
+    }
   }
 }

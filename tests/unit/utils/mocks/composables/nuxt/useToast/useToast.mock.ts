@@ -4,8 +4,10 @@ import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
 import type { Toast } from "#ui/composables";
 
+const MOCKED_TOAST_ID = "mocked-toast-id";
+
 type UseToastStub = {
-  add: (options: Partial<Toast>) => void;
+  add: (options: Partial<Toast>) => Toast;
   remove: (options: Partial<Toast>) => void;
   clear: (options: Partial<Toast>) => void;
 };
@@ -18,7 +20,9 @@ type UseToastMock = ToMock<UseToastStub>;
  */
 function createUseToastMock(): UseToastMock {
   return {
-    add: vi.fn<UseToastStub["add"]>(),
+    // Acceptable as mock-shape cast: partial Toast with only `id` is sufficient for test assertions
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    add: vi.fn<UseToastStub["add"]>(() => ({ id: MOCKED_TOAST_ID }) as Toast),
     remove: vi.fn<UseToastStub["remove"]>(),
     clear: vi.fn<UseToastStub["clear"]>(),
   };
@@ -26,4 +30,4 @@ function createUseToastMock(): UseToastMock {
 
 export type { UseToastMock };
 
-export { createUseToastMock };
+export { MOCKED_TOAST_ID, createUseToastMock };

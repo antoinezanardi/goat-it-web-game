@@ -4,6 +4,12 @@
     "error": "Error",
     "close": "Close",
     "confirm": "Confirm",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "localeSuggestion": {
+      "title": "Would you like to play in English?",
+      "description": "This game is available in your language.",
+      "accept": "Play in English",
+      "decline": "No thanks"
+    }
   }
 }
