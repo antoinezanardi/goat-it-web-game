@@ -77,9 +77,9 @@ export default defineNuxtConfig({
     "eslint.config.ts",
   ],
   routeRules: {
-    "/": { prerender: true, appLayout: "default-layout" },
+    "/": { appLayout: "default-layout" },
     "/game": { appLayout: "default-layout" },
-    "/rules": { prerender: true, appLayout: "docs-layout" },
+    "/rules": { appLayout: "docs-layout" },
     "/fonts/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
   },
   sourcemap: { client: "hidden" },
@@ -222,12 +222,11 @@ export default defineNuxtConfig({
     restructureDir: "app/i18n",
     // eslint-disable-next-line unicorn/expiring-todo-comments
     // TODO: Remove this when nuxt-i18n supports message bundling from the dev server
-    experimental: { optimizeMessageBundling: process.env.NODE_ENV !== "development" },
-    detectBrowserLanguage: {
-      useCookie: true,
-      cookieKey: "i18n_redirected",
-      redirectOn: "root",
+    experimental: {
+      optimizeMessageBundling: process.env.NODE_ENV !== "development",
+      nitroContextDetection: true,
     },
+    detectBrowserLanguage: false,
   },
   ogImage: {
     security: {

@@ -18,6 +18,8 @@ const ESLINT_GLOBAL_FLAT_CONFIG: Linter.Config = {
       getRouterParam: "readonly",
       readBody: "readonly",
       createError: "readonly",
+      MouseEvent: "readonly",
+      useCookie: "readonly",
     },
   },
   rules: {
