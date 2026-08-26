@@ -125,7 +125,7 @@
     "husky": "^9.1.7",
     "is-ci": "^4.1.0",
     "lint-staged": "^17.3.0",
-    "mongodb": "^7.5.0",
+    "mongodb": "^7.6.0",
     "nuxt": "^4.5.2",
     "nuxt-og-image": "^6.7.8",
     "nuxt-schema-org": "^6.3.0",
