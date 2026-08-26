@@ -196,6 +196,7 @@ const VITEST_COMPOSABLES_PROJECT_CONFIG: TestProjectInlineConfiguration = {
   test: {
     ...VITEST_PROJECT_COMMON_NUXT_INLINE_CONFIG,
     name: VitestProjectNames.COMPOSABLES,
+    isolate: true,
     include: [...VITEST_COMPOSABLES_PROJECT_INCLUDES],
     exclude: [...VITEST_NODE_PROJECT_INCLUDES],
     setupFiles: [
