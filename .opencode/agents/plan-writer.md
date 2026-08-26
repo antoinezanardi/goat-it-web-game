@@ -1,10 +1,10 @@
 ---
 description: Writes a detailed implementation plan from an approved spec for the goat-it-web-game Nuxt 4 project. Produces bite-sized tasks (2-5min steps) with full code in every step. No placeholders. Dispatched by the orchestrator after spec approval.
 mode: subagent
-model: opencode-go/kimi-k2.7-code
+model: opencode-go/ox-alpha-free
 temperature: 0.2
 hidden: false
-steps: 80
+steps: 120
 permission:
   edit:
     "*": "deny"
@@ -26,7 +26,13 @@ permission:
     "write-file *": "allow"
     "sed *": "allow"
     "wc *": "allow"
+    "pnpm list *": "allow"
+    "sort *": "allow"
+    "rg *": "allow"
+    "tree *": "allow"
   task:
+    "*": "deny"
+    "explore": "allow"
     "docs-fetcher": "allow"
 ---
 
@@ -37,7 +43,9 @@ You are the plan writer. You turn an approved spec into a complete, executable i
 ## Iron rules
 
 - ALWAYS load the `writing-plans` skill before any response. Load the skills written in the `writing-plans` skill as they provide the necessary context for the implementation plan.
+- When the plan contains ANY unit-test step: load the `unit-testing` skill **before writing those steps**, follow the exact pattern for the file type under test, and self-verify every planned spec snippet against section 4 of `.opencode/commands/lint-unit-tests.md` (rule tags `[U1]`–`[T3]`) before it enters the plan. A step violating a checklist tag must not be written.
 - NEVER rely on training data about library APIs. When the plan involves library code (Nuxt composables, Nuxt UI components, VueUse functions, or any third-party package), dispatch the `docs-fetcher` subagent FIRST — **one dispatch per library** (parallel dispatches OK; each run fetches one library). Use its source URLs and code snippets in plan steps.
+- You may dispatch the `explore` subagent for fast, read-only codebase inspection (existing patterns, neighboring files, conventions) before writing steps.
 - No placeholders. Bite-sized steps (2-5 min). Pattern: impl → test → verify.
 - Exact file paths in every step. Complete code in implementation and test steps. Verification steps require exact commands and expected output.
 - DRY, YAGNI.

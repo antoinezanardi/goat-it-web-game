@@ -9,6 +9,7 @@ import {
   ACCEPTANCE_TESTS_DEFAULT_LOCALE,
   ACCEPTANCE_TESTS_OG_IMAGE_SECURITY_SECRET,
   ACCEPTANCE_TESTS_SITE_URL,
+  AFTER_ALL_TIMEOUT,
   BEFORE_ALL_TIMEOUT,
   BEFORE_TIMEOUT,
   SANDBOX_GAME_KEY,
@@ -112,7 +113,7 @@ After(async function(this: GoatItWorld, scenario): Promise<void> {
   }
 });
 
-AfterAll(async(): Promise<void> => {
+AfterAll({ timeout: AFTER_ALL_TIMEOUT }, async(): Promise<void> => {
   await afterAll();
 
   try {

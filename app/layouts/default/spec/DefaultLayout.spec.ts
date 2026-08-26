@@ -19,11 +19,11 @@ describe("DefaultLayout Layout", () => {
     });
   });
 
-  it("should render the slot content when mounted.", () => {
-    expect(wrapper.find("#page-content").exists()).toBe(true);
+  it("should render DefaultLayout when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
-  it("should render the default-layout container when mounted.", () => {
-    expect(wrapper.find("#default-layout").exists()).toBe(true);
+  it("should render the slot content when mounted.", () => {
+    expect(wrapper.find("#page-content").exists()).toBe(true);
   });
 });

@@ -168,7 +168,6 @@ describe("useGame", () => {
     });
 
     it("should trigger the initial fetch when mounted.", async() => {
-      const store = mockStore(useGameStore);
       const wrapper = mount(defineComponent({
         setup(): () => null {
           useGame();
@@ -176,6 +175,7 @@ describe("useGame", () => {
           return (): null => null;
         },
       }));
+      const store = mockStore(useGameStore);
       await flushPromises();
       wrapper.unmount();
 

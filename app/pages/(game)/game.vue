@@ -54,6 +54,16 @@ const {
 } = useGame();
 
 const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveThemeColor(getPrimaryTheme(currentQuestion.value)?.color) : NEUTRAL_GREY_FALLBACK_THEME_COLOR));
+
+const isSidebarOpen = ref(false);
+
+function openSidebar(): void {
+  isSidebarOpen.value = true;
+}
+
+function onSidebarOpenChange(open: boolean): void {
+  isSidebarOpen.value = open;
+}
 </script>
 
 <template>
@@ -65,6 +75,16 @@ const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveTh
     <h1 class="sr-only">
       {{ gamePageTitle }}
     </h1>
+
+    <GameSidebarToggleButton
+      class="absolute left-4 top-4 z-20"
+      @click="openSidebar"
+    />
+
+    <GameSidebar
+      :open="isSidebarOpen"
+      @update:open="onSidebarOpenChange"
+    />
 
     <Transition
       mode="out-in"

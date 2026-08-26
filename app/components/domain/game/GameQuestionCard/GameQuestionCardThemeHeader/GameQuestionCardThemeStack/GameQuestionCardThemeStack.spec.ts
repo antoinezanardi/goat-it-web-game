@@ -11,8 +11,11 @@ import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
 import { GameQuestionCardThemeStack } from "#components";
+import type { GameQuestionCardThemeIcon } from "#components";
 
-import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import type { QuestionTheme } from "#shared/types/question-theme.types";
+import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
+import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
 
 type GameQuestionCardThemeStackVm = ComponentVm & { toggleOpen: () => void };
 
@@ -21,7 +24,7 @@ describe("GameQuestionCardThemeStack Component", () => {
   const secondaryThemeOne = createFakeQuestionTheme({ slug: "history-civilizations", color: "#FF5733", label: "History" });
   const secondaryThemeTwo = createFakeQuestionTheme({ slug: "sciences-innovations", color: "#00C853", label: "Science" });
 
-  const defaultProps = {
+  const defaultGameQuestionCardThemeStackProps: GameQuestionCardThemeStackProps = {
     question: createFakeQuestion({
       themes: [
         createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
@@ -29,16 +32,20 @@ describe("GameQuestionCardThemeStack Component", () => {
         createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryThemeTwo }),
       ],
     }),
-  };
+  } as const;
 
   let wrapper: VueWrapper;
 
   async function mountStack(options: MountSuspendedOptions<typeof GameQuestionCardThemeStack> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCardThemeStack, { props: defaultProps, shallow: false, ...options });
+    return mountSuspended(GameQuestionCardThemeStack, { props: defaultGameQuestionCardThemeStackProps, shallow: false, ...options });
   }
 
   beforeEach(async() => {
     wrapper = await mountStack();
+  });
+
+  it("should render GameQuestionCardThemeStack when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render the theme stack trigger when mounted.", () => {
@@ -51,16 +58,11 @@ describe("GameQuestionCardThemeStack Component", () => {
     expect(icons).toHaveLength(3);
   });
 
-  it("should render secondary themes behind the primary theme in the stack when mounted.", () => {
-    const icons = wrapper.findAllComponents({ name: "UIcon" });
+  it("should render secondary themes before the primary theme in the stack when mounted.", () => {
+    const stackedSlugs = wrapper.findAll("[data-testid^='theme-stack-icon-']")
+      .map(icon => icon.attributes("data-testid")?.replace("theme-stack-icon-", ""));
 
-    expect(icons[2]?.props("name")).toBe(getThemeIcon(primaryTheme.slug));
-  });
-
-  it("should render secondary themes first in the stack when mounted.", () => {
-    const icons = wrapper.findAllComponents({ name: "UIcon" });
-
-    expect(icons[0]?.props("name")).toBe(getThemeIcon(secondaryThemeOne.slug));
+    expect(stackedSlugs).toStrictEqual([secondaryThemeOne.slug, secondaryThemeTwo.slug, primaryTheme.slug]);
   });
 
   it("should apply the primary z-index class to the primary icon container when mounted.", () => {
@@ -102,14 +104,14 @@ describe("GameQuestionCardThemeStack Component", () => {
 
     const popoverContent = wrapper.findComponent({ name: "GameQuestionCardThemeStackPopoverContent" });
 
-    expect(popoverContent.props("themes")).toStrictEqual(defaultProps.question.themes);
+    expect(popoverContent.props("themes")).toStrictEqual(defaultGameQuestionCardThemeStackProps.question.themes);
   });
 
-  it.each<{ index: number; expected: boolean }>([
-    { index: 0, expected: false },
-    { index: 1, expected: true },
-    { index: 2, expected: true },
-  ])("should pass isHint $expected to stacked icon at index $index when mounted.", async({ index, expected }) => {
+  it.each<{ slug: string; expected: boolean }>([
+    { slug: primaryTheme.slug, expected: true },
+    { slug: secondaryThemeOne.slug, expected: false },
+    { slug: secondaryThemeTwo.slug, expected: true },
+  ])("should pass isHint $expected to the $slug stacked icon when mounted.", async({ slug, expected }) => {
     const wrapperWithHints = await mountStack({
       props: {
         question: createFakeQuestion({
@@ -122,9 +124,29 @@ describe("GameQuestionCardThemeStack Component", () => {
       },
     });
 
-    const icons = wrapperWithHints.findAllComponents({ name: "GameQuestionCardThemeIcon" });
+    const icon = wrapperWithHints.findComponent<typeof GameQuestionCardThemeIcon>(`[data-testid='theme-stack-icon-${slug}']`);
 
-    expect(icons[index]?.props("isHint")).toBe(expected);
+    expect(icon.props("isHint")).toBe(expected);
+  });
+
+  it.each<{ slug: string; expected: GameQuestionCardThemeIconSize }>([
+    { slug: primaryTheme.slug, expected: "md" },
+    { slug: secondaryThemeOne.slug, expected: "sm" },
+    { slug: secondaryThemeTwo.slug, expected: "sm" },
+  ])("should pass size $expected to the $slug stacked icon when mounted.", ({ slug, expected }) => {
+    const icon = wrapper.findComponent<typeof GameQuestionCardThemeIcon>(`[data-testid='theme-stack-icon-${slug}']`);
+
+    expect(icon.props("size")).toBe(expected);
+  });
+
+  it.each<{ slug: string; expected: QuestionTheme }>([
+    { slug: primaryTheme.slug, expected: primaryTheme },
+    { slug: secondaryThemeOne.slug, expected: secondaryThemeOne },
+    { slug: secondaryThemeTwo.slug, expected: secondaryThemeTwo },
+  ])("should pass the $slug theme to its stacked theme icon when mounted.", ({ slug, expected }) => {
+    const icon = wrapper.findComponent<typeof GameQuestionCardThemeIcon>(`[data-testid='theme-stack-icon-${slug}']`);
+
+    expect(icon.props("theme")).toBe(expected);
   });
 
   it("should render only secondary theme icons when no primary theme is present.", async() => {

@@ -1,5 +1,5 @@
 import { FetchError } from "ofetch";
-import { getCookie, getRequestHeader } from "h3";
+import { getCookie } from "h3";
 import { API_RESPONSE_EXCEPTION_DTO } from "@goat-it/schemas/shared/error";
 import { isValidLocale } from "@goat-it/schemas/shared/locale";
 import type { Locale } from "@goat-it/schemas/shared/locale";
@@ -9,6 +9,7 @@ import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
 import type { CreateGoatItApiEndpointOptions, GoatItApiResourceName } from "#server/utils/goat-it-api/goat-it-api.types";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { isNonEmptyString } from "#shared/utils/helpers/string/string.helpers";
+import { resolveCookieLocale } from "#shared/utils/helpers/locale/locale.helpers";
 
 const DEFAULT_LOCALE_FALLBACK = "en";
 
@@ -30,26 +31,11 @@ function createGoatItApiEndpoint(resourceName: GoatItApiResourceName, options?: 
 }
 
 function extractLocaleFromEvent(event: H3Event): Locale {
-  const cookieLocale = getCookie(event, "i18n_redirected");
-  if (isNonEmptyString(cookieLocale) && isValidLocale(cookieLocale)) {
-    return cookieLocale;
-  }
-
-  const acceptLanguageHeader = getRequestHeader(event, "accept-language");
-  if (isNonEmptyString(acceptLanguageHeader)) {
-    const headerLocale = acceptLanguageHeader.split(",")[0]?.trim().split(";")[0]?.split("-")[0]?.toLowerCase();
-    if (isNonEmptyString(headerLocale) && isValidLocale(headerLocale)) {
-      return headerLocale;
-    }
-  }
-
   const config = getRuntimeConfig(event);
   const { defaultLocale } = config.public;
+  const fallbackLocale = isValidLocale(defaultLocale) ? defaultLocale : DEFAULT_LOCALE_FALLBACK;
 
-  if (isValidLocale(defaultLocale)) {
-    return defaultLocale;
-  }
-  return DEFAULT_LOCALE_FALLBACK;
+  return resolveCookieLocale(getCookie(event, "i18n_redirected"), fallbackLocale);
 }
 
 function createGoatItApiFetchOptions(event: H3Event): Parameters<typeof $fetch>[1] {

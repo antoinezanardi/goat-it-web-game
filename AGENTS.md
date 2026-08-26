@@ -222,8 +222,8 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - Test names: `"should <action> when <condition>."` pattern.
 - Use `expect(...).toHaveBeenCalledExactlyOnceWith(...)` for single-call assertions.
 
-- Composable tests with dependencies: use `mockNuxtImport` + `vi.resetModules()` + dynamic
-  `await import(...)` inside `beforeEach` to pick up fresh mock instances.
+- Composable tests with dependencies: use `mockNuxtImport` + dynamic
+  `await import(...)` inside `beforeEach` so each test evaluates the composable against its freshly created mocks.
 - Store tests: `setActivePinia(createPinia())` is handled by the shared stores setup file;
   capture `action`/`onError` arguments via closure inside `mockNuxtImport` factories.
 
@@ -245,7 +245,7 @@ Each skill has a `SKILL.md` entry point. Load only the relevant skill for the ta
 Available skills: `acceptance-testing`, `brainstorming`, `nuxt`, `nuxt-ui`, `receiving-code-review`,
 `systematic-debugging`, `unit-testing`, `vite`, `vitest`, `vue`, `vueuse`, `writing-plans`, `writing-skills`.
 
-- **When writing unit tests** (including inside plans): always load the `unit-testing` skill first.
+- **When writing unit tests** (including inside plans): always load the `unit-testing` skill first and verify the result against the `.opencode/commands/lint-unit-tests.md` §4 checklist.
 - **When writing acceptance tests** (including inside plans): always load the `acceptance-testing` skill first.
 - **When brainstorming or writing plans**: always consult the `nuxt`, `nuxt-ui`, and `vueuse` skills.
 
@@ -254,6 +254,7 @@ Available skills: `acceptance-testing`, `brainstorming`, `nuxt`, `nuxt-ui`, `rec
 Slash commands available in OpenCode sessions:
 
 - `/complete-i18n`   – Translate all French locale JSON files into every other locale.
+- `/lint-unit-tests` – Audit spec files against unit testing conventions, then fix user-approved violations.
 - `/write-unit-test` – Write a complete, passing unit test for a given source file.
 - `/write-acceptance-test` – Write a complete acceptance test (feature + steps) for a given page/feature.
 

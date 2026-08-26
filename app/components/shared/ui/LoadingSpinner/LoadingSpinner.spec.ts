@@ -4,22 +4,36 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import LoadingSpinner from "@/components/shared/ui/LoadingSpinner/LoadingSpinner.vue";
+import { LoadingSpinner } from "#components";
+
+import type { LoadingSpinnerProps } from "@/components/shared/ui/LoadingSpinner/loading-spinner.types";
 
 describe("LoadingSpinner Component", () => {
   let wrapper: VueWrapper;
 
-  async function mountLoadingSpinnerComponent(options: MountSuspendedOptions<typeof LoadingSpinner> = {}): Promise<VueWrapper> {
-    return mountSuspended(LoadingSpinner, { ...options });
+  const defaultLoadingSpinnerProps: LoadingSpinnerProps = {} as const;
+
+  async function mountLoadingSpinner(options: MountSuspendedOptions<typeof LoadingSpinner> = {}): Promise<VueWrapper> {
+    return mountSuspended(LoadingSpinner, { props: defaultLoadingSpinnerProps, ...options });
   }
 
   describe("without label", () => {
     beforeEach(async() => {
-      wrapper = await mountLoadingSpinnerComponent();
+      wrapper = await mountLoadingSpinner();
+    });
+
+    it("should render LoadingSpinner when mounted.", () => {
+      expect(wrapper.exists()).toBeTruthy();
     });
 
     it("should render the spinner icon with the correct test id when mounted.", () => {
       expect(wrapper.find("[data-testid='loading-spinner']").exists()).toBeTruthy();
+    });
+
+    it("should render the loader circle icon when mounted.", () => {
+      const icon = wrapper.findComponent({ name: "UIcon" });
+
+      expect(icon.props("name")).toBe("i-lucide-loader-circle");
     });
 
     it("should not render the label element when no label prop is provided.", () => {
@@ -31,7 +45,7 @@ describe("LoadingSpinner Component", () => {
     const fakeLabel = "Loading …";
 
     beforeEach(async() => {
-      wrapper = await mountLoadingSpinnerComponent({ props: { label: fakeLabel } });
+      wrapper = await mountLoadingSpinner({ props: { label: fakeLabel } });
     });
 
     it("should render the label text when provided.", () => {

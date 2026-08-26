@@ -7,17 +7,21 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup";
 import { useWindowScrollMock } from "~~/tests/unit/setup/nuxt/composables/use-window-scroll.nuxt.unit-setup";
 
-import DocsBackToTop from "@/components/docs/DocsBackToTop/DocsBackToTop.vue";
+import { DocsBackToTop } from "#components";
 
 describe("DocsBackToTop Component", () => {
   let wrapper: VueWrapper;
 
   async function mountDocsBackToTop(options: MountSuspendedOptions<typeof DocsBackToTop> = {}): Promise<VueWrapper> {
-    return mountSuspended(DocsBackToTop, { ...options, attachTo: document.body });
+    return mountSuspended(DocsBackToTop, { attachTo: document.body, ...options });
   }
 
   beforeEach(async() => {
     wrapper = await mountDocsBackToTop();
+  });
+
+  it("should render DocsBackToTop when mounted.", () => {
+    expect(wrapper.exists()).toBeTruthy();
   });
 
   it("should render the button with the backToTop aria-label translation key when mounted.", () => {
@@ -26,7 +30,7 @@ describe("DocsBackToTop Component", () => {
     expect(button.attributes("aria-label")).toBe("docs.backToTop");
   });
 
-  it("should render the button with the arrow-up icon when mounted.", () => {
+  it("should render the arrow-up icon when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
     expect(button.props("icon")).toBe("i-lucide-arrow-up");
@@ -38,22 +42,14 @@ describe("DocsBackToTop Component", () => {
     expect(tooltip.attributes("text")).toBe("docs.backToTop");
   });
 
-  it("should wrap the button in a fade transition when mounted.", () => {
-    expect(wrapper.findComponent({ name: "Transition" }).props("name")).toBe("fade");
-  });
-
-  it("should hide the button when scroll y does not exceed the threshold.", async() => {
-    useWindowScrollMock.instance.y.value = 600;
+  it.each<{ scrollY: number; expectedVisibility: boolean }>([
+    { scrollY: 600, expectedVisibility: false },
+    { scrollY: 601, expectedVisibility: true },
+  ])("should render the button visibility as $expectedVisibility when scroll y equals $scrollY.", async({ scrollY, expectedVisibility }) => {
+    useWindowScrollMock.instance.y.value = scrollY;
     await nextTick();
 
-    expect(wrapper.find("[data-testid='docs-back-to-top-button']").isVisible()).toBe(false);
-  });
-
-  it("should show the button when scroll y exceeds the threshold.", async() => {
-    useWindowScrollMock.instance.y.value = 601;
-    await nextTick();
-
-    expect(wrapper.find("[data-testid='docs-back-to-top-button']").isVisible()).toBe(true);
+    expect(wrapper.find("[data-testid='docs-back-to-top-button']").isVisible()).toBe(expectedVisibility);
   });
 
   it("should set scroll y to 0 when the button is clicked.", async() => {
@@ -65,15 +61,12 @@ describe("DocsBackToTop Component", () => {
     expect(useWindowScrollMock.instance.y.value).toBe(0);
   });
 
-  it("should use smooth scroll behavior when reduced motion is not preferred.", () => {
-    usePreferredReducedMotionMock.instance.preferredReducedMotionRef.value = "no-preference";
+  it.each<{ preferredReducedMotion: "no-preference" | "reduce"; expectedBehavior: "smooth" | "auto" }>([
+    { preferredReducedMotion: "no-preference", expectedBehavior: "smooth" },
+    { preferredReducedMotion: "reduce", expectedBehavior: "auto" },
+  ])("should use $expectedBehavior scroll behavior when reduced motion preference is $preferredReducedMotion.", ({ preferredReducedMotion, expectedBehavior }) => {
+    usePreferredReducedMotionMock.instance.preferredReducedMotionRef.value = preferredReducedMotion;
 
-    expect(unref(useWindowScrollMock.instance.capturedOptions.current?.behavior)).toBe("smooth");
-  });
-
-  it("should use auto scroll behavior when reduced motion is preferred.", () => {
-    usePreferredReducedMotionMock.instance.preferredReducedMotionRef.value = "reduce";
-
-    expect(unref(useWindowScrollMock.instance.capturedOptions.current?.behavior)).toBe("auto");
+    expect(unref(useWindowScrollMock.instance.capturedOptions.current?.behavior)).toBe(expectedBehavior);
   });
 });

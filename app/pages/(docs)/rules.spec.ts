@@ -43,6 +43,10 @@ describe("Rules Page", () => {
       wrapper = await mountRulesPage();
     });
 
+    it("should render Rules Page when mounted.", () => {
+      expect(wrapper.exists()).toBeTruthy();
+    });
+
     it("should render LoadingSpinner when status is pending.", () => {
       expect(wrapper.findComponent({ name: "LoadingSpinner" }).exists()).toBe(true);
     });
@@ -91,10 +95,26 @@ describe("Rules Page", () => {
       expect(contentRenderer.props("value")).toStrictEqual({ title: "How to play", description: "Rules" });
     });
 
-    it("should render ContentRenderer with the docs-prose class when status is success.", () => {
-      const contentRenderer = wrapper.findComponent({ name: "ContentRenderer" });
+    it("should render the start game button when status is success.", () => {
+      expect(wrapper.find("[data-testid='docs-start-game-button']").exists()).toBe(true);
+    });
 
-      expect(contentRenderer.props("class")).toBe("docs-prose");
+    it("should pass the game route to the start game button when status is success.", () => {
+      const startGameButton = wrapper.findComponent({ name: "UButton" });
+
+      expect(startGameButton.props("to")).toBe("/game");
+    });
+
+    it("should render the play icon on the start game button when status is success.", () => {
+      const startGameButton = wrapper.findComponent({ name: "UButton" });
+
+      expect(startGameButton.props("icon")).toBe("i-lucide-play");
+    });
+
+    it("should pass the start game i18n key as the label of the start game button when status is success.", () => {
+      const startGameButton = wrapper.findComponent({ name: "UButton" });
+
+      expect(startGameButton.props("label")).toBe("docs.startGame");
     });
 
     it("should not render LoadingSpinner when status is success.", () => {
@@ -174,8 +194,9 @@ describe("Rules Page", () => {
       wrapper = await mountRulesPage();
 
       const options = useAsyncDataMock.mock.calls[0]?.[2];
+      const { locale } = useI18n();
 
-      expect(options?.watch).toBeDefined();
+      expect(options?.watch).toStrictEqual([locale]);
     });
   });
 });

@@ -36,15 +36,78 @@ Por tanto, las preguntas deben poder responderse de forma binaria.
 >
 > ❌ «¿Cuál es la raza del animal?»
 
-Los jugadores pueden hacer tantas preguntas como quieran, debatir libremente y proponer sus hipótesis.
+Los jugadores pueden hacer tantas preguntas como quieran, en cualquier orden, debatir libremente y proponer sus hipótesis.
 
-> «¿Es algo vivo?» → **No**
+> «¿Es algo vivo?»\
+> ↳ **No**
 >
-> «¿Es un objeto?» → **Sí**
+> «¿Es un objeto?»\
+> ↳ **Sí**
 >
-> «¿Está fabricado por el ser humano?» → **Sí**
+> «¿Está fabricado por el ser humano?»\
+> ↳ **Sí**
 
 Cada respuesta del DJ es información útil para todo el grupo. Una pista o una propuesta equivocada no conlleva ninguna penalización: también permite descartar posibilidades.
+
+### ¿Un pequeño ejemplo?
+
+::example-round
+#triggerOpen
+Mostrar un ejemplo completo de ronda
+
+#triggerClose
+Ocultar un ejemplo completo de ronda
+
+#default
+**Carta:**
+
+- Tema: Animales
+- Categoría: Curiosidades
+- Dificultad: Media
+
+**DJ:** «Aquí tenéis la carta: tema **Animales**, categoría **Curiosidades**, dificultad **Media**. Pregunta: ¿qué animal forzó una vez el cierre de una pista del aeropuerto de Niza en 2000? ¡Os toca!»
+
+**Jugador 1:** «¿Se puede comer este animal?»
+
+**DJ:** «Sí.»
+
+**Jugador 2:** «¿De qué color es?»
+
+**DJ:** «¡Pregunta abierta! Solo puedo responder Sí o No, o decidir entre dos propuestas.»
+
+**Jugador 2:** «¿Más bien verde o más bien gris?»
+
+**DJ:** «Gris.»
+
+**Jugador 3:** «¡Un elefante, entonces!»
+
+**DJ:** «¡No! Pero seguid investigando haciendo preguntas.»
+
+**Jugador 1:** «¿Es un animal común en la zona del aeropuerto de Niza?»
+
+*🔹 El DJ se toma el tiempo de releer el contexto y las anécdotas de la carta para responder a esta pregunta…*
+
+**DJ:** «Sí, ¡bastante común!»
+
+**Jugador 3:** «¿Tiene dientes?»
+
+**DJ:** «Sí… pero no es una buena pista, no os ayudará a razonar…»
+
+*El grupo está bloqueado.*
+
+**DJ:** «Voy a ayudaros porque parece que estáis bloqueados. Una pista: este animal es más bien lento…»
+
+**Jugador 2:** «¿Los caracoles?»
+
+**DJ:** «Exacto, ¡son caracoles!»
+
+*🔹 El DJ puede leer el resto de la carta para cerrar la investigación y dar el contexto de la pregunta.*
+
+**DJ:** «Os explico el contexto: en octubre de 2000, tras fuertes lluvias, miles de caracoles invadieron el asfalto del aeropuerto de Niza. Pequeña anécdota: ¡hubo que limpiar tres kilómetros de pista!»
+
+*🔹 El DJ puede después pasar a la siguiente pregunta, o dejar el papel de DJ a otro jugador para la próxima investigación.*
+
+::
 
 ---
 
@@ -82,7 +145,7 @@ Una vez terminada la investigación, el DJ puede revelar el contexto, las anécd
 
 ## 🚫 Sin búsquedas externas
 
-Los jugadores no deben utilizar Google, Wikipedia, ChatGPT ni ninguna otra fuente externa para encontrar directamente la respuesta.
+Los jugadores no deben utilizar Google, Wikipedia, IA ni ninguna otra fuente externa para encontrar directamente la respuesta.
 
 La investigación debe realizarse alrededor de la mesa, a partir de las conversaciones entre los jugadores y de las respuestas del DJ.
 

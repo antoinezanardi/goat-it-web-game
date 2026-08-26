@@ -7,6 +7,9 @@ description: Use when writing or modifying unit tests in this project. Load this
 
 Full human-readable reference: `docs/unit-testing.md`
 Read it for complete examples. This skill contains the non-negotiable rules and decision trees.
+The command `.opencode/commands/lint-unit-tests.md` is the **final audit checklist** — its rule
+tags (`[U*]`, `[C*]`, `[P*]`, `[L*]`, `[W*]`, `[CO*]`, `[S*]`, `[R*]`, `[H*]`, `[N*]`, `[T*]`)
+are mirrored below so anything written per this skill passes that audit.
 
 ---
 
@@ -37,13 +40,15 @@ The `repositories` and `node` projects have **no Nuxt environment**. No `mountSu
 
 ### Setup files loaded per project
 
-| Project        | Environment | Setup files                                                                          |
-|----------------|-------------|--------------------------------------------------------------------------------------|
-| `nuxt`         | `nuxt`      | 11 base setups + 4 composable mocks + 1 repo mock                                    |
-| `composables`  | `nuxt`      | 11 base setups + 1 repo mock (NO composable mocks — tests exercise real composables) |
-| `stores`       | `nuxt`      | 11 base setups + 4 composable mocks + 1 repo mock + `stores.nuxt.unit-setup.ts`      |
-| `repositories` | Node        | `dates.nuxt.unit-setup.ts` only                                                      |
-| `node`         | Node        | `dates.nuxt.unit-setup.ts` only                                                      |
+Counts reflect `configs/vitest/vitest.config.constants.ts` — scan it for the authoritative lists (they grow over time).
+
+| Project        | Environment | Setup files                                                                                              |
+|----------------|-------------|----------------------------------------------------------------------------------------------------------|
+| `nuxt`         | `nuxt`      | 15 base setups + 9 composable mocks + 2 repo mocks                                                       |
+| `composables`  | `nuxt`      | 15 base setups + 2 repo mocks (NO composable mocks — tests exercise real composables)                    |
+| `stores`       | `nuxt`      | 15 base setups + 9 composable mocks + 2 repo mocks + `stores.nuxt.unit-setup.ts`                         |
+| `repositories` | Node        | `dates.nuxt.unit-setup.ts` only                                                                          |
+| `node`         | Node        | `dates.nuxt.unit-setup.ts` + `tests/unit/setup/node/` (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts`) |
 
 ---
 
@@ -54,157 +59,197 @@ The `repositories` and `node` projects have **no Nuxt environment**. No `mountSu
 - 100% threshold on all metrics — no exceptions.
 - Every branch (truthy/falsy), every error path, every empty/non-empty array case must be covered.
 
-### Describe labels
+### Explicit vitest imports [U2]
 
-- **Components:** string `"<ComponentName> Component"` — never a direct reference: `describe("MyComponent Component", ...)`.
-- **Pages:** string `"<PageName> Page"` — e.g. `describe("Home Page", ...)`.
-- **Layouts:** string `"<LayoutName> Layout"` — e.g. `describe("DefaultLayout Layout", ...)`.
-- **Functions / composables / stores / repositories:** pass the reference directly (`describe(myFn, ...)`) or a free-form string when no single symbol represents the subject (e.g. `describe("useAppToast", ...)`, `describe("Goat It API Helpers", ...)`).
+- `describe`, `it`, `expect`, `vi`, … imported from `"vitest"` in every test file. No reliance on globals.
+
+### Spec location & naming [U1]
+
+- Colocated as `SourceFile.spec.ts`. Exceptions: layouts → `app/layouts/<Layout>/spec/`; i18n → `app/i18n/specs/`.
+
+### Describe labels [U3]
+
+- **Components:** string `"<Name> Component"` — never a direct reference: `describe("MyComponent Component", ...)`.
+- **Pages:** string `"<Name> Page"` — e.g. `describe("Home Page", ...)`.
+- **Layouts:** string `"<Name> Layout"` — e.g. `describe("DefaultLayout Layout", ...)`.
 - **Server handlers:** two-level describe — outer string `"Server Goat It API <Resource> <Method> Handler"`, inner `describe(handlerFn, ...)` with the function reference.
-- **Never** use a direct component/page/layout reference as a describe label.
+- **Functions / composables / stores / repositories:** pass the symbol reference directly (`describe(myFn, ...)`); free-form string only when no single symbol represents the subject.
+- Never a direct component/page/layout reference; never a free-form grouping string wrapping symbol describes.
 
 ### Test names
 
-- Pattern: `"should <action> when <condition>."` — always end with a period.
+- Pattern: `"should <action> when <condition>."` — always end with a period. Enforced mechanically by `vitest/valid-title` regex.
 
-### Single-call assertions
+### Single-call assertions [U4]
 
 - Always use `toHaveBeenCalledExactlyOnceWith(...)` — never combine `toHaveBeenCalledTimes(1)` + `toHaveBeenCalledWith(...)`.
 
-### No hardcoded translations
+### Error swallowing [U5]
 
-- `$t` returns the key as-is. Assert the translation key string, never the translated text.
+- No `.catch(() => null)` anywhere. Use try/catch with `void error` when asserting side effects of throwing code.
+
+### Translation keys [U6]
+
+- `$t` returns the key as-is. Assert the translation key string, never translated text.
+
+### Type safety [U7]
+
+- No `any`; unsafe assertions need the two-line disable comment — except the accepted cast patterns listed in `docs/unit-testing.md` §10 (documented-example casts, DOM element casts, mock-shape casts, server-helper narrowing, repository shape casts).
+
+### Parameterized tests [U10]
+
+- Pure input duplicates of identical logic must merge into `it.each` — always typed (`it.each<T>([...])`).
+- Semantically different conditions/edge cases stay separate tests.
+
+### Positional lookups [U11]
+
+- Never index into `findAllComponents({ name: "..." })` when multiple siblings exist. Address instances via dynamic `data-testid` selectors typed as `findComponent<typeof Component>("[data-testid='…']")`; pin sibling order via a single assertion over the ordered testid list. Count-only usage without indexing is fine.
 
 ### Dynamic imports in composable and store tests
 
-- `vi.resetModules()` runs automatically before every test (via `vtu-config.nuxt.unit-setup.ts`). You never call it yourself.
-- Import the composable/store with `await import(...)` inside `beforeEach` — never at the top level.
-- **Exception (Pattern C):** If a composable has **zero** external dependencies (no `mockNuxtImport`, no globally-mocked composables), a static top-level import is safe.
+- Composable/store under test imported with `await import(...)` inside `beforeEach` whenever it has mocked dependencies (Patterns A/B) — never at top level. This guarantees each test evaluates against that test's freshly created mocks.
+- **Exception (Pattern C):** zero-dependency composables may use a static top-level import.
+
+### Test worthiness [W1–W6] (components, pages, layouts)
+
+A worthy test pins behaviour that can vary; an unworthy test pins markup constants. See `docs/unit-testing.md` §6.11.
+
+- **Worthy:** branches (both sides of every `v-if`/`v-else-if`/`v-else`/`v-show`, ternaries and short-circuits in template expressions, function-driven rendering like `{{ formatX(...) }}`, loading/empty/populated/error states) · child-component presence (every child Vue component asserted present ≥once, even unconditionally rendered) · emits with payload · `:`-bound child props via `.props()` (`.attributes()` fallback acceptable when `.props()` is impossible) · every `$t()`/`$tc()` asserted by key (even static) · icons via icon prop (even static) · links via `to` prop (even static) · named slots · reactive updates with `await nextTick()`.
+- **Unworthy — asserting these is a violation:** static Tailwind classes never touched by a binding; unbound static props/attributes like `variant="subtle"` / `color="neutral"` (**exception:** the [W5]/[W6] static icon/link assertions stay mandatory despite being unbound); markup constants that cannot vary with props/watch/computed/emits.
+
+### Accepted patterns — do NOT flag or "fix"
+
+- `.attributes()` fallback where `.props()` is impractical (prop falls through to a stub/native element).
+- Count-only `findAllComponents({ name: "..." })` without positional indexing.
+- `getWrapperVm<T>` asserting derived computed values when rendered output is not observable in happy-dom.
+- Environment-coupled server helper specs stubbing `useRuntimeConfig` / h3 globals.
+
+### ESLint-enforced constraints
+
+Enforced by `configs/eslint/flat-configs/eslint-unit-tests.config.ts` (source of truth):
+
+- `vitest/max-expects: 1` — **at most ONE `expect()` call per test body**; split scenarios into separate tests.
+- `vitest/require-top-level-describe` — no top-level `it`.
+- `vitest/valid-title` — names must match `/^should .+ when .+\S\.$/`.
+- `vitest/consistent-each-for` — prefer `it.each` forms.
+- `vitest/hoisted-apis-on-top` + `require-hook` (with `mockNuxtImport` whitelisted).
 
 ---
 
 ## Per-type checklist
 
-### Component (`nuxt` project)
+Tags match `.opencode/commands/lint-unit-tests.md` §4.
 
-- [ ] Import component from `#components`
-- [ ] `describe("MyComponent Component", ...)` — string label, **not** a component reference
-- [ ] Default props declared as a `const` at the top of `describe`, before the mount helper
-- [ ] Mount helper: `async function mountXxxComponent(options: MountSuspendedOptions<typeof Xxx> = {})`
-- [ ] Helper spreads options after defaults so tests can override anything
-- [ ] `beforeEach`: mount with defaults, then `mockStore(useXxxStore)` **after** `mountSuspended`
-- [ ] No `shallow: true`
-- [ ] Assert translation keys, not translated strings
-- [ ] Only test props that are **dynamically bound** (prefixed with `:` in the template). Skip static string props without `:` (e.g. `variant="subtle"`, `color="neutral"`)
-- [ ] Every named slot in the template must be exercised by at least one test
-- [ ] Cover loading/empty/populated states
+### Component ([C1]–[C8])
 
-### Page (`nuxt` project)
+- [ ] [C1] Import from `#components`. Exceptions: `App.vue` and `OgImage.takumi.vue` direct path
+- [ ] [C2] `describe("<Name> Component", ...)` — string label
+- [ ] [C3] Typed default-props const at top of describe before mount helper — **required when ≥1 prop even optional**; prefer `as const`, omit only if readonly mismatch prevents compilation
+- [ ] [C4] Mount helper: `async function mountXxx(options: MountSuspendedOptions<typeof Xxx> = {})`, options spread after defaults
+- [ ] [C5] No `shallow: true` (exception: `App.vue`)
+- [ ] [C6] With a store: `createTestingPinia()` plugin, then `mockStore(useXxxStore)` strictly after `mountSuspended`
+- [ ] [C7] Shared wrapper lifecycle: module-level `let wrapper`, assigned by the mount helper in `beforeEach`
+- [ ] [C8] VM access only via `getWrapperVm<T>` + local type extending `ComponentVm`; never cast wrapper for `setupState`; instance proxy unwraps refs — type ref members as inner values
+- [ ] First test: `"should render <Name> when mounted."` asserting `wrapper.exists()` [W3]
+- [ ] Every source `data-testid` asserted present ≥once [W4]; every icon via icon prop even static [W5]; every link `to` even static [W6]
+- [ ] Assert translation keys [U6]; dynamically-bound props only (except [W5]/[W6]); no unworthy assertions [W1]; i18n keys covered [W2]
+- [ ] Nested thematic describes allowed ("Close button" → "Label")
 
-- [ ] Import page directly: `import MyPage from "@/pages/my-page.vue"`
-- [ ] `describe("Entity Page", ...)` — string label in the form `"<PageName> Page"`
-- [ ] `shallow: true` in mount helper
-- [ ] Assert `definePageMeta` was called with expected metadata
-- [ ] Assert `useHead` via `vi.mocked(useHead).mock.calls[0]?.[0]` — extract and call the function argument
-- [ ] Cover conditional render states (loading, empty, etc.)
+### Page ([P1]–[P7])
 
-### Layout (`nuxt` project)
+- [ ] [P1] Direct import: `import XxxPage from "@/pages/....vue"`
+- [ ] [P2] `shallow: true` in mount helper defaults
+- [ ] [P3] String label `"<PageName> Page"`
+- [ ] [P4] `definePageMeta` asserted when the page defines metadata
+- [ ] [P5] `useHead` via extraction pattern `vi.mocked(useHead).mock.calls[0]?.[0]` + call — assert through `useHead` even when `useSeoMeta` also mocked (established pattern)
+- [ ] [P6] Mount helper signature same as components
+- [ ] [P7] Shared wrapper lifecycle same as [C7]
+- [ ] Worthiness checks [W1]–[W6] apply
 
-- [ ] Spec in `spec/` subfolder: `app/layouts/MyLayout/spec/MyLayout.spec.ts`
-- [ ] Import directly (not from `#components`)
-- [ ] `describe("MyLayout Layout", ...)` — string label in the form `"<LayoutName> Layout"`
-- [ ] `shallow: true`
+### Layout ([L1]–[L5])
 
-### Composable (`composables` project)
+- [ ] [L1] Spec in `app/layouts/<Layout>/spec/<Layout>.spec.ts`
+- [ ] [L2] Direct path import
+- [ ] [L3] String label `"<LayoutName> Layout"`
+- [ ] [L4] `shallow: true`
+- [ ] [L5] Shared wrapper lifecycle same as [C7]
+- [ ] Worthiness checks [W1]–[W6] apply
 
-- [ ] **Pattern A** (has mocked dependencies): `mockNuxtImport(...)` at module level for each dependency; dynamic import in `beforeEach`
-- [ ] **Pattern B** (only globally-mocked deps): dynamic import in `beforeEach`; no extra `mockNuxtImport` needed
-- [ ] **Pattern C** (zero external deps): static top-level import is correct; no dynamic import needed
-- [ ] Declare composable type with `import type { useFoo as UseFooType }`
-- [ ] `let useFoo: typeof UseFooType` at module level (Patterns A and B)
-- [ ] `beforeEach`: recreate mocks (Pattern A), then `({ useFoo } = await import(...))`
+### Composable ([CO1]–[CO5])
+
+- [ ] [CO1] Dynamic import in `beforeEach` whenever dependencies exist (Patterns A/B); static import only for zero-dependency Pattern C
+- [ ] [CO2] `import type { useFoo as UseFooType }` + module-level `let useFoo: typeof UseFooType`
+- [ ] [CO3] Each mocked dependency declared at module level with `mockNuxtImport(...)` factory
+- [ ] [CO4] Mocks recreated before the dynamic composable import in `beforeEach`
+- [ ] [CO5] Harness mounting a store-using component: `createTestingPinia()` first, `mockStore(useXxxStore)` after the mount call
 - [ ] Test every returned ref, computed, and function
 
-### Store (`stores` project)
+### Store ([S1]–[S5])
 
-- [ ] `mockNuxtImport("useAsyncAction", ...)` to capture `capturedAction` and `capturedOnError`
-- [ ] If the store calls `useAsyncAction` multiple times, use a `useAsyncActionCallCount` counter to return distinct mock instances per invocation
-- [ ] Reset captured vars (and `useAsyncActionCallCount`) to `undefined` / `0` at the top of each `beforeEach`
-- [ ] Dynamic import of store in `beforeEach`
-- [ ] Test initial state, reactive getters, action wiring, and error callback
-- [ ] Assert `capturedAction` is `toBe(repository($fetch).method)` (strict reference equality)
-- [ ] Assert `capturedOnError?.()` triggers `useAppToast().addErrorToast` with the correct i18n key
-- [ ] Mutate `useAsyncActionMock.fetchStatus.value` to drive reactive getter assertions (e.g. `isPending`, `isFetching`)
-- [ ] `setActivePinia(createPinia())` runs automatically — do NOT call it manually
+- [ ] [S1] `capturedAction` / `capturedOnError` captured through `mockNuxtImport("useAsyncAction", ...)`
+- [ ] [S2] Captured vars reset to `undefined` at top of each `beforeEach`; multi-action stores reset call counter to `0`
+- [ ] [S3] Store dynamically imported inside `beforeEach`
+- [ ] [S4] No manual `setActivePinia(createPinia())` (runs automatically)
+- [ ] [S5] Multi-call stores use a counter returning distinct mock instances per invocation
+- [ ] Assert `capturedAction` with `toBe(repository($fetch).method)`; error callback triggers `useAppToast().addErrorToast` with i18n key; mutate `useAsyncActionMock.fetchStatus.value` for reactive getters
 
-### Repository (`repositories` project)
+### Repository ([R1]–[R5])
 
-- [ ] No Nuxt — plain Node environment
-- [ ] `describe(myRepository, ...)` — use the exported symbol; no nested duplicate describe
-- [ ] `fetchMock = vi.fn<$Fetch>()` in `beforeEach`
-- [ ] Pass `fetchMock as $Fetch` to the factory
-- [ ] Test every method: endpoint, HTTP method/options, return value
-- [ ] Include a top-level test asserting the repository shape: `expect(repository).toStrictEqual({ getAll: expect.any(Function), ... })`
-- [ ] For methods with params (e.g. `getById(id)`, `patch(id, dto)`, `archive(id)`), test the interpolated URL
-- [ ] Use `toStrictEqual(value)` for return assertions. If type can't be inferred, use `toStrictEqual<T>(value)` for example `toStrictEqual<QuestionTheme[]>([]);`
+- [ ] [R1] No Nuxt mocks — plain Node patterns only
+- [ ] [R2] `describe(myRepository, ...)` symbol form
+- [ ] [R3] `fetchMock = vi.fn<$Fetch>()` in `beforeEach`; passed cast as `$Fetch`
+- [ ] [R4] Top-level shape test: `toStrictEqual({ getAll: expect.any(Function), ... })`
+- [ ] [R5] Each method tests endpoint, HTTP options, return value; parametrized methods test interpolated URLs; `toStrictEqual<T>(value)` when type not inferable
 
-### Server handler (`nuxt` project)
+### Server handler ([H1]–[H7])
 
-- [ ] `vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"))` at module level — uses `import()` expression syntax
-- [ ] `vi.mocked($fetch).mockResolvedValue(...)` in `beforeEach`
-- [ ] Two-level `describe` pattern: outer string label `"Server Goat It API <Resource> <Method> Handler"`, inner `describe(handlerFn, ...)`
-- [ ] Assert `createGoatItApiEndpoint` call
-- [ ] Assert `createGoatItApiFetchOptions` call with expected runtime config (`baseUrl: "https://api.goat-it.com"`, `adminKey: "test-admin-key"`)
-- [ ] Assert `$fetch` call with correct endpoint + options
-- [ ] Assert return value (mapped domain objects)
-- [ ] Assert `ZodError` is thrown for invalid API data
-- [ ] For `createError` assertions: `vi.mocked(createError).mockImplementation(...)` + `try/catch` to let the throw happen, then assert the call arguments
-- [ ] For side-effect assertions on throwing handlers: use `try/catch` with `void error` — **never** `.catch(() => null)`
-- [ ] Use `HttpStatusCode` enum from `#server/utils/http/http.enums` for status code values
-- [ ] For routes with params: assert `getRouterParam` was called with `(event, "id")`
-- [ ] For routes with body: assert `readBody` was called with `(event)`
+- [ ] [H1] `vi.mock(import("#server/utils/..."))` — `import()` expression form, module level
+- [ ] [H2] Two-level describe: outer string label + inner `describe(handlerFn, ...)`
+- [ ] [H3] `vi.mocked($fetch).mockResolvedValue/mockRejectedValue` — never re-mocked from scratch
+- [ ] [H4] Zod path: `ZodError` thrown for invalid API data
+- [ ] [H5] Throw side-effects via try/catch + `void error` — never `.catch(() => null)`
+- [ ] [H6] Status codes from `HttpStatusCode` enum (`#server/utils/http/http.enums`)
+- [ ] [H7] Params assert `getRouterParam(event, "id")`; bodies assert `readBody(event)`; `createGoatItApiFetchOptions` asserted with `(event)`; runtime config carries `gameKey: "test-game-key"` as `goat-it-api-key` header
 
-### Server util / mapper / helper (`node` project)
+### Server util / mapper / helper ([N1]–[N2])
 
-- [ ] Pure function tests — no mocking
-- [ ] Import with `#server/utils/...`
-- [ ] Cover all branches and edge cases
+- [ ] [N1] Pure tests — no mocking of unit or collaborators. Exceptions: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`); environment-coupled server helper specs stubbing `useRuntimeConfig`/h3 globals (established)
+- [ ] [N2] Aliases: server helpers `#server/utils/...`; shared helpers `#shared/utils/...`; app-local helper/mapper specs `@/`
 
-### Shared helper (`node` project)
+### i18n translation parity ([T1]–[T3])
 
-- [ ] Import with `#shared/utils/...`
-- [ ] Test all branches including edge cases (empty string, undefined, etc.)
-
-### i18n translation parity (`node` project)
-
-- [ ] Spec in `app/i18n/specs/` (NOT colocated)
-- [ ] Use `crush` from `radashi` to flatten keys
-- [ ] Assert `toSorted()` EN keys equal `toSorted()` FR keys
+- [ ] [T1] Specs live in `app/i18n/specs/`, never colocated
+- [ ] [T2] Uses `crush` from `radashi`
+- [ ] [T3] Single typed `it.each<[string, typeof frX]>` iterating every non-FR locale; sorted keys compared against the **French reference keys** (`fr` is source of truth)
 
 ---
 
 ## Mock infrastructure quick reference
 
-| Utility                                | Path                                                                                                          | Purpose                                                           |
-|----------------------------------------|---------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
-| `ToMock<T>`                            | `~~/tests/unit/utils/types/mock.types`                                                                        | Types a mock object matching interface `T`                        |
-| `MockedPiniaStore<T>`                  | `~~/tests/unit/utils/types/mock.types`                                                                        | Types a mocked Pinia store                                        |
-| `mockStore(useStore)`                  | `~~/tests/unit/utils/mocks/stores/store.mock`                                                                 | Returns `useStore()` as `MockedPiniaStore<T>`                     |
-| `MountSuspendedOptions<C>`             | `~~/tests/unit/utils/types/mount.types`                                                                       | Type for the options arg of `mountSuspended`                      |
-| `ComponentVm`                          | `~~/tests/unit/utils/types/vtu.types`                                                                         | Base VM type with `$emit` — extend for exposed properties         |
-| `getWrapperVm<T>(wrapper)`             | `~~/tests/unit/utils/helpers/vtu.helpers`                                                                     | Typed extraction of `wrapper.vm` (VTU workaround)                 |
-| `createFetchMock()`                    | `~~/tests/unit/utils/mocks/composables/nuxt/useFetch/useFetch.mock`                                           | Creates `vi.fn<$Fetch>()` — used internally by fetch setup        |
-| `createUseFetchStatusMock()`           | `~~/tests/unit/utils/mocks/composables/core/useFetchStatus/useFetchStatus.mock`                               | Mock factory for `useFetchStatus`                                 |
-| `createUseAsyncActionMock()`           | `~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock`                               | Mock factory for `useAsyncAction`                                 |
-| `createUseAppToastMock()`              | `~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock`                                       | Mock factory for `useAppToast`                                    |
-| `createUseColorModeMock()`             | `~~/tests/unit/utils/mocks/composables/nuxt/useColorMode/useColorMode.mock`                                   | Mock factory for `useColorMode` (reactive, not spy-based)         |
-| `createUseI18nMock()`                  | `~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock`                                             | Mock factory for `useI18n`                                        |
-| `createUseRouterMock()`                | `~~/tests/unit/utils/mocks/composables/nuxt/useRouter/useRouter.mock`                                         | Mock factory for `useRouter`                                      |
-| `createUseToastMock()`                 | `~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock`                                           | Mock factory for `useToast`                                       |
-| `createCreateErrorMock()`              | `~~/tests/unit/utils/mocks/composables/nuxt/createError/createError.mock`                                     | Mock factory for `createError`                                    |
-| `createGetRouterParamMock()`           | `~~/tests/unit/utils/mocks/composables/nuxt/h3/h3.mock`                                                       | Mock factory for H3 `getRouterParam`                              |
-| `createReadBodyMock()`                 | `~~/tests/unit/utils/mocks/composables/nuxt/h3/h3.mock`                                                       | Mock factory for H3 `readBody`                                    |
-| `createQuestionThemesRepositoryMock()` | `~~/tests/unit/utils/mocks/repositories/goat-it-api/questionThemesRepository/question-themes-repository.mock` | Mock factory (5 methods: getAll, getById, create, patch, archive) |
+Paths under `~~/tests/unit/utils/mocks/composables/`. Scan directories for the current inventory.
+
+| Utility                                   | Path                                                | Purpose                                                            |
+|-------------------------------------------|-----------------------------------------------------|--------------------------------------------------------------------|
+| `ToMock<T>`                               | `~~/tests/unit/utils/types/mock.types`              | Types a mock object matching interface `T`                          |
+| `MockHolder<T>`                           | `~~/tests/unit/utils/types/mock.types`              | Mutable holder for globally-mocked composable instances             |
+| `MockedPiniaStore<T>`                     | `~~/tests/unit/utils/types/mock.types`              | Types a mocked Pinia store                                          |
+| `mockStore(useStore)`                     | `~~/tests/unit/utils/mocks/stores/store.mock`       | Returns `useStore()` as `MockedPiniaStore<T>`                       |
+| `MountSuspendedOptions<C>`                | `~~/tests/unit/utils/types/mount.types`             | Type for the options arg of `mountSuspended`                        |
+| `ComponentVm`                             | `~~/tests/unit/utils/types/vtu.types`               | Base VM type with `$emit` — extend for exposed properties           |
+| `getWrapperVm<T>(wrapper)`                | `~~/tests/unit/utils/helpers/vtu.helpers`           | Typed extraction of `wrapper.vm` (VTU workaround)                   |
+| `createFetchMock()`                       | `nuxt/useFetch/useFetch.mock`                       | Creates `vi.fn<$Fetch>()` — used internally by fetch setup          |
+| `createUseFetchStatusMock()`              | `core/useFetchStatus/useFetchStatus.mock`           | Mock factory for `useFetchStatus`                                   |
+| `createUseAsyncActionMock()`              | `core/useAsyncAction/useAsyncAction.mock`           | Mock factory for `useAsyncAction`                                   |
+| `createUseAppToastMock()`                 | `ui/useAppToast/useAppToast.mock`                   | Mock factory for `useAppToast`                                      |
+| `createUseGoatItApiErrorToastMock()`      | `domain/useGoatItApiErrorToast/useGoatItApiErrorToast.mock` | Mock factory for `useGoatItApiErrorToast`                   |
+| `createUseGSAPMock()`                     | `nuxt/useGsap/useGsap.mock`                         | Mock factory for `useGSAP`                                          |
+| `createUseOverlayMock()`                  | `nuxt-ui/useOverlay/useOverlay.mock`                | Mock factory for `useOverlay`                                       |
+| `createUseWindowScrollMock()`             | `core/useWindowScroll/useWindowScroll.mock`         | Mock factory for `useWindowScroll`                                  |
+| `createUsePreferredReducedMotionMock()`   | `core/usePreferredReducedMotion/usePreferredReducedMotion.mock` | Mock factory for `usePreferredReducedMotion`            |
+| `createCreateErrorMock()`                 | `nuxt/createError/createError.mock`                 | Mock factory for `createError`                                      |
+| `createGetRouterParamMock()` / `createReadBodyMock()` | `nuxt/h3/h3.mock`                        | H3 utility mocks                                                    |
+| `createQuestionThemesRepositoryMock()`    | `~~/tests/unit/utils/mocks/repositories/goat-it-api/questionThemesRepository/question-themes-repository.mock` | 5 methods |
+| `createQuestionsRepositoryMock()`         | `~~/tests/unit/utils/mocks/repositories/goat-it-api/questions/questions.repository.mock` | 1 method (`getRandom`)     |
 
 ### Mock constants
 
@@ -219,14 +264,14 @@ The `repositories` and `node` projects have **no Nuxt environment**. No `mountSu
 ### Adding a new composable mock
 
 1. Create mock file at `tests/unit/utils/mocks/composables/<category>/<ComposableName>/useXxx.mock.ts`
-2. Create setup file at `tests/unit/setup/nuxt/composables/use-xxx.nuxt.unit-setup.ts` — use `mockNuxtImport`
-3. Add path to `VITEST_COMPOSABLES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.constants.ts`
+2. Create setup file at `tests/unit/setup/nuxt/composables/use-xxx.nuxt.unit-setup.ts` — `mockNuxtImport` + exported `MockHolder`
+3. Register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES` (`configs/vitest/vitest.config.constants.ts`)
 
 ### Adding a new repository mock
 
-1. Create mock file at `tests/unit/utils/mocks/repositories/goat-it-api/<Resource>/xxx-repository.mock.ts`
-2. Create setup file at `tests/unit/setup/nuxt/repositories/xxx-repository.nuxt.unit-setup.ts` — use `vi.mock(...)` (NOT `mockNuxtImport`)
-3. Add path to `VITEST_REPOSITORIES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.constants.ts`
+1. Create mock file at `tests/unit/utils/mocks/repositories/goat-it-api/<Resource>/xxx-repository.mock.ts` (+ optional `.mock.types.ts`)
+2. Create setup file at `tests/unit/setup/nuxt/repositories/xxx-repository.nuxt.unit-setup.ts` — `vi.mock(...)` (**not** `mockNuxtImport`)
+3. Register in `VITEST_REPOSITORIES_MOCK_SETUP_FILES`
 
 ---
 
@@ -245,8 +290,8 @@ function createFakeMyEntity(myEntity: Partial<MyEntity> = {}): MyEntity {
 }
 ```
 
-- Location: `tests/unit/utils/faketories/<entity-name>/entity/` and `…/dto/`
-- Shared faketories: `tests/unit/utils/faketories/shared/locale/` (e.g. `createFakeLocalizedText`, `createFakeLocalizedTexts`)
+- Location: `tests/unit/utils/faketories/<domain>/<entity>.entity.faketory.ts` (flat file per entity); shared project fakes under `tests/unit/utils/faketories/shared/` (e.g. `shared/h3/h3-event.faketory.ts`)
+- DTO faketories always come from `@goat-it/schemas/testing/{question,question-theme,shared}` — never local DTO faketories [U8]
 - Always accept `Partial<T> = {}` and spread it last
 - DTOs use ISO strings for dates; entities use `Date` objects
 
@@ -254,28 +299,24 @@ function createFakeMyEntity(myEntity: Partial<MyEntity> = {}): MyEntity {
 
 ## Global setup summary (what is pre-mocked for you)
 
-In `nuxt`, `composables`, and `stores` projects, the following are available without any setup in your test file:
+In `nuxt`, `composables`, and `stores` projects, available without any setup in your spec:
 
-- `$t(key)` → returns `key` unchanged (global Vue mock)
-- `$tc(key, count)` → returns `key` unchanged (global Vue mock)
-- `<u-tooltip>` is stubbed globally (via VTU config)
-- `vi.resetModules()` runs automatically in each `beforeEach` (via `vtu-config.nuxt.unit-setup.ts`)
-- `definePageMeta` → Vitest spy (accessible globally)
+- `$t(key)` / `$tc(key, count)` → return the key unchanged (global Vue mocks)
+- `<u-tooltip>` stubbed globally; `renderStubDefaultSlot: true` (VTU config)
+- `definePageMeta` → global spy
 - `useI18n()` → mock returning `{ t: (key) => key, locale: ref("en"), localeCodes: ref(["en","fr"]), locales: ref([...]), setLocale: vi.fn() }`
 - `useRouter()` → mock returning `{ getRoutes, currentRoute, push, afterEach, beforeResolve, beforeEach, onError }`
-- `$fetch` → `vi.fn<$Fetch>()` spy (recreated each `beforeEach` via `createFetchMock()`)
+- `$fetch` → `vi.fn<$Fetch>()` spy (recreated each `beforeEach`)
 - `useToast()` → mock returning `{ add, remove, clear }`
-- `getRouterParam` → global stub
-- `readBody` → global stub
-- `createError` → mock via `vi.hoisted`
-- `useHead` → `vi.fn()` spy via `vi.hoisted` + `mockNuxtImport` — access via `vi.mocked(useHead)`
-- `callOnce` → `vi.fn()` spy via `vi.hoisted` + `mockNuxtImport`
-- `questionThemesRepository` → `vi.mock(...)` mock (nuxt + composables + stores projects)
-- fake timers pinned to `2026-04-14` UTC (`TZ=UTC`)
-- `onConsoleLog` filter suppresses `<Suspense> is an experimental feature` and Pinia duplicate provider warnings
-- **Globally-mocked composables** (nuxt + stores projects only) — the list grows over time.
-  Scan `tests/unit/setup/nuxt/composables/` to get the current authoritative list; each file there registers one global mock.
-  Currently: `useFetchStatus`, `useAsyncAction`, `useAppToast`, `useColorMode`
+- `useSeoMeta`, `callOnce`, `defineOgImage`, `useHead` → `vi.fn()` spies
+- `getRouterParam` / `readBody` → global stubs; `createError` → mock
+- Fake timers pinned to `2026-04-14` UTC (`TZ=UTC`)
+- Element geometry mocked (`virtualizer` setup) and reka-ui `DismissableLayer` recursion patched
+- Repositories globally mocked via `vi.mock`: `questionThemesRepository`, `questionsRepository` (nuxt + composables + stores)
+- Runtime config injected: `{ goatItApi: { baseUrl: "https://api.goat-it.com", gameKey: "test-game-key" } }`
+
+**Globally-mocked composables** (nuxt + stores projects only — the list grows; scan `tests/unit/setup/nuxt/composables/` for the authoritative set):
+`useFetchStatus`, `useAsyncAction`, `useAppToast`, `useGoatItApiErrorToast`, `useGSAP`, `useGame`, `useOverlay`, `useWindowScroll`, `usePreferredReducedMotion`
 
 In the `stores` project additionally:
 
@@ -283,30 +324,31 @@ In the `stores` project additionally:
 
 In component tests that use stores (not the `stores` project):
 
-- Use `createTestingPinia()` from `@pinia/testing` and pass as plugin: `{ global: { plugins: [pinia] } }`
-- Call `mockStore(useXxxStore)` **after** `mountSuspended` to get a typed store reference
+- Use `createTestingPinia()` passed as plugin: `{ global: { plugins: [pinia] } }`
+- Call `mockStore(useXxxStore)` **after** `mountSuspended`
 
 ### Accessing and mutating a globally-mocked composable in a component/store test
 
-Because these mocks are registered globally, you do **not** need `mockNuxtImport` in your spec file.
-Call the composable directly in the test body — you get back the same mock instance the component received.
-Mutate it, then `await nextTick()` to let the template react.
+Because these mocks are registered globally, you do **not** need `mockNuxtImport` in your spec file [U9].
+Import the composable's `MockHolder` export from its setup file and mutate `.instance` before mount.
+Call the composable directly in the test body to read it; mutate then `await nextTick()` when mutating after mount.
 
 ```ts
 import { nextTick } from "vue";
+import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
 
-it("should show dark tooltip when color mode is light.", async () => {
-  const colorMode = useColorMode();
-  colorMode.value = "light";
-  await nextTick();
+it("should render GamePlaying when gameState is playing.", async () => {
+  useGameMock.instance.gameStateRef.value = "playing";
+  useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+  const wrapper = await mountGamePage();
 
-  expect(wrapper.find("#my-tooltip").attributes("text")).toBe("navigation.switchOnDarkMode");
+  expect(wrapper.findComponent({ name: "GamePlaying" }).exists()).toBeTruthy();
 });
 ```
 
-This pattern applies to any composable listed in `tests/unit/setup/nuxt/composables/` (e.g. `useColorMode`, `useAsyncAction`, `useAppToast`, `useFetchStatus`, …).
+For composables with `vi.fn()` methods, override implementations before mount: `useGameMock.instance.initialize.mockRejectedValue(new Error("fail"))`.
 
-> **Pitfall:** Do NOT add `mockNuxtImport("useFoo", ...)` in a component spec when `useFoo` is already globally mocked. Just call `useFoo()` directly in the test body.
+> **Pitfall:** Do NOT add `mockNuxtImport("useFoo", ...)` in a component/spec when `useFoo` is already globally mocked — import the holder instead. Always access the current mock through the holder reference (`useGameMock.instance`), never destructured at module scope.
 
 ---
 
@@ -361,7 +403,7 @@ expect(wrapper.emitted("submitCreation")).toBeDefined();
 ### Finding components and elements
 
 ```ts
-// Primary — always use data-testid (add it to the source .vue file if missing)
+// Primary — data-testid, always typed
 const footer = wrapper.findComponent<typeof DefaultModalFooter>("[data-testid='my-modal-footer']");
 const form = wrapper.getComponent<typeof MyForm>("[data-testid='my-form']");
 

@@ -9,6 +9,17 @@ import { createUseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/us
 
 import type { useGoatItApiErrorToast as UseGoatItApiErrorToastType, extractErrorCode as ExtractErrorCodeType } from "~/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast";
 
+type ExtractErrorCodeUndefinedCase = {
+  condition: string;
+  createError: () => unknown;
+};
+
+type GenericFallbackCase = {
+  condition: string;
+  createError: () => Error;
+  title: string;
+};
+
 let useAppToastMock: UseAppToastMock;
 let useI18nMock: UseI18nMock;
 
@@ -20,7 +31,6 @@ let extractErrorCode: typeof ExtractErrorCodeType;
 
 describe("useGoatItApiErrorToast", () => {
   beforeEach(async() => {
-    vi.resetModules();
     useAppToastMock = createUseAppToastMock();
     useI18nMock = createUseI18nMock();
     ({ useGoatItApiErrorToast, extractErrorCode } = await import("~/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast"));
@@ -34,44 +44,53 @@ describe("useGoatItApiErrorToast", () => {
       expect(extractErrorCode(fetchError)).toBe("someErrorCode");
     });
 
-    it("should return undefined when error is not a FetchError.", () => {
-      const error = { data: { data: { errorCode: "shouldNotBeExtracted" } } };
+    it.each<ExtractErrorCodeUndefinedCase>([
+      {
+        condition: "error is not a FetchError",
+        createError: (): unknown => ({ data: { data: { errorCode: "shouldNotBeExtracted" } } }),
+      },
+      {
+        condition: "error is a FetchError with no data",
+        createError: (): FetchError => new FetchError("Server Error"),
+      },
+      {
+        condition: "error is a FetchError with non-object nested data",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Server Error");
+          fetchError.data = { data: "not-an-object" };
 
-      expect(extractErrorCode(error)).toBeUndefined();
-    });
+          return fetchError;
+        },
+      },
+      {
+        condition: "error is a FetchError with null nested data",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Server Error");
+          fetchError.data = { data: null };
 
-    it("should return undefined when error is a FetchError with no data.", () => {
-      const fetchError = new FetchError("Server Error");
+          return fetchError;
+        },
+      },
+      {
+        condition: "error is a FetchError with non-string errorCode",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Server Error");
+          fetchError.data = { data: { errorCode: 123 } };
 
-      expect(extractErrorCode(fetchError)).toBeUndefined();
-    });
+          return fetchError;
+        },
+      },
+      {
+        condition: "error is a FetchError with no errorCode property",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Server Error");
+          fetchError.data = { data: {} };
 
-    it("should return undefined when error is a FetchError with non-object nested data.", () => {
-      const fetchError = new FetchError("Server Error");
-      fetchError.data = { data: "not-an-object" };
-
-      expect(extractErrorCode(fetchError)).toBeUndefined();
-    });
-
-    it("should return undefined when error is a FetchError with null nested data.", () => {
-      const fetchError = new FetchError("Server Error");
-      fetchError.data = { data: null };
-
-      expect(extractErrorCode(fetchError)).toBeUndefined();
-    });
-
-    it("should return undefined when error is a FetchError with non-string errorCode.", () => {
-      const fetchError = new FetchError("Server Error");
-      fetchError.data = { data: { errorCode: 123 } };
-
-      expect(extractErrorCode(fetchError)).toBeUndefined();
-    });
-
-    it("should return undefined when error is a FetchError with no errorCode property.", () => {
-      const fetchError = new FetchError("Server Error");
-      fetchError.data = { data: {} };
-
-      expect(extractErrorCode(fetchError)).toBeUndefined();
+          return fetchError;
+        },
+      },
+    ])("should return undefined when $condition.", ({ createError }) => {
+      expect(extractErrorCode(createError())).toBeUndefined();
     });
   });
 
@@ -123,19 +142,72 @@ describe("useGoatItApiErrorToast", () => {
       expect(consoleSpy).not.toHaveBeenCalled();
     });
 
-    it("should call addErrorToast with generic fallback description when error is a FetchError with an unknown errorCode.", () => {
+    it.each<GenericFallbackCase>([
+      {
+        condition: "error is a FetchError with an unknown errorCode",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Conflict");
+          fetchError.data = {
+            data: { errorCode: "unknownErrorCode" },
+          };
+
+          return fetchError;
+        },
+        title: "Can't fetch question themes",
+      },
+      {
+        condition: "error is a FetchError with no errorCode",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Bad Request");
+          fetchError.data = {
+            data: {},
+          };
+
+          return fetchError;
+        },
+        title: "Can't create question theme",
+      },
+      {
+        condition: "error is a FetchError with empty string errorCode",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Bad Request");
+          fetchError.data = {
+            data: { errorCode: "" },
+          };
+
+          return fetchError;
+        },
+        title: "Can't create question theme",
+      },
+      {
+        condition: "error is a FetchError with non-object nested data",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Server Error");
+          fetchError.data = { data: "not-an-object" };
+
+          return fetchError;
+        },
+        title: "Can't fetch question themes",
+      },
+      {
+        condition: "error is a FetchError with no data",
+        createError: (): FetchError => new FetchError("Server Error"),
+        title: "Can't fetch question themes",
+      },
+      {
+        condition: "error is not a FetchError",
+        createError: (): Error => new Error("Something broke"),
+        title: "Can't fetch question themes",
+      },
+    ])("should call addErrorToast with generic fallback description when $condition.", ({ createError, title }) => {
       vi.mocked(useI18nMock.te).mockReturnValue(false);
       vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const fetchError = new FetchError("Conflict");
-      fetchError.data = {
-        data: { errorCode: "unknownErrorCode" },
-      };
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
+      handleGoatItApiError(createError(), title);
 
       expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
-        title: "Can't fetch question themes",
+        title,
         description: "translated:errors.unknown",
         id: "api-error-unknown",
       });
@@ -156,136 +228,56 @@ describe("useGoatItApiErrorToast", () => {
       expect(consoleSpy).toHaveBeenCalledExactlyOnceWith("Unknown Goat It API error code: unknownErrorCode");
     });
 
-    it("should call addErrorToast with generic fallback description when error is a FetchError with no errorCode.", () => {
-      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const fetchError = new FetchError("Bad Request");
-      fetchError.data = {
-        data: {},
-      };
-      const { handleGoatItApiError } = useGoatItApiErrorToast();
+    it.each<GenericFallbackCase>([
+      {
+        condition: "error is a FetchError with no errorCode",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Bad Request");
+          fetchError.data = {
+            data: {},
+          };
 
-      handleGoatItApiError(fetchError, "Can't create question theme");
-
-      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+          return fetchError;
+        },
         title: "Can't create question theme",
-        description: "translated:errors.unknown",
-        id: "api-error-unknown",
-      });
-    });
+      },
+      {
+        condition: "error is a FetchError with empty string errorCode",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Bad Request");
+          fetchError.data = {
+            data: { errorCode: "" },
+          };
 
-    it("should not check translation key when error is a FetchError with no errorCode.", () => {
-      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const fetchError = new FetchError("Bad Request");
-      fetchError.data = {
-        data: {},
-      };
-      const { handleGoatItApiError } = useGoatItApiErrorToast();
-
-      handleGoatItApiError(fetchError, "Can't create question theme");
-
-      expect(useI18nMock.te).not.toHaveBeenCalled();
-    });
-
-    it("should call addErrorToast with generic fallback description when error is a FetchError with empty string errorCode.", () => {
-      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const fetchError = new FetchError("Bad Request");
-      fetchError.data = {
-        data: { errorCode: "" },
-      };
-      const { handleGoatItApiError } = useGoatItApiErrorToast();
-
-      handleGoatItApiError(fetchError, "Can't create question theme");
-
-      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+          return fetchError;
+        },
         title: "Can't create question theme",
-        description: "translated:errors.unknown",
-        id: "api-error-unknown",
-      });
-    });
+      },
+      {
+        condition: "error is a FetchError with non-object nested data",
+        createError: (): FetchError => {
+          const fetchError = new FetchError("Server Error");
+          fetchError.data = { data: "not-an-object" };
 
-    it("should not check translation key when error is a FetchError with empty string errorCode.", () => {
-      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const fetchError = new FetchError("Bad Request");
-      fetchError.data = {
-        data: { errorCode: "" },
-      };
-      const { handleGoatItApiError } = useGoatItApiErrorToast();
-
-      handleGoatItApiError(fetchError, "Can't create question theme");
-
-      expect(useI18nMock.te).not.toHaveBeenCalled();
-    });
-
-    it("should call addErrorToast with generic fallback description when error is a FetchError with non-object nested data.", () => {
-      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const fetchError = new FetchError("Server Error");
-      fetchError.data = { data: "not-an-object" };
-      const { handleGoatItApiError } = useGoatItApiErrorToast();
-
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
-
-      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+          return fetchError;
+        },
         title: "Can't fetch question themes",
-        description: "translated:errors.unknown",
-        id: "api-error-unknown",
-      });
-    });
-
-    it("should not check translation key when error is a FetchError with non-object nested data.", () => {
-      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const fetchError = new FetchError("Server Error");
-      fetchError.data = { data: "not-an-object" };
-      const { handleGoatItApiError } = useGoatItApiErrorToast();
-
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
-
-      expect(useI18nMock.te).not.toHaveBeenCalled();
-    });
-
-    it("should call addErrorToast with generic fallback description when error is a FetchError with no data.", () => {
-      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const fetchError = new FetchError("Server Error");
-      const { handleGoatItApiError } = useGoatItApiErrorToast();
-
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
-
-      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+      },
+      {
+        condition: "error is a FetchError with no data",
+        createError: (): FetchError => new FetchError("Server Error"),
         title: "Can't fetch question themes",
-        description: "translated:errors.unknown",
-        id: "api-error-unknown",
-      });
-    });
-
-    it("should not check translation key when error is a FetchError with no data.", () => {
-      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const fetchError = new FetchError("Server Error");
-      const { handleGoatItApiError } = useGoatItApiErrorToast();
-
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
-
-      expect(useI18nMock.te).not.toHaveBeenCalled();
-    });
-
-    it("should call addErrorToast with generic fallback description when error is not a FetchError.", () => {
-      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const genericError = new Error("Something broke");
-      const { handleGoatItApiError } = useGoatItApiErrorToast();
-
-      handleGoatItApiError(genericError, "Can't fetch question themes");
-
-      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+      },
+      {
+        condition: "error is not a FetchError",
+        createError: (): Error => new Error("Something broke"),
         title: "Can't fetch question themes",
-        description: "translated:errors.unknown",
-        id: "api-error-unknown",
-      });
-    });
-
-    it("should not check translation key when error is not a FetchError.", () => {
+      },
+    ])("should not check translation key when $condition.", ({ createError, title }) => {
       vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
-      const genericError = new Error("Something broke");
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(genericError, "Can't fetch question themes");
+      handleGoatItApiError(createError(), title);
 
       expect(useI18nMock.te).not.toHaveBeenCalled();
     });

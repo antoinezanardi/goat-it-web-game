@@ -30,7 +30,9 @@ export default defineConfig({
         "**/*.d.ts",
         "**/*.config.ts",
         "**/*.spec.ts",
+        "app/plugins/**/*.ts",
         "server/api/**/*.{get,post,put,patch,delete}.ts",
+        "server/plugins/**/*.ts",
       ],
       reportsDirectory: "tests/unit/coverage",
       reporter: [

@@ -36,15 +36,77 @@ Les questions doivent donc pouvoir recevoir une réponse binaire.
 >
 > ❌ « Quelle est la race de l'animal ? »
 
-Les joueurs peuvent poser autant de questions qu'ils le souhaitent, discuter librement et proposer leurs hypothèses.
+Les joueurs peuvent poser autant de questions qu'ils le souhaitent, dans n'importe quel ordre, discuter librement et proposer leurs hypothèses.
 
-> « Est-ce quelque chose de vivant ? » → **Non**
+> « Est-ce quelque chose de vivant ? »\
+> ↳ **Non**
 >
-> « Est-ce un objet ? » → **Oui**
+> « Est-ce un objet ? »\
+> ↳ **Oui**
 >
-> « Est-ce fabriqué par l'être humain ? » → **Oui**
+> « Est-ce fabriqué par l'être humain ? »\
+> ↳ **Oui**
 
 Chaque réponse du MJ est une information utile pour l'ensemble du groupe. Une mauvaise piste ou une mauvaise proposition n'entraîne aucune pénalité : elle permet aussi d'écarter des possibilités.
+
+### Un petit exemple ?
+
+::example-round
+#triggerOpen
+Afficher un exemple complet de manche
+
+#triggerClose
+Masquer un exemple complet de manche
+
+#default
+**Carte :**
+
+- Thème : Animaux
+- Catégorie : Savoir & faits insolites
+- Difficulté : Moyenne
+
+**MJ :** « Voici votre carte : thème **Animaux**, catégorie **Savoir & faits insolites**, difficulté **Moyenne**. Question : quel animal a déjà forcé la fermeture d'une piste de l'aéroport de Nice en 2000 ? À vous de jouer ! »
+
+**Joueur 1 :** « Est-ce que cet animal se mange ? »
+
+**MJ :** « Oui. »
+
+**Joueur 2 :** « De quelle couleur est-il ? »
+
+**MJ :** « Question ouverte ! Je ne peux répondre que par Oui ou Non ou trancher entre deux propositions. »
+
+**Joueur 2 :** « Plutôt vert ou plutôt gris ? »
+
+**MJ :** « Gris. »
+
+**Joueur 3 :** « Un éléphant, alors ! »
+
+**MJ :** « Non ! Mais continuez à investiguer en posant des questions. »
+
+**Joueur 1 :** « Est-ce un animal commun dans la région de l'aéroport de Nice ? »
+
+*🔹 Le MJ prend le temps de relire le contexte et les anecdotes de la carte pour répondre à cette question…*
+
+**MJ :** « Oui, assez commun ! »
+
+**Joueur 3 :** « A-t-il des dents ? »
+
+**MJ :** « Oui… mais ce n'est pas une bonne piste, elle ne vous aidera pas à la réflexion… »
+
+*Le groupe bloque.*
+
+**MJ :** « Je vais vous aider car vous semblez bloqués. Un indice : cet animal est plutôt lent… »
+
+**Joueur 2 :** « Des escargots ? »
+
+**MJ :** « Exact, ce sont des escargots ! »
+
+*🔹 Le MJ peut lire le reste de la carte pour clore l'enquête et donner le contexte de la question.*
+
+**MJ :** « Je vous explique le contexte : en octobre 2000, après de fortes pluies, des milliers d'escargots ont envahi le tarmac de l'aéroport de Nice. Petite anecdote : Il a fallu nettoyer trois kilomètres de piste ! »
+
+*🔹 Le MJ peut ensuite passer à la prochaine question, ou laisser le rôle de MJ à un autre joueur pour la prochaine enquête.*
+::
 
 ---
 
@@ -82,7 +144,7 @@ Une fois l'enquête terminée, le MJ peut révéler le contexte, les anecdotes e
 
 ## 🚫 Pas de recherche externe
 
-Les joueurs ne doivent pas utiliser Google, Wikipédia, ChatGPT ou toute autre source externe pour trouver directement la réponse.
+Les joueurs ne doivent pas utiliser Google, Wikipédia, IA ou toute autre source externe pour trouver directement la réponse.
 
 L'enquête doit se faire autour de la table, à partir des échanges entre les joueurs et des réponses du MJ.
 

@@ -103,43 +103,17 @@ describe("useAsyncAction", () => {
     });
   });
 
-  describe("fetchStatus", () => {
-    it("should expose the fetchStatus ref from useFetchStatus when called.", () => {
-      const { fetchStatus } = useAsyncAction(vi.fn<() => Promise<void>>(), vi.fn<(error: unknown) => void>());
+  describe("exposed refs", () => {
+    it.each<{ ref: "fetchStatus" | "isIdle" | "isPending" | "isSuccess" | "isError" }>([
+      { ref: "fetchStatus" },
+      { ref: "isIdle" },
+      { ref: "isPending" },
+      { ref: "isSuccess" },
+      { ref: "isError" },
+    ])("should expose the $ref ref from useFetchStatus when called.", ({ ref }) => {
+      const exposedReferences = useAsyncAction(vi.fn<() => Promise<void>>(), vi.fn<(error: unknown) => void>());
 
-      expect(fetchStatus).toBe(useFetchStatusMock.fetchStatus);
-    });
-  });
-
-  describe("isIdle", () => {
-    it("should expose the isIdle computed ref from useFetchStatus when called.", () => {
-      const { isIdle } = useAsyncAction(vi.fn<() => Promise<void>>(), vi.fn<(error: unknown) => void>());
-
-      expect(isIdle).toBe(useFetchStatusMock.isIdle);
-    });
-  });
-
-  describe("isPending", () => {
-    it("should expose the isPending computed ref from useFetchStatus when called.", () => {
-      const { isPending } = useAsyncAction(vi.fn<() => Promise<void>>(), vi.fn<(error: unknown) => void>());
-
-      expect(isPending).toBe(useFetchStatusMock.isPending);
-    });
-  });
-
-  describe("isSuccess", () => {
-    it("should expose the isSuccess computed ref from useFetchStatus when called.", () => {
-      const { isSuccess } = useAsyncAction(vi.fn<() => Promise<void>>(), vi.fn<(error: unknown) => void>());
-
-      expect(isSuccess).toBe(useFetchStatusMock.isSuccess);
-    });
-  });
-
-  describe("isError", () => {
-    it("should expose the isError computed ref from useFetchStatus when called.", () => {
-      const { isError } = useAsyncAction(vi.fn<() => Promise<void>>(), vi.fn<(error: unknown) => void>());
-
-      expect(isError).toBe(useFetchStatusMock.isError);
+      expect(exposedReferences[ref]).toBe(useFetchStatusMock[ref]);
     });
   });
 });

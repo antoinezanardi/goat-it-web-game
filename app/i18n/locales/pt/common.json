@@ -2,8 +2,15 @@
   "common": {
     "success": "Sucesso",
     "error": "Erro",
+    "info": "Informação",
     "close": "Fechar",
     "confirm": "Confirmar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "localeSuggestion": {
+      "title": "Quer jogar em português?",
+      "description": "Este jogo está disponível no seu idioma.",
+      "accept": "Jogar em português",
+      "decline": "Não, obrigado"
+    }
   }
 }
