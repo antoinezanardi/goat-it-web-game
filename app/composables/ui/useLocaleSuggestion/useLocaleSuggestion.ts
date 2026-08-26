@@ -50,16 +50,26 @@ async function useLocaleSuggestion(): Promise<void> {
     redirectedCookie.value = currentLocale;
   }
 
-  const suggestionToastOptions: Partial<Toast> & Record<"data-nosnippet", string> = {
-    "title": $i18n.t("common.localeSuggestion.title", {}, { locale: targetLocale }),
-    "description": $i18n.t("common.localeSuggestion.description", {}, { locale: targetLocale }),
+  function translateInSuggestedLocale(key: string): string {
+    return $i18n.t(key, {}, { locale: targetLocale });
+  }
+
+  const suggestionToastOptions: Partial<Toast> = {
+    "title": translateInSuggestedLocale("common.localeSuggestion.title"),
+    "description": translateInSuggestedLocale("common.localeSuggestion.description"),
     "type": "background",
     "duration": 0,
     "icon": "i-lucide-languages",
-    "data-nosnippet": "true",
     "actions": [
-      { label: $i18n.t("common.localeSuggestion.accept", {}, { locale: targetLocale }), onClick: handleAccept },
-      { label: $i18n.t("common.localeSuggestion.decline", {}, { locale: targetLocale }), color: "neutral", onClick: handleDecline },
+      {
+        label: translateInSuggestedLocale("common.localeSuggestion.accept"),
+        onClick: handleAccept,
+      },
+      {
+        label: translateInSuggestedLocale("common.localeSuggestion.decline"),
+        color: "neutral",
+        onClick: handleDecline,
+      },
     ],
     "onUpdate:open": handleOpenUpdate,
   };

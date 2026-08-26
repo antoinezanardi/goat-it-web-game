@@ -105,7 +105,6 @@ describe("useLocaleSuggestion", () => {
       "type": "background",
       "duration": 0,
       "icon": "i-lucide-languages",
-      "data-nosnippet": "true",
       "actions": [
         { label: "common.localeSuggestion.accept", onClick: expect.any(Function) as () => void },
         { label: "common.localeSuggestion.decline", color: "neutral", onClick: expect.any(Function) as () => void },

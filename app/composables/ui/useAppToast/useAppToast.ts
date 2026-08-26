@@ -1,4 +1,5 @@
 import type { Toast } from "#ui/composables";
+import { TOAST_EXTRA_DATA } from "~/composables/ui/useAppToast/use-app-toast.constants";
 
 type UseAppToast = {
   addSuccessToast: (options: Partial<Toast>) => Toast;
@@ -16,6 +17,7 @@ function useAppToast(): UseAppToast {
       icon: "i-lucide-circle-check-big",
       color: "success",
       title: $i18n.t("common.success"),
+      ...TOAST_EXTRA_DATA,
       ...options,
     });
   }
@@ -25,6 +27,7 @@ function useAppToast(): UseAppToast {
       icon: "i-lucide-ban",
       color: "error",
       title: $i18n.t("common.error"),
+      ...TOAST_EXTRA_DATA,
       ...options,
     });
   }
@@ -34,6 +37,7 @@ function useAppToast(): UseAppToast {
       icon: "i-lucide-info",
       color: "info",
       title: $i18n.t("common.info"),
+      ...TOAST_EXTRA_DATA,
       ...options,
     });
   }

@@ -30,9 +30,10 @@ describe("useAppToast", () => {
       addSuccessToast({});
 
       expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
-        icon: "i-lucide-circle-check-big",
-        color: "success",
-        title: "common.success",
+        "icon": "i-lucide-circle-check-big",
+        "color": "success",
+        "title": "common.success",
+        "data-nosnippet": "true",
       });
     });
 
@@ -42,11 +43,12 @@ describe("useAppToast", () => {
       addSuccessToast({ description: "Item saved", duration: 3000 });
 
       expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
-        icon: "i-lucide-circle-check-big",
-        color: "success",
-        title: "common.success",
-        description: "Item saved",
-        duration: 3000,
+        "icon": "i-lucide-circle-check-big",
+        "color": "success",
+        "title": "common.success",
+        "data-nosnippet": "true",
+        "description": "Item saved",
+        "duration": 3000,
       });
     });
 
@@ -56,9 +58,10 @@ describe("useAppToast", () => {
       addSuccessToast({ title: "Custom success title" });
 
       expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
-        icon: "i-lucide-circle-check-big",
-        color: "success",
-        title: "Custom success title",
+        "icon": "i-lucide-circle-check-big",
+        "color": "success",
+        "title": "Custom success title",
+        "data-nosnippet": "true",
       });
     });
   });
@@ -70,9 +73,10 @@ describe("useAppToast", () => {
       addErrorToast({});
 
       expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
-        icon: "i-lucide-ban",
-        color: "error",
-        title: "common.error",
+        "icon": "i-lucide-ban",
+        "color": "error",
+        "title": "common.error",
+        "data-nosnippet": "true",
       });
     });
 
@@ -82,11 +86,12 @@ describe("useAppToast", () => {
       addErrorToast({ description: "Something went wrong", duration: 5000 });
 
       expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
-        icon: "i-lucide-ban",
-        color: "error",
-        title: "common.error",
-        description: "Something went wrong",
-        duration: 5000,
+        "icon": "i-lucide-ban",
+        "color": "error",
+        "title": "common.error",
+        "data-nosnippet": "true",
+        "description": "Something went wrong",
+        "duration": 5000,
       });
     });
 
@@ -96,9 +101,10 @@ describe("useAppToast", () => {
       addErrorToast({ title: "Custom error title" });
 
       expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
-        icon: "i-lucide-ban",
-        color: "error",
-        title: "Custom error title",
+        "icon": "i-lucide-ban",
+        "color": "error",
+        "title": "Custom error title",
+        "data-nosnippet": "true",
       });
     });
   });
@@ -110,9 +116,10 @@ describe("useAppToast", () => {
       addInfoToast({});
 
       expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
-        icon: "i-lucide-info",
-        color: "info",
-        title: "common.info",
+        "icon": "i-lucide-info",
+        "color": "info",
+        "title": "common.info",
+        "data-nosnippet": "true",
       });
     });
 
@@ -122,11 +129,12 @@ describe("useAppToast", () => {
       addInfoToast({ description: "Did you know", duration: 4000 });
 
       expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
-        icon: "i-lucide-info",
-        color: "info",
-        title: "common.info",
-        description: "Did you know",
-        duration: 4000,
+        "icon": "i-lucide-info",
+        "color": "info",
+        "title": "common.info",
+        "data-nosnippet": "true",
+        "description": "Did you know",
+        "duration": 4000,
       });
     });
 
@@ -136,9 +144,10 @@ describe("useAppToast", () => {
       addInfoToast({ title: "Custom info title" });
 
       expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
-        icon: "i-lucide-info",
-        color: "info",
-        title: "Custom info title",
+        "icon": "i-lucide-info",
+        "color": "info",
+        "title": "Custom info title",
+        "data-nosnippet": "true",
       });
     });
   });
