@@ -2,12 +2,10 @@ import { isValidLocale } from "@goat-it/schemas/shared/locale";
 
 import { resolveSuggestedLocale } from "#shared/utils/helpers/locale/locale.helpers";
 import type { Toast } from "#ui/composables";
-
-const I18N_REDIRECTED_COOKIE_NAME = "i18n_redirected";
-const I18N_REDIRECTED_COOKIE_MAX_AGE_IN_SECONDS = 31_536_000;
+import { I18N_REDIRECTED_COOKIE_MAX_AGE_IN_SECONDS, I18N_REDIRECTED_COOKIE_NAME } from "~/composables/ui/useLocaleSuggestion/use-locale-suggestion.constants";
 
 async function useLocaleSuggestion(): Promise<void> {
-  const toast = useToast();
+  const { addInfoToast, removeToast } = useAppToast();
   const { $i18n } = useNuxtApp();
   const redirectedCookie = useCookie<string | null>(I18N_REDIRECTED_COOKIE_NAME, {
     path: "/",
@@ -22,7 +20,7 @@ async function useLocaleSuggestion(): Promise<void> {
   const suggestedLocale = resolveSuggestedLocale(navigator.languages);
   const currentLocale = $i18n.locale.value;
 
-  if (suggestedLocale === null || suggestedLocale === currentLocale) {
+  if (suggestedLocale === undefined || suggestedLocale === currentLocale) {
     return;
   }
 
@@ -36,13 +34,13 @@ async function useLocaleSuggestion(): Promise<void> {
     isHandled = true;
     redirectedCookie.value = targetLocale;
     void $i18n.setLocale(targetLocale);
-    toast.remove(suggestionToast.id);
+    removeToast(suggestionToast.id);
   }
 
   function handleDecline(): void {
     isHandled = true;
     redirectedCookie.value = currentLocale;
-    toast.remove(suggestionToast.id);
+    removeToast(suggestionToast.id);
   }
 
   function handleOpenUpdate(open: boolean): void {
@@ -57,15 +55,16 @@ async function useLocaleSuggestion(): Promise<void> {
     "description": $i18n.t("common.localeSuggestion.description", {}, { locale: targetLocale }),
     "type": "background",
     "duration": 0,
+    "icon": "i-lucide-languages",
     "data-nosnippet": "true",
     "actions": [
       { label: $i18n.t("common.localeSuggestion.accept", {}, { locale: targetLocale }), onClick: handleAccept },
-      { label: $i18n.t("common.localeSuggestion.decline", {}, { locale: targetLocale }), onClick: handleDecline },
+      { label: $i18n.t("common.localeSuggestion.decline", {}, { locale: targetLocale }), color: "neutral", onClick: handleDecline },
     ],
     "onUpdate:open": handleOpenUpdate,
   };
 
-  const suggestionToast = toast.add(suggestionToastOptions);
+  const suggestionToast = addInfoToast(suggestionToastOptions);
 }
 
 export { useLocaleSuggestion };

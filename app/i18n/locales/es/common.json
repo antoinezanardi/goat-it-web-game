@@ -2,6 +2,7 @@
   "common": {
     "success": "Éxito",
     "error": "Error",
+    "info": "Información",
     "close": "Cerrar",
     "confirm": "Confirmar",
     "cancel": "Cancelar",

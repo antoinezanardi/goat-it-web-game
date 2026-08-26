@@ -16,13 +16,13 @@ describe(resolveCookieLocale, () => {
 });
 
 describe(resolveSuggestedLocale, () => {
-  it.each<{ browserLanguages: string[]; expected: string | null; description: string }>([
+  it.each<{ browserLanguages: string[]; expected: string | undefined; description: string }>([
     { browserLanguages: ["fr"], expected: "fr", description: "an exact supported locale code" },
     { browserLanguages: ["fr-FR", "fr"], expected: "fr", description: "a region subtag resolvable to a supported base code" },
     { browserLanguages: ["pt-BR"], expected: "pt", description: "a Brazilian Portuguese preference resolvable to pt" },
     { browserLanguages: ["de-DE", "fr-FR"], expected: "de", description: "a list where the first resolvable preference wins" },
-    { browserLanguages: ["ja-JP", "ja"], expected: null, description: "a list with only unsupported locales" },
-    { browserLanguages: [], expected: null, description: "an empty list" },
+    { browserLanguages: ["ja-JP", "ja"], expected: undefined, description: "a list with only unsupported locales" },
+    { browserLanguages: [], expected: undefined, description: "an empty list" },
   ])("should return '$expected' when browser languages are $description.", ({ browserLanguages, expected }) => {
     expect(resolveSuggestedLocale(browserLanguages)).toBe(expected);
   });

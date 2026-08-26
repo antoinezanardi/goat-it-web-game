@@ -9,8 +9,6 @@ type NuxtI18nContext = {
   detectLocale: Locale;
 };
 
-// Acceptable as Nitro server plugins require a default export
-// oxlint-disable-next-line import/no-default-export
 export default defineNitroPlugin(nitro => {
   nitro.hooks.hook("render:before", context => {
     const { event } = context;

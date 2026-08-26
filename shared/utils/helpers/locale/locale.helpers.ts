@@ -8,7 +8,7 @@ function resolveCookieLocale(cookieValue: string | undefined, defaultLocale: Loc
   return defaultLocale;
 }
 
-function resolveSuggestedLocale(browserLanguages: readonly string[]): Locale | null {
+function resolveSuggestedLocale(browserLanguages: readonly string[]): Locale | undefined {
   for (const browserLanguage of browserLanguages) {
     if (isValidLocale(browserLanguage)) {
       return browserLanguage;
@@ -19,9 +19,7 @@ function resolveSuggestedLocale(browserLanguages: readonly string[]): Locale | n
       return baseLanguage;
     }
   }
-  // Acceptable as the function must return null when no valid locale is found in the browser language list
-  // oxlint-disable-next-line unicorn/no-null
-  return null;
+  return undefined;
 }
 
 export {

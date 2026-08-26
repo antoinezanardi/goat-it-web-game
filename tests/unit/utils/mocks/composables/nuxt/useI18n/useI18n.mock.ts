@@ -12,7 +12,8 @@ type UseI18nStub = {
   locale: Ref<SupportedLocaleCodeForMock>;
   localeCodes: Ref<SupportedLocaleCodeForMock[]>;
   locales: Ref<SupportedMockedLocale[]>;
-  setLocale: (locale: Ref<SupportedLocaleCodeForMock>) => void;
+  setLocale: (locale: SupportedLocaleCodeForMock) => void;
+  loadLocaleMessages: (locale: SupportedLocaleCodeForMock) => Promise<void>;
 };
 
 type UseI18nMock = ToMock<UseI18nStub>;
@@ -29,6 +30,7 @@ function createUseI18nMock(): UseI18nMock {
     localeCodes: ref([...MOCKED_LOCALE_CODES]),
     locales: ref<SupportedMockedLocale[]>([...MOCKED_LOCALES]),
     setLocale: vi.fn<UseI18nStub["setLocale"]>(),
+    loadLocaleMessages: vi.fn<UseI18nStub["loadLocaleMessages"]>(),
   };
 }
 

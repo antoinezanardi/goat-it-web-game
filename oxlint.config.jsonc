@@ -1266,6 +1266,15 @@
         "import/no-default-export": "off"
       }
     },
+    // ---- Override for server plugin files -----
+    {
+      "files": [
+        "**/server/plugins/**/*.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
     // ---- Override for config files -----
     {
       "files": [
