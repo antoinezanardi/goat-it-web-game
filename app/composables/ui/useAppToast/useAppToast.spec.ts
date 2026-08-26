@@ -1,15 +1,11 @@
-import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createUseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock";
 import type { UseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock";
-import { createUseToastMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
-import type { UseToastMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
 
 import type { useAppToast as UseAppToastType } from "@/composables/ui/useAppToast/useAppToast";
 
 let i18nMock: UseI18nMock;
-let useToastMock: UseToastMock;
 
 // Acceptable as import() form is required to mock a module from a factory with importOriginal
 // oxlint-disable-next-line vitest/prefer-import-in-mock
@@ -19,14 +15,11 @@ vi.mock(import("#app/nuxt"), async importOriginal => {
   return { ...actual, useNuxtApp: ((): { $i18n: UseI18nMock } => ({ $i18n: i18nMock })) as unknown as typeof actual.useNuxtApp };
 });
 
-mockNuxtImport("useToast", () => (): UseToastMock => useToastMock);
-
 let useAppToast: typeof UseAppToastType;
 
 describe("useAppToast", () => {
   beforeEach(async() => {
     i18nMock = createUseI18nMock();
-    useToastMock = createUseToastMock();
     ({ useAppToast } = await import("@/composables/ui/useAppToast/useAppToast"));
   });
 
