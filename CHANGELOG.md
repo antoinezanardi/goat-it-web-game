@@ -1,5 +1,43 @@
 # 🐐👑 Goat It Web Admin Versioning Changelog
 
+## [1.6.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.5.0...v1.6.0) (2026-08-26)
+
+### 🚀 Features
+
+* **game:** add collapsible sidebar to game page ([#210](https://github.com/antoinezanardi/goat-it-web-game/issues/210)) ([4b689f1](https://github.com/antoinezanardi/goat-it-web-game/commit/4b689f146ae70be072c1cce087832d465c75ddbe))
+* **locale:** add browser locale suggestion toast and cookie-based SSR resolution ([#222](https://github.com/antoinezanardi/goat-it-web-game/issues/222)) ([84f5f44](https://github.com/antoinezanardi/goat-it-web-game/commit/84f5f4401e6e29ff06988e2ecde5948925c84461))
+* **rules:** add start-game button, sidebar link, example round and translation fixes ([#217](https://github.com/antoinezanardi/goat-it-web-game/issues/217)) ([cbb5641](https://github.com/antoinezanardi/goat-it-web-game/commit/cbb5641d1072901697f5d23138275eed20e9e39a))
+
+### 🐛 Bug Fixes
+
+* **ci:** remove skip ci token from sync-develop merge message ([#207](https://github.com/antoinezanardi/goat-it-web-game/issues/207)) ([a849f0a](https://github.com/antoinezanardi/goat-it-web-game/commit/a849f0a02d5d09525ae337f5381251845bd2b2e0))
+
+### 📖 Docs
+
+* **opencode:** improve agentic workflow review handling ([#208](https://github.com/antoinezanardi/goat-it-web-game/issues/208)) ([e93f0ee](https://github.com/antoinezanardi/goat-it-web-game/commit/e93f0eeab0a857472369cb88c8b51dc1bd6d8f86))
+* **testing:** align unit-testing references with lint checklist and harden agent workflow ([#216](https://github.com/antoinezanardi/goat-it-web-game/issues/216)) ([cb2106e](https://github.com/antoinezanardi/goat-it-web-game/commit/cb2106e8bf365986066846c438c59cb828f90195))
+
+### 🔩 Refactor
+
+* **tests:** remove unworthy tests in nuxt test suite ([#211](https://github.com/antoinezanardi/goat-it-web-game/issues/211)) ([007c594](https://github.com/antoinezanardi/goat-it-web-game/commit/007c5945f2caa01f8a2f9f46cb560ecdd6e007b0))
+
+### 🧹 Chore
+
+* sync release v1.5.0 from main ([8b9087e](https://github.com/antoinezanardi/goat-it-web-game/commit/8b9087e7c263cb440989d428e878f8a735e58ae8))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `@iconify-json/lucide` | `^1.2.126` |
+| `@takumi-rs/core` | `^2.12.0` |
+| `eslint` | `^10.9.1` |
+| `eslint-plugin-oxlint` | `^1.80.0` |
+| `mongodb` | `^7.6.0` |
+| `nuxt-seo-utils` | `^8.4.3` |
+| `oxlint` | `^1.80.0` |
+| `pnpm` | `v11.24.0` |
+
 ## [1.5.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.4.0...v1.5.0) (2026-08-21)
 
 ### 🚀 Features
