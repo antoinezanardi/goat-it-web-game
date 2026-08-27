@@ -148,8 +148,8 @@ importers:
         specifier: ^6.7.8
         version: 6.7.8(8b4d58ddda8d48aa2d68d78ec8773477)
       nuxt-schema-org:
-        specifier: ^6.3.0
-        version: 6.3.0(0fae6c41189514b174afcb1daa296102)
+        specifier: ^6.3.1
+        version: 6.3.1(0fae6c41189514b174afcb1daa296102)
       nuxt-seo-utils:
         specifier: ^8.4.3
         version: 8.4.3(767696f1fb8a85b7758abaa11f8672ac)
@@ -8153,8 +8153,8 @@ packages:
       zod:
         optional: true
 
-  nuxt-schema-org@6.3.0:
-    resolution: {integrity: sha512-QLuGIsZOJZJEKo1KPQ/629IpC7AF+nAEaBNLtUPq/oES2hGIuyUryANf8/jerUqU+FsbvTuvc7Lsbwb8FEwvzA==}
+  nuxt-schema-org@6.3.1:
+    resolution: {integrity: sha512-pZQyLERx8iho4QDCDNK0WxfdHwmZWXk8Nrp9DUfR79aKkwivm83SEvwWp0D9/YuBfaXhm+9YxVBpCDA2kr8B+g==}
     peerDependencies:
       '@unhead/vue': ^2.0.7 || ^3.0.0
       unhead: ^3.4.0
@@ -19786,7 +19786,7 @@ snapshots:
       - vue
       - webpack
 
-  nuxt-schema-org@6.3.0(0fae6c41189514b174afcb1daa296102):
+  nuxt-schema-org@6.3.1(0fae6c41189514b174afcb1daa296102):
     dependencies:
       '@nuxt/kit': 4.5.2(magic-string@1.1.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.0)(rolldown@1.2.5)(rollup@4.60.3)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))
       defu: 6.1.7
