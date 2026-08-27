@@ -1,6 +1,6 @@
 {
   "name": "goat-it-web-game",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Goat It Web Game is a web game for the Goat It app.",
   "private": true,
   "type": "module",
