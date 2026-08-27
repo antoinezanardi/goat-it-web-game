@@ -26,7 +26,7 @@
   "license": "MIT",
   "author": "Antoine ZANARDI",
   "engines": {
-    "node": ">=26.7.0"
+    "node": ">=26.8.1"
   },
   "os": [
     "darwin",
@@ -107,7 +107,7 @@
     "@semantic-release/git": "^11.0.1",
     "@semantic-release/release-notes-generator": "^14.1.1",
     "@takumi-rs/core": "^2.12.0",
-    "@tanstack/vue-table": "^9.1.2",
+    "@tanstack/vue-table": "^9.2.3",
     "@types/node": "^25.9.5",
     "@vite-pwa/nuxt": "^1.1.1",
     "@vitest/coverage-v8": "^4.1.11",
@@ -121,14 +121,14 @@
     "eslint-plugin-oxlint": "^1.80.0",
     "eslint-plugin-unicorn": "^73.0.0",
     "fuse.js": "^7.5.0",
-    "happy-dom": "^20.11.6",
+    "happy-dom": "^20.11.8",
     "husky": "^9.1.7",
     "is-ci": "^4.1.0",
     "lint-staged": "^17.3.0",
     "mongodb": "^7.6.0",
     "nuxt": "^4.5.2",
     "nuxt-og-image": "^6.7.8",
-    "nuxt-schema-org": "^6.3.0",
+    "nuxt-schema-org": "^6.3.1",
     "nuxt-seo-utils": "^8.4.3",
     "nuxt-site-config": "^4.2.3",
     "nuxtseo-layer-devtools": "^5.3.14",
