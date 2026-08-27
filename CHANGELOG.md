@@ -1,5 +1,20 @@
 # 🐐👑 Goat It Web Admin Versioning Changelog
 
+## [1.6.1](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.6.0...v1.6.1) (2026-08-27)
+
+### 🧹 Chore
+
+* sync release v1.6.0 from main ([fd18906](https://github.com/antoinezanardi/goat-it-web-game/commit/fd18906c9ad830bff62c7f6f7e2496d31cc81d78))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `@tanstack/vue-table` | `^9.2.3` |
+| `happy-dom` | `^20.11.8` |
+| `nuxt-schema-org` | `^6.3.1` |
+| `node.js` | `v26.8.1` |
+
 ## [1.6.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.5.0...v1.6.0) (2026-08-26)
 
 ### 🚀 Features
