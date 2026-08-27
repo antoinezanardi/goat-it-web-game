@@ -121,7 +121,7 @@
     "eslint-plugin-oxlint": "^1.80.0",
     "eslint-plugin-unicorn": "^73.0.0",
     "fuse.js": "^7.5.0",
-    "happy-dom": "^20.11.8",
+    "happy-dom": "^20.11.10",
     "husky": "^9.1.7",
     "is-ci": "^4.1.0",
     "lint-staged": "^17.3.0",
