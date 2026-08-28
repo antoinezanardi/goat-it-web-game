@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:26.7.0-alpine AS base
+FROM --platform=$BUILDPLATFORM node:26.8.1-alpine AS base
 LABEL maintainer="Antoine ZANARDI"
 
 ARG TARGETPLATFORM
@@ -77,7 +77,7 @@ RUN --mount=type=secret,id=goat_it_api_base_url,env=NUXT_GOAT_IT_API_BASE_URL \
     --mount=type=secret,id=goat_it_og_image_security_secret,env=NUXT_OG_IMAGE_SECURITY_SECRET \
     pnpm run build
 
-FROM node:26.7.0-alpine AS production
+FROM node:26.8.1-alpine AS production
 
 ENV NODE_ENV="production"
 ENV PORT=3002
