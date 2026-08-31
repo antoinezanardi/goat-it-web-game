@@ -190,8 +190,8 @@ importers:
         specifier: ^4.3.3
         version: 4.3.3
       type-fest:
-        specifier: ^5.8.0
-        version: 5.8.0
+        specifier: ^5.9.0
+        version: 5.9.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -9961,6 +9961,10 @@ packages:
     resolution: {integrity: sha512-YGYEVz3Fm5iy/AybuA0oyNFq7H4CgQNfRp/qfe8nurE1kuCeNm3/vfm9X4Mtl+qLyaKJUh5xrFZwogr41SMjYA==}
     engines: {node: '>=20'}
 
+  type-fest@5.9.0:
+    resolution: {integrity: sha512-yANm3Jr3GiJ1qgJlxGAVxTOIcEOk1rhQHamlXtnrCK7EHP4HeM9OGxtMg/W7HFdrVzw/ZWJKGVIJusVH85sLtw==}
+    engines: {node: '>=20'}
+
   type-level-regexp@0.1.17:
     resolution: {integrity: sha512-wTk4DH3cxwk196uGLK/E9pE45aLfeKJacKmcEgEOA/q5dnPGNxXt0cfYdFxb57L+sEpf1oJH4Dnx/pnRcku9jg==}
 
@@ -10976,7 +10980,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.29.7
       '@babel/helper-validator-option': 7.29.7
-      browserslist: 4.28.7
+      browserslist: 4.28.8
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -11603,7 +11607,7 @@ snapshots:
       babel-plugin-polyfill-corejs2: 0.4.17(@babel/core@7.29.0(supports-color@11.0.0))(supports-color@11.0.0)
       babel-plugin-polyfill-corejs3: 0.14.2(@babel/core@7.29.0(supports-color@11.0.0))(supports-color@11.0.0)
       babel-plugin-polyfill-regenerator: 0.6.8(@babel/core@7.29.0(supports-color@11.0.0))(supports-color@11.0.0)
-      core-js-compat: 3.49.0
+      core-js-compat: 3.50.0
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
@@ -11849,7 +11853,7 @@ snapshots:
       semver: 7.8.5
       string-argv: 0.3.2
       supports-color: 11.0.0
-      type-fest: 5.8.0
+      type-fest: 5.9.0
       util-arity: 1.1.0
       yaml: 2.9.0
       yup: 1.7.1
@@ -12342,7 +12346,7 @@ snapshots:
   '@goat-it/schemas@0.0.20(@faker-js/faker@10.6.0)(zod@4.4.3)':
     dependencies:
       '@faker-js/faker': 10.6.0
-      type-fest: 5.8.0
+      type-fest: 5.9.0
       zod: 4.4.3
 
   '@html-validate/stylish@6.0.0': {}
@@ -15669,7 +15673,7 @@ snapshots:
 
   '@typescript-eslint/utils@8.66.0(eslint@10.9.1(jiti@2.7.0)(supports-color@11.0.0))(supports-color@11.0.0)(typescript@6.0.3)':
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.1(eslint@10.9.1(jiti@2.7.0)(supports-color@11.0.0))
+      '@eslint-community/eslint-utils': 4.10.1(eslint@10.9.1(jiti@2.7.0)(supports-color@11.0.0))
       '@typescript-eslint/scope-manager': 8.66.0
       '@typescript-eslint/types': 8.66.0
       '@typescript-eslint/typescript-estree': 8.66.0(supports-color@11.0.0)(typescript@6.0.3)
@@ -16435,7 +16439,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.0(supports-color@11.0.0)
       '@babel/helper-define-polyfill-provider': 0.6.8(@babel/core@7.29.0(supports-color@11.0.0))(supports-color@11.0.0)
-      core-js-compat: 3.49.0
+      core-js-compat: 3.50.0
     transitivePeerDependencies:
       - supports-color
 
@@ -21154,14 +21158,14 @@ snapshots:
     dependencies:
       find-up-simple: 1.0.1
       read-pkg: 10.1.0
-      type-fest: 5.8.0
+      type-fest: 5.9.0
 
   read-pkg@10.1.0:
     dependencies:
       '@types/normalize-package-data': 2.4.4
       normalize-package-data: 8.0.0
       parse-json: 8.3.0
-      type-fest: 5.8.0
+      type-fest: 5.9.0
       unicorn-magic: 0.4.0
 
   read-pkg@9.0.1:
@@ -22374,6 +22378,10 @@ snapshots:
   type-fest@4.41.0: {}
 
   type-fest@5.8.0:
+    dependencies:
+      tagged-tag: 1.0.0
+
+  type-fest@5.9.0:
     dependencies:
       tagged-tag: 1.0.0
 
