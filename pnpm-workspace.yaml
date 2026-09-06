@@ -15,6 +15,14 @@ allowBuilds:
 peerDependencyRules:
   allowedVersions:
     vite: "8"
-supportedArchitectures: os=linux,darwin cpu=x64,arm64
-libc: glibc,musl
+supportedArchitectures:
+  os:
+    - linux
+    - darwin
+  cpu:
+    - x64
+    - arm64
+  libc:
+    - glibc
+    - musl
 minimumReleaseAge: 0
