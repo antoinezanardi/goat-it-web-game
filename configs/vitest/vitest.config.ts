@@ -4,6 +4,9 @@ import { defineConfig } from "vitest/config";
 import { VITEST_COMPOSABLES_PROJECT_CONFIG, VITEST_IGNORED_STARTING_BY_LOGS, VITEST_NODE_PROJECT_CONFIG, VITEST_NUXT_PROJECT_CONFIG, VITEST_REPOSITORIES_PROJECT_CONFIG, VITEST_STORES_PROJECT_CONFIG } from "./vitest.config.constants.ts";
 
 export default defineConfig({
+  resolve: {
+    alias: [{ find: /^vitest\/environments$/u, replacement: "vitest/runtime" }],
+  },
   test: {
     hookTimeout: 30_000,
     projects: [
