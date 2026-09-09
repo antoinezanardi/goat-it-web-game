@@ -228,6 +228,13 @@ export default defineNuxtConfig({
     },
     detectBrowserLanguage: false,
   },
+  icon: {
+    clientBundle: {
+      scan: {
+        globInclude: ["**/*.{vue,ts}"],
+      },
+    },
+  },
   ogImage: {
     security: {
       secret: process.env.NUXT_OG_IMAGE_SECURITY_SECRET ?? "goat-it-og-image-dev-secret",
@@ -272,6 +279,7 @@ export default defineNuxtConfig({
       navigateFallback: null,
     },
   },
+  seo: { validateAppHead: false },
   sitemap: {
     zeroRuntime: true,
     exclude: [
