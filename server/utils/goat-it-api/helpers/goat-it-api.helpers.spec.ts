@@ -1,5 +1,6 @@
 import { FetchError } from "ofetch";
 import { H3Error, getCookie } from "h3";
+import type { Locale } from "@goat-it/schemas/shared/locale";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
@@ -16,14 +17,14 @@ vi.stubGlobal("useRuntimeConfig", vi.fn());
 
 const mockedEvent = createFakeH3Event();
 
-function mockGoatItApiEnvironment(): void {
+function mockGoatItApiEnvironment(defaultLocale: Locale = "en"): void {
   const runtimeConfigMock = {
     goatItApi: {
       baseUrl: "https://api.example.com",
       gameKey: "secret-game-key",
     },
     public: {
-      defaultLocale: "en",
+      defaultLocale,
     },
   } as const;
   vi.mocked(useRuntimeConfig).mockReturnValue(runtimeConfigMock as unknown as ReturnType<typeof useRuntimeConfig>);
@@ -41,7 +42,7 @@ function getThrowableError(function_: () => void): H3Error {
 }
 
 describe(createGoatItApiEndpoint, () => {
-  beforeEach(mockGoatItApiEnvironment);
+  beforeEach(() => mockGoatItApiEnvironment());
 
   it.each<{
     description: string;
@@ -65,7 +66,7 @@ describe(createGoatItApiEndpoint, () => {
 });
 
 describe(extractLocaleFromEvent, () => {
-  beforeEach(mockGoatItApiEnvironment);
+  beforeEach(() => mockGoatItApiEnvironment());
 
   it("should return cookie locale when i18n_redirected cookie is valid.", () => {
     vi.mocked(getCookie).mockReturnValue("fr");
@@ -94,25 +95,31 @@ describe(extractLocaleFromEvent, () => {
     expect(locale).toBe("en");
   });
 
-  it("should fall back to the first valid locale when default locale is invalid.", () => {
-    vi.mocked(useRuntimeConfig).mockReturnValue({
-      goatItApi: {
-        baseUrl: "https://api.example.com",
-        gameKey: "secret-game-key",
-      },
-      public: {
-        defaultLocale: "invalid-locale",
-      },
-    } as unknown as ReturnType<typeof useRuntimeConfig>);
+  it("should fall back to the configured default locale when cookie is missing and default locale is fr.", () => {
+    mockGoatItApiEnvironment("fr");
 
     const locale = extractLocaleFromEvent(mockedEvent);
 
-    expect(locale).toBe("en");
+    expect(locale).toBe("fr");
+  });
+
+  it.each<{ cookieValue: string; description: string }>([
+    { cookieValue: "", description: "an empty string" },
+    { cookieValue: "FR", description: "an uppercase locale code" },
+    { cookieValue: "ja", description: "an unsupported locale" },
+    { cookieValue: "garbage", description: "a garbage value" },
+  ])("should fall back to the configured fr default locale when i18n_redirected cookie is $description.", ({ cookieValue }) => {
+    mockGoatItApiEnvironment("fr");
+    vi.mocked(getCookie).mockReturnValue(cookieValue);
+
+    const locale = extractLocaleFromEvent(mockedEvent);
+
+    expect(locale).toBe("fr");
   });
 });
 
 describe(createGoatItApiFetchOptions, () => {
-  beforeEach(mockGoatItApiEnvironment);
+  beforeEach(() => mockGoatItApiEnvironment());
 
   it("should create fetch options with baseURL, api key and the cookie locale accept-language header when called with event.", () => {
     vi.mocked(getCookie).mockReturnValue("fr");
@@ -142,6 +149,21 @@ describe(createGoatItApiFetchOptions, () => {
 
     expect(fetchOptions).toStrictEqual<Parameters<typeof $fetch>[1]>(expectedFetchOptions);
   });
+
+  it("should create fetch options with the configured fr accept-language header when no cookie is present and default locale is fr.", () => {
+    mockGoatItApiEnvironment("fr");
+    const expectedFetchOptions: Parameters<typeof $fetch>[1] = {
+      baseURL: "https://api.example.com",
+      headers: {
+        "goat-it-api-key": "secret-game-key",
+        "Accept-Language": "fr",
+      },
+    };
+
+    const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
+
+    expect(fetchOptions).toStrictEqual<Parameters<typeof $fetch>[1]>(expectedFetchOptions);
+  });
 });
 
 type GoatItApiFetchErrorTestCase = {
@@ -158,7 +180,7 @@ type GoatItApiErrorCodeDataTestCase = {
 };
 
 describe(handleGoatItApiError, () => {
-  beforeEach(mockGoatItApiEnvironment);
+  beforeEach(() => mockGoatItApiEnvironment());
 
   const validErrorDataWithErrorCode = {
     statusCode: 409,

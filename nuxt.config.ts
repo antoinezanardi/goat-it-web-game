@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     "v-gsap-nuxt",
   ],
   $test: {
+    runtimeConfig: { public: { defaultLocale: "en" } },
     buildDir: ".nuxt/test",
     nitro: { output: { dir: ".nuxt/test/output" } },
     i18n: { defaultLocale: "en" },
@@ -71,6 +72,7 @@ export default defineNuxtConfig({
       baseUrl: "",
       gameKey: "",
     },
+    public: { defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE },
   },
   ignore: [
     "configs/**/*.ts",
