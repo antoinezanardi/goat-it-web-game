@@ -98,7 +98,7 @@
     "@nuxt/test-utils": "^4.3.2",
     "@nuxt/ui": "^4.11.1",
     "@nuxtjs/i18n": "^10.6.0",
-    "@nuxtjs/robots": "^6.2.0",
+    "@nuxtjs/robots": "^6.2.1",
     "@nuxtjs/sitemap": "^8.5.0",
     "@pinia/nuxt": "^1.0.2",
     "@pinia/testing": "^2.0.1",
