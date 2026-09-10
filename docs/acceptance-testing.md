@@ -185,6 +185,7 @@ const {
   env: {
     NUXT_GOAT_IT_API_BASE_URL: sandboxBaseUrl,
     NUXT_GOAT_IT_API_ADMIN_KEY: SANDBOX_ADMIN_KEY,
+    NUXT_PUBLIC_DEFAULT_LOCALE: ACCEPTANCE_TESTS_DEFAULT_LOCALE,
   },
   browserOptions: {
     type: "chromium",
