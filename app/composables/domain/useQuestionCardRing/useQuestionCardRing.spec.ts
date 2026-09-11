@@ -5,6 +5,7 @@ import { nextTick, ref } from "vue";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
 import type { UseQuestionCardRingOptions } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.types";
+import { QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
 import { useQuestionCardRing } from "~/composables/domain/useQuestionCardRing/useQuestionCardRing";
 import type { Question } from "#shared/types/question.types";
 
@@ -29,6 +30,16 @@ describe(useQuestionCardRing, () => {
   function flushRestage(): void {
     requestAnimationFrameCallbacks[0]?.(0);
     requestAnimationFrameCallbacks.splice(0, 1);
+  }
+
+  function freezeAnimationFrames(): void {
+    // Acceptable as requestAnimationFrame is a callback-based browser API with no async alternative
+    // oxlint-disable-next-line promise/prefer-await-to-callbacks
+    vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation(callback => {
+      requestAnimationFrameCallbacks.push(callback);
+
+      return requestAnimationFrameCallbacks.length;
+    });
   }
 
   beforeEach(() => {
@@ -205,6 +216,73 @@ describe(useQuestionCardRing, () => {
     requestAnimationFrameCallbacks[0]?.(0);
 
     expect(slots.value[2]?.question).toBe(questions.value[3]);
+  });
+
+  it("should update the far slot question when the safety timeout fires without animation frames.", async() => {
+    vi.useFakeTimers();
+    freezeAnimationFrames();
+    const { complete, slots } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
+    vi.useRealTimers();
+
+    expect(slots.value[2]?.question).toBe(questions.value[3]);
+  });
+
+  it("should call onResetSlot for the far slot when the safety timeout fires without animation frames.", async() => {
+    vi.useFakeTimers();
+    freezeAnimationFrames();
+    const { complete } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
+    vi.useRealTimers();
+
+    expect(onResetSlot).toHaveBeenCalledExactlyOnceWith(2);
+  });
+
+  it("should call onStaged when the safety timeout fires without animation frames.", async() => {
+    vi.useFakeTimers();
+    freezeAnimationFrames();
+    const { complete } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
+    vi.useRealTimers();
+
+    expect(onStaged).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("should not call onStaged twice when animation frames resume after the safety timeout restage.", async() => {
+    vi.useFakeTimers();
+    freezeAnimationFrames();
+    const { complete } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
+    flushRestage();
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+    vi.useRealTimers();
+
+    expect(onStaged).toHaveBeenCalledExactlyOnceWith();
   });
 
   it("should stage a newly available next question when the questions array grows.", async() => {

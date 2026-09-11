@@ -139,6 +139,7 @@ Feature: 🎮 Game Page
     Given the database is populated with the question fixture set "five-active-questions"
     And the user is on game page
     When the user goes to the next question
+    And the user goes to the next question
     And the user goes to the previous question
     Then exactly 1 game question card should be active
     And exactly 2 game question cards should be staged
