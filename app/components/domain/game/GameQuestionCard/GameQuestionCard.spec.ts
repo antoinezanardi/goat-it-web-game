@@ -7,6 +7,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { createFakeQuestionContent } from "~~/tests/unit/utils/faketories/question/question-content.entity.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
 import { GameQuestionCard } from "#components";
 
@@ -14,6 +15,8 @@ import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestio
 
 describe("GameQuestionCard Component", () => {
   const defaultGameQuestionCardProps: GameQuestionCardProps = {
+    isActive: true,
+    isFrozen: false,
     question: createFakeQuestion({
       category: "trivia",
       themes: [
@@ -158,5 +161,50 @@ describe("GameQuestionCard Component", () => {
     });
 
     expect(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).exists()).toBe(false);
+  });
+
+  it("should render the staged data-testid when isActive is false.", async() => {
+    await wrapper.setProps({ isActive: false });
+
+    expect(wrapper.find("[data-testid='game-question-staged']").exists()).toBe(true);
+  });
+
+  it("should add the frozen modifier class when isFrozen is true.", async() => {
+    await wrapper.setProps({ isFrozen: true });
+
+    expect(wrapper.find("[data-testid='game-question']").classes()).toContain("game-question-card--frozen");
+  });
+
+  it("should not add the frozen modifier class when isFrozen is false.", () => {
+    expect(wrapper.find("[data-testid='game-question']").classes()).not.toContain("game-question-card--frozen");
+  });
+
+  it.each<{ layerClass: string; layerName: string }>([
+    { layerClass: "game-card-halo__base", layerName: "base" },
+    { layerClass: "game-card-halo__orb-a", layerName: "orb-a" },
+    { layerClass: "game-card-halo__orb-b", layerName: "orb-b" },
+  ])("should render the halo $layerName layer when mounted.", ({ layerClass }) => {
+    const halo = wrapper.find(".game-card-halo");
+
+    expect(halo.find(`.${layerClass}`).exists()).toBe(true);
+  });
+
+  it("should not remount the context accordion when the question id changes.", async() => {
+    const initialUid = getWrapperVm(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" })).$.uid;
+
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultGameQuestionCardProps.question,
+        id: "new-id",
+        content: createFakeQuestionContent({
+          context: "Updated context.",
+          trivia: ["Updated trivia"],
+        }),
+      }),
+    });
+
+    const updatedUid = getWrapperVm(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" })).$.uid;
+
+    expect(updatedUid).toBe(initialUid);
   });
 });

@@ -241,3 +241,17 @@ Then(
     await expect(this.page.getByTestId("theme-hint-popover")).toHaveText(text);
   },
 );
+
+Then(
+  /^exactly (?<count>\d+) game question cards? should be active$/u,
+  async function(this: GoatItWorld, count: string): Promise<void> {
+    await expect(this.page.getByTestId("game-question")).toHaveCount(Number(count));
+  },
+);
+
+Then(
+  /^exactly (?<count>\d+) game question cards? should be staged$/u,
+  async function(this: GoatItWorld, count: string): Promise<void> {
+    await expect(this.page.getByTestId("game-question-staged")).toHaveCount(Number(count));
+  },
+);

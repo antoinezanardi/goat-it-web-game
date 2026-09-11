@@ -2,11 +2,20 @@
 import type { GameQuestionCardContextAccordionProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.types";
 import { GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI, GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.constants";
 
-defineProps<GameQuestionCardContextAccordionProps>();
+const props = defineProps<GameQuestionCardContextAccordionProps>();
+
+const isOpen = ref<boolean>(false);
+
+watch(() => [props.context, props.trivia], () => {
+  isOpen.value = false;
+});
 </script>
 
 <template>
-  <UCollapsible :ui="GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI">
+  <UCollapsible
+    v-model:open="isOpen"
+    :ui="GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI"
+  >
     <UButton
       block
       class="bg-content border border-(color:--game-theme-border) game-question-accordion--themed group justify-between min-h-10 rounded-lg"
