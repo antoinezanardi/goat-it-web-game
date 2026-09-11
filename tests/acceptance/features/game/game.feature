@@ -68,6 +68,12 @@ Feature: 🎮 Game Page
     And the question trivia item "Paris is known as the City of Light" should be visible
     And the question trivia item "The Eiffel Tower was built in 1889" should be visible
 
+  Scenario: 🎮 Question card hides the context accordion when context and trivia are missing
+    Given the database is populated with the question fixture set "single-no-context-question"
+    And the user is on game page
+    Then the question card should be displayed
+    And the question context accordion should be hidden
+
   Scenario: 🚪 Confirm leave while playing
     Given the database is populated with the question fixture set "five-active-questions"
     And the user is on home page

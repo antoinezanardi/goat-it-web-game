@@ -15,6 +15,7 @@
     "questionLabel": "Question",
     "answerLabel": "Answer",
     "contextAccordionTitle": "Context & Trivia",
+    "triviaTitle": "Did you know?",
     "sourcesAriaLabel": "Sources",
     "sourceOpensInNewTab": "Opens in a new tab",
     "sourceLabel": "Source | Sources",
