@@ -7,6 +7,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { createFakeQuestionContent } from "~~/tests/unit/utils/faketories/question/question-content.entity.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
 import { GameQuestionCard } from "#components";
 
@@ -14,8 +15,8 @@ import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestio
 
 describe("GameQuestionCard Component", () => {
   const defaultGameQuestionCardProps: GameQuestionCardProps = {
-    active: true,
-    frozen: false,
+    isActive: true,
+    isFrozen: false,
     question: createFakeQuestion({
       category: "trivia",
       themes: [
@@ -162,44 +163,34 @@ describe("GameQuestionCard Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).exists()).toBe(false);
   });
 
-  it("should render the staged data-testid when active is false.", async() => {
-    await wrapper.setProps({ active: false });
+  it("should render the staged data-testid when isActive is false.", async() => {
+    await wrapper.setProps({ isActive: false });
 
     expect(wrapper.find("[data-testid='game-question-staged']").exists()).toBe(true);
   });
 
-  it("should add the frozen modifier class when frozen is true.", async() => {
-    await wrapper.setProps({ frozen: true });
+  it("should add the frozen modifier class when isFrozen is true.", async() => {
+    await wrapper.setProps({ isFrozen: true });
 
     expect(wrapper.find("[data-testid='game-question']").classes()).toContain("game-question-card--frozen");
   });
 
-  it("should not add the frozen modifier class when frozen is false.", () => {
+  it("should not add the frozen modifier class when isFrozen is false.", () => {
     expect(wrapper.find("[data-testid='game-question']").classes()).not.toContain("game-question-card--frozen");
   });
 
-  it("should render the halo base layer when mounted.", () => {
+  it.each<{ layerClass: string; layerName: string }>([
+    { layerClass: "game-card-halo__base", layerName: "base" },
+    { layerClass: "game-card-halo__orb-a", layerName: "orb-a" },
+    { layerClass: "game-card-halo__orb-b", layerName: "orb-b" },
+  ])("should render the halo $layerName layer when mounted.", ({ layerClass }) => {
     const halo = wrapper.find(".game-card-halo");
 
-    expect(halo.find(".game-card-halo__base").exists()).toBe(true);
-  });
-
-  it("should render the halo orb-a layer when mounted.", () => {
-    const halo = wrapper.find(".game-card-halo");
-
-    expect(halo.find(".game-card-halo__orb-a").exists()).toBe(true);
-  });
-
-  it("should render the halo orb-b layer when mounted.", () => {
-    const halo = wrapper.find(".game-card-halo");
-
-    expect(halo.find(".game-card-halo__orb-b").exists()).toBe(true);
+    expect(halo.find(`.${layerClass}`).exists()).toBe(true);
   });
 
   it("should not remount the context accordion when the question id changes.", async() => {
-    // Acceptable as VueWrapper.vm is typed as any; uid is a stable internal field for identity comparison
-    // oxlint-disable-next-line no-unsafe-assignment, no-unsafe-member-access
-    const initialUid = wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).vm.$.uid;
+    const initialUid = getWrapperVm(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" })).$.uid;
 
     await wrapper.setProps({
       question: createFakeQuestion({
@@ -212,9 +203,7 @@ describe("GameQuestionCard Component", () => {
       }),
     });
 
-    // Acceptable as VueWrapper.vm is typed as any; uid is a stable internal field for identity comparison
-    // oxlint-disable-next-line no-unsafe-assignment, no-unsafe-member-access
-    const updatedUid = wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).vm.$.uid;
+    const updatedUid = getWrapperVm(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" })).$.uid;
 
     expect(updatedUid).toBe(initialUid);
   });

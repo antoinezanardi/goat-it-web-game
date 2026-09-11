@@ -4,9 +4,8 @@ import { nextTick, ref } from "vue";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-import type { UseQuestionCardRingOptions } from "./use-question-card-ring.types";
-import { useQuestionCardRing } from "./useQuestionCardRing";
-
+import type { UseQuestionCardRingOptions } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.types";
+import { useQuestionCardRing } from "~/composables/domain/useQuestionCardRing/useQuestionCardRing";
 import type { Question } from "#shared/types/question.types";
 
 describe(useQuestionCardRing, () => {
@@ -138,19 +137,21 @@ describe(useQuestionCardRing, () => {
     expect(slots.value.every(slot => slot.isFrozen)).toBe(true);
   });
 
-  it("should unfreeze the new active slot when a transition is completed.", () => {
+  it("should unfreeze the new active slot when a transition is completed.", async() => {
     const { complete, slots } = useQuestionCardRing(createOptions());
 
     pendingDirection.value = "forward";
+    await nextTick();
     complete("forward");
 
     expect(slots.value[1]?.isFrozen).toBe(false);
   });
 
-  it("should keep non-active slots frozen when a transition is completed.", () => {
+  it("should keep non-active slots frozen when a transition is completed.", async() => {
     const { complete, slots } = useQuestionCardRing(createOptions());
 
     pendingDirection.value = "forward";
+    await nextTick();
     complete("forward");
 
     expect(slots.value[0]?.isFrozen).toBe(true);
@@ -250,5 +251,33 @@ describe(useQuestionCardRing, () => {
     currentIndex.value = 2;
 
     expect(onStaged).not.toHaveBeenCalled();
+  });
+
+  it("should display the correct question when two consecutive backward transitions complete.", async() => {
+    questions.value = [createFakeQuestion(), createFakeQuestion(), createFakeQuestion(), createFakeQuestion()];
+    currentIndex.value = 2;
+    const { complete, currentSlotIndex, slots } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "backward";
+    await nextTick();
+    complete("backward");
+    currentIndex.value = 1;
+    await nextTick();
+    flushRestage();
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+    pendingDirection.value = undefined;
+    await nextTick();
+
+    pendingDirection.value = "backward";
+    await nextTick();
+    complete("backward");
+    currentIndex.value = 0;
+    await nextTick();
+    flushRestage();
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+
+    expect(slots.value[currentSlotIndex.value]?.question).toBe(questions.value[0]);
   });
 });

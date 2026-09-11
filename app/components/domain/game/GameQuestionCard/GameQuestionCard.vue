@@ -5,8 +5,8 @@ import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 const props = withDefaults(defineProps<GameQuestionCardProps>(), {
-  active: true,
-  frozen: false,
+  isActive: true,
+  isFrozen: false,
 });
 
 const primaryTheme = computed<QuestionTheme | undefined>(() => getPrimaryTheme(props.question));
@@ -18,13 +18,13 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
   "--game-theme-color": themeColor.value,
 }));
 
-const dataTestid = computed<"game-question" | "game-question-staged">(() => (props.active ? "game-question" : "game-question-staged"));
+const dataTestid = computed<"game-question" | "game-question-staged">(() => (props.isActive ? "game-question" : "game-question-staged"));
 </script>
 
 <template>
   <article
     class="absolute bg-card flex flex-col game-question-card game-theme-scope inset-0 overflow-clip p-4 rounded-xl z-0"
-    :class="{ 'game-question-card--frozen': props.frozen }"
+    :class="{ 'game-question-card--frozen': props.isFrozen }"
     :data-testid="dataTestid"
     :style="wrapperStyle"
   >

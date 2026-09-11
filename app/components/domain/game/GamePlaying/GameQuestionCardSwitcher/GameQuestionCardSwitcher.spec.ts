@@ -83,7 +83,7 @@ describe("GameQuestionCardSwitcher Component", () => {
   });
 
   it("should set the active card prop when mounted.", () => {
-    expect(wrapper.findComponent({ name: "GameQuestionCard" }).props("active")).toBe(true);
+    expect(wrapper.findComponent({ name: "GameQuestionCard" }).props("isActive")).toBe(true);
   });
 
   it("should render staged cards in the non-active slots when mounted.", () => {

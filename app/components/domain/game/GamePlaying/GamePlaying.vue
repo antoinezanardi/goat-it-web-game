@@ -7,14 +7,19 @@ const props = defineProps<GamePlayingProps>();
 const emit = defineEmits<GamePlayingEmits>();
 
 const transitionDirection = ref<GameQuestionCardSwitcherDirection>("forward");
-const isTransitioning = ref(false);
+const isTransitioning = ref<boolean>(false);
 const pendingDirection = ref<GameQuestionCardSwitcherDirection | undefined>(undefined);
+const isTransitionSettled = ref<boolean>(true);
 // Acceptable as the timeout handle is only assigned inside startSafetyTimeout before it is ever read
 // oxlint-disable-next-line typescript/init-declarations
 let safetyTimeout: ReturnType<typeof setTimeout> | undefined;
 
 function startSafetyTimeout(): void {
   safetyTimeout = setTimeout(() => {
+    if (isTransitionSettled.value) {
+      return;
+    }
+    isTransitionSettled.value = true;
     isTransitioning.value = false;
     pendingDirection.value = undefined;
     finishTransition();
@@ -22,16 +27,20 @@ function startSafetyTimeout(): void {
 }
 
 function onTransitionComplete(): void {
-  clearTimeout(safetyTimeout);
+  if (isTransitionSettled.value) {
+    return;
+  }
+  isTransitionSettled.value = true;
   finishTransition();
 }
 
 function finishTransition(): void {
   if (transitionDirection.value === "forward") {
     emit("advance");
-  } else {
-    emit("previous");
+
+    return;
   }
+  emit("previous");
 }
 
 function handleNext(): void {
@@ -45,6 +54,7 @@ function handleNext(): void {
   if (entering && entering.id !== props.currentQuestion.id) {
     transitionDirection.value = "forward";
     isTransitioning.value = true;
+    isTransitionSettled.value = false;
     pendingDirection.value = "forward";
     startSafetyTimeout();
 
@@ -65,6 +75,7 @@ function handlePrevious(): void {
   if (entering && entering.id !== props.currentQuestion.id) {
     transitionDirection.value = "backward";
     isTransitioning.value = true;
+    isTransitionSettled.value = false;
     pendingDirection.value = "backward";
     startSafetyTimeout();
 

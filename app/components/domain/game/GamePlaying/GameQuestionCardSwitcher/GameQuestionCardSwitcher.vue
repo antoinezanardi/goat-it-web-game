@@ -32,6 +32,12 @@ const { complete: completeRing, currentSlotIndex, getSlotIndexForOffset, slots: 
   },
 });
 
+function setCardContainerReference(element: HTMLElement | null, index: number): void {
+  if (element) {
+    cardContainerReferences.value[index] = element;
+  }
+}
+
 function applyRestingState(): void {
   for (const [index, element] of cardContainerReferences.value.entries()) {
     const isActive = index === currentSlotIndex.value;
@@ -94,17 +100,15 @@ onUnmounted(() => {
     <div
       v-for="(slot, index) in ringSlots"
       :key="index"
-      :ref="(element: HTMLElement | null) => {
-        if (element) cardContainerReferences[index] = element;
-      }"
+      :ref="(element: HTMLElement | null) => setCardContainerReference(element, index)"
       :aria-hidden="slot.ariaHidden"
       class="absolute inset-0 will-change-transform"
-      :inert="slot.inert || undefined"
+      :inert="slot.inert"
     >
       <GameQuestionCard
         v-if="slot.question"
-        :active="slot.isActive"
-        :frozen="slot.isFrozen"
+        :is-active="slot.isActive"
+        :is-frozen="slot.isFrozen"
         :question="slot.question"
       />
     </div>

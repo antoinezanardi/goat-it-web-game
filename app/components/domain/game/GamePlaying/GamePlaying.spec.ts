@@ -356,5 +356,27 @@ describe("GamePlaying Component", () => {
 
       expect(wrapper.emitted("advance")).toBeUndefined();
     });
+
+    it("should return early from the safety timeout callback when onTransitionComplete already settled.", async() => {
+      clickNext();
+      await nextTick();
+      completeTransition();
+      await nextTick();
+      vi.advanceTimersByTime(safetyTimeoutMs);
+      await nextTick();
+
+      expect(wrapper.emitted("advance")).toHaveLength(1);
+    });
+
+    it("should return early from onTransitionComplete when the safety timeout already settled.", async() => {
+      clickNext();
+      await nextTick();
+      vi.advanceTimersByTime(safetyTimeoutMs);
+      await nextTick();
+      completeTransition();
+      await nextTick();
+
+      expect(wrapper.emitted("advance")).toHaveLength(1);
+    });
   });
 });

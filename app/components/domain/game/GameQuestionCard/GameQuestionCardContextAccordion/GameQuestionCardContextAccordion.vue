@@ -4,7 +4,7 @@ import { GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI, GAME_QUESTION_CARD_CONT
 
 const props = defineProps<GameQuestionCardContextAccordionProps>();
 
-const isOpen = ref(false);
+const isOpen = ref<boolean>(false);
 
 watch(() => [props.context, props.trivia], () => {
   isOpen.value = false;

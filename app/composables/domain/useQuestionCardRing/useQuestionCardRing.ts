@@ -1,14 +1,9 @@
 import { computed, nextTick, ref, toValue, watch } from "vue";
 import { useDocumentVisibility } from "@vueuse/core";
 
-import { QUESTION_CARD_RING_RADIUS } from "./use-question-card-ring.constants";
-import type { QuestionCardRingSlot, UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "./use-question-card-ring.types";
-
+import { QUESTION_CARD_RING_RADIUS, QUESTION_CARD_RING_SIZE } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
+import type { QuestionCardRingSlot, UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.types";
 import type { Question } from "#shared/types/question.types";
-
-// Acceptable as radius × 2 + 1 is the standard ring buffer size formula
-// oxlint-disable-next-line eslint/no-magic-numbers
-const RING_SIZE = QUESTION_CARD_RING_RADIUS * 2 + 1;
 
 function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCardRingReturn {
   const { questions } = options;
@@ -19,14 +14,15 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
   const currentSlotIndex = ref(0);
   // Acceptable as `undefined` marks empty ring slots before stageSlots fills them
   // oxlint-disable-next-line unicorn/no-useless-undefined
-  const slotQuestions = ref<(Question | undefined)[]>(Array.from({ length: RING_SIZE }, () => undefined));
-  const isSliding = ref(false);
-  const isTransitioning = ref(false);
-  const hasPendingRestage = ref(false);
-  const isRestaging = ref(false);
+  const slotQuestions = ref<(Question | undefined)[]>(Array.from({ length: QUESTION_CARD_RING_SIZE }, () => undefined));
+  const isSliding = ref<boolean>(false);
+  const isTransitioning = ref<boolean>(false);
+  const hasPendingRestage = ref<boolean>(false);
+  const isRestaging = ref<boolean>(false);
+  const lastCompletedDirection = ref<"backward" | "forward">("forward");
 
   function getSlotIndexForOffset(offset: number): number {
-    return (currentSlotIndex.value + offset + RING_SIZE) % RING_SIZE;
+    return (currentSlotIndex.value + offset + QUESTION_CARD_RING_SIZE) % QUESTION_CARD_RING_SIZE;
   }
 
   function getQuestionAtOffset(offset: number): Question | undefined {
@@ -41,15 +37,17 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
   }
 
   function restageFarSlot(): void {
-    const farSlotIndex = getSlotIndexForOffset(QUESTION_CARD_RING_RADIUS);
-    slotQuestions.value[farSlotIndex] = getQuestionAtOffset(QUESTION_CARD_RING_RADIUS);
+    const farOffset = lastCompletedDirection.value === "forward" ? QUESTION_CARD_RING_RADIUS : -QUESTION_CARD_RING_RADIUS;
+    const farSlotIndex = getSlotIndexForOffset(farOffset);
+    slotQuestions.value[farSlotIndex] = getQuestionAtOffset(farOffset);
   }
 
   function scheduleRestage(): void {
     isRestaging.value = true;
     requestAnimationFrame(() => {
       restageFarSlot();
-      options.onResetSlot?.(getSlotIndexForOffset(QUESTION_CARD_RING_RADIUS));
+      const farOffset = lastCompletedDirection.value === "forward" ? QUESTION_CARD_RING_RADIUS : -QUESTION_CARD_RING_RADIUS;
+      options.onResetSlot?.(getSlotIndexForOffset(farOffset));
 
       void nextTick(() => {
         requestAnimationFrame(() => {
@@ -106,8 +104,9 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
 
   function complete(direction: "backward" | "forward"): void {
     isSliding.value = false;
+    lastCompletedDirection.value = direction;
     const delta = direction === "forward" ? 1 : -1;
-    currentSlotIndex.value = (currentSlotIndex.value + delta + RING_SIZE) % RING_SIZE;
+    currentSlotIndex.value = (currentSlotIndex.value + delta + QUESTION_CARD_RING_SIZE) % QUESTION_CARD_RING_SIZE;
   }
 
   stageSlots();
