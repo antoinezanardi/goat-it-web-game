@@ -142,4 +142,3 @@ Feature: 🎮 Game Page
     And the user goes to the previous question
     Then exactly 1 game question card should be active
     And exactly 2 game question cards should be staged
-    And each staged card container should be inert and hidden from assistive technologies

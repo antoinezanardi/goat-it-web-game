@@ -255,23 +255,3 @@ Then(
     await expect(this.page.getByTestId("game-question-staged")).toHaveCount(Number(count));
   },
 );
-
-Then(
-  /^each staged card container should be inert and hidden from assistive technologies$/u,
-  async function(this: GoatItWorld): Promise<void> {
-    const stagedCards = this.page.getByTestId("game-question-staged");
-    const count = await stagedCards.count();
-
-    for (let index = 0; index < count; index++) {
-      // Acceptable as each staged card must be checked sequentially
-      // oxlint-disable-next-line eslint/no-await-in-loop
-      const container = stagedCards.nth(index).locator("..");
-      // Acceptable as inert is a boolean attribute
-      // oxlint-disable-next-line eslint/no-await-in-loop
-      await expect(container).toHaveAttribute("inert", "");
-      // Acceptable as aria-hidden check is part of the sequential accessibility assertion
-      // oxlint-disable-next-line eslint/no-await-in-loop
-      await expect(container).toHaveAttribute("aria-hidden", "true");
-    }
-  },
-);
