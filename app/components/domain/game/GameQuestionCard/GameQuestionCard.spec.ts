@@ -14,6 +14,8 @@ import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestio
 
 describe("GameQuestionCard Component", () => {
   const defaultGameQuestionCardProps: GameQuestionCardProps = {
+    active: true,
+    frozen: false,
     question: createFakeQuestion({
       category: "trivia",
       themes: [
@@ -158,5 +160,62 @@ describe("GameQuestionCard Component", () => {
     });
 
     expect(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).exists()).toBe(false);
+  });
+
+  it("should render the staged data-testid when active is false.", async() => {
+    await wrapper.setProps({ active: false });
+
+    expect(wrapper.find("[data-testid='game-question-staged']").exists()).toBe(true);
+  });
+
+  it("should add the frozen modifier class when frozen is true.", async() => {
+    await wrapper.setProps({ frozen: true });
+
+    expect(wrapper.find("[data-testid='game-question']").classes()).toContain("game-question-card--frozen");
+  });
+
+  it("should not add the frozen modifier class when frozen is false.", () => {
+    expect(wrapper.find("[data-testid='game-question']").classes()).not.toContain("game-question-card--frozen");
+  });
+
+  it("should render the halo base layer when mounted.", () => {
+    const halo = wrapper.find(".game-card-halo");
+
+    expect(halo.find(".game-card-halo__base").exists()).toBe(true);
+  });
+
+  it("should render the halo orb-a layer when mounted.", () => {
+    const halo = wrapper.find(".game-card-halo");
+
+    expect(halo.find(".game-card-halo__orb-a").exists()).toBe(true);
+  });
+
+  it("should render the halo orb-b layer when mounted.", () => {
+    const halo = wrapper.find(".game-card-halo");
+
+    expect(halo.find(".game-card-halo__orb-b").exists()).toBe(true);
+  });
+
+  it("should not remount the context accordion when the question id changes.", async() => {
+    // Acceptable as VueWrapper.vm is typed as any; uid is a stable internal field for identity comparison
+    // oxlint-disable-next-line no-unsafe-assignment, no-unsafe-member-access
+    const initialUid = wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).vm.$.uid;
+
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultGameQuestionCardProps.question,
+        id: "new-id",
+        content: createFakeQuestionContent({
+          context: "Updated context.",
+          trivia: ["Updated trivia"],
+        }),
+      }),
+    });
+
+    // Acceptable as VueWrapper.vm is typed as any; uid is a stable internal field for identity comparison
+    // oxlint-disable-next-line no-unsafe-assignment, no-unsafe-member-access
+    const updatedUid = wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).vm.$.uid;
+
+    expect(updatedUid).toBe(initialUid);
   });
 });

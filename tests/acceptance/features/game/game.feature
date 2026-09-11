@@ -134,3 +134,12 @@ Feature: 🎮 Game Page
     And the hint theme "Science" should be flagged in the themes popover
     And the non-hint theme "Cinema" should not be flagged in the themes popover
     And hovering the "History" hint badge in the themes popover shows the popover "This theme is a hint for the answer"
+
+  Scenario: 🎮 Exactly one active question card is present
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    When the user goes to the next question
+    And the user goes to the previous question
+    Then exactly 1 game question card should be active
+    And exactly 2 game question cards should be staged
+    And each staged card container should be inert and hidden from assistive technologies

@@ -105,4 +105,26 @@ describe("GameQuestionCardContextAccordion Component", () => {
 
     expect(wrapper.find(selector).exists()).toBe(false);
   });
+
+  it("should close the accordion when the context prop changes.", async() => {
+    wrapper = await mountAndOpenAccordion({ props: { context: "Initial context." } });
+
+    await wrapper.setProps({ context: "Updated context." });
+
+    expect(wrapper.findComponent({ name: "UCollapsible" }).props("open")).toBe(false);
+  });
+
+  it("should close the accordion when the trivia prop changes.", async() => {
+    wrapper = await mountAndOpenAccordion({ props: { trivia: ["Initial trivia"] } });
+
+    await wrapper.setProps({ trivia: ["Updated trivia"] });
+
+    expect(wrapper.findComponent({ name: "UCollapsible" }).props("open")).toBe(false);
+  });
+
+  it("should open the accordion when the trigger is clicked.", async() => {
+    await wrapper.find("button").trigger("click");
+
+    expect(wrapper.findComponent({ name: "UCollapsible" }).props("open")).toBe(true);
+  });
 });

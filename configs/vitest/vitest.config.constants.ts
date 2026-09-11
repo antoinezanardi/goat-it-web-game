@@ -99,6 +99,7 @@ const VITEST_COMPOSABLES_MOCK_SETUP_FILES: readonly string[] = [
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-window-scroll.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup.ts"),
+  path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-document-visibility.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup.ts"),
 ] as const;
 

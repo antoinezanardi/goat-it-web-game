@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
-import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
@@ -12,18 +11,6 @@ import { GamePlaying } from "#components";
 
 import type { GamePlayingProps } from "@/components/domain/game/GamePlaying/game-playing.types";
 import type { Question } from "#shared/types/question.types";
-
-type GamePlayingSetupState = ComponentVm & {
-  enteringQuestion: Question | undefined;
-  handlePrevious: () => void;
-  isTransitioning: boolean;
-  leavingQuestion: Question | undefined;
-  transitionDirection: "forward" | "backward";
-};
-
-function getGamePlayingSetupState(wrapper: VueWrapper): GamePlayingSetupState {
-  return getWrapperVm<GamePlayingSetupState>(wrapper);
-}
 
 describe("GamePlaying Component", () => {
   const firstQuestion: Question = createFakeQuestion();
@@ -38,6 +25,7 @@ describe("GamePlaying Component", () => {
   };
 
   let wrapper: VueWrapper;
+  let requestAnimationFrameCallbacks: FrameRequestCallback[];
 
   async function mountGamePlayingComponent(options: MountSuspendedOptions<typeof GamePlaying> = {}): Promise<VueWrapper> {
     const { props: propsOverride, ...restOptions } = options;
@@ -49,7 +37,51 @@ describe("GamePlaying Component", () => {
     });
   }
 
+  // Acceptable as return type is inferred from findComponent and explicit annotation causes typecheck issues with VueWrapper generics
+  // oxlint-disable-next-line typescript/explicit-function-return-type
+  function getSwitcher() {
+    return wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
+  }
+
+  function clickNext(): void {
+    const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
+    getWrapperVm(nextButton).$emit("click");
+  }
+
+  function clickPrevious(): void {
+    const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
+    getWrapperVm(previousButton).$emit("click");
+  }
+
+  function completeTransition(): void {
+    getWrapperVm(getSwitcher()).$emit("complete");
+  }
+
+  async function runStagedCycle(updatedCurrentIndex: number): Promise<void> {
+    await wrapper.setProps({ currentIndex: updatedCurrentIndex });
+    await nextTick();
+    while (requestAnimationFrameCallbacks.length > 0) {
+      requestAnimationFrameCallbacks.shift()?.(0);
+      // Acceptable as sequential draining of requestAnimationFrame callbacks is required for intermediate state to resolve
+      // oxlint-disable-next-line eslint/no-await-in-loop
+      await nextTick();
+    }
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+  }
+
   beforeEach(async() => {
+    requestAnimationFrameCallbacks = [];
+    // Acceptable as requestAnimationFrame mock intentionally captures the callback for manual execution
+    // oxlint-disable-next-line promise/prefer-await-to-callbacks
+    vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation(callback => {
+      requestAnimationFrameCallbacks.push(callback);
+
+      return requestAnimationFrameCallbacks.length;
+    });
     wrapper = await mountGamePlayingComponent();
   });
 
@@ -59,15 +91,11 @@ describe("GamePlaying Component", () => {
 
   describe("rendering", () => {
     it("should render GameNextQuestionButton when mounted.", () => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-
-      expect(nextButton.exists()).toBeTruthy();
+      expect(wrapper.findComponent({ name: "GameNextQuestionButton" }).exists()).toBeTruthy();
     });
 
     it("should not render GamePreviousQuestionButton when canGoToPreviousQuestion is false.", () => {
-      const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
-
-      expect(previousButton.exists()).toBeFalsy();
+      expect(wrapper.findComponent({ name: "GamePreviousQuestionButton" }).exists()).toBeFalsy();
     });
 
     it("should render GamePreviousQuestionButton when canGoToPreviousQuestion is true.", async() => {
@@ -80,115 +108,35 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
-
-      expect(previousButton.exists()).toBeTruthy();
+      expect(wrapper.findComponent({ name: "GamePreviousQuestionButton" }).exists()).toBeTruthy();
     });
 
     it("should render GameQuestionCardSwitcher when mounted.", () => {
-      const switcher = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-
-      expect(switcher.exists()).toBeTruthy();
+      expect(getSwitcher().exists()).toBeTruthy();
     });
 
-    it("should pass the current question to the switcher when no transition is active.", () => {
-      const switcher = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-
-      expect(switcher.props("question")).toStrictEqual(firstQuestion);
+    it("should pass currentIndex to the switcher when mounted.", () => {
+      expect(getSwitcher().props("currentIndex")).toBe(0);
     });
 
-    it("should not pass a leaving question to the switcher when no transition is active.", () => {
-      const switcher = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-
-      expect(switcher.props("leavingQuestion")).toBeUndefined();
+    it("should pass questions to the switcher when mounted.", () => {
+      expect(getSwitcher().props("questions")).toStrictEqual([firstQuestion, secondQuestion]);
     });
 
-    it("should not pass an entering question to the switcher when no transition is active.", () => {
-      const switcher = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-
-      expect(switcher.props("enteringQuestion")).toBeUndefined();
-    });
-
-    it("should keep both card slots mounted when a transition is active.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
-      await nextTick();
-
-      expect(wrapper.findAllComponents({ name: "GameQuestionCard" })).toHaveLength(2);
-    });
-
-    it("should pass leavingQuestion to the transition component when a transition is active.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
-      await nextTick();
-
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-
-      expect(transition.props("leavingQuestion")).toStrictEqual(firstQuestion);
-    });
-
-    it("should pass enteringQuestion to the transition component when a transition is active.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
-      await nextTick();
-
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-
-      expect(transition.props("enteringQuestion")).toStrictEqual(secondQuestion);
-    });
-
-    it("should pass transitionDirection to the transition component when navigating forward.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
-      await nextTick();
-
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-
-      expect(transition.props("direction")).toBe("forward");
-    });
-
-    it("should pass isTransitioning as disabled to the Next button when a transition is active.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
-      await nextTick();
-
-      const nextButtonAfter = wrapper.findComponent({ name: "GameNextQuestionButton" });
-
-      expect(nextButtonAfter.props("disabled")).toBe(true);
-    });
-
-    it("should pass isTransitioning as disabled to the Previous button when a transition is active.", async() => {
-      wrapper = await mountGamePlayingComponent({
-        props: {
-          canGoToPreviousQuestion: true,
-          currentIndex: 1,
-          currentQuestion: secondQuestion,
-          questions: [firstQuestion, secondQuestion],
-        },
-      });
-
-      const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
-      getWrapperVm(previousButton).$emit("click");
-      await nextTick();
-
-      const previousButtonAfter = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
-
-      expect(previousButtonAfter.props("disabled")).toBe(true);
+    it("should not pass a pending direction to the switcher when no transition is active.", () => {
+      expect(getSwitcher().props("pendingDirection")).toBeUndefined();
     });
   });
 
   describe("transition logic", () => {
-    it("should set transition direction to forward when navigating forward.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+    it("should set pendingDirection to forward when navigating forward.", async() => {
+      clickNext();
       await nextTick();
 
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-
-      expect(transition.props("direction")).toBe("forward");
+      expect(getSwitcher().props("pendingDirection")).toBe("forward");
     });
 
-    it("should set transition direction to backward when navigating previous.", async() => {
+    it("should set pendingDirection to backward when navigating previous.", async() => {
       wrapper = await mountGamePlayingComponent({
         props: {
           canGoToPreviousQuestion: true,
@@ -198,22 +146,16 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
-      getWrapperVm(previousButton).$emit("click");
+      clickPrevious();
       await nextTick();
 
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-
-      expect(transition.props("direction")).toBe("backward");
+      expect(getSwitcher().props("pendingDirection")).toBe("backward");
     });
 
     it("should emit advance when the transition completes in forward direction.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+      clickNext();
       await nextTick();
-
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-      getWrapperVm(transition).$emit("complete");
+      completeTransition();
       await nextTick();
 
       expect(wrapper.emitted("advance")).toHaveLength(1);
@@ -229,54 +171,53 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
-      getWrapperVm(previousButton).$emit("click");
+      clickPrevious();
       await nextTick();
-
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-      getWrapperVm(transition).$emit("complete");
+      completeTransition();
       await nextTick();
 
       expect(wrapper.emitted("previous")).toHaveLength(1);
     });
 
-    it("should keep the switcher mounted when the transition completes.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+    it("should hold the transition guard when a transition completes but staged has not fired.", async() => {
+      clickNext();
+      await nextTick();
+      completeTransition();
       await nextTick();
 
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-      getWrapperVm(transition).$emit("complete");
-      await nextTick();
-
-      expect(wrapper.findComponent({ name: "GameQuestionCardSwitcher" }).exists()).toBeTruthy();
+      expect(wrapper.findComponent({ name: "GameNextQuestionButton" }).props("disabled")).toBe(true);
     });
 
-    it("should clear the leaving question when the transition completes.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+    it("should release the transition guard when staged is emitted.", async() => {
+      clickNext();
       await nextTick();
-
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-      getWrapperVm(transition).$emit("complete");
+      completeTransition();
       await nextTick();
+      await runStagedCycle(1);
 
-      expect(wrapper.findComponent({ name: "GameQuestionCardSwitcher" }).props("leavingQuestion")).toBeUndefined();
+      expect(wrapper.findComponent({ name: "GameNextQuestionButton" }).props("disabled")).toBe(false);
     });
 
-    it("should clear the entering question when the transition completes.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+    it("should clear pendingDirection when staged is emitted.", async() => {
+      clickNext();
       await nextTick();
-
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-      getWrapperVm(transition).$emit("complete");
+      completeTransition();
       await nextTick();
+      await runStagedCycle(1);
 
-      expect(wrapper.findComponent({ name: "GameQuestionCardSwitcher" }).props("enteringQuestion")).toBeUndefined();
+      expect(getSwitcher().props("pendingDirection")).toBeUndefined();
     });
 
-    it("should emit advance when clicking Next with no entering question.", async() => {
+    it("should not trigger a double transition when clicking Next during an active transition.", async() => {
+      clickNext();
+      await nextTick();
+      clickNext();
+      await nextTick();
+
+      expect(getSwitcher().props("pendingDirection")).toBe("forward");
+    });
+
+    it("should emit advance when clicking Next with no next question.", async() => {
       wrapper = await mountGamePlayingComponent({
         props: {
           canGoToPreviousQuestion: false,
@@ -286,38 +227,13 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+      clickNext();
       await nextTick();
 
       expect(wrapper.emitted("advance")).toHaveLength(1);
     });
 
-    it("should not trigger a double transition when clicking Next during an active transition.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
-      await nextTick();
-      getWrapperVm(nextButton).$emit("click");
-      await nextTick();
-
-      expect(wrapper.findComponent({ name: "GameQuestionCardSwitcher" }).props("enteringQuestion")).toStrictEqual(secondQuestion);
-    });
-
-    it("should not set a leaving question when clicking Previous with canGoToPreviousQuestion false.", () => {
-      const setupState = getGamePlayingSetupState(wrapper);
-      setupState.handlePrevious();
-
-      expect(wrapper.findComponent({ name: "GameQuestionCardSwitcher" }).props("leavingQuestion")).toBeUndefined();
-    });
-
-    it("should not set an entering question when clicking Previous with canGoToPreviousQuestion false.", () => {
-      const setupState = getGamePlayingSetupState(wrapper);
-      setupState.handlePrevious();
-
-      expect(wrapper.findComponent({ name: "GameQuestionCardSwitcher" }).props("enteringQuestion")).toBeUndefined();
-    });
-
-    it("should emit advance when the entering question equals the leaving question.", async() => {
+    it("should emit advance when the next question equals the current question.", async() => {
       wrapper = await mountGamePlayingComponent({
         props: {
           canGoToPreviousQuestion: false,
@@ -327,8 +243,7 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+      clickNext();
       await nextTick();
 
       expect(wrapper.emitted("advance")).toHaveLength(1);
@@ -344,18 +259,15 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+      clickNext();
       await nextTick();
-
-      const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
-      getWrapperVm(previousButton).$emit("click");
+      clickPrevious();
       await nextTick();
 
       expect(wrapper.emitted("previous")).toBeUndefined();
     });
 
-    it("should emit previous when clicking Previous with no valid entering question.", async() => {
+    it("should emit previous when clicking Previous with no valid previous question.", async() => {
       wrapper = await mountGamePlayingComponent({
         props: {
           canGoToPreviousQuestion: true,
@@ -365,11 +277,33 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      const previousButton = wrapper.findComponent({ name: "GamePreviousQuestionButton" });
-      getWrapperVm(previousButton).$emit("click");
+      clickPrevious();
       await nextTick();
 
       expect(wrapper.emitted("previous")).toHaveLength(1);
+    });
+
+    it("should disable the Next button when a transition is active.", async() => {
+      clickNext();
+      await nextTick();
+
+      expect(wrapper.findComponent({ name: "GameNextQuestionButton" }).props("disabled")).toBe(true);
+    });
+
+    it("should disable the Previous button when a transition is active.", async() => {
+      wrapper = await mountGamePlayingComponent({
+        props: {
+          canGoToPreviousQuestion: true,
+          currentIndex: 1,
+          currentQuestion: secondQuestion,
+          questions: [firstQuestion, secondQuestion, thirdQuestion],
+        },
+      });
+
+      clickPrevious();
+      await nextTick();
+
+      expect(wrapper.findComponent({ name: "GamePreviousQuestionButton" }).props("disabled")).toBe(true);
     });
   });
 
@@ -377,8 +311,7 @@ describe("GamePlaying Component", () => {
     const safetyTimeoutMs = 600;
 
     it("should emit advance when the safety timeout fires.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+      clickNext();
       await nextTick();
       vi.advanceTimersByTime(safetyTimeoutMs);
       await nextTick();
@@ -386,43 +319,28 @@ describe("GamePlaying Component", () => {
       expect(wrapper.emitted("advance")).toHaveLength(1);
     });
 
-    it("should keep the switcher mounted when the safety timeout fires.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+    it("should clear pendingDirection when the safety timeout fires.", async() => {
+      clickNext();
       await nextTick();
       vi.advanceTimersByTime(safetyTimeoutMs);
       await nextTick();
 
-      expect(wrapper.findComponent({ name: "GameQuestionCardSwitcher" }).exists()).toBeTruthy();
+      expect(getSwitcher().props("pendingDirection")).toBeUndefined();
     });
 
-    it("should clear the leaving question when the safety timeout fires.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+    it("should release the transition guard when the safety timeout fires.", async() => {
+      clickNext();
       await nextTick();
       vi.advanceTimersByTime(safetyTimeoutMs);
       await nextTick();
 
-      expect(wrapper.findComponent({ name: "GameQuestionCardSwitcher" }).props("leavingQuestion")).toBeUndefined();
-    });
-
-    it("should clear the entering question when the safety timeout fires.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
-      await nextTick();
-      vi.advanceTimersByTime(safetyTimeoutMs);
-      await nextTick();
-
-      expect(wrapper.findComponent({ name: "GameQuestionCardSwitcher" }).props("enteringQuestion")).toBeUndefined();
+      expect(wrapper.findComponent({ name: "GameNextQuestionButton" }).props("disabled")).toBe(false);
     });
 
     it("should not fire safety timeout fallback when onTransitionComplete clears it first.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+      clickNext();
       await nextTick();
-
-      const transition = wrapper.findComponent({ name: "GameQuestionCardSwitcher" });
-      getWrapperVm(transition).$emit("complete");
+      completeTransition();
       await nextTick();
       vi.advanceTimersByTime(safetyTimeoutMs);
       await nextTick();
@@ -430,24 +348,9 @@ describe("GamePlaying Component", () => {
       expect(wrapper.emitted("advance")).toHaveLength(1);
     });
 
-    it("should not emit when the safety timeout fires after isTransitioning is already false.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
-      await nextTick();
-
-      const setupState = getGamePlayingSetupState(wrapper);
-      setupState.isTransitioning = false;
-      vi.advanceTimersByTime(safetyTimeoutMs);
-      await nextTick();
-
-      expect(wrapper.emitted("advance")).toBeUndefined();
-    });
-
     it("should clear the safety timeout when unmounting during a transition.", async() => {
-      const nextButton = wrapper.findComponent({ name: "GameNextQuestionButton" });
-      getWrapperVm(nextButton).$emit("click");
+      clickNext();
       await nextTick();
-
       wrapper.unmount();
       vi.advanceTimersByTime(safetyTimeoutMs);
 

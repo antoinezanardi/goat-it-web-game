@@ -48,6 +48,7 @@
     "ref": "readonly",
     "refDebounced": "readonly",
     "clearTimeout": "readonly",
+    "requestAnimationFrame": "readonly",
     "setTimeout": "readonly",
     "shallowRef": "readonly",
     "storeToRefs": "readonly",
