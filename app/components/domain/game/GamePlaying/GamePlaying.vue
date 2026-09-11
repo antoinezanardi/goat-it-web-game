@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { CARD_TRANSITION_SAFETY_TIMEOUT_MS } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.constants";
 import type { GameQuestionCardSwitcherDirection } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
 import type { GamePlayingEmits, GamePlayingProps } from "@/components/domain/game/GamePlaying/game-playing.types";
 
@@ -9,28 +8,8 @@ const emit = defineEmits<GamePlayingEmits>();
 const transitionDirection = ref<GameQuestionCardSwitcherDirection>("forward");
 const isTransitioning = ref<boolean>(false);
 const pendingDirection = ref<GameQuestionCardSwitcherDirection | undefined>(undefined);
-const isTransitionSettled = ref<boolean>(true);
-// Acceptable as the timeout handle is only assigned inside startSafetyTimeout before it is ever read
-// oxlint-disable-next-line typescript/init-declarations
-let safetyTimeout: ReturnType<typeof setTimeout> | undefined;
-
-function startSafetyTimeout(): void {
-  safetyTimeout = setTimeout(() => {
-    if (isTransitionSettled.value) {
-      return;
-    }
-    isTransitionSettled.value = true;
-    isTransitioning.value = false;
-    pendingDirection.value = undefined;
-    finishTransition();
-  }, CARD_TRANSITION_SAFETY_TIMEOUT_MS);
-}
 
 function onTransitionComplete(): void {
-  if (isTransitionSettled.value) {
-    return;
-  }
-  isTransitionSettled.value = true;
   finishTransition();
 }
 
@@ -54,9 +33,7 @@ function handleNext(): void {
   if (entering && entering.id !== props.currentQuestion.id) {
     transitionDirection.value = "forward";
     isTransitioning.value = true;
-    isTransitionSettled.value = false;
     pendingDirection.value = "forward";
-    startSafetyTimeout();
 
     return;
   }
@@ -75,9 +52,7 @@ function handlePrevious(): void {
   if (entering && entering.id !== props.currentQuestion.id) {
     transitionDirection.value = "backward";
     isTransitioning.value = true;
-    isTransitionSettled.value = false;
     pendingDirection.value = "backward";
-    startSafetyTimeout();
 
     return;
   }
@@ -89,10 +64,6 @@ function onStaged(): void {
   isTransitioning.value = false;
   pendingDirection.value = undefined;
 }
-
-onUnmounted(() => {
-  clearTimeout(safetyTimeout);
-});
 </script>
 
 <template>

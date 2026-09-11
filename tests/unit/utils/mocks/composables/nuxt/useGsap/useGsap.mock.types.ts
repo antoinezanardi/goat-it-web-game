@@ -7,6 +7,7 @@ type GsapTimelineToSignature = (target: HTMLElement, variables: Record<string, n
 type GsapTimelineInstance = {
   clear: Mock<() => void>;
   eventCallback: Mock<(type: string, callback?: (() => void) | null) => void>;
+  pause: Mock<() => void>;
   restart: Mock<() => void>;
   to: Mock<GsapTimelineToSignature>;
 };

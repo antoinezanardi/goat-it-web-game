@@ -323,4 +323,34 @@ describe("GameQuestionCardSwitcher Component", () => {
 
     expect(useGsapMock.instance.revert).toHaveBeenCalledExactlyOnceWith();
   });
+
+  describe("safety timeout", () => {
+    const safetyTimeoutMs = 600;
+
+    it("should emit complete when the safety timeout fires and onComplete never fires.", async() => {
+      await wrapper.setProps({ pendingDirection: "forward" });
+      await nextTick();
+      vi.advanceTimersByTime(safetyTimeoutMs);
+
+      expect(wrapper.emitted("complete")).toStrictEqual([[]]);
+    });
+
+    it("should not emit complete twice when onComplete fires after the safety timeout already settled.", async() => {
+      await wrapper.setProps({ pendingDirection: "forward" });
+      await nextTick();
+      vi.advanceTimersByTime(safetyTimeoutMs);
+      useGsapMock.instance.capturedOnComplete.current?.();
+
+      expect(wrapper.emitted("complete")?.length).toBe(1);
+    });
+
+    it("should not emit complete twice when the safety timeout fires after onComplete already settled.", async() => {
+      await wrapper.setProps({ pendingDirection: "forward" });
+      await nextTick();
+      useGsapMock.instance.capturedOnComplete.current?.();
+      vi.advanceTimersByTime(safetyTimeoutMs);
+
+      expect(wrapper.emitted("complete")?.length).toBe(1);
+    });
+  });
 });

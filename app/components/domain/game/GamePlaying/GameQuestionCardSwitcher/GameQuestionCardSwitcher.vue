@@ -4,7 +4,7 @@ import { nextTick, ref, shallowRef, toRef, watch } from "vue";
 
 import { GameQuestionCard } from "#components";
 
-import { CARD_TRANSITION_DURATION_SECONDS, CARD_TRANSITION_ROTATION_DEGREES, CARD_TRANSITION_SLIDE_PERCENT } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.constants";
+import { CARD_TRANSITION_DURATION_SECONDS, CARD_TRANSITION_ROTATION_DEGREES, CARD_TRANSITION_SAFETY_TIMEOUT_MS, CARD_TRANSITION_SLIDE_PERCENT } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.constants";
 import type { GameQuestionCardSwitcherDirection, GameQuestionCardSwitcherEmits, GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
 import type { GsapContext } from "@/composables/core/gsap/gsap.types";
 import { useQuestionCardRing } from "~/composables/domain/useQuestionCardRing/useQuestionCardRing";
@@ -18,6 +18,10 @@ const reducedMotion = usePreferredReducedMotion();
 const cardContainerReferences = ref<HTMLElement[]>([]);
 const gsapContext = shallowRef<GsapContext>();
 const timeline = shallowRef<ReturnType<typeof gsap.timeline>>();
+const isSlideSettled = ref<boolean>(true);
+// Acceptable as the timeout handle is only assigned inside startSlide before it is ever read
+// oxlint-disable-next-line typescript/init-declarations
+let safetyTimeout: ReturnType<typeof setTimeout> | undefined;
 
 const { complete: completeRing, currentSlotIndex, getSlotIndexForOffset, slots: ringSlots } = useQuestionCardRing({
   currentIndex: toRef(props, "currentIndex"),
@@ -31,12 +35,6 @@ const { complete: completeRing, currentSlotIndex, getSlotIndexForOffset, slots: 
     emit("staged");
   },
 });
-
-function setCardContainerReference(element: HTMLElement | null, index: number): void {
-  if (element) {
-    cardContainerReferences.value[index] = element;
-  }
-}
 
 function applyRestingState(): void {
   for (const [index, element] of cardContainerReferences.value.entries()) {
@@ -61,6 +59,8 @@ function startSlide(direction: GameQuestionCardSwitcherDirection): void {
   gsap.set(enteringElement, { opacity: 0, rotation: enterRotation, xPercent: enterXPercent, zIndex: 2 });
   gsap.set(leavingElement, { opacity: 1, rotation: 0, xPercent: 0, zIndex: 1 });
 
+  isSlideSettled.value = false;
+  clearTimeout(safetyTimeout);
   timeline.value?.clear();
   timeline.value?.eventCallback("onComplete", () => {
     onSlideComplete(direction);
@@ -68,9 +68,19 @@ function startSlide(direction: GameQuestionCardSwitcherDirection): void {
   timeline.value?.to(leavingElement, { duration, ease: "expo.out", opacity: 0, rotation: leaveRotation, xPercent: leaveXPercent }, 0);
   timeline.value?.to(enteringElement, { duration, ease: "expo.out", opacity: 1, rotation: 0, xPercent: 0 }, 0);
   timeline.value?.restart();
+
+  safetyTimeout = setTimeout(() => {
+    onSlideComplete(direction);
+  }, CARD_TRANSITION_SAFETY_TIMEOUT_MS);
 }
 
 function onSlideComplete(direction: GameQuestionCardSwitcherDirection): void {
+  if (isSlideSettled.value) {
+    return;
+  }
+  isSlideSettled.value = true;
+  clearTimeout(safetyTimeout);
+  timeline.value?.pause();
   completeRing(direction);
   applyRestingState();
   emit("complete");
@@ -91,6 +101,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  clearTimeout(safetyTimeout);
   gsapContext.value?.revert();
 });
 </script>
@@ -100,7 +111,9 @@ onUnmounted(() => {
     <div
       v-for="(slot, index) in ringSlots"
       :key="index"
-      :ref="(element: HTMLElement | null) => setCardContainerReference(element, index)"
+      :ref="(element: HTMLElement | null) => {
+        if (element) cardContainerReferences[index] = element;
+      }"
       :aria-hidden="slot.ariaHidden"
       class="absolute inset-0 will-change-transform"
       :inert="slot.inert"

@@ -9,6 +9,7 @@ type UseGSAPMock = {
   clear: Mock<() => void>;
   context: Mock<GsapContextSignature>;
   eventCallback: Mock<(type: string, callback?: (() => void) | null) => void>;
+  pause: Mock<() => void>;
   restart: Mock<() => void>;
   revert: Mock<() => void>;
   set: Mock<GsapSetSignature>;
@@ -20,6 +21,7 @@ function createUseGSAPMock(): UseGSAPMock {
   const capturedOnComplete: { current: (() => void) | undefined } = { current: undefined };
   const timelineTo: Mock<GsapTimelineToSignature> = vi.fn<GsapTimelineToSignature>(() => timelineInstance);
   const clear: Mock<() => void> = vi.fn<() => void>();
+  const pause: Mock<() => void> = vi.fn<() => void>();
   const restart: Mock<() => void> = vi.fn<() => void>();
   // Acceptable as gsap.eventCallback captures the onComplete callback synchronously
   // oxlint-disable-next-line promise/prefer-await-to-callbacks
@@ -28,7 +30,7 @@ function createUseGSAPMock(): UseGSAPMock {
       capturedOnComplete.current = callback;
     }
   });
-  const timelineInstance: GsapTimelineInstance = { clear, eventCallback, restart, to: timelineTo };
+  const timelineInstance: GsapTimelineInstance = { clear, eventCallback, pause, restart, to: timelineTo };
   const timeline: Mock<GsapTimelineSignature> = vi.fn<GsapTimelineSignature>(config => {
     if (config.onComplete) {
       capturedOnComplete.current = config.onComplete;
@@ -54,7 +56,7 @@ function createUseGSAPMock(): UseGSAPMock {
     return { add, revert };
   });
 
-  return { add, capturedOnComplete, clear, context, eventCallback, restart, revert, set, timeline, timelineTo };
+  return { add, capturedOnComplete, clear, context, eventCallback, pause, restart, revert, set, timeline, timelineTo };
 }
 
 export { createUseGSAPMock };
