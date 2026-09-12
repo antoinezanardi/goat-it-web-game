@@ -20,6 +20,18 @@ function isPrimaryThemeHint(question: Question): boolean {
   return question.themes.find(theme => theme.isPrimary)?.isHint ?? false;
 }
 
+function hasNonEmptyContext(context?: string): boolean {
+  return (context?.trim().length ?? 0) > 0;
+}
+
+function getNonEmptyTrivia(trivia?: string[]): string[] {
+  return (trivia ?? []).filter(item => item.trim().length > 0);
+}
+
+function hasContextAndTriviaSection(question: Question): boolean {
+  return hasNonEmptyContext(question.content.context) || getNonEmptyTrivia(question.content.trivia).length > 0;
+}
+
 function getSourceDomain(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./u, "");
@@ -49,9 +61,12 @@ export {
   getDifficultyColor,
   getDifficultyIcon,
   getDifficultyRingClass,
+  getNonEmptyTrivia,
   getPrimaryTheme,
   getSecondaryThemes,
   getSourceDomain,
+  hasContextAndTriviaSection,
+  hasNonEmptyContext,
   hasSecondaryThemes,
   isPrimaryThemeHint,
 };

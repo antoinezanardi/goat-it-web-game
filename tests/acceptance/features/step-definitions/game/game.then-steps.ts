@@ -142,6 +142,15 @@ Then(
 );
 
 Then(
+  /^the question context accordion should be hidden$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+
+    await expect(question.getByTestId("game-question-context-accordion-trigger")).toBeHidden();
+  },
+);
+
+Then(
   /^the theme icon stack should be visible$/u,
   async function(this: GoatItWorld): Promise<void> {
     const question = getVisibleGameQuestionCard(this.page);

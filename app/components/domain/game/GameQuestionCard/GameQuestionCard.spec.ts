@@ -152,15 +152,30 @@ describe("GameQuestionCard Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).exists()).toBe(true);
   });
 
-  it("should not render the context accordion when both context and trivia are empty.", async() => {
+  it.each<{ condition: string; context?: string; trivia?: string[] }>([
+    { condition: "missing", context: undefined, trivia: undefined },
+    { condition: "whitespace and empty", context: "   ", trivia: [] },
+    { condition: "blank", context: undefined, trivia: ["", "   "] },
+  ])("should not render the context accordion when context and trivia are $condition.", async({ context, trivia }) => {
     await wrapper.setProps({
       question: createFakeQuestion({
         ...defaultGameQuestionCardProps.question,
-        content: createFakeQuestionContent({ context: undefined, trivia: undefined }),
+        content: createFakeQuestionContent({ context, trivia }),
       }),
     });
 
     expect(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).exists()).toBe(false);
+  });
+
+  it("should render the context accordion when trivia mixes blank and valid items.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({
+        ...defaultGameQuestionCardProps.question,
+        content: createFakeQuestionContent({ context: undefined, trivia: ["", "Only fact"] }),
+      }),
+    });
+
+    expect(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" }).exists()).toBe(true);
   });
 
   it("should render the staged data-testid when isActive is false.", async() => {

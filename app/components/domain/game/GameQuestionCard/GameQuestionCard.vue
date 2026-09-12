@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestionCard/game-question-card.types";
 import type { QuestionTheme } from "#shared/types/question-theme.types";
-import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
+import { getPrimaryTheme, hasContextAndTriviaSection } from "~/composables/domain/question/helpers/question.helpers";
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 const props = withDefaults(defineProps<GameQuestionCardProps>(), {
@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<GameQuestionCardProps>(), {
 const primaryTheme = computed<QuestionTheme | undefined>(() => getPrimaryTheme(props.question));
 const themeColor = computed<string>(() => resolveThemeColor(primaryTheme.value?.color));
 
-const hasContextSection = computed<boolean>(() => Boolean(props.question.content.context) || (props.question.content.trivia?.length ?? 0) > 0);
+const hasContextSection = computed<boolean>(() => hasContextAndTriviaSection(props.question));
 
 const wrapperStyle = computed<Record<string, string>>(() => ({
   "--game-theme-color": themeColor.value,
