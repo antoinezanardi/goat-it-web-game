@@ -1,5 +1,59 @@
 # 🐐👑 Goat It Web Admin Versioning Changelog
 
+## [1.7.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.6.1...v1.7.0) (2026-09-12)
+
+### 🚀 Features
+
+* **icons:** bundle all icons client-side via auto-scan ([#275](https://github.com/antoinezanardi/goat-it-web-game/issues/275)) ([caeb0b6](https://github.com/antoinezanardi/goat-it-web-game/commit/caeb0b6569d24f6bf1b402f25cfa784ad571cf40))
+
+### 🐛 Bug Fixes
+
+* **game:** hide empty context accordion and extract trivia content section ([#290](https://github.com/antoinezanardi/goat-it-web-game/issues/290)) ([4f25dae](https://github.com/antoinezanardi/goat-it-web-game/commit/4f25daed1d6a93152de7bf39f55813a0ab670efc))
+* **game:** stabilize flaky question-card acceptance tests ([#289](https://github.com/antoinezanardi/goat-it-web-game/issues/289)) ([a8aea59](https://github.com/antoinezanardi/goat-it-web-game/commit/a8aea597f79fb7fe2e71f8f600093a2a2f26a43e))
+* **server:** use configured default locale for Accept-Language fallback ([#279](https://github.com/antoinezanardi/goat-it-web-game/issues/279)) ([ff14f42](https://github.com/antoinezanardi/goat-it-web-game/commit/ff14f422112cc6cc113637981c7c208b87a2c31a))
+
+### ⚡️ Performance
+
+* **game:** eliminate question-card slide stutter on low-end devices ([#287](https://github.com/antoinezanardi/goat-it-web-game/issues/287)) ([ec58e2f](https://github.com/antoinezanardi/goat-it-web-game/commit/ec58e2f4e0c11c8ca8ca7c82c803e748ce6da3fb))
+
+### 🧹 Chore
+
+* **plan-writer:** add batch writing strategy for large plans ([#251](https://github.com/antoinezanardi/goat-it-web-game/issues/251)) ([f5e5c6a](https://github.com/antoinezanardi/goat-it-web-game/commit/f5e5c6a0b46d0b042f776a12aa1c701f33428181))
+* **plan-writer:** use snippet-only modify steps and mirror admin models ([#273](https://github.com/antoinezanardi/goat-it-web-game/issues/273)) ([2aee965](https://github.com/antoinezanardi/goat-it-web-game/commit/2aee9656da332650120df8e57e926cd590fb5782))
+* sync release v1.6.1 from main ([f6e78d7](https://github.com/antoinezanardi/goat-it-web-game/commit/f6e78d71290ff2bcfdccb37d2a78a1492dda22ce))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `@eslint/config-inspector` | `^3.4.1` |
+| `@goat-it/schemas` | `^0.0.24` |
+| `@iconify-json/lucide` | `^1.2.131` |
+| `@nuxt/content` | `^3.16.0` |
+| `@nuxt/test-utils` | `^4.3.2` |
+| `@nuxt/ui` | `^4.11.1` |
+| `@nuxtjs/robots` | `^6.2.2` |
+| `@nuxtjs/sitemap` | `^8.5.1` |
+| `@takumi-rs/core` | `^2.13.7` |
+| `@tanstack/vue-table` | `^9.2.4` |
+| `@types/node` | `^25.9.6` |
+| `@vue/test-utils` | `^2.5.0` |
+| `eslint` | `^10.10.0` |
+| `eslint-plugin-unicorn` | `v74` |
+| `happy-dom` | `^20.14.5` |
+| `lint-staged` | `^17.5.1` |
+| `nuxt-seo-utils` | `^8.5.0` |
+| `nuxtseo-layer-devtools` | `^5.3.16` |
+| `radashi` | `^12.9.2` |
+| `type-fest` | `^5.9.0` |
+| `vite` | `^8.3.0` |
+| `zod` | `^4.6.2` |
+| `node.js` | `v26.8.2` |
+| `oxlint monorepo` | `^1.82.0` |
+| `playwright monorepo` | `^1.63.0` |
+| `pnpm` | `v12.4.1` |
+| `vitest monorepo` | `v5` |
+
 ## [1.6.1](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.6.0...v1.6.1) (2026-08-27)
 
 ### 🧹 Chore
