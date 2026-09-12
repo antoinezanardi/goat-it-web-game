@@ -90,7 +90,7 @@
     "@cucumber/cucumber": "^13.2.1",
     "@eslint/config-inspector": "^3.4.1",
     "@faker-js/faker": "^10.6.0",
-    "@goat-it/schemas": "^0.0.20",
+    "@goat-it/schemas": "^0.0.24",
     "@iconify-json/lucide": "^1.2.131",
     "@nuxt/content": "^3.16.0",
     "@nuxt/eslint": "^1.17.0",
