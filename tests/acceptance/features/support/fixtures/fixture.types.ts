@@ -51,6 +51,7 @@ type FixtureRegistry = {
   };
   "question": {
     "single-question": FixtureDefinition<QuestionFixtureDocument>;
+    "single-no-context-question": FixtureDefinition<QuestionFixtureDocument>;
     "two-english-only-questions": FixtureDefinition<QuestionFixtureDocument>;
     "five-active-questions": FixtureDefinition<QuestionFixtureDocument>;
     "sixty-questions": FixtureDefinition<QuestionFixtureDocument>;

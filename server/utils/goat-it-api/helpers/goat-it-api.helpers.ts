@@ -1,7 +1,6 @@
 import { FetchError } from "ofetch";
 import { getCookie } from "h3";
 import { API_RESPONSE_EXCEPTION_DTO } from "@goat-it/schemas/shared/error";
-import { isValidLocale } from "@goat-it/schemas/shared/locale";
 import type { Locale } from "@goat-it/schemas/shared/locale";
 import type { H3Event } from "h3";
 
@@ -10,8 +9,6 @@ import type { CreateGoatItApiEndpointOptions, GoatItApiResourceName } from "#ser
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { isNonEmptyString } from "#shared/utils/helpers/string/string.helpers";
 import { resolveCookieLocale } from "#shared/utils/helpers/locale/locale.helpers";
-
-const DEFAULT_LOCALE_FALLBACK = "en";
 
 function getRuntimeConfig(event: H3Event): AppRuntimeConfig {
   // Acceptable as the NitroRuntimeConfig type does not expose custom runtimeConfig keys
@@ -32,10 +29,8 @@ function createGoatItApiEndpoint(resourceName: GoatItApiResourceName, options?: 
 
 function extractLocaleFromEvent(event: H3Event): Locale {
   const config = getRuntimeConfig(event);
-  const { defaultLocale } = config.public;
-  const fallbackLocale = isValidLocale(defaultLocale) ? defaultLocale : DEFAULT_LOCALE_FALLBACK;
 
-  return resolveCookieLocale(getCookie(event, "i18n_redirected"), fallbackLocale);
+  return resolveCookieLocale(getCookie(event, "i18n_redirected"), config.public.defaultLocale);
 }
 
 function createGoatItApiFetchOptions(event: H3Event): Parameters<typeof $fetch>[1] {

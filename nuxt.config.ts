@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     "v-gsap-nuxt",
   ],
   $test: {
+    runtimeConfig: { public: { defaultLocale: "en" } },
     buildDir: ".nuxt/test",
     nitro: { output: { dir: ".nuxt/test/output" } },
     i18n: { defaultLocale: "en" },
@@ -71,6 +72,7 @@ export default defineNuxtConfig({
       baseUrl: "",
       gameKey: "",
     },
+    public: { defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE },
   },
   ignore: [
     "configs/**/*.ts",
@@ -228,6 +230,13 @@ export default defineNuxtConfig({
     },
     detectBrowserLanguage: false,
   },
+  icon: {
+    clientBundle: {
+      scan: {
+        globInclude: ["**/*.{vue,ts}"],
+      },
+    },
+  },
   ogImage: {
     security: {
       secret: process.env.NUXT_OG_IMAGE_SECURITY_SECRET ?? "goat-it-og-image-dev-secret",
@@ -272,6 +281,7 @@ export default defineNuxtConfig({
       navigateFallback: null,
     },
   },
+  seo: { validateAppHead: false },
   sitemap: {
     zeroRuntime: true,
     exclude: [

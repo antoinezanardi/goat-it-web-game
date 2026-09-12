@@ -1,31 +1,43 @@
 <script lang="ts" setup>
 import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestionCard/game-question-card.types";
 import type { QuestionTheme } from "#shared/types/question-theme.types";
-import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
+import { getPrimaryTheme, hasContextAndTriviaSection } from "~/composables/domain/question/helpers/question.helpers";
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
-const props = defineProps<GameQuestionCardProps>();
+const props = withDefaults(defineProps<GameQuestionCardProps>(), {
+  isActive: true,
+  isFrozen: false,
+});
 
 const primaryTheme = computed<QuestionTheme | undefined>(() => getPrimaryTheme(props.question));
 const themeColor = computed<string>(() => resolveThemeColor(primaryTheme.value?.color));
 
-const hasContextSection = computed<boolean>(() => Boolean(props.question.content.context) || (props.question.content.trivia?.length ?? 0) > 0);
+const hasContextSection = computed<boolean>(() => hasContextAndTriviaSection(props.question));
 
 const wrapperStyle = computed<Record<string, string>>(() => ({
   "--game-theme-color": themeColor.value,
 }));
+
+const dataTestid = computed<"game-question" | "game-question-staged">(() => (props.isActive ? "game-question" : "game-question-staged"));
 </script>
 
 <template>
   <article
-    class="bg-card flex flex-col game-question-card game-theme-scope h-[calc(100dvh-10rem)] max-w-3xl md:max-h-[650px] md:p-6 mx-auto overflow-clip p-4 relative rounded-xl z-0"
-    data-testid="game-question"
+    class="absolute bg-card flex flex-col game-question-card game-theme-scope inset-0 overflow-clip p-4 rounded-xl z-0"
+    :class="{ 'game-question-card--frozen': props.isFrozen }"
+    :data-testid="dataTestid"
     :style="wrapperStyle"
   >
     <div
       aria-hidden="true"
       class="game-card-halo"
-    />
+    >
+      <div class="game-card-halo__base"/>
+
+      <div class="game-card-halo__orb-a"/>
+
+      <div class="game-card-halo__orb-b"/>
+    </div>
 
     <div
       class="flex-1 min-h-0 overflow-y-auto"
@@ -48,7 +60,6 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
 
       <GameQuestionCardContextAccordion
         v-if="hasContextSection"
-        :key="props.question.id"
         class="mt-4"
         :context="props.question.content.context"
         :trivia="props.question.content.trivia"
@@ -68,8 +79,21 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
   inset: 0;
   z-index: -1;
   border-radius: 0.75rem;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.game-card-halo__base,
+.game-card-halo__orb-a,
+.game-card-halo__orb-b {
+  position: absolute;
   filter: blur(28px);
   pointer-events: none;
+}
+
+.game-card-halo__base {
+  inset: 0;
+  border-radius: 0.75rem;
   background:
     radial-gradient(
       100dvw circle at 15% 20%,
@@ -86,9 +110,7 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
   animation: glow-breathe 25s ease-in-out infinite;
 }
 
-.game-card-halo::before {
-  content: "";
-  position: absolute;
+.game-card-halo__orb-a {
   inset: -50%;
   background:
     radial-gradient(
@@ -101,9 +123,7 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
   animation: wander-a 18s linear infinite;
 }
 
-.game-card-halo::after {
-  content: "";
-  position: absolute;
+.game-card-halo__orb-b {
   inset: -50%;
   background:
     radial-gradient(
@@ -124,10 +144,20 @@ const wrapperStyle = computed<Record<string, string>>(() => ({
     0 0 60px 16px var(--game-theme-glow-soft);
 }
 
+.game-question-card.game-theme-scope {
+  transition: none;
+}
+
+.game-question-card--frozen .game-card-halo__base,
+.game-question-card--frozen .game-card-halo__orb-a,
+.game-question-card--frozen .game-card-halo__orb-b {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .game-card-halo,
-  .game-card-halo::before,
-  .game-card-halo::after {
+  .game-card-halo__base,
+  .game-card-halo__orb-a,
+  .game-card-halo__orb-b {
     animation: none;
   }
 }

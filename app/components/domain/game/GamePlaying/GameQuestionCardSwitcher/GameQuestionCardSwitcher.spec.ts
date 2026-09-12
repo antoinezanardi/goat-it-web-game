@@ -1,4 +1,4 @@
-import type { VueWrapper } from "@vue/test-utils";
+import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
@@ -6,37 +6,67 @@ import { nextTick } from "vue";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { useGsapMock } from "~~/tests/unit/setup/nuxt/composables/use-gsap.nuxt.unit-setup";
-import { createUseGSAPMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useGsap/useGsap.mock";
+import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup";
 
 import { GameQuestionCardSwitcher } from "#components";
 
-import type { Question } from "#shared/types/question.types";
 import type { GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
 
 describe("GameQuestionCardSwitcher Component", () => {
+  const firstQuestion = createFakeQuestion();
+  const secondQuestion = createFakeQuestion();
+  const thirdQuestion = createFakeQuestion();
+
   const defaultGameQuestionCardSwitcherProps: GameQuestionCardSwitcherProps = {
-    direction: "forward",
-    question: createFakeQuestion(),
+    currentIndex: 1,
+    questions: [firstQuestion, secondQuestion, thirdQuestion],
   } as const;
 
   let wrapper: VueWrapper;
-  let leavingQuestion: Question;
-  let enteringQuestion: Question;
-
-  function getCardElements(wrapperInstance: VueWrapper): { leavingCardElement: HTMLElement; enteringCardElement: HTMLElement } {
-    return {
-      leavingCardElement: wrapperInstance.find("[data-testid='card-transition-leaving']").findComponent({ name: "GameQuestionCard" }).element as HTMLElement,
-      enteringCardElement: wrapperInstance.find("[data-testid='card-transition-entering']").findComponent({ name: "GameQuestionCard" }).element as HTMLElement,
-    };
-  }
+  let requestAnimationFrameCallbacks: FrameRequestCallback[];
 
   async function mountGameQuestionCardSwitcher(options: MountSuspendedOptions<typeof GameQuestionCardSwitcher> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionCardSwitcher, { props: defaultGameQuestionCardSwitcherProps, ...options });
+    return mountSuspended(GameQuestionCardSwitcher, {
+      props: defaultGameQuestionCardSwitcherProps,
+      ...options,
+    });
+  }
+
+  function getCardContainers(wrapperInstance: VueWrapper): DOMWrapper<Element>[] {
+    return wrapperInstance.findAll(".absolute.inset-0.will-change-transform");
+  }
+
+  function getVisibleCardElement(wrapperInstance: VueWrapper): DOMWrapper<Element> {
+    return wrapperInstance.find("[data-testid='game-question']");
+  }
+
+  function getStagedCardElement(wrapperInstance: VueWrapper, index: number): DOMWrapper<Element> {
+    const elements = wrapperInstance.findAll("[data-testid='game-question-staged']");
+    const element = elements[index];
+    if (!element) {
+      throw new Error(`No staged card at index ${index}`);
+    }
+    return element;
+  }
+
+  function getContainerParent(element: Element): HTMLElement {
+    const parent = (element as HTMLElement).parentElement;
+
+    if (!(parent instanceof HTMLElement)) {
+      throw new Error("Expected mounted card container to have an HTMLElement parent.");
+    }
+    return parent;
   }
 
   beforeEach(async() => {
-    leavingQuestion = createFakeQuestion();
-    enteringQuestion = createFakeQuestion();
+    requestAnimationFrameCallbacks = [];
+    // Acceptable as requestAnimationFrame mock captures the callback synchronously for test control
+    // oxlint-disable-next-line promise/prefer-await-to-callbacks
+    vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation(callback => {
+      requestAnimationFrameCallbacks.push(callback);
+
+      return requestAnimationFrameCallbacks.length;
+    });
     wrapper = await mountGameQuestionCardSwitcher();
   });
 
@@ -44,133 +74,248 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
-  it("should render the leaving question card when mounted.", () => {
-    expect(wrapper.find("[data-testid='card-transition-leaving']").findComponent({ name: "GameQuestionCard" }).exists()).toBe(true);
+  it("should render three card containers when mounted.", () => {
+    expect(getCardContainers(wrapper)).toHaveLength(3);
   });
 
-  it("should render the entering question card when mounted.", () => {
-    expect(wrapper.find("[data-testid='card-transition-entering']").findComponent({ name: "GameQuestionCard" }).exists()).toBe(true);
+  it("should render the current question when mounted.", () => {
+    expect(wrapper.findComponent({ name: "GameQuestionCard" }).props("question")).toStrictEqual(secondQuestion);
   });
 
-  it("should pass the current question to the leaving card when no transition is active.", () => {
-    const leavingCard = wrapper.find("[data-testid='card-transition-leaving']").findComponent({ name: "GameQuestionCard" });
-
-    expect(leavingCard.props("question")).toBe(defaultGameQuestionCardSwitcherProps.question);
+  it("should set the active card prop when mounted.", () => {
+    expect(wrapper.findComponent({ name: "GameQuestionCard" }).props("isActive")).toBe(true);
   });
 
-  it("should pass the current question to the entering card when no transition is active.", () => {
-    const enteringCard = wrapper.find("[data-testid='card-transition-entering']").findComponent({ name: "GameQuestionCard" });
-
-    expect(enteringCard.props("question")).toBe(defaultGameQuestionCardSwitcherProps.question);
+  it("should render staged cards in the non-active slots when mounted.", () => {
+    expect(wrapper.findAll("[data-testid='game-question-staged']")).toHaveLength(2);
   });
 
-  it("should hide the leaving card when mounted.", () => {
-    const { leavingCardElement } = getCardElements(wrapper);
-
-    expect(useGsapMock.instance.set).toHaveBeenCalledExactlyOnceWith(leavingCardElement, { autoAlpha: 0 });
+  it("should set the active card container to resting state when mounted.", () => {
+    expect(useGsapMock.instance.set).toHaveBeenCalledWith(
+      getContainerParent(getVisibleCardElement(wrapper).element),
+      { opacity: 1, rotation: 0, xPercent: 0, zIndex: 1 },
+    );
   });
 
-  it("should not create a gsap timeline when mounted without a transition.", () => {
-    expect(useGsapMock.instance.timeline).not.toHaveBeenCalled();
+  it("should set the first staged container to resting state when mounted.", () => {
+    expect(useGsapMock.instance.set).toHaveBeenCalledWith(
+      getContainerParent(getStagedCardElement(wrapper, 0).element),
+      { opacity: 0, rotation: 0, xPercent: 0, zIndex: 0 },
+    );
   });
 
-  it("should pass the leaving question to the leaving card when a transition starts.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
-    await nextTick();
-    const leavingCard = wrapper.find("[data-testid='card-transition-leaving']").findComponent({ name: "GameQuestionCard" });
-
-    expect(leavingCard.props("question")).toStrictEqual(leavingQuestion);
+  it("should set the second staged container to resting state when mounted.", () => {
+    expect(useGsapMock.instance.set).toHaveBeenCalledWith(
+      getContainerParent(getStagedCardElement(wrapper, 1).element),
+      { opacity: 0, rotation: 0, xPercent: 0, zIndex: 0 },
+    );
   });
 
-  it("should pass the entering question to the entering card when a transition starts.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
-    await nextTick();
-    const enteringCard = wrapper.find("[data-testid='card-transition-entering']").findComponent({ name: "GameQuestionCard" });
-
-    expect(enteringCard.props("question")).toStrictEqual(enteringQuestion);
+  it("should create a paused gsap timeline once when mounted.", () => {
+    expect(useGsapMock.instance.timeline).toHaveBeenCalledExactlyOnceWith({ paused: true });
   });
 
-  it("should run the transition through the gsap context when a transition starts.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
+  it("should start a forward slide when pendingDirection becomes forward.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();
 
-    expect(useGsapMock.instance.add).toHaveBeenCalledExactlyOnceWith(expect.any(Function));
+    expect(useGsapMock.instance.restart).toHaveBeenCalledWith();
   });
 
-  it("should reveal the leaving card at its natural state when transition direction is forward.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
-    await nextTick();
-    const { leavingCardElement } = getCardElements(wrapper);
-
-    expect(useGsapMock.instance.set).toHaveBeenNthCalledWith(2, leavingCardElement, { autoAlpha: 1, xPercent: 0, rotation: 0 });
-  });
-
-  it("should set the entering card to its initial state when transition direction is forward.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
-    await nextTick();
-    const { enteringCardElement } = getCardElements(wrapper);
-
-    expect(useGsapMock.instance.set).toHaveBeenNthCalledWith(3, enteringCardElement, { autoAlpha: 0, xPercent: 100, rotation: 6 });
-  });
-
-  it("should set the entering card to its initial state when transition direction is backward.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "backward" });
-    await nextTick();
-    const { enteringCardElement } = getCardElements(wrapper);
-
-    expect(useGsapMock.instance.set).toHaveBeenNthCalledWith(3, enteringCardElement, { autoAlpha: 0, xPercent: -100, rotation: -6 });
-  });
-
-  it("should create a gsap timeline with an onComplete callback when a transition starts.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
+  it("should position the entering card to the right when pendingDirection is forward.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();
 
-    expect(useGsapMock.instance.timeline).toHaveBeenCalledExactlyOnceWith({ onComplete: expect.any(Function) as () => void });
+    expect(useGsapMock.instance.set).toHaveBeenCalledWith(
+      getContainerParent(getStagedCardElement(wrapper, 0).element),
+      { opacity: 0, rotation: 6, xPercent: 100, zIndex: 2 },
+    );
   });
 
-  it("should animate the leaving card out with expo.out ease when direction is forward.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
+  it("should position the entering card to the left when pendingDirection is backward.", async() => {
+    await wrapper.setProps({ pendingDirection: "backward" });
     await nextTick();
-    const { leavingCardElement } = getCardElements(wrapper);
 
-    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(1, leavingCardElement, { autoAlpha: 0, xPercent: -100, rotation: -6, duration: 0.4, ease: "expo.out" }, 0);
+    expect(useGsapMock.instance.set).toHaveBeenCalledWith(
+      getContainerParent(getStagedCardElement(wrapper, 1).element),
+      { opacity: 0, rotation: -6, xPercent: -100, zIndex: 2 },
+    );
   });
 
-  it("should animate the entering card in with expo.out ease when direction is forward.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
+  it("should animate the leaving card out when pendingDirection is forward.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();
-    const { enteringCardElement } = getCardElements(wrapper);
 
-    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(2, enteringCardElement, { autoAlpha: 1, xPercent: 0, rotation: 0, duration: 0.4, ease: "expo.out" }, 0);
+    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(
+      1,
+      getContainerParent(getVisibleCardElement(wrapper).element),
+      { duration: 0.4, ease: "expo.out", opacity: 0, rotation: -6, xPercent: -100 },
+      0,
+    );
   });
 
-  it("should animate the leaving card out with mirrored values when direction is backward.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "backward" });
+  it("should animate the entering card in when pendingDirection is forward.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();
-    const { leavingCardElement } = getCardElements(wrapper);
 
-    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(1, leavingCardElement, { autoAlpha: 0, xPercent: 100, rotation: 6, duration: 0.4, ease: "expo.out" }, 0);
+    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(
+      2,
+      getContainerParent(getStagedCardElement(wrapper, 0).element),
+      { duration: 0.4, ease: "expo.out", opacity: 1, rotation: 0, xPercent: 0 },
+      0,
+    );
   });
 
-  it("should emit complete when the timeline onComplete callback fires.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
+  it("should never use autoAlpha when a slide starts.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+
+    const allCalls = [
+      ...useGsapMock.instance.set.mock.calls,
+      ...useGsapMock.instance.timelineTo.mock.calls,
+    ];
+
+    expect(allCalls.every(call => !Object.keys(call[1]).includes("autoAlpha"))).toBe(true);
+  });
+
+  it("should use a duration of 0 when reduced motion is preferred.", async() => {
+    usePreferredReducedMotionMock.instance.preferredReducedMotionRef.value = "reduce";
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+
+    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(
+      1,
+      getContainerParent(getVisibleCardElement(wrapper).element),
+      { duration: 0, ease: "expo.out", opacity: 0, rotation: -6, xPercent: -100 },
+      0,
+    );
+  });
+
+  it("should use duration 0 when reduced-motion preference changes during a slide.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+    usePreferredReducedMotionMock.instance.preferredReducedMotionRef.value = "reduce";
+    await wrapper.setProps({ pendingDirection: undefined });
+    await nextTick();
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+
+    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(
+      3,
+      getContainerParent(getVisibleCardElement(wrapper).element),
+      { duration: 0, ease: "expo.out", opacity: 0, rotation: -6, xPercent: -100 },
+      0,
+    );
+  });
+
+  it("should reuse the existing timeline when a second slide starts.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+    useGsapMock.instance.capturedOnComplete.current?.();
+    await nextTick();
+    await wrapper.setProps({ currentIndex: 2 });
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    await nextTick();
+    await wrapper.setProps({ pendingDirection: undefined });
+    await nextTick();
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+
+    expect(useGsapMock.instance.timeline).toHaveBeenCalledOnce();
+  });
+
+  it("should clear the timeline when a second slide starts.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+    useGsapMock.instance.capturedOnComplete.current?.();
+    await nextTick();
+    await wrapper.setProps({ currentIndex: 2 });
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    await nextTick();
+    await wrapper.setProps({ pendingDirection: undefined });
+    await nextTick();
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+
+    expect(useGsapMock.instance.clear).toHaveBeenCalledTimes(2);
+  });
+
+  it("should emit complete when the timeline onComplete fires.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();
     useGsapMock.instance.capturedOnComplete.current?.();
 
     expect(wrapper.emitted("complete")).toStrictEqual([[]]);
   });
 
-  it("should not emit complete when no card transition runs.", () => {
-    expect(wrapper.emitted("complete")).toBeUndefined();
+  it("should emit staged when the restage cycle completes.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+    useGsapMock.instance.capturedOnComplete.current?.();
+    await nextTick();
+    await wrapper.setProps({ currentIndex: 2 });
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    await nextTick();
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    await nextTick();
+
+    expect(wrapper.emitted("staged")).toStrictEqual([[]]);
   });
 
-  it("should not create a new timeline when the transition state is cleared.", async() => {
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
+  it("should emit complete count when a slide finishes.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();
-    await wrapper.setProps({ leavingQuestion: undefined, enteringQuestion: undefined });
+    useGsapMock.instance.capturedOnComplete.current?.();
+    await nextTick();
+    await wrapper.setProps({ currentIndex: 2 });
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
     await nextTick();
 
-    expect(useGsapMock.instance.timeline).toHaveBeenCalledOnce();
+    expect(wrapper.emitted("complete")?.length).toBe(1);
+  });
+
+  it("should emit staged count when a slide finishes.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+    useGsapMock.instance.capturedOnComplete.current?.();
+    await nextTick();
+    await wrapper.setProps({ currentIndex: 2 });
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    await nextTick();
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+    requestAnimationFrameCallbacks.splice(0, 1);
+    await nextTick();
+
+    expect(wrapper.emitted("staged")?.length).toBe(1);
   });
 
   it("should revert the gsap context when the component unmounts.", () => {
@@ -179,31 +324,33 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(useGsapMock.instance.revert).toHaveBeenCalledExactlyOnceWith();
   });
 
-  it("should not animate the cards when the card elements are not rendered.", async() => {
-    wrapper.unmount();
-    useGsapMock.instance = createUseGSAPMock();
-    wrapper = await mountGameQuestionCardSwitcher({
-      global: {
-        stubs: {
-          GameQuestionCard: {
-            name: "GameQuestionCard",
-            render: (): null => null,
-          },
-        },
-      },
+  describe("safety timeout", () => {
+    const safetyTimeoutMs = 600;
+
+    it("should emit complete when the safety timeout fires and onComplete never fires.", async() => {
+      await wrapper.setProps({ pendingDirection: "forward" });
+      await nextTick();
+      vi.advanceTimersByTime(safetyTimeoutMs);
+
+      expect(wrapper.emitted("complete")).toStrictEqual([[]]);
     });
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
-    await nextTick();
 
-    expect(useGsapMock.instance.set).not.toHaveBeenCalled();
-  });
+    it("should not emit complete twice when onComplete fires after the safety timeout already settled.", async() => {
+      await wrapper.setProps({ pendingDirection: "forward" });
+      await nextTick();
+      vi.advanceTimersByTime(safetyTimeoutMs);
+      useGsapMock.instance.capturedOnComplete.current?.();
 
-  it("should use a zero duration when prefers-reduced-motion is active.", async() => {
-    vi.spyOn(globalThis, "matchMedia").mockReturnValue({ matches: true } as MediaQueryList);
-    await wrapper.setProps({ leavingQuestion, enteringQuestion, direction: "forward" });
-    await nextTick();
-    const { leavingCardElement } = getCardElements(wrapper);
+      expect(wrapper.emitted("complete")?.length).toBe(1);
+    });
 
-    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(1, leavingCardElement, { autoAlpha: 0, xPercent: -100, rotation: -6, duration: 0, ease: "expo.out" }, 0);
+    it("should not emit complete twice when the safety timeout fires after onComplete already settled.", async() => {
+      await wrapper.setProps({ pendingDirection: "forward" });
+      await nextTick();
+      useGsapMock.instance.capturedOnComplete.current?.();
+      vi.advanceTimersByTime(safetyTimeoutMs);
+
+      expect(wrapper.emitted("complete")?.length).toBe(1);
+    });
   });
 });

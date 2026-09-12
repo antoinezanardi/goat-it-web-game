@@ -12,7 +12,13 @@ let i18nMock: UseI18nMock;
 vi.mock(import("#app/nuxt"), async importOriginal => {
   const actual = await importOriginal();
 
-  return { ...actual, useNuxtApp: ((): { $i18n: UseI18nMock } => ({ $i18n: i18nMock })) as unknown as typeof actual.useNuxtApp };
+  return {
+    ...actual,
+    useNuxtApp: ((...arguments_: Parameters<typeof actual.useNuxtApp>) => ({
+      ...actual.useNuxtApp(...arguments_),
+      $i18n: i18nMock,
+    })) as typeof actual.useNuxtApp,
+  };
 });
 
 let useAppToast: typeof UseAppToastType;
