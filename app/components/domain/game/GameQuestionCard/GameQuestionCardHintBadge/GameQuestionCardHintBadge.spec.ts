@@ -36,7 +36,7 @@ describe("GameQuestionCardHintBadge Component", () => {
   it("should set the UBadge icon to the question hint icon when mounted.", () => {
     const badge = wrapper.findComponent({ name: "UBadge" });
 
-    expect(badge.props("icon")).toBe("i-lucide-hat-glasses");
+    expect(badge.props("icon")).toBe("i-lucide-mouth-off");
   });
 
   it("should apply the data-testid attribute to the badge when mounted.", () => {
