@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
-import type { QuestionThemeAssignment } from "#shared/types/question.types";
 import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
+import type { QuestionThemeAssignment } from "#shared/types/question.types";
 
 const props = defineProps<GameQuestionCardThemeStackProps>();
 
+const highlight = useQuestionCardHighlight();
+const iconElementReferences = shallowRef<HTMLElement[]>([]);
 const isPopoverOpen = ref(false);
 
 const orderedAssignments = computed<QuestionThemeAssignment[]>(() => {
@@ -16,11 +18,23 @@ const orderedAssignments = computed<QuestionThemeAssignment[]>(() => {
 
 const isInteractive = computed<boolean>(() => props.question.themes.length > 1);
 
+function setIconElementReference(element: Element | ComponentPublicInstance | null, index: number): void {
+  if (element instanceof HTMLElement) {
+    iconElementReferences.value[index] = element;
+  } else if (element !== null && "$el" in element) {
+    iconElementReferences.value[index] = element.$el;
+  }
+}
+
 function toggleOpen(): void {
   if (!isInteractive.value) {
     return;
   }
   isPopoverOpen.value = !isPopoverOpen.value;
+}
+
+function playHighlight(): Promise<void> {
+  return highlight.animate(iconElementReferences.value);
 }
 
 function resolveIconContainerClass(assignment: QuestionThemeAssignment): string {
@@ -32,6 +46,7 @@ function resolveIconSize(assignment: QuestionThemeAssignment): GameQuestionCardT
 }
 
 defineExpose({
+  playHighlight,
   toggleOpen,
 });
 </script>
@@ -48,8 +63,9 @@ defineExpose({
       type="button"
     >
       <GameQuestionCardThemeIcon
-        v-for="assignment in orderedAssignments"
+        v-for="(assignment, index) in orderedAssignments"
         :key="assignment.theme.slug"
+        :ref="(element: Element | ComponentPublicInstance | null) => setIconElementReference(element, index)"
         :class="resolveIconContainerClass(assignment)"
         :data-testid="`theme-stack-icon-${assignment.theme.slug}`"
         :is-hint="assignment.isHint"

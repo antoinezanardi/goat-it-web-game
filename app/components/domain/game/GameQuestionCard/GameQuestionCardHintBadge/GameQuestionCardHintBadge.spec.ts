@@ -4,6 +4,9 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
+import { useQuestionCardHighlightMock } from "~~/tests/unit/setup/nuxt/composables/use-question-card-highlight.nuxt.unit-setup";
 
 import { GameQuestionCardHintBadge } from "#components";
 
@@ -58,5 +61,46 @@ describe("GameQuestionCardHintBadge Component", () => {
     const content = document.body.querySelector("[data-testid='game-question-hint-popover']");
 
     expect(content?.textContent).toBe("questions.themeStack.primaryThemeHintTooltip");
+  });
+
+  type GameQuestionCardHintBadgeVm = ComponentVm & { playHighlight: () => Promise<void> };
+
+  it("should call useQuestionCardHighlight().animate with its root element when playHighlight is called.", async() => {
+    const vm = getWrapperVm<GameQuestionCardHintBadgeVm>(wrapper);
+    const badgeElement = wrapper.findComponent({ name: "UBadge" }).element as HTMLElement;
+
+    await vm.playHighlight();
+
+    expect(useQuestionCardHighlightMock.instance.animate).toHaveBeenCalledExactlyOnceWith([badgeElement]);
+  });
+
+  it("should resolve immediately when playHighlight is called before the badge element reference is set.", async() => {
+    const wrapperWithoutReference = await mountSuspended(GameQuestionCardHintBadge, {
+      global: {
+        stubs: {
+          UBadge: {
+            template: "<div />",
+            mounted() {
+              (this as { $el: null }).$el = null;
+            },
+          },
+        },
+      },
+    });
+    const vm = getWrapperVm<GameQuestionCardHintBadgeVm>(wrapperWithoutReference);
+
+    await vm.playHighlight();
+
+    expect(useQuestionCardHighlightMock.instance.animate).not.toHaveBeenCalled();
+  });
+
+  it("should set the badge element reference when setBadgeElementReference receives a raw HTMLElement.", async() => {
+    const vm = getWrapperVm<GameQuestionCardHintBadgeVm>(wrapper);
+    const rawElement = document.createElement("span");
+    (vm.$.setupState.setBadgeElementReference as (element: Element) => void)(rawElement);
+
+    await vm.playHighlight();
+
+    expect(useQuestionCardHighlightMock.instance.animate).toHaveBeenCalledExactlyOnceWith([rawElement]);
   });
 });

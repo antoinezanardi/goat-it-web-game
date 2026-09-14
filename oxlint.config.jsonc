@@ -75,6 +75,7 @@
     "useNuxtApp": "readonly",
     "useOverlay": "readonly",
     "usePreferredReducedMotion": "readonly",
+    "useQuestionCardHighlight": "readonly",
     "useQuestionThemesStore": "readonly",
     "useRoute": "readonly",
     "useRouter": "readonly",

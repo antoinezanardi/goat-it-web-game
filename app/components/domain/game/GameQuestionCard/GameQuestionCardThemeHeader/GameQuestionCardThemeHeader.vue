@@ -1,12 +1,18 @@
 <script lang="ts" setup>
-import { GameQuestionCardThemeStack } from "#components";
+import { nextTick, watch } from "vue";
 
+import { GameQuestionCardHintBadge, GameQuestionCardThemeStack } from "#components";
+
+import { QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.constants";
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
 import { getCategoryIcon, getPrimaryTheme, getSecondaryThemes, hasSecondaryThemes, isPrimaryThemeHint } from "~/composables/domain/question/helpers/question.helpers";
 
-const props = defineProps<GameQuestionCardThemeHeaderProps>();
+const props = withDefaults(defineProps<GameQuestionCardThemeHeaderProps>(), {
+  isActive: true,
+});
 
 const { t } = useI18n();
+const highlight = useQuestionCardHighlight();
 
 const category = computed(() => props.question.category);
 const isPrimaryHint = computed(() => isPrimaryThemeHint(props.question));
@@ -14,12 +20,32 @@ const difficulty = computed(() => props.question.cognitiveDifficulty);
 const primaryTheme = computed(() => getPrimaryTheme(props.question));
 const hasOtherThemes = computed(() => hasSecondaryThemes(props.question));
 const otherThemesLabel = computed(() => t("questions.themeStack.otherThemes", { count: getSecondaryThemes(props.question).length }));
+const isInteractive = computed(() => props.question.themes.length > 1);
 
 const themeStackReference = useTemplateRef<InstanceType<typeof GameQuestionCardThemeStack>>("themeStackRef");
+const hintBadgeReference = useTemplateRef<InstanceType<typeof GameQuestionCardHintBadge>>("hintBadgeRef");
 
 function handleOtherThemesClick(): void {
   themeStackReference.value?.toggleOpen();
 }
+
+watch(
+  () => props.isActive,
+  async active => {
+    if (!active) {
+      return;
+    }
+    await nextTick();
+    await highlight.playSequence(
+      [
+        isInteractive.value ? themeStackReference.value : undefined,
+        isPrimaryHint.value ? hintBadgeReference.value : undefined,
+      ],
+      { gapMs: QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS },
+    );
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -34,6 +60,7 @@ function handleOtherThemesClick(): void {
         <p class="flex gap-x-1.5 items-center leading-snug-plus">
           <GameQuestionCardHintBadge
             v-if="isPrimaryHint"
+            ref="hintBadgeRef"
             class="-ml-1"
           />
 
