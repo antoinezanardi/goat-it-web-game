@@ -242,7 +242,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
     const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
-      [themeStackVm, undefined],
+      [themeStackVm, null],
       { gapMs: 250 },
     );
   });
@@ -277,7 +277,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
     await flushPromises();
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
-      [undefined, undefined],
+      [undefined, null],
       { gapMs: 250 },
     );
   });

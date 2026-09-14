@@ -14,6 +14,7 @@ import {
   QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES,
   QUESTION_CARD_HIGHLIGHT_STAGGER_SECONDS,
 } from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.constants";
+import type { QuestionCardHighlightPlayable } from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
 
 let useGSAPMock: UseGSAPMock;
 let usePreferredReducedMotionMock: UsePreferredReducedMotionMock;
@@ -39,6 +40,28 @@ describe(useQuestionCardHighlight, () => {
       expect(useGSAPMock.timeline).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ onComplete: expect.any(Function) as () => void }));
     });
 
+    it("should set the starting filter before animating when reduced motion is not preferred.", async() => {
+      const { animate } = useQuestionCardHighlight();
+      const element = document.createElement("div");
+
+      const promise = animate([element]);
+      useGSAPMock.capturedOnComplete.current?.();
+      await promise;
+
+      expect(useGSAPMock.set).toHaveBeenNthCalledWith(1, [element], { filter: "brightness(1)" });
+    });
+
+    it("should clear the transform and filter props when the timeline completes.", async() => {
+      const { animate } = useQuestionCardHighlight();
+      const element = document.createElement("div");
+
+      const promise = animate([element]);
+      useGSAPMock.capturedOnComplete.current?.();
+      await promise;
+
+      expect(useGSAPMock.set).toHaveBeenNthCalledWith(2, [element], { clearProps: "transform,filter" });
+    });
+
     it("should pass the element, keyframes, stagger and position to the timeline tween when animating a single element.", async() => {
       const { animate } = useQuestionCardHighlight();
       const element = document.createElement("div");
@@ -47,15 +70,64 @@ describe(useQuestionCardHighlight, () => {
       useGSAPMock.capturedOnComplete.current?.();
       await promise;
 
+      const expectedKeyframes = [
+        QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES[0],
+        QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES[1],
+        expect.objectContaining({ filter: "brightness(1)", scale: expect.any(Function) as (index: number) => number }),
+      ];
+
       expect(useGSAPMock.timelineTo).toHaveBeenCalledExactlyOnceWith(
         [element],
         expect.objectContaining({
           duration: QUESTION_CARD_HIGHLIGHT_DURATION_SECONDS,
-          keyframes: QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES,
+          keyframes: expectedKeyframes,
           stagger: QUESTION_CARD_HIGHLIGHT_STAGGER_SECONDS,
         }),
         0,
       );
+    });
+
+    it("should end the keyframes at the default scale when the element has no resting scale.", async() => {
+      const { animate } = useQuestionCardHighlight();
+      const element = document.createElement("div");
+
+      const promise = animate([element]);
+      useGSAPMock.capturedOnComplete.current?.();
+      await promise;
+
+      const variables = useGSAPMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
+      const scale = variables?.keyframes?.[2]?.scale as ((index: number) => number) | undefined;
+
+      expect(scale?.(0)).toBe(1);
+    });
+
+    it("should end the keyframes at the resting scale when the element is scaled.", async() => {
+      vi.spyOn(globalThis, "getComputedStyle").mockReturnValue({ scale: "0.85" } as unknown as CSSStyleDeclaration);
+      const { animate } = useQuestionCardHighlight();
+      const element = document.createElement("div");
+
+      const promise = animate([element]);
+      useGSAPMock.capturedOnComplete.current?.();
+      await promise;
+
+      const variables = useGSAPMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
+      const scale = variables?.keyframes?.[2]?.scale as ((index: number) => number) | undefined;
+
+      expect(scale?.(0)).toBe(0.85);
+    });
+
+    it("should fall back to default scale when index is out of bounds.", async() => {
+      const { animate } = useQuestionCardHighlight();
+      const element = document.createElement("div");
+
+      const promise = animate([element]);
+      useGSAPMock.capturedOnComplete.current?.();
+      await promise;
+
+      const variables = useGSAPMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
+      const scale = variables?.keyframes?.[2]?.scale as ((index: number) => number) | undefined;
+
+      expect(scale?.(99)).toBe(1);
     });
 
     it("should pass all elements to the timeline tween when animating multiple elements.", async() => {
@@ -101,13 +173,13 @@ describe(useQuestionCardHighlight, () => {
       const { playSequence } = useQuestionCardHighlight();
       const calls: string[] = [];
       const firstTarget = {
-        playHighlight: vi.fn<() => Promise<void>>().mockImplementation(async() => {
+        playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockImplementation(async() => {
           await Promise.resolve();
           calls.push("first");
         }),
       };
       const secondTarget = {
-        playHighlight: vi.fn<() => Promise<void>>().mockImplementation(async() => {
+        playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockImplementation(async() => {
           await Promise.resolve();
           calls.push("second");
         }),
@@ -124,8 +196,8 @@ describe(useQuestionCardHighlight, () => {
     it("should skip undefined and null targets without consuming a gap when called.", async() => {
       vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
-      const firstTarget = { playHighlight: vi.fn<() => Promise<void>>().mockResolvedValue(undefined) };
-      const secondTarget = { playHighlight: vi.fn<() => Promise<void>>().mockResolvedValue(undefined) };
+      const firstTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
+      const secondTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
 
       const promise = playSequence([firstTarget, undefined, null, secondTarget], { gapMs: 100 });
       await vi.advanceTimersByTimeAsync(100);
@@ -138,7 +210,7 @@ describe(useQuestionCardHighlight, () => {
     it("should use a default gapMs of 0 when called without options.", async() => {
       vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
-      const target = { playHighlight: vi.fn<() => Promise<void>>().mockResolvedValue(undefined) };
+      const target = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
 
       const startTime = Date.now();
       const promise = playSequence([target]);
@@ -154,8 +226,8 @@ describe(useQuestionCardHighlight, () => {
     it("should apply gapMs only between targets, not after the last one, when called.", async() => {
       vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
-      const firstTarget = { playHighlight: vi.fn<() => Promise<void>>().mockResolvedValue(undefined) };
-      const secondTarget = { playHighlight: vi.fn<() => Promise<void>>().mockResolvedValue(undefined) };
+      const firstTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
+      const secondTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
 
       const startTime = Date.now();
       const promise = playSequence([firstTarget, secondTarget], { gapMs: 250 });

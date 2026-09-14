@@ -131,6 +131,12 @@ const VITEST_NODE_PROJECT_INCLUDES = [
   "shared/**/*.helpers.spec.ts",
 ];
 
+const VITEST_DOM_PROJECT_INCLUDES = [
+  "app/**/*.dom.helpers.spec.ts",
+  "server/**/*.dom.helpers.spec.ts",
+  "shared/**/*.dom.helpers.spec.ts",
+];
+
 const VITEST_IGNORED_STARTING_BY_LOGS = [
   "<Suspense> is an experimental feature",
   "[Vue warn]: App already provides property with key \"Symbol(pinia)\"",
@@ -161,6 +167,7 @@ const VITEST_NODE_PROJECT_CONFIG: TestProjectInlineConfiguration = {
     ...VITEST_PROJECT_COMMON_INLINE_CONFIG,
     name: VitestProjectNames.NODE,
     include: [...VITEST_NODE_PROJECT_INCLUDES],
+    exclude: [...VITEST_DOM_PROJECT_INCLUDES],
     setupFiles: [
       path.resolve(processCwd, "tests/unit/setup/nuxt/dates.nuxt.unit-setup.ts"),
       path.resolve(processCwd, "tests/unit/setup/node/nitro-auto-imports.node.unit-setup.ts"),
@@ -182,6 +189,7 @@ const VITEST_NUXT_PROJECT_CONFIG: TestProjectInlineConfiguration = {
     ],
     exclude: [
       ...VITEST_NODE_PROJECT_INCLUDES,
+      ...VITEST_DOM_PROJECT_INCLUDES,
       ...VITEST_STORES_PROJECT_INCLUDES,
       ...VITEST_COMPOSABLES_PROJECT_INCLUDES,
       ...VITEST_REPOSITORIES_PROJECT_INCLUDES,
@@ -200,7 +208,7 @@ const VITEST_COMPOSABLES_PROJECT_CONFIG: TestProjectInlineConfiguration = {
     name: VitestProjectNames.COMPOSABLES,
     isolate: true,
     include: [...VITEST_COMPOSABLES_PROJECT_INCLUDES],
-    exclude: [...VITEST_NODE_PROJECT_INCLUDES],
+    exclude: [...VITEST_NODE_PROJECT_INCLUDES, ...VITEST_DOM_PROJECT_INCLUDES],
     setupFiles: [
       ...VITEST_NUXT_PROJECT_SETUP_FILES,
       ...VITEST_REPOSITORIES_MOCK_SETUP_FILES,
@@ -222,6 +230,20 @@ const VITEST_STORES_PROJECT_CONFIG: TestProjectInlineConfiguration = {
   },
 } as const;
 
+const VITEST_DOM_PROJECT_CONFIG: TestProjectInlineConfiguration = {
+  resolve: {
+    alias: VITEST_BASE_RESOLVE_ALIASES,
+  },
+  test: {
+    ...VITEST_PROJECT_COMMON_INLINE_CONFIG,
+    name: VitestProjectNames.DOM,
+    include: [...VITEST_DOM_PROJECT_INCLUDES],
+    environment: "happy-dom",
+    pool: "threads",
+    isolate: false,
+  },
+} as const;
+
 export {
   VITEST_PROJECT_COMMON_INLINE_CONFIG,
   VITEST_PROJECT_COMMON_NUXT_INLINE_CONFIG,
@@ -232,9 +254,11 @@ export {
   VITEST_REPOSITORIES_PROJECT_INCLUDES,
   VITEST_REPOSITORIES_MOCK_SETUP_FILES,
   VITEST_NODE_PROJECT_INCLUDES,
+  VITEST_DOM_PROJECT_INCLUDES,
   VITEST_IGNORED_STARTING_BY_LOGS,
   VITEST_REPOSITORIES_PROJECT_CONFIG,
   VITEST_NODE_PROJECT_CONFIG,
+  VITEST_DOM_PROJECT_CONFIG,
   VITEST_NUXT_PROJECT_CONFIG,
   VITEST_COMPOSABLES_PROJECT_CONFIG,
   VITEST_STORES_PROJECT_CONFIG,

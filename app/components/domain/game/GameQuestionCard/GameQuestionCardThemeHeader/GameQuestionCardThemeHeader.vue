@@ -20,7 +20,6 @@ const difficulty = computed(() => props.question.cognitiveDifficulty);
 const primaryTheme = computed(() => getPrimaryTheme(props.question));
 const hasOtherThemes = computed(() => hasSecondaryThemes(props.question));
 const otherThemesLabel = computed(() => t("questions.themeStack.otherThemes", { count: getSecondaryThemes(props.question).length }));
-const isInteractive = computed(() => props.question.themes.length > 1);
 
 const themeStackReference = useTemplateRef<InstanceType<typeof GameQuestionCardThemeStack>>("themeStackRef");
 const hintBadgeReference = useTemplateRef<InstanceType<typeof GameQuestionCardHintBadge>>("hintBadgeRef");
@@ -29,20 +28,21 @@ function handleOtherThemesClick(): void {
   themeStackReference.value?.toggleOpen();
 }
 
+async function playActiveHighlightSequence(): Promise<void> {
+  await nextTick();
+  await highlight.playSequence(
+    [hasOtherThemes.value ? themeStackReference.value : undefined, hintBadgeReference.value],
+    { gapMs: QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS },
+  );
+}
+
 watch(
   () => props.isActive,
   async active => {
     if (!active) {
       return;
     }
-    await nextTick();
-    await highlight.playSequence(
-      [
-        isInteractive.value ? themeStackReference.value : undefined,
-        isPrimaryHint.value ? hintBadgeReference.value : undefined,
-      ],
-      { gapMs: QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS },
-    );
+    await playActiveHighlightSequence();
   },
   { immediate: true },
 );

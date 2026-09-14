@@ -74,33 +74,12 @@ describe("GameQuestionCardHintBadge Component", () => {
     expect(useQuestionCardHighlightMock.instance.animate).toHaveBeenCalledExactlyOnceWith([badgeElement]);
   });
 
-  it("should resolve immediately when playHighlight is called before the badge element reference is set.", async() => {
-    const wrapperWithoutReference = await mountSuspended(GameQuestionCardHintBadge, {
-      global: {
-        stubs: {
-          UBadge: {
-            template: "<div />",
-            mounted() {
-              (this as { $el: null }).$el = null;
-            },
-          },
-        },
-      },
-    });
-    const vm = getWrapperVm<GameQuestionCardHintBadgeVm>(wrapperWithoutReference);
+  it("should not call useQuestionCardHighlight().animate when playHighlight is called and the badge element reference is null.", async() => {
+    const vm = getWrapperVm<GameQuestionCardHintBadgeVm>(wrapper);
+    vm.$.refs.badgeElementReference = null;
 
     await vm.playHighlight();
 
     expect(useQuestionCardHighlightMock.instance.animate).not.toHaveBeenCalled();
-  });
-
-  it("should set the badge element reference when setBadgeElementReference receives a raw HTMLElement.", async() => {
-    const vm = getWrapperVm<GameQuestionCardHintBadgeVm>(wrapper);
-    const rawElement = document.createElement("span");
-    (vm.$.setupState.setBadgeElementReference as (element: Element) => void)(rawElement);
-
-    await vm.playHighlight();
-
-    expect(useQuestionCardHighlightMock.instance.animate).toHaveBeenCalledExactlyOnceWith([rawElement]);
   });
 });

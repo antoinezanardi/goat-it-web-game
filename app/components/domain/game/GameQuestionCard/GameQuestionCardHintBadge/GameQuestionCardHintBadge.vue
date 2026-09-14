@@ -1,24 +1,20 @@
 <script lang="ts" setup>
+import { UBadge } from "#components";
+
 import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
+import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
 
 const { t } = useI18n();
 
 const highlight = useQuestionCardHighlight();
-const badgeElementReference = ref<HTMLElement | undefined>();
+const badgeElementReference = useTemplateRef<InstanceType<typeof UBadge>>("badgeElementReference");
 
-function setBadgeElementReference(element: Element | ComponentPublicInstance | null): void {
-  if (element instanceof HTMLElement) {
-    badgeElementReference.value = element;
-  } else if (element !== null && "$el" in element) {
-    badgeElementReference.value = element.$el;
+async function playHighlight(): Promise<void> {
+  const badgeElement = resolveHTMLElement(badgeElementReference.value);
+  if (badgeElement === undefined) {
+    return;
   }
-}
-
-function playHighlight(): Promise<void> {
-  if (!badgeElementReference.value) {
-    return Promise.resolve();
-  }
-  return highlight.animate([badgeElementReference.value]);
+  await highlight.animate([badgeElement]);
 }
 
 defineExpose({
@@ -32,7 +28,7 @@ defineExpose({
     mode="hover"
   >
     <UBadge
-      :ref="setBadgeElementReference"
+      ref="badgeElementReference"
       :aria-label="t('questions.themeStack.primaryThemeHintTooltip')"
       class="border-2 border-dashed border-warning my-0.5 p-1 rounded-full"
       color="warning"

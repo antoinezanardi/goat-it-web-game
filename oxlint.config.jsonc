@@ -27,6 +27,7 @@
     "defineSlots": "readonly",
     "defineStore": "readonly",
     "document": "readonly",
+    "getComputedStyle": "readonly",
     "HTMLElement": "readonly",
     "KeyboardEvent": "readonly",
     "MouseEvent": "readonly",

@@ -1,12 +1,15 @@
 <script lang="ts" setup>
+import type { ComponentPublicInstance } from "vue";
+
 import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
 import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
 import type { QuestionThemeAssignment } from "#shared/types/question.types";
+import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
 
 const props = defineProps<GameQuestionCardThemeStackProps>();
 
 const highlight = useQuestionCardHighlight();
-const iconElementReferences = shallowRef<HTMLElement[]>([]);
+const iconElementReferences = shallowRef<(HTMLElement | undefined)[]>([]);
 const isPopoverOpen = ref(false);
 
 const orderedAssignments = computed<QuestionThemeAssignment[]>(() => {
@@ -19,11 +22,7 @@ const orderedAssignments = computed<QuestionThemeAssignment[]>(() => {
 const isInteractive = computed<boolean>(() => props.question.themes.length > 1);
 
 function setIconElementReference(element: Element | ComponentPublicInstance | null, index: number): void {
-  if (element instanceof HTMLElement) {
-    iconElementReferences.value[index] = element;
-  } else if (element !== null && "$el" in element) {
-    iconElementReferences.value[index] = element.$el;
-  }
+  iconElementReferences.value[index] = resolveHTMLElement(element);
 }
 
 function toggleOpen(): void {
@@ -33,8 +32,10 @@ function toggleOpen(): void {
   isPopoverOpen.value = !isPopoverOpen.value;
 }
 
-function playHighlight(): Promise<void> {
-  return highlight.animate(iconElementReferences.value);
+async function playHighlight(): Promise<void> {
+  const elements = iconElementReferences.value.filter((element): element is HTMLElement => element !== undefined);
+
+  await highlight.animate(elements);
 }
 
 function resolveIconContainerClass(assignment: QuestionThemeAssignment): string {
