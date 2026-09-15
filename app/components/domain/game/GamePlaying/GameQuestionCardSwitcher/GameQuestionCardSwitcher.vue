@@ -107,7 +107,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="h-[calc(100dvh-10rem)] max-w-3xl md:max-h-[650px] mx-auto relative">
+  <div class="h-[calc(100dvh-10rem)] max-w-3xl md:max-h-162.5 mx-auto relative">
     <div
       v-for="(slot, index) in ringSlots"
       :key="index"

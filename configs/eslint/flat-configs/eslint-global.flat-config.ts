@@ -19,6 +19,7 @@ const ESLINT_GLOBAL_FLAT_CONFIG: Linter.Config = {
       readBody: "readonly",
       createError: "readonly",
       MouseEvent: "readonly",
+      getComputedStyle: "readonly",
       useCookie: "readonly",
     },
   },

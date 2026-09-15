@@ -1,10 +1,15 @@
 <script lang="ts" setup>
+import type { ComponentPublicInstance } from "vue";
+
 import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
-import type { QuestionThemeAssignment } from "#shared/types/question.types";
 import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
+import type { QuestionThemeAssignment } from "#shared/types/question.types";
+import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
 
 const props = defineProps<GameQuestionCardThemeStackProps>();
 
+const highlight = useQuestionCardHighlight();
+const iconElementReferences = shallowRef<(HTMLElement | undefined)[]>([]);
 const isPopoverOpen = ref(false);
 
 const orderedAssignments = computed<QuestionThemeAssignment[]>(() => {
@@ -16,11 +21,21 @@ const orderedAssignments = computed<QuestionThemeAssignment[]>(() => {
 
 const isInteractive = computed<boolean>(() => props.question.themes.length > 1);
 
+function setIconElementReference(element: Element | ComponentPublicInstance | null, index: number): void {
+  iconElementReferences.value[index] = resolveHTMLElement(element);
+}
+
 function toggleOpen(): void {
   if (!isInteractive.value) {
     return;
   }
   isPopoverOpen.value = !isPopoverOpen.value;
+}
+
+async function playHighlight(): Promise<void> {
+  const elements = iconElementReferences.value.filter((element): element is HTMLElement => element !== undefined);
+
+  await highlight.animate(elements);
 }
 
 function resolveIconContainerClass(assignment: QuestionThemeAssignment): string {
@@ -32,6 +47,7 @@ function resolveIconSize(assignment: QuestionThemeAssignment): GameQuestionCardT
 }
 
 defineExpose({
+  playHighlight,
   toggleOpen,
 });
 </script>
@@ -48,8 +64,9 @@ defineExpose({
       type="button"
     >
       <GameQuestionCardThemeIcon
-        v-for="assignment in orderedAssignments"
+        v-for="(assignment, index) in orderedAssignments"
         :key="assignment.theme.slug"
+        :ref="(element: Element | ComponentPublicInstance | null) => setIconElementReference(element, index)"
         :class="resolveIconContainerClass(assignment)"
         :data-testid="`theme-stack-icon-${assignment.theme.slug}`"
         :is-hint="assignment.isHint"

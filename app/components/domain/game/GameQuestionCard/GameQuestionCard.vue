@@ -44,6 +44,7 @@ const dataTestid = computed<"game-question" | "game-question-staged">(() => (pro
       data-testid="game-question-body"
     >
       <GameQuestionCardThemeHeader
+        :is-active="props.isActive"
         :question="props.question"
       />
 
