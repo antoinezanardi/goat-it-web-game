@@ -45,27 +45,21 @@ function useQuestionCardHighlight(): UseQuestionCardHighlightReturn {
     const restingScales = elements.map(readRestingScale);
     const [popKeyframe, settleKeyframe, restKeyframe] = QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES;
 
-    return new Promise(resolve => {
-      gsap.set(elements, { filter: "brightness(1)" });
-      gsap.timeline({
-        onComplete: () => {
-          gsap.set(elements, { clearProps: "transform,filter" });
-          resolve();
-        },
-      }).to(
-        elements,
-        {
-          duration: QUESTION_CARD_HIGHLIGHT_DURATION_SECONDS,
-          keyframes: [
-            { ...popKeyframe },
-            { ...settleKeyframe },
-            { ...restKeyframe, scale: (index: number): number => restingScales[index] ?? 1 },
-          ],
-          stagger: QUESTION_CARD_HIGHLIGHT_STAGGER_SECONDS,
-        },
-        0,
-      );
-    });
+    gsap.set(elements, { filter: "brightness(1)" });
+    await gsap.timeline().to(
+      elements,
+      {
+        duration: QUESTION_CARD_HIGHLIGHT_DURATION_SECONDS,
+        keyframes: [
+          { ...popKeyframe },
+          { ...settleKeyframe },
+          { ...restKeyframe, scale: (index: number): number => restingScales[index] ?? 1 },
+        ],
+        stagger: QUESTION_CARD_HIGHLIGHT_STAGGER_SECONDS,
+      },
+      0,
+    );
+    gsap.set(elements, { clearProps: "transform,filter" });
   }
   return {
     animate,

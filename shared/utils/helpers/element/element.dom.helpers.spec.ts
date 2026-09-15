@@ -17,19 +17,11 @@ describe(resolveHTMLElement, () => {
     expect(resolveHTMLElement(instance)).toBe(rootElement);
   });
 
-  it("should return undefined when the reference is null.", () => {
-    expect(resolveHTMLElement(null)).toBeUndefined();
-  });
-
-  it("should return undefined when the component root is not an HTML element.", () => {
-    const instance = { $el: document.createTextNode("hint") } as unknown as ComponentPublicInstance;
-
-    expect(resolveHTMLElement(instance)).toBeUndefined();
-  });
-
-  it("should return undefined when the reference is not an HTML element.", () => {
-    const svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
-    expect(resolveHTMLElement(svgElement)).toBeUndefined();
+  it.each<{ label: string; input: Element | ComponentPublicInstance | null }>([
+    { label: "null", input: null },
+    { label: "a non-HTML component root", input: { $el: document.createTextNode("hint") } as unknown as ComponentPublicInstance },
+    { label: "a non-HTML element", input: document.createElementNS("http://www.w3.org/2000/svg", "svg") },
+  ])("should return undefined when the reference is $label.", ({ input }) => {
+    expect(resolveHTMLElement(input)).toBeUndefined();
   });
 });

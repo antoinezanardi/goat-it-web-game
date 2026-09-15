@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { nextTick, watch } from "vue";
+import { nextTick, onMounted, watch } from "vue";
 
 import { GameQuestionCardHintBadge, GameQuestionCardThemeStack } from "#components";
 
@@ -24,28 +24,33 @@ const otherThemesLabel = computed(() => t("questions.themeStack.otherThemes", { 
 const themeStackReference = useTemplateRef<InstanceType<typeof GameQuestionCardThemeStack>>("themeStackRef");
 const hintBadgeReference = useTemplateRef<InstanceType<typeof GameQuestionCardHintBadge>>("hintBadgeRef");
 
+const highlightTargets = computed(() => [
+  hasOtherThemes.value ? themeStackReference.value : undefined,
+  hintBadgeReference.value,
+]);
+
 function handleOtherThemesClick(): void {
   themeStackReference.value?.toggleOpen();
 }
 
 async function playActiveHighlightSequence(): Promise<void> {
   await nextTick();
-  await highlight.playSequence(
-    [hasOtherThemes.value ? themeStackReference.value : undefined, hintBadgeReference.value],
-    { gapMs: QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS },
-  );
+  if (!props.isActive) {
+    return;
+  }
+  await highlight.playSequence(highlightTargets.value, { gapMs: QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS });
 }
 
-watch(
-  () => props.isActive,
-  async active => {
-    if (!active) {
-      return;
-    }
-    await playActiveHighlightSequence();
-  },
-  { immediate: true },
-);
+function triggerHighlightIfActive(active: boolean): void {
+  if (!active) {
+    return;
+  }
+  void playActiveHighlightSequence();
+}
+
+onMounted(() => triggerHighlightIfActive(props.isActive));
+
+watch(() => props.isActive, triggerHighlightIfActive);
 </script>
 
 <template>

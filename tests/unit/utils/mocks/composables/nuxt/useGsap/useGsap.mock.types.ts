@@ -9,10 +9,11 @@ type GsapTimelineInstance = {
   eventCallback: Mock<(type: string, callback?: (() => void) | null) => void>;
   pause: Mock<() => void>;
   restart: Mock<() => void>;
+  then: Mock<(onFulfilled?: () => void) => void>;
   to: Mock<GsapTimelineToSignature>;
 };
 
-type GsapTimelineSignature = (config: { onComplete?: () => void; paused?: boolean }) => GsapTimelineInstance;
+type GsapTimelineSignature = (config?: { onComplete?: () => void; paused?: boolean }) => GsapTimelineInstance;
 
 type GsapContextAddSignature = (callback: () => void) => void;
 

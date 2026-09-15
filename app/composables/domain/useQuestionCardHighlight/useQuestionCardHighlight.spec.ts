@@ -29,24 +29,20 @@ describe(useQuestionCardHighlight, () => {
   });
 
   describe("animate", () => {
-    it("should create a timeline with an onComplete callback when animating an element.", async() => {
+    it("should create a timeline when animating an element.", async() => {
       const { animate } = useQuestionCardHighlight();
       const element = document.createElement("div");
 
-      const promise = animate([element]);
-      useGSAPMock.capturedOnComplete.current?.();
-      await promise;
+      await animate([element]);
 
-      expect(useGSAPMock.timeline).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ onComplete: expect.any(Function) as () => void }));
+      expect(useGSAPMock.timeline).toHaveBeenCalledExactlyOnceWith();
     });
 
     it("should set the starting filter before animating when reduced motion is not preferred.", async() => {
       const { animate } = useQuestionCardHighlight();
       const element = document.createElement("div");
 
-      const promise = animate([element]);
-      useGSAPMock.capturedOnComplete.current?.();
-      await promise;
+      await animate([element]);
 
       expect(useGSAPMock.set).toHaveBeenNthCalledWith(1, [element], { filter: "brightness(1)" });
     });
@@ -55,9 +51,7 @@ describe(useQuestionCardHighlight, () => {
       const { animate } = useQuestionCardHighlight();
       const element = document.createElement("div");
 
-      const promise = animate([element]);
-      useGSAPMock.capturedOnComplete.current?.();
-      await promise;
+      await animate([element]);
 
       expect(useGSAPMock.set).toHaveBeenNthCalledWith(2, [element], { clearProps: "transform,filter" });
     });
@@ -66,9 +60,7 @@ describe(useQuestionCardHighlight, () => {
       const { animate } = useQuestionCardHighlight();
       const element = document.createElement("div");
 
-      const promise = animate([element]);
-      useGSAPMock.capturedOnComplete.current?.();
-      await promise;
+      await animate([element]);
 
       const expectedKeyframes = [
         QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES[0],
@@ -91,9 +83,7 @@ describe(useQuestionCardHighlight, () => {
       const { animate } = useQuestionCardHighlight();
       const element = document.createElement("div");
 
-      const promise = animate([element]);
-      useGSAPMock.capturedOnComplete.current?.();
-      await promise;
+      await animate([element]);
 
       const variables = useGSAPMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
       const scale = variables?.keyframes?.[2]?.scale as ((index: number) => number) | undefined;
@@ -106,9 +96,7 @@ describe(useQuestionCardHighlight, () => {
       const { animate } = useQuestionCardHighlight();
       const element = document.createElement("div");
 
-      const promise = animate([element]);
-      useGSAPMock.capturedOnComplete.current?.();
-      await promise;
+      await animate([element]);
 
       const variables = useGSAPMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
       const scale = variables?.keyframes?.[2]?.scale as ((index: number) => number) | undefined;
@@ -120,9 +108,7 @@ describe(useQuestionCardHighlight, () => {
       const { animate } = useQuestionCardHighlight();
       const element = document.createElement("div");
 
-      const promise = animate([element]);
-      useGSAPMock.capturedOnComplete.current?.();
-      await promise;
+      await animate([element]);
 
       const variables = useGSAPMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
       const scale = variables?.keyframes?.[2]?.scale as ((index: number) => number) | undefined;
@@ -135,9 +121,7 @@ describe(useQuestionCardHighlight, () => {
       const firstElement = document.createElement("div");
       const secondElement = document.createElement("div");
 
-      const promise = animate([firstElement, secondElement]);
-      useGSAPMock.capturedOnComplete.current?.();
-      await promise;
+      await animate([firstElement, secondElement]);
 
       expect(useGSAPMock.timelineTo).toHaveBeenCalledExactlyOnceWith(
         [firstElement, secondElement],
@@ -150,10 +134,7 @@ describe(useQuestionCardHighlight, () => {
       const { animate } = useQuestionCardHighlight();
       const element = document.createElement("div");
 
-      const promise = animate([element]);
-      useGSAPMock.capturedOnComplete.current?.();
-
-      await expect(promise).resolves.toBeUndefined();
+      await expect(animate([element])).resolves.toBeUndefined();
     });
 
     it("should resolve immediately without creating a timeline when reduced motion is preferred.", async() => {

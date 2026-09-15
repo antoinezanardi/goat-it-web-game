@@ -34,6 +34,8 @@ describe("GameQuestionCardThemeHeader Component", () => {
 
   type GameQuestionCardHintBadgeVm = ComponentVm & { playHighlight: () => Promise<void> };
 
+  type GameQuestionCardThemeHeaderVm = ComponentVm & { playActiveHighlightSequence: () => Promise<void> };
+
   let wrapper: VueWrapper;
 
   async function mountHeader(options: MountSuspendedOptions<typeof GameQuestionCardThemeHeader> = {}): Promise<VueWrapper> {
@@ -202,6 +204,32 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(useQuestionCardHighlightMock.instance.playSequence).not.toHaveBeenCalled();
   });
 
+  it("should call playSequence with resolved targets when mounted with isActive true.", async() => {
+    const activeWrapper = await mountHeader({
+      props: {
+        ...defaultGameQuestionCardThemeHeaderProps,
+        isActive: true,
+        question: createFakeQuestion({
+          ...defaultGameQuestionCardThemeHeaderProps.question,
+          themes: [
+            createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme }),
+            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
+          ],
+        }),
+      },
+    });
+    await flushPromises();
+
+    const headerVm = getWrapperVm(activeWrapper);
+    const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
+    const hintBadgeVm = headerVm.$.refs.hintBadgeRef as unknown as GameQuestionCardHintBadgeVm;
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
+      [themeStackVm, hintBadgeVm],
+      { gapMs: 250 },
+    );
+  });
+
   it("should call playSequence with both targets and gapMs 250 when isActive becomes true for a multi-theme hint question.", async() => {
     await wrapper.setProps({
       isActive: true,
@@ -280,5 +308,21 @@ describe("GameQuestionCardThemeHeader Component", () => {
       [undefined, null],
       { gapMs: 250 },
     );
+  });
+
+  it("should not call playSequence when isActive becomes false before nextTick resolves after update.", async() => {
+    void wrapper.setProps({ isActive: true });
+    await wrapper.setProps({ isActive: false });
+    await flushPromises();
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).not.toHaveBeenCalled();
+  });
+
+  it("should not call playSequence when the highlight sequence resolves while isActive is false.", async() => {
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(wrapper);
+
+    await headerVm.playActiveHighlightSequence();
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).not.toHaveBeenCalled();
   });
 });
