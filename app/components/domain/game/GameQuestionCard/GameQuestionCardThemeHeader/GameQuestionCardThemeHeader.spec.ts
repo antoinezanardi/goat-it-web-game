@@ -1,5 +1,6 @@
 import type { QuestionCategory } from "@goat-it/schemas/question";
 import type { VueWrapper } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
@@ -8,6 +9,9 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
+import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
+import { useQuestionCardHighlightMock } from "~~/tests/unit/setup/nuxt/composables/use-question-card-highlight.nuxt.unit-setup";
 
 import { GameQuestionCardThemeHeader } from "#components";
 
@@ -18,12 +22,19 @@ describe("GameQuestionCardThemeHeader Component", () => {
   const secondaryTheme = createFakeQuestionTheme({ slug: "geography-travels" });
 
   const defaultGameQuestionCardThemeHeaderProps: GameQuestionCardThemeHeaderProps = {
+    isActive: false,
     question: createFakeQuestion({
       category: "trivia",
       cognitiveDifficulty: "medium",
       themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme })],
     }),
   } as const;
+
+  type GameQuestionCardThemeStackVm = ComponentVm & { playHighlight: () => Promise<void>; toggleOpen: () => void };
+
+  type GameQuestionCardHintBadgeVm = ComponentVm & { playHighlight: () => Promise<void> };
+
+  type GameQuestionCardThemeHeaderVm = ComponentVm & { playActiveHighlightSequence: () => Promise<void> };
 
   let wrapper: VueWrapper;
 
@@ -187,5 +198,131 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
 
     expect(wrapper.findComponent({ name: "GameQuestionCardHintBadge" }).exists()).toBe(false);
+  });
+
+  it("should not call playSequence when mounted with isActive false.", () => {
+    expect(useQuestionCardHighlightMock.instance.playSequence).not.toHaveBeenCalled();
+  });
+
+  it("should call playSequence with resolved targets when mounted with isActive true.", async() => {
+    const activeWrapper = await mountHeader({
+      props: {
+        ...defaultGameQuestionCardThemeHeaderProps,
+        isActive: true,
+        question: createFakeQuestion({
+          ...defaultGameQuestionCardThemeHeaderProps.question,
+          themes: [
+            createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme }),
+            createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
+          ],
+        }),
+      },
+    });
+    await flushPromises();
+
+    const headerVm = getWrapperVm(activeWrapper);
+    const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
+    const hintBadgeVm = headerVm.$.refs.hintBadgeRef as unknown as GameQuestionCardHintBadgeVm;
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
+      [themeStackVm, hintBadgeVm],
+      { gapMs: 250 },
+    );
+  });
+
+  it("should call playSequence with both targets and gapMs 250 when isActive becomes true for a multi-theme hint question.", async() => {
+    await wrapper.setProps({
+      isActive: true,
+      question: createFakeQuestion({
+        ...defaultGameQuestionCardThemeHeaderProps.question,
+        themes: [
+          createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
+        ],
+      }),
+    });
+    await flushPromises();
+
+    const headerVm = getWrapperVm(wrapper);
+    const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
+    const hintBadgeVm = headerVm.$.refs.hintBadgeRef as unknown as GameQuestionCardHintBadgeVm;
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
+      [themeStackVm, hintBadgeVm],
+      { gapMs: 250 },
+    );
+  });
+
+  it("should call playSequence with only the theme stack when isActive becomes true for a multi-theme non-hint question.", async() => {
+    await wrapper.setProps({
+      isActive: true,
+      question: createFakeQuestion({
+        ...defaultGameQuestionCardThemeHeaderProps.question,
+        themes: [
+          createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme }),
+          createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
+        ],
+      }),
+    });
+    await flushPromises();
+
+    const headerVm = getWrapperVm(wrapper);
+    const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
+      [themeStackVm, null],
+      { gapMs: 250 },
+    );
+  });
+
+  it("should call playSequence with only the hint badge when isActive becomes true for a single-theme hint question.", async() => {
+    await wrapper.setProps({
+      isActive: true,
+      question: createFakeQuestion({
+        ...defaultGameQuestionCardThemeHeaderProps.question,
+        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme })],
+      }),
+    });
+    await flushPromises();
+
+    const headerVm = getWrapperVm(wrapper);
+    const hintBadgeVm = headerVm.$.refs.hintBadgeRef as unknown as GameQuestionCardHintBadgeVm;
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
+      [undefined, hintBadgeVm],
+      { gapMs: 250 },
+    );
+  });
+
+  it("should call playSequence with no targets when isActive becomes true for a single-theme non-hint question.", async() => {
+    await wrapper.setProps({
+      isActive: true,
+      question: createFakeQuestion({
+        ...defaultGameQuestionCardThemeHeaderProps.question,
+        themes: [createFakeQuestionThemeAssignment({ isPrimary: true, isHint: false, theme: primaryTheme })],
+      }),
+    });
+    await flushPromises();
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
+      [undefined, null],
+      { gapMs: 250 },
+    );
+  });
+
+  it("should not call playSequence when isActive becomes false before nextTick resolves after update.", async() => {
+    void wrapper.setProps({ isActive: true });
+    await wrapper.setProps({ isActive: false });
+    await flushPromises();
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).not.toHaveBeenCalled();
+  });
+
+  it("should not call playSequence when the highlight sequence resolves while isActive is false.", async() => {
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(wrapper);
+
+    await headerVm.playActiveHighlightSequence();
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).not.toHaveBeenCalled();
   });
 });

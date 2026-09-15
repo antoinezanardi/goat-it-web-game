@@ -1,6 +1,6 @@
 import type { Mock } from "vitest";
 
-type GsapSetSignature = (element: HTMLElement, variables: Record<string, number>) => void;
+type GsapSetSignature = (target: HTMLElement | HTMLElement[], variables: Record<string, number | string>) => void;
 
 type GsapTimelineToSignature = (target: HTMLElement, variables: Record<string, number | string>, position: number) => GsapTimelineInstance;
 
@@ -9,10 +9,11 @@ type GsapTimelineInstance = {
   eventCallback: Mock<(type: string, callback?: (() => void) | null) => void>;
   pause: Mock<() => void>;
   restart: Mock<() => void>;
+  then: Mock<(onFulfilled?: () => void) => void>;
   to: Mock<GsapTimelineToSignature>;
 };
 
-type GsapTimelineSignature = (config: { onComplete?: () => void; paused?: boolean }) => GsapTimelineInstance;
+type GsapTimelineSignature = (config?: { onComplete?: () => void; paused?: boolean }) => GsapTimelineInstance;
 
 type GsapContextAddSignature = (callback: () => void) => void;
 

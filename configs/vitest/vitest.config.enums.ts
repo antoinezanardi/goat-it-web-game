@@ -4,6 +4,7 @@ enum VitestProjectNames {
   STORES = "stores",
   REPOSITORIES = "repositories",
   NODE = "node",
+  DOM = "dom",
 }
 
 export {

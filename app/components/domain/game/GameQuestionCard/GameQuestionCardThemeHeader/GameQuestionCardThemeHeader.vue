@@ -1,12 +1,18 @@
 <script lang="ts" setup>
-import { GameQuestionCardThemeStack } from "#components";
+import { nextTick, onMounted, watch } from "vue";
 
+import { GameQuestionCardHintBadge, GameQuestionCardThemeStack } from "#components";
+
+import { QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.constants";
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
 import { getCategoryIcon, getPrimaryTheme, getSecondaryThemes, hasSecondaryThemes, isPrimaryThemeHint } from "~/composables/domain/question/helpers/question.helpers";
 
-const props = defineProps<GameQuestionCardThemeHeaderProps>();
+const props = withDefaults(defineProps<GameQuestionCardThemeHeaderProps>(), {
+  isActive: true,
+});
 
 const { t } = useI18n();
+const highlight = useQuestionCardHighlight();
 
 const category = computed(() => props.question.category);
 const isPrimaryHint = computed(() => isPrimaryThemeHint(props.question));
@@ -16,10 +22,35 @@ const hasOtherThemes = computed(() => hasSecondaryThemes(props.question));
 const otherThemesLabel = computed(() => t("questions.themeStack.otherThemes", { count: getSecondaryThemes(props.question).length }));
 
 const themeStackReference = useTemplateRef<InstanceType<typeof GameQuestionCardThemeStack>>("themeStackRef");
+const hintBadgeReference = useTemplateRef<InstanceType<typeof GameQuestionCardHintBadge>>("hintBadgeRef");
+
+const highlightTargets = computed(() => [
+  hasOtherThemes.value ? themeStackReference.value : undefined,
+  hintBadgeReference.value,
+]);
 
 function handleOtherThemesClick(): void {
   themeStackReference.value?.toggleOpen();
 }
+
+async function playActiveHighlightSequence(): Promise<void> {
+  await nextTick();
+  if (!props.isActive) {
+    return;
+  }
+  await highlight.playSequence(highlightTargets.value, { gapMs: QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS });
+}
+
+function triggerHighlightIfActive(active: boolean): void {
+  if (!active) {
+    return;
+  }
+  void playActiveHighlightSequence();
+}
+
+onMounted(() => triggerHighlightIfActive(props.isActive));
+
+watch(() => props.isActive, triggerHighlightIfActive);
 </script>
 
 <template>
@@ -34,6 +65,7 @@ function handleOtherThemesClick(): void {
         <p class="flex gap-x-1.5 items-center leading-snug-plus">
           <GameQuestionCardHintBadge
             v-if="isPrimaryHint"
+            ref="hintBadgeRef"
             class="-ml-1"
           />
 
