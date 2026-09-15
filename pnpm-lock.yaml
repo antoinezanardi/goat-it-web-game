@@ -306,8 +306,8 @@ importers:
         specifier: ^6.8.0
         version: 6.8.0(1c6dd24c3dd00b40be55b366a104afe1)
       nuxt-schema-org:
-        specifier: ^6.3.1
-        version: 6.3.1(60e734f67c2beeedc3cb054227acb13f)
+        specifier: ^6.3.2
+        version: 6.3.2(60e734f67c2beeedc3cb054227acb13f)
       nuxt-seo-utils:
         specifier: ^8.5.0
         version: 8.5.0(06712fc1bc80172440019f5f9950de58)
@@ -8200,8 +8200,8 @@ packages:
       zod:
         optional: true
 
-  nuxt-schema-org@6.3.1:
-    resolution: {integrity: sha512-pZQyLERx8iho4QDCDNK0WxfdHwmZWXk8Nrp9DUfR79aKkwivm83SEvwWp0D9/YuBfaXhm+9YxVBpCDA2kr8B+g==}
+  nuxt-schema-org@6.3.2:
+    resolution: {integrity: sha512-Dd4UDM1kwa+tpimSylZfcdeMIa6Li83Fi+L+FJvCnbYjgVVeHRe2Wg24aWx7o37dXxWzczfyrkXAKtYyJlgClA==}
     peerDependencies:
       '@unhead/vue': ^2.0.7 || ^3.0.0
       unhead: ^3.4.0
@@ -19754,13 +19754,13 @@ snapshots:
       - vue
       - webpack
 
-  nuxt-schema-org@6.3.1(60e734f67c2beeedc3cb054227acb13f):
+  nuxt-schema-org@6.3.2(60e734f67c2beeedc3cb054227acb13f):
     dependencies:
       '@nuxt/kit': 4.5.2(magic-string@1.3.1)(magicast@0.5.5)(oxc-parser@0.149.0)(rolldown@1.2.8)(unplugin@3.3.0(esbuild@0.28.0)(rolldown@1.2.8)(rollup@4.60.3)(vite@8.3.0(@types/node@25.9.6)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))
       defu: 6.1.7
       nuxt-site-config: 4.2.3(@nuxt/schema@4.5.2)(magic-string@1.3.1)(magicast@0.5.5)(nuxt@4.5.2(1b0418fa96aa72f34831035f4378064e))(oxc-parser@0.149.0)(rolldown@1.2.8)(unplugin@3.3.0(esbuild@0.28.0)(rolldown@1.2.8)(rollup@4.60.3)(vite@8.3.0(@types/node@25.9.6)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))(vite@8.3.0(@types/node@25.9.6)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0))(vue@3.5.42(typescript@6.0.3))(zod@4.6.5)
-      nuxtseo-shared: 5.3.14(144e55a7608e84b50f88a76c4cb08bb6)
-      pkg-types: 2.3.1
+      nuxtseo-shared: 5.3.16(144e55a7608e84b50f88a76c4cb08bb6)
+      pkg-types: 2.3.3
       ufo: 1.6.4
     optionalDependencies:
       '@unhead/vue': 3.4.0(@oxc-project/types@0.146.0)(@vitejs/devtools-kit@0.4.9(cac@7.0.0)(srvx@0.11.22)(typescript@6.0.3)(vite@8.3.0(@types/node@25.9.6)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))(esbuild@0.28.0)(lightningcss@1.33.0)(oxc-parser@0.149.0)(rolldown@1.2.8)(rollup@4.60.3)(vite@8.3.0(@types/node@25.9.6)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0))(vue@3.5.42(typescript@6.0.3))
