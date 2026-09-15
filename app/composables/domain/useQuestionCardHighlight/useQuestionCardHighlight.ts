@@ -45,7 +45,7 @@ function useQuestionCardHighlight(): UseQuestionCardHighlightReturn {
     const restingScales = elements.map(readRestingScale);
     const [popKeyframe, settleKeyframe, restKeyframe] = QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES;
 
-    gsap.set(elements, { filter: "brightness(1)" });
+    await gsap.set(elements, { filter: "brightness(1)" });
     await gsap.timeline().to(
       elements,
       {
@@ -59,7 +59,7 @@ function useQuestionCardHighlight(): UseQuestionCardHighlightReturn {
       },
       0,
     );
-    gsap.set(elements, { clearProps: "transform,filter" });
+    await gsap.set(elements, { clearProps: "transform,filter" });
   }
   return {
     animate,
