@@ -128,7 +128,7 @@
     "mongodb": "^7.6.0",
     "nuxt": "^4.5.2",
     "nuxt-og-image": "^6.8.0",
-    "nuxt-schema-org": "^6.3.1",
+    "nuxt-schema-org": "^6.3.2",
     "nuxt-seo-utils": "^8.5.0",
     "nuxt-site-config": "^4.2.3",
     "nuxtseo-layer-devtools": "^5.3.16",
