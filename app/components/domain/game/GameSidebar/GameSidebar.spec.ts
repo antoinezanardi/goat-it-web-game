@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
-import type { ULink } from "#components";
+import type { ULink, LocaleSelect } from "#components";
 import { GameSidebar } from "#components";
 
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
@@ -110,6 +110,10 @@ describe("GameSidebar Component", () => {
 
   it("should render the VersionButton component when mounted.", () => {
     expect(wrapper.findComponent({ name: "VersionButton" }).exists()).toBe(true);
+  });
+
+  it("should render the LocaleSelect component when mounted.", () => {
+    expect(wrapper.findComponent<typeof LocaleSelect>("[data-testid='locale-select']").exists()).toBe(true);
   });
 
   it("should emit update:open when USlideover emits update:open.", () => {
