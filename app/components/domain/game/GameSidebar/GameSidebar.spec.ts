@@ -116,6 +116,10 @@ describe("GameSidebar Component", () => {
     expect(wrapper.findComponent<typeof LocaleSelect>("[data-testid='locale-select']").exists()).toBe(true);
   });
 
+  it("should have the footer data-testid attribute when mounted.", () => {
+    expect(document.body.querySelector("[data-testid='game-sidebar-footer']")).not.toBeNull();
+  });
+
   it("should emit update:open when USlideover emits update:open.", () => {
     const slideover = wrapper.findComponent({ name: "USlideover" });
     getWrapperVm(slideover).$emit("update:open", false);

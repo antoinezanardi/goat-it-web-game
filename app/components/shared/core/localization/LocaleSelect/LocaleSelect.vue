@@ -1,21 +1,17 @@
 <script setup lang="ts">
-import type { ArrayValues } from "type-fest";
+import { isValidLocale } from "@goat-it/schemas/shared/locale";
 
 import type { Locale } from "#ui/types";
 import { LOCALE_SELECT_UI } from "~/components/shared/core/localization/LocaleSelect/locale-select.constants";
 
-type SupportedLocale = ArrayValues<typeof localeCodes.value>;
-
-const { locale: currentLocale, setLocale, locales, localeCodes } = useI18n();
-
-function isSupportedLocale(locale: string): locale is SupportedLocale {
-  return localeCodes.value.includes(locale as SupportedLocale);
-}
+const { locale: currentLocale, setLocale, locales } = useI18n();
+const localeCookie = useLocaleCookie();
 
 async function onLocaleChange(updatedLocale: string): Promise<void> {
-  if (!isSupportedLocale(updatedLocale)) {
+  if (!isValidLocale(updatedLocale)) {
     return;
   }
+  localeCookie.value = updatedLocale;
   await setLocale(updatedLocale);
 }
 </script>

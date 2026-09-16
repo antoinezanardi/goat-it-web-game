@@ -52,3 +52,12 @@ Feature: 🧭 Game Page Sidebar
     And the user selects the "Français" locale option in the game sidebar
     Then the exact text "Règles du jeu" should be visible
     And the user should be on game page
+
+  Scenario: 🧭 Selecting French keeps the sidebar in French after a page reload
+    Given the user is on game page
+    When the user opens the game sidebar
+    And the user selects the "Français" locale option in the game sidebar
+    And the user reloads the page
+    And the user opens the game sidebar
+    Then the exact text "Règles du jeu" should be visible
+    And the user should be on game page

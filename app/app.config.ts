@@ -12,5 +12,10 @@ export default defineAppConfig({
       neutral: "zinc",
     },
     button: NUXT_UI_BUTTONS_CONFIG,
+    selectMenu: {
+      slots: {
+        item: "cursor-pointer",
+      },
+    },
   },
 });

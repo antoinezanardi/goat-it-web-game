@@ -4,9 +4,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
-import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { DEFAULT_MOCKED_LOCALE, MOCKED_LOCALE_CODES } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock.constants";
+import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
 
 import type { ULocaleSelect } from "#components";
 import { LocaleSelect } from "#components";
@@ -21,6 +21,11 @@ describe("LocaleSelect Component", () => {
   }
 
   beforeEach(async() => {
+    useCookieMockState.capturedName.current = undefined;
+    useCookieMockState.capturedOptions.current = undefined;
+    // Acceptable as useCookie<string | null> requires null as the initial value for the cookie guard
+    // oxlint-disable-next-line unicorn/no-null
+    useCookieMockState.cookieRef.value = null;
     wrapper = await mountLocaleSelect();
   });
 
@@ -65,18 +70,34 @@ describe("LocaleSelect Component", () => {
       const { setLocale } = useI18n();
       const nuxtUILocaleSelect = wrapper.findComponent<typeof ULocaleSelect>({ name: "ULocaleSelect" });
 
-      getWrapperVm<ComponentVm & { $emit: (event: string, payload: string) => void }>(nuxtUILocaleSelect).$emit("update:modelValue", MOCKED_LOCALE_CODES[0]);
+      getWrapperVm(nuxtUILocaleSelect).$emit("update:modelValue", MOCKED_LOCALE_CODES[0]);
 
       expect(setLocale).toHaveBeenCalledExactlyOnceWith(MOCKED_LOCALE_CODES[0]);
+    });
+
+    it("should persist the selected locale in the locale cookie when a supported locale is selected.", () => {
+      const nuxtUILocaleSelect = wrapper.findComponent<typeof ULocaleSelect>({ name: "ULocaleSelect" });
+
+      getWrapperVm(nuxtUILocaleSelect).$emit("update:modelValue", MOCKED_LOCALE_CODES[1]);
+
+      expect(useCookieMockState.cookieRef.value).toBe(MOCKED_LOCALE_CODES[1]);
     });
 
     it("should not call setLocale when an unsupported locale is selected.", () => {
       const { setLocale } = useI18n();
       const nuxtUILocaleSelect = wrapper.findComponent<typeof ULocaleSelect>({ name: "ULocaleSelect" });
 
-      getWrapperVm<ComponentVm & { $emit: (event: string, payload: string) => void }>(nuxtUILocaleSelect).$emit("update:modelValue", "ja");
+      getWrapperVm(nuxtUILocaleSelect).$emit("update:modelValue", "ja");
 
       expect(setLocale).not.toHaveBeenCalled();
+    });
+
+    it("should not persist the locale cookie when an unsupported locale is selected.", () => {
+      const nuxtUILocaleSelect = wrapper.findComponent<typeof ULocaleSelect>({ name: "ULocaleSelect" });
+
+      getWrapperVm(nuxtUILocaleSelect).$emit("update:modelValue", "ja");
+
+      expect(useCookieMockState.cookieRef.value).toBeNull();
     });
   });
 });

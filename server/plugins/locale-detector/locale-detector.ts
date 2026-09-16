@@ -2,6 +2,7 @@ import { getCookie } from "h3";
 import type { Locale } from "@goat-it/schemas/shared/locale";
 import { defineNitroPlugin } from "nitropack/runtime";
 
+import { CookieNames } from "#shared/enums/cookie.enums";
 import { resolveCookieLocale } from "#shared/utils/helpers/locale/locale.helpers";
 
 type NuxtI18nContext = {
@@ -23,6 +24,6 @@ export default defineNitroPlugin(nitro => {
     const { defaultLocale } = nuxtI18n.vueI18nOptions;
     // Acceptable as detectLocale is a known property set by @nuxtjs/i18n's own render:before hook
     // oxlint-disable-next-line typescript/no-unsafe-assignment
-    nuxtI18n.detectLocale = resolveCookieLocale(getCookie(event, "i18n_redirected"), defaultLocale);
+    nuxtI18n.detectLocale = resolveCookieLocale(getCookie(event, CookieNames.I18N_REDIRECTED), defaultLocale);
   });
 });
