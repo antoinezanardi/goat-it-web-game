@@ -71,6 +71,7 @@
     "useHead": "readonly",
     "useHexColor": "readonly",
     "useI18n": "readonly",
+    "useLocaleCookie": "readonly",
     "useLocaleSuggestion": "readonly",
     "useLocalizedValue": "readonly",
     "useNuxtApp": "readonly",
