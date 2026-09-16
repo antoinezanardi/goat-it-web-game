@@ -40,7 +40,7 @@ const dataTestid = computed<"game-question" | "game-question-staged">(() => (pro
     </div>
 
     <div
-      class="flex-1 min-h-0 overflow-y-auto"
+      class="-ml-3 -mt-3 flex-1 min-h-0 overflow-y-auto pl-3 pt-3"
       data-testid="game-question-body"
     >
       <GameQuestionCardThemeHeader

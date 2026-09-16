@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import { usePreferredReducedMotion } from "@vueuse/core";
 import { nextTick, ref, shallowRef, toRef, watch } from "vue";
+import type { ComponentPublicInstance } from "vue";
 
 import { GameQuestionCard } from "#components";
 
 import { CARD_TRANSITION_DURATION_SECONDS, CARD_TRANSITION_ROTATION_DEGREES, CARD_TRANSITION_SAFETY_TIMEOUT_MS, CARD_TRANSITION_SLIDE_PERCENT } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.constants";
 import type { GameQuestionCardSwitcherDirection, GameQuestionCardSwitcherEmits, GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
 import type { GsapContext } from "@/composables/core/gsap/gsap.types";
+import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
 import { useQuestionCardRing } from "~/composables/domain/useQuestionCardRing/useQuestionCardRing";
 
 const props = defineProps<GameQuestionCardSwitcherProps>();
@@ -15,7 +17,7 @@ const emit = defineEmits<GameQuestionCardSwitcherEmits>();
 const gsap = useGSAP();
 const reducedMotion = usePreferredReducedMotion();
 
-const cardContainerReferences = ref<HTMLElement[]>([]);
+const cardContainerReferences = shallowRef<HTMLElement[]>([]);
 const gsapContext = shallowRef<GsapContext>();
 const timeline = shallowRef<ReturnType<typeof gsap.timeline>>();
 const isSlideSettled = ref<boolean>(true);
@@ -35,6 +37,13 @@ const { complete: completeRing, currentSlotIndex, getSlotIndexForOffset, slots: 
     emit("staged");
   },
 });
+
+function setCardContainerReference(element: Element | ComponentPublicInstance | null, index: number): void {
+  const resolvedElement = resolveHTMLElement(element);
+  if (resolvedElement) {
+    cardContainerReferences.value[index] = resolvedElement;
+  }
+}
 
 function applyRestingState(): void {
   for (const [index, element] of cardContainerReferences.value.entries()) {
@@ -111,9 +120,7 @@ onUnmounted(() => {
     <div
       v-for="(slot, index) in ringSlots"
       :key="index"
-      :ref="(element: HTMLElement | null) => {
-        if (element) cardContainerReferences[index] = element;
-      }"
+      :ref="(element: Element | ComponentPublicInstance | null) => setCardContainerReference(element, index)"
       :aria-hidden="slot.ariaHidden"
       class="absolute inset-0 will-change-transform"
       :inert="slot.inert"
