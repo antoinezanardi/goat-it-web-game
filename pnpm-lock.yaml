@@ -348,8 +348,8 @@ importers:
         specifier: ^4.3.3
         version: 4.3.3
       type-fest:
-        specifier: ^5.9.0
-        version: 5.9.0
+        specifier: ^5.10.0
+        version: 5.10.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -9985,8 +9985,8 @@ packages:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
-  type-fest@5.9.0:
-    resolution: {integrity: sha512-yANm3Jr3GiJ1qgJlxGAVxTOIcEOk1rhQHamlXtnrCK7EHP4HeM9OGxtMg/W7HFdrVzw/ZWJKGVIJusVH85sLtw==}
+  type-fest@5.10.0:
+    resolution: {integrity: sha512-NoSdpq/WEiAg5sjmBkmV/hfxv6HJH4NqPNrqjtSO5CwRmpsDfaf4begxW34KdJykH/l1yHtwBWQkCRdoXO8mPA==}
     engines: {node: '>=20'}
 
   type-level-regexp@0.1.17:
@@ -11862,7 +11862,7 @@ snapshots:
       semver: 7.8.5
       string-argv: 0.3.2
       supports-color: 11.0.0
-      type-fest: 5.9.0
+      type-fest: 5.10.0
       util-arity: 1.1.0
       yaml: 2.9.0
       yup: 1.7.1
@@ -12360,7 +12360,7 @@ snapshots:
   '@goat-it/schemas@0.0.24(@faker-js/faker@10.6.0)(zod@4.6.5)':
     dependencies:
       '@faker-js/faker': 10.6.0
-      type-fest: 5.9.0
+      type-fest: 5.10.0
       zod: 4.6.5
 
   '@html-validate/stylish@6.0.0': {}
@@ -17067,7 +17067,7 @@ snapshots:
 
   dot-prop@10.1.0:
     dependencies:
-      type-fest: 5.9.0
+      type-fest: 5.10.0
 
   dot-prop@5.3.0:
     dependencies:
@@ -21052,14 +21052,14 @@ snapshots:
     dependencies:
       find-up-simple: 1.0.1
       read-pkg: 10.1.0
-      type-fest: 5.9.0
+      type-fest: 5.10.0
 
   read-pkg@10.1.0:
     dependencies:
       '@types/normalize-package-data': 2.4.4
       normalize-package-data: 8.0.0
       parse-json: 8.3.0
-      type-fest: 5.9.0
+      type-fest: 5.10.0
       unicorn-magic: 0.4.0
 
   read-pkg@9.0.1:
@@ -22258,7 +22258,7 @@ snapshots:
 
   type-fest@4.41.0: {}
 
-  type-fest@5.9.0:
+  type-fest@5.10.0:
     dependencies:
       tagged-tag: 1.0.0
 
