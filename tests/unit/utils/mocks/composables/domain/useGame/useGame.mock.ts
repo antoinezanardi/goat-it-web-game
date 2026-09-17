@@ -9,6 +9,8 @@ import type { Question } from "#shared/types/question.types";
 
 type UseGameMock = ToMock<UseGame> & {
   gameStateRef: Ref<GamePageState>;
+  isFetchingQuestionsRef: Ref<boolean>;
+  isTranslatingRef: Ref<boolean>;
   questionsRef: Ref<Question[]>;
 };
 
@@ -20,17 +22,23 @@ function createUseGameMock(): UseGameMock {
   const questionsReference = ref<Question[]>([]);
   const currentIndex = ref<number>(0);
   const gameStateReference = ref<GamePageState>("loading");
+  const isTranslatingReference = ref<boolean>(false);
+  const isFetchingQuestionsReference = ref<boolean>(false);
 
   return {
     canGoToPreviousQuestion: computed(() => currentIndex.value > 0),
     currentIndex,
     currentQuestion: computed(() => questionsReference.value[currentIndex.value]),
+    isFetchingQuestions: computed(() => isFetchingQuestionsReference.value),
+    isTranslating: computed(() => isTranslatingReference.value),
     questions: questionsReference,
     advanceToNextQuestion: vi.fn<UseGame["advanceToNextQuestion"]>(),
     goToPreviousQuestion: vi.fn<UseGame["goToPreviousQuestion"]>(),
     initialize: vi.fn<UseGame["initialize"]>(),
     gameState: computed(() => gameStateReference.value),
     gameStateRef: gameStateReference,
+    isFetchingQuestionsRef: isFetchingQuestionsReference,
+    isTranslatingRef: isTranslatingReference,
     questionsRef: questionsReference,
   };
 }

@@ -289,4 +289,38 @@ describe("Game Page", () => {
 
     expect(sidebar.props("open")).toBe(false);
   });
+
+  it("should pass isFetchingQuestions as the isFetchingQuestions prop to GameSidebar when mounted.", async() => {
+    useGameMock.instance.isFetchingQuestionsRef.value = true;
+    await nextTick();
+
+    const sidebar = wrapper.findComponent({ name: "GameSidebar" });
+
+    expect(sidebar.props("isFetchingQuestions")).toBe(true);
+  });
+
+  it("should render GameLoading in translation mode when isTranslating is true even if gameState is playing.", async() => {
+    useGameMock.instance.isTranslatingRef.value = true;
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    const gameLoading = wrapper.findComponent({ name: "GameLoading" });
+
+    expect({
+      exists: gameLoading.exists(),
+      isTranslating: Boolean(gameLoading.props("isTranslating")),
+    }).toStrictEqual({ exists: true, isTranslating: true });
+  });
+
+  it("should render GamePlaying when isTranslating is false and gameState is playing.", async() => {
+    useGameMock.instance.isTranslatingRef.value = false;
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+
+    expect(gamePlaying.exists()).toBeTruthy();
+  });
 });

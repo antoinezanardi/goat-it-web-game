@@ -72,7 +72,7 @@ function onUpdateOpen(value: boolean): void {
         class="flex gap-2 items-center justify-center w-full"
         data-testid="game-sidebar-footer"
       >
-        <LocaleSelect/>
+        <LocaleSelect :disabled="props.isFetchingQuestions"/>
 
         <VersionButton/>
       </div>

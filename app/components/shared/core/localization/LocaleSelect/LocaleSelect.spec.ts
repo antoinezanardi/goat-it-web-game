@@ -12,12 +12,17 @@ import type { ULocaleSelect } from "#components";
 import { LocaleSelect } from "#components";
 
 import { LOCALE_SELECT_UI } from "~/components/shared/core/localization/LocaleSelect/locale-select.constants";
+import type { LocaleSelectProps } from "~/components/shared/core/localization/LocaleSelect/locale-select.types";
 
 describe("LocaleSelect Component", () => {
   let wrapper: VueWrapper;
 
+  const defaultLocaleSelectProps: LocaleSelectProps = {
+    disabled: false,
+  } as const;
+
   async function mountLocaleSelect(options: MountSuspendedOptions<typeof LocaleSelect> = {}): Promise<VueWrapper> {
-    return mountSuspended(LocaleSelect, { ...options });
+    return mountSuspended(LocaleSelect, { props: defaultLocaleSelectProps, ...options });
   }
 
   beforeEach(async() => {
@@ -98,6 +103,19 @@ describe("LocaleSelect Component", () => {
       getWrapperVm(nuxtUILocaleSelect).$emit("update:modelValue", "ja");
 
       expect(useCookieMockState.cookieRef.value).toBeNull();
+    });
+
+    it("should pass the disabled prop to ULocaleSelect when disabled is true.", async() => {
+      await wrapper.setProps({ disabled: true });
+      const nuxtUILocaleSelect = wrapper.findComponent<typeof ULocaleSelect>({ name: "ULocaleSelect" });
+
+      expect(nuxtUILocaleSelect.props("disabled")).toBe(true);
+    });
+
+    it("should pass the disabled prop as false to ULocaleSelect when disabled is not provided.", () => {
+      const nuxtUILocaleSelect = wrapper.findComponent<typeof ULocaleSelect>({ name: "ULocaleSelect" });
+
+      expect(nuxtUILocaleSelect.props("disabled")).toBe(false);
     });
   });
 });

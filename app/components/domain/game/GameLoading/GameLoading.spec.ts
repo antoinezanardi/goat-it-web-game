@@ -6,11 +6,17 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import { GameLoading, LoadingSpinner } from "#components";
 
+import type { GameLoadingProps } from "@/components/domain/game/GameLoading/game-loading.types";
+
 describe("GameLoading Component", () => {
   let wrapper: VueWrapper;
 
+  const defaultGameLoadingProps: GameLoadingProps = {
+    isTranslating: false,
+  } as const;
+
   async function mountGameLoadingComponent(options: MountSuspendedOptions<typeof GameLoading> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameLoading, { ...options });
+    return mountSuspended(GameLoading, { props: defaultGameLoadingProps, ...options });
   }
 
   beforeEach(async() => {
@@ -31,5 +37,12 @@ describe("GameLoading Component", () => {
     const spinner = wrapper.findComponent(LoadingSpinner);
 
     expect(spinner.props("label")).toBe("game.loadingQuestions");
+  });
+
+  it("should pass the translating questions translation key as the LoadingSpinner label when isTranslating is true.", async() => {
+    await wrapper.setProps({ isTranslating: true });
+    const spinner = wrapper.findComponent(LoadingSpinner);
+
+    expect(spinner.props("label")).toBe("game.translatingQuestions");
   });
 });

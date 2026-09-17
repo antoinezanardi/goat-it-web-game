@@ -96,6 +96,7 @@ const VITEST_COMPOSABLES_MOCK_SETUP_FILES: readonly string[] = [
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-goat-it-api-error-toast.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-gsap.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup.ts"),
+  path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-game-question-translation.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-window-scroll.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup.ts"),

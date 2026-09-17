@@ -9,6 +9,8 @@ type UseGame = {
   canGoToPreviousQuestion: ComputedRef<boolean>;
   currentIndex: Ref<number>;
   currentQuestion: ComputedRef<Question | undefined>;
+  isFetchingQuestions: ComputedRef<boolean>;
+  isTranslating: ComputedRef<boolean>;
   questions: Ref<Question[]>;
   advanceToNextQuestion: () => void;
   goToPreviousQuestion: () => void;
@@ -18,7 +20,7 @@ type UseGame = {
 
 function useGame(): UseGame {
   const store = useGameStore();
-  const { questions, isPending } = storeToRefs(store);
+  const { questions, isPending, isFetchingByIds } = storeToRefs(store);
 
   const currentIndex = ref<number>(0);
   const canGoToPreviousQuestion = computed<boolean>(() => currentIndex.value > 0);
@@ -50,6 +52,13 @@ function useGame(): UseGame {
     }
     return "playing";
   });
+
+  function canTranslate(): boolean {
+    return gameState.value === "playing" && questions.value.length > 0 && !isPending.value && !isFetchingByIds.value;
+  }
+
+  const { isTranslating } = useGameQuestionTranslation(questions, canTranslate);
+  const isFetchingQuestions = computed<boolean>(() => isPending.value || isFetchingByIds.value);
 
   async function initialize(): Promise<void> {
     await store.fetchAndAppendRandomQuestions(excludedIdsBody.value);
@@ -96,6 +105,8 @@ function useGame(): UseGame {
     canGoToPreviousQuestion,
     currentIndex,
     currentQuestion,
+    isFetchingQuestions,
+    isTranslating,
     questions,
     advanceToNextQuestion,
     goToPreviousQuestion,
