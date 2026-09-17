@@ -116,6 +116,19 @@ describe("GameSidebar Component", () => {
     expect(wrapper.findComponent<typeof LocaleSelect>("[data-testid='locale-select']").exists()).toBe(true);
   });
 
+  it("should pass the isFetchingQuestions prop to LocaleSelect as its disabled prop when isFetchingQuestions is true.", async() => {
+    await wrapper.setProps({ isFetchingQuestions: true });
+    const localeSelect = wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" });
+
+    expect(localeSelect.props("disabled")).toBe(true);
+  });
+
+  it("should pass the isFetchingQuestions prop to LocaleSelect as its disabled prop as false when isFetchingQuestions is not provided.", () => {
+    const localeSelect = wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" });
+
+    expect(localeSelect.props("disabled")).toBe(false);
+  });
+
   it("should have the footer data-testid attribute when mounted.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar-footer']")).not.toBeNull();
   });

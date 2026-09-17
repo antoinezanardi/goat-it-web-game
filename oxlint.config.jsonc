@@ -66,6 +66,7 @@
     "useFetchStatus": "readonly",
     "useGSAP": "readonly",
     "useGame": "readonly",
+    "useGameQuestionTranslation": "readonly",
     "useGameStore": "readonly",
     "useGoatItApiErrorToast": "readonly",
     "useHead": "readonly",

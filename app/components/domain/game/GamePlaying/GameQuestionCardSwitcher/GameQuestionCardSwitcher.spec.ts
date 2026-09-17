@@ -115,6 +115,19 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(useGsapMock.instance.timeline).toHaveBeenCalledExactlyOnceWith({ paused: true });
   });
 
+  it("should apply the visible resting class to the active card container when mounted.", () => {
+    const activeContainer = getContainerParent(getVisibleCardElement(wrapper).element);
+
+    expect(activeContainer.classList.contains("opacity-100")).toBe(true);
+  });
+
+  it("should apply the hidden resting class to every staged card container when mounted.", () => {
+    const stagedContainers = [getStagedCardElement(wrapper, 0), getStagedCardElement(wrapper, 1)]
+      .map(element => getContainerParent(element.element));
+
+    expect(stagedContainers.filter(container => container.classList.contains("opacity-0"))).toHaveLength(2);
+  });
+
   it("should start a forward slide when pendingDirection becomes forward.", async() => {
     await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();

@@ -2,6 +2,7 @@
   "game": {
     "pageTitle": "Goat It Game",
     "loadingQuestions": "Carregando perguntas...",
+    "translatingQuestions": "Traduzindo perguntas…",
     "nextQuestion": "Próxima pergunta",
     "previousQuestionTooltip": "Voltar à pergunta anterior",
     "menuTooltip": "Abrir menu",

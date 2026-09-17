@@ -50,6 +50,8 @@ const {
   currentQuestion,
   gameState,
   goToPreviousQuestion,
+  isFetchingQuestions,
+  isTranslating,
   questions,
 } = useGame();
 
@@ -82,6 +84,7 @@ function onSidebarOpenChange(open: boolean): void {
     />
 
     <GameSidebar
+      :is-fetching-questions="isFetchingQuestions"
       :open="isSidebarOpen"
       @update:open="onSidebarOpenChange"
     />
@@ -90,7 +93,10 @@ function onSidebarOpenChange(open: boolean): void {
       mode="out-in"
       name="fade-slide-up"
     >
-      <GameLoading v-if="gameState === 'loading'"/>
+      <GameLoading
+        v-if="isTranslating || gameState === 'loading'"
+        :is-translating="isTranslating"
+      />
 
       <GamePlaying
         v-else-if="gameState === 'playing' && currentQuestion"

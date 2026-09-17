@@ -1,0 +1,3 @@
+const TRANSLATION_ID_LIMIT = 100;
+
+export { TRANSLATION_ID_LIMIT };

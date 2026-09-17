@@ -4,6 +4,7 @@ import type { QuestionsRepositoryMock } from "~~/tests/unit/utils/mocks/reposito
 
 function createQuestionsRepositoryMock(): QuestionsRepositoryMock {
   return {
+    getByIds: vi.fn<QuestionsRepositoryMock["getByIds"]>(),
     getRandom: vi.fn<QuestionsRepositoryMock["getRandom"]>(),
   };
 }

@@ -1,4 +1,5 @@
 type GameSidebarProps = {
+  isFetchingQuestions?: boolean;
   open: boolean;
 };
 
