@@ -38,6 +38,10 @@ const { complete: completeRing, currentSlotIndex, getSlotIndexForOffset, slots: 
   },
 });
 
+function getCardContainerClass(isActive: boolean): string {
+  return isActive ? "opacity-100" : "opacity-0";
+}
+
 function setCardContainerReference(element: Element | ComponentPublicInstance | null, index: number): void {
   const resolvedElement = resolveHTMLElement(element);
   if (resolvedElement) {
@@ -123,7 +127,7 @@ onUnmounted(() => {
       :ref="(element: Element | ComponentPublicInstance | null) => setCardContainerReference(element, index)"
       :aria-hidden="slot.ariaHidden"
       class="absolute inset-0 will-change-transform"
-      :class="slot.isActive ? 'opacity-100' : 'opacity-0'"
+      :class="getCardContainerClass(slot.isActive)"
       :inert="slot.inert"
     >
       <GameQuestionCard

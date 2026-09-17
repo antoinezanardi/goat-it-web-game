@@ -13,6 +13,7 @@ permission:
     "git log *": "allow"
     "git diff *": "allow"
     "git show *": "allow"
+    "git merge-base *": "allow"
     "git add *": "deny"
     "git commit *": "deny"
     "git push *": "deny"
