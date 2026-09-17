@@ -3,7 +3,7 @@ import type { Ref } from "vue";
 
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
-import type { UseGameQuestionTranslation } from "~/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation";
+import type { UseGameQuestionTranslation } from "~/composables/domain/useGameQuestionTranslation/use-game-question-translation.types";
 
 type UseGameQuestionTranslationMock = ToMock<UseGameQuestionTranslation> & {
   isTranslatingRef: Ref<boolean>;

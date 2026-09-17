@@ -2,8 +2,8 @@ import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
-import { defineComponent, nextTick } from "vue";
-import type { Ref } from "vue";
+import { defineComponent, nextTick, toValue } from "vue";
+import type { MaybeRefOrGetter, Ref } from "vue";
 
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
@@ -18,12 +18,12 @@ import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY } from "~/pages/(game)/game.co
 let useGame: typeof UseGameType;
 let useGameQuestionTranslationMock: UseGameQuestionTranslationMock;
 let capturedQuestions: Ref<Question[]> | undefined;
-let capturedCanTranslate: (() => boolean) | undefined;
+let capturedCanTranslateQuestions: MaybeRefOrGetter<boolean> | undefined;
 let translationCallCount: number;
 
-mockNuxtImport("useGameQuestionTranslation", () => (questions: Ref<Question[]>, canTranslate: () => boolean): UseGameQuestionTranslationMock => {
+mockNuxtImport("useGameQuestionTranslation", () => (questions: Ref<Question[]>, canTranslateQuestions: MaybeRefOrGetter<boolean>): UseGameQuestionTranslationMock => {
   capturedQuestions = questions;
-  capturedCanTranslate = canTranslate;
+  capturedCanTranslateQuestions = canTranslateQuestions;
   translationCallCount += 1;
 
   return useGameQuestionTranslationMock;
@@ -33,7 +33,7 @@ describe("useGame", () => {
   beforeEach(async() => {
     useGameQuestionTranslationMock = createUseGameQuestionTranslationMock();
     capturedQuestions = undefined;
-    capturedCanTranslate = undefined;
+    capturedCanTranslateQuestions = undefined;
     translationCallCount = 0;
     createTestingPinia();
     ({ useGame } = await import("~/composables/domain/useGame/useGame"));
@@ -455,15 +455,15 @@ describe("useGame", () => {
   });
 
   describe("isFetchingQuestions", () => {
-    it.each<{ isPending: boolean; isFetchingByIds: boolean; expected: boolean }>([
-      { isPending: false, isFetchingByIds: false, expected: false },
-      { isPending: true, isFetchingByIds: false, expected: true },
-      { isPending: false, isFetchingByIds: true, expected: true },
-      { isPending: true, isFetchingByIds: true, expected: true },
-    ])("should be $expected when isPending is $isPending and isFetchingByIds is $isFetchingByIds.", ({ isPending, isFetchingByIds, expected }) => {
+    it.each<{ isPending: boolean; isFetchingQuestionsByIds: boolean; expected: boolean }>([
+      { isPending: false, isFetchingQuestionsByIds: false, expected: false },
+      { isPending: true, isFetchingQuestionsByIds: false, expected: true },
+      { isPending: false, isFetchingQuestionsByIds: true, expected: true },
+      { isPending: true, isFetchingQuestionsByIds: true, expected: true },
+    ])("should be $expected when isPending is $isPending and isFetchingQuestionsByIds is $isFetchingQuestionsByIds.", ({ isPending, isFetchingQuestionsByIds, expected }) => {
       const store = mockStore(useGameStore);
       store.isPending = isPending;
-      store.isFetchingByIds = isFetchingByIds;
+      store.isFetchingQuestionsByIds = isFetchingQuestionsByIds;
       const game = useGame();
 
       expect(game.isFetchingQuestions.value).toBe(expected);
@@ -482,8 +482,10 @@ describe("useGame", () => {
 
       expect(translationCallCount).toBe(1);
     });
+  });
 
-    it("should return false from canTranslate when gameState is game-over.", async() => {
+  describe("canTranslateQuestions", () => {
+    it("should return false when gameState is game-over.", async() => {
       const store = mockStore(useGameStore);
       const game = useGame();
       store.questions = [createFakeQuestion()];
@@ -492,46 +494,28 @@ describe("useGame", () => {
       await nextTick();
       await flushPromises();
 
-      expect(capturedCanTranslate?.()).toBe(false);
+      expect(toValue(capturedCanTranslateQuestions)).toBe(false);
     });
 
-    it("should return false from canTranslate when there are no questions.", () => {
+    it("should return false when there are no questions.", () => {
       useGame();
 
-      expect(capturedCanTranslate?.()).toBe(false);
+      expect(toValue(capturedCanTranslateQuestions)).toBe(false);
     });
 
-    it("should return false from canTranslate when a fetch is pending.", async() => {
+    it.each<{ isPending: boolean; isFetchingQuestionsByIds: boolean; expected: boolean }>([
+      { isPending: true, isFetchingQuestionsByIds: false, expected: false },
+      { isPending: false, isFetchingQuestionsByIds: true, expected: false },
+      { isPending: false, isFetchingQuestionsByIds: false, expected: true },
+    ])("should return $expected when pending is $isPending and by-ids fetch is $isFetchingQuestionsByIds.", async({ isPending, isFetchingQuestionsByIds, expected }) => {
       const store = mockStore(useGameStore);
       useGame();
       store.questions = [createFakeQuestion(), createFakeQuestion()];
-      store.isPending = true;
-      store.isFetchingByIds = false;
+      store.isPending = isPending;
+      store.isFetchingQuestionsByIds = isFetchingQuestionsByIds;
       await nextTick();
 
-      expect(capturedCanTranslate?.()).toBe(false);
-    });
-
-    it("should return false from canTranslate when a by-ids fetch is pending.", async() => {
-      const store = mockStore(useGameStore);
-      useGame();
-      store.questions = [createFakeQuestion(), createFakeQuestion()];
-      store.isPending = false;
-      store.isFetchingByIds = true;
-      await nextTick();
-
-      expect(capturedCanTranslate?.()).toBe(false);
-    });
-
-    it("should return true from canTranslate when playing with questions and no fetch is pending.", async() => {
-      const store = mockStore(useGameStore);
-      useGame();
-      store.questions = [createFakeQuestion(), createFakeQuestion()];
-      store.isPending = false;
-      store.isFetchingByIds = false;
-      await nextTick();
-
-      expect(capturedCanTranslate?.()).toBe(true);
+      expect(toValue(capturedCanTranslateQuestions)).toBe(expected);
     });
   });
 });

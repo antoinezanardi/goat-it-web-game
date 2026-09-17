@@ -94,14 +94,8 @@ function onSidebarOpenChange(open: boolean): void {
       name="fade-slide-up"
     >
       <GameLoading
-        v-if="isTranslating"
-        key="game-loading-1"
-        is-translating
-      />
-
-      <GameLoading
-        v-else-if="gameState === 'loading'"
-        key="game-loading-2"
+        v-if="isTranslating || gameState === 'loading'"
+        :is-translating="isTranslating"
       />
 
       <GamePlaying

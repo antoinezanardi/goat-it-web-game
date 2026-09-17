@@ -123,6 +123,7 @@ onUnmounted(() => {
       :ref="(element: Element | ComponentPublicInstance | null) => setCardContainerReference(element, index)"
       :aria-hidden="slot.ariaHidden"
       class="absolute inset-0 will-change-transform"
+      :class="slot.isActive ? 'opacity-100' : 'opacity-0'"
       :inert="slot.inert"
     >
       <GameQuestionCard

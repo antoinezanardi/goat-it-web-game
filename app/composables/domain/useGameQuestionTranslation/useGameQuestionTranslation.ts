@@ -1,28 +1,20 @@
 import { storeToRefs } from "pinia";
 
 import type { Question } from "#shared/types/question.types";
+import { TRANSLATION_ID_LIMIT } from "~/composables/domain/useGameQuestionTranslation/use-game-question-translation.constants";
+import type { UseGameQuestionTranslation } from "~/composables/domain/useGameQuestionTranslation/use-game-question-translation.types";
 
-const TRANSLATION_ID_LIMIT = 100;
-
-type UseGameQuestionTranslation = {
-  isTranslating: ComputedRef<boolean>;
-};
-
-function useGameQuestionTranslation(questions: Ref<Question[]>, canTranslate: () => boolean): UseGameQuestionTranslation {
+function useGameQuestionTranslation(questions: Ref<Question[]>, canTranslateQuestions: MaybeRefOrGetter<boolean>): UseGameQuestionTranslation {
   const store = useGameStore();
-  const { isFetchingByIds } = storeToRefs(store);
+  const { isFetchingQuestionsByIds } = storeToRefs(store);
   const { locale } = useI18n();
 
-  const isTranslating = computed<boolean>(() => isFetchingByIds.value);
+  const isTranslating = computed<boolean>(() => isFetchingQuestionsByIds.value);
 
-  watch(locale, async() => {
-    if (!canTranslate()) {
-      return;
-    }
-
+  async function translateQuestions(): Promise<void> {
     const snapshot = [...questions.value];
-    const selectedIds = snapshot.length <= TRANSLATION_ID_LIMIT ? snapshot.map(question => question.id) : snapshot.slice(-TRANSLATION_ID_LIMIT).map(question => question.id);
-
+    const snapshotIds = snapshot.map(question => question.id);
+    const selectedIds = snapshotIds.length <= TRANSLATION_ID_LIMIT ? snapshotIds : snapshotIds.slice(-TRANSLATION_ID_LIMIT);
     const translated = await store.fetchQuestionsByIds(selectedIds);
     if (!translated) {
       return;
@@ -38,13 +30,18 @@ function useGameQuestionTranslation(questions: Ref<Question[]>, canTranslate: ()
     // Acceptable as questions is a Vue Ref and updating .value is the standard reactive pattern
     // oxlint-disable-next-line eslint/no-param-reassign
     questions.value = snapshot.map(question => translationById.get(question.id) ?? question);
+  }
+
+  watch(locale, async() => {
+    if (!toValue(canTranslateQuestions)) {
+      return;
+    }
+    await translateQuestions();
   });
 
   return {
     isTranslating,
   };
 }
-
-export type { UseGameQuestionTranslation };
 
 export { useGameQuestionTranslation };

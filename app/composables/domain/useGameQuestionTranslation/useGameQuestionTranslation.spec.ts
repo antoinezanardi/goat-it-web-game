@@ -122,7 +122,7 @@ describe("useGameQuestionTranslation", () => {
   });
 
   describe("guard", () => {
-    it("should not call fetchQuestionsByIds when canTranslate returns false on locale change.", async() => {
+    it("should not call fetchQuestionsByIds when canTranslateQuestions is false on locale change.", async() => {
       const store = mockStore(useGameStore);
       const questions = ref<Question[]>([createFakeQuestion()]);
       const { locale } = useI18n();
@@ -134,7 +134,7 @@ describe("useGameQuestionTranslation", () => {
       expect(store.fetchQuestionsByIds).not.toHaveBeenCalled();
     });
 
-    it("should call fetchQuestionsByIds when canTranslate returns true on locale change.", async() => {
+    it("should call fetchQuestionsByIds when canTranslateQuestions is true on locale change.", async() => {
       const store = mockStore(useGameStore);
       const questions = ref<Question[]>([createFakeQuestion()]);
       store.fetchQuestionsByIds.mockResolvedValue([]);
@@ -149,12 +149,12 @@ describe("useGameQuestionTranslation", () => {
   });
 
   describe("isTranslating", () => {
-    it.each<{ isFetchingByIds: boolean; expected: boolean }>([
-      { isFetchingByIds: false, expected: false },
-      { isFetchingByIds: true, expected: true },
-    ])("should be $expected when store isFetchingByIds is $isFetchingByIds.", ({ isFetchingByIds, expected }) => {
+    it.each<{ isFetchingQuestionsByIds: boolean; expected: boolean }>([
+      { isFetchingQuestionsByIds: false, expected: false },
+      { isFetchingQuestionsByIds: true, expected: true },
+    ])("should be $expected when store isFetchingQuestionsByIds is $isFetchingQuestionsByIds.", ({ isFetchingQuestionsByIds, expected }) => {
       const store = mockStore(useGameStore);
-      store.isFetchingByIds = isFetchingByIds;
+      store.isFetchingQuestionsByIds = isFetchingQuestionsByIds;
       const questions = ref<Question[]>([]);
       const { isTranslating } = useGameQuestionTranslation(questions, () => true);
 

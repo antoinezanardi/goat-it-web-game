@@ -20,10 +20,10 @@ export const useGameStore = defineStore(StoreNames.GAME, () => {
 
   const {
     execute: fetchQuestionsByIds,
-    fetchStatus: fetchByIdsStatus,
-    isPending: isFetchingByIds,
-    isSuccess: isFetchingByIdsSuccess,
-    isError: isFetchingByIdsError,
+    fetchStatus: fetchQuestionsByIdsStatus,
+    isPending: isFetchingQuestionsByIds,
+    isSuccess: isFetchingQuestionsByIdsSuccess,
+    isError: isFetchingQuestionsByIdsError,
   } = useAsyncAction(
     repository.getByIds,
     (thrownError: unknown) => handleGoatItApiError(thrownError, t("questions.cantFetch")),
@@ -44,9 +44,9 @@ export const useGameStore = defineStore(StoreNames.GAME, () => {
     fetchRandomQuestions,
     fetchAndAppendRandomQuestions,
     fetchQuestionsByIds,
-    fetchByIdsStatus,
-    isFetchingByIds,
-    isFetchingByIdsSuccess,
-    isFetchingByIdsError,
+    fetchQuestionsByIdsStatus,
+    isFetchingQuestionsByIds,
+    isFetchingQuestionsByIdsSuccess,
+    isFetchingQuestionsByIdsError,
   };
 });

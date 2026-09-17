@@ -103,22 +103,22 @@ describe("useGameStore", () => {
     });
   });
 
-  describe("fetchByIdsStatus", () => {
+  describe("fetchQuestionsByIdsStatus", () => {
     it("should reflect the by ids fetchStatus value from useAsyncAction when created.", () => {
       const store = useGameStore();
 
-      expect(store.fetchByIdsStatus).toBe(byIdsAsyncActionMock.fetchStatus.value);
+      expect(store.fetchQuestionsByIdsStatus).toBe(byIdsAsyncActionMock.fetchStatus.value);
     });
 
     it("should update when the by ids fetchStatus changes to pending.", () => {
       const store = useGameStore();
       byIdsAsyncActionMock.fetchStatus.value = "pending";
 
-      expect(store.fetchByIdsStatus).toBe("pending");
+      expect(store.fetchQuestionsByIdsStatus).toBe("pending");
     });
   });
 
-  describe("isFetchingByIds", () => {
+  describe("isFetchingQuestionsByIds", () => {
     it.each<{ fetchStatus: "idle" | "pending"; expected: boolean }>([
       { fetchStatus: "idle", expected: false },
       { fetchStatus: "pending", expected: true },
@@ -126,11 +126,11 @@ describe("useGameStore", () => {
       const store = useGameStore();
       byIdsAsyncActionMock.fetchStatus.value = fetchStatus;
 
-      expect(store.isFetchingByIds).toBe(expected);
+      expect(store.isFetchingQuestionsByIds).toBe(expected);
     });
   });
 
-  describe("isFetchingByIdsSuccess", () => {
+  describe("isFetchingQuestionsByIdsSuccess", () => {
     it.each<{ fetchStatus: "idle" | "success"; expected: boolean }>([
       { fetchStatus: "idle", expected: false },
       { fetchStatus: "success", expected: true },
@@ -138,11 +138,11 @@ describe("useGameStore", () => {
       const store = useGameStore();
       byIdsAsyncActionMock.fetchStatus.value = fetchStatus;
 
-      expect(store.isFetchingByIdsSuccess).toBe(expected);
+      expect(store.isFetchingQuestionsByIdsSuccess).toBe(expected);
     });
   });
 
-  describe("isFetchingByIdsError", () => {
+  describe("isFetchingQuestionsByIdsError", () => {
     it.each<{ fetchStatus: "idle" | "error"; expected: boolean }>([
       { fetchStatus: "idle", expected: false },
       { fetchStatus: "error", expected: true },
@@ -150,7 +150,7 @@ describe("useGameStore", () => {
       const store = useGameStore();
       byIdsAsyncActionMock.fetchStatus.value = fetchStatus;
 
-      expect(store.isFetchingByIdsError).toBe(expected);
+      expect(store.isFetchingQuestionsByIdsError).toBe(expected);
     });
   });
 

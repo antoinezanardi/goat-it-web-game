@@ -299,7 +299,7 @@ describe("Game Page", () => {
     expect(sidebar.props("isFetchingQuestions")).toBe(true);
   });
 
-  it("should render GameLoading in translation mode when isTranslating is true even if gameState is playing.", async() => {
+  it("should render GameLoading when isTranslating is true even if gameState is playing.", async() => {
     useGameMock.instance.isTranslatingRef.value = true;
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
@@ -307,20 +307,17 @@ describe("Game Page", () => {
 
     const gameLoading = wrapper.findComponent({ name: "GameLoading" });
 
-    expect({
-      exists: gameLoading.exists(),
-      isTranslating: Boolean(gameLoading.props("isTranslating")),
-    }).toStrictEqual({ exists: true, isTranslating: true });
+    expect(gameLoading.exists()).toBeTruthy();
   });
 
-  it("should render GamePlaying when isTranslating is false and gameState is playing.", async() => {
-    useGameMock.instance.isTranslatingRef.value = false;
+  it("should pass isTranslating as the isTranslating prop to GameLoading when isTranslating is true.", async() => {
+    useGameMock.instance.isTranslatingRef.value = true;
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
 
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
+    const gameLoading = wrapper.findComponent({ name: "GameLoading" });
 
-    expect(gamePlaying.exists()).toBeTruthy();
+    expect(gameLoading.props("isTranslating")).toBe(true);
   });
 });
