@@ -17,7 +17,7 @@
       "controls": {
         "back": "Atrás",
         "next": "Siguiente",
-        "skip": "Saltar",
+        "skip": "Omitir el tutorial",
         "finish": "Finalizar"
       },
       "steps": {

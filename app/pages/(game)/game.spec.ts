@@ -41,12 +41,6 @@ function getCreatedModalInstance(): UseOverlayCreateReturnValue {
 
 type GamePageVm = ComponentVm & { pageThemeColor: string };
 
-// Acceptable as return type is inferred from findComponent and explicit annotation causes typecheck issues with VueWrapper generics
-// oxlint-disable-next-line typescript/explicit-function-return-type
-function getGameTutorialComponent(wrapper: VueWrapper) {
-  return wrapper.findComponent({ name: "GameTutorial" });
-}
-
 describe("Game Page", () => {
   let wrapper: VueWrapper;
 
@@ -353,14 +347,14 @@ describe("Game Page", () => {
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
 
-    expect(getGameTutorialComponent(wrapper).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: "GameTutorial" }).exists()).toBe(true);
   });
 
   it("should not render GameTutorial when isTutorialAvailable is false.", async() => {
     useGameMock.instance.gameStateRef.value = "loading";
     await nextTick();
 
-    expect(getGameTutorialComponent(wrapper).exists()).toBe(false);
+    expect(wrapper.findComponent({ name: "GameTutorial" }).exists()).toBe(false);
   });
 
   it("should pass isActive as false to GameTutorial when mounted.", async() => {
@@ -368,7 +362,7 @@ describe("Game Page", () => {
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
 
-    expect(getGameTutorialComponent(wrapper).props("isActive")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameTutorial" }).props("isActive")).toBe(false);
   });
 
   it("should pass isActive as true to GameTutorial when GameSidebar emits startTutorial.", async() => {
@@ -378,7 +372,7 @@ describe("Game Page", () => {
     getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
     await flushPromises();
 
-    expect(getGameTutorialComponent(wrapper).props("isActive")).toBe(true);
+    expect(wrapper.findComponent({ name: "GameTutorial" }).props("isActive")).toBe(true);
   });
 
   it("should close the sidebar when GameSidebar emits startTutorial.", async() => {
@@ -391,16 +385,16 @@ describe("Game Page", () => {
     expect(wrapper.findComponent({ name: "GameSidebar" }).props("open")).toBe(false);
   });
 
-  it("should pass isActive as false to GameTutorial when GameTutorial emits end.", async() => {
+  it("should pass isActive as false to GameTutorial when GameTutorial emits tutorialEnd.", async() => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
     getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
     await flushPromises();
-    getWrapperVm(getGameTutorialComponent(wrapper)).$emit("end");
+    getWrapperVm(wrapper.findComponent({ name: "GameTutorial" })).$emit("tutorialEnd");
     await nextTick();
 
-    expect(getGameTutorialComponent(wrapper).props("isActive")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameTutorial" }).props("isActive")).toBe(false);
   });
 
   it("should pass isActive as false to GameTutorial when the current question index changes.", async() => {
@@ -412,7 +406,7 @@ describe("Game Page", () => {
     useGameMock.instance.currentIndex.value = 1;
     await nextTick();
 
-    expect(getGameTutorialComponent(wrapper).props("isActive")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameTutorial" }).props("isActive")).toBe(false);
   });
 
   it("should not change the current question index when the tutorial is started.", async() => {

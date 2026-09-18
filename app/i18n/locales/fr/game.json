@@ -17,7 +17,7 @@
       "controls": {
         "back": "Retour",
         "next": "Suivant",
-        "skip": "Passer",
+        "skip": "Passer le tutoriel",
         "finish": "Terminer"
       },
       "steps": {

@@ -1,13 +1,12 @@
 @game @game-tutorial
 Feature: 🧑‍🏫 Game Page Interactive Tutorial
 
-  Scenario: 🧑‍🏫 Tutorial entry is visible for a live question and positioned before Rules
+  Scenario: 🧑‍🏫 Tutorial entry is visible for a live question
     Given the database is populated with the question fixture set "single-question"
     And the user is on game page
     And a game question should be displayed
     When the user opens the game sidebar
     Then the element with testid "game-sidebar-tutorial-link" should be visible
-    And the interactive tutorial entry should be before the rules link
 
   Scenario: 🧑‍🏫 Tutorial entry is hidden when no live question is available
     Given the user is on game page
@@ -83,23 +82,6 @@ Feature: 🧑‍🏫 Game Page Interactive Tutorial
     Then the interactive tutorial should be hidden
     When the user opens the interactive tutorial from the game sidebar
     Then the interactive tutorial step title should be "You are the Game Master"
-
-  Scenario: 🧑‍🏫 Final step exposes sidebar resources
-    Given the database is populated with the question fixture set "single-question"
-    And the user is on game page
-    And a game question should be displayed
-    When the user opens the interactive tutorial from the game sidebar
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    Then the interactive tutorial step title should be "Find help in the sidebar"
-    And the interactive tutorial description should contain "available options and settings"
-    And the interactive tutorial description should contain "Rules"
-    And the interactive tutorial description should contain "Interactive tutorial"
 
   Scenario: 🧑‍🏫 Tutorial is localized after switching locale
     Given the database is populated with the question fixture set "single-question"

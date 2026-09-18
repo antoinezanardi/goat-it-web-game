@@ -3,4 +3,23 @@
   outline: 2px solid var(--color-fg-secondary);
   outline-offset: 6px;
   border-radius: 8px;
+  animation: game-tutorial-highlight-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes game-tutorial-highlight-pulse {
+  0%, 100% {
+    outline-color: color-mix(in srgb, var(--color-fg-secondary) 35%, transparent);
+    outline-offset: 4px;
+  }
+
+  50% {
+    outline-color: var(--color-fg-secondary);
+    outline-offset: 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-tutorial-highlight {
+    animation: none;
+  }
 }

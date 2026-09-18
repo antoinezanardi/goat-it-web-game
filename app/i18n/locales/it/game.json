@@ -17,7 +17,7 @@
       "controls": {
         "back": "Indietro",
         "next": "Avanti",
-        "skip": "Salta",
+        "skip": "Salta il tutorial",
         "finish": "Fine"
       },
       "steps": {

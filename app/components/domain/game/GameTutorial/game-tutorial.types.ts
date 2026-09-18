@@ -3,7 +3,23 @@ type GameTutorialProps = {
 };
 
 type GameTutorialEmits = {
-  end: [];
+  tutorialEnd: [];
 };
 
-export type { GameTutorialEmits, GameTutorialProps };
+type GameTutorialStepKey =
+  | "answer" |
+  "clues" |
+  "continue" |
+  "framework" |
+  "question" |
+  "sidebar" |
+  "sources" |
+  "welcome";
+
+type GameTutorialStep = {
+  icon: string;
+  key: GameTutorialStepKey;
+  target?: string;
+};
+
+export type { GameTutorialEmits, GameTutorialProps, GameTutorialStep, GameTutorialStepKey };

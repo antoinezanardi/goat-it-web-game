@@ -1,38 +1,61 @@
+import type { GameTutorialStep } from "@/components/domain/game/GameTutorial/game-tutorial.types";
+
 const GAME_TUTORIAL_HIGHLIGHT_CLASS = "game-tutorial-highlight";
 
-const GAME_TUTORIAL_STEPS = [
+const GAME_TUTORIAL_POPOVER_UI = { content: "z-50" };
+const GAME_TUTORIAL_POPOVER_MARGIN = 16;
+const GAME_TUTORIAL_POPOVER_MIN_HEIGHT = 160;
+const GAME_TUTORIAL_POPOVER_OFFSET = 12;
+
+const GAME_TUTORIAL_ACTIVE_CARD_SELECTOR = "[data-testid='game-question']";
+
+const GAME_TUTORIAL_STEPS: readonly GameTutorialStep[] = [
   {
+    icon: "i-lucide-crown",
     key: "welcome",
-    target: undefined,
   },
   {
+    icon: "i-lucide-tag",
     key: "framework",
-    target: "[data-testid='game-question-theme']",
+    target: `${GAME_TUTORIAL_ACTIVE_CARD_SELECTOR} [data-testid='game-question-theme']`,
   },
   {
+    icon: "i-lucide-message-circle-question-mark",
     key: "question",
-    target: "[data-testid='game-question-statement']",
+    target: `${GAME_TUTORIAL_ACTIVE_CARD_SELECTOR} [data-testid='game-question-statement']`,
   },
   {
+    icon: "i-lucide-lightbulb",
     key: "clues",
-    target: "[data-testid='game-question-body']",
+    target: `${GAME_TUTORIAL_ACTIVE_CARD_SELECTOR} [data-testid='game-question-body']`,
   },
   {
+    icon: "i-lucide-gavel",
     key: "answer",
-    target: "[data-testid='game-question-answer']",
+    target: `${GAME_TUTORIAL_ACTIVE_CARD_SELECTOR} [data-testid='game-question-answer']`,
   },
   {
+    icon: "i-lucide-book-marked",
     key: "sources",
-    target: "[data-testid='game-question-source-links']",
+    target: `${GAME_TUTORIAL_ACTIVE_CARD_SELECTOR} [data-testid='game-question-source-links']`,
   },
   {
+    icon: "i-lucide-arrow-right",
     key: "continue",
     target: "[data-testid='game-next-question-button']",
   },
   {
+    icon: "i-lucide-panel-left",
     key: "sidebar",
     target: "[data-testid='game-sidebar-toggle-button']",
   },
-] as const;
+];
 
-export { GAME_TUTORIAL_HIGHLIGHT_CLASS, GAME_TUTORIAL_STEPS };
+export {
+  GAME_TUTORIAL_HIGHLIGHT_CLASS,
+  GAME_TUTORIAL_POPOVER_MARGIN,
+  GAME_TUTORIAL_POPOVER_MIN_HEIGHT,
+  GAME_TUTORIAL_POPOVER_OFFSET,
+  GAME_TUTORIAL_POPOVER_UI,
+  GAME_TUTORIAL_STEPS,
+};

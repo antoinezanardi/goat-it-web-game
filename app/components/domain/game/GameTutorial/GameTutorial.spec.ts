@@ -5,31 +5,29 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
+import type { GameTutorialPopoverContent } from "#components";
 import { GameTutorial } from "#components";
 
 import type { GameTutorialProps } from "@/components/domain/game/GameTutorial/game-tutorial.types";
-import { GAME_TUTORIAL_HIGHLIGHT_CLASS } from "@/components/domain/game/GameTutorial/game-tutorial.constants";
+import {
+  GAME_TUTORIAL_HIGHLIGHT_CLASS,
+  GAME_TUTORIAL_STEPS,
+} from "@/components/domain/game/GameTutorial/game-tutorial.constants";
 
-const GAME_TUTORIAL_TARGET_TEST_IDS = [
+const GAME_TUTORIAL_IN_CARD_TARGET_TEST_IDS = [
   "game-question-theme",
   "game-question-statement",
   "game-question-body",
   "game-question-answer",
   "game-question-source-links",
+] as const;
+
+const GAME_TUTORIAL_PAGE_TARGET_TEST_IDS = [
   "game-next-question-button",
   "game-sidebar-toggle-button",
 ] as const;
 
-const GAME_TUTORIAL_STEP_KEYS = [
-  "welcome",
-  "framework",
-  "question",
-  "clues",
-  "answer",
-  "sources",
-  "continue",
-  "sidebar",
-] as const;
+const GAME_TUTORIAL_STEP_KEYS = GAME_TUTORIAL_STEPS.map(step => step.key);
 
 describe("GameTutorial Component", () => {
   const defaultGameTutorialProps: GameTutorialProps = {
@@ -47,8 +45,23 @@ describe("GameTutorial Component", () => {
     });
   }
 
+  function createGameTutorialCardTargets(cardTestId: "game-question" | "game-question-staged"): void {
+    const card = document.createElement("div");
+    card.dataset.testid = cardTestId;
+
+    for (const testId of GAME_TUTORIAL_IN_CARD_TARGET_TEST_IDS) {
+      const element = document.createElement("div");
+      element.dataset.testid = testId;
+      card.append(element);
+    }
+    document.body.append(card);
+  }
+
   function createGameTutorialTargets(): void {
-    for (const testId of GAME_TUTORIAL_TARGET_TEST_IDS) {
+    createGameTutorialCardTargets("game-question-staged");
+    createGameTutorialCardTargets("game-question");
+
+    for (const testId of GAME_TUTORIAL_PAGE_TARGET_TEST_IDS) {
       const element = document.createElement("div");
       element.dataset.testid = testId;
       document.body.append(element);
@@ -66,6 +79,28 @@ describe("GameTutorial Component", () => {
       throw new Error(`Game tutorial element "${testId}" was not found.`);
     }
     return element;
+  }
+
+  function getActiveCardElement(testId: string): HTMLElement {
+    const element = document.querySelector<HTMLElement>(`[data-testid='game-question'] [data-testid='${testId}']`);
+
+    if (element === null) {
+      throw new Error(`Active game question element "${testId}" was not found.`);
+    }
+    return element;
+  }
+
+  function getStagedCardElement(testId: string): HTMLElement {
+    const element = document.querySelector<HTMLElement>(`[data-testid='game-question-staged'] [data-testid='${testId}']`);
+
+    if (element === null) {
+      throw new Error(`Staged game question element "${testId}" was not found.`);
+    }
+    return element;
+  }
+
+  function getGameTutorialPopoverContent(): VueWrapper<InstanceType<typeof GameTutorialPopoverContent>> {
+    return wrapper.findComponent<typeof GameTutorialPopoverContent>("[data-testid='game-tutorial']");
   }
 
   async function startTour(): Promise<void> {
@@ -103,28 +138,60 @@ describe("GameTutorial Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
-  it("should not render the tutorial popover content when isActive is false.", () => {
-    expect(queryGameTutorialElement("game-tutorial")).toBeNull();
+  it.each<{ testId: string }>([
+    { testId: "game-tutorial" },
+    { testId: "game-tutorial-backdrop" },
+  ])("should not render the \"$testId\" element when isActive is false.", ({ testId }) => {
+    expect(queryGameTutorialElement(testId)).toBeNull();
   });
 
-  it("should not render the tutorial backdrop when isActive is false.", () => {
-    expect(queryGameTutorialElement("game-tutorial-backdrop")).toBeNull();
-  });
-
-  it("should not emit end when mounted with isActive false.", () => {
-    expect(wrapper.emitted("end")).toBeUndefined();
-  });
-
-  it("should render the tutorial popover content when isActive becomes true.", async() => {
+  it.each<{ testId: string }>([
+    { testId: "game-tutorial" },
+    { testId: "game-tutorial-backdrop" },
+  ])("should render the \"$testId\" element when isActive becomes true.", async({ testId }) => {
     await startTour();
 
-    expect(queryGameTutorialElement("game-tutorial")).not.toBeNull();
+    expect(queryGameTutorialElement(testId)).not.toBeNull();
   });
 
-  it("should render the tutorial backdrop when isActive becomes true.", async() => {
+  it("should not emit tutorialEnd when mounted with isActive false.", () => {
+    expect(wrapper.emitted("tutorialEnd")).toBeUndefined();
+  });
+
+  it("should render the popover content component when the tour starts.", async() => {
     await startTour();
 
-    expect(queryGameTutorialElement("game-tutorial-backdrop")).not.toBeNull();
+    expect(getGameTutorialPopoverContent().exists()).toBe(true);
+  });
+
+  it("should pass the first step title to the popover content when the tour starts.", async() => {
+    await startTour();
+
+    expect(getGameTutorialPopoverContent().props("title")).toBe("game.interactiveTutorial.steps.welcome.title");
+  });
+
+  it("should pass the first step description to the popover content when the tour starts.", async() => {
+    await startTour();
+
+    expect(getGameTutorialPopoverContent().props("description")).toBe("game.interactiveTutorial.steps.welcome.description");
+  });
+
+  it("should pass the first step icon to the popover content when the tour starts.", async() => {
+    await startTour();
+
+    expect(getGameTutorialPopoverContent().props("icon")).toBe(GAME_TUTORIAL_STEPS[0]?.icon);
+  });
+
+  it("should pass hasPrev as false to the popover content when the first step is active.", async() => {
+    await startTour();
+
+    expect(getGameTutorialPopoverContent().props("hasPrev")).toBe(false);
+  });
+
+  it("should pass hasNext as true to the popover content when the first step is active.", async() => {
+    await startTour();
+
+    expect(getGameTutorialPopoverContent().props("hasNext")).toBe(true);
   });
 
   it("should render the first step title when the tour starts.", async() => {
@@ -193,11 +260,11 @@ describe("GameTutorial Component", () => {
     expect(queryGameTutorialElement("game-tutorial")).toBeNull();
   });
 
-  it("should emit end when the Skip button is clicked.", async() => {
+  it("should emit tutorialEnd when the Skip button is clicked.", async() => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-skip");
 
-    expect(wrapper.emitted("end")).toStrictEqual([[]]);
+    expect(wrapper.emitted("tutorialEnd")).toStrictEqual([[]]);
   });
 
   it("should hide the tutorial when the Finish button is clicked on the last step.", async() => {
@@ -208,12 +275,12 @@ describe("GameTutorial Component", () => {
     expect(queryGameTutorialElement("game-tutorial")).toBeNull();
   });
 
-  it("should emit end when the Finish button is clicked on the last step.", async() => {
+  it("should emit tutorialEnd when the Finish button is clicked on the last step.", async() => {
     await startTour();
     await collectRenderedStepTitles();
     await clickGameTutorialButton("game-tutorial-finish");
 
-    expect(wrapper.emitted("end")).toStrictEqual([[]]);
+    expect(wrapper.emitted("tutorialEnd")).toStrictEqual([[]]);
   });
 
   it("should hide the tutorial when isActive becomes false after it started.", async() => {
@@ -224,15 +291,22 @@ describe("GameTutorial Component", () => {
     expect(queryGameTutorialElement("game-tutorial")).toBeNull();
   });
 
-  it("should highlight the second step target when navigating forward.", async() => {
+  it("should highlight the active card target when navigating forward.", async() => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(getGameTutorialElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(true);
+    expect(getActiveCardElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(true);
+  });
+
+  it("should not highlight the staged card target when navigating forward.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(getStagedCardElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
   });
 
   it("should open the tutorial above the target when the target is near the bottom of the viewport.", async() => {
-    getGameTutorialElement("game-question-statement").getBoundingClientRect = (): DOMRect => ({
+    getActiveCardElement("game-question-statement").getBoundingClientRect = (): DOMRect => ({
       bottom: 700,
       height: 100,
       left: 0,
@@ -261,7 +335,7 @@ describe("GameTutorial Component", () => {
     await clickGameTutorialButton("game-tutorial-next");
     await clickGameTutorialButton("game-tutorial-skip");
 
-    expect(getGameTutorialElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
+    expect(getActiveCardElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
   });
 
   it("should remove the target highlight when the component is unmounted while a targeted step is active.", async() => {
@@ -269,6 +343,6 @@ describe("GameTutorial Component", () => {
     await clickGameTutorialButton("game-tutorial-next");
     wrapper.unmount();
 
-    expect(getGameTutorialElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
+    expect(getActiveCardElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
   });
 });

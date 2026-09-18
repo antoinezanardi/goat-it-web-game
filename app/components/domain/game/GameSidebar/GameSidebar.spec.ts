@@ -155,7 +155,7 @@ describe("GameSidebar Component", () => {
   });
 
   it("should render the graduation cap icon on the tutorial link when mounted.", () => {
-    expect(findLinkByTestId("game-sidebar-tutorial-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-graduation-cap");
+    expect(findLinkByTestId("game-sidebar-tutorial-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-compass");
   });
 
   it("should point the tutorial link to the current page when mounted.", () => {

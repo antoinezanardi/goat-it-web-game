@@ -16,17 +16,12 @@ function getGameTourTitle(page: Page): Locator {
   return page.getByTestId("game-tutorial-title");
 }
 
-function getGameTourBody(page: Page): Locator {
-  return page.getByTestId("game-tutorial-description");
-}
-
 function getGameTourButton(page: Page, name: string): Locator {
-  return getGameTourTooltip(page).getByRole("button", { name, exact: true });
+  return getGameTourTooltip(page).getByTestId(`game-tutorial-${name.toLowerCase()}`);
 }
 
 export {
   getGameTourBackdrop,
-  getGameTourBody,
   getGameTourButton,
   getGameTourTitle,
   getGameTourTooltip,

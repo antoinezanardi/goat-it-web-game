@@ -1,15 +1,19 @@
 <script lang="ts" setup>
+import { GameTutorialPopoverContent } from "#components";
+
 import type { GameTutorialEmits, GameTutorialProps } from "@/components/domain/game/GameTutorial/game-tutorial.types";
-import { GAME_TUTORIAL_HIGHLIGHT_CLASS, GAME_TUTORIAL_STEPS } from "@/components/domain/game/GameTutorial/game-tutorial.constants";
+import {
+  GAME_TUTORIAL_HIGHLIGHT_CLASS,
+  GAME_TUTORIAL_POPOVER_MARGIN,
+  GAME_TUTORIAL_POPOVER_MIN_HEIGHT,
+  GAME_TUTORIAL_POPOVER_OFFSET,
+  GAME_TUTORIAL_POPOVER_UI,
+  GAME_TUTORIAL_STEPS,
+} from "@/components/domain/game/GameTutorial/game-tutorial.constants";
 
 const props = defineProps<GameTutorialProps>();
 const emit = defineEmits<GameTutorialEmits>();
 const { t } = useI18n();
-
-const GAME_TUTORIAL_POPOVER_UI = { content: "z-50" };
-const GAME_TUTORIAL_POPOVER_MARGIN = 16;
-const GAME_TUTORIAL_POPOVER_MIN_HEIGHT = 160;
-const GAME_TUTORIAL_POPOVER_OFFSET = 12;
 
 const popoverMaxHeight = ref<string>("none");
 const popoverSide = ref<"bottom" | "top">("bottom");
@@ -18,11 +22,16 @@ const popoverContent = computed(() => ({
   sideOffset: GAME_TUTORIAL_POPOVER_OFFSET,
 }));
 
-const tourSteps = computed(() => GAME_TUTORIAL_STEPS.map(step => ({
-  description: t(`game.interactiveTutorial.steps.${step.key}.description`),
-  target: step.target === undefined ? undefined : (): Element | null => document.querySelector(step.target),
-  title: t(`game.interactiveTutorial.steps.${step.key}.title`),
-})));
+const tourSteps = computed(() => GAME_TUTORIAL_STEPS.map(step => {
+  const { target } = step;
+
+  return {
+    icon: step.icon,
+    target: target === undefined ? undefined : (): Element | null => document.querySelector(target),
+    title: t(`game.interactiveTutorial.steps.${step.key}.title`),
+    description: t(`game.interactiveTutorial.steps.${step.key}.description`),
+  };
+}));
 
 const {
   current,
@@ -86,7 +95,7 @@ watch([open, index], updateTourTarget);
 
 watch(open, isOpen => {
   if (!isOpen) {
-    emit("end");
+    emit("tutorialEnd");
   }
 });
 
@@ -97,11 +106,13 @@ onBeforeUnmount(() => {
 
 <template>
   <div>
-    <div
-      v-if="open"
-      class="bg-black/60 fixed inset-0 z-40"
-      data-testid="game-tutorial-backdrop"
-    />
+    <Transition name="fade">
+      <div
+        v-if="open"
+        class="bg-black/60 fixed inset-0 z-40"
+        data-testid="game-tutorial-backdrop"
+      />
+    </Transition>
 
     <UPopover
       :content="popoverContent"
@@ -111,66 +122,18 @@ onBeforeUnmount(() => {
       :ui="GAME_TUTORIAL_POPOVER_UI"
     >
       <template #content>
-        <div
-          class="flex flex-col gap-4 max-w-sm overflow-y-auto"
-          data-testid="game-tutorial"
-          :style="{ 'maxHeight': popoverMaxHeight }"
-        >
-          <div class="flex flex-col gap-1">
-            <h2
-              class="font-semibold text-fg-primary"
-              data-testid="game-tutorial-title"
-            >
-              {{ current?.title }}
-            </h2>
-
-            <p
-              class="text-muted text-sm"
-              data-testid="game-tutorial-description"
-            >
-              {{ current?.description }}
-            </p>
-          </div>
-
-          <div class="flex gap-2 justify-end">
-            <UButton
-              v-if="hasPrev"
-              color="neutral"
-              data-testid="game-tutorial-back"
-              variant="soft"
-              @click="prev"
-            >
-              {{ t("game.interactiveTutorial.controls.back") }}
-            </UButton>
-
-            <UButton
-              color="neutral"
-              data-testid="game-tutorial-skip"
-              variant="ghost"
-              @click="finish"
-            >
-              {{ t("game.interactiveTutorial.controls.skip") }}
-            </UButton>
-
-            <UButton
-              v-if="hasNext"
-              key="u-button-2"
-              data-testid="game-tutorial-next"
-              @click="next"
-            >
-              {{ t("game.interactiveTutorial.controls.next") }}
-            </UButton>
-
-            <UButton
-              v-else
-              key="u-button-3"
-              data-testid="game-tutorial-finish"
-              @click="finish"
-            >
-              {{ t("game.interactiveTutorial.controls.finish") }}
-            </UButton>
-          </div>
-        </div>
+        <GameTutorialPopoverContent
+          :description="current?.description"
+          :has-next="hasNext"
+          :has-prev="hasPrev"
+          :icon="current?.icon"
+          :max-height="popoverMaxHeight"
+          :title="current?.title"
+          @back="prev"
+          @finish="finish"
+          @next="next"
+          @skip="finish"
+        />
       </template>
     </UPopover>
   </div>

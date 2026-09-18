@@ -53,7 +53,7 @@ function onStartTutorial(): void {
         >
           <UIcon
             class="size-4"
-            name="i-lucide-graduation-cap"
+            name="i-lucide-compass"
           />
           {{ t("game.interactiveTutorial.label") }}
         </ULink>

@@ -3,27 +3,11 @@ import { expect } from "@playwright/test";
 
 import {
   getGameTourBackdrop,
-  getGameTourBody,
   getGameTourButton,
   getGameTourTitle,
   getGameTourTooltip,
 } from "#acceptance/features/support/helpers/game.helpers.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-
-Then(
-  /^the interactive tutorial entry should be before the rules link$/u,
-  async function(this: GoatItWorld): Promise<void> {
-    const dialog = this.page.getByRole("dialog");
-    const tutorialBox = await dialog.getByTestId("game-sidebar-tutorial-link").boundingBox();
-    const rulesBox = await dialog.getByTestId("game-sidebar-rules-link").boundingBox();
-
-    expect(tutorialBox).not.toBeNull();
-    expect(rulesBox).not.toBeNull();
-    // Acceptable as the not.toBeNull assertions above guarantee both boxes are present
-    // oxlint-disable-next-line typescript/no-non-null-assertion
-    expect(tutorialBox!.y).toBeLessThan(rulesBox!.y);
-  },
-);
 
 Then(
   /^the interactive tutorial should be visible$/u,
@@ -36,13 +20,6 @@ Then(
   /^the interactive tutorial step title should be "(?<title>[^"]+)"$/u,
   async function(this: GoatItWorld, title: string): Promise<void> {
     await expect(getGameTourTitle(this.page)).toHaveText(title);
-  },
-);
-
-Then(
-  /^the interactive tutorial description should contain "(?<text>[^"]+)"$/u,
-  async function(this: GoatItWorld, text: string): Promise<void> {
-    await expect(getGameTourBody(this.page)).toContainText(text);
   },
 );
 

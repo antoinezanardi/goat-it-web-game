@@ -115,7 +115,7 @@ function onSidebarOpenChange(open: boolean): void {
     <GameTutorial
       v-if="isTutorialAvailable"
       :is-active="isTourRequested"
-      @end="onTourEnd"
+      @tutorial-end="onTourEnd"
     />
 
     <Transition
