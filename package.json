@@ -133,7 +133,7 @@
     "nuxt-site-config": "^4.2.3",
     "nuxtseo-layer-devtools": "^5.3.16",
     "oxlint": "^1.83.0",
-    "oxlint-tsgolint": "^7.0.2001",
+    "oxlint-tsgolint": "^7.0.2002",
     "pinia": "^4.0.3",
     "playwright": "^1.63.0",
     "playwright-core": "^1.63.0",
