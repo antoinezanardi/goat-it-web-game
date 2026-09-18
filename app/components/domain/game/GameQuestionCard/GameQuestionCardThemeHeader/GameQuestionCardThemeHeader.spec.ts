@@ -54,6 +54,10 @@ describe("GameQuestionCardThemeHeader Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
+  it("should render the header element with its testid when mounted.", () => {
+    expect(wrapper.find("header[data-testid='game-question-header']").exists()).toBe(true);
+  });
+
   it("should render the theme label when mounted.", () => {
     expect(wrapper.text()).toContain("Histoire");
   });

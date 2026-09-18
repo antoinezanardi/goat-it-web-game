@@ -11,6 +11,49 @@
     "backToHome": "Zurück zur Startseite",
     "leaveConfirmTitle": "Spiel verlassen?",
     "leaveConfirmDescription": "Bist du sicher, dass du das aktuelle Spiel verlassen möchtest?",
-    "leave": "Verlassen"
+    "leave": "Verlassen",
+    "interactiveTutorial": {
+      "label": "Interaktives Tutorial",
+      "controls": {
+        "back": "Zurück",
+        "next": "Weiter",
+        "skip": "Tutorial überspringen",
+        "finish": "Beenden"
+      },
+      "steps": {
+        "welcome": {
+          "title": "Du kennst die Antwort. Sie müssen sie finden!",
+          "description": "Willkommen in der Rolle des Spielleiters. Du kennst die Frage und ihre Antwort, die Spieler nicht. Lies die Karte laut vor, höre dir ihre Vermutungen an, beantworte ihre Fragen und führe sie Schritt für Schritt zur Lösung. Deine Rolle ist nicht, sie in die Irre zu führen, sondern eine gute Ermittlung zu gestalten."
+        },
+        "framework": {
+          "title": "Setze den Rahmen der Ermittlung",
+          "description": "Bevor du die Frage stellst, kündige den Spielern Thema, Kategorie und Schwierigkeit an. Diese Informationen geben ihnen einen ersten Rahmen zum Nachdenken und lenken ihre Vermutungen. Die Schwierigkeit zeigt lediglich, wie schwer die Antwort zu erschließen sein kann: Sie ändert weder die Regeln noch die Punktzahl."
+        },
+        "question": {
+          "title": "Starte die Ermittlung",
+          "description": "Lies die Frage laut vor und lass dann die Spieler die Ermittlung führen. Sie können so viele Fragen stellen, wie sie möchten, um die Möglichkeiten einzugrenzen. Antworte nur mit Ja, Nein oder indem du dich zwischen zwei Vorschlägen entscheidest. Eine falsche Spur ist kein Fehlschlag: Jede Antwort hilft den Spielern, Möglichkeiten auszuschließen und der Lösung näher zu kommen."
+        },
+        "clues": {
+          "title": "Deine Werkzeuge, um sie zu führen",
+          "description": "Kontext und Kuriositäten sind dein Werkzeugkasten für die Ermittlung. Nutze sie, um die Antwort besser zu verstehen, eine Spur zu entscheiden oder eine genauere Frage zu beantworten. Wenn die Spieler feststecken, kannst du sie auch nutzen, um einen Hinweis zu geben, ohne die Lösung direkt zu verraten. Bewahre dir die aufschlussreichsten Informationen für den richtigen Moment auf."
+        },
+        "answer": {
+          "title": "Du bestätigst die Antwort",
+          "description": "Die Antwort ist deine Referenz: Halte sie geheim, bis die Spieler glauben, sie gefunden zu haben. Sie müssen nicht genau die Worte der Karte wiederholen: Wenn ihr Vorschlag dem gesuchten Konzept entspricht, ist es gewonnen! Als Spielleiter entscheidest du, wann die Ermittlung gelöst ist."
+        },
+        "sources": {
+          "title": "Enthülle die Geschichte hinter der Antwort",
+          "description": "Sobald die Lösung gefunden ist, enthülle die Antwort und erzähle, was hinter der Frage steckt. Kontext und Kuriositäten helfen dir, diesen Moment zu bereichern und die überraschendsten Details zu teilen. Die Quellen sind dazu da, das Thema zu vertiefen, eine Information zu überprüfen oder die Fragen zu beantworten, die nach der Auflösung aufkommen."
+        },
+        "continue": {
+          "title": "Bereit für die nächste Ermittlung?",
+          "description": "Die Ermittlung ist vorbei? Gehe zur nächsten Frage über, um das Spiel fortzusetzen. Du kannst die Rolle des Spielleiters auch an einen anderen Spieler weitergeben: So kann jeder abwechselnd Rätsel präsentieren. Und wenn du die vorherige Karte noch einmal ansehen möchtest, nutze Zurück, wenn es verfügbar ist."
+        },
+        "sidebar": {
+          "title": "Alles ist in Reichweite",
+          "description": "Die Seitenleiste gibt dir Zugriff auf die Einstellungen und Optionen des Spiels sowie auf die vollständigen Regeln und dieses Tutorial. Du musst dir jetzt nicht alles merken: Du kannst jederzeit hierher zurückkehren."
+        }
+      }
+    }
   }
 }

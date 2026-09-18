@@ -11,6 +11,10 @@ const { t } = useI18n();
 function onUpdateOpen(value: boolean): void {
   emit("update:open", value);
 }
+
+function onStartTutorial(): void {
+  emit("startTutorial");
+}
 </script>
 
 <template>
@@ -40,6 +44,19 @@ function onUpdateOpen(value: boolean): void {
 
     <template #body>
       <div class="flex flex-col gap-3">
+        <ULink
+          v-if="props.isTutorialAvailable"
+          class="flex gap-1.5 items-center"
+          data-testid="game-sidebar-tutorial-link"
+          @click="onStartTutorial"
+        >
+          <UIcon
+            class="size-4"
+            name="i-lucide-compass"
+          />
+          {{ t("game.interactiveTutorial.label") }}
+        </ULink>
+
         <ULink
           class="flex gap-1.5 items-center"
           data-testid="game-sidebar-rules-link"
