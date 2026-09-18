@@ -1,4 +1,4 @@
-const GAME_TUTORIAL_NAME = "game-tutorial";
+const GAME_TUTORIAL_HIGHLIGHT_CLASS = "game-tutorial-highlight";
 
 const GAME_TUTORIAL_STEPS = [
   {
@@ -35,4 +35,4 @@ const GAME_TUTORIAL_STEPS = [
   },
 ] as const;
 
-export { GAME_TUTORIAL_NAME, GAME_TUTORIAL_STEPS };
+export { GAME_TUTORIAL_HIGHLIGHT_CLASS, GAME_TUTORIAL_STEPS };

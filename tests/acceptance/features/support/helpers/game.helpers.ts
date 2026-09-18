@@ -5,19 +5,19 @@ function getVisibleGameQuestionCard(page: Page): Locator {
 }
 
 function getGameTourTooltip(page: Page): Locator {
-  return page.locator("#nt-tooltip");
+  return page.getByTestId("game-tutorial");
 }
 
 function getGameTourBackdrop(page: Page): Locator {
-  return page.locator("#nt-backdrop");
+  return page.getByTestId("game-tutorial-backdrop");
 }
 
 function getGameTourTitle(page: Page): Locator {
-  return page.locator("#nt-tooltip-title");
+  return page.getByTestId("game-tutorial-title");
 }
 
 function getGameTourBody(page: Page): Locator {
-  return page.locator("#nt-tooltip-body");
+  return page.getByTestId("game-tutorial-description");
 }
 
 function getGameTourButton(page: Page, name: string): Locator {

@@ -67,6 +67,6 @@ Then(
     const sidebarToggle = this.page.getByTestId("game-sidebar-toggle-button");
 
     await expect(sidebarToggle).toBeVisible();
-    await expect(sidebarToggle).toHaveClass(/nt-highlight/u);
+    await expect(sidebarToggle).toHaveClass(/game-tutorial-highlight/u);
   },
 );

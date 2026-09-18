@@ -1,39 +1,35 @@
 import type { VueWrapper } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import type { Mock } from "vitest";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { nextTick } from "vue";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
-import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
 import { GameTutorial } from "#components";
 
 import type { GameTutorialProps } from "@/components/domain/game/GameTutorial/game-tutorial.types";
+import { GAME_TUTORIAL_HIGHLIGHT_CLASS } from "@/components/domain/game/GameTutorial/game-tutorial.constants";
 
-let resetTourMock: Mock<() => Promise<void>>;
+const GAME_TUTORIAL_TARGET_TEST_IDS = [
+  "game-question-theme",
+  "game-question-statement",
+  "game-question-body",
+  "game-question-answer",
+  "game-question-source-links",
+  "game-next-question-button",
+  "game-sidebar-toggle-button",
+] as const;
 
-let endTourMock: Mock<() => Promise<void>>;
-
-const VTourStub = {
-  name: "VTour",
-  props: {
-    name: { type: String, default: "" },
-    steps: { type: Array, default: (): unknown[] => [] },
-    highlight: { type: Boolean, default: false },
-    backdrop: { type: Boolean, default: false },
-    nextButton: { type: Object, default: undefined },
-    prevButton: { type: Object, default: undefined },
-    skipButton: { type: Object, default: undefined },
-    finishButton: { type: Object, default: undefined },
-  },
-  emits: ["onTourEnd"],
-  setup: (): { endTour: Mock<() => Promise<void>>; resetTour: Mock<() => Promise<void>> } => ({
-    endTour: endTourMock,
-    resetTour: resetTourMock,
-  }),
-  template: "<div/>",
-};
+const GAME_TUTORIAL_STEP_KEYS = [
+  "welcome",
+  "framework",
+  "question",
+  "clues",
+  "answer",
+  "sources",
+  "continue",
+  "sidebar",
+] as const;
 
 describe("GameTutorial Component", () => {
   const defaultGameTutorialProps: GameTutorialProps = {
@@ -46,20 +42,55 @@ describe("GameTutorial Component", () => {
     return mountSuspended(GameTutorial, {
       props: defaultGameTutorialProps,
       shallow: false,
-      global: { stubs: { VTour: VTourStub } },
+      attachTo: document.body,
       ...options,
     });
   }
 
-  // Acceptable as return type is inferred from findComponent and explicit annotation causes typecheck issues with VueWrapper generics
-  // oxlint-disable-next-line typescript/explicit-function-return-type
-  function getGameTourComponent() {
-    return wrapper.findComponent({ name: "VTour" });
+  function createGameTutorialTargets(): void {
+    for (const testId of GAME_TUTORIAL_TARGET_TEST_IDS) {
+      const element = document.createElement("div");
+      element.dataset.testid = testId;
+      document.body.append(element);
+    }
+  }
+
+  function queryGameTutorialElement(testId: string): Element | null {
+    return document.body.querySelector(`[data-testid='${testId}']`);
+  }
+
+  function getGameTutorialElement(testId: string): HTMLElement {
+    const element = document.body.querySelector<HTMLElement>(`[data-testid='${testId}']`);
+
+    if (element === null) {
+      throw new Error(`Game tutorial element "${testId}" was not found.`);
+    }
+    return element;
+  }
+
+  async function startTour(): Promise<void> {
+    await wrapper.setProps({ isActive: true });
+    await flushPromises();
+  }
+
+  async function clickGameTutorialButton(testId: string): Promise<void> {
+    getGameTutorialElement(testId).click();
+    await flushPromises();
+  }
+
+  async function collectRenderedStepTitles(index = 0, titles: (string | null)[] = []): Promise<(string | null)[]> {
+    titles.push(getGameTutorialElement("game-tutorial-title").textContent);
+
+    if (index === GAME_TUTORIAL_STEP_KEYS.length - 1) {
+      return titles;
+    }
+    await clickGameTutorialButton("game-tutorial-next");
+
+    return collectRenderedStepTitles(index + 1, titles);
   }
 
   beforeEach(async() => {
-    resetTourMock = vi.fn<() => Promise<void>>();
-    endTourMock = vi.fn<() => Promise<void>>();
+    createGameTutorialTargets();
     wrapper = await mountGameTutorial();
   });
 
@@ -72,110 +103,172 @@ describe("GameTutorial Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
-  it("should pass the game-tutorial name to VTour when mounted.", () => {
-    expect(getGameTourComponent().props("name")).toBe("game-tutorial");
+  it("should not render the tutorial popover content when isActive is false.", () => {
+    expect(queryGameTutorialElement("game-tutorial")).toBeNull();
   });
 
-  it("should pass the eight fixed tour targets in order to VTour when mounted.", () => {
-    const steps = getGameTourComponent().props("steps") as { target: string | undefined }[];
-
-    expect(steps.map(step => step.target)).toStrictEqual([
-      undefined,
-      "[data-testid='game-question-theme']",
-      "[data-testid='game-question-statement']",
-      "[data-testid='game-question-body']",
-      "[data-testid='game-question-answer']",
-      "[data-testid='game-question-source-links']",
-      "[data-testid='game-next-question-button']",
-      "[data-testid='game-sidebar-toggle-button']",
-    ]);
+  it("should not render the tutorial backdrop when isActive is false.", () => {
+    expect(queryGameTutorialElement("game-tutorial-backdrop")).toBeNull();
   });
 
-  it("should pass the localized step titles to VTour when mounted.", () => {
-    const steps = getGameTourComponent().props("steps") as { title: string }[];
-
-    expect(steps.map(step => step.title)).toStrictEqual([
-      "game.interactiveTutorial.steps.welcome.title",
-      "game.interactiveTutorial.steps.framework.title",
-      "game.interactiveTutorial.steps.question.title",
-      "game.interactiveTutorial.steps.clues.title",
-      "game.interactiveTutorial.steps.answer.title",
-      "game.interactiveTutorial.steps.sources.title",
-      "game.interactiveTutorial.steps.continue.title",
-      "game.interactiveTutorial.steps.sidebar.title",
-    ]);
+  it("should not emit end when mounted with isActive false.", () => {
+    expect(wrapper.emitted("end")).toBeUndefined();
   });
 
-  it("should pass the localized step descriptions to VTour when mounted.", () => {
-    const steps = getGameTourComponent().props("steps") as { body: string }[];
+  it("should render the tutorial popover content when isActive becomes true.", async() => {
+    await startTour();
 
-    expect(steps.map(step => step.body)).toStrictEqual([
-      "game.interactiveTutorial.steps.welcome.description",
-      "game.interactiveTutorial.steps.framework.description",
-      "game.interactiveTutorial.steps.question.description",
-      "game.interactiveTutorial.steps.clues.description",
-      "game.interactiveTutorial.steps.answer.description",
-      "game.interactiveTutorial.steps.sources.description",
-      "game.interactiveTutorial.steps.continue.description",
-      "game.interactiveTutorial.steps.sidebar.description",
-    ]);
+    expect(queryGameTutorialElement("game-tutorial")).not.toBeNull();
   });
 
-  it("should pass the localized next button label to VTour when mounted.", () => {
-    expect(getGameTourComponent().props("nextButton")).toStrictEqual({ label: "game.interactiveTutorial.controls.next" });
+  it("should render the tutorial backdrop when isActive becomes true.", async() => {
+    await startTour();
+
+    expect(queryGameTutorialElement("game-tutorial-backdrop")).not.toBeNull();
   });
 
-  it("should pass the localized previous button label to VTour when mounted.", () => {
-    expect(getGameTourComponent().props("prevButton")).toStrictEqual({ label: "game.interactiveTutorial.controls.back" });
+  it("should render the first step title when the tour starts.", async() => {
+    await startTour();
+
+    expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
   });
 
-  it("should pass the localized skip button label to VTour when mounted.", () => {
-    expect(getGameTourComponent().props("skipButton")).toStrictEqual({ label: "game.interactiveTutorial.controls.skip" });
+  it("should render the first step description when the tour starts.", async() => {
+    await startTour();
+
+    expect(getGameTutorialElement("game-tutorial-description").textContent).toBe("game.interactiveTutorial.steps.welcome.description");
   });
 
-  it("should pass the localized finish button label to VTour when mounted.", () => {
-    expect(getGameTourComponent().props("finishButton")).toStrictEqual({ label: "game.interactiveTutorial.controls.finish" });
+  it("should render the eight steps in order when navigating forward with Next.", async() => {
+    await startTour();
+
+    await expect(collectRenderedStepTitles()).resolves.toStrictEqual(GAME_TUTORIAL_STEP_KEYS.map(key => `game.interactiveTutorial.steps.${key}.title`));
   });
 
-  it("should reset the tour when isActive becomes true.", async() => {
-    await wrapper.setProps({ isActive: true });
-    await nextTick();
+  it("should not render the Back button when the first step is active.", async() => {
+    await startTour();
 
-    expect(resetTourMock).toHaveBeenCalledExactlyOnceWith();
+    expect(queryGameTutorialElement("game-tutorial-back")).toBeNull();
   });
 
-  it("should not end a tour that never started when isActive is false on mount.", async() => {
-    await nextTick();
+  it("should render the Next button when the first step is active.", async() => {
+    await startTour();
 
-    expect(endTourMock).not.toHaveBeenCalled();
+    expect(queryGameTutorialElement("game-tutorial-next")).not.toBeNull();
   });
 
-  it("should end the tour when isActive becomes false after it started.", async() => {
-    await wrapper.setProps({ isActive: true });
-    await nextTick();
-    await wrapper.setProps({ isActive: false });
-    await nextTick();
+  it("should render the Back button when the second step is active.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
 
-    expect(endTourMock).toHaveBeenCalledExactlyOnceWith();
+    expect(queryGameTutorialElement("game-tutorial-back")).not.toBeNull();
   });
 
-  it("should emit end when VTour emits onTourEnd.", () => {
-    getWrapperVm(getGameTourComponent()).$emit("onTourEnd");
+  it("should go back to the previous step when the Back button is clicked.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-back");
+
+    expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
+  });
+
+  it("should render the Finish button when the last step is active.", async() => {
+    await startTour();
+    await collectRenderedStepTitles();
+
+    expect(queryGameTutorialElement("game-tutorial-finish")).not.toBeNull();
+  });
+
+  it("should not render the Next button when the last step is active.", async() => {
+    await startTour();
+    await collectRenderedStepTitles();
+
+    expect(queryGameTutorialElement("game-tutorial-next")).toBeNull();
+  });
+
+  it("should hide the tutorial when the Skip button is clicked.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(queryGameTutorialElement("game-tutorial")).toBeNull();
+  });
+
+  it("should emit end when the Skip button is clicked.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-skip");
 
     expect(wrapper.emitted("end")).toStrictEqual([[]]);
   });
 
-  it("should end the tour when the component is unmounted while a tour is running.", async() => {
-    await wrapper.setProps({ isActive: true });
-    await nextTick();
-    wrapper.unmount();
+  it("should hide the tutorial when the Finish button is clicked on the last step.", async() => {
+    await startTour();
+    await collectRenderedStepTitles();
+    await clickGameTutorialButton("game-tutorial-finish");
 
-    expect(endTourMock).toHaveBeenCalledExactlyOnceWith();
+    expect(queryGameTutorialElement("game-tutorial")).toBeNull();
   });
 
-  it("should not end any tour when the component is unmounted while none is running.", () => {
+  it("should emit end when the Finish button is clicked on the last step.", async() => {
+    await startTour();
+    await collectRenderedStepTitles();
+    await clickGameTutorialButton("game-tutorial-finish");
+
+    expect(wrapper.emitted("end")).toStrictEqual([[]]);
+  });
+
+  it("should hide the tutorial when isActive becomes false after it started.", async() => {
+    await startTour();
+    await wrapper.setProps({ isActive: false });
+    await flushPromises();
+
+    expect(queryGameTutorialElement("game-tutorial")).toBeNull();
+  });
+
+  it("should highlight the second step target when navigating forward.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(getGameTutorialElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(true);
+  });
+
+  it("should open the tutorial above the target when the target is near the bottom of the viewport.", async() => {
+    getGameTutorialElement("game-question-statement").getBoundingClientRect = (): DOMRect => ({
+      bottom: 700,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 600,
+      width: 100,
+      x: 0,
+      y: 600,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({ side: "top", sideOffset: 12 });
+  });
+
+  it("should not highlight any target when the centered first step is active.", async() => {
+    await startTour();
+
+    expect(document.querySelectorAll(`.${GAME_TUTORIAL_HIGHLIGHT_CLASS}`)).toHaveLength(0);
+  });
+
+  it("should remove the target highlight when the tour ends.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(getGameTutorialElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
+  });
+
+  it("should remove the target highlight when the component is unmounted while a targeted step is active.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
     wrapper.unmount();
 
-    expect(endTourMock).not.toHaveBeenCalled();
+    expect(getGameTutorialElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
   });
 });

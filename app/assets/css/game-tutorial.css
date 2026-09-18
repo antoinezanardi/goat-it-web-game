@@ -1,0 +1,6 @@
+.game-tutorial-highlight {
+  z-index: 41;
+  outline: 2px solid var(--color-fg-secondary);
+  outline-offset: 6px;
+  border-radius: 8px;
+}
