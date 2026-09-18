@@ -22,36 +22,36 @@
       },
       "steps": {
         "welcome": {
-          "title": "Eres el Maestro del Juego",
-          "description": "Esta pantalla es tu guía privada: lee la pregunta en voz alta, dirige la investigación y mantén la respuesta oculta hasta que el grupo la encuentre. Los jugadores hacen preguntas y tú respondes Sí/No o ofreces dos opciones. Puedes dar pistas cuando se atasquen; el objetivo es que todos se diviertan."
+          "title": "Tú tienes la respuesta. ¡Ellos deben encontrarla!",
+          "description": "Bienvenido al papel de Maestro del Juego. Tú conoces la pregunta y su respuesta, los jugadores no. Lee la carta en voz alta, escucha sus hipótesis, responde a sus preguntas y guíalos poco a poco hacia la solución. Tu papel no es tenderles trampas, sino hacer vivir una buena investigación."
         },
         "framework": {
-          "title": "Marco de la pregunta",
-          "description": "Antes de que comience la investigación, anuncia el marco que aparece aquí: el tema, la categoría y la dificultad. La dificultad indica lo difícil que puede ser deducir la pregunta; no es una puntuación ni un temporizador."
+          "title": "Ambienta la investigación",
+          "description": "Antes de plantear la pregunta, anuncia a los jugadores el tema, la categoría y la dificultad. Esta información les da un primer marco para pensar y orientar sus hipótesis. La dificultad indica simplemente lo difícil que puede ser deducir la respuesta: no cambia ni las reglas ni la puntuación."
         },
         "question": {
-          "title": "Lee y reduce",
-          "description": "Lee esta pregunta en voz alta al grupo. Pueden investigar haciendo preguntas que respondas con Sí o No, u ofreciendo dos opciones cuando una pregunta sea demasiado abierta. Reformula cuando sea necesario: el objetivo es reducir las posibilidades, no exigir un formato concreto. Los errores son útiles porque ayudan al grupo a descartar hipótesis."
+          "title": "Lanza la investigación",
+          "description": "Lee la pregunta en voz alta y deja que los jugadores lleven la investigación. Pueden hacer tantas preguntas como quieran para reducir las posibilidades. Responde únicamente Sí, No o decidiendo entre dos propuestas. Una pista equivocada no es un fracaso: cada respuesta permite a los jugadores descartar posibilidades y acercarse a la solución."
         },
         "clues": {
-          "title": "Usa las pistas integradas",
-          "description": "Algunas preguntas incluyen Contexto y Curiosidades. Ábrelo cuando el grupo esté atascado o cuando necesites información extra para juzgar una pista, luego usa esos detalles para dar una pista medida. El grupo debe investigar a partir de la carta: nada de Google, Wikipedia o IA durante la partida. Reserva los detalles más reveladores para el momento adecuado."
+          "title": "Tus herramientas para guiarlos",
+          "description": "El Contexto y las Curiosidades son tu caja de herramientas para animar la investigación. Consúltalos para entender mejor la respuesta, decidir entre dos pistas o responder a una pregunta más concreta. Si los jugadores se bloquean, también puedes usarlos para darles una pista sin revelar directamente la solución. Reserva la información más reveladora para el momento adecuado."
         },
         "answer": {
-          "title": "Juzga la respuesta",
-          "description": "La Respuesta es tu referencia de solución. Mantenla oculta mientras el grupo investiga. Los jugadores no necesitan repetir la redacción exacta: acepta una formulación diferente cuando hayan entendido el concepto. Como Maestro del Juego, tú decides cuándo su respuesta está lo suficientemente cerca."
+          "title": "Te toca validar la respuesta",
+          "description": "La Respuesta es tu referencia: mantenla en secreto hasta que los jugadores crean haberla encontrado. No necesitan repetir exactamente las palabras de la carta: si su propuesta corresponde al concepto buscado, ¡es un acierto! Como Maestro del Juego, tú decides cuándo se resuelve la investigación."
         },
         "sources": {
-          "title": "Revela la historia y usa las fuentes",
-          "description": "Cuando el grupo llegue a la solución, revela la respuesta y la historia que la rodea. Usa Contexto y Curiosidades cuando estén disponibles para compartir el trasfondo y los detalles interesantes. Las Fuentes proporcionadas pueden ayudarte a responder preguntas más profundas sobre el tema: ábrelas durante la partida si es necesario."
+          "title": "Revela la historia detrás de la respuesta",
+          "description": "Una vez encontrada la solución, revela la respuesta y cuenta lo que se esconde detrás de la pregunta. El Contexto y las Curiosidades te permiten enriquecer este momento y compartir los detalles más sorprendentes. Las Fuentes están ahí para profundizar en el tema, verificar una información o responder a las preguntas que surgen tras el descubrimiento."
         },
         "continue": {
-          "title": "Continúa la partida",
-          "description": "Cuando la investigación termine, selecciona Siguiente pregunta para continuar. Si necesitas revisar la carta anterior, usa Anterior cuando esté disponible. También puedes ceder el rol de Maestro del Juego a otra persona antes de continuar."
+          "title": "¿Listo para la próxima investigación?",
+          "description": "¿Ha terminado la investigación? Pasa a la Siguiente pregunta para continuar la partida. También puedes ceder el papel de Maestro del Juego a otro jugador: así cada uno podrá presentar enigmas a su vez. Y si quieres volver a ver la carta anterior, usa Anterior cuando esté disponible."
         },
         "sidebar": {
-          "title": "Busca ayuda en el menú",
-          "description": "El menú lateral te da acceso a las opciones y ajustes disponibles, a las Reglas completas y a este tutorial interactivo siempre que quieras repasarlos."
+          "title": "Todo está al alcance",
+          "description": "El menú lateral te permite encontrar los ajustes y opciones de la partida, pero también las Reglas completas y este tutorial. No hace falta que lo recuerdes todo ahora: puedes volver aquí cuando quieras."
         }
       }
     }

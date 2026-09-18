@@ -22,36 +22,36 @@
       },
       "steps": {
         "welcome": {
-          "title": "Sei il Game Master",
-          "description": "Questa schermata è la tua guida privata: leggi la domanda ad alta voce, guida l'inchiesta e tieni la risposta nascosta finché il gruppo non la trova. I giocatori fanno domande e tu rispondi Sì/No o offri due scelte. Puoi dare indizi quando sono bloccati; l'obiettivo è che tutti si divertano."
+          "title": "Tu hai la risposta. Devono trovarla loro!",
+          "description": "Benvenuto nel ruolo di Game Master. Tu conosci la domanda e la sua risposta, i giocatori no. Leggi la carta ad alta voce, ascolta le loro ipotesi, rispondi alle loro domande e guidali passo dopo passo verso la soluzione. Il tuo ruolo non è tendere loro trappole, ma far vivere una buona indagine."
         },
         "framework": {
-          "title": "Quadro della domanda",
-          "description": "Prima che inizi l'inchiesta, annuncia il quadro mostrato qui: tema, categoria e difficoltà. La difficoltà indica quanto la domanda possa essere difficile da dedurre; non è un punteggio né un timer."
+          "title": "Prepara lo scenario dell'indagine",
+          "description": "Prima di porre la domanda, annuncia ai giocatori il tema, la categoria e la difficoltà. Queste informazioni danno loro un primo quadro per riflettere e orientare le loro ipotesi. La difficoltà indica semplicemente quanto la risposta possa essere difficile da dedurre: non cambia né le regole né il punteggio."
         },
         "question": {
-          "title": "Leggi e restringi",
-          "description": "Leggi questa domanda ad alta voce al gruppo. Possono indagare facendo domande a cui rispondi Sì o No, oppure offrendo due scelte quando una domanda è troppo aperta. Riformula quando necessario: l'obiettivo è restringere le possibilità, non imporre una formulazione particolare. Le piste sbagliate sono utili perché aiutano il gruppo a scartare ipotesi."
+          "title": "Avvia l'indagine",
+          "description": "Leggi la domanda ad alta voce, poi lascia che siano i giocatori a condurre l'indagine. Possono fare tutte le domande che vogliono per ridurre le possibilità. Rispondi solo con Sì, No oppure scegliendo tra due proposte. Una pista sbagliata non è un fallimento: ogni risposta permette ai giocatori di eliminare possibilità e avvicinarsi alla soluzione."
         },
         "clues": {
-          "title": "Usa gli indizi integrati",
-          "description": "Alcune domande includono Contesto e Curiosità. Aprili quando il gruppo è bloccato o quando hai bisogno di informazioni extra per giudicare una pista, poi usa i dettagli per dare un indizio misurato. Il gruppo deve indagare dalla carta: niente Google, Wikipedia o IA durante la partita. Tieniti i dettagli più rivelatori per il momento giusto."
+          "title": "I tuoi strumenti per guidarli",
+          "description": "Il Contesto e le Curiosità sono la tua cassetta degli attrezzi per animare l'indagine. Consultali per capire meglio la risposta, sciogliere un dubbio su una pista o rispondere a una domanda più precisa. Se i giocatori si bloccano, puoi anche usarli per dare un indizio senza rivelare direttamente la soluzione. Conserva le informazioni più rivelatrici per il momento giusto."
         },
         "answer": {
-          "title": "Giudica la risposta",
-          "description": "La Risposta è il tuo riferimento. Tienila nascosta mentre il gruppo indaga. I giocatori non devono ripetere le parole esatte: accetta una riformulazione diversa quando hanno capito il concetto. In qualità di Game Master, decidi tu quando la loro risposta è sufficientemente vicina."
+          "title": "Tocca a te convalidare la risposta",
+          "description": "La Risposta è il tuo riferimento: tienila segreta finché i giocatori non pensano di averla trovata. Non devono riprendere esattamente le parole della carta: se la loro proposta corrisponde al concetto cercato, è fatta! Come Game Master, sei tu a decidere quando l'indagine è risolta."
         },
         "sources": {
-          "title": "Rivela la storia e usa le fonti",
-          "description": "Una volta raggiunta la soluzione, rivela la risposta e la storia che la riguarda. Usa Contesto e Curiosità quando disponibili per condividere lo sfondo e i dettagli interessanti. Le Fonti fornite possono aiutarti a rispondere a domande più approfondite sull'argomento: aprili durante la partita se necessario."
+          "title": "Rivela la storia dietro la risposta",
+          "description": "Una volta trovata la soluzione, rivela la risposta e racconta cosa si nasconde dietro la domanda. Il Contesto e le Curiosità ti permettono di arricchire questo momento e di condividere i dettagli più sorprendenti. Le Fonti servono ad approfondire l'argomento, verificare un'informazione o rispondere alle domande che nascono dopo la scoperta."
         },
         "continue": {
-          "title": "Continua la partita",
-          "description": "Quando l'inchiesta è conclusa, seleziona Prossima domanda per continuare. Se vuoi rivedere la carta precedente, usa Precedente quando disponibile. Puoi anche passare il ruolo di Game Master a qualcun altro prima di proseguire."
+          "title": "Pronto per la prossima indagine?",
+          "description": "L'indagine è finita? Passa alla Prossima domanda per continuare la partita. Puoi anche passare il ruolo di Game Master a un altro giocatore: così ognuno potrà presentare enigmi a turno. E se vuoi rivedere la carta precedente, usa Precedente quando è disponibile."
         },
         "sidebar": {
-          "title": "Trova aiuto nel menu",
-          "description": "Il menu laterale ti dà accesso alle opzioni e alle impostazioni disponibili, alle Regole complete e a questo tutorial interattivo ogni volta che vorrai consultarli."
+          "title": "Tutto a portata di mano",
+          "description": "Il menu laterale ti permette di ritrovare le impostazioni e le opzioni della partita, ma anche le Regole complete e questo tutorial. Non serve ricordare tutto adesso: puoi tornare qui quando vuoi."
         }
       }
     }

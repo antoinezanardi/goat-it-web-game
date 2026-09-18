@@ -15,7 +15,7 @@ import {
 } from "@/components/domain/game/GameTutorial/game-tutorial.constants";
 
 const GAME_TUTORIAL_IN_CARD_TARGET_TEST_IDS = [
-  "game-question-theme",
+  "game-question-header",
   "game-question-statement",
   "game-question-answer",
   "game-question-source-links",
@@ -294,14 +294,14 @@ describe("GameTutorial Component", () => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(getActiveCardElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(true);
+    expect(getActiveCardElement("game-question-header").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(true);
   });
 
   it("should not highlight the staged card target when navigating forward.", async() => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(getStagedCardElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
+    expect(getStagedCardElement("game-question-header").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
   });
 
   it("should open the tutorial above the target when the target is near the bottom of the viewport.", async() => {
@@ -339,7 +339,7 @@ describe("GameTutorial Component", () => {
   });
 
   it("should recompute the popover placement when the window is resized while the tour is open.", async() => {
-    getActiveCardElement("game-question-theme").getBoundingClientRect = (): DOMRect => ({
+    getActiveCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
       bottom: 0,
       height: 100,
       left: 0,
@@ -353,7 +353,7 @@ describe("GameTutorial Component", () => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
 
-    getActiveCardElement("game-question-theme").getBoundingClientRect = (): DOMRect => ({
+    getActiveCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
       bottom: 700,
       height: 100,
       left: 0,
@@ -382,7 +382,7 @@ describe("GameTutorial Component", () => {
     await clickGameTutorialButton("game-tutorial-next");
     await clickGameTutorialButton("game-tutorial-skip");
 
-    expect(getActiveCardElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
+    expect(getActiveCardElement("game-question-header").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
   });
 
   it("should remove the target highlight when the component is unmounted while a targeted step is active.", async() => {
@@ -390,6 +390,6 @@ describe("GameTutorial Component", () => {
     await clickGameTutorialButton("game-tutorial-next");
     wrapper.unmount();
 
-    expect(getActiveCardElement("game-question-theme").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
+    expect(getActiveCardElement("game-question-header").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
   });
 });

@@ -3,13 +3,18 @@ import type { GameTutorialStep } from "@/components/domain/game/GameTutorial/gam
 const GAME_TUTORIAL_HIGHLIGHT_CLASS = "game-tutorial-highlight";
 
 const GAME_TUTORIAL_POPOVER_UI = {
-  content: "z-50 data-[state=open]:animate-[scale-in_250ms_var(--ease-out)] data-[state=closed]:animate-[scale-out_200ms_var(--ease-out)]",
+  content: [
+    "z-50",
+    "data-[state=open]:animate-[scale-in_250ms_var(--ease-out)] data-[state=closed]:animate-[scale-out_200ms_var(--ease-out)]",
+    "motion-reduce:data-[state=open]:animate-none! motion-reduce:data-[state=closed]:animate-none!",
+  ],
 };
 const GAME_TUTORIAL_POPOVER_MARGIN = 16;
 const GAME_TUTORIAL_POPOVER_MIN_HEIGHT = 160;
 const GAME_TUTORIAL_POPOVER_OFFSET = 12;
 
 const GAME_TUTORIAL_ACTIVE_CARD_SELECTOR = "[data-testid='game-question']";
+const GAME_TUTORIAL_CARD_HEADER_SELECTOR = "[data-testid='game-question-header']";
 
 const GAME_TUTORIAL_STEPS: readonly GameTutorialStep[] = [
   {
@@ -19,7 +24,7 @@ const GAME_TUTORIAL_STEPS: readonly GameTutorialStep[] = [
   {
     icon: "i-lucide-tag",
     key: "framework",
-    target: `${GAME_TUTORIAL_ACTIVE_CARD_SELECTOR} [data-testid='game-question-theme']`,
+    target: `${GAME_TUTORIAL_ACTIVE_CARD_SELECTOR} ${GAME_TUTORIAL_CARD_HEADER_SELECTOR}`,
   },
   {
     icon: "i-lucide-message-circle-question-mark",

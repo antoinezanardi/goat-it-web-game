@@ -22,36 +22,36 @@
       },
       "steps": {
         "welcome": {
-          "title": "Du bist der Spielleiter",
-          "description": "Dieser Bildschirm ist dein privater Leitfaden: lies die Frage laut vor, leite die Ermittlungen und behalte die Antwort verborgen, bis die Gruppe sie findet. Die Spieler stellen Fragen, und du antwortest mit Ja/Nein oder bietest zwei Möglichkeiten an. Du kannst Tipps geben, wenn sie nicht weiterkommen; das Ziel ist, dass alle Spaß haben."
+          "title": "Du kennst die Antwort. Sie müssen sie finden!",
+          "description": "Willkommen in der Rolle des Spielleiters. Du kennst die Frage und ihre Antwort, die Spieler nicht. Lies die Karte laut vor, höre dir ihre Vermutungen an, beantworte ihre Fragen und führe sie Schritt für Schritt zur Lösung. Deine Rolle ist nicht, sie in die Irre zu führen, sondern eine gute Ermittlung zu gestalten."
         },
         "framework": {
-          "title": "Rahmen der Frage",
-          "description": "Bevor die Ermittlungen beginnen, nenne den hier angezeigten Rahmen: Thema, Kategorie und Schwierigkeit. Die Schwierigkeit gibt an, wie schwer die Frage zu erschließen sein kann; sie ist weder eine Punktzahl noch ein Timer."
+          "title": "Setze den Rahmen der Ermittlung",
+          "description": "Bevor du die Frage stellst, kündige den Spielern Thema, Kategorie und Schwierigkeit an. Diese Informationen geben ihnen einen ersten Rahmen zum Nachdenken und lenken ihre Vermutungen. Die Schwierigkeit zeigt lediglich, wie schwer die Antwort zu erschließen sein kann: Sie ändert weder die Regeln noch die Punktzahl."
         },
         "question": {
-          "title": "Vorlesen und eingrenzen",
-          "description": "Lies diese Frage laut für die Gruppe vor. Die Spieler können ermitteln, indem sie Fragen stellen, die du mit Ja oder Nein beantwortest, oder indem sie zwei Möglichkeiten nennen, wenn eine Frage zu offen ist. Formuliere bei Bedarf um: Ziel ist es, die Möglichkeiten einzugrenzen, nicht eine bestimmte Formulierung zu fordern. Falsche Spuren sind nützlich, weil sie der Gruppe helfen, Hypothesen auszuschließen."
+          "title": "Starte die Ermittlung",
+          "description": "Lies die Frage laut vor und lass dann die Spieler die Ermittlung führen. Sie können so viele Fragen stellen, wie sie möchten, um die Möglichkeiten einzugrenzen. Antworte nur mit Ja, Nein oder indem du dich zwischen zwei Vorschlägen entscheidest. Eine falsche Spur ist kein Fehlschlag: Jede Antwort hilft den Spielern, Möglichkeiten auszuschließen und der Lösung näher zu kommen."
         },
         "clues": {
-          "title": "Nutze die integrierten Hinweise",
-          "description": "Einige Fragen enthalten Kontext und Kuriositäten. Öffne sie, wenn die Gruppe nicht weiterkommt oder du zusätzliche Informationen brauchst, um eine Spur zu bewerten, und nutze die Details für einen gezielten Hinweis. Die Gruppe soll anhand der Karte ermitteln: kein Google, Wikipedia oder KI während des Spiels. Bewahre dir die aufschlussreichsten Details für den richtigen Moment auf."
+          "title": "Deine Werkzeuge, um sie zu führen",
+          "description": "Kontext und Kuriositäten sind dein Werkzeugkasten für die Ermittlung. Nutze sie, um die Antwort besser zu verstehen, eine Spur zu entscheiden oder eine genauere Frage zu beantworten. Wenn die Spieler feststecken, kannst du sie auch nutzen, um einen Hinweis zu geben, ohne die Lösung direkt zu verraten. Bewahre dir die aufschlussreichsten Informationen für den richtigen Moment auf."
         },
         "answer": {
-          "title": "Bewerte die Antwort",
-          "description": "Die Antwort ist deine Lösungsreferenz. Halte sie während der Ermittlungen geheim. Die Spieler müssen nicht genau die gleichen Worte verwenden: akzeptiere eine andere Formulierung, wenn sie das Konzept verstanden haben. Als Spielleiter entscheidest du, ob ihre Antwort nah genug ist."
+          "title": "Du bestätigst die Antwort",
+          "description": "Die Antwort ist deine Referenz: Halte sie geheim, bis die Spieler glauben, sie gefunden zu haben. Sie müssen nicht genau die Worte der Karte wiederholen: Wenn ihr Vorschlag dem gesuchten Konzept entspricht, ist es gewonnen! Als Spielleiter entscheidest du, wann die Ermittlung gelöst ist."
         },
         "sources": {
-          "title": "Enthülle die Geschichte und nutze Quellen",
-          "description": "Sobald die Gruppe die Lösung gefunden hat, enthülle die Antwort und die Geschichte dahinter. Nutze Kontext und Kuriositäten, falls verfügbar, um Hintergrund und interessante Details zu teilen. Die angegebenen Quellen helfen dir, tiefere Fragen zum Thema zu beantworten: öffne sie während des Spiels, wenn nötig."
+          "title": "Enthülle die Geschichte hinter der Antwort",
+          "description": "Sobald die Lösung gefunden ist, enthülle die Antwort und erzähle, was hinter der Frage steckt. Kontext und Kuriositäten helfen dir, diesen Moment zu bereichern und die überraschendsten Details zu teilen. Die Quellen sind dazu da, das Thema zu vertiefen, eine Information zu überprüfen oder die Fragen zu beantworten, die nach der Auflösung aufkommen."
         },
         "continue": {
-          "title": "Spiel fortsetzen",
-          "description": "Wenn die Ermittlungen abgeschlossen sind, wähle Nächste Frage, um weiterzumachen. Wenn du zur vorherigen Karte zurückkehren möchtest, nutze Zurück, falls verfügbar. Du kannst die Rolle des Spielleiters auch an jemand anderen weitergeben, bevor ihr weiterspielt."
+          "title": "Bereit für die nächste Ermittlung?",
+          "description": "Die Ermittlung ist vorbei? Gehe zur nächsten Frage über, um das Spiel fortzusetzen. Du kannst die Rolle des Spielleiters auch an einen anderen Spieler weitergeben: So kann jeder abwechselnd Rätsel präsentieren. Und wenn du die vorherige Karte noch einmal ansehen möchtest, nutze Zurück, wenn es verfügbar ist."
         },
         "sidebar": {
-          "title": "Hilfe in der Seitenleiste",
-          "description": "Die Seitenleiste gibt dir Zugriff auf die verfügbaren Optionen und Einstellungen, die vollständigen Regeln und dieses interaktive Tutorial, wann immer du sie noch einmal ansehen möchtest."
+          "title": "Alles ist in Reichweite",
+          "description": "Die Seitenleiste gibt dir Zugriff auf die Einstellungen und Optionen des Spiels sowie auf die vollständigen Regeln und dieses Tutorial. Du musst dir jetzt nicht alles merken: Du kannst jederzeit hierher zurückkehren."
         }
       }
     }

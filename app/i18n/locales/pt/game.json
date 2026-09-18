@@ -22,36 +22,36 @@
       },
       "steps": {
         "welcome": {
-          "title": "Você é o Mestre do Jogo",
-          "description": "Esta tela é o seu guia privado: leia a pergunta em voz alta, conduza a investigação e mantenha a resposta escondida até que o grupo a encontre. Os jogadores fazem perguntas e você responde Sim/Não ou oferece duas escolhas. Você pode dar dicas quando eles travarem; o objetivo é que todos se divirtam."
+          "title": "Você tem a resposta. Eles é que devem encontrá-la!",
+          "description": "Bem-vindo ao papel de Mestre do Jogo. Você conhece a pergunta e a resposta, os jogadores não. Leia a cartela em voz alta, ouça as hipóteses deles, responda às perguntas e conduza-os aos poucos até a solução. O seu papel não é enganá-los, mas sim proporcionar uma boa investigação."
         },
         "framework": {
-          "title": "Enquadramento da pergunta",
-          "description": "Antes de começar a investigação, anuncie o enquadramento mostrado aqui: tema, categoria e dificuldade. A dificuldade indica o quão difícil a pergunta pode ser de deduzir; não é uma pontuação nem um cronômetro."
+          "title": "Monte o cenário da investigação",
+          "description": "Antes de fazer a pergunta, anuncie aos jogadores o tema, a categoria e a dificuldade. Essas informações dão a eles um primeiro enquadramento para pensar e orientar as hipóteses. A dificuldade indica apenas o quão difícil pode ser deduzir a resposta: não muda nem as regras nem a pontuação."
         },
         "question": {
-          "title": "Leia e restrinja",
-          "description": "Leia esta pergunta em voz alta para o grupo. Eles podem investigar fazendo perguntas que você responde com Sim ou Não, ou oferecendo duas escolhas quando uma pergunta for muito aberta. Reformule quando necessário: o objetivo é restringir as possibilidades, não exigir um formato específico. Pistas erradas são úteis porque ajudam o grupo a eliminar hipóteses."
+          "title": "Inicie a investigação",
+          "description": "Leia a pergunta em voz alta e depois deixe os jogadores conduzirem a investigação. Eles podem fazer quantas perguntas quiserem para reduzir as possibilidades. Responda apenas Sim, Não ou decidindo entre duas propostas. Uma pista errada não é um fracasso: cada resposta permite aos jogadores eliminar possibilidades e se aproximar da solução."
         },
         "clues": {
-          "title": "Use as pistas integradas",
-          "description": "Algumas perguntas incluem Contexto e Curiosidades. Abra quando o grupo estiver travado ou quando você precisar de informações extras para julgar uma pista, depois use os detalhes para dar uma dica equilibrada. O grupo deve investigar a partir da cartela: nada de Google, Wikipedia ou IA durante o jogo. Guarde os detalhes mais reveladores para o momento certo."
+          "title": "Suas ferramentas para guiá-los",
+          "description": "O Contexto e as Curiosidades são a sua caixa de ferramentas para conduzir a investigação. Consulte-os para entender melhor a resposta, decidir sobre uma pista ou responder a uma pergunta mais específica. Se os jogadores travarem, você também pode usá-los para dar uma dica sem revelar diretamente a solução. Guarde as informações mais reveladoras para o momento certo."
         },
         "answer": {
-          "title": "Julgue a resposta",
-          "description": "A Resposta é a sua referência. Mantenha-a escondida enquanto o grupo investiga. Os jogadores não precisam repetir a redação exata: aceite uma formulação diferente quando eles tiverem entendido o conceito. Como Mestre do Jogo, você decide quando a resposta deles está próxima o suficiente."
+          "title": "É você quem valida a resposta",
+          "description": "A Resposta é a sua referência: mantenha-a em segredo até que os jogadores pensem tê-la encontrado. Eles não precisam repetir exatamente as palavras da cartela: se a proposta deles corresponder ao conceito procurado, é vitória! Como Mestre do Jogo, é você quem decide quando a investigação está resolvida."
         },
         "sources": {
-          "title": "Revele a história e use as fontes",
-          "description": "Quando o grupo chegar à solução, revele a resposta e a história por trás dela. Use Contexto e Curiosidades quando disponíveis para compartilhar o contexto e detalhes interessantes. As Fontes fornecidas podem ajudá-lo a responder perguntas mais aprofundadas sobre o assunto: abra-as durante o jogo quando necessário."
+          "title": "Revele a história por trás da resposta",
+          "description": "Assim que a solução for encontrada, revele a resposta e conte o que está por trás da pergunta. O Contexto e as Curiosidades permitem enriquecer esse momento e compartilhar os detalhes mais surpreendentes. As Fontes servem para aprofundar o assunto, verificar uma informação ou responder às perguntas que surgem depois da descoberta."
         },
         "continue": {
-          "title": "Continue o jogo",
-          "description": "Quando a investigação terminar, selecione Próxima pergunta para continuar. Se precisar revisitar a cartela anterior, use Anterior quando estiver disponível. Você também pode passar o papel de Mestre do Jogo para outra pessoa antes de seguir em frente."
+          "title": "Pronto para a próxima investigação?",
+          "description": "A investigação terminou? Passe para a Próxima pergunta para continuar o jogo. Você também pode passar o papel de Mestre do Jogo para outro jogador: assim cada um poderá apresentar enigmas na sua vez. E se quiser rever a cartela anterior, use Anterior quando estiver disponível."
         },
         "sidebar": {
-          "title": "Encontre ajuda no menu",
-          "description": "O menu lateral dá acesso às opções e configurações disponíveis, às Regras completas e a este tutorial interativo sempre que você quiser revisá-los."
+          "title": "Tudo ao alcance das mãos",
+          "description": "O menu lateral permite encontrar os ajustes e opções da partida, mas também as Regras completas e este tutorial. Não precisa memorizar tudo agora: você pode voltar aqui quando quiser."
         }
       }
     }

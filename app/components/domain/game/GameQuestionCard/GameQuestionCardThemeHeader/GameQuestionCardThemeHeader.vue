@@ -54,7 +54,10 @@ watch(() => props.isActive, triggerHighlightIfActive);
 </script>
 
 <template>
-  <header class="flex gap-3 items-center">
+  <header
+    class="flex gap-3 items-center"
+    data-testid="game-question-header"
+  >
     <GameQuestionCardThemeStack
       ref="themeStackRef"
       :question="props.question"

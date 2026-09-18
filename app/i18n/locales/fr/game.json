@@ -22,36 +22,36 @@
       },
       "steps": {
         "welcome": {
-          "title": "Vous êtes le Maître du Jeu",
-          "description": "Cet écran est votre guide privé : lisez la question à voix haute, menez l'enquête et gardez la réponse cachée jusqu'à ce que le groupe la trouve. Les joueurs posent des questions, vous répondez par Oui/Non ou proposez deux choix. Vous pouvez donner des indices quand ils sont bloqués ; l'important est que tout le monde s'amuse."
+          "title": "Vous détenez la réponse. À eux de la trouver !",
+          "description": "Bienvenue dans le rôle de Maître du Jeu. Vous connaissez la question et sa réponse, les joueurs non. Lisez la carte à voix haute, écoutez leurs hypothèses, répondez à leurs questions et guidez-les progressivement vers la solution. Votre rôle n'est pas de les piéger, mais de faire vivre une bonne enquête."
         },
         "framework": {
-          "title": "Cadre de la question",
-          "description": "Avant de commencer l'enquête, annoncez le cadre affiché ici : le thème, la catégorie et la difficulté. La difficulté indique à quel point la question peut être difficile à déduire ; ce n'est ni un score, ni un chronomètre."
+          "title": "Posez le décor de l'enquête",
+          "description": "Avant de poser la question, annoncez le thème, la catégorie et la difficulté aux joueurs. Ces informations leur donnent un premier cadre pour réfléchir et orienter leurs hypothèses. La difficulté indique simplement à quel point la réponse peut être difficile à déduire : elle ne change ni les règles ni le score."
         },
         "question": {
-          "title": "Lisez et précisez",
-          "description": "Lisez cette question à voix haute au groupe. Les joueurs peuvent enquêter en posant des questions auxquelles vous répondez par Oui ou Non, ou en proposant deux choix quand une question est trop ouverte. Reformulez si besoin : le but est de réduire les possibilités, pas d'imposer une formulation exacte. Les fausses pistes sont utiles, elles permettent d'éliminer des hypothèses."
+          "title": "Lancez l'enquête",
+          "description": "Lisez la question à voix haute, puis laissez les joueurs mener l'enquête. Ils peuvent poser autant de questions qu'ils le souhaitent pour réduire les possibilités. Répondez uniquement par Oui, Non ou en tranchant entre deux propositions. Une mauvaise piste n'est pas un échec : chaque réponse permet aux joueurs d'éliminer des possibilités et de se rapprocher de la solution."
         },
         "clues": {
-          "title": "Utilisez les indices intégrés",
-          "description": "Certaines questions incluent un Contexte et des Anecdotes. Ouvrez-les quand le groupe est bloqué ou quand vous avez besoin d'informations pour juger une piste, puis utilisez ces détails pour donner un indice mesuré. Le groupe doit enquêter à partir de la carte : pas de Google, Wikipedia ou IA pendant la partie. Gardez les détails les plus révélateurs pour le bon moment."
+          "title": "Vos outils pour les guider",
+          "description": "Le Contexte et les Anecdotes sont votre boîte à outils pour animer l'enquête. Consultez-les pour mieux comprendre la réponse, départager une piste ou répondre à une question plus précise. Si les joueurs bloquent, vous pouvez aussi vous en servir pour leur donner un indice, sans révéler directement la solution. Gardez les informations les plus révélatrices pour le bon moment."
         },
         "answer": {
-          "title": "Jugez la réponse",
-          "description": "La Réponse est votre référence. Gardez-la cachée pendant l'enquête. Les joueurs n'ont pas besoin de répéter exactement les mots : acceptez une reformulation quand ils ont compris le concept. En tant que Maître du Jeu, vous décidez quand leur réponse est suffisamment proche."
+          "title": "À vous de valider la réponse",
+          "description": "La Réponse est votre référence : gardez-la secrète jusqu'à ce que les joueurs pensent avoir trouvé. Ils n'ont pas besoin de reprendre exactement les mots de la carte : si leur proposition correspond au concept recherché, c'est gagné ! En tant que MJ, c'est vous qui décidez quand l'enquête est résolue."
         },
         "sources": {
-          "title": "Révélez l'histoire et les sources",
-          "description": "Une fois le groupe arrivé à la solution, révélez la réponse et l'histoire qui l'entoure. Utilisez le Contexte et les Anecdotes quand ils sont disponibles pour partager l'arrière-plan et les détails intéressants. Les Sources fournies peuvent vous aider à répondre aux questions plus approfondies sur le sujet : ouvrez-les pendant la partie si nécessaire."
+          "title": "Révélez l'histoire derrière la réponse",
+          "description": "Une fois la solution trouvée, révélez la réponse et racontez ce qui se cache derrière la question. Le Contexte et les Anecdotes vous permettent d'enrichir ce moment et de partager les détails les plus surprenants. Les Sources sont là pour approfondir le sujet, vérifier une information ou répondre aux questions qui viennent après la découverte."
         },
         "continue": {
-          "title": "Continuez la partie",
-          "description": "Quand l'enquête est terminée, choisissez Question suivante pour continuer. Si vous souhaitez revoir la carte précédente, utilisez Précédent quand il est disponible. Vous pouvez aussi passer le rôle de Maître du Jeu à un autre joueur avant de passer à la suite."
+          "title": "Prêt pour la prochaine enquête ?",
+          "description": "L'enquête est terminée ? Passez à la Question suivante pour continuer la partie. Vous pouvez aussi passer le rôle de MJ à un autre joueur : chacun pourra ainsi faire découvrir des énigmes à son tour. Et si vous voulez revoir la carte précédente, utilisez Précédent lorsqu'il est disponible."
         },
         "sidebar": {
-          "title": "Trouvez de l'aide dans le menu",
-          "description": "Le menu latéral vous donne accès aux options et réglages disponibles, aux Règles complètes et à ce tutoriel interactif, à chaque fois que vous voudrez les revoir."
+          "title": "Tout est à portée de main",
+          "description": "Le menu latéral vous permet de retrouver les réglages et options de la partie, mais aussi les Règles complètes et ce tutoriel. Pas besoin de tout retenir maintenant : vous pourrez revenir ici quand vous le souhaitez."
         }
       }
     }

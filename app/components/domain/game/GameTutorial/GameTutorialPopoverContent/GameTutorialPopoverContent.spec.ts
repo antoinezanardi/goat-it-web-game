@@ -89,10 +89,24 @@ describe("GameTutorialPopoverContent Component", () => {
     expect(getGameTutorialPopoverContentElement("game-tutorial-back").exists()).toBeFalsy();
   });
 
-  it("should render the Back control label when there is a previous step.", async() => {
+  it("should render the Back control as an icon-only button with an accessible label when there is a previous step.", async() => {
     wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasPrev: true } });
+    const backControl = getGameTutorialPopoverContentElement("game-tutorial-back");
 
-    expect(getGameTutorialPopoverContentElement("game-tutorial-back").text()).toContain("game.interactiveTutorial.controls.back");
+    expect({
+      ariaLabel: backControl.attributes("aria-label"),
+      icons: getRenderedIconNames(),
+      text: backControl.text(),
+    }).toStrictEqual({
+      ariaLabel: "game.interactiveTutorial.controls.back",
+      icons: [
+        defaultGameTutorialPopoverContentProps.icon,
+        GAME_TUTORIAL_CONTROL_ICONS.skip,
+        GAME_TUTORIAL_CONTROL_ICONS.back,
+        GAME_TUTORIAL_CONTROL_ICONS.next,
+      ],
+      text: "",
+    });
   });
 
   it("should emit back when the Back control is clicked.", async() => {
@@ -127,6 +141,12 @@ describe("GameTutorialPopoverContent Component", () => {
     await getGameTutorialPopoverContentElement("game-tutorial-finish").trigger("click");
 
     expect(wrapper.emitted("finish")).toStrictEqual([[]]);
+  });
+
+  it("should not render the Skip control when there is no next step.", async() => {
+    wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasNext: false } });
+
+    expect(getGameTutorialPopoverContentElement("game-tutorial-skip").exists()).toBeFalsy();
   });
 
   it("should emit skip when the skip control is clicked.", async() => {

@@ -22,36 +22,36 @@
       },
       "steps": {
         "welcome": {
-          "title": "You are the Game Master",
-          "description": "This screen is your private guide: read the question aloud, lead the investigation, and keep the answer hidden until the group reaches it. Players ask questions, and you answer Yes/No or offer two choices. You may give hints when they are stuck; the goal is for everyone to have fun."
+          "title": "You hold the answer. It's up to them to find it!",
+          "description": "Welcome to the role of Game Master. You know the question and its answer, the players don't. Read the card aloud, listen to their guesses, answer their questions and guide them step by step towards the solution. Your role is not to trick them, but to lead a good investigation."
         },
         "framework": {
-          "title": "Set the framework",
-          "description": "Before the investigation begins, announce the framework shown here: the theme, category, and difficulty. The difficulty indicates how hard the question may be to deduce; it is not a score or a timer."
+          "title": "Set the scene for the investigation",
+          "description": "Before asking the question, announce the theme, category and difficulty to the players. This information gives them an initial framework to think and steer their guesses. The difficulty simply indicates how hard the answer may be to deduce: it changes neither the rules nor the score."
         },
         "question": {
-          "title": "Read and narrow the question",
-          "description": "Read this question aloud to the group. They can investigate by asking questions while you answer Yes or No, or offer two choices when a question is too open. Rephrase questions when needed: the goal is to narrow the possibilities, not to demand a particular format. Wrong leads are useful because they help the group rule things out."
+          "title": "Launch the investigation",
+          "description": "Read the question aloud, then let the players lead the investigation. They can ask as many questions as they like to narrow down the possibilities. Answer only with Yes, No, or by choosing between two options. A wrong lead is not a failure: each answer lets players rule out possibilities and get closer to the solution."
         },
         "clues": {
-          "title": "Use the built-in clues",
-          "description": "Some questions include Context and Trivia. Open it when the group is stuck or when you need extra information to judge a lead, then use the details to give a measured hint. The group should investigate from the card: no Google, Wikipedia, or AI research during the game. Keep the most revealing details for the right moment."
+          "title": "Your tools to guide them",
+          "description": "Context and Trivia are your toolbox for running the investigation. Use them to better understand the answer, settle a lead, or answer a more specific question. If the players get stuck, you can also use them to give a hint without directly revealing the solution. Keep the most revealing information for the right moment."
         },
         "answer": {
-          "title": "Judge the answer",
-          "description": "The Answer is your solution reference. Keep it hidden while the group investigates. Players do not need to repeat the exact wording: accept a different phrasing when they have understood the concept. As the Game Master, you decide when their answer is close enough."
+          "title": "It's up to you to validate the answer",
+          "description": "The Answer is your reference: keep it secret until the players think they have found it. They don't need to repeat the exact words on the card: if their suggestion matches the concept you're looking for, it's a win! As the Game Master, you decide when the investigation is solved."
         },
         "sources": {
-          "title": "Reveal the story and use sources",
-          "description": "Once the group reaches the solution, reveal the answer and the story behind it. Use Context and Trivia when available to share the background and interesting details. The provided Sources can help you answer deeper questions about the subject: open them during the game when needed."
+          "title": "Reveal the story behind the answer",
+          "description": "Once the solution is found, reveal the answer and tell the story behind the question. Context and Trivia let you enrich this moment and share the most surprising details. Sources are there to dig deeper into the subject, check a fact, or answer the questions that come after the reveal."
         },
         "continue": {
-          "title": "Continue the game",
-          "description": "When the investigation is complete, select Next question to continue. If you need to revisit the previous card, use Previous when it is available. You can also hand the Game Master role to someone else before moving on."
+          "title": "Ready for the next investigation?",
+          "description": "Investigation over? Move on to the Next question to continue the game. You can also hand the Game Master role to another player: everyone can then take a turn at presenting riddles. And if you want to revisit the previous card, use Previous when it's available."
         },
         "sidebar": {
-          "title": "Find help in the sidebar",
-          "description": "The sidebar gives you access to the available options and settings, the full Rules, and this Interactive tutorial whenever you want to review them."
+          "title": "Everything is within reach",
+          "description": "The sidebar lets you find the game's settings and options, as well as the full Rules and this tutorial. No need to remember everything now: you can come back here whenever you like."
         }
       }
     }

@@ -29,32 +29,19 @@ function onSkip(): void {
     data-testid="game-tutorial"
     :style="{ 'maxHeight': props.maxHeight }"
   >
-    <div class="flex gap-2 items-center justify-between">
-      <div class="flex gap-2 items-center min-w-0">
-        <UIcon
-          v-if="props.icon"
-          class="shrink-0 size-5 text-primary"
-          :name="props.icon"
-        />
+    <div class="flex gap-2 items-center min-w-0">
+      <UIcon
+        v-if="props.icon"
+        class="shrink-0 size-5 text-primary"
+        :name="props.icon"
+      />
 
-        <h2
-          class="font-semibold text-fg-primary"
-          data-testid="game-tutorial-title"
-        >
-          {{ props.title }}
-        </h2>
-      </div>
-
-      <UButton
-        color="neutral"
-        data-testid="game-tutorial-skip"
-        :icon="GAME_TUTORIAL_CONTROL_ICONS.skip"
-        size="xs"
-        variant="outline"
-        @click="onSkip"
+      <h2
+        class="font-semibold text-fg-primary"
+        data-testid="game-tutorial-title"
       >
-        {{ t("game.interactiveTutorial.controls.skip") }}
-      </UButton>
+        {{ props.title }}
+      </h2>
     </div>
 
     <USeparator/>
@@ -70,15 +57,29 @@ function onSkip(): void {
 
     <div class="flex gap-2 items-center justify-end">
       <UButton
+        v-if="props.hasNext"
+        class="mr-auto"
+        color="neutral"
+        data-testid="game-tutorial-skip"
+        :icon="GAME_TUTORIAL_CONTROL_ICONS.skip"
+        size="xs"
+        variant="outline"
+        @click="onSkip"
+      >
+        {{ t("game.interactiveTutorial.controls.skip") }}
+      </UButton>
+
+      <UButton
         v-if="props.hasPrev"
+        key="u-button-2"
+        :aria-label="t('game.interactiveTutorial.controls.back')"
         color="neutral"
         data-testid="game-tutorial-back"
         :icon="GAME_TUTORIAL_CONTROL_ICONS.back"
+        square
         variant="soft"
         @click="onBack"
-      >
-        {{ t("game.interactiveTutorial.controls.back") }}
-      </UButton>
+      />
 
       <UButton
         v-if="props.hasNext"
