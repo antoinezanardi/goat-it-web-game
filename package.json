@@ -131,6 +131,7 @@
     "nuxt-schema-org": "^6.3.2",
     "nuxt-seo-utils": "^8.5.1",
     "nuxt-site-config": "^4.2.3",
+    "nuxt-tour": "^0.0.40",
     "nuxtseo-layer-devtools": "^5.3.16",
     "oxlint": "^1.83.0",
     "oxlint-tsgolint": "^7.0.2002",

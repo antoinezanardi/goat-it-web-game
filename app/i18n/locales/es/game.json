@@ -11,6 +11,49 @@
     "backToHome": "Volver al inicio",
     "leaveConfirmTitle": "¿Salir del juego?",
     "leaveConfirmDescription": "¿Estás seguro de que quieres salir de la partida actual?",
-    "leave": "Salir"
+    "leave": "Salir",
+    "interactiveTutorial": {
+      "label": "Tutorial interactivo",
+      "controls": {
+        "back": "Atrás",
+        "next": "Siguiente",
+        "skip": "Saltar",
+        "finish": "Finalizar"
+      },
+      "steps": {
+        "welcome": {
+          "title": "Eres el Maestro del Juego",
+          "description": "Esta pantalla es tu guía privada: lee la pregunta en voz alta, dirige la investigación y mantén la respuesta oculta hasta que el grupo la encuentre. Los jugadores hacen preguntas y tú respondes Sí/No o ofreces dos opciones. Puedes dar pistas cuando se atasquen; el objetivo es que todos se diviertan."
+        },
+        "framework": {
+          "title": "Marco de la pregunta",
+          "description": "Antes de que comience la investigación, anuncia el marco que aparece aquí: el tema, la categoría y la dificultad. La dificultad indica lo difícil que puede ser deducir la pregunta; no es una puntuación ni un temporizador."
+        },
+        "question": {
+          "title": "Lee y reduce",
+          "description": "Lee esta pregunta en voz alta al grupo. Pueden investigar haciendo preguntas que respondas con Sí o No, u ofreciendo dos opciones cuando una pregunta sea demasiado abierta. Reformula cuando sea necesario: el objetivo es reducir las posibilidades, no exigir un formato concreto. Los errores son útiles porque ayudan al grupo a descartar hipótesis."
+        },
+        "clues": {
+          "title": "Usa las pistas integradas",
+          "description": "Algunas preguntas incluyen Contexto y Curiosidades. Ábrelo cuando el grupo esté atascado o cuando necesites información extra para juzgar una pista, luego usa esos detalles para dar una pista medida. El grupo debe investigar a partir de la carta: nada de Google, Wikipedia o IA durante la partida. Reserva los detalles más reveladores para el momento adecuado."
+        },
+        "answer": {
+          "title": "Juzga la respuesta",
+          "description": "La Respuesta es tu referencia de solución. Mantenla oculta mientras el grupo investiga. Los jugadores no necesitan repetir la redacción exacta: acepta una formulación diferente cuando hayan entendido el concepto. Como Maestro del Juego, tú decides cuándo su respuesta está lo suficientemente cerca."
+        },
+        "sources": {
+          "title": "Revela la historia y usa las fuentes",
+          "description": "Cuando el grupo llegue a la solución, revela la respuesta y la historia que la rodea. Usa Contexto y Curiosidades cuando estén disponibles para compartir el trasfondo y los detalles interesantes. Las Fuentes proporcionadas pueden ayudarte a responder preguntas más profundas sobre el tema: ábrelas durante la partida si es necesario."
+        },
+        "continue": {
+          "title": "Continúa la partida",
+          "description": "Cuando la investigación termine, selecciona Siguiente pregunta para continuar. Si necesitas revisar la carta anterior, usa Anterior cuando esté disponible. También puedes ceder el rol de Maestro del Juego a otra persona antes de continuar."
+        },
+        "sidebar": {
+          "title": "Busca ayuda en el menú",
+          "description": "El menú lateral te da acceso a las opciones y ajustes disponibles, a las Reglas completas y a este tutorial interactivo siempre que quieras repasarlos."
+        }
+      }
+    }
   }
 }

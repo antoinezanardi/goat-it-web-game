@@ -37,6 +37,7 @@
     "getRouterParam": "readonly",
     "navigator": "readonly",
     "onBeforeRouteLeave": "readonly",
+    "onBeforeUnmount": "readonly",
     "onMounted": "readonly",
     "onUnmounted": "readonly",
     "process": "readonly",

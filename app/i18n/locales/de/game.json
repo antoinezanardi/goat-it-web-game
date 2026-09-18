@@ -11,6 +11,49 @@
     "backToHome": "Zurück zur Startseite",
     "leaveConfirmTitle": "Spiel verlassen?",
     "leaveConfirmDescription": "Bist du sicher, dass du das aktuelle Spiel verlassen möchtest?",
-    "leave": "Verlassen"
+    "leave": "Verlassen",
+    "interactiveTutorial": {
+      "label": "Interaktives Tutorial",
+      "controls": {
+        "back": "Zurück",
+        "next": "Weiter",
+        "skip": "Überspringen",
+        "finish": "Beenden"
+      },
+      "steps": {
+        "welcome": {
+          "title": "Du bist der Spielleiter",
+          "description": "Dieser Bildschirm ist dein privater Leitfaden: lies die Frage laut vor, leite die Ermittlungen und behalte die Antwort verborgen, bis die Gruppe sie findet. Die Spieler stellen Fragen, und du antwortest mit Ja/Nein oder bietest zwei Möglichkeiten an. Du kannst Tipps geben, wenn sie nicht weiterkommen; das Ziel ist, dass alle Spaß haben."
+        },
+        "framework": {
+          "title": "Rahmen der Frage",
+          "description": "Bevor die Ermittlungen beginnen, nenne den hier angezeigten Rahmen: Thema, Kategorie und Schwierigkeit. Die Schwierigkeit gibt an, wie schwer die Frage zu erschließen sein kann; sie ist weder eine Punktzahl noch ein Timer."
+        },
+        "question": {
+          "title": "Vorlesen und eingrenzen",
+          "description": "Lies diese Frage laut für die Gruppe vor. Die Spieler können ermitteln, indem sie Fragen stellen, die du mit Ja oder Nein beantwortest, oder indem sie zwei Möglichkeiten nennen, wenn eine Frage zu offen ist. Formuliere bei Bedarf um: Ziel ist es, die Möglichkeiten einzugrenzen, nicht eine bestimmte Formulierung zu fordern. Falsche Spuren sind nützlich, weil sie der Gruppe helfen, Hypothesen auszuschließen."
+        },
+        "clues": {
+          "title": "Nutze die integrierten Hinweise",
+          "description": "Einige Fragen enthalten Kontext und Kuriositäten. Öffne sie, wenn die Gruppe nicht weiterkommt oder du zusätzliche Informationen brauchst, um eine Spur zu bewerten, und nutze die Details für einen gezielten Hinweis. Die Gruppe soll anhand der Karte ermitteln: kein Google, Wikipedia oder KI während des Spiels. Bewahre dir die aufschlussreichsten Details für den richtigen Moment auf."
+        },
+        "answer": {
+          "title": "Bewerte die Antwort",
+          "description": "Die Antwort ist deine Lösungsreferenz. Halte sie während der Ermittlungen geheim. Die Spieler müssen nicht genau die gleichen Worte verwenden: akzeptiere eine andere Formulierung, wenn sie das Konzept verstanden haben. Als Spielleiter entscheidest du, ob ihre Antwort nah genug ist."
+        },
+        "sources": {
+          "title": "Enthülle die Geschichte und nutze Quellen",
+          "description": "Sobald die Gruppe die Lösung gefunden hat, enthülle die Antwort und die Geschichte dahinter. Nutze Kontext und Kuriositäten, falls verfügbar, um Hintergrund und interessante Details zu teilen. Die angegebenen Quellen helfen dir, tiefere Fragen zum Thema zu beantworten: öffne sie während des Spiels, wenn nötig."
+        },
+        "continue": {
+          "title": "Spiel fortsetzen",
+          "description": "Wenn die Ermittlungen abgeschlossen sind, wähle Nächste Frage, um weiterzumachen. Wenn du zur vorherigen Karte zurückkehren möchtest, nutze Zurück, falls verfügbar. Du kannst die Rolle des Spielleiters auch an jemand anderen weitergeben, bevor ihr weiterspielt."
+        },
+        "sidebar": {
+          "title": "Hilfe in der Seitenleiste",
+          "description": "Die Seitenleiste gibt dir Zugriff auf die verfügbaren Optionen und Einstellungen, die vollständigen Regeln und dieses interaktive Tutorial, wann immer du sie noch einmal ansehen möchtest."
+        }
+      }
+    }
   }
 }

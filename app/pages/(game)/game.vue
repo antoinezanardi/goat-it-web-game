@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-import { ConfirmDialog } from "#components";
+import { nextTick } from "vue";
+
+import { ConfirmDialog, GameTutorial } from "#components";
 
 import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
@@ -55,6 +57,25 @@ const {
   questions,
 } = useGame();
 
+const isTutorialAvailable = computed<boolean>(() => gameState.value === "playing" && currentQuestion.value !== undefined && !isTranslating.value && !isFetchingQuestions.value);
+
+const isTourRequested = ref<boolean>(false);
+
+async function startTutorial(): Promise<void> {
+  isSidebarOpen.value = false;
+  isTourRequested.value = false;
+  await nextTick();
+  isTourRequested.value = true;
+}
+
+function onTourEnd(): void {
+  isTourRequested.value = false;
+}
+
+watch(currentIndex, () => {
+  isTourRequested.value = false;
+});
+
 const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveThemeColor(getPrimaryTheme(currentQuestion.value)?.color) : NEUTRAL_GREY_FALLBACK_THEME_COLOR));
 
 const isSidebarOpen = ref(false);
@@ -85,8 +106,16 @@ function onSidebarOpenChange(open: boolean): void {
 
     <GameSidebar
       :is-fetching-questions="isFetchingQuestions"
+      :is-tutorial-available="isTutorialAvailable"
       :open="isSidebarOpen"
+      @start-tutorial="startTutorial"
       @update:open="onSidebarOpenChange"
+    />
+
+    <GameTutorial
+      v-if="isTutorialAvailable"
+      :is-active="isTourRequested"
+      @end="onTourEnd"
     />
 
     <Transition

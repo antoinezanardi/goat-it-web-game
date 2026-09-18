@@ -11,6 +11,49 @@
     "backToHome": "Torna alla home",
     "leaveConfirmTitle": "Abbandonare la partita?",
     "leaveConfirmDescription": "Sei sicuro di voler abbandonare la partita in corso?",
-    "leave": "Esci"
+    "leave": "Esci",
+    "interactiveTutorial": {
+      "label": "Tutorial interattivo",
+      "controls": {
+        "back": "Indietro",
+        "next": "Avanti",
+        "skip": "Salta",
+        "finish": "Fine"
+      },
+      "steps": {
+        "welcome": {
+          "title": "Sei il Game Master",
+          "description": "Questa schermata è la tua guida privata: leggi la domanda ad alta voce, guida l'inchiesta e tieni la risposta nascosta finché il gruppo non la trova. I giocatori fanno domande e tu rispondi Sì/No o offri due scelte. Puoi dare indizi quando sono bloccati; l'obiettivo è che tutti si divertano."
+        },
+        "framework": {
+          "title": "Quadro della domanda",
+          "description": "Prima che inizi l'inchiesta, annuncia il quadro mostrato qui: tema, categoria e difficoltà. La difficoltà indica quanto la domanda possa essere difficile da dedurre; non è un punteggio né un timer."
+        },
+        "question": {
+          "title": "Leggi e restringi",
+          "description": "Leggi questa domanda ad alta voce al gruppo. Possono indagare facendo domande a cui rispondi Sì o No, oppure offrendo due scelte quando una domanda è troppo aperta. Riformula quando necessario: l'obiettivo è restringere le possibilità, non imporre una formulazione particolare. Le piste sbagliate sono utili perché aiutano il gruppo a scartare ipotesi."
+        },
+        "clues": {
+          "title": "Usa gli indizi integrati",
+          "description": "Alcune domande includono Contesto e Curiosità. Aprili quando il gruppo è bloccato o quando hai bisogno di informazioni extra per giudicare una pista, poi usa i dettagli per dare un indizio misurato. Il gruppo deve indagare dalla carta: niente Google, Wikipedia o IA durante la partita. Tieniti i dettagli più rivelatori per il momento giusto."
+        },
+        "answer": {
+          "title": "Giudica la risposta",
+          "description": "La Risposta è il tuo riferimento. Tienila nascosta mentre il gruppo indaga. I giocatori non devono ripetere le parole esatte: accetta una riformulazione diversa quando hanno capito il concetto. In qualità di Game Master, decidi tu quando la loro risposta è sufficientemente vicina."
+        },
+        "sources": {
+          "title": "Rivela la storia e usa le fonti",
+          "description": "Una volta raggiunta la soluzione, rivela la risposta e la storia che la riguarda. Usa Contesto e Curiosità quando disponibili per condividere lo sfondo e i dettagli interessanti. Le Fonti fornite possono aiutarti a rispondere a domande più approfondite sull'argomento: aprili durante la partita se necessario."
+        },
+        "continue": {
+          "title": "Continua la partita",
+          "description": "Quando l'inchiesta è conclusa, seleziona Prossima domanda per continuare. Se vuoi rivedere la carta precedente, usa Precedente quando disponibile. Puoi anche passare il ruolo di Game Master a qualcun altro prima di proseguire."
+        },
+        "sidebar": {
+          "title": "Trova aiuto nel menu",
+          "description": "Il menu laterale ti dà accesso alle opzioni e alle impostazioni disponibili, alle Regole complete e a questo tutorial interattivo ogni volta che vorrai consultarli."
+        }
+      }
+    }
   }
 }

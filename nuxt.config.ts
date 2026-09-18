@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@vite-pwa/nuxt",
     "v-gsap-nuxt",
+    "nuxt-tour",
   ],
   $test: {
     runtimeConfig: { public: { defaultLocale: "en" } },
