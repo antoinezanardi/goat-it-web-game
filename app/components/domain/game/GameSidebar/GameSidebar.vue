@@ -44,19 +44,20 @@ function onStartTutorial(): void {
 
     <template #body>
       <div class="flex flex-col gap-3">
-        <ULink
+        <UButton
           v-if="props.isTutorialAvailable"
           class="flex gap-1.5 items-center"
+          color="neutral"
           data-testid="game-sidebar-tutorial-link"
-          to="#"
-          @click.prevent="onStartTutorial"
+          variant="link"
+          @click="onStartTutorial"
         >
           <UIcon
             class="size-4"
             name="i-lucide-compass"
           />
           {{ t("game.interactiveTutorial.label") }}
-        </ULink>
+        </UButton>
 
         <ULink
           class="flex gap-1.5 items-center"

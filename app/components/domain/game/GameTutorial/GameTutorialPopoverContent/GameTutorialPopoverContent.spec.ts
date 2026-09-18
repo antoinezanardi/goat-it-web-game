@@ -60,8 +60,8 @@ describe("GameTutorialPopoverContent Component", () => {
     expect(getGameTutorialPopoverContentElement("game-tutorial-description").text()).toBe(defaultGameTutorialPopoverContentProps.description);
   });
 
-  it("should render the separator between the content and the actions when mounted.", () => {
-    expect(wrapper.findComponent({ name: "USeparator" }).exists()).toBeTruthy();
+  it("should render a separator between the title and the content and another one between the content and the actions when mounted.", () => {
+    expect(wrapper.findAllComponents({ name: "USeparator" })).toHaveLength(2);
   });
 
   it("should render the step icon and the visible control icons in order when mounted.", () => {

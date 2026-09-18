@@ -2,7 +2,9 @@ import type { GameTutorialStep } from "@/components/domain/game/GameTutorial/gam
 
 const GAME_TUTORIAL_HIGHLIGHT_CLASS = "game-tutorial-highlight";
 
-const GAME_TUTORIAL_POPOVER_UI = { content: "z-50" };
+const GAME_TUTORIAL_POPOVER_UI = {
+  content: "z-50 data-[state=open]:animate-[scale-in_250ms_var(--ease-out)] data-[state=closed]:animate-[scale-out_200ms_var(--ease-out)]",
+};
 const GAME_TUTORIAL_POPOVER_MARGIN = 16;
 const GAME_TUTORIAL_POPOVER_MIN_HEIGHT = 160;
 const GAME_TUTORIAL_POPOVER_OFFSET = 12;
@@ -27,7 +29,6 @@ const GAME_TUTORIAL_STEPS: readonly GameTutorialStep[] = [
   {
     icon: "i-lucide-lightbulb",
     key: "clues",
-    target: `${GAME_TUTORIAL_ACTIVE_CARD_SELECTOR} [data-testid='game-question-body']`,
   },
   {
     icon: "i-lucide-gavel",

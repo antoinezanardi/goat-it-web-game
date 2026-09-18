@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { useEventListener } from "@vueuse/core";
+
 import { GameTutorialPopoverContent } from "#components";
 
 import type { GameTutorialEmits, GameTutorialProps } from "@/components/domain/game/GameTutorial/game-tutorial.types";
@@ -93,6 +95,12 @@ watch(() => props.isActive, isActive => {
 
 watch([open, index], updateTourTarget);
 
+useEventListener("resize", () => {
+  if (open.value) {
+    updateTourTarget();
+  }
+});
+
 watch(open, isOpen => {
   if (!isOpen) {
     emit("tutorialEnd");
@@ -109,7 +117,7 @@ onBeforeUnmount(() => {
     <Transition name="fade">
       <div
         v-if="open"
-        class="bg-black/60 fixed inset-0 z-40"
+        class="bg-black/50 fixed inset-0 z-40"
         data-testid="game-tutorial-backdrop"
       />
     </Transition>
@@ -123,6 +131,8 @@ onBeforeUnmount(() => {
     >
       <template #content>
         <GameTutorialPopoverContent
+          :key="index"
+          class="game-tutorial-step-in"
           :description="current?.description"
           :has-next="hasNext"
           :has-prev="hasPrev"

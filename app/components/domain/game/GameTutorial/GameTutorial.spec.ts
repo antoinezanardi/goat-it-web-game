@@ -17,7 +17,6 @@ import {
 const GAME_TUTORIAL_IN_CARD_TARGET_TEST_IDS = [
   "game-question-theme",
   "game-question-statement",
-  "game-question-body",
   "game-question-answer",
   "game-question-source-links",
 ] as const;
@@ -326,6 +325,54 @@ describe("GameTutorial Component", () => {
 
   it("should not highlight any target when the centered first step is active.", async() => {
     await startTour();
+
+    expect(document.querySelectorAll(`.${GAME_TUTORIAL_HIGHLIGHT_CLASS}`)).toHaveLength(0);
+  });
+
+  it("should not highlight any target when the centered clues step is active.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(document.querySelectorAll(`.${GAME_TUTORIAL_HIGHLIGHT_CLASS}`)).toHaveLength(0);
+  });
+
+  it("should recompute the popover placement when the window is resized while the tour is open.", async() => {
+    getActiveCardElement("game-question-theme").getBoundingClientRect = (): DOMRect => ({
+      bottom: 0,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 0,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+
+    getActiveCardElement("game-question-theme").getBoundingClientRect = (): DOMRect => ({
+      bottom: 700,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 600,
+      width: 100,
+      x: 0,
+      y: 600,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    globalThis.dispatchEvent(new globalThis.Event("resize"));
+    await flushPromises();
+
+    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({ side: "top", sideOffset: 12 });
+  });
+
+  it("should not highlight any target when the window is resized while the tour is closed.", async() => {
+    globalThis.dispatchEvent(new globalThis.Event("resize"));
+    await flushPromises();
 
     expect(document.querySelectorAll(`.${GAME_TUTORIAL_HIGHLIGHT_CLASS}`)).toHaveLength(0);
   });

@@ -25,12 +25,12 @@ function onSkip(): void {
 
 <template>
   <div
-    class="flex flex-col gap-4 max-w-sm overflow-y-auto p-4"
+    class="flex flex-col gap-4 max-w-[min(28rem,calc(100vw-2rem))] overflow-y-auto p-4"
     data-testid="game-tutorial"
     :style="{ 'maxHeight': props.maxHeight }"
   >
-    <div class="flex flex-col gap-1">
-      <div class="flex gap-2 items-center">
+    <div class="flex gap-2 items-center justify-between">
+      <div class="flex gap-2 items-center min-w-0">
         <UIcon
           v-if="props.icon"
           class="shrink-0 size-5 text-primary"
@@ -45,59 +45,60 @@ function onSkip(): void {
         </h2>
       </div>
 
-      <p
-        class="text-muted text-sm"
-        data-testid="game-tutorial-description"
-      >
-        {{ props.description }}
-      </p>
-    </div>
-
-    <USeparator/>
-
-    <div class="flex gap-2 items-center justify-between">
       <UButton
         color="neutral"
         data-testid="game-tutorial-skip"
         :icon="GAME_TUTORIAL_CONTROL_ICONS.skip"
+        size="xs"
         variant="outline"
         @click="onSkip"
       >
         {{ t("game.interactiveTutorial.controls.skip") }}
       </UButton>
+    </div>
 
-      <div class="flex gap-2 items-center">
-        <UButton
-          v-if="props.hasPrev"
-          color="neutral"
-          data-testid="game-tutorial-back"
-          :icon="GAME_TUTORIAL_CONTROL_ICONS.back"
-          variant="soft"
-          @click="onBack"
-        >
-          {{ t("game.interactiveTutorial.controls.back") }}
-        </UButton>
+    <USeparator/>
 
-        <UButton
-          v-if="props.hasNext"
-          key="u-button-2"
-          data-testid="game-tutorial-next"
-          :icon="GAME_TUTORIAL_CONTROL_ICONS.next"
-          @click="onNext"
-        >
-          {{ t("game.interactiveTutorial.controls.next") }}
-        </UButton>
+    <p
+      class="text-muted text-sm"
+      data-testid="game-tutorial-description"
+    >
+      {{ props.description }}
+    </p>
 
-        <UButton
-          v-else
-          key="u-button-3"
-          data-testid="game-tutorial-finish"
-          :icon="GAME_TUTORIAL_CONTROL_ICONS.finish"
-          @click="onFinish"
-        >
-          {{ t("game.interactiveTutorial.controls.finish") }}
-        </UButton>
-      </div>
+    <USeparator/>
+
+    <div class="flex gap-2 items-center justify-end">
+      <UButton
+        v-if="props.hasPrev"
+        color="neutral"
+        data-testid="game-tutorial-back"
+        :icon="GAME_TUTORIAL_CONTROL_ICONS.back"
+        variant="soft"
+        @click="onBack"
+      >
+        {{ t("game.interactiveTutorial.controls.back") }}
+      </UButton>
+
+      <UButton
+        v-if="props.hasNext"
+        key="u-button-2"
+        data-testid="game-tutorial-next"
+        :icon="GAME_TUTORIAL_CONTROL_ICONS.next"
+        @click="onNext"
+      >
+        {{ t("game.interactiveTutorial.controls.next") }}
+      </UButton>
+
+      <UButton
+        v-else
+        key="u-button-3"
+        data-testid="game-tutorial-finish"
+        :icon="GAME_TUTORIAL_CONTROL_ICONS.finish"
+        @click="onFinish"
+      >
+        {{ t("game.interactiveTutorial.controls.finish") }}
+      </UButton>
     </div>
   </div>
 </template>

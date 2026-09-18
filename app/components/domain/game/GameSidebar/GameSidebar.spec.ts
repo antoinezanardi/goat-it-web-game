@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
-import type { ULink, LocaleSelect } from "#components";
+import type { UButton, ULink, LocaleSelect } from "#components";
 import { GameSidebar } from "#components";
 
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
@@ -31,6 +31,16 @@ describe("GameSidebar Component", () => {
       throw new Error(`ULink with data-testid="${testId}" not found`);
     }
     return matchedLink;
+  }
+
+  function findButtonByTestId(testId: string): VueWrapper<InstanceType<typeof UButton>> {
+    const allButtons = wrapper.findAllComponents<typeof UButton>({ name: "UButton" });
+    const matchedButton = allButtons.find(button => button.find(`[data-testid='${testId}']`).exists());
+
+    if (!matchedButton) {
+      throw new Error(`UButton with data-testid="${testId}" not found`);
+    }
+    return matchedButton;
   }
 
   beforeEach(async() => {
@@ -146,29 +156,34 @@ describe("GameSidebar Component", () => {
     expect(wrapper.emitted("update:open")).toStrictEqual([[false]]);
   });
 
-  it("should render the tutorial link when isTutorialAvailable is true.", () => {
+  it("should render the tutorial button when isTutorialAvailable is true.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar-tutorial-link']")).not.toBeNull();
   });
 
-  it("should render the interactive tutorial label on the tutorial link when mounted.", () => {
-    expect(findLinkByTestId("game-sidebar-tutorial-link").text()).toContain("game.interactiveTutorial.label");
+  it("should render the interactive tutorial label on the tutorial button when mounted.", () => {
+    expect(findButtonByTestId("game-sidebar-tutorial-link").text()).toContain("game.interactiveTutorial.label");
   });
 
-  it("should render the graduation cap icon on the tutorial link when mounted.", () => {
-    expect(findLinkByTestId("game-sidebar-tutorial-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-compass");
+  it("should render the compass icon on the tutorial button when mounted.", () => {
+    expect(findButtonByTestId("game-sidebar-tutorial-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-compass");
   });
 
-  it("should point the tutorial link to the current page when mounted.", () => {
-    expect(findLinkByTestId("game-sidebar-tutorial-link").props("to")).toBe("#");
+  it("should render the tutorial button with the link variant and neutral color when mounted.", () => {
+    const tutorialButton = findButtonByTestId("game-sidebar-tutorial-link");
+
+    expect({
+      color: tutorialButton.props("color"),
+      variant: tutorialButton.props("variant"),
+    }).toStrictEqual({ color: "neutral", variant: "link" });
   });
 
-  it("should emit startTutorial when the tutorial link is clicked.", async() => {
-    await findLinkByTestId("game-sidebar-tutorial-link").find("a").trigger("click");
+  it("should emit startTutorial when the tutorial button is clicked.", async() => {
+    await findButtonByTestId("game-sidebar-tutorial-link").find("button").trigger("click");
 
     expect(wrapper.emitted("startTutorial")).toStrictEqual([[]]);
   });
 
-  it("should not render the tutorial link when isTutorialAvailable is false.", async() => {
+  it("should not render the tutorial button when isTutorialAvailable is false.", async() => {
     await wrapper.setProps({ isTutorialAvailable: false });
 
     expect(document.body.querySelector("[data-testid='game-sidebar-tutorial-link']")).toBeNull();
