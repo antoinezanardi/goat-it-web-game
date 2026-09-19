@@ -1,5 +1,49 @@
 # 🐐👑 Goat It Web Admin Versioning Changelog
 
+## [1.8.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.7.0...v1.8.0) (2026-09-19)
+
+### 🚀 Features
+
+* **game-question-card:** sequential bounce+brightness highlight on active card ([#301](https://github.com/antoinezanardi/goat-it-web-game/issues/301)) ([563fb19](https://github.com/antoinezanardi/goat-it-web-game/commit/563fb19ec8c3e48ae11d706bfcaa5e49dff53f5e))
+* **game-sidebar:** add locale selector to game sidebar ([#310](https://github.com/antoinezanardi/goat-it-web-game/issues/310)) ([6579d31](https://github.com/antoinezanardi/goat-it-web-game/commit/6579d31d800feb7b3f5a0b80ca5acdd2f6eb63ee))
+* **game:** add an interactive tutorial to the game page ([#324](https://github.com/antoinezanardi/goat-it-web-game/issues/324)) ([87dfff3](https://github.com/antoinezanardi/goat-it-web-game/commit/87dfff3cbe7f39f8a762f91ec5283843146bcb62))
+* **game:** invite first-time visitors to launch the interactive tutorial ([#327](https://github.com/antoinezanardi/goat-it-web-game/issues/327)) ([86c91fa](https://github.com/antoinezanardi/goat-it-web-game/commit/86c91fac35e39c316dd3fef482e17819ca58e5bb))
+* **game:** re-fetch active questions in new locale on language change ([#320](https://github.com/antoinezanardi/goat-it-web-game/issues/320)) ([f9af57b](https://github.com/antoinezanardi/goat-it-web-game/commit/f9af57b4bfef07de9f967cad8041abb406b5e2df))
+
+### 🐛 Bug Fixes
+
+* **game-question-card:** prevent highlight cropping and dev vue-tsc error ([#309](https://github.com/antoinezanardi/goat-it-web-game/issues/309)) ([07405ee](https://github.com/antoinezanardi/goat-it-web-game/commit/07405ee3ff8bb6ac190b26b1c8b8bfd48e140260))
+
+### 🧹 Chore
+
+* sync release v1.7.0 from main ([2317b4e](https://github.com/antoinezanardi/goat-it-web-game/commit/2317b4e0d04b123dddb03c890eba9d1c7fd8511f))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `@eslint/config-inspector` | `^3.5.0` |
+| `@iconify-json/lucide` | `^1.2.134` |
+| `@nuxtjs/robots` | `^6.2.3` |
+| `@takumi-rs/core` | `^2.14.0` |
+| `@types/node` | `^25.9.8` |
+| `@vue/test-utils` | `^2.5.1` |
+| `eslint` | `^10.11.0` |
+| `eslint-plugin-unicorn` | `v76` |
+| `nuxt-og-image` | `^6.8.0` |
+| `nuxt-schema-org` | `^6.3.2` |
+| `nuxt-seo-utils` | `^8.5.1` |
+| `oxlint-tsgolint` | `^7.0.2002` |
+| `radashi` | `^12.9.5` |
+| `type-fest` | `^5.10.0` |
+| `unhead` | `^3.4.1` |
+| `zod` | `^4.6.5` |
+| `node.js` | `` |
+| `oxlint monorepo` | `^1.83.0` |
+| `pnpm` | `v12.4.2` |
+| `vitest monorepo` | `^5.0.1` |
+| `vueuse monorepo` | `v15` |
+
 ## [1.7.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.6.1...v1.7.0) (2026-09-12)
 
 ### 🚀 Features
