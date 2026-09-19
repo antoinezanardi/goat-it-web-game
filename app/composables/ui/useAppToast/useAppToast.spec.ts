@@ -167,4 +167,14 @@ describe("useAppToast", () => {
       expect(useToast().remove).toHaveBeenCalledExactlyOnceWith("some-toast-id");
     });
   });
+
+  describe("updateToast", () => {
+    it("should update the toast matching the provided id with the provided options when called.", () => {
+      const { updateToast } = useAppToast();
+
+      updateToast("some-toast-id", { title: "Updated info title" });
+
+      expect(useToast().update).toHaveBeenCalledExactlyOnceWith("some-toast-id", { title: "Updated info title" });
+    });
+  });
 });

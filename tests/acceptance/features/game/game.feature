@@ -1,6 +1,9 @@
 @game-page
 Feature: 🎮 Game Page
 
+  Background:
+    Given the tutorial invitation has already been decided
+
   Scenario: 🎮 Game Page is displayed with correct title
     Given the user is on game page
     Then the page title should be "Goat It – Play"

@@ -2,6 +2,7 @@
   "game": {
     "pageTitle": "Goat It Game",
     "loadingQuestions": "Carregando perguntas...",
+    "translatingQuestions": "Traduzindo perguntas…",
     "nextQuestion": "Próxima pergunta",
     "previousQuestionTooltip": "Voltar à pergunta anterior",
     "menuTooltip": "Abrir menu",
@@ -10,6 +11,56 @@
     "backToHome": "Voltar ao início",
     "leaveConfirmTitle": "Sair do jogo?",
     "leaveConfirmDescription": "Tem certeza de que deseja sair do jogo atual?",
-    "leave": "Sair"
+    "leave": "Sair",
+    "interactiveTutorial": {
+      "label": "Tutorial interativo",
+      "invitation": {
+        "title": "Quer iniciar o tutorial interativo?",
+        "description": "Aprenda a orientar o jogo com uma visita rápida. Pode iniciá-lo agora ou encontrá-lo mais tarde na barra lateral.",
+        "start": "Iniciar o tutorial",
+        "notNow": "Agora não",
+        "sidebarAvailable": "O tutorial interativo está sempre disponível na barra lateral do jogo."
+      },
+      "controls": {
+        "back": "Voltar",
+        "next": "Avançar",
+        "skip": "Ignorar o tutorial",
+        "finish": "Concluir"
+      },
+      "steps": {
+        "welcome": {
+          "title": "Você tem a resposta. Eles é que devem encontrá-la!",
+          "description": "Bem-vindo ao papel de Mestre do Jogo. Você conhece a pergunta e a resposta, os jogadores não. Leia a cartela em voz alta, ouça as hipóteses deles, responda às perguntas e conduza-os aos poucos até a solução. O seu papel não é enganá-los, mas sim proporcionar uma boa investigação."
+        },
+        "framework": {
+          "title": "Monte o cenário da investigação",
+          "description": "Antes de fazer a pergunta, anuncie aos jogadores o tema, a categoria e a dificuldade. Essas informações dão a eles um primeiro enquadramento para pensar e orientar as hipóteses. A dificuldade indica apenas o quão difícil pode ser deduzir a resposta: não muda nem as regras nem a pontuação."
+        },
+        "question": {
+          "title": "Inicie a investigação",
+          "description": "Leia a pergunta em voz alta e depois deixe os jogadores conduzirem a investigação. Eles podem fazer quantas perguntas quiserem para reduzir as possibilidades. Responda apenas Sim, Não ou decidindo entre duas propostas. Uma pista errada não é um fracasso: cada resposta permite aos jogadores eliminar possibilidades e se aproximar da solução."
+        },
+        "clues": {
+          "title": "Suas ferramentas para guiá-los",
+          "description": "O Contexto e as Curiosidades são a sua caixa de ferramentas para conduzir a investigação. Consulte-os para entender melhor a resposta, decidir sobre uma pista ou responder a uma pergunta mais específica. Se os jogadores travarem, você também pode usá-los para dar uma dica sem revelar diretamente a solução. Guarde as informações mais reveladoras para o momento certo."
+        },
+        "answer": {
+          "title": "É você quem valida a resposta",
+          "description": "A Resposta é a sua referência: mantenha-a em segredo até que os jogadores pensem tê-la encontrado. Eles não precisam repetir exatamente as palavras da cartela: se a proposta deles corresponder ao conceito procurado, é vitória! Como Mestre do Jogo, é você quem decide quando a investigação está resolvida."
+        },
+        "sources": {
+          "title": "Revele a história por trás da resposta",
+          "description": "Assim que a solução for encontrada, revele a resposta e conte o que está por trás da pergunta. O Contexto e as Curiosidades permitem enriquecer esse momento e compartilhar os detalhes mais surpreendentes. As Fontes servem para aprofundar o assunto, verificar uma informação ou responder às perguntas que surgem depois da descoberta."
+        },
+        "continue": {
+          "title": "Pronto para a próxima investigação?",
+          "description": "A investigação terminou? Passe para a Próxima pergunta para continuar o jogo. Você também pode passar o papel de Mestre do Jogo para outro jogador: assim cada um poderá apresentar enigmas na sua vez. E se quiser rever a cartela anterior, use Anterior quando estiver disponível."
+        },
+        "sidebar": {
+          "title": "Tudo ao alcance das mãos",
+          "description": "O menu lateral permite encontrar os ajustes e opções da partida, mas também as Regras completas e este tutorial. Não precisa memorizar tudo agora: você pode voltar aqui quando quiser."
+        }
+      }
+    }
   }
 }

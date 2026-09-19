@@ -74,6 +74,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - `server/`           – Nitro server routes and utilities (API handlers, mappers, helpers)
   - `api/**/handlers/` – Route handler files (`*.handler.ts`); thin wrappers in `api/**/index.*.ts`
   - `utils/goat-it-api/` – Helpers, mappers, types, constants for the external API
+- `shared/enums/`     – Enums shared between app and server (e.g. `CookieNames`)
 - `shared/types/`     – Types shared between app and server (e.g. `QuestionTheme`)
 - `shared/utils/`     – Helpers auto-imported in both app and server
 - `tests/unit/`       – Test utilities: `setup/nuxt/`, `utils/faketories/`, `utils/mocks/`

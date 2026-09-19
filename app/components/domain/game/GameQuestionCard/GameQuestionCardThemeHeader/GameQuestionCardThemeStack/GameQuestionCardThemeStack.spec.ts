@@ -2,6 +2,7 @@ import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
+import type { ComponentPublicInstance } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
@@ -9,6 +10,7 @@ import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
+import { useQuestionCardHighlightMock } from "~~/tests/unit/setup/nuxt/composables/use-question-card-highlight.nuxt.unit-setup";
 
 import { GameQuestionCardThemeStack } from "#components";
 import type { GameQuestionCardThemeIcon } from "#components";
@@ -17,7 +19,11 @@ import type { QuestionTheme } from "#shared/types/question-theme.types";
 import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
 import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
 
-type GameQuestionCardThemeStackVm = ComponentVm & { toggleOpen: () => void };
+type GameQuestionCardThemeStackVm = ComponentVm & {
+  playHighlight: () => Promise<void>;
+  setIconElementReference: (element: Element | ComponentPublicInstance | null, index: number) => void;
+  toggleOpen: () => void;
+};
 
 describe("GameQuestionCardThemeStack Component", () => {
   const primaryTheme = createFakeQuestionTheme({ slug: "geography-travels", color: "#33A1FF", label: "Geography" });
@@ -191,5 +197,40 @@ describe("GameQuestionCardThemeStack Component", () => {
     const popover = wrapperSingleTheme.findComponent({ name: "UPopover" });
 
     expect(popover.props("open")).toBe(false);
+  });
+
+  it("should call useQuestionCardHighlight().animate with the icon elements in orderedAssignments order when playHighlight is called.", async() => {
+    const vm = getWrapperVm<GameQuestionCardThemeStackVm>(wrapper);
+    const icons = wrapper.findAllComponents({ name: "GameQuestionCardThemeIcon" });
+    const iconElements = icons.map(icon => icon.element as HTMLElement);
+
+    await vm.playHighlight();
+
+    expect(useQuestionCardHighlightMock.instance.animate).toHaveBeenCalledExactlyOnceWith(iconElements);
+  });
+
+  it("should animate the replacement element when setIconElementReference receives a raw HTMLElement.", async() => {
+    const vm = getWrapperVm<GameQuestionCardThemeStackVm>(wrapper);
+    const rawElement = document.createElement("span");
+    vm.setIconElementReference(rawElement, 0);
+
+    await vm.playHighlight();
+
+    const icons = wrapper.findAllComponents<typeof GameQuestionCardThemeIcon>("[data-testid^='theme-stack-icon-']");
+    const iconElements = icons.map(icon => icon.element as HTMLElement);
+
+    expect(useQuestionCardHighlightMock.instance.animate).toHaveBeenCalledExactlyOnceWith([rawElement, ...iconElements.slice(1)]);
+  });
+
+  it("should animate only the remaining icons when setIconElementReference receives null.", async() => {
+    const vm = getWrapperVm<GameQuestionCardThemeStackVm>(wrapper);
+    vm.setIconElementReference(null, 0);
+
+    await vm.playHighlight();
+
+    const icons = wrapper.findAllComponents<typeof GameQuestionCardThemeIcon>("[data-testid^='theme-stack-icon-']");
+    const iconElements = icons.map(icon => icon.element as HTMLElement);
+
+    expect(useQuestionCardHighlightMock.instance.animate).toHaveBeenCalledExactlyOnceWith(iconElements.slice(1));
   });
 });

@@ -1,4 +1,5 @@
 import type { VueWrapper } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
@@ -11,6 +12,9 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
 import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup";
+import { useAppToastMock } from "~~/tests/unit/setup/nuxt/composables/use-app-toast.nuxt.unit-setup";
+import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
+import { MOCKED_TOAST_ID } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
 import GamePage from "@/pages/(game)/game.vue";
@@ -49,6 +53,7 @@ describe("Game Page", () => {
 
   beforeEach(async() => {
     capturedLeaveGuard = undefined;
+    useCookieMockState.cookieRef.value = null;
     wrapper = await mountGamePage();
   });
 
@@ -288,5 +293,219 @@ describe("Game Page", () => {
     await nextTick();
 
     expect(sidebar.props("open")).toBe(false);
+  });
+
+  it("should pass isFetchingQuestions as the isFetchingQuestions prop to GameSidebar when mounted.", async() => {
+    useGameMock.instance.isFetchingQuestionsRef.value = true;
+    await nextTick();
+
+    const sidebar = wrapper.findComponent({ name: "GameSidebar" });
+
+    expect(sidebar.props("isFetchingQuestions")).toBe(true);
+  });
+
+  it("should pass isTutorialAvailable as false to GameSidebar when gameState is loading.", async() => {
+    useGameMock.instance.gameStateRef.value = "loading";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isTutorialAvailable")).toBe(false);
+  });
+
+  it("should pass isTutorialAvailable as false to GameSidebar when playing with no current question.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [];
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isTutorialAvailable")).toBe(false);
+  });
+
+  it("should pass isTutorialAvailable as false to GameSidebar when isTranslating is true.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    useGameMock.instance.isTranslatingRef.value = true;
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isTutorialAvailable")).toBe(false);
+  });
+
+  it("should pass isTutorialAvailable as false to GameSidebar when isFetchingQuestions is true.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    useGameMock.instance.isFetchingQuestionsRef.value = true;
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isTutorialAvailable")).toBe(false);
+  });
+
+  it("should pass isTutorialAvailable as true to GameSidebar when playing with a current question and no loading state.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isTutorialAvailable")).toBe(true);
+  });
+
+  it("should render GameTutorial when isTutorialAvailable is true.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameTutorial" }).exists()).toBe(true);
+  });
+
+  it("should not render GameTutorial when isTutorialAvailable is false.", async() => {
+    useGameMock.instance.gameStateRef.value = "loading";
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameTutorial" }).exists()).toBe(false);
+  });
+
+  it("should pass isActive as false to GameTutorial when mounted.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameTutorial" }).props("isActive")).toBe(false);
+  });
+
+  it("should pass isActive as true to GameTutorial when GameSidebar emits startTutorial.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+
+    expect(wrapper.findComponent({ name: "GameTutorial" }).props("isActive")).toBe(true);
+  });
+
+  it("should close the sidebar when GameSidebar emits startTutorial.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("open")).toBe(false);
+  });
+
+  it("should pass isActive as false to GameTutorial when GameTutorial emits tutorialEnd.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+    getWrapperVm(wrapper.findComponent({ name: "GameTutorial" })).$emit("tutorialEnd");
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameTutorial" }).props("isActive")).toBe(false);
+  });
+
+  it("should pass isActive as false to GameTutorial when the current question index changes.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion(), createFakeQuestion()];
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+    useGameMock.instance.currentIndex.value = 1;
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameTutorial" }).props("isActive")).toBe(false);
+  });
+
+  it("should not change the current question index when the tutorial is started.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion(), createFakeQuestion()];
+    useGameMock.instance.currentIndex.value = 1;
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+
+    expect(useGameMock.instance.currentIndex.value).toBe(1);
+  });
+
+  it("should render GameLoading when isTranslating is true even if gameState is playing.", async() => {
+    useGameMock.instance.isTranslatingRef.value = true;
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    const gameLoading = wrapper.findComponent({ name: "GameLoading" });
+
+    expect(gameLoading.exists()).toBeTruthy();
+  });
+
+  it("should pass isTranslating as the isTranslating prop to GameLoading when isTranslating is true.", async() => {
+    useGameMock.instance.isTranslatingRef.value = true;
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    const gameLoading = wrapper.findComponent({ name: "GameLoading" });
+
+    expect(gameLoading.props("isTranslating")).toBe(true);
+  });
+
+  it("should present the tutorial invitation when a question becomes playable.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    expect(useAppToastMock.instance.addInfoToast).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: "game-tutorial-invitation" }));
+  });
+
+  it("should not present the tutorial invitation when the decision cookie is already set.", async() => {
+    useCookieMockState.cookieRef.value = true;
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    expect(useAppToastMock.instance.addInfoToast).not.toHaveBeenCalled();
+  });
+
+  it("should persist the tutorial decision when the sidebar requests the tutorial while the invitation is visible.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+
+    expect(useCookieMockState.cookieRef.value).toBe(true);
+  });
+
+  it("should remove the tutorial invitation toast when the sidebar requests the tutorial while the invitation is visible.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+
+    expect(useAppToastMock.instance.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+  });
+
+  it("should not persist the tutorial decision when the sidebar requests the tutorial without an active invitation.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+
+    expect(useCookieMockState.cookieRef.value).toBeNull();
+  });
+
+  it("should remove the tutorial invitation toast when the game reaches game-over.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    useGameMock.instance.gameStateRef.value = "game-over";
+    await nextTick();
+
+    expect(useAppToastMock.instance.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+  });
+
+  it("should remove the tutorial invitation toast when the page unmounts.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    wrapper.unmount();
+
+    expect(useAppToastMock.instance.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
   });
 });

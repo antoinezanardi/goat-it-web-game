@@ -4,6 +4,9 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
+import { useQuestionCardHighlightMock } from "~~/tests/unit/setup/nuxt/composables/use-question-card-highlight.nuxt.unit-setup";
 
 import { GameQuestionCardHintBadge } from "#components";
 
@@ -33,7 +36,7 @@ describe("GameQuestionCardHintBadge Component", () => {
   it("should set the UBadge icon to the question hint icon when mounted.", () => {
     const badge = wrapper.findComponent({ name: "UBadge" });
 
-    expect(badge.props("icon")).toBe("i-lucide-hat-glasses");
+    expect(badge.props("icon")).toBe("i-lucide-mouth-off");
   });
 
   it("should apply the data-testid attribute to the badge when mounted.", () => {
@@ -58,5 +61,25 @@ describe("GameQuestionCardHintBadge Component", () => {
     const content = document.body.querySelector("[data-testid='game-question-hint-popover']");
 
     expect(content?.textContent).toBe("questions.themeStack.primaryThemeHintTooltip");
+  });
+
+  type GameQuestionCardHintBadgeVm = ComponentVm & { playHighlight: () => Promise<void> };
+
+  it("should call useQuestionCardHighlight().animate with its root element when playHighlight is called.", async() => {
+    const vm = getWrapperVm<GameQuestionCardHintBadgeVm>(wrapper);
+    const badgeElement = wrapper.findComponent({ name: "UBadge" }).element as HTMLElement;
+
+    await vm.playHighlight();
+
+    expect(useQuestionCardHighlightMock.instance.animate).toHaveBeenCalledExactlyOnceWith([badgeElement]);
+  });
+
+  it("should not call useQuestionCardHighlight().animate when playHighlight is called and the badge element reference is null.", async() => {
+    const vm = getWrapperVm<GameQuestionCardHintBadgeVm>(wrapper);
+    vm.$.refs.badgeElementReference = null;
+
+    await vm.playHighlight();
+
+    expect(useQuestionCardHighlightMock.instance.animate).not.toHaveBeenCalled();
   });
 });

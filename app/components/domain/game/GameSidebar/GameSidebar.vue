@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { VersionButton } from "#components";
+import { LocaleSelect, VersionButton } from "#components";
 
 import type { GameSidebarEmits, GameSidebarProps } from "@/components/domain/game/GameSidebar/game-sidebar.types";
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
@@ -10,6 +10,10 @@ const { t } = useI18n();
 
 function onUpdateOpen(value: boolean): void {
   emit("update:open", value);
+}
+
+function onStartTutorial(): void {
+  emit("startTutorial");
 }
 </script>
 
@@ -41,6 +45,19 @@ function onUpdateOpen(value: boolean): void {
     <template #body>
       <div class="flex flex-col gap-3">
         <ULink
+          v-if="props.isTutorialAvailable"
+          class="flex gap-1.5 items-center"
+          data-testid="game-sidebar-tutorial-link"
+          @click="onStartTutorial"
+        >
+          <UIcon
+            class="size-4"
+            name="i-lucide-compass"
+          />
+          {{ t("game.interactiveTutorial.label") }}
+        </ULink>
+
+        <ULink
           class="flex gap-1.5 items-center"
           data-testid="game-sidebar-rules-link"
           target="_blank"
@@ -68,7 +85,12 @@ function onUpdateOpen(value: boolean): void {
     </template>
 
     <template #footer>
-      <div class="flex gap-2 items-center justify-center w-full">
+      <div
+        class="flex gap-2 items-center justify-center w-full"
+        data-testid="game-sidebar-footer"
+      >
+        <LocaleSelect :disabled="props.isFetchingQuestions"/>
+
         <VersionButton/>
       </div>
     </template>

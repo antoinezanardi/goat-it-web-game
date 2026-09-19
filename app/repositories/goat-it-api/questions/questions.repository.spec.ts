@@ -17,7 +17,33 @@ describe(questionsRepository, () => {
     const repository = questionsRepository(fetchMock as $Fetch);
 
     expect(repository).toStrictEqual({
+      getByIds: expect.any(Function) as () => Promise<Question[]>,
       getRandom: expect.any(Function) as () => Promise<Question[]>,
+    });
+  });
+
+  describe("getByIds", () => {
+    it("should call fetch with the correct endpoint and query when called with ids.", async() => {
+      const repository = questionsRepository(fetchMock as $Fetch);
+      fetchMock.mockResolvedValue([]);
+      const ids = ["507f1f77bcf86cd799439011", "507f1f77bcf86cd799439012"];
+
+      await repository.getByIds(ids);
+
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions", { query: { ids, limit: 0 } });
+    });
+
+    it("should return questions from fetch when called.", async() => {
+      const fakeQuestions: Question[] = [
+        createFakeQuestion(),
+        createFakeQuestion(),
+      ];
+      const repository = questionsRepository(fetchMock as $Fetch);
+      fetchMock.mockResolvedValue(fakeQuestions);
+
+      const result = await repository.getByIds(["507f1f77bcf86cd799439011"]);
+
+      expect(result).toStrictEqual(fakeQuestions);
     });
   });
 

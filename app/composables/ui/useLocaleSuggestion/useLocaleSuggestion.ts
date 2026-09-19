@@ -2,16 +2,11 @@ import { isValidLocale } from "@goat-it/schemas/shared/locale";
 
 import { resolveSuggestedLocale } from "#shared/utils/helpers/locale/locale.helpers";
 import type { Toast } from "#ui/composables";
-import { I18N_REDIRECTED_COOKIE_MAX_AGE_IN_SECONDS, I18N_REDIRECTED_COOKIE_NAME } from "~/composables/ui/useLocaleSuggestion/use-locale-suggestion.constants";
 
 async function useLocaleSuggestion(): Promise<void> {
   const { addInfoToast, removeToast } = useAppToast();
   const { $i18n } = useNuxtApp();
-  const redirectedCookie = useCookie<string | null>(I18N_REDIRECTED_COOKIE_NAME, {
-    path: "/",
-    maxAge: I18N_REDIRECTED_COOKIE_MAX_AGE_IN_SECONDS,
-    sameSite: "lax",
-  });
+  const redirectedCookie = useLocaleCookie();
 
   if (redirectedCookie.value !== null && isValidLocale(redirectedCookie.value)) {
     return;
@@ -63,6 +58,9 @@ async function useLocaleSuggestion(): Promise<void> {
     "actions": [
       {
         label: translateInSuggestedLocale("common.localeSuggestion.accept"),
+        size: "md",
+        color: "primary",
+        leadingIcon: "i-lucide-languages",
         onClick: handleAccept,
       },
       {

@@ -2,6 +2,7 @@
   "game": {
     "pageTitle": "Goat It Game",
     "loadingQuestions": "Chargement des questions...",
+    "translatingQuestions": "Traduction des questions…",
     "nextQuestion": "Question suivante",
     "previousQuestionTooltip": "Revenir à la question précédente",
     "menuTooltip": "Ouvrir le menu",
@@ -10,6 +11,56 @@
     "backToHome": "Retour à l'accueil",
     "leaveConfirmTitle": "Quitter la partie ?",
     "leaveConfirmDescription": "Êtes-vous sûr de vouloir quitter la partie en cours ?",
-    "leave": "Quitter"
+    "leave": "Quitter",
+    "interactiveTutorial": {
+      "label": "Tutoriel interactif",
+      "invitation": {
+        "title": "Voulez-vous lancer le tutoriel interactif ?",
+        "description": "Apprenez à guider la partie grâce à une visite rapide. Vous pouvez le lancer maintenant ou le retrouver plus tard dans le menu latéral.",
+        "start": "Lancer le tutoriel",
+        "notNow": "Plus tard",
+        "sidebarAvailable": "Le tutoriel interactif est toujours disponible depuis le menu latéral de la partie."
+      },
+      "controls": {
+        "back": "Retour",
+        "next": "Suivant",
+        "skip": "Passer le tutoriel",
+        "finish": "Terminer"
+      },
+      "steps": {
+        "welcome": {
+          "title": "Vous détenez la réponse. À eux de la trouver !",
+          "description": "Bienvenue dans le rôle de Maître du Jeu. Vous connaissez la question et sa réponse, les joueurs non. Lisez la carte à voix haute, écoutez leurs hypothèses, répondez à leurs questions et guidez-les progressivement vers la solution. Votre rôle n'est pas de les piéger, mais de faire vivre une bonne enquête."
+        },
+        "framework": {
+          "title": "Posez le décor de l'enquête",
+          "description": "Avant de poser la question, annoncez le thème, la catégorie et la difficulté aux joueurs. Ces informations leur donnent un premier cadre pour réfléchir et orienter leurs hypothèses. La difficulté indique simplement à quel point la réponse peut être difficile à déduire : elle ne change ni les règles ni le score."
+        },
+        "question": {
+          "title": "Lancez l'enquête",
+          "description": "Lisez la question à voix haute, puis laissez les joueurs mener l'enquête. Ils peuvent poser autant de questions qu'ils le souhaitent pour réduire les possibilités. Répondez uniquement par Oui, Non ou en tranchant entre deux propositions. Une mauvaise piste n'est pas un échec : chaque réponse permet aux joueurs d'éliminer des possibilités et de se rapprocher de la solution."
+        },
+        "clues": {
+          "title": "Vos outils pour les guider",
+          "description": "Le Contexte et les Anecdotes sont votre boîte à outils pour animer l'enquête. Consultez-les pour mieux comprendre la réponse, départager une piste ou répondre à une question plus précise. Si les joueurs bloquent, vous pouvez aussi vous en servir pour leur donner un indice, sans révéler directement la solution. Gardez les informations les plus révélatrices pour le bon moment."
+        },
+        "answer": {
+          "title": "À vous de valider la réponse",
+          "description": "La Réponse est votre référence : gardez-la secrète jusqu'à ce que les joueurs pensent avoir trouvé. Ils n'ont pas besoin de reprendre exactement les mots de la carte : si leur proposition correspond au concept recherché, c'est gagné ! En tant que MJ, c'est vous qui décidez quand l'enquête est résolue."
+        },
+        "sources": {
+          "title": "Révélez l'histoire derrière la réponse",
+          "description": "Une fois la solution trouvée, révélez la réponse et racontez ce qui se cache derrière la question. Le Contexte et les Anecdotes vous permettent d'enrichir ce moment et de partager les détails les plus surprenants. Les Sources sont là pour approfondir le sujet, vérifier une information ou répondre aux questions qui viennent après la découverte."
+        },
+        "continue": {
+          "title": "Prêt pour la prochaine enquête ?",
+          "description": "L'enquête est terminée ? Passez à la Question suivante pour continuer la partie. Vous pouvez aussi passer le rôle de MJ à un autre joueur : chacun pourra ainsi faire découvrir des énigmes à son tour. Et si vous voulez revoir la carte précédente, utilisez Précédent lorsqu'il est disponible."
+        },
+        "sidebar": {
+          "title": "Tout est à portée de main",
+          "description": "Le menu latéral vous permet de retrouver les réglages et options de la partie, mais aussi les Règles complètes et ce tutoriel. Pas besoin de tout retenir maintenant : vous pourrez revenir ici quand vous le souhaitez."
+        }
+      }
+    }
   }
 }

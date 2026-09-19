@@ -16,6 +16,7 @@ permission:
     "grep *": "allow"
     "echo *": "allow"
     "git status *": "allow"
+    "git branch *": "allow"
     "git log *": "allow"
     "git diff *": "allow"
     "ls *": "allow"
@@ -30,6 +31,7 @@ permission:
     "sort *": "allow"
     "rg *": "allow"
     "tree *": "allow"
+    "npm view *": "allow"
   task:
     "*": "deny"
     "explore": "allow"

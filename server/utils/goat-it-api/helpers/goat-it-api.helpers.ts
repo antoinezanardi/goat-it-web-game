@@ -7,6 +7,7 @@ import type { H3Event } from "h3";
 import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
 import type { CreateGoatItApiEndpointOptions, GoatItApiResourceName } from "#server/utils/goat-it-api/goat-it-api.types";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { CookieNames } from "#shared/enums/cookie.enums";
 import { isNonEmptyString } from "#shared/utils/helpers/string/string.helpers";
 import { resolveCookieLocale } from "#shared/utils/helpers/locale/locale.helpers";
 
@@ -30,7 +31,7 @@ function createGoatItApiEndpoint(resourceName: GoatItApiResourceName, options?: 
 function extractLocaleFromEvent(event: H3Event): Locale {
   const config = getRuntimeConfig(event);
 
-  return resolveCookieLocale(getCookie(event, "i18n_redirected"), config.public.defaultLocale);
+  return resolveCookieLocale(getCookie(event, CookieNames.I18N_REDIRECTED), config.public.defaultLocale);
 }
 
 function createGoatItApiFetchOptions(event: H3Event): Parameters<typeof $fetch>[1] {

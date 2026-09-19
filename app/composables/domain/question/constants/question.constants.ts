@@ -19,7 +19,7 @@ const DIFFICULTY_ICON_MAP: Record<QuestionCognitiveDifficulty, string> = {
   hard: "i-lucide-brain-circuit",
 };
 
-const QUESTION_HINT_ICON = "i-lucide-hat-glasses";
+const QUESTION_HINT_ICON = "i-lucide-mouth-off";
 const QUESTION_PRIMARY_ICON = "i-lucide-star";
 
 const DIFFICULTY_RING_CLASS_MAP: Record<QuestionCognitiveDifficulty, string> = {

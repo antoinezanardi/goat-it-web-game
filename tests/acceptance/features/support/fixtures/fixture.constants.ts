@@ -6,6 +6,7 @@ import { FIVE_ACTIVE_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/
 import { SINGLE_MULTI_THEMES_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-multi-themes-question.fixture-set.ts";
 import { SINGLE_NO_CONTEXT_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-no-context-question.fixture-set.ts";
 import { SINGLE_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-question.fixture-set.ts";
+import { SINGLE_TRANSLATABLE_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-translatable-question.fixture-set.ts";
 import { SIXTY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/sixty-questions.fixture-set.ts";
 import { TWO_ENGLISH_ONLY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/two-english-only-questions.fixture-set.ts";
 import type { FixtureDomain, FixtureRegistry } from "#acceptance/features/support/fixtures/fixture.types.ts";
@@ -34,6 +35,10 @@ const FIXTURE_REGISTRY: FixtureRegistry = {
     "single-question": {
       data: SINGLE_QUESTION_FIXTURE_SET,
       dependencies: [["question-theme", "single-question-themes"]],
+    },
+    "single-translatable-question": {
+      data: SINGLE_TRANSLATABLE_QUESTION_FIXTURE_SET,
+      dependencies: [["question-theme", "five-question-themes"]],
     },
     "single-no-context-question": {
       data: SINGLE_NO_CONTEXT_QUESTION_FIXTURE_SET,

@@ -1,4 +1,5 @@
 import { NUXT_UI_BUTTONS_CONFIG } from "@/config/buttons.config.ts";
+import { NUXT_UI_TOAST_CONFIG } from "@/config/toast.config.ts";
 
 export default defineAppConfig({
   ui: {
@@ -12,5 +13,11 @@ export default defineAppConfig({
       neutral: "zinc",
     },
     button: NUXT_UI_BUTTONS_CONFIG,
+    toast: NUXT_UI_TOAST_CONFIG,
+    selectMenu: {
+      slots: {
+        item: "cursor-pointer",
+      },
+    },
   },
 });

@@ -40,10 +40,11 @@ const dataTestid = computed<"game-question" | "game-question-staged">(() => (pro
     </div>
 
     <div
-      class="flex-1 min-h-0 overflow-y-auto"
+      class="-ml-3 -mt-3 flex-1 min-h-0 overflow-y-auto pt-3 px-3"
       data-testid="game-question-body"
     >
       <GameQuestionCardThemeHeader
+        :is-active="props.isActive"
         :question="props.question"
       />
 
@@ -67,7 +68,7 @@ const dataTestid = computed<"game-question" | "game-question-staged">(() => (pro
     </div>
 
     <GameQuestionCardSourceList
-      class="pt-4 shrink-0"
+      class="py-2 shrink-0"
       :source-urls="props.question.sourceUrls"
     />
   </article>

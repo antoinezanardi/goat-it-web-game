@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-import { ConfirmDialog } from "#components";
+import { nextTick } from "vue";
+
+import { ConfirmDialog, GameTutorial } from "#components";
 
 import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
@@ -50,8 +52,40 @@ const {
   currentQuestion,
   gameState,
   goToPreviousQuestion,
+  isFetchingQuestions,
+  isTranslating,
   questions,
 } = useGame();
+
+const isTutorialAvailable = computed<boolean>(() => gameState.value === "playing" && currentQuestion.value !== undefined && !isTranslating.value && !isFetchingQuestions.value);
+
+const isTourRequested = ref<boolean>(false);
+
+async function startTutorial(): Promise<void> {
+  isSidebarOpen.value = false;
+  isTourRequested.value = false;
+  await nextTick();
+  isTourRequested.value = true;
+}
+
+const { acceptFromSidebar } = useGameTutorialInvitation({
+  gameState,
+  isTutorialAvailable,
+  onStartTutorial: startTutorial,
+});
+
+function onStartTutorialFromSidebar(): void {
+  acceptFromSidebar();
+  void startTutorial();
+}
+
+function onTourEnd(): void {
+  isTourRequested.value = false;
+}
+
+watch(currentIndex, () => {
+  isTourRequested.value = false;
+});
 
 const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveThemeColor(getPrimaryTheme(currentQuestion.value)?.color) : NEUTRAL_GREY_FALLBACK_THEME_COLOR));
 
@@ -82,15 +116,27 @@ function onSidebarOpenChange(open: boolean): void {
     />
 
     <GameSidebar
+      :is-fetching-questions="isFetchingQuestions"
+      :is-tutorial-available="isTutorialAvailable"
       :open="isSidebarOpen"
+      @start-tutorial="onStartTutorialFromSidebar"
       @update:open="onSidebarOpenChange"
+    />
+
+    <GameTutorial
+      v-if="isTutorialAvailable"
+      :is-active="isTourRequested"
+      @tutorial-end="onTourEnd"
     />
 
     <Transition
       mode="out-in"
       name="fade-slide-up"
     >
-      <GameLoading v-if="gameState === 'loading'"/>
+      <GameLoading
+        v-if="isTranslating || gameState === 'loading'"
+        :is-translating="isTranslating"
+      />
 
       <GamePlaying
         v-else-if="gameState === 'playing' && currentQuestion"

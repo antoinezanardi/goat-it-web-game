@@ -1,11 +1,11 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
-import type { ULink } from "#components";
+import type { ULink, LocaleSelect } from "#components";
 import { GameSidebar } from "#components";
 
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
@@ -15,6 +15,7 @@ describe("GameSidebar Component", () => {
   let wrapper: VueWrapper;
 
   const defaultGameSidebarProps: GameSidebarProps = {
+    isTutorialAvailable: true,
     open: true,
   } as const;
 
@@ -34,6 +35,11 @@ describe("GameSidebar Component", () => {
 
   beforeEach(async() => {
     wrapper = await mountGameSidebar();
+  });
+
+  afterEach(() => {
+    wrapper.unmount();
+    document.body.innerHTML = "";
   });
 
   it("should render GameSidebar when mounted.", () => {
@@ -112,10 +118,59 @@ describe("GameSidebar Component", () => {
     expect(wrapper.findComponent({ name: "VersionButton" }).exists()).toBe(true);
   });
 
+  it("should render the LocaleSelect component when mounted.", () => {
+    expect(wrapper.findComponent<typeof LocaleSelect>("[data-testid='locale-select']").exists()).toBe(true);
+  });
+
+  it("should pass the isFetchingQuestions prop to LocaleSelect as its disabled prop when isFetchingQuestions is true.", async() => {
+    await wrapper.setProps({ isFetchingQuestions: true });
+    const localeSelect = wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" });
+
+    expect(localeSelect.props("disabled")).toBe(true);
+  });
+
+  it("should pass the isFetchingQuestions prop to LocaleSelect as its disabled prop as false when isFetchingQuestions is not provided.", () => {
+    const localeSelect = wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" });
+
+    expect(localeSelect.props("disabled")).toBe(false);
+  });
+
+  it("should have the footer data-testid attribute when mounted.", () => {
+    expect(document.body.querySelector("[data-testid='game-sidebar-footer']")).not.toBeNull();
+  });
+
   it("should emit update:open when USlideover emits update:open.", () => {
     const slideover = wrapper.findComponent({ name: "USlideover" });
     getWrapperVm(slideover).$emit("update:open", false);
 
     expect(wrapper.emitted("update:open")).toStrictEqual([[false]]);
+  });
+
+  it("should render the tutorial entry when isTutorialAvailable is true.", () => {
+    expect(document.body.querySelector("[data-testid='game-sidebar-tutorial-link']")).not.toBeNull();
+  });
+
+  it("should render the interactive tutorial label on the tutorial entry when mounted.", () => {
+    expect(findLinkByTestId("game-sidebar-tutorial-link").text()).toContain("game.interactiveTutorial.label");
+  });
+
+  it("should render the compass icon on the tutorial entry when mounted.", () => {
+    expect(findLinkByTestId("game-sidebar-tutorial-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-compass");
+  });
+
+  it("should render the tutorial entry as a button when mounted.", () => {
+    expect(findLinkByTestId("game-sidebar-tutorial-link").find("button").exists()).toBe(true);
+  });
+
+  it("should emit startTutorial when the tutorial entry is clicked.", async() => {
+    await findLinkByTestId("game-sidebar-tutorial-link").find("button").trigger("click");
+
+    expect(wrapper.emitted("startTutorial")).toStrictEqual([[]]);
+  });
+
+  it("should not render the tutorial entry when isTutorialAvailable is false.", async() => {
+    await wrapper.setProps({ isTutorialAvailable: false });
+
+    expect(document.body.querySelector("[data-testid='game-sidebar-tutorial-link']")).toBeNull();
   });
 });

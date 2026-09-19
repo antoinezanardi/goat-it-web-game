@@ -222,4 +222,18 @@ describe("GameQuestionCard Component", () => {
 
     expect(updatedUid).toBe(initialUid);
   });
+
+  it("should pass isActive true to the theme header when mounted.", () => {
+    const header = wrapper.findComponent({ name: "GameQuestionCardThemeHeader" });
+
+    expect(header.props("isActive")).toBe(true);
+  });
+
+  it("should pass isActive false to the theme header when isActive is false.", async() => {
+    await wrapper.setProps({ isActive: false });
+
+    const header = wrapper.findComponent({ name: "GameQuestionCardThemeHeader" });
+
+    expect(header.props("isActive")).toBe(false);
+  });
 });
