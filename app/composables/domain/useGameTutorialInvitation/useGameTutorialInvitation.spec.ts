@@ -15,6 +15,7 @@ import type { useGameTutorialInvitation as UseGameTutorialInvitationType } from 
 import type { UseGameTutorialInvitation } from "@/composables/domain/useGameTutorialInvitation/use-game-tutorial-invitation.types";
 import type { GamePageState } from "@/composables/domain/useGame/useGame";
 import type { Toast } from "#ui/composables";
+import { CookieNames } from "#shared/enums/cookie.enums";
 
 let useAppToastMock: UseAppToastMock;
 
@@ -67,6 +68,14 @@ async function clickInvitationAction(index: number): Promise<void> {
   await nextTick();
 }
 
+function closeInvitation(): void {
+  const close = getPresentedInvitationOptions()?.close;
+
+  if (typeof close === "object") {
+    callOnClick(close.onClick);
+  }
+}
+
 describe("useGameTutorialInvitation", () => {
   beforeEach(async() => {
     useAppToastMock = createUseAppToastMock();
@@ -82,7 +91,7 @@ describe("useGameTutorialInvitation", () => {
 
   describe("decision cookie", () => {
     it("should read the tutorial decision cookie by name when mounted.", () => {
-      expect(useCookieMockState.capturedName.current).toBe("game_tutorial_invitation_decided");
+      expect(useCookieMockState.capturedName.current).toBe(CookieNames.GAME_TUTORIAL_INVITATION_DECIDED);
     });
 
     it("should read the tutorial decision cookie with a 400-day lifetime when mounted.", () => {
@@ -98,10 +107,18 @@ describe("useGameTutorialInvitation", () => {
         id: "game-tutorial-invitation",
         title: "game.interactiveTutorial.invitation.title",
         description: "game.interactiveTutorial.invitation.description",
+        icon: "i-lucide-compass",
         duration: 0,
-        close: false,
+        close: { onClick: expect.any(Function) as (event: MouseEvent) => void },
         actions: [
-          { label: "game.interactiveTutorial.invitation.start", disabled: false, onClick: expect.any(Function) as () => void },
+          {
+            label: "game.interactiveTutorial.invitation.start",
+            size: "md",
+            color: "primary",
+            leadingIcon: "i-lucide-play",
+            disabled: false,
+            onClick: expect.any(Function) as () => void,
+          },
           { label: "game.interactiveTutorial.invitation.notNow", color: "neutral", onClick: expect.any(Function) as () => void },
         ],
         onEscapeKeyDown: expect.any(Function) as (event: Event) => void,
@@ -225,6 +242,50 @@ describe("useGameTutorialInvitation", () => {
       await clickInvitationAction(1);
 
       expect(useAppToastMock.addInfoToast).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("close action", () => {
+    it("should persist the decision cookie when the invitation is closed.", async() => {
+      await reachFirstPlayableState();
+
+      closeInvitation();
+
+      expect(useCookieMockState.cookieRef.value).toBe(true);
+    });
+
+    it("should remove the invitation toast when the invitation is closed.", async() => {
+      await reachFirstPlayableState();
+
+      closeInvitation();
+
+      expect(useAppToastMock.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+    });
+
+    it("should add the sidebar availability toast when the invitation is closed.", async() => {
+      await reachFirstPlayableState();
+
+      closeInvitation();
+
+      expect(useAppToastMock.addInfoToast).toHaveBeenNthCalledWith(2, { description: "game.interactiveTutorial.invitation.sidebarAvailable" });
+    });
+
+    it("should not add the sidebar availability toast when the close button is clicked after the start action resolved the invitation.", async() => {
+      await reachFirstPlayableState();
+
+      await clickInvitationAction(0);
+      closeInvitation();
+
+      expect(useAppToastMock.addInfoToast).toHaveBeenCalledOnce();
+    });
+
+    it("should not add the sidebar availability toast when the invitation is closed after being resolved.", async() => {
+      await reachFirstPlayableState();
+      invitation.acceptFromSidebar();
+
+      closeInvitation();
+
+      expect(useAppToastMock.addInfoToast).toHaveBeenCalledOnce();
     });
   });
 

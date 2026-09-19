@@ -58,6 +58,9 @@ async function useLocaleSuggestion(): Promise<void> {
     "actions": [
       {
         label: translateInSuggestedLocale("common.localeSuggestion.accept"),
+        size: "md",
+        color: "primary",
+        leadingIcon: "i-lucide-languages",
         onClick: handleAccept,
       },
       {

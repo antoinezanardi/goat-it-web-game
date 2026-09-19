@@ -25,7 +25,7 @@ describe("useLocaleCookie", () => {
   it("should read the i18n_redirected cookie with the locale cookie options when called.", () => {
     useLocaleCookie();
 
-    expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 31_536_000, sameSite: "lax" });
+    expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 34_560_000, sameSite: "lax" });
   });
 
   it("should return the cookie reference when called.", () => {

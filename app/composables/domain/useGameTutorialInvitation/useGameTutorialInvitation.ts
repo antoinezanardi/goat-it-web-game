@@ -32,11 +32,15 @@ function useGameTutorialInvitation(options: GameTutorialInvitationOptions): UseG
     return {
       title: t("game.interactiveTutorial.invitation.title"),
       description: t("game.interactiveTutorial.invitation.description"),
+      icon: "i-lucide-compass",
       duration: 0,
-      close: false,
+      close: { onClick: handleNotNow },
       actions: [
         {
           label: t("game.interactiveTutorial.invitation.start"),
+          size: "md",
+          color: "primary",
+          leadingIcon: "i-lucide-play",
           disabled: !options.isTutorialAvailable.value,
           onClick: handleStart,
         },

@@ -72,7 +72,7 @@ describe("useLocaleSuggestion", () => {
   it("should persist cookie options when reading the i18n_redirected cookie.", async() => {
     await useLocaleSuggestion();
 
-    expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 31_536_000, sameSite: "lax" });
+    expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 34_560_000, sameSite: "lax" });
   });
 
   it("should not add a toast when the i18n_redirected cookie holds a valid locale.", async() => {
@@ -112,7 +112,13 @@ describe("useLocaleSuggestion", () => {
       "duration": 0,
       "icon": "i-lucide-languages",
       "actions": [
-        { label: "common.localeSuggestion.accept", onClick: expect.any(Function) as () => void },
+        {
+          label: "common.localeSuggestion.accept",
+          size: "md",
+          color: "primary",
+          leadingIcon: "i-lucide-languages",
+          onClick: expect.any(Function) as () => void,
+        },
         { label: "common.localeSuggestion.decline", color: "neutral", onClick: expect.any(Function) as () => void },
       ],
       "onUpdate:open": expect.any(Function) as (open: boolean) => void,
