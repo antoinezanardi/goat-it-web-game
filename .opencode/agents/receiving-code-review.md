@@ -14,6 +14,7 @@ permission:
     "git diff *": "allow"
     "git show *": "allow"
     "git merge-base *": "allow"
+    "git --no-pager *": "allow"
     "git add *": "deny"
     "git commit *": "deny"
     "git push *": "deny"
@@ -41,6 +42,7 @@ permission:
     "cut *": "allow"
     "xargs *": "allow"
     "mkdir *": "allow"
+    "xxd *": "allow"
   task:
     "*": "deny"
     "gatekeeper": "allow"

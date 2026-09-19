@@ -14,6 +14,13 @@
     "leave": "Esci",
     "interactiveTutorial": {
       "label": "Tutorial interattivo",
+      "invitation": {
+        "title": "Vuoi avviare il tutorial interattivo?",
+        "description": "Impara a guidare la partita con un rapido tour. Puoi avviarlo ora o trovarlo più tardi nella barra laterale.",
+        "start": "Avvia il tutorial",
+        "notNow": "Non ora",
+        "sidebarAvailable": "Il tutorial interattivo è sempre disponibile dalla barra laterale della partita."
+      },
       "controls": {
         "back": "Indietro",
         "next": "Avanti",

@@ -4,6 +4,7 @@ type UseAppToast = {
   addSuccessToast: (options: Partial<Toast>) => Toast;
   addErrorToast: (options: Partial<Toast>) => Toast;
   addInfoToast: (options: Partial<Toast>) => Toast;
+  updateToast: (id: string | number, options: Omit<Partial<Toast>, "id">) => void;
   removeToast: (id: string | number) => void;
 };
 
@@ -45,6 +46,10 @@ function useAppToast(): UseAppToast {
     });
   }
 
+  function updateToast(id: string | number, options: Omit<Partial<Toast>, "id">): void {
+    toast.update(id, options);
+  }
+
   function removeToast(id: string | number): void {
     toast.remove(id);
   }
@@ -52,6 +57,7 @@ function useAppToast(): UseAppToast {
     addSuccessToast,
     addErrorToast,
     addInfoToast,
+    updateToast,
     removeToast,
   };
 }

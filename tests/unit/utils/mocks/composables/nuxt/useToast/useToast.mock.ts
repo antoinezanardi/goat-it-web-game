@@ -10,6 +10,7 @@ type ToastEventHandler = (...arguments_: unknown[]) => void;
 
 type UseToastStub = {
   add: (options: Partial<Toast>) => Toast;
+  update: (id: string | number, options: Omit<Partial<Toast>, "id">) => void;
   remove: (id: string | number) => void;
   clear: () => void;
 };
@@ -41,6 +42,7 @@ function createMockedToast(): Toast {
 function createUseToastMock(): UseToastMock {
   return {
     add: vi.fn<UseToastStub["add"]>(createMockedToast),
+    update: vi.fn<UseToastStub["update"]>(),
     remove: vi.fn<UseToastStub["remove"]>(),
     clear: vi.fn<UseToastStub["clear"]>(),
   };

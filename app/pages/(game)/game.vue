@@ -68,6 +68,17 @@ async function startTutorial(): Promise<void> {
   isTourRequested.value = true;
 }
 
+const { acceptFromSidebar } = useGameTutorialInvitation({
+  gameState,
+  isTutorialAvailable,
+  onStartTutorial: startTutorial,
+});
+
+function onStartTutorialFromSidebar(): void {
+  acceptFromSidebar();
+  void startTutorial();
+}
+
 function onTourEnd(): void {
   isTourRequested.value = false;
 }
@@ -108,7 +119,7 @@ function onSidebarOpenChange(open: boolean): void {
       :is-fetching-questions="isFetchingQuestions"
       :is-tutorial-available="isTutorialAvailable"
       :open="isSidebarOpen"
-      @start-tutorial="startTutorial"
+      @start-tutorial="onStartTutorialFromSidebar"
       @update:open="onSidebarOpenChange"
     />
 

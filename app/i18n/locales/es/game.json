@@ -14,6 +14,13 @@
     "leave": "Salir",
     "interactiveTutorial": {
       "label": "Tutorial interactivo",
+      "invitation": {
+        "title": "¿Quieres iniciar el tutorial interactivo?",
+        "description": "Aprende a guiar la partida con un recorrido rápido. Puedes iniciarlo ahora o encontrarlo más tarde en el menú lateral.",
+        "start": "Iniciar el tutorial",
+        "notNow": "Ahora no",
+        "sidebarAvailable": "El tutorial interactivo siempre está disponible en el menú lateral de la partida."
+      },
       "controls": {
         "back": "Atrás",
         "next": "Siguiente",

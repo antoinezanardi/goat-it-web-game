@@ -14,6 +14,13 @@
     "leave": "Quitter",
     "interactiveTutorial": {
       "label": "Tutoriel interactif",
+      "invitation": {
+        "title": "Voulez-vous lancer le tutoriel interactif ?",
+        "description": "Apprenez à guider la partie grâce à une visite rapide. Vous pouvez le lancer maintenant ou le retrouver plus tard dans le menu latéral.",
+        "start": "Lancer le tutoriel",
+        "notNow": "Plus tard",
+        "sidebarAvailable": "Le tutoriel interactif est toujours disponible depuis le menu latéral de la partie."
+      },
       "controls": {
         "back": "Retour",
         "next": "Suivant",
