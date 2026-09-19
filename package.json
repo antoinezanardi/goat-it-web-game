@@ -108,7 +108,7 @@
     "@semantic-release/release-notes-generator": "^14.1.1",
     "@takumi-rs/core": "^2.14.0",
     "@tanstack/vue-table": "^9.2.4",
-    "@types/node": "^25.9.7",
+    "@types/node": "^25.9.8",
     "@vite-pwa/nuxt": "^1.1.1",
     "@vitest/coverage-v8": "^5.0.1",
     "@vitest/eslint-plugin": "^1.6.27",
