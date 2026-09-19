@@ -14,6 +14,13 @@
     "leave": "Leave",
     "interactiveTutorial": {
       "label": "Interactive tutorial",
+      "invitation": {
+        "title": "Would you like to launch the interactive tutorial?",
+        "description": "Learn how to guide the game with a quick tour. You can start it now or find it later in the sidebar.",
+        "start": "Start tutorial",
+        "notNow": "Not now",
+        "sidebarAvailable": "The interactive tutorial is always available from the game sidebar."
+      },
       "controls": {
         "back": "Back",
         "next": "Next",

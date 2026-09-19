@@ -14,6 +14,13 @@
     "leave": "Sair",
     "interactiveTutorial": {
       "label": "Tutorial interativo",
+      "invitation": {
+        "title": "Quer iniciar o tutorial interativo?",
+        "description": "Aprenda a orientar o jogo com uma visita rápida. Pode iniciá-lo agora ou encontrá-lo mais tarde na barra lateral.",
+        "start": "Iniciar o tutorial",
+        "notNow": "Agora não",
+        "sidebarAvailable": "O tutorial interativo está sempre disponível na barra lateral do jogo."
+      },
       "controls": {
         "back": "Voltar",
         "next": "Avançar",

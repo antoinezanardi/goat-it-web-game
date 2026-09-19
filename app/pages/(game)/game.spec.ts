@@ -12,6 +12,9 @@ import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketorie
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { useGameMock } from "~~/tests/unit/setup/nuxt/composables/use-game.nuxt.unit-setup";
 import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup";
+import { useAppToastMock } from "~~/tests/unit/setup/nuxt/composables/use-app-toast.nuxt.unit-setup";
+import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
+import { MOCKED_TOAST_ID } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
 import GamePage from "@/pages/(game)/game.vue";
@@ -50,6 +53,7 @@ describe("Game Page", () => {
 
   beforeEach(async() => {
     capturedLeaveGuard = undefined;
+    useCookieMockState.cookieRef.value = null;
     wrapper = await mountGamePage();
   });
 
@@ -440,5 +444,68 @@ describe("Game Page", () => {
     const gameLoading = wrapper.findComponent({ name: "GameLoading" });
 
     expect(gameLoading.props("isTranslating")).toBe(true);
+  });
+
+  it("should present the tutorial invitation when a question becomes playable.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    expect(useAppToastMock.instance.addInfoToast).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: "game-tutorial-invitation" }));
+  });
+
+  it("should not present the tutorial invitation when the decision cookie is already set.", async() => {
+    useCookieMockState.cookieRef.value = true;
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    expect(useAppToastMock.instance.addInfoToast).not.toHaveBeenCalled();
+  });
+
+  it("should persist the tutorial decision when the sidebar requests the tutorial while the invitation is visible.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+
+    expect(useCookieMockState.cookieRef.value).toBe(true);
+  });
+
+  it("should remove the tutorial invitation toast when the sidebar requests the tutorial while the invitation is visible.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+
+    expect(useAppToastMock.instance.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+  });
+
+  it("should not persist the tutorial decision when the sidebar requests the tutorial without an active invitation.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+
+    expect(useCookieMockState.cookieRef.value).toBeNull();
+  });
+
+  it("should remove the tutorial invitation toast when the game reaches game-over.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    useGameMock.instance.gameStateRef.value = "game-over";
+    await nextTick();
+
+    expect(useAppToastMock.instance.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+  });
+
+  it("should remove the tutorial invitation toast when the page unmounts.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    wrapper.unmount();
+
+    expect(useAppToastMock.instance.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
   });
 });

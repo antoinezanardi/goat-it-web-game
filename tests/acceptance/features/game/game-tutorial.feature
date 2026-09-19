@@ -1,6 +1,9 @@
 @game @game-tutorial
 Feature: 🧑‍🏫 Game Page Interactive Tutorial
 
+  Background:
+    Given the tutorial invitation has already been decided
+
   Scenario: 🧑‍🏫 Tutorial entry is visible for a live question
     Given the database is populated with the question fixture set "single-question"
     And the user is on game page

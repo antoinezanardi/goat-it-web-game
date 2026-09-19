@@ -16,6 +16,7 @@ function createUseAppToastMock(): UseAppToastMock {
     addSuccessToast: vi.fn<UseAppToast["addSuccessToast"]>(createMockedToast),
     addErrorToast: vi.fn<UseAppToast["addErrorToast"]>(createMockedToast),
     addInfoToast: vi.fn<UseAppToast["addInfoToast"]>(createMockedToast),
+    updateToast: vi.fn<UseAppToast["updateToast"]>(),
     removeToast: vi.fn<UseAppToast["removeToast"]>(),
   };
 }

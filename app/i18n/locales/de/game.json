@@ -14,6 +14,13 @@
     "leave": "Verlassen",
     "interactiveTutorial": {
       "label": "Interaktives Tutorial",
+      "invitation": {
+        "title": "Möchtest du das interaktive Tutorial starten?",
+        "description": "Lerne in einer kurzen Tour, wie du das Spiel anleitest. Du kannst es jetzt starten oder später in der Seitenleiste finden.",
+        "start": "Tutorial starten",
+        "notNow": "Nicht jetzt",
+        "sidebarAvailable": "Das interaktive Tutorial ist jederzeit über die Seitenleiste des Spiels verfügbar."
+      },
       "controls": {
         "back": "Zurück",
         "next": "Weiter",

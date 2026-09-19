@@ -1,6 +1,9 @@
 @game-sidebar
 Feature: 🧭 Game Page Sidebar
 
+  Background:
+    Given the tutorial invitation has already been decided
+
   Scenario: 🧭 Opening the sidebar displays the brand header
     Given the user is on game page
     When the user opens the game sidebar

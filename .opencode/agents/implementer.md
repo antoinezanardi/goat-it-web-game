@@ -1,7 +1,7 @@
 ---
 description: Implements one very detailed task from an implementation plan for the goat-it-web-game project (Nuxt 4 + Vue 3 + @nuxt/ui v4, 100% test coverage).
 mode: subagent
-model: opencode-go/muse-spark-1.3-contributor
+model: opencode-go/deepseek-v4.1-flash
 temperature: 0.2
 hidden: true
 steps: 80
