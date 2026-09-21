@@ -6,6 +6,13 @@ type GameTutorialEmits = {
   tutorialEnd: [];
 };
 
+type GameTutorialSpotlightRect = {
+  height: number;
+  left: number;
+  top: number;
+  width: number;
+};
+
 type GameTutorialStepKey =
   | "answer" |
   "clues" |
@@ -22,4 +29,4 @@ type GameTutorialStep = {
   target?: string;
 };
 
-export type { GameTutorialEmits, GameTutorialProps, GameTutorialStep, GameTutorialStepKey };
+export type { GameTutorialEmits, GameTutorialProps, GameTutorialSpotlightRect, GameTutorialStep, GameTutorialStepKey };

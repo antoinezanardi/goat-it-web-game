@@ -12,6 +12,10 @@ function getGameTourBackdrop(page: Page): Locator {
   return page.getByTestId("game-tutorial-backdrop");
 }
 
+function getGameTourSpotlight(page: Page): Locator {
+  return page.getByTestId("game-tutorial-spotlight");
+}
+
 function getGameTourTitle(page: Page): Locator {
   return page.getByTestId("game-tutorial-title");
 }
@@ -37,6 +41,7 @@ function getGameTutorialInvitationAction(page: Page, name: string): Locator {
 export {
   getGameTourBackdrop,
   getGameTourButton,
+  getGameTourSpotlight,
   getGameTourTitle,
   getGameTourTooltip,
   getGameTutorialInvitationAction,
