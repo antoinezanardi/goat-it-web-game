@@ -23,10 +23,12 @@ type GameTutorialStepKey =
   "sources" |
   "welcome";
 
+type GameTutorialStepDirection = "forward" | "backward";
+
 type GameTutorialStep = {
   icon: string;
   key: GameTutorialStepKey;
   target?: string;
 };
 
-export type { GameTutorialEmits, GameTutorialProps, GameTutorialSpotlightRect, GameTutorialStep, GameTutorialStepKey };
+export type { GameTutorialEmits, GameTutorialProps, GameTutorialSpotlightRect, GameTutorialStep, GameTutorialStepDirection, GameTutorialStepKey };
