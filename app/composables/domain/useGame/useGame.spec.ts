@@ -211,6 +211,41 @@ describe("useGame", () => {
       expect(game.gameState.value).toBe("game-over");
     });
 
+    it("should reset the game questions when mounted.", async() => {
+      const wrapper = mount(defineComponent({
+        setup(): () => null {
+          useGame();
+
+          return (): null => null;
+        },
+      }));
+      const store = mockStore(useGameStore);
+      await flushPromises();
+      wrapper.unmount();
+
+      expect(store.resetQuestions).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it("should clear previously loaded questions before the initial fetch when mounted.", async() => {
+      const store = mockStore(useGameStore);
+      store.questions = [createFakeQuestion(), createFakeQuestion()];
+      store.resetQuestions.mockImplementation(() => {
+        store.questions = [];
+      });
+
+      const wrapper = mount(defineComponent({
+        setup(): () => null {
+          useGame();
+
+          return (): null => null;
+        },
+      }));
+      await flushPromises();
+      wrapper.unmount();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
+    });
+
     it("should not set gameState to 'game-over' when the initial fetch returns questions.", async() => {
       const store = mockStore(useGameStore);
       const game = useGame();
