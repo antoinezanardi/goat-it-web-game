@@ -1,16 +1,22 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it } from "vitest";
+import type { MockInstance } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
+import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup";
 
 import { GameQuestionCardContextAccordion } from "#components";
 
+import { GAME_QUESTION_CARD_CONTEXT_ACCORDION_EXPAND_SAFETY_TIMEOUT_MS } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.constants";
 import type { GameQuestionCardContextAccordionProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.types";
 
 describe("GameQuestionCardContextAccordion Component", () => {
   const defaultGameQuestionCardContextAccordionProps: GameQuestionCardContextAccordionProps = {} as const;
   let wrapper: VueWrapper;
+  let scrollIntoViewSpy: MockInstance;
 
   async function mountGameQuestionCardContextAccordion(options: MountSuspendedOptions<typeof GameQuestionCardContextAccordion> = {}): Promise<VueWrapper> {
     return mountSuspended(GameQuestionCardContextAccordion, {
@@ -26,8 +32,27 @@ describe("GameQuestionCardContextAccordion Component", () => {
     return openedWrapper;
   }
 
+  async function mountOpenAndSettleAccordion(options: MountSuspendedOptions<typeof GameQuestionCardContextAccordion> = {}): Promise<VueWrapper> {
+    const openedWrapper = await mountAndOpenAccordion(options);
+    await nextTick();
+
+    return openedWrapper;
+  }
+
+  function getAccordionRootElement(wrapperInstance: VueWrapper): HTMLElement {
+    return wrapperInstance.findComponent({ name: "UCollapsible" }).element as HTMLElement;
+  }
+
   beforeEach(async() => {
+    scrollIntoViewSpy = vi.spyOn(Element.prototype, "scrollIntoView");
     wrapper = await mountGameQuestionCardContextAccordion();
+  });
+
+  afterEach(() => {
+    if (wrapper.exists()) {
+      wrapper.unmount();
+    }
+    vi.clearAllTimers();
   });
 
   it("should render GameQuestionCardContextAccordion when mounted.", () => {
@@ -165,5 +190,71 @@ describe("GameQuestionCardContextAccordion Component", () => {
     await wrapper.find("button").trigger("click");
 
     expect(wrapper.findComponent({ name: "UCollapsible" }).props("open")).toBe(true);
+  });
+
+  describe("auto scroll", () => {
+    it("should not scroll the accordion into view when the accordion is closed on mount.", () => {
+      expect(scrollIntoViewSpy).not.toHaveBeenCalled();
+    });
+
+    it("should scroll the accordion into view with smooth behavior when the content expand animation ends.", async() => {
+      wrapper = await mountOpenAndSettleAccordion({ props: { context: "Context text." } });
+      getAccordionRootElement(wrapper).dispatchEvent(new Event("animationend"));
+
+      expect(scrollIntoViewSpy).toHaveBeenCalledExactlyOnceWith({ behavior: "smooth", block: "nearest" });
+    });
+
+    it("should scroll the accordion into view with instant behavior when reduced motion is preferred.", async() => {
+      usePreferredReducedMotionMock.instance.preferredReducedMotionRef.value = "reduce";
+      wrapper = await mountOpenAndSettleAccordion({ props: { context: "Context text." } });
+      getAccordionRootElement(wrapper).dispatchEvent(new Event("animationend"));
+
+      expect(scrollIntoViewSpy).toHaveBeenCalledExactlyOnceWith({ behavior: "auto", block: "nearest" });
+    });
+
+    it("should scroll the accordion into view when the expand animation never ends and the safety timeout elapses.", async() => {
+      wrapper = await mountOpenAndSettleAccordion({ props: { context: "Context text." } });
+      vi.advanceTimersByTime(GAME_QUESTION_CARD_CONTEXT_ACCORDION_EXPAND_SAFETY_TIMEOUT_MS);
+
+      expect(scrollIntoViewSpy).toHaveBeenCalledExactlyOnceWith({ behavior: "smooth", block: "nearest" });
+    });
+
+    it("should scroll the accordion into view only once when the animation ends before the safety timeout elapses.", async() => {
+      wrapper = await mountOpenAndSettleAccordion({ props: { context: "Context text." } });
+      getAccordionRootElement(wrapper).dispatchEvent(new Event("animationend"));
+      vi.advanceTimersByTime(GAME_QUESTION_CARD_CONTEXT_ACCORDION_EXPAND_SAFETY_TIMEOUT_MS);
+
+      expect(scrollIntoViewSpy).toHaveBeenCalledExactlyOnceWith({ behavior: "smooth", block: "nearest" });
+    });
+
+    it("should not scroll the accordion into view when the content animation ends while the accordion is closed.", () => {
+      getAccordionRootElement(wrapper).dispatchEvent(new Event("animationend"));
+
+      expect(scrollIntoViewSpy).not.toHaveBeenCalled();
+    });
+
+    it("should not scroll the accordion into view when the accordion closes before the expand animation ends.", async() => {
+      wrapper = await mountOpenAndSettleAccordion({ props: { context: "Context text." } });
+      await wrapper.find("button").trigger("click");
+      vi.advanceTimersByTime(GAME_QUESTION_CARD_CONTEXT_ACCORDION_EXPAND_SAFETY_TIMEOUT_MS);
+
+      expect(scrollIntoViewSpy).not.toHaveBeenCalled();
+    });
+
+    it("should not scroll the accordion into view when the component unmounts before the expand animation ends.", async() => {
+      wrapper = await mountOpenAndSettleAccordion({ props: { context: "Context text." } });
+      wrapper.unmount();
+      vi.advanceTimersByTime(GAME_QUESTION_CARD_CONTEXT_ACCORDION_EXPAND_SAFETY_TIMEOUT_MS);
+
+      expect(scrollIntoViewSpy).not.toHaveBeenCalled();
+    });
+
+    it("should not scroll the accordion into view when the root element reference is null.", async() => {
+      wrapper = await mountOpenAndSettleAccordion({ props: { context: "Context text." } });
+      getWrapperVm(wrapper).$.refs.rootElementReference = null;
+      getAccordionRootElement(wrapper).dispatchEvent(new Event("animationend"));
+
+      expect(scrollIntoViewSpy).not.toHaveBeenCalled();
+    });
   });
 });
