@@ -3,13 +3,14 @@ import { useEventListener } from "@vueuse/core";
 
 import { GameTutorialPopoverContent } from "#components";
 
-import type { GameTutorialEmits, GameTutorialProps } from "@/components/domain/game/GameTutorial/game-tutorial.types";
+import type { GameTutorialEmits, GameTutorialProps, GameTutorialSpotlightRect } from "@/components/domain/game/GameTutorial/game-tutorial.types";
 import {
-  GAME_TUTORIAL_HIGHLIGHT_CLASS,
   GAME_TUTORIAL_POPOVER_MARGIN,
   GAME_TUTORIAL_POPOVER_MIN_HEIGHT,
   GAME_TUTORIAL_POPOVER_OFFSET,
   GAME_TUTORIAL_POPOVER_UI,
+  GAME_TUTORIAL_SPOTLIGHT_PADDING,
+  GAME_TUTORIAL_SPOTLIGHT_PADDING_SIDES,
   GAME_TUTORIAL_STEPS,
 } from "@/components/domain/game/GameTutorial/game-tutorial.constants";
 
@@ -48,21 +49,33 @@ const {
   start,
 } = useTour(tourSteps);
 
-const highlightedElement = shallowRef<Element>();
+const highlightRect = ref<GameTutorialSpotlightRect>();
 
-function clearHighlight(): void {
-  highlightedElement.value?.classList.remove(GAME_TUTORIAL_HIGHLIGHT_CLASS);
-  highlightedElement.value = undefined;
-}
+const spotlightStyle = computed(() => {
+  const rect = highlightRect.value;
+
+  if (rect === undefined) {
+    return;
+  }
+  return {
+    height: `${rect.height + GAME_TUTORIAL_SPOTLIGHT_PADDING * GAME_TUTORIAL_SPOTLIGHT_PADDING_SIDES}px`,
+    left: `${rect.left - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+    top: `${rect.top - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+    width: `${rect.width + GAME_TUTORIAL_SPOTLIGHT_PADDING * GAME_TUTORIAL_SPOTLIGHT_PADDING_SIDES}px`,
+  };
+});
 
 function updateTourLayout(element?: Element): void {
   if (element === undefined) {
+    highlightRect.value = undefined;
     popoverMaxHeight.value = "none";
     popoverSide.value = "bottom";
 
     return;
   }
-  const { bottom, top } = element.getBoundingClientRect();
+  const { bottom, height, left, top, width } = element.getBoundingClientRect();
+
+  highlightRect.value = { height, left, top, width };
   const spaceAbove = top - GAME_TUTORIAL_POPOVER_MARGIN;
   const spaceBelow = window.innerHeight - bottom - GAME_TUTORIAL_POPOVER_MARGIN;
   const shouldOpenAbove = spaceAbove > spaceBelow;
@@ -72,11 +85,7 @@ function updateTourLayout(element?: Element): void {
 }
 
 function updateTourTarget(): void {
-  clearHighlight();
-
   if (reference.value instanceof Element) {
-    highlightedElement.value = reference.value;
-    highlightedElement.value.classList.add(GAME_TUTORIAL_HIGHLIGHT_CLASS);
     updateTourLayout(reference.value);
 
     return;
@@ -106,10 +115,6 @@ watch(open, isOpen => {
     emit("tutorialEnd");
   }
 });
-
-onBeforeUnmount(() => {
-  clearHighlight();
-});
 </script>
 
 <template>
@@ -117,9 +122,21 @@ onBeforeUnmount(() => {
     <Transition name="fade">
       <div
         v-if="open"
-        class="bg-black/50 fixed inset-0 z-40"
+        class="fixed inset-0 z-40"
         data-testid="game-tutorial-backdrop"
-      />
+      >
+        <div
+          v-if="spotlightStyle"
+          class="absolute game-tutorial-spotlight"
+          data-testid="game-tutorial-spotlight"
+          :style="spotlightStyle"
+        />
+
+        <div
+          v-else
+          class="absolute bg-black/50 inset-0"
+        />
+      </div>
     </Transition>
 
     <UPopover
