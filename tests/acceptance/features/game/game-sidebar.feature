@@ -23,6 +23,13 @@ Feature: 🧭 Game Page Sidebar
     And the user clicks the back to home link in the game sidebar
     Then the user should be on home page
 
+  Scenario: 🧭 Clicking the brand logo in the sidebar navigates to home page
+    Given the user is on game page
+    And the no more questions message should be displayed
+    When the user opens the game sidebar
+    And the user clicks on the link with exact name "Goat It"
+    Then the user should be on home page
+
   Scenario: 🧭 Clicking back to home in the sidebar while playing shows the leave confirmation
     Given the database is populated with the question fixture set "five-active-questions"
     And the user is on game page

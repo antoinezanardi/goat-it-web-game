@@ -26,9 +26,10 @@ function onStartTutorial(): void {
     @update:open="onUpdateOpen"
   >
     <template #header>
-      <div
+      <ULink
         class="flex gap-2 items-center"
         data-testid="game-sidebar"
+        to="/"
       >
         <img
           alt=""
@@ -39,7 +40,7 @@ function onStartTutorial(): void {
         <span class="font-semibold text-fg-primary text-lg">
           {{ t("home.brand") }}
         </span>
-      </div>
+      </ULink>
     </template>
 
     <template #body>
