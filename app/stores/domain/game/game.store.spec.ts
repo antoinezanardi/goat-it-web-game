@@ -229,6 +229,25 @@ describe("useGameStore", () => {
     });
   });
 
+  describe("resetQuestions", () => {
+    it("should clear the questions when invoked.", () => {
+      const store = useGameStore();
+      store.questions = [createFakeQuestion(), createFakeQuestion()];
+
+      store.resetQuestions();
+
+      expect(store.questions).toStrictEqual([]);
+    });
+
+    it("should keep the questions empty when invoked while already empty.", () => {
+      const store = useGameStore();
+
+      store.resetQuestions();
+
+      expect(store.questions).toStrictEqual([]);
+    });
+  });
+
   describe("useAsyncAction setup", () => {
     it("should pass the repository getRandom function as action to the first useAsyncAction when created.", () => {
       useGameStore();
