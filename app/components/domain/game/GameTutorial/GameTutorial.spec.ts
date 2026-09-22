@@ -1,7 +1,7 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
@@ -131,14 +131,15 @@ describe("GameTutorial Component", () => {
     return collectRenderedStepTitles(index + 1, titles);
   }
 
-  function pressTutorialKey(key: "ArrowLeft" | "ArrowRight"): KeyboardEvent {
+  function pressTutorialKey(key: string, options: { repeat?: boolean } = {}): KeyboardEvent {
     const event = new KeyboardEvent("keydown", {
       bubbles: true,
       cancelable: true,
       key,
+      repeat: options.repeat ?? false,
     });
 
-    globalThis.dispatchEvent(event);
+    document.body.dispatchEvent(event);
 
     return event;
   }
@@ -546,12 +547,77 @@ describe("GameTutorial Component", () => {
       expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
     });
 
+    it("should not change the step when a non-arrow key is pressed.", async() => {
+      await startTour();
+
+      pressTutorialKey("Enter");
+      await flushPromises();
+
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
+    });
+
+    it("should not change the step when the right arrow key press is repeated.", async() => {
+      await startTour();
+
+      pressTutorialKey("ArrowRight", { repeat: true });
+      await flushPromises();
+
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
+    });
+
     it("should prevent the default event when the right arrow key moves to the next step.", async() => {
       await startTour();
 
       const event = pressTutorialKey("ArrowRight");
 
       expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("should stop the propagation of the right arrow key when it moves to the next step.", async() => {
+      await startTour();
+      const keydownListener = vi.fn<(event: KeyboardEvent) => void>();
+      document.addEventListener("keydown", keydownListener);
+
+      pressTutorialKey("ArrowRight");
+      await flushPromises();
+      document.removeEventListener("keydown", keydownListener);
+
+      expect(keydownListener).not.toHaveBeenCalled();
+    });
+
+    it("should stop the propagation of the right arrow key when it finishes the last step.", async() => {
+      await startTour();
+      await collectRenderedStepTitles();
+      const keydownListener = vi.fn<(event: KeyboardEvent) => void>();
+      document.addEventListener("keydown", keydownListener);
+
+      pressTutorialKey("ArrowRight");
+      await flushPromises();
+      document.removeEventListener("keydown", keydownListener);
+
+      expect(keydownListener).not.toHaveBeenCalled();
+    });
+
+    it("should not stop the propagation of the right arrow key when the tutorial is closed.", () => {
+      const keydownListener = vi.fn<(event: KeyboardEvent) => void>();
+      document.addEventListener("keydown", keydownListener);
+
+      pressTutorialKey("ArrowRight");
+      document.removeEventListener("keydown", keydownListener);
+
+      expect(keydownListener).toHaveBeenCalledExactlyOnceWith(expect.any(KeyboardEvent));
+    });
+
+    it("should not stop the propagation of the left arrow key when it cannot go before the first step.", async() => {
+      await startTour();
+      const keydownListener = vi.fn<(event: KeyboardEvent) => void>();
+      document.addEventListener("keydown", keydownListener);
+
+      pressTutorialKey("ArrowLeft");
+      await flushPromises();
+      document.removeEventListener("keydown", keydownListener);
+
+      expect(keydownListener).toHaveBeenCalledExactlyOnceWith(expect.any(KeyboardEvent));
     });
 
     it("should not prevent the default event when the left arrow key is pressed on the first step.", async() => {
