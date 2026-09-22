@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onKeyStroke, useEventListener } from "@vueuse/core";
+import { useEventListener } from "@vueuse/core";
 
 import { GameTutorialPopoverContent } from "#components";
 
@@ -11,6 +11,7 @@ import type {
   GameTutorialStepDirection,
 } from "@/components/domain/game/GameTutorial/game-tutorial.types";
 import {
+  GAME_TUTORIAL_ARROW_KEY_DIRECTIONS,
   GAME_TUTORIAL_POPOVER_MARGIN,
   GAME_TUTORIAL_POPOVER_MIN_HEIGHT,
   GAME_TUTORIAL_POPOVER_OFFSET,
@@ -112,19 +113,21 @@ function navigateTutorialStep(direction: GameTutorialStepDirection): void {
   prev();
 }
 
-function onTutorialShortcut(event: KeyboardEvent, direction: GameTutorialStepDirection): void {
+function onTutorialShortcut(event: KeyboardEvent): void {
   if (!open.value || event.repeat || isEditableKeyboardTarget(event.target)) {
     return;
   }
-  if (!canNavigateTutorialStep(direction)) {
+  const direction = GAME_TUTORIAL_ARROW_KEY_DIRECTIONS[event.key];
+
+  if (direction === undefined || !canNavigateTutorialStep(direction)) {
     return;
   }
   event.preventDefault();
+  event.stopPropagation();
   navigateTutorialStep(direction);
 }
 
-onKeyStroke("ArrowLeft", event => onTutorialShortcut(event, "backward"), { dedupe: true, passive: false });
-onKeyStroke("ArrowRight", event => onTutorialShortcut(event, "forward"), { dedupe: true, passive: false });
+useEventListener("keydown", onTutorialShortcut, { capture: true, passive: false });
 
 watch(() => props.isActive, isActive => {
   if (isActive) {

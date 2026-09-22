@@ -76,6 +76,24 @@ Feature: ⌨️ Game Page Keyboard Navigation
     Then the interactive tutorial should be hidden
     And the question statement should be "What is the capital of France?"
 
+  Scenario: ⌨️ Finishing the tutorial with the right arrow key does not advance the question
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    And a game question should be displayed
+    When the user opens the interactive tutorial from the game sidebar
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    Then the interactive tutorial step title should be "Everything is within reach"
+    When the user presses the right arrow key
+    Then the interactive tutorial should be hidden
+    And a game question should be displayed
+    And the previous question button should be hidden
+
   Scenario: ⌨️ Question arrows remain usable while the themes popover is open
     Given the database is populated with the question fixture set "single-multi-themes-question"
     And the user is on game page
