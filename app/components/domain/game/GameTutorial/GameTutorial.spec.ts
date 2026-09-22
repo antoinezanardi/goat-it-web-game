@@ -131,6 +131,18 @@ describe("GameTutorial Component", () => {
     return collectRenderedStepTitles(index + 1, titles);
   }
 
+  function pressTutorialKey(key: "ArrowLeft" | "ArrowRight"): KeyboardEvent {
+    const event = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key,
+    });
+
+    globalThis.dispatchEvent(event);
+
+    return event;
+  }
+
   beforeEach(async() => {
     createGameTutorialTargets();
     wrapper = await mountGameTutorial();
@@ -466,5 +478,99 @@ describe("GameTutorial Component", () => {
     await startTour();
 
     expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
+  });
+
+  describe("keyboard shortcuts", () => {
+    it("should move to the next step when the right arrow key is pressed.", async() => {
+      await startTour();
+
+      pressTutorialKey("ArrowRight");
+      await flushPromises();
+
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.framework.title");
+    });
+
+    it("should move back to the previous step when the left arrow key is pressed.", async() => {
+      await startTour();
+      await clickGameTutorialButton("game-tutorial-next");
+
+      pressTutorialKey("ArrowLeft");
+      await flushPromises();
+
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
+    });
+
+    it("should stay on the first step when the left arrow key is pressed on the first step.", async() => {
+      await startTour();
+
+      pressTutorialKey("ArrowLeft");
+      await flushPromises();
+
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
+    });
+
+    it("should hide the tutorial when the right arrow key is pressed on the last step.", async() => {
+      await startTour();
+      await collectRenderedStepTitles();
+
+      pressTutorialKey("ArrowRight");
+      await flushPromises();
+
+      expect(queryGameTutorialElement("game-tutorial")).toBeNull();
+    });
+
+    it("should emit tutorialEnd when the right arrow key finishes the last step.", async() => {
+      await startTour();
+      await collectRenderedStepTitles();
+
+      pressTutorialKey("ArrowRight");
+      await flushPromises();
+
+      expect(wrapper.emitted("tutorialEnd")).toStrictEqual([[]]);
+    });
+
+    it("should not prevent the default event when the right arrow key is pressed while the tutorial is closed.", () => {
+      const event = pressTutorialKey("ArrowRight");
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it("should not change the step when the right arrow key is pressed on an editable target.", async() => {
+      await startTour();
+      const input = document.createElement("input");
+      document.body.append(input);
+
+      input.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "ArrowRight" }));
+      await flushPromises();
+
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
+    });
+
+    it("should prevent the default event when the right arrow key moves to the next step.", async() => {
+      await startTour();
+
+      const event = pressTutorialKey("ArrowRight");
+
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("should not prevent the default event when the left arrow key is pressed on the first step.", async() => {
+      await startTour();
+
+      const event = pressTutorialKey("ArrowLeft");
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+  });
+
+  describe("keyboard listener cleanup", () => {
+    it("should not prevent the default event when the right arrow key is pressed after the component unmounts.", async() => {
+      await startTour();
+      wrapper.unmount();
+
+      const event = pressTutorialKey("ArrowRight");
+
+      expect(event.defaultPrevented).toBe(false);
+    });
   });
 });

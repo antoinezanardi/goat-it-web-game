@@ -21,21 +21,29 @@ useSeoMeta({
 
 const overlay = useOverlay();
 
-async function confirmLeave(): Promise<boolean> {
-  const modal = overlay.create(ConfirmDialog, {
-    destroyOnClose: true,
-    props: {
-      disableShortcuts: true,
-      dismissible: false,
-      icon: "i-lucide-log-out",
-      iconClass: "text-warning",
-      title: t("game.leaveConfirmTitle"),
-      description: t("game.leaveConfirmDescription"),
-      primaryButtonLabel: t("game.leave"),
-    },
-  });
+const isLeaveConfirmationOpen = ref<boolean>(false);
 
-  return await modal.open();
+async function confirmLeave(): Promise<boolean> {
+  isLeaveConfirmationOpen.value = true;
+
+  try {
+    const modal = overlay.create(ConfirmDialog, {
+      destroyOnClose: true,
+      props: {
+        disableShortcuts: true,
+        dismissible: false,
+        icon: "i-lucide-log-out",
+        iconClass: "text-warning",
+        title: t("game.leaveConfirmTitle"),
+        description: t("game.leaveConfirmDescription"),
+        primaryButtonLabel: t("game.leave"),
+      },
+    });
+
+    return await modal.open();
+  } finally {
+    isLeaveConfirmationOpen.value = false;
+  }
 }
 
 onBeforeRouteLeave(async() => {
@@ -98,6 +106,8 @@ function openSidebar(): void {
 function onSidebarOpenChange(open: boolean): void {
   isSidebarOpen.value = open;
 }
+
+const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTourRequested.value || isLeaveConfirmationOpen.value);
 </script>
 
 <template>
@@ -140,6 +150,7 @@ function onSidebarOpenChange(open: boolean): void {
 
       <GamePlaying
         v-else-if="gameState === 'playing' && currentQuestion"
+        :are-shortcuts-disabled="areShortcutsDisabled"
         :can-go-to-previous-question="canGoToPreviousQuestion"
         :current-index="currentIndex"
         :current-question="currentQuestion"

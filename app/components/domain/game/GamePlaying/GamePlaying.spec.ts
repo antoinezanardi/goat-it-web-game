@@ -1,6 +1,6 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
@@ -22,19 +22,25 @@ describe("GamePlaying Component", () => {
     currentIndex: 0,
     currentQuestion: firstQuestion,
     questions: [firstQuestion, secondQuestion],
+    areShortcutsDisabled: false,
   };
 
   let wrapper: VueWrapper;
+  let mountedWrapper: VueWrapper | undefined;
   let requestAnimationFrameCallbacks: FrameRequestCallback[];
 
   async function mountGamePlayingComponent(options: MountSuspendedOptions<typeof GamePlaying> = {}): Promise<VueWrapper> {
     const { props: propsOverride, ...restOptions } = options;
 
-    return mountSuspended(GamePlaying, {
+    mountedWrapper?.unmount();
+    wrapper = await mountSuspended(GamePlaying, {
       shallow: false,
       props: propsOverride ?? defaultGamePlayingProps,
       ...restOptions,
     });
+    mountedWrapper = wrapper;
+
+    return wrapper;
   }
 
   // Acceptable as return type is inferred from findComponent and explicit annotation causes typecheck issues with VueWrapper generics
@@ -73,6 +79,27 @@ describe("GamePlaying Component", () => {
     requestAnimationFrameCallbacks.splice(0, 1);
   }
 
+  function pressKey(key: "ArrowLeft" | "ArrowRight", options: { repeat?: boolean } = {}): KeyboardEvent {
+    const event = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key,
+      repeat: options.repeat ?? false,
+    });
+
+    globalThis.dispatchEvent(event);
+
+    return event;
+  }
+
+  function pressKeyOnElement(element: HTMLElement, key: "ArrowLeft" | "ArrowRight"): void {
+    element.dispatchEvent(new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key,
+    }));
+  }
+
   beforeEach(async() => {
     requestAnimationFrameCallbacks = [];
     // Acceptable as requestAnimationFrame mock intentionally captures the callback for manual execution
@@ -83,6 +110,12 @@ describe("GamePlaying Component", () => {
       return requestAnimationFrameCallbacks.length;
     });
     wrapper = await mountGamePlayingComponent();
+  });
+
+  afterEach(() => {
+    mountedWrapper?.unmount();
+    mountedWrapper = undefined;
+    document.body.innerHTML = "";
   });
 
   it("should render GamePlaying when mounted.", () => {
@@ -304,6 +337,202 @@ describe("GamePlaying Component", () => {
       await nextTick();
 
       expect(wrapper.findComponent({ name: "GamePreviousQuestionButton" }).props("disabled")).toBe(true);
+    });
+  });
+
+  describe("keyboard shortcuts", () => {
+    it("should start a forward transition when the right arrow key is pressed.", async() => {
+      pressKey("ArrowRight");
+      await nextTick();
+
+      expect(getSwitcher().props("pendingDirection")).toBe("forward");
+    });
+
+    it("should start a backward transition when the left arrow key is pressed and a previous question exists.", async() => {
+      wrapper = await mountGamePlayingComponent({
+        props: {
+          canGoToPreviousQuestion: true,
+          currentIndex: 1,
+          currentQuestion: secondQuestion,
+          questions: [firstQuestion, secondQuestion, thirdQuestion],
+          areShortcutsDisabled: false,
+        },
+      });
+
+      pressKey("ArrowLeft");
+      await nextTick();
+
+      expect(getSwitcher().props("pendingDirection")).toBe("backward");
+    });
+
+    it("should not navigate when the left arrow key is pressed and no previous question exists.", async() => {
+      pressKey("ArrowLeft");
+      await nextTick();
+
+      expect(wrapper.emitted("previous")).toBeUndefined();
+    });
+
+    it("should not navigate when the left arrow key is pressed during an active forward transition.", async() => {
+      wrapper = await mountGamePlayingComponent({
+        props: {
+          canGoToPreviousQuestion: true,
+          currentIndex: 1,
+          currentQuestion: secondQuestion,
+          questions: [firstQuestion, secondQuestion, thirdQuestion],
+          areShortcutsDisabled: false,
+        },
+      });
+
+      pressKey("ArrowRight");
+      await nextTick();
+      pressKey("ArrowLeft");
+      await nextTick();
+
+      expect(getSwitcher().props("pendingDirection")).toBe("forward");
+    });
+
+    it("should not navigate when the right arrow key is pressed during an active backward transition.", async() => {
+      wrapper = await mountGamePlayingComponent({
+        props: {
+          canGoToPreviousQuestion: true,
+          currentIndex: 1,
+          currentQuestion: secondQuestion,
+          questions: [firstQuestion, secondQuestion, thirdQuestion],
+          areShortcutsDisabled: false,
+        },
+      });
+
+      pressKey("ArrowLeft");
+      await nextTick();
+      pressKey("ArrowRight");
+      await nextTick();
+
+      expect(getSwitcher().props("pendingDirection")).toBe("backward");
+    });
+
+    it("should not navigate when the right arrow key is pressed and shortcuts are disabled.", async() => {
+      wrapper = await mountGamePlayingComponent({
+        props: {
+          ...defaultGamePlayingProps,
+          areShortcutsDisabled: true,
+        },
+      });
+
+      pressKey("ArrowRight");
+      await nextTick();
+
+      expect(getSwitcher().props("pendingDirection")).toBeUndefined();
+    });
+
+    it("should not navigate when the left arrow key is pressed and shortcuts are disabled.", async() => {
+      wrapper = await mountGamePlayingComponent({
+        props: {
+          canGoToPreviousQuestion: true,
+          currentIndex: 1,
+          currentQuestion: secondQuestion,
+          questions: [firstQuestion, secondQuestion, thirdQuestion],
+          areShortcutsDisabled: true,
+        },
+      });
+
+      pressKey("ArrowLeft");
+      await nextTick();
+
+      expect(getSwitcher().props("pendingDirection")).toBeUndefined();
+    });
+
+    it("should not navigate when the right arrow key is pressed on an editable target.", async() => {
+      const input = document.createElement("input");
+      document.body.append(input);
+
+      pressKeyOnElement(input, "ArrowRight");
+      await nextTick();
+      input.remove();
+
+      expect(getSwitcher().props("pendingDirection")).toBeUndefined();
+    });
+
+    it("should not navigate when the left arrow key is pressed on an editable target.", async() => {
+      wrapper = await mountGamePlayingComponent({
+        props: {
+          canGoToPreviousQuestion: true,
+          currentIndex: 1,
+          currentQuestion: secondQuestion,
+          questions: [firstQuestion, secondQuestion, thirdQuestion],
+          areShortcutsDisabled: false,
+        },
+      });
+      const input = document.createElement("input");
+      document.body.append(input);
+
+      pressKeyOnElement(input, "ArrowLeft");
+      await nextTick();
+      input.remove();
+
+      expect(getSwitcher().props("pendingDirection")).toBeUndefined();
+    });
+
+    it("should not navigate again when the right arrow key is held down.", async() => {
+      wrapper = await mountGamePlayingComponent({
+        props: {
+          canGoToPreviousQuestion: false,
+          currentIndex: 0,
+          currentQuestion: firstQuestion,
+          questions: [firstQuestion],
+          areShortcutsDisabled: false,
+        },
+      });
+
+      pressKey("ArrowRight");
+      pressKey("ArrowRight", { repeat: true });
+      await nextTick();
+
+      expect(wrapper.emitted("advance")).toHaveLength(1);
+    });
+
+    it("should prevent the default event when the right arrow key starts a transition.", async() => {
+      const event = pressKey("ArrowRight");
+      await nextTick();
+
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("should not prevent the default event when the right arrow key is rejected.", async() => {
+      wrapper = await mountGamePlayingComponent({
+        props: {
+          ...defaultGamePlayingProps,
+          areShortcutsDisabled: true,
+        },
+      });
+
+      const event = pressKey("ArrowRight");
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it("should not prevent the default event when the left arrow key is rejected on the first question.", () => {
+      const event = pressKey("ArrowLeft");
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+  });
+
+  describe("keyboard listener cleanup", () => {
+    it("should not navigate when the right arrow key is pressed after the component unmounts.", async() => {
+      wrapper = await mountGamePlayingComponent({
+        props: {
+          canGoToPreviousQuestion: false,
+          currentIndex: 0,
+          currentQuestion: firstQuestion,
+          questions: [firstQuestion],
+          areShortcutsDisabled: false,
+        },
+      });
+      wrapper.unmount();
+
+      pressKey("ArrowRight");
+
+      expect(wrapper.emitted("advance")).toBeUndefined();
     });
   });
 });
