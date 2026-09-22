@@ -12,6 +12,15 @@
     "leaveConfirmTitle": "¿Salir del juego?",
     "leaveConfirmDescription": "¿Estás seguro de que quieres salir de la partida actual?",
     "leave": "Salir",
+    "settings": {
+      "trigger": "Ajustes",
+      "title": "Ajustes",
+      "tabs": {
+        "general": "General",
+        "about": "Acerca de"
+      },
+      "languageLabel": "Idioma"
+    },
     "interactiveTutorial": {
       "label": "Tutorial interactivo",
       "invitation": {

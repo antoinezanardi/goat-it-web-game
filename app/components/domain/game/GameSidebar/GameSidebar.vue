@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { LocaleSelect, VersionButton } from "#components";
-
 import type { GameSidebarEmits, GameSidebarProps } from "@/components/domain/game/GameSidebar/game-sidebar.types";
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
 
@@ -14,6 +12,10 @@ function onUpdateOpen(value: boolean): void {
 
 function onStartTutorial(): void {
   emit("startTutorial");
+}
+
+function onOpenSettings(): void {
+  emit("openSettings");
 }
 </script>
 
@@ -87,12 +89,18 @@ function onStartTutorial(): void {
 
     <template #footer>
       <div
-        class="flex gap-2 items-center justify-center w-full"
+        class="w-full"
         data-testid="game-sidebar-footer"
       >
-        <LocaleSelect :disabled="props.isFetchingQuestions"/>
-
-        <VersionButton/>
+        <UButton
+          block
+          color="secondary"
+          data-testid="game-sidebar-settings-button"
+          icon="i-lucide-settings"
+          :label="t('game.settings.trigger')"
+          variant="solid"
+          @click="onOpenSettings"
+        />
       </div>
     </template>
   </USlideover>

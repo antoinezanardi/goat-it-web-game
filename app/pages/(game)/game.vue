@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { nextTick } from "vue";
 
-import { ConfirmDialog, GameTutorial } from "#components";
+import { ConfirmDialog, GameSettingsModal, GameTutorial } from "#components";
 
 import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
@@ -99,6 +99,8 @@ const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveTh
 
 const isSidebarOpen = ref(false);
 
+const isSettingsModalOpen = ref(false);
+
 function openSidebar(): void {
   isSidebarOpen.value = true;
 }
@@ -107,7 +109,21 @@ function onSidebarOpenChange(open: boolean): void {
   isSidebarOpen.value = open;
 }
 
-const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTourRequested.value || isLeaveConfirmationOpen.value);
+async function openSettingsModal(): Promise<void> {
+  await nextTick();
+  isSettingsModalOpen.value = true;
+}
+
+function onOpenSettings(): void {
+  isSidebarOpen.value = false;
+  void openSettingsModal();
+}
+
+function onSettingsOpenChange(open: boolean): void {
+  isSettingsModalOpen.value = open;
+}
+
+const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTourRequested.value || isLeaveConfirmationOpen.value || isSettingsModalOpen.value);
 </script>
 
 <template>
@@ -126,11 +142,17 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTo
     />
 
     <GameSidebar
-      :is-fetching-questions="isFetchingQuestions"
       :is-tutorial-available="isTutorialAvailable"
       :open="isSidebarOpen"
+      @open-settings="onOpenSettings"
       @start-tutorial="onStartTutorialFromSidebar"
       @update:open="onSidebarOpenChange"
+    />
+
+    <GameSettingsModal
+      :is-fetching-questions="isFetchingQuestions"
+      :open="isSettingsModalOpen"
+      @update:open="onSettingsOpenChange"
     />
 
     <GameTutorial
