@@ -482,32 +482,18 @@ describe("GameTutorial Component", () => {
   });
 
   describe("keyboard shortcuts", () => {
-    it("should move to the next step when the right arrow key is pressed.", async() => {
+    it.each<{ key: "ArrowLeft" | "ArrowRight"; clicksBeforeKey: number; expectedTitle: string }>([
+      { key: "ArrowRight", clicksBeforeKey: 0, expectedTitle: "game.interactiveTutorial.steps.framework.title" },
+      { key: "ArrowLeft", clicksBeforeKey: 1, expectedTitle: "game.interactiveTutorial.steps.welcome.title" },
+      { key: "ArrowLeft", clicksBeforeKey: 0, expectedTitle: "game.interactiveTutorial.steps.welcome.title" },
+    ])("should navigate to \"$expectedTitle\" when pressing \"$key\" after $clicksBeforeKey next click(s).", async({ key, clicksBeforeKey, expectedTitle }) => {
       await startTour();
+      await Promise.all(Array.from({ length: clicksBeforeKey }, async() => clickGameTutorialButton("game-tutorial-next")));
 
-      pressTutorialKey("ArrowRight");
+      pressTutorialKey(key);
       await flushPromises();
 
-      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.framework.title");
-    });
-
-    it("should move back to the previous step when the left arrow key is pressed.", async() => {
-      await startTour();
-      await clickGameTutorialButton("game-tutorial-next");
-
-      pressTutorialKey("ArrowLeft");
-      await flushPromises();
-
-      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
-    });
-
-    it("should stay on the first step when the left arrow key is pressed on the first step.", async() => {
-      await startTour();
-
-      pressTutorialKey("ArrowLeft");
-      await flushPromises();
-
-      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe(expectedTitle);
     });
 
     it("should hide the tutorial when the right arrow key is pressed on the last step.", async() => {
