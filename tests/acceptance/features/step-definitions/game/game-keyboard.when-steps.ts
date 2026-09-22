@@ -5,7 +5,6 @@ import { waitForQuestionCardTransition } from "#acceptance/features/step-definit
 
 When(
   /^the user presses the left arrow key$/u,
-  { timeout: 90_000 },
   async function(this: GoatItWorld): Promise<void> {
     await this.page.keyboard.press("ArrowLeft");
     await waitForQuestionCardTransition(this);
@@ -14,7 +13,6 @@ When(
 
 When(
   /^the user presses the right arrow key$/u,
-  { timeout: 90_000 },
   async function(this: GoatItWorld): Promise<void> {
     await this.page.keyboard.press("ArrowRight");
     await waitForQuestionCardTransition(this);
