@@ -60,7 +60,7 @@ function onUpdateOpen(value: boolean): void {
 
     <template #body>
       <div
-        class="flex flex-col gap-4"
+        class="flex flex-1 flex-col gap-4"
         data-testid="game-settings-modal"
       >
         <UTabs
@@ -73,7 +73,9 @@ function onUpdateOpen(value: boolean): void {
           </template>
 
           <template #about>
-            <GameSettingsAboutTab/>
+            <div class="flex flex-1 items-center justify-center">
+              <GameSettingsAboutTab/>
+            </div>
           </template>
         </UTabs>
       </div>
