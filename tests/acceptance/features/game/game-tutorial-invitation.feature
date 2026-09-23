@@ -87,7 +87,8 @@ Feature: 🧑‍🏫 Game Page Tutorial Invitation
     And a game question should be displayed
     Then the tutorial invitation should be visible
     When the user opens the game sidebar
-    And the user selects the "Français" locale option in the game sidebar
+    And the user clicks the settings button in the game sidebar
+    And the user selects the "Français" locale option in the game settings
     Then the toast with exact text "Voulez-vous lancer le tutoriel interactif ?" should be visible
     And the toast with exact text "Would you like to launch the interactive tutorial?" should be hidden
 

@@ -12,6 +12,15 @@
     "leaveConfirmTitle": "Leave Game?",
     "leaveConfirmDescription": "Are you sure you want to leave the current game?",
     "leave": "Leave",
+    "settings": {
+      "trigger": "Settings",
+      "title": "Settings",
+      "tabs": {
+        "general": "General",
+        "about": "About"
+      },
+      "languageLabel": "Language"
+    },
     "interactiveTutorial": {
       "label": "Interactive tutorial",
       "invitation": {

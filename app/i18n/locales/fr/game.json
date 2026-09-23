@@ -12,6 +12,15 @@
     "leaveConfirmTitle": "Quitter la partie ?",
     "leaveConfirmDescription": "Êtes-vous sûr de vouloir quitter la partie en cours ?",
     "leave": "Quitter",
+    "settings": {
+      "trigger": "Paramètres",
+      "title": "Paramètres",
+      "tabs": {
+        "general": "Général",
+        "about": "À propos"
+      },
+      "languageLabel": "Langue"
+    },
     "interactiveTutorial": {
       "label": "Tutoriel interactif",
       "invitation": {

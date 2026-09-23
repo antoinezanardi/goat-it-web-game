@@ -1,12 +1,12 @@
 type GameSidebarProps = {
-  isFetchingQuestions?: boolean;
   isTutorialAvailable: boolean;
-  open: boolean;
+  isOpen: boolean;
 };
 
 type GameSidebarEmits = {
-  "update:open": [value: boolean];
+  "update:isOpen": [value: boolean];
   "startTutorial": [];
+  "openSettings": [];
 };
 
 export type { GameSidebarEmits, GameSidebarProps };
