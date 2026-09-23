@@ -146,6 +146,12 @@ useEventListener("resize", () => {
   }
 });
 
+useEventListener("scroll", () => {
+  if (open.value) {
+    updateTourTarget();
+  }
+}, { capture: true });
+
 watch(open, isOpen => {
   if (!isOpen) {
     emit("tutorialEnd");
