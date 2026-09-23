@@ -39,6 +39,7 @@ const GAME_TUTORIAL_STEPS: readonly GameTutorialStep[] = [
   {
     icon: "i-lucide-lightbulb",
     key: "clues",
+    target: `${GAME_TUTORIAL_ACTIVE_CARD_SELECTOR} [data-testid='game-question-context-accordion-trigger']`,
   },
   {
     icon: "i-lucide-gavel",

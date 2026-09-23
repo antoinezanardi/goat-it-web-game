@@ -95,6 +95,23 @@ describe("GameTutorial Component", () => {
     return element;
   }
 
+  function getActiveCardRootElement(): HTMLElement {
+    const card = document.querySelector<HTMLElement>("[data-testid='game-question']");
+
+    if (card === null) {
+      throw new Error("Active game question card was not found.");
+    }
+    return card;
+  }
+
+  function createActiveCardContextAccordionTrigger(): HTMLElement {
+    const trigger = document.createElement("div");
+    trigger.dataset.testid = "game-question-context-accordion-trigger";
+    getActiveCardRootElement().append(trigger);
+
+    return trigger;
+  }
+
   function getGameTutorialPopoverContent(): VueWrapper<InstanceType<typeof GameTutorialPopoverContent>> {
     return wrapper.findComponent<typeof GameTutorialPopoverContent>("[data-testid='game-tutorial']");
   }
@@ -377,13 +394,49 @@ describe("GameTutorial Component", () => {
     expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
   });
 
-  it("should remove the spotlight window when navigating from a targeted step to a centered step.", async() => {
+  it("should not render the spotlight window when navigating to the clues step while the context accordion is absent.", async() => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
     await clickGameTutorialButton("game-tutorial-next");
     await clickGameTutorialButton("game-tutorial-next");
 
     expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
+  });
+
+  it("should render the spotlight window when the clues step is active and the context accordion is present.", async() => {
+    createActiveCardContextAccordionTrigger();
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(queryGameTutorialElement("game-tutorial-spotlight")).not.toBeNull();
+  });
+
+  it("should position the spotlight window around the context accordion when the clues step is active and the context accordion is present.", async() => {
+    const accordionTrigger = createActiveCardContextAccordionTrigger();
+    accordionTrigger.getBoundingClientRect = (): DOMRect => ({
+      bottom: 300,
+      height: 40,
+      left: 100,
+      right: 500,
+      top: 260,
+      width: 400,
+      x: 100,
+      y: 260,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(getGameTutorialSpotlightStyle()).toStrictEqual({
+      height: `${40 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+      left: `${100 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      top: `${260 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      width: `${400 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+    });
   });
 
   it("should recompute the popover placement when the window is resized while the tour is open.", async() => {
@@ -457,6 +510,50 @@ describe("GameTutorial Component", () => {
 
   it("should not render the spotlight window when the window is resized while the tour is closed.", async() => {
     globalThis.dispatchEvent(new globalThis.Event("resize"));
+    await flushPromises();
+
+    expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
+  });
+
+  it("should recompute the spotlight window when the window is scrolled while the tour is open.", async() => {
+    getActiveCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
+      bottom: 0,
+      height: 0,
+      left: 0,
+      right: 0,
+      top: 0,
+      width: 0,
+      x: 0,
+      y: 0,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+
+    getActiveCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
+      bottom: 300,
+      height: 40,
+      left: 100,
+      right: 500,
+      top: 260,
+      width: 400,
+      x: 100,
+      y: 260,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    globalThis.dispatchEvent(new globalThis.Event("scroll"));
+    await flushPromises();
+
+    expect(getGameTutorialSpotlightStyle()).toStrictEqual({
+      height: `${40 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+      left: `${100 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      top: `${260 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      width: `${400 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+    });
+  });
+
+  it("should not render the spotlight window when the window is scrolled while the tour is closed.", async() => {
+    globalThis.dispatchEvent(new globalThis.Event("scroll"));
     await flushPromises();
 
     expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
