@@ -13,7 +13,7 @@ describe("GameSettingsGeneralTab Component", () => {
   let wrapper: VueWrapper;
 
   const defaultGameSettingsGeneralTabProps: GameSettingsGeneralTabProps = {
-    disabled: false,
+    isLocaleSelectDisabled: false,
   } as const;
 
   async function mountGameSettingsGeneralTab(options: MountSuspendedOptions<typeof GameSettingsGeneralTab> = {}): Promise<VueWrapper> {
@@ -40,14 +40,14 @@ describe("GameSettingsGeneralTab Component", () => {
     expect(wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" }).exists()).toBe(true);
   });
 
-  it("should pass disabled as true to LocaleSelect when the disabled prop is true.", async() => {
-    await wrapper.setProps({ disabled: true });
+  it("should pass disabled as true to LocaleSelect when isLocaleSelectDisabled is true.", async() => {
+    await wrapper.setProps({ isLocaleSelectDisabled: true });
     const localeSelect = wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" });
 
     expect(localeSelect.props("disabled")).toBe(true);
   });
 
-  it("should pass disabled as false to LocaleSelect when the disabled prop is false.", () => {
+  it("should pass disabled as false to LocaleSelect when isLocaleSelectDisabled is false.", () => {
     const localeSelect = wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" });
 
     expect(localeSelect.props("disabled")).toBe(false);

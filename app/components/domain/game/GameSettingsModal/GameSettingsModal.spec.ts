@@ -11,6 +11,7 @@ import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { GameSettingsAboutTab, GameSettingsGeneralTab, GameSettingsModal } from "#components";
 import type { DefaultModalTitle, UModal } from "#components";
 
+import { GAME_SETTINGS_MODAL_TABS_UI, GAME_SETTINGS_MODAL_UI } from "@/components/domain/game/GameSettingsModal/game-settings-modal.constants";
 import type { GameSettingsModalProps } from "@/components/domain/game/GameSettingsModal/game-settings-modal.types";
 
 type GameSettingsModalVm = ComponentVm & { activeTab: string | number };
@@ -20,7 +21,7 @@ describe("GameSettingsModal Component", () => {
 
   const defaultGameSettingsModalProps: GameSettingsModalProps = {
     isFetchingQuestions: false,
-    open: true,
+    isOpen: true,
   } as const;
 
   async function mountGameSettingsModal(options: MountSuspendedOptions<typeof GameSettingsModal> = {}): Promise<VueWrapper> {
@@ -48,17 +49,29 @@ describe("GameSettingsModal Component", () => {
     expect(wrapper.findComponent({ name: "UTabs" }).exists()).toBe(true);
   });
 
-  it("should pass the open prop to UModal when mounted.", () => {
+  it("should pass the isOpen prop to UModal when mounted.", () => {
     const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
 
     expect(modal.props("open")).toBe(true);
   });
 
-  it("should pass open as false to UModal when the open prop is false.", async() => {
-    await wrapper.setProps({ open: false });
+  it("should pass isOpen as false to UModal when the isOpen prop is false.", async() => {
+    await wrapper.setProps({ isOpen: false });
     const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
 
     expect(modal.props("open")).toBe(false);
+  });
+
+  it("should pass the GAME_SETTINGS_MODAL_UI ui config to UModal when mounted.", () => {
+    const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
+
+    expect(modal.props("ui")).toStrictEqual(GAME_SETTINGS_MODAL_UI);
+  });
+
+  it("should pass the GAME_SETTINGS_MODAL_TABS_UI ui config to UTabs when mounted.", () => {
+    const tabs = wrapper.findComponent({ name: "UTabs" });
+
+    expect(tabs.props("ui")).toStrictEqual(GAME_SETTINGS_MODAL_TABS_UI);
   });
 
   it("should render the modal title with the title translation key when mounted.", () => {
@@ -98,8 +111,8 @@ describe("GameSettingsModal Component", () => {
   it("should reset the active tab to general when the modal transitions from closed to open.", async() => {
     getWrapperVm(wrapper.findComponent({ name: "UTabs" })).$emit("update:modelValue", "about");
     await nextTick();
-    await wrapper.setProps({ open: false });
-    await wrapper.setProps({ open: true });
+    await wrapper.setProps({ isOpen: false });
+    await wrapper.setProps({ isOpen: true });
 
     expect(wrapper.findComponent({ name: "UTabs" }).props("modelValue")).toBe("general");
   });
@@ -107,28 +120,28 @@ describe("GameSettingsModal Component", () => {
   it("should keep the active tab when the modal transitions from open to closed.", async() => {
     getWrapperVm(wrapper.findComponent({ name: "UTabs" })).$emit("update:modelValue", "about");
     await nextTick();
-    await wrapper.setProps({ open: false });
+    await wrapper.setProps({ isOpen: false });
 
     expect(getWrapperVm<GameSettingsModalVm>(wrapper).activeTab).toBe("about");
   });
 
-  it("should pass the fetching state as disabled to the General tab when isFetchingQuestions is true.", async() => {
+  it("should pass the fetching state as isLocaleSelectDisabled to the General tab when isFetchingQuestions is true.", async() => {
     await wrapper.setProps({ isFetchingQuestions: true });
     const generalTab = wrapper.findComponent(GameSettingsGeneralTab);
 
-    expect(generalTab.props("disabled")).toBe(true);
+    expect(generalTab.props("isLocaleSelectDisabled")).toBe(true);
   });
 
-  it("should pass the fetching state as disabled as false to the General tab when isFetchingQuestions is false.", () => {
+  it("should pass the fetching state as isLocaleSelectDisabled as false to the General tab when isFetchingQuestions is false.", () => {
     const generalTab = wrapper.findComponent(GameSettingsGeneralTab);
 
-    expect(generalTab.props("disabled")).toBe(false);
+    expect(generalTab.props("isLocaleSelectDisabled")).toBe(false);
   });
 
-  it("should emit update:open when UModal emits update:open.", () => {
+  it("should emit update:isOpen when UModal emits update:open.", () => {
     const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
     getWrapperVm(modal).$emit("update:open", false);
 
-    expect(wrapper.emitted("update:open")).toStrictEqual([[false]]);
+    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[false]]);
   });
 });

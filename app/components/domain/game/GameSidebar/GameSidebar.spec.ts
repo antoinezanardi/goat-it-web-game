@@ -16,7 +16,7 @@ describe("GameSidebar Component", () => {
 
   const defaultGameSidebarProps: GameSidebarProps = {
     isTutorialAvailable: true,
-    open: true,
+    isOpen: true,
   } as const;
 
   async function mountGameSidebar(options: MountSuspendedOptions<typeof GameSidebar> = {}): Promise<VueWrapper> {
@@ -50,7 +50,7 @@ describe("GameSidebar Component", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")).not.toBeNull();
   });
 
-  it("should pass the open prop to USlideover when mounted.", () => {
+  it("should pass isOpen as the open prop to USlideover when mounted.", () => {
     const slideover = wrapper.findComponent({ name: "USlideover" });
 
     expect(slideover.props("open")).toBe(true);
@@ -157,11 +157,11 @@ describe("GameSidebar Component", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar-footer']")).not.toBeNull();
   });
 
-  it("should emit update:open when USlideover emits update:open.", () => {
+  it("should emit update:isOpen when USlideover emits update:open.", () => {
     const slideover = wrapper.findComponent({ name: "USlideover" });
     getWrapperVm(slideover).$emit("update:open", false);
 
-    expect(wrapper.emitted("update:open")).toStrictEqual([[false]]);
+    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[false]]);
   });
 
   it("should render the tutorial entry when isTutorialAvailable is true.", () => {

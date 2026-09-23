@@ -1,10 +1,10 @@
 type GameSettingsModalProps = {
-  open: boolean;
+  isOpen: boolean;
   isFetchingQuestions: boolean;
 };
 
 type GameSettingsModalEmits = {
-  "update:open": [value: boolean];
+  "update:isOpen": [value: boolean];
 };
 
 export type { GameSettingsModalEmits, GameSettingsModalProps };

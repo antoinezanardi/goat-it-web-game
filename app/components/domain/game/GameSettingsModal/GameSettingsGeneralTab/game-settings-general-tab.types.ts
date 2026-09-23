@@ -1,5 +1,5 @@
 type GameSettingsGeneralTabProps = {
-  disabled: boolean;
+  isLocaleSelectDisabled: boolean;
 };
 
 export type { GameSettingsGeneralTabProps };

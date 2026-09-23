@@ -19,6 +19,6 @@ const { t } = useI18n();
       {{ t("game.settings.languageLabel") }}
     </span>
 
-    <LocaleSelect :disabled="props.disabled"/>
+    <LocaleSelect :disabled="props.isLocaleSelectDisabled"/>
   </div>
 </template>

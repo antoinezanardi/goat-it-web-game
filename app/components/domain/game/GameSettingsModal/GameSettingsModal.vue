@@ -3,7 +3,12 @@ import { GameSettingsAboutTab, GameSettingsGeneralTab } from "#components";
 
 import type { TabsItem } from "#ui/types";
 import type { GameSettingsModalEmits, GameSettingsModalProps } from "@/components/domain/game/GameSettingsModal/game-settings-modal.types";
-import { GAME_SETTINGS_TAB_ABOUT, GAME_SETTINGS_TAB_GENERAL } from "@/components/domain/game/GameSettingsModal/game-settings-modal.constants";
+import {
+  GAME_SETTINGS_MODAL_TABS_UI,
+  GAME_SETTINGS_MODAL_UI,
+  GAME_SETTINGS_TAB_ABOUT,
+  GAME_SETTINGS_TAB_GENERAL,
+} from "@/components/domain/game/GameSettingsModal/game-settings-modal.constants";
 
 const props = defineProps<GameSettingsModalProps>();
 const emit = defineEmits<GameSettingsModalEmits>();
@@ -27,21 +32,22 @@ const tabItems = computed<TabsItem[]>(() => [
   },
 ]);
 
-watch(() => props.open, (isOpen: boolean) => {
+watch(() => props.isOpen, (isOpen: boolean) => {
   if (isOpen) {
     activeTab.value = GAME_SETTINGS_TAB_GENERAL;
   }
 });
 
 function onUpdateOpen(value: boolean): void {
-  emit("update:open", value);
+  emit("update:isOpen", value);
 }
 </script>
 
 <template>
   <UModal
-    :open="props.open"
+    :open="props.isOpen"
     scrollable
+    :ui="GAME_SETTINGS_MODAL_UI"
     @update:open="onUpdateOpen"
   >
     <template #title>
@@ -60,9 +66,10 @@ function onUpdateOpen(value: boolean): void {
         <UTabs
           v-model="activeTab"
           :items="tabItems"
+          :ui="GAME_SETTINGS_MODAL_TABS_UI"
         >
           <template #general>
-            <GameSettingsGeneralTab :disabled="props.isFetchingQuestions"/>
+            <GameSettingsGeneralTab :is-locale-select-disabled="props.isFetchingQuestions"/>
           </template>
 
           <template #about>

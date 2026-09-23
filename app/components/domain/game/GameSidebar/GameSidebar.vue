@@ -7,7 +7,7 @@ const emit = defineEmits<GameSidebarEmits>();
 const { t } = useI18n();
 
 function onUpdateOpen(value: boolean): void {
-  emit("update:open", value);
+  emit("update:isOpen", value);
 }
 
 function onStartTutorial(): void {
@@ -21,7 +21,7 @@ function onOpenSettings(): void {
 
 <template>
   <USlideover
-    :open="props.open"
+    :open="props.isOpen"
     side="left"
     :title="t('home.brand')"
     :ui="GAME_SIDEBAR_UI"

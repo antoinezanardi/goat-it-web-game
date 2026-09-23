@@ -105,8 +105,8 @@ function openSidebar(): void {
   isSidebarOpen.value = true;
 }
 
-function onSidebarOpenChange(open: boolean): void {
-  isSidebarOpen.value = open;
+function onSidebarOpenChange(isOpen: boolean): void {
+  isSidebarOpen.value = isOpen;
 }
 
 async function openSettingsModal(): Promise<void> {
@@ -119,8 +119,8 @@ function onOpenSettings(): void {
   void openSettingsModal();
 }
 
-function onSettingsOpenChange(open: boolean): void {
-  isSettingsModalOpen.value = open;
+function onSettingsOpenChange(isOpen: boolean): void {
+  isSettingsModalOpen.value = isOpen;
 }
 
 const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTourRequested.value || isLeaveConfirmationOpen.value || isSettingsModalOpen.value);
@@ -142,17 +142,17 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTo
     />
 
     <GameSidebar
+      :is-open="isSidebarOpen"
       :is-tutorial-available="isTutorialAvailable"
-      :open="isSidebarOpen"
       @open-settings="onOpenSettings"
       @start-tutorial="onStartTutorialFromSidebar"
-      @update:open="onSidebarOpenChange"
+      @update:is-open="onSidebarOpenChange"
     />
 
     <GameSettingsModal
       :is-fetching-questions="isFetchingQuestions"
-      :open="isSettingsModalOpen"
-      @update:open="onSettingsOpenChange"
+      :is-open="isSettingsModalOpen"
+      @update:is-open="onSettingsOpenChange"
     />
 
     <GameTutorial
