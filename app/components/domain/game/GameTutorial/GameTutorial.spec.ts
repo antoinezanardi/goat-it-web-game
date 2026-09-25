@@ -1,7 +1,7 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
@@ -9,10 +9,7 @@ import type { GameTutorialPopoverContent } from "#components";
 import { GameTutorial } from "#components";
 
 import type { GameTutorialProps } from "@/components/domain/game/GameTutorial/game-tutorial.types";
-import {
-  GAME_TUTORIAL_HIGHLIGHT_CLASS,
-  GAME_TUTORIAL_STEPS,
-} from "@/components/domain/game/GameTutorial/game-tutorial.constants";
+import { GAME_TUTORIAL_SPOTLIGHT_PADDING, GAME_TUTORIAL_STEPS } from "@/components/domain/game/GameTutorial/game-tutorial.constants";
 
 const GAME_TUTORIAL_IN_CARD_TARGET_TEST_IDS = [
   "game-question-header",
@@ -98,8 +95,36 @@ describe("GameTutorial Component", () => {
     return element;
   }
 
+  function getActiveCardRootElement(): HTMLElement {
+    const card = document.querySelector<HTMLElement>("[data-testid='game-question']");
+
+    if (card === null) {
+      throw new Error("Active game question card was not found.");
+    }
+    return card;
+  }
+
+  function createActiveCardContextAccordionTrigger(): HTMLElement {
+    const trigger = document.createElement("div");
+    trigger.dataset.testid = "game-question-context-accordion-trigger";
+    getActiveCardRootElement().append(trigger);
+
+    return trigger;
+  }
+
   function getGameTutorialPopoverContent(): VueWrapper<InstanceType<typeof GameTutorialPopoverContent>> {
     return wrapper.findComponent<typeof GameTutorialPopoverContent>("[data-testid='game-tutorial']");
+  }
+
+  function getGameTutorialSpotlightStyle(): { height: string; left: string; top: string; width: string } {
+    const spotlight = getGameTutorialElement("game-tutorial-spotlight");
+
+    return {
+      height: spotlight.style.height,
+      left: spotlight.style.left,
+      top: spotlight.style.top,
+      width: spotlight.style.width,
+    };
   }
 
   async function startTour(): Promise<void> {
@@ -121,6 +146,19 @@ describe("GameTutorial Component", () => {
     await clickGameTutorialButton("game-tutorial-next");
 
     return collectRenderedStepTitles(index + 1, titles);
+  }
+
+  function pressTutorialKey(key: string, options: { repeat?: boolean } = {}): KeyboardEvent {
+    const event = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key,
+      repeat: options.repeat ?? false,
+    });
+
+    document.body.dispatchEvent(event);
+
+    return event;
   }
 
   beforeEach(async() => {
@@ -290,18 +328,45 @@ describe("GameTutorial Component", () => {
     expect(queryGameTutorialElement("game-tutorial")).toBeNull();
   });
 
-  it("should highlight the active card target when navigating forward.", async() => {
+  it("should render the spotlight window when navigating to a targeted step.", async() => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(getActiveCardElement("game-question-header").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(true);
+    expect(queryGameTutorialElement("game-tutorial-spotlight")).not.toBeNull();
   });
 
-  it("should not highlight the staged card target when navigating forward.", async() => {
+  it("should position the spotlight window around the active card target when navigating to a targeted step.", async() => {
+    getActiveCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
+      bottom: 300,
+      height: 40,
+      left: 100,
+      right: 500,
+      top: 260,
+      width: 400,
+      x: 100,
+      y: 260,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    getStagedCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
+      bottom: 1400,
+      height: 40,
+      left: 1000,
+      right: 1400,
+      top: 1360,
+      width: 400,
+      x: 1000,
+      y: 1360,
+      toJSON: (): Record<string, never> => ({}),
+    });
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(getStagedCardElement("game-question-header").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
+    expect(getGameTutorialSpotlightStyle()).toStrictEqual({
+      height: `${40 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+      left: `${100 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      top: `${260 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      width: `${400 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+    });
   });
 
   it("should open the tutorial above the target when the target is near the bottom of the viewport.", async() => {
@@ -323,19 +388,55 @@ describe("GameTutorial Component", () => {
     expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({ side: "top", sideOffset: 12 });
   });
 
-  it("should not highlight any target when the centered first step is active.", async() => {
+  it("should not render the spotlight window when the centered first step is active.", async() => {
     await startTour();
 
-    expect(document.querySelectorAll(`.${GAME_TUTORIAL_HIGHLIGHT_CLASS}`)).toHaveLength(0);
+    expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
   });
 
-  it("should not highlight any target when the centered clues step is active.", async() => {
+  it("should not render the spotlight window when navigating to the clues step while the context accordion is absent.", async() => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
     await clickGameTutorialButton("game-tutorial-next");
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(document.querySelectorAll(`.${GAME_TUTORIAL_HIGHLIGHT_CLASS}`)).toHaveLength(0);
+    expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
+  });
+
+  it("should render the spotlight window when the clues step is active and the context accordion is present.", async() => {
+    createActiveCardContextAccordionTrigger();
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(queryGameTutorialElement("game-tutorial-spotlight")).not.toBeNull();
+  });
+
+  it("should position the spotlight window around the context accordion when the clues step is active and the context accordion is present.", async() => {
+    const accordionTrigger = createActiveCardContextAccordionTrigger();
+    accordionTrigger.getBoundingClientRect = (): DOMRect => ({
+      bottom: 300,
+      height: 40,
+      left: 100,
+      right: 500,
+      top: 260,
+      width: 400,
+      x: 100,
+      y: 260,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(getGameTutorialSpotlightStyle()).toStrictEqual({
+      height: `${40 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+      left: `${100 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      top: `${260 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      width: `${400 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+    });
   });
 
   it("should recompute the popover placement when the window is resized while the tour is open.", async() => {
@@ -370,26 +471,255 @@ describe("GameTutorial Component", () => {
     expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({ side: "top", sideOffset: 12 });
   });
 
-  it("should not highlight any target when the window is resized while the tour is closed.", async() => {
+  it("should recompute the spotlight window when the window is resized while the tour is open.", async() => {
+    getActiveCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
+      bottom: 0,
+      height: 0,
+      left: 0,
+      right: 0,
+      top: 0,
+      width: 0,
+      x: 0,
+      y: 0,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+
+    getActiveCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
+      bottom: 300,
+      height: 40,
+      left: 100,
+      right: 500,
+      top: 260,
+      width: 400,
+      x: 100,
+      y: 260,
+      toJSON: (): Record<string, never> => ({}),
+    });
     globalThis.dispatchEvent(new globalThis.Event("resize"));
     await flushPromises();
 
-    expect(document.querySelectorAll(`.${GAME_TUTORIAL_HIGHLIGHT_CLASS}`)).toHaveLength(0);
+    expect(getGameTutorialSpotlightStyle()).toStrictEqual({
+      height: `${40 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+      left: `${100 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      top: `${260 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      width: `${400 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+    });
   });
 
-  it("should remove the target highlight when the tour ends.", async() => {
+  it("should not render the spotlight window when the window is resized while the tour is closed.", async() => {
+    globalThis.dispatchEvent(new globalThis.Event("resize"));
+    await flushPromises();
+
+    expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
+  });
+
+  it("should recompute the spotlight window when the window is scrolled while the tour is open.", async() => {
+    getActiveCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
+      bottom: 0,
+      height: 0,
+      left: 0,
+      right: 0,
+      top: 0,
+      width: 0,
+      x: 0,
+      y: 0,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+
+    getActiveCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
+      bottom: 300,
+      height: 40,
+      left: 100,
+      right: 500,
+      top: 260,
+      width: 400,
+      x: 100,
+      y: 260,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    globalThis.dispatchEvent(new globalThis.Event("scroll"));
+    await flushPromises();
+
+    expect(getGameTutorialSpotlightStyle()).toStrictEqual({
+      height: `${40 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+      left: `${100 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      top: `${260 - GAME_TUTORIAL_SPOTLIGHT_PADDING}px`,
+      width: `${400 + GAME_TUTORIAL_SPOTLIGHT_PADDING * 2}px`,
+    });
+  });
+
+  it("should not render the spotlight window when the window is scrolled while the tour is closed.", async() => {
+    globalThis.dispatchEvent(new globalThis.Event("scroll"));
+    await flushPromises();
+
+    expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
+  });
+
+  it("should remove the spotlight window when the tour ends.", async() => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
     await clickGameTutorialButton("game-tutorial-skip");
 
-    expect(getActiveCardElement("game-question-header").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
+    expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
   });
 
-  it("should remove the target highlight when the component is unmounted while a targeted step is active.", async() => {
+  it("should not render the spotlight window when replaying from the first step after the tour ended.", async() => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
-    wrapper.unmount();
+    await clickGameTutorialButton("game-tutorial-skip");
+    await wrapper.setProps({ isActive: false });
+    await flushPromises();
+    await startTour();
 
-    expect(getActiveCardElement("game-question-header").classList.contains(GAME_TUTORIAL_HIGHLIGHT_CLASS)).toBe(false);
+    expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
+  });
+
+  describe("keyboard shortcuts", () => {
+    it.each<{ key: "ArrowLeft" | "ArrowRight"; clicksBeforeKey: number; expectedTitle: string }>([
+      { key: "ArrowRight", clicksBeforeKey: 0, expectedTitle: "game.interactiveTutorial.steps.framework.title" },
+      { key: "ArrowLeft", clicksBeforeKey: 1, expectedTitle: "game.interactiveTutorial.steps.welcome.title" },
+      { key: "ArrowLeft", clicksBeforeKey: 0, expectedTitle: "game.interactiveTutorial.steps.welcome.title" },
+    ])("should navigate to \"$expectedTitle\" when pressing \"$key\" after $clicksBeforeKey next click(s).", async({ key, clicksBeforeKey, expectedTitle }) => {
+      await startTour();
+      await Promise.all(Array.from({ length: clicksBeforeKey }, async() => clickGameTutorialButton("game-tutorial-next")));
+
+      pressTutorialKey(key);
+      await flushPromises();
+
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe(expectedTitle);
+    });
+
+    it("should hide the tutorial when the right arrow key is pressed on the last step.", async() => {
+      await startTour();
+      await collectRenderedStepTitles();
+
+      pressTutorialKey("ArrowRight");
+      await flushPromises();
+
+      expect(queryGameTutorialElement("game-tutorial")).toBeNull();
+    });
+
+    it("should emit tutorialEnd when the right arrow key finishes the last step.", async() => {
+      await startTour();
+      await collectRenderedStepTitles();
+
+      pressTutorialKey("ArrowRight");
+      await flushPromises();
+
+      expect(wrapper.emitted("tutorialEnd")).toStrictEqual([[]]);
+    });
+
+    it("should not prevent the default event when the right arrow key is pressed while the tutorial is closed.", () => {
+      const event = pressTutorialKey("ArrowRight");
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it("should not change the step when the right arrow key is pressed on an editable target.", async() => {
+      await startTour();
+      const input = document.createElement("input");
+      document.body.append(input);
+
+      input.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "ArrowRight" }));
+      await flushPromises();
+
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
+    });
+
+    it("should not change the step when a non-arrow key is pressed.", async() => {
+      await startTour();
+
+      pressTutorialKey("Enter");
+      await flushPromises();
+
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
+    });
+
+    it("should not change the step when the right arrow key press is repeated.", async() => {
+      await startTour();
+
+      pressTutorialKey("ArrowRight", { repeat: true });
+      await flushPromises();
+
+      expect(getGameTutorialElement("game-tutorial-title").textContent).toBe("game.interactiveTutorial.steps.welcome.title");
+    });
+
+    it("should prevent the default event when the right arrow key moves to the next step.", async() => {
+      await startTour();
+
+      const event = pressTutorialKey("ArrowRight");
+
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("should stop the propagation of the right arrow key when it moves to the next step.", async() => {
+      await startTour();
+      const keydownListener = vi.fn<(event: KeyboardEvent) => void>();
+      document.addEventListener("keydown", keydownListener);
+
+      pressTutorialKey("ArrowRight");
+      await flushPromises();
+      document.removeEventListener("keydown", keydownListener);
+
+      expect(keydownListener).not.toHaveBeenCalled();
+    });
+
+    it("should stop the propagation of the right arrow key when it finishes the last step.", async() => {
+      await startTour();
+      await collectRenderedStepTitles();
+      const keydownListener = vi.fn<(event: KeyboardEvent) => void>();
+      document.addEventListener("keydown", keydownListener);
+
+      pressTutorialKey("ArrowRight");
+      await flushPromises();
+      document.removeEventListener("keydown", keydownListener);
+
+      expect(keydownListener).not.toHaveBeenCalled();
+    });
+
+    it("should not stop the propagation of the right arrow key when the tutorial is closed.", () => {
+      const keydownListener = vi.fn<(event: KeyboardEvent) => void>();
+      document.addEventListener("keydown", keydownListener);
+
+      pressTutorialKey("ArrowRight");
+      document.removeEventListener("keydown", keydownListener);
+
+      expect(keydownListener).toHaveBeenCalledExactlyOnceWith(expect.any(KeyboardEvent));
+    });
+
+    it("should not stop the propagation of the left arrow key when it cannot go before the first step.", async() => {
+      await startTour();
+      const keydownListener = vi.fn<(event: KeyboardEvent) => void>();
+      document.addEventListener("keydown", keydownListener);
+
+      pressTutorialKey("ArrowLeft");
+      await flushPromises();
+      document.removeEventListener("keydown", keydownListener);
+
+      expect(keydownListener).toHaveBeenCalledExactlyOnceWith(expect.any(KeyboardEvent));
+    });
+
+    it("should not prevent the default event when the left arrow key is pressed on the first step.", async() => {
+      await startTour();
+
+      const event = pressTutorialKey("ArrowLeft");
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+  });
+
+  describe("keyboard listener cleanup", () => {
+    it("should not prevent the default event when the right arrow key is pressed after the component unmounts.", async() => {
+      await startTour();
+      wrapper.unmount();
+
+      const event = pressTutorialKey("ArrowRight");
+
+      expect(event.defaultPrevented).toBe(false);
+    });
   });
 });

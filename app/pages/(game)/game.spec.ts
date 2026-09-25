@@ -17,6 +17,8 @@ import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-coo
 import { MOCKED_TOAST_ID } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
+import type { GamePlaying } from "#components";
+
 import GamePage from "@/pages/(game)/game.vue";
 import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "~/composables/domain/question-theme/constants/question-theme.constants";
 
@@ -280,28 +282,60 @@ describe("Game Page", () => {
 
     const sidebar = wrapper.findComponent({ name: "GameSidebar" });
 
-    expect(sidebar.props("open")).toBe(true);
+    expect(sidebar.props("isOpen")).toBe(true);
   });
 
-  it("should close the sidebar when GameSidebar emits update:open with false.", async() => {
+  it("should close the sidebar when GameSidebar emits update:isOpen with false.", async() => {
     const toggleButton = wrapper.findComponent({ name: "GameSidebarToggleButton" });
     getWrapperVm(toggleButton).$emit("click");
     await nextTick();
 
     const sidebar = wrapper.findComponent({ name: "GameSidebar" });
-    getWrapperVm(sidebar).$emit("update:open", false);
+    getWrapperVm(sidebar).$emit("update:isOpen", false);
     await nextTick();
 
-    expect(sidebar.props("open")).toBe(false);
+    expect(sidebar.props("isOpen")).toBe(false);
   });
 
-  it("should pass isFetchingQuestions as the isFetchingQuestions prop to GameSidebar when mounted.", async() => {
+  it("should close the sidebar when GameSidebar emits openSettings.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebarToggleButton" })).$emit("click");
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+    await flushPromises();
+
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
+  });
+
+  it("should open the settings modal when GameSidebar emits openSettings.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+    await flushPromises();
+
+    expect(wrapper.findComponent({ name: "GameSettingsModal" }).props("isOpen")).toBe(true);
+  });
+
+  it("should close the settings modal when GameSettingsModal emits update:isOpen with false.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+    await flushPromises();
+    getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", false);
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameSettingsModal" }).props("isOpen")).toBe(false);
+  });
+
+  it("should keep the sidebar closed when the settings modal is dismissed.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+    await flushPromises();
+    getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", false);
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
+  });
+
+  it("should pass isFetchingQuestions as the isFetchingQuestions prop to GameSettingsModal when mounted.", async() => {
     useGameMock.instance.isFetchingQuestionsRef.value = true;
     await nextTick();
 
-    const sidebar = wrapper.findComponent({ name: "GameSidebar" });
-
-    expect(sidebar.props("isFetchingQuestions")).toBe(true);
+    expect(wrapper.findComponent({ name: "GameSettingsModal" }).props("isFetchingQuestions")).toBe(true);
   });
 
   it("should pass isTutorialAvailable as false to GameSidebar when gameState is loading.", async() => {
@@ -386,7 +420,7 @@ describe("Game Page", () => {
     getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
     await flushPromises();
 
-    expect(wrapper.findComponent({ name: "GameSidebar" }).props("open")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
   });
 
   it("should pass isActive as false to GameTutorial when GameTutorial emits tutorialEnd.", async() => {
@@ -507,5 +541,108 @@ describe("Game Page", () => {
     wrapper.unmount();
 
     expect(useAppToastMock.instance.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+  });
+
+  describe("areShortcutsDisabled state", () => {
+    async function reachPlayingState(): Promise<void> {
+      useGameMock.instance.gameStateRef.value = "playing";
+      useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+      await nextTick();
+    }
+
+    function getGamePlayingWrapper(): VueWrapper<InstanceType<typeof GamePlaying>> {
+      return wrapper.findComponent<typeof GamePlaying>({ name: "GamePlaying" });
+    }
+
+    it("should forward areShortcutsDisabled as false to GamePlaying when no blocking state is active.", async() => {
+      await reachPlayingState();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+    });
+
+    it("should forward areShortcutsDisabled as true to GamePlaying when the sidebar is open.", async() => {
+      await reachPlayingState();
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebarToggleButton" })).$emit("click");
+      await nextTick();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(true);
+    });
+
+    it("should forward areShortcutsDisabled as false to GamePlaying when the sidebar closes.", async() => {
+      await reachPlayingState();
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebarToggleButton" })).$emit("click");
+      await nextTick();
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("update:isOpen", false);
+      await nextTick();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+    });
+
+    it("should forward areShortcutsDisabled as true to GamePlaying when the settings modal is open.", async() => {
+      await reachPlayingState();
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+      await flushPromises();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(true);
+    });
+
+    it("should forward areShortcutsDisabled as false to GamePlaying when the settings modal closes.", async() => {
+      await reachPlayingState();
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+      await flushPromises();
+      getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", false);
+      await nextTick();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+    });
+
+    it("should forward areShortcutsDisabled as true to GamePlaying when the interactive tutorial is requested.", async() => {
+      await reachPlayingState();
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+      await flushPromises();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(true);
+    });
+
+    it("should forward areShortcutsDisabled as false to GamePlaying when the interactive tutorial ends.", async() => {
+      await reachPlayingState();
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+      await flushPromises();
+      getWrapperVm(wrapper.findComponent({ name: "GameTutorial" })).$emit("tutorialEnd");
+      await nextTick();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+    });
+
+    it("should forward areShortcutsDisabled as true to GamePlaying when the leave confirmation awaits a result.", async() => {
+      await reachPlayingState();
+      const guardPromise = getCapturedLeaveGuard()();
+      await nextTick();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(true);
+
+      getCreatedModalInstance().close(false);
+      void guardPromise;
+    });
+
+    it("should forward areShortcutsDisabled as false to GamePlaying when the leave confirmation is cancelled.", async() => {
+      await reachPlayingState();
+      const guardPromise = getCapturedLeaveGuard()();
+      getCreatedModalInstance().close(false);
+      await guardPromise;
+      await nextTick();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+    });
+
+    it("should forward areShortcutsDisabled as false to GamePlaying when the leave confirmation is accepted.", async() => {
+      await reachPlayingState();
+      const guardPromise = getCapturedLeaveGuard()();
+      getCreatedModalInstance().close(true);
+      await guardPromise;
+      await nextTick();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+    });
   });
 });

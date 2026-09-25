@@ -65,6 +65,10 @@ function useGame(): UseGame {
     }
   }
 
+  onBeforeMount(() => {
+    store.resetQuestions();
+  });
+
   onMounted(() => {
     void initialize();
   });

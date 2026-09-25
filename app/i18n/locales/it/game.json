@@ -12,6 +12,15 @@
     "leaveConfirmTitle": "Abbandonare la partita?",
     "leaveConfirmDescription": "Sei sicuro di voler abbandonare la partita in corso?",
     "leave": "Esci",
+    "settings": {
+      "trigger": "Impostazioni",
+      "title": "Impostazioni",
+      "tabs": {
+        "general": "Generale",
+        "about": "Informazioni"
+      },
+      "languageLabel": "Lingua"
+    },
     "interactiveTutorial": {
       "label": "Tutorial interattivo",
       "invitation": {

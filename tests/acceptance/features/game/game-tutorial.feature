@@ -91,6 +91,9 @@ Feature: 🧑‍🏫 Game Page Interactive Tutorial
     And the user is on game page
     And a game question should be displayed
     When the user opens the game sidebar
-    And the user selects the "Français" locale option in the game sidebar
-    And the user opens the interactive tutorial from the game sidebar
+    And the user clicks the settings button in the game sidebar
+    And the user selects the "Français" locale option in the game settings
+    And the user clicks on the close button in the modal header
+    Then the element with testid "game-settings-modal" should be hidden
+    When the user opens the interactive tutorial from the game sidebar
     Then the interactive tutorial step title should be "Vous détenez la réponse. À eux de la trouver !"

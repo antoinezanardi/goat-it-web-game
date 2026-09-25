@@ -1,6 +1,4 @@
-import type { GameTutorialStep } from "@/components/domain/game/GameTutorial/game-tutorial.types";
-
-const GAME_TUTORIAL_HIGHLIGHT_CLASS = "game-tutorial-highlight";
+import type { GameTutorialStep, GameTutorialStepDirection } from "@/components/domain/game/GameTutorial/game-tutorial.types";
 
 const GAME_TUTORIAL_POPOVER_UI = {
   content: [
@@ -12,6 +10,13 @@ const GAME_TUTORIAL_POPOVER_UI = {
 const GAME_TUTORIAL_POPOVER_MARGIN = 16;
 const GAME_TUTORIAL_POPOVER_MIN_HEIGHT = 160;
 const GAME_TUTORIAL_POPOVER_OFFSET = 12;
+const GAME_TUTORIAL_SPOTLIGHT_PADDING = 8;
+const GAME_TUTORIAL_SPOTLIGHT_PADDING_SIDES = 2;
+
+const GAME_TUTORIAL_ARROW_KEY_DIRECTIONS: Readonly<Record<string, GameTutorialStepDirection>> = {
+  ArrowLeft: "backward",
+  ArrowRight: "forward",
+};
 
 const GAME_TUTORIAL_ACTIVE_CARD_SELECTOR = "[data-testid='game-question']";
 const GAME_TUTORIAL_CARD_HEADER_SELECTOR = "[data-testid='game-question-header']";
@@ -34,6 +39,7 @@ const GAME_TUTORIAL_STEPS: readonly GameTutorialStep[] = [
   {
     icon: "i-lucide-lightbulb",
     key: "clues",
+    target: `${GAME_TUTORIAL_ACTIVE_CARD_SELECTOR} [data-testid='game-question-context-accordion-trigger']`,
   },
   {
     icon: "i-lucide-gavel",
@@ -58,10 +64,12 @@ const GAME_TUTORIAL_STEPS: readonly GameTutorialStep[] = [
 ];
 
 export {
-  GAME_TUTORIAL_HIGHLIGHT_CLASS,
+  GAME_TUTORIAL_ARROW_KEY_DIRECTIONS,
   GAME_TUTORIAL_POPOVER_MARGIN,
   GAME_TUTORIAL_POPOVER_MIN_HEIGHT,
   GAME_TUTORIAL_POPOVER_OFFSET,
   GAME_TUTORIAL_POPOVER_UI,
+  GAME_TUTORIAL_SPOTLIGHT_PADDING,
+  GAME_TUTORIAL_SPOTLIGHT_PADDING_SIDES,
   GAME_TUTORIAL_STEPS,
 };

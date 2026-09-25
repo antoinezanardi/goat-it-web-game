@@ -35,6 +35,10 @@ export const useGameStore = defineStore(StoreNames.GAME, () => {
       questions.value = [...questions.value, ...fetched];
     }
   }
+
+  function resetQuestions(): void {
+    questions.value = [];
+  }
   return {
     questions,
     fetchStatus,
@@ -43,6 +47,7 @@ export const useGameStore = defineStore(StoreNames.GAME, () => {
     isError,
     fetchRandomQuestions,
     fetchAndAppendRandomQuestions,
+    resetQuestions,
     fetchQuestionsByIds,
     fetchQuestionsByIdsStatus,
     isFetchingQuestionsByIds,

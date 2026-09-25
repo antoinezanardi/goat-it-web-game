@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { nextTick } from "vue";
 
-import { ConfirmDialog, GameTutorial } from "#components";
+import { ConfirmDialog, GameSettingsModal, GameTutorial } from "#components";
 
 import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
@@ -21,21 +21,29 @@ useSeoMeta({
 
 const overlay = useOverlay();
 
-async function confirmLeave(): Promise<boolean> {
-  const modal = overlay.create(ConfirmDialog, {
-    destroyOnClose: true,
-    props: {
-      disableShortcuts: true,
-      dismissible: false,
-      icon: "i-lucide-log-out",
-      iconClass: "text-warning",
-      title: t("game.leaveConfirmTitle"),
-      description: t("game.leaveConfirmDescription"),
-      primaryButtonLabel: t("game.leave"),
-    },
-  });
+const isLeaveConfirmationOpen = ref<boolean>(false);
 
-  return await modal.open();
+async function confirmLeave(): Promise<boolean> {
+  isLeaveConfirmationOpen.value = true;
+
+  try {
+    const modal = overlay.create(ConfirmDialog, {
+      destroyOnClose: true,
+      props: {
+        disableShortcuts: true,
+        dismissible: false,
+        icon: "i-lucide-log-out",
+        iconClass: "text-warning",
+        title: t("game.leaveConfirmTitle"),
+        description: t("game.leaveConfirmDescription"),
+        primaryButtonLabel: t("game.leave"),
+      },
+    });
+
+    return await modal.open();
+  } finally {
+    isLeaveConfirmationOpen.value = false;
+  }
 }
 
 onBeforeRouteLeave(async() => {
@@ -91,13 +99,31 @@ const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveTh
 
 const isSidebarOpen = ref(false);
 
+const isSettingsModalOpen = ref(false);
+
 function openSidebar(): void {
   isSidebarOpen.value = true;
 }
 
-function onSidebarOpenChange(open: boolean): void {
-  isSidebarOpen.value = open;
+function onSidebarOpenChange(isOpen: boolean): void {
+  isSidebarOpen.value = isOpen;
 }
+
+async function openSettingsModal(): Promise<void> {
+  await nextTick();
+  isSettingsModalOpen.value = true;
+}
+
+function onOpenSettings(): void {
+  isSidebarOpen.value = false;
+  void openSettingsModal();
+}
+
+function onSettingsOpenChange(isOpen: boolean): void {
+  isSettingsModalOpen.value = isOpen;
+}
+
+const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTourRequested.value || isLeaveConfirmationOpen.value || isSettingsModalOpen.value);
 </script>
 
 <template>
@@ -116,11 +142,17 @@ function onSidebarOpenChange(open: boolean): void {
     />
 
     <GameSidebar
-      :is-fetching-questions="isFetchingQuestions"
+      :is-open="isSidebarOpen"
       :is-tutorial-available="isTutorialAvailable"
-      :open="isSidebarOpen"
+      @open-settings="onOpenSettings"
       @start-tutorial="onStartTutorialFromSidebar"
-      @update:open="onSidebarOpenChange"
+      @update:is-open="onSidebarOpenChange"
+    />
+
+    <GameSettingsModal
+      :is-fetching-questions="isFetchingQuestions"
+      :is-open="isSettingsModalOpen"
+      @update:is-open="onSettingsOpenChange"
     />
 
     <GameTutorial
@@ -140,6 +172,7 @@ function onSidebarOpenChange(open: boolean): void {
 
       <GamePlaying
         v-else-if="gameState === 'playing' && currentQuestion"
+        :are-shortcuts-disabled="areShortcutsDisabled"
         :can-go-to-previous-question="canGoToPreviousQuestion"
         :current-index="currentIndex"
         :current-question="currentQuestion"

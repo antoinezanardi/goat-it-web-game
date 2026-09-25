@@ -29,15 +29,6 @@ Then(
 );
 
 Then(
-  /^the game sidebar version button should be visible$/u,
-  async function(this: GoatItWorld): Promise<void> {
-    const dialog = this.page.getByRole("dialog");
-
-    await expect(dialog.getByTestId("github-version-button")).toBeVisible();
-  },
-);
-
-Then(
   /^the game sidebar rules link should be visible$/u,
   async function(this: GoatItWorld): Promise<void> {
     const dialog = this.page.getByRole("dialog");

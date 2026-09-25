@@ -10,17 +10,23 @@ Feature: 🧭 Game Page Sidebar
     Then the game sidebar should be visible
     And the game sidebar brand text should be "Goat It"
 
-  Scenario: 🧭 Sidebar displays the back to home link and app version
+  Scenario: 🧭 Sidebar displays the back to home link
     Given the user is on game page
     When the user opens the game sidebar
     Then the game sidebar back to home link should be visible
-    And the game sidebar version button should be visible
 
   Scenario: 🧭 Clicking back to home in the sidebar navigates to home page
     Given the user is on game page
     And the no more questions message should be displayed
     When the user opens the game sidebar
     And the user clicks the back to home link in the game sidebar
+    Then the user should be on home page
+
+  Scenario: 🧭 Clicking the brand logo in the sidebar navigates to home page
+    Given the user is on game page
+    And the no more questions message should be displayed
+    When the user opens the game sidebar
+    And the user clicks on the link with exact name "Goat It"
     Then the user should be on home page
 
   Scenario: 🧭 Clicking back to home in the sidebar while playing shows the leave confirmation
@@ -43,24 +49,7 @@ Feature: 🧭 Game Page Sidebar
     And the user clicks the rules link in the game sidebar
     Then the rules page should have been opened in a new tab
 
-  Scenario: 🧭 Sidebar displays the locale selector
+  Scenario: 🧭 Sidebar displays the settings button
     Given the user is on game page
     When the user opens the game sidebar
-    Then the element with testid "locale-select" should be visible
-    And the game sidebar version button should be visible
-
-  Scenario: 🧭 Selecting French switches the sidebar language immediately
-    Given the user is on game page
-    When the user opens the game sidebar
-    And the user selects the "Français" locale option in the game sidebar
-    Then the exact text "Règles du jeu" should be visible
-    And the user should be on game page
-
-  Scenario: 🧭 Selecting French keeps the sidebar in French after a page reload
-    Given the user is on game page
-    When the user opens the game sidebar
-    And the user selects the "Français" locale option in the game sidebar
-    And the user reloads the page
-    And the user opens the game sidebar
-    Then the exact text "Règles du jeu" should be visible
-    And the user should be on game page
+    Then the element with testid "game-sidebar-settings-button" should be visible

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { LocaleSelect, VersionButton } from "#components";
-
 import type { GameSidebarEmits, GameSidebarProps } from "@/components/domain/game/GameSidebar/game-sidebar.types";
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
 
@@ -9,26 +7,31 @@ const emit = defineEmits<GameSidebarEmits>();
 const { t } = useI18n();
 
 function onUpdateOpen(value: boolean): void {
-  emit("update:open", value);
+  emit("update:isOpen", value);
 }
 
 function onStartTutorial(): void {
   emit("startTutorial");
 }
+
+function onOpenSettings(): void {
+  emit("openSettings");
+}
 </script>
 
 <template>
   <USlideover
-    :open="props.open"
+    :open="props.isOpen"
     side="left"
     :title="t('home.brand')"
     :ui="GAME_SIDEBAR_UI"
     @update:open="onUpdateOpen"
   >
     <template #header>
-      <div
+      <ULink
         class="flex gap-2 items-center"
         data-testid="game-sidebar"
+        to="/"
       >
         <img
           alt=""
@@ -39,7 +42,7 @@ function onStartTutorial(): void {
         <span class="font-semibold text-fg-primary text-lg">
           {{ t("home.brand") }}
         </span>
-      </div>
+      </ULink>
     </template>
 
     <template #body>
@@ -86,12 +89,18 @@ function onStartTutorial(): void {
 
     <template #footer>
       <div
-        class="flex gap-2 items-center justify-center w-full"
+        class="w-full"
         data-testid="game-sidebar-footer"
       >
-        <LocaleSelect :disabled="props.isFetchingQuestions"/>
-
-        <VersionButton/>
+        <UButton
+          block
+          color="secondary"
+          data-testid="game-sidebar-settings-button"
+          icon="i-lucide-settings"
+          :label="t('game.settings.trigger')"
+          variant="solid"
+          @click="onOpenSettings"
+        />
       </div>
     </template>
   </USlideover>

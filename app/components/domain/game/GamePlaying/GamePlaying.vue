@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { onKeyStroke } from "@vueuse/core";
+
+import { isEditableKeyboardTarget } from "#shared/utils/helpers/element/element.dom.helpers";
 import type { GameQuestionCardSwitcherDirection } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
 import type { GamePlayingEmits, GamePlayingProps } from "@/components/domain/game/GamePlaying/game-playing.types";
 
@@ -22,48 +25,63 @@ function finishTransition(): void {
   emit("previous");
 }
 
-function handleNext(): void {
+function canNavigate(direction: GameQuestionCardSwitcherDirection): boolean {
   if (isTransitioning.value) {
+    return false;
+  }
+  return direction === "forward" || props.canGoToPreviousQuestion;
+}
+
+function navigate(direction: GameQuestionCardSwitcherDirection): void {
+  if (!canNavigate(direction)) {
     return;
   }
 
-  const nextIndex = props.currentIndex + 1;
-  const entering = props.questions[nextIndex];
+  const targetIndex = direction === "forward" ? props.currentIndex + 1 : props.currentIndex - 1;
+  const entering = props.questions[targetIndex];
 
   if (entering && entering.id !== props.currentQuestion.id) {
-    transitionDirection.value = "forward";
+    transitionDirection.value = direction;
     isTransitioning.value = true;
-    pendingDirection.value = "forward";
+    pendingDirection.value = direction;
 
     return;
   }
 
-  emit("advance");
+  if (direction === "forward") {
+    emit("advance");
+
+    return;
+  }
+  emit("previous");
+}
+
+function handleNext(): void {
+  navigate("forward");
 }
 
 function handlePrevious(): void {
-  if (isTransitioning.value || !props.canGoToPreviousQuestion) {
-    return;
-  }
-
-  const previousIndex = props.currentIndex - 1;
-  const entering = props.questions[previousIndex];
-
-  if (entering && entering.id !== props.currentQuestion.id) {
-    transitionDirection.value = "backward";
-    isTransitioning.value = true;
-    pendingDirection.value = "backward";
-
-    return;
-  }
-
-  emit("previous");
+  navigate("backward");
 }
 
 function onStaged(): void {
   isTransitioning.value = false;
   pendingDirection.value = undefined;
 }
+
+function onQuestionShortcut(event: KeyboardEvent, direction: GameQuestionCardSwitcherDirection): void {
+  if (props.areShortcutsDisabled || event.repeat || isEditableKeyboardTarget(event.target)) {
+    return;
+  }
+  if (!canNavigate(direction)) {
+    return;
+  }
+  event.preventDefault();
+  navigate(direction);
+}
+
+onKeyStroke("ArrowLeft", event => onQuestionShortcut(event, "backward"), { dedupe: true, passive: false });
+onKeyStroke("ArrowRight", event => onQuestionShortcut(event, "forward"), { dedupe: true, passive: false });
 </script>
 
 <template>

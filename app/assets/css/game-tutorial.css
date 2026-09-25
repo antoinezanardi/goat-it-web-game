@@ -1,12 +1,12 @@
-.game-tutorial-highlight {
-  z-index: 41;
+.game-tutorial-spotlight {
   outline: 2px solid white;
-  outline-offset: 6px;
+  outline-offset: 0;
   border-radius: 8px;
-  animation: game-tutorial-highlight-pulse 2.4s ease-in-out infinite;
+  box-shadow: 0 0 0 9999px rgb(0 0 0 / 50%);
+  animation: game-tutorial-spotlight-pulse 2.4s ease-in-out infinite;
 }
 
-@keyframes game-tutorial-highlight-pulse {
+@keyframes game-tutorial-spotlight-pulse {
   0%, 100% {
     outline-color: color-mix(in srgb, white 35%, transparent);
   }
@@ -33,7 +33,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .game-tutorial-highlight,
+  .game-tutorial-spotlight,
   .game-tutorial-step-in {
     animation: none;
   }

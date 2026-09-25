@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
-import type { ULink, LocaleSelect } from "#components";
+import type { UButton, ULink } from "#components";
 import { GameSidebar } from "#components";
 
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
@@ -16,7 +16,7 @@ describe("GameSidebar Component", () => {
 
   const defaultGameSidebarProps: GameSidebarProps = {
     isTutorialAvailable: true,
-    open: true,
+    isOpen: true,
   } as const;
 
   async function mountGameSidebar(options: MountSuspendedOptions<typeof GameSidebar> = {}): Promise<VueWrapper> {
@@ -50,7 +50,7 @@ describe("GameSidebar Component", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")).not.toBeNull();
   });
 
-  it("should pass the open prop to USlideover when mounted.", () => {
+  it("should pass isOpen as the open prop to USlideover when mounted.", () => {
     const slideover = wrapper.findComponent({ name: "USlideover" });
 
     expect(slideover.props("open")).toBe(true);
@@ -70,6 +70,14 @@ describe("GameSidebar Component", () => {
 
   it("should render the brand text in the header when mounted.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")?.textContent).toContain("home.brand");
+  });
+
+  it("should render the sidebar header as a link to the home page when mounted.", () => {
+    expect(findLinkByTestId("game-sidebar").props("to")).toBe("/");
+  });
+
+  it("should render the logo image inside the header link when mounted.", () => {
+    expect(findLinkByTestId("game-sidebar").find("img").exists()).toBe(true);
   });
 
   it("should render the back to home link with the correct label when mounted.", () => {
@@ -114,36 +122,46 @@ describe("GameSidebar Component", () => {
     expect(rulesLink.findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-book-open");
   });
 
-  it("should render the VersionButton component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "VersionButton" }).exists()).toBe(true);
+  it("should render the settings button with the correct data-testid when mounted.", () => {
+    expect(wrapper.findComponent<typeof UButton>("[data-testid='game-sidebar-settings-button']").exists()).toBe(true);
   });
 
-  it("should render the LocaleSelect component when mounted.", () => {
-    expect(wrapper.findComponent<typeof LocaleSelect>("[data-testid='locale-select']").exists()).toBe(true);
+  it("should render the settings button with the trigger label translation key when mounted.", () => {
+    const settingsButton = wrapper.findComponent<typeof UButton>("[data-testid='game-sidebar-settings-button']");
+
+    expect(settingsButton.props("label")).toBe("game.settings.trigger");
   });
 
-  it("should pass the isFetchingQuestions prop to LocaleSelect as its disabled prop when isFetchingQuestions is true.", async() => {
-    await wrapper.setProps({ isFetchingQuestions: true });
-    const localeSelect = wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" });
+  it("should render the settings button with the settings icon when mounted.", () => {
+    const settingsButton = wrapper.findComponent<typeof UButton>("[data-testid='game-sidebar-settings-button']");
 
-    expect(localeSelect.props("disabled")).toBe(true);
+    expect(settingsButton.props("icon")).toBe("i-lucide-settings");
   });
 
-  it("should pass the isFetchingQuestions prop to LocaleSelect as its disabled prop as false when isFetchingQuestions is not provided.", () => {
-    const localeSelect = wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" });
+  it("should emit openSettings when the settings button is clicked.", async() => {
+    const settingsButton = wrapper.findComponent<typeof UButton>("[data-testid='game-sidebar-settings-button']");
+    await settingsButton.trigger("click");
 
-    expect(localeSelect.props("disabled")).toBe(false);
+    expect(wrapper.emitted("openSettings")).toStrictEqual([[]]);
+  });
+
+  it("should not render the LocaleSelect component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "LocaleSelect" }).exists()).toBe(false);
+  });
+
+  it("should not render the VersionButton component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "VersionButton" }).exists()).toBe(false);
   });
 
   it("should have the footer data-testid attribute when mounted.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar-footer']")).not.toBeNull();
   });
 
-  it("should emit update:open when USlideover emits update:open.", () => {
+  it("should emit update:isOpen when USlideover emits update:open.", () => {
     const slideover = wrapper.findComponent({ name: "USlideover" });
     getWrapperVm(slideover).$emit("update:open", false);
 
-    expect(wrapper.emitted("update:open")).toStrictEqual([[false]]);
+    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[false]]);
   });
 
   it("should render the tutorial entry when isTutorialAvailable is true.", () => {

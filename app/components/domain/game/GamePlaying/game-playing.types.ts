@@ -5,6 +5,7 @@ type GamePlayingProps = {
   currentIndex: number;
   currentQuestion: Question;
   questions: Question[];
+  areShortcutsDisabled?: boolean;
 };
 
 type GamePlayingEmits = {
