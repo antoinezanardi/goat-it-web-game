@@ -1,5 +1,43 @@
 # 🐐👑 Goat It Web Admin Versioning Changelog
 
+## [1.9.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.8.0...v1.9.0) (2026-09-25)
+
+### 🚀 Features
+
+* **game:** add a settings modal to the game sidebar ([#343](https://github.com/antoinezanardi/goat-it-web-game/issues/343)) ([696835f](https://github.com/antoinezanardi/goat-it-web-game/commit/696835ff18041e18e72adb91abce7e5a062ac00f))
+* **game:** navigate questions and tutorial steps with arrow keys ([#340](https://github.com/antoinezanardi/goat-it-web-game/issues/340)) ([7dc1ead](https://github.com/antoinezanardi/goat-it-web-game/commit/7dc1ead3145210bd3ac1a2a65d7384f0b1df72bc))
+* **game:** navigate to home page when clicking the sidebar logo ([#337](https://github.com/antoinezanardi/goat-it-web-game/issues/337)) ([b8ed91d](https://github.com/antoinezanardi/goat-it-web-game/commit/b8ed91dfec0bd2d6594771fc382a47a6322f7f30))
+* **game:** scroll the question card when the context and trivia accordion opens ([#334](https://github.com/antoinezanardi/goat-it-web-game/issues/334)) ([b80ef25](https://github.com/antoinezanardi/goat-it-web-game/commit/b80ef2576d7c1703d7bd7cf2145988a73e663d9f))
+
+### 🐛 Bug Fixes
+
+* **game:** prevent arrow keys from leaking from the tutorial into question navigation ([#344](https://github.com/antoinezanardi/goat-it-web-game/issues/344)) ([1f282ba](https://github.com/antoinezanardi/goat-it-web-game/commit/1f282ba8890bbfa0885aa4718e4f9eb46df958a8)), closes [#342](https://github.com/antoinezanardi/goat-it-web-game/issues/342)
+* **game:** reset questions when re-entering the game page ([#335](https://github.com/antoinezanardi/goat-it-web-game/issues/335)) ([35364a9](https://github.com/antoinezanardi/goat-it-web-game/commit/35364a9a5de1fd9595237171768de29260f64cef))
+* **game:** reveal interactive tutorial targets through a backdrop spotlight window ([#333](https://github.com/antoinezanardi/goat-it-web-game/issues/333)) ([ddaa980](https://github.com/antoinezanardi/goat-it-web-game/commit/ddaa980ddca2990b9546bfda14b49b994e81c230))
+* **game:** target the context accordion from the clues tutorial step ([#350](https://github.com/antoinezanardi/goat-it-web-game/issues/350)) ([d630e35](https://github.com/antoinezanardi/goat-it-web-game/commit/d630e353f374e46756771a3764b85551ae36d509))
+
+### 🧹 Chore
+
+* sync release v1.8.0 from main ([3f47e48](https://github.com/antoinezanardi/goat-it-web-game/commit/3f47e48e5b3b7a7cf82ce3427fb8259eb6a53199))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `commitlint monorepo` | `^21.2.3` |
+| `@iconify-json/lucide` | `^1.2.136` |
+| `@nuxt/content` | `^3.16.1` |
+| `@nuxt/ui` | `^4.11.2` |
+| `eslint-plugin-oxlint` | `^1.85.0` |
+| `nuxt-og-image` | `^6.9.0` |
+| `oxlint` | `^1.85.0` |
+| `oxlint-tsgolint` | `^7.0.2003` |
+| `radashi` | `^12.9.6` |
+| `vite` | `^8.3.1` |
+| `node.js` | `` |
+| `oxlint monorepo` | `^1.84.0` |
+| `pnpm` | `v12.6.0` |
+
 ## [1.8.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.7.0...v1.8.0) (2026-09-19)
 
 ### 🚀 Features
