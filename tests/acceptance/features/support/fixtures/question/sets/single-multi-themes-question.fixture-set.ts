@@ -46,6 +46,7 @@ const SINGLE_MULTI_THEMES_QUESTION_FIXTURE_SET = [
     },
     sourceUrls: ["https://en.wikipedia.org/wiki/Theme_(computer_graphics)"],
     status: "active",
+    isAdultContent: false,
   },
 ] as const;
 

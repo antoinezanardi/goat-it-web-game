@@ -21,6 +21,7 @@ const DIFFICULTY_ICON_MAP: Record<QuestionCognitiveDifficulty, string> = {
 
 const QUESTION_HINT_ICON = "i-lucide-mouth-off";
 const QUESTION_PRIMARY_ICON = "i-lucide-star";
+const QUESTION_ADULT_CONTENT_ICON = "i-lucide-venetian-mask";
 
 const DIFFICULTY_RING_CLASS_MAP: Record<QuestionCognitiveDifficulty, string> = {
   easy: "ring-success/50",
@@ -28,4 +29,4 @@ const DIFFICULTY_RING_CLASS_MAP: Record<QuestionCognitiveDifficulty, string> = {
   hard: "ring-error/50",
 };
 
-export { DIFFICULTY_COLOR_MAP, DIFFICULTY_ICON_MAP, DIFFICULTY_RING_CLASS_MAP, QUESTION_CATEGORY_ICON_MAP, QUESTION_HINT_ICON, QUESTION_PRIMARY_ICON };
+export { DIFFICULTY_COLOR_MAP, DIFFICULTY_ICON_MAP, DIFFICULTY_RING_CLASS_MAP, QUESTION_ADULT_CONTENT_ICON, QUESTION_CATEGORY_ICON_MAP, QUESTION_HINT_ICON, QUESTION_PRIMARY_ICON };

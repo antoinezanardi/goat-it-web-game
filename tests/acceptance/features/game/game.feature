@@ -152,3 +152,18 @@ Feature: 🎮 Game Page
     And the user goes to the previous question
     Then exactly 1 game question card should be active
     And exactly 2 game question cards should be staged
+
+  @question-adult-content
+  Scenario: 🔞 Adult content badge is displayed for an adult question
+    Given the database is populated with the question fixture set "single-adult-content-question"
+    And the user is on game page
+    Then the question card should be displayed
+    And the adult content badge should be visible
+    And hovering the adult content badge shows the popover "This question is intended for a mature audience"
+
+  @question-adult-content
+  Scenario: 🔞 Adult content badge is hidden for a regular question
+    Given the database is populated with the question fixture set "single-question"
+    And the user is on game page
+    Then the question card should be displayed
+    And the adult content badge should be hidden

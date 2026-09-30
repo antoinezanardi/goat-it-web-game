@@ -30,6 +30,7 @@ const SINGLE_NO_CONTEXT_QUESTION_FIXTURE_SET = [
     },
     sourceUrls: ["https://en.wikipedia.org/wiki/Rome"],
     status: "active",
+    isAdultContent: false,
   },
 ] as const;
 

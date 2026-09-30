@@ -36,6 +36,7 @@
     "HTMLTextAreaElement": "readonly",
     "KeyboardEvent": "readonly",
     "MouseEvent": "readonly",
+    "Node": "readonly",
     "window": "readonly",
     "fetch": "readonly",
     "getQuery": "readonly",

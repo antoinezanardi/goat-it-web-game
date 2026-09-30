@@ -6,6 +6,7 @@
       "medium": "Questa domanda è moderatamente difficile da dedurre",
       "hard": "Questa domanda è difficile da dedurre"
     },
+    "adultContentTooltip": "Questa domanda è destinata a un pubblico adulto",
     "category": {
       "trivia": "Curiosità",
       "lexicon": "Lessico",
