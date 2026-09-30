@@ -264,3 +264,34 @@ Then(
     await expect(this.page.getByTestId("game-question-staged")).toHaveCount(Number(count));
   },
 );
+
+Then(
+  /^the adult content badge should be visible$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+
+    await expect(question.getByTestId("game-question-adult-content")).toBeVisible();
+  },
+);
+
+Then(
+  /^the adult content badge should be hidden$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+
+    await expect(question.getByTestId("game-question-adult-content")).toBeHidden();
+  },
+);
+
+Then(
+  /^hovering the adult content badge shows the popover "(?<text>[^"]*)"$/u,
+  async function(this: GoatItWorld, text: string): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+    const adultContentBadge = question.getByTestId("game-question-adult-content");
+
+    await expect(adultContentBadge).toBeVisible();
+    await adultContentBadge.hover();
+
+    await expect(this.page.getByTestId("game-question-adult-content-popover")).toHaveText(text);
+  },
+);

@@ -6,6 +6,7 @@
       "medium": "Esta pergunta é moderadamente difícil de deduzir",
       "hard": "Esta pergunta é difícil de deduzir"
     },
+    "adultContentTooltip": "Esta pergunta destina-se a um público adulto",
     "category": {
       "trivia": "Curiosidades",
       "lexicon": "Léxico",

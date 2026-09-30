@@ -7,6 +7,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000001"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -45,6 +46,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000002"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -79,6 +81,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000003"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -113,6 +116,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000004"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -151,6 +155,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000005"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -185,6 +190,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000006"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -219,6 +225,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000007"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -253,6 +260,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000008"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -291,6 +299,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000009"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -325,6 +334,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000000a"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -363,6 +373,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000000b"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -397,6 +408,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000000c"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -431,6 +443,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000000d"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -465,6 +478,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000000e"),
     category: "trivia",
     status: "pending",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -499,6 +513,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000000f"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -533,6 +548,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000010"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -563,6 +579,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000011"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -602,6 +619,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000012"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -640,6 +658,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000013"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -670,6 +689,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000014"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -713,6 +733,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000015"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -747,6 +768,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000016"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -790,6 +812,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000017"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -820,6 +843,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000018"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -854,6 +878,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000019"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -902,6 +927,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000001a"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -936,6 +962,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000001b"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -970,6 +997,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000001c"),
     category: "riddle",
     status: "archived",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -1009,6 +1037,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000001d"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1043,6 +1072,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000001e"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -1091,6 +1121,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000001f"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1121,6 +1152,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000020"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1155,6 +1187,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000021"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -1194,6 +1227,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000022"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -1228,6 +1262,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000023"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1267,6 +1302,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000024"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -1297,6 +1333,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000025"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -1331,6 +1368,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000026"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1370,6 +1408,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000027"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -1414,6 +1453,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000028"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -1448,6 +1488,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000029"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1487,6 +1528,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000002a"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -1521,6 +1563,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000002b"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -1560,6 +1603,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000002c"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1594,6 +1638,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000002d"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -1628,6 +1673,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000002e"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1676,6 +1722,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000002f"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1710,6 +1757,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000030"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -1749,6 +1797,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000031"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -1779,6 +1828,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000032"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1827,6 +1877,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000033"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -1862,6 +1913,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000034"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -1901,6 +1953,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000035"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -1940,6 +1993,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000036"),
     category: "trivia",
     status: "rejected",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -1974,6 +2028,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000037"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -2013,6 +2068,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000038"),
     category: "riddle",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -2052,6 +2108,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("700000000000000000000039"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
@@ -2096,6 +2153,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000003a"),
     category: "trivia",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "medium",
     themes: [
       {
@@ -2135,6 +2193,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000003b"),
     category: "lexicon",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "hard",
     themes: [
       {
@@ -2179,6 +2238,7 @@ const SIXTY_QUESTIONS_FIXTURE_SET = [
     _id: new ObjectId("70000000000000000000003c"),
     category: "explanation",
     status: "active",
+    isAdultContent: false,
     cognitiveDifficulty: "easy",
     themes: [
       {
