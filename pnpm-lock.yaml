@@ -303,8 +303,8 @@ importers:
         specifier: ^4.5.2
         version: 4.5.2(10670c8c29f66d2e7fa129a1eb95f29d)
       nuxt-og-image:
-        specifier: ^6.10.0
-        version: 6.10.0(138023d69bf81243d5caa73860589bd3)
+        specifier: ^6.10.1
+        version: 6.10.1(138023d69bf81243d5caa73860589bd3)
       nuxt-schema-org:
         specifier: ^6.4.0
         version: 6.4.0(2a742654af12ed9e4b9bcec9e912e66c)
@@ -8233,8 +8233,8 @@ packages:
   nuxt-define@1.0.0:
     resolution: {integrity: sha512-CYZ2WjU+KCyCDVzjYUM4eEpMF0rkPmkpiFrybTqqQCRpUbPt2h3snswWIpFPXTi+osRCY6Og0W/XLAQgDL4FfQ==}
 
-  nuxt-og-image@6.10.0:
-    resolution: {integrity: sha512-7p1tTTzjpotPEubyz96xS/AC4llolobSJIQ/gW45wYr/J5Qn4erCKUPzz5aDsbTuWP11dkVNuLEzY4pQk4NAAQ==}
+  nuxt-og-image@6.10.1:
+    resolution: {integrity: sha512-5W8HkSuINpkNiH4h0VkbWeTBbFml6iZx5w5lJ+fYUrsRHHmSx3ZZPoLXv9IBlyTTZIDcdyKS3H+ZN9hUEijLtw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
     peerDependencies:
@@ -20006,7 +20006,7 @@ snapshots:
 
   nuxt-define@1.0.0: {}
 
-  nuxt-og-image@6.10.0(138023d69bf81243d5caa73860589bd3):
+  nuxt-og-image@6.10.1(138023d69bf81243d5caa73860589bd3):
     dependencies:
       '@clack/prompts': 1.8.1
       '@nuxt/kit': 4.5.2(magic-string@1.4.2)(magicast@0.5.5)(oxc-parser@0.151.0)(rolldown@1.2.11)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.11)(rollup@4.60.3)(vite@8.3.1(@types/node@25.9.8)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))
