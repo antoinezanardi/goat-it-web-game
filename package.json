@@ -127,7 +127,7 @@
     "lint-staged": "^17.6.0",
     "mongodb": "^7.7.0",
     "nuxt": "^4.5.2",
-    "nuxt-og-image": "^6.9.1",
+    "nuxt-og-image": "^6.10.0",
     "nuxt-schema-org": "^6.4.0",
     "nuxt-seo-utils": "^8.6.0",
     "nuxt-site-config": "^4.2.3",
