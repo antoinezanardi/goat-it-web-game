@@ -13,7 +13,7 @@ const isAdultContentEnabled = computed<boolean>({
   set: (value: boolean): void => store.setAdultContentEnabled(value),
 });
 
-const iconClass = computed<string>(() => (isAdultContentEnabled.value ? "text-secondary" : "text-muted"));
+const iconClass = computed<string>(() => (isAdultContentEnabled.value ? "text-primary" : "text-muted"));
 const descriptionKey = computed<string>(() => (isAdultContentEnabled.value ? "game.settings.adultContent.descriptionEnabled" : "game.settings.adultContent.descriptionDisabled"));
 </script>
 
@@ -24,12 +24,12 @@ const descriptionKey = computed<string>(() => (isAdultContentEnabled.value ? "ga
   >
     <div class="flex gap-2 items-center justify-between">
       <label
-        class="flex font-medium gap-2 items-center text-fg-primary text-sm"
+        class="cursor-pointer flex font-medium gap-2 items-center text-fg-primary text-sm"
         data-testid="game-settings-adult-content-label"
         :for="GAME_SETTINGS_ADULT_CONTENT_SWITCH_INPUT_ID"
       >
         <UIcon
-          class="shrink-0 size-5"
+          class="cursor-pointer duration-200 shrink-0 size-5 transition-colors"
           :class="iconClass"
           data-testid="game-settings-adult-content-icon"
           :name="QUESTION_ADULT_CONTENT_ICON"
@@ -41,7 +41,7 @@ const descriptionKey = computed<string>(() => (isAdultContentEnabled.value ? "ga
         :id="GAME_SETTINGS_ADULT_CONTENT_SWITCH_INPUT_ID"
         v-model="isAdultContentEnabled"
         :aria-describedby="GAME_SETTINGS_ADULT_CONTENT_SWITCH_DESCRIPTION_ID"
-        color="secondary"
+        color="primary"
       />
     </div>
 

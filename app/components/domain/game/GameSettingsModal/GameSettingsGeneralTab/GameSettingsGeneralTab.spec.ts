@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import { GameSettingsGeneralTab } from "#components";
-import type { GameSettingsAdultContentSwitch, LocaleSelect } from "#components";
+import type { GameSettingsAdultContentSwitch, GameSettingsLocaleSelect } from "#components";
 
 import type { GameSettingsGeneralTabProps } from "@/components/domain/game/GameSettingsModal/GameSettingsGeneralTab/game-settings-general-tab.types";
 
@@ -33,28 +33,28 @@ describe("GameSettingsGeneralTab Component", () => {
     expect(wrapper.find("[data-testid='game-settings-general-tab']").exists()).toBe(true);
   });
 
-  it("should render the language label with the languageLabel translation key when mounted.", () => {
-    expect(wrapper.find("[data-testid='game-settings-language-label']").text()).toBe("game.settings.languageLabel");
-  });
-
-  it("should render the LocaleSelect component when mounted.", () => {
-    expect(wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" }).exists()).toBe(true);
+  it("should render the locale select component when mounted.", () => {
+    expect(wrapper.findComponent<typeof GameSettingsLocaleSelect>({ name: "GameSettingsLocaleSelect" }).exists()).toBe(true);
   });
 
   it("should render the adult content switch component when mounted.", () => {
     expect(wrapper.findComponent<typeof GameSettingsAdultContentSwitch>({ name: "GameSettingsAdultContentSwitch" }).exists()).toBe(true);
   });
 
-  it("should pass disabled as true to LocaleSelect when isLocaleSelectDisabled is true.", async() => {
-    await wrapper.setProps({ isLocaleSelectDisabled: true });
-    const localeSelect = wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" });
-
-    expect(localeSelect.props("disabled")).toBe(true);
+  it("should render the separator component when mounted.", () => {
+    expect(wrapper.findAllComponents({ name: "USeparator" })).toHaveLength(1);
   });
 
-  it("should pass disabled as false to LocaleSelect when isLocaleSelectDisabled is false.", () => {
-    const localeSelect = wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" });
+  it("should pass isDisabled as true to GameSettingsLocaleSelect when isLocaleSelectDisabled is true.", async() => {
+    await wrapper.setProps({ isLocaleSelectDisabled: true });
+    const localeSelect = wrapper.findComponent<typeof GameSettingsLocaleSelect>({ name: "GameSettingsLocaleSelect" });
 
-    expect(localeSelect.props("disabled")).toBe(false);
+    expect(localeSelect.props("isDisabled")).toBe(true);
+  });
+
+  it("should pass isDisabled as false to GameSettingsLocaleSelect when isLocaleSelectDisabled is false.", () => {
+    const localeSelect = wrapper.findComponent<typeof GameSettingsLocaleSelect>({ name: "GameSettingsLocaleSelect" });
+
+    expect(localeSelect.props("isDisabled")).toBe(false);
   });
 });

@@ -23,7 +23,7 @@
       "adultContent": {
         "label": "Adult content",
         "descriptionDisabled": "Only questions suitable for all audiences will appear.",
-        "descriptionEnabled": "Questions with adult content may appear."
+        "descriptionEnabled": "Questions involving sensitive topics (wars, violence, sex…) may appear."
       }
     },
     "interactiveTutorial": {

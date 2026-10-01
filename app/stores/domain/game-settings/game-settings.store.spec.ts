@@ -18,21 +18,16 @@ describe("useGameSettingsStore", () => {
   });
 
   describe("setAdultContentEnabled", () => {
-    it("should set isAdultContentEnabled to true when called with true.", () => {
+    it.each<{ value: boolean }>([
+      { value: true },
+      { value: false },
+    ])("should set isAdultContentEnabled to $value when called with $value.", ({ value }) => {
       const store = useGameSettingsStore();
+      store.isAdultContentEnabled = !value;
 
-      store.setAdultContentEnabled(true);
+      store.setAdultContentEnabled(value);
 
-      expect(store.isAdultContentEnabled).toBe(true);
-    });
-
-    it("should set isAdultContentEnabled to false when called with false.", () => {
-      const store = useGameSettingsStore();
-      store.isAdultContentEnabled = true;
-
-      store.setAdultContentEnabled(false);
-
-      expect(store.isAdultContentEnabled).toBe(false);
+      expect(store.isAdultContentEnabled).toBe(value);
     });
   });
 });

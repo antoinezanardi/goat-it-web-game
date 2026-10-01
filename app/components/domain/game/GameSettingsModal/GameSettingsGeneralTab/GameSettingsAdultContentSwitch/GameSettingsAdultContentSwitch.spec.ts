@@ -85,7 +85,7 @@ describe("GameSettingsAdultContentSwitch Component", () => {
     await nextTick();
     const icon = wrapper.findComponent<typeof UIcon>("[data-testid='game-settings-adult-content-icon']");
 
-    expect(icon.classes()).toContain("text-secondary");
+    expect(icon.classes()).toContain("text-primary");
   });
 
   it("should call setAdultContentEnabled with true when the switch is toggled on.", async() => {

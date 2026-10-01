@@ -23,7 +23,7 @@
       "adultContent": {
         "label": "Contenido para adultos",
         "descriptionDisabled": "Solo aparecerán preguntas aptas para todos los públicos.",
-        "descriptionEnabled": "Pueden aparecer preguntas con contenido para adultos."
+        "descriptionEnabled": "Pueden aparecer preguntas que aborden temas sensibles (guerras, violencia, sexo…)."
       }
     },
     "interactiveTutorial": {

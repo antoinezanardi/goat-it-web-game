@@ -44,6 +44,6 @@ Then(
   async function(this: GoatItWorld): Promise<void> {
     const modal = this.page.getByTestId("game-settings-modal");
 
-    await expect(modal.getByTestId("game-settings-adult-content-icon")).toHaveClass(/text-secondary/u);
+    await expect(modal.getByTestId("game-settings-adult-content-icon")).toHaveClass(/text-primary/u);
   },
 );

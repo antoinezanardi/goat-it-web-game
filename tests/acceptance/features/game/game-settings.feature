@@ -45,7 +45,7 @@ Feature: ⚙️ Game Settings Modal
   Scenario: ⚙️ Enabling adult content updates the description and icon
     When the user turns on the game settings adult content switch
     Then the game settings adult content switch should be on
-    And the game settings adult content description should be "Questions with adult content may appear."
+    And the game settings adult content description should be "Questions involving sensitive topics (wars, violence, sex…) may appear."
     And the game settings adult content icon should be active
 
   Scenario: ⚙️ Adult content option resets to disabled after a reload
