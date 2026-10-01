@@ -13,7 +13,13 @@ import type { UseGameQuestionTranslationMock } from "~~/tests/unit/utils/mocks/c
 import type { useGame as UseGameType } from "~/composables/domain/useGame/useGame";
 import type { Question } from "#shared/types/question.types";
 import { useGameStore } from "@/stores/domain/game/game.store";
+import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY } from "~/pages/(game)/game.constants";
+
+const GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY = {
+  ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY,
+  isAdultContent: false,
+} as const;
 
 let useGame: typeof UseGameType;
 let useGameQuestionTranslationMock: UseGameQuestionTranslationMock;
@@ -185,6 +191,17 @@ describe("useGame", () => {
 
       await game.initialize();
 
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY);
+    });
+
+    it("should omit the adult content filter from the initial fetch body when adult content is enabled.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      settingsStore.isAdultContentEnabled = true;
+
+      await game.initialize();
+
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
     });
 
@@ -200,7 +217,7 @@ describe("useGame", () => {
       await flushPromises();
       wrapper.unmount();
 
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY);
     });
 
     it("should set gameState to 'game-over' when the initial fetch returns no questions.", async() => {
@@ -243,7 +260,7 @@ describe("useGame", () => {
       await flushPromises();
       wrapper.unmount();
 
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY);
     });
 
     it("should not set gameState to 'game-over' when the initial fetch returns questions.", async() => {
@@ -325,6 +342,28 @@ describe("useGame", () => {
       const game = useGame();
       const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
       store.questions = fakeQuestions;
+      await nextTick();
+      store.fetchAndAppendRandomQuestions.mockClear();
+      for (let index = 0; index < 20; index++) {
+        game.advanceToNextQuestion();
+      }
+      await nextTick();
+      await flushPromises();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        excludedIds: fakeQuestions.map(question => question.id),
+        isAdultContent: false,
+      });
+    });
+
+    it("should omit the adult content filter from the prefetch body when adult content is enabled.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
+      store.questions = fakeQuestions;
+      settingsStore.isAdultContentEnabled = true;
       await nextTick();
       store.fetchAndAppendRandomQuestions.mockClear();
       for (let index = 0; index < 20; index++) {
@@ -419,6 +458,7 @@ describe("useGame", () => {
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
         excludedIds: fakeQuestions.map(question => question.id),
+        isAdultContent: false,
       });
     });
 
@@ -469,6 +509,7 @@ describe("useGame", () => {
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
         excludedIds: allQuestions.map(question => question.id),
+        isAdultContent: false,
       });
     });
   });

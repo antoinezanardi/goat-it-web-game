@@ -1,3 +1,4 @@
+import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 import { storeToRefs } from "pinia";
 
 import type { Question } from "#shared/types/question.types";
@@ -21,19 +22,28 @@ type UseGame = {
 function useGame(): UseGame {
   const store = useGameStore();
   const { questions, isPending, isFetchingQuestionsByIds } = storeToRefs(store);
+  const settingsStore = useGameSettingsStore();
 
   const currentIndex = ref<number>(0);
   const canGoToPreviousQuestion = computed<boolean>(() => currentIndex.value > 0);
   const isExhausted = ref<boolean>(false);
   const hasTriggeredPrefetch = ref<boolean>(false);
 
-  const excludedIdsBody = computed(() => {
+  function getGameSettingsFetchFilters(): Pick<FindRandomQuestionsBodyDto, "isAdultContent"> {
+    return settingsStore.isAdultContentEnabled ? {} : { isAdultContent: false };
+  }
+
+  const randomQuestionsRequestBody = computed<FindRandomQuestionsBodyDto>(() => {
     if (questions.value.length === 0) {
-      return GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY;
+      return {
+        ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY,
+        ...getGameSettingsFetchFilters(),
+      };
     }
     return {
       limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
       excludedIds: questions.value.map(question => question.id),
+      ...getGameSettingsFetchFilters(),
     };
   });
 
@@ -59,7 +69,7 @@ function useGame(): UseGame {
   const isFetchingQuestions = computed<boolean>(() => isPending.value || isFetchingQuestionsByIds.value);
 
   async function initialize(): Promise<void> {
-    await store.fetchAndAppendRandomQuestions(excludedIdsBody.value);
+    await store.fetchAndAppendRandomQuestions(randomQuestionsRequestBody.value);
     if (questions.value.length === 0) {
       isExhausted.value = true;
     }
@@ -80,7 +90,7 @@ function useGame(): UseGame {
 
     hasTriggeredPrefetch.value = true;
     const lengthBefore = questions.value.length;
-    await store.fetchAndAppendRandomQuestions(excludedIdsBody.value);
+    await store.fetchAndAppendRandomQuestions(randomQuestionsRequestBody.value);
     if (questions.value.length === lengthBefore) {
       isExhausted.value = true;
     }

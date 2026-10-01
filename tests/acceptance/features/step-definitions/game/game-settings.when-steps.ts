@@ -28,3 +28,14 @@ When(
     await option.click();
   },
 );
+
+When(
+  /^the user turns on the game settings adult content switch$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const modal = this.page.getByTestId("game-settings-modal");
+    const switchControl = modal.getByTestId("game-settings-adult-content-switch").getByRole("switch");
+
+    await expect(switchControl).toBeVisible();
+    await switchControl.click();
+  },
+);

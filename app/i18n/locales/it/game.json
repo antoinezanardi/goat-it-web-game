@@ -19,7 +19,12 @@
         "general": "Generale",
         "about": "Informazioni"
       },
-      "languageLabel": "Lingua"
+      "languageLabel": "Lingua",
+      "adultContent": {
+        "label": "Contenuti per adulti",
+        "descriptionDisabled": "Appariranno solo domande adatte a tutti i tipi di pubblico.",
+        "descriptionEnabled": "Possono comparire domande che trattano argomenti sensibili (guerre, violenza, sesso…)."
+      }
     },
     "interactiveTutorial": {
       "label": "Tutorial interattivo",

@@ -157,6 +157,13 @@ Feature: 🎮 Game Page
   Scenario: 🔞 Adult content badge is displayed for an adult question
     Given the database is populated with the question fixture set "single-adult-content-question"
     And the user is on game page
+    When the user opens the game sidebar
+    And the user clicks the settings button in the game sidebar
+    And the user turns on the game settings adult content switch
+    And the user clicks on the close button in the modal header
+    And the user opens the game sidebar
+    And the user clicks the back to home link in the game sidebar
+    And the user clicks the play button on the home page
     Then the question card should be displayed
     And the adult content badge should be visible
     And hovering the adult content badge shows the popover "This question is intended for a mature audience"
