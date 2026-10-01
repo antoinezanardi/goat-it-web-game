@@ -43,6 +43,13 @@ type QuestionFixtureDocument = {
   updatedAt: Date;
 };
 
+type CookieFixture = {
+  name: string;
+  value: string;
+};
+
+type CookieFixtureRegistry = Record<string, readonly CookieFixture[]>;
+
 type FixtureRegistry = {
   "question-theme": {
     "single-question-themes": FixtureDefinition<QuestionThemeFixtureDocument>;
@@ -82,6 +89,8 @@ type FixtureDefinition<TData> = {
 
 export type {
   AnyFixtureReference,
+  CookieFixture,
+  CookieFixtureRegistry,
   FixtureDefinition,
   FixtureDomain,
   FixtureKey,

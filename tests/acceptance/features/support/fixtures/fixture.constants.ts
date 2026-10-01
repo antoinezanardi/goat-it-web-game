@@ -10,7 +10,9 @@ import { SINGLE_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtur
 import { SINGLE_TRANSLATABLE_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-translatable-question.fixture-set.ts";
 import { SIXTY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/sixty-questions.fixture-set.ts";
 import { TWO_ENGLISH_ONLY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/two-english-only-questions.fixture-set.ts";
-import type { FixtureDomain, FixtureRegistry } from "#acceptance/features/support/fixtures/fixture.types.ts";
+import { GAME_SETTINGS_ADULT_CONTENT_ENABLED_COOKIE_FIXTURE_SET } from "#acceptance/features/support/fixtures/cookie/sets/game-settings-adult-content-enabled.fixture-set.ts";
+import { GAME_SETTINGS_CORRUPT_COOKIE_FIXTURE_SET } from "#acceptance/features/support/fixtures/cookie/sets/game-settings-corrupt.fixture-set.ts";
+import type { CookieFixtureRegistry, FixtureDomain, FixtureRegistry } from "#acceptance/features/support/fixtures/fixture.types.ts";
 
 const DOMAIN_TO_COLLECTION_MAP: Record<FixtureDomain, string> = {
   "question": "questions",
@@ -68,7 +70,13 @@ const FIXTURE_REGISTRY: FixtureRegistry = {
   },
 } as const;
 
+const COOKIE_FIXTURE_REGISTRY: CookieFixtureRegistry = {
+  "game-settings-adult-content-enabled": GAME_SETTINGS_ADULT_CONTENT_ENABLED_COOKIE_FIXTURE_SET,
+  "game-settings-corrupt": GAME_SETTINGS_CORRUPT_COOKIE_FIXTURE_SET,
+} as const;
+
 export {
+  COOKIE_FIXTURE_REGISTRY,
   DOMAIN_TO_COLLECTION_MAP,
   FIXTURE_REGISTRY,
 };

@@ -75,6 +75,7 @@
     "useGSAP": "readonly",
     "useGame": "readonly",
     "useGameQuestionTranslation": "readonly",
+    "useGameSettingsCookie": "readonly",
     "useGameSettingsStore": "readonly",
     "useGameStore": "readonly",
     "useGameTutorialInvitation": "readonly",

@@ -48,10 +48,26 @@ Feature: ⚙️ Game Settings Modal
     And the game settings adult content description should be "Questions involving sensitive topics (wars, violence, sex…) may appear."
     And the game settings adult content icon should be active
 
-  Scenario: ⚙️ Adult content option resets to disabled after a reload
+  Scenario: ⚙️ Adult content option is restored after a reload
     When the user turns on the game settings adult content switch
+    And the user reloads the page
+    And the user opens the game sidebar
+    And the user clicks the settings button in the game sidebar
+    Then the game settings adult content switch should be on
+    And the game settings adult content description should be "Questions involving sensitive topics (wars, violence, sex…) may appear."
+
+  Scenario: ⚙️ Adult content option is restored from an existing settings cookie
+    Given the browser cookies are set with the cookie fixture set "game-settings-adult-content-enabled"
+    And the user reloads the page
+    And the user opens the game sidebar
+    And the user clicks the settings button in the game sidebar
+    Then the game settings adult content switch should be on
+
+  Scenario: ⚙️ Adult content option falls back to disabled with a corrupt settings cookie
+    Given the browser cookies are set with the cookie fixture set "game-settings-corrupt"
     And the user reloads the page
     And the user opens the game sidebar
     And the user clicks the settings button in the game sidebar
     Then the game settings adult content switch should be off
     And the game settings adult content description should be "Only questions suitable for all audiences will appear."
+    And the user should be on game page
