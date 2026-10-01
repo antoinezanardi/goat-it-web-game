@@ -31,7 +31,9 @@ permission:
     "sort *": "allow"
     "rg *": "allow"
     "tree *": "allow"
+    "xargs *": "allow"
     "npm view *": "allow"
+    "pnpm view *": "allow"
   task:
     "*": "deny"
     "explore": "allow"

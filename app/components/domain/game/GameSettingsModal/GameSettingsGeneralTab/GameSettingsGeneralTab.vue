@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { LocaleSelect } from "#components";
+import { GameSettingsAdultContentSwitch, LocaleSelect } from "#components";
 
 import type { GameSettingsGeneralTabProps } from "@/components/domain/game/GameSettingsModal/GameSettingsGeneralTab/game-settings-general-tab.types";
 
@@ -20,5 +20,7 @@ const { t } = useI18n();
     </span>
 
     <LocaleSelect :disabled="props.isLocaleSelectDisabled"/>
+
+    <GameSettingsAdultContentSwitch/>
   </div>
 </template>

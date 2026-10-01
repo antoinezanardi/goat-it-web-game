@@ -1,3 +1,4 @@
+import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -5,7 +6,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import { GameSettingsGeneralTab } from "#components";
-import type { LocaleSelect } from "#components";
+import type { GameSettingsAdultContentSwitch, LocaleSelect } from "#components";
 
 import type { GameSettingsGeneralTabProps } from "@/components/domain/game/GameSettingsModal/GameSettingsGeneralTab/game-settings-general-tab.types";
 
@@ -17,7 +18,7 @@ describe("GameSettingsGeneralTab Component", () => {
   } as const;
 
   async function mountGameSettingsGeneralTab(options: MountSuspendedOptions<typeof GameSettingsGeneralTab> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameSettingsGeneralTab, { props: defaultGameSettingsGeneralTabProps, ...options });
+    return mountSuspended(GameSettingsGeneralTab, { props: defaultGameSettingsGeneralTabProps, plugins: [createTestingPinia()], ...options });
   }
 
   beforeEach(async() => {
@@ -38,6 +39,10 @@ describe("GameSettingsGeneralTab Component", () => {
 
   it("should render the LocaleSelect component when mounted.", () => {
     expect(wrapper.findComponent<typeof LocaleSelect>({ name: "LocaleSelect" }).exists()).toBe(true);
+  });
+
+  it("should render the adult content switch component when mounted.", () => {
+    expect(wrapper.findComponent<typeof GameSettingsAdultContentSwitch>({ name: "GameSettingsAdultContentSwitch" }).exists()).toBe(true);
   });
 
   it("should pass disabled as true to LocaleSelect when isLocaleSelectDisabled is true.", async() => {
