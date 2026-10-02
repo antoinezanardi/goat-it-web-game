@@ -10,8 +10,6 @@ let useGameSettingsStore: typeof UseGameSettingsStoreType;
 
 describe("useGameSettingsStore", () => {
   beforeEach(async() => {
-    // Acceptable as the useCookie guard mock requires null as the initial value for the cookie guard
-    // oxlint-disable-next-line unicorn/no-null
     useCookieMockState.cookieRef.value = null;
     ({ useGameSettingsStore } = await import("@/stores/domain/game-settings/game-settings.store"));
   });

@@ -1480,7 +1480,8 @@
         "**/tests/unit/setup/**/*.ts"
       ],
       "rules": {
-        "node/no-process-env": "off"
+        "node/no-process-env": "off",
+        "unicorn/no-null": "off"
       }
     },
     // ---- Override for composable mock setup files -----

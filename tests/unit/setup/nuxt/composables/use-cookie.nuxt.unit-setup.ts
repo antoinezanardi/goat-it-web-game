@@ -5,8 +5,6 @@ import type { UseCookieMockState } from "~~/tests/unit/utils/mocks/composables/n
 
 type UseCookieMockPayload = string | boolean | number | Record<string, unknown> | null | undefined;
 
-// Acceptable as the useCookie guard mock needs null as its initial value and must carry primitive, object and undefined cookie payloads
-// oxlint-disable-next-line unicorn/no-null
 const useCookieMockState: UseCookieMockState<UseCookieMockPayload> = createUseCookieMockState<UseCookieMockPayload>(null);
 
 mockNuxtImport("useCookie", () => (name: string, options?: Record<string, unknown>) => {

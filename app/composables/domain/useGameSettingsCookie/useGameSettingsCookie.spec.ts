@@ -14,8 +14,6 @@ describe("useGameSettingsCookie", () => {
   beforeEach(async() => {
     useCookieMockState.capturedName.current = undefined;
     useCookieMockState.capturedOptions.current = undefined;
-    // Acceptable as the useCookie guard mock requires null as the initial value for the cookie guard
-    // oxlint-disable-next-line unicorn/no-null
     useCookieMockState.cookieRef.value = null;
     ({ useGameSettingsCookie } = await import("~/composables/domain/useGameSettingsCookie/useGameSettingsCookie"));
   });
