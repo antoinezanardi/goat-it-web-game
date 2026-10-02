@@ -331,6 +331,20 @@ describe("Game Page", () => {
     expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
   });
 
+  it("should apply the game settings changes when the settings modal closes.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", false);
+    await nextTick();
+
+    expect(useGameMock.instance.syncQuestionsWithGameSettings).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("should not apply the game settings changes when the settings modal opens.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", true);
+    await nextTick();
+
+    expect(useGameMock.instance.syncQuestionsWithGameSettings).not.toHaveBeenCalled();
+  });
+
   it("should pass isFetchingQuestions as the isFetchingQuestions prop to GameSettingsModal when mounted.", async() => {
     useGameMock.instance.isFetchingQuestionsRef.value = true;
     await nextTick();

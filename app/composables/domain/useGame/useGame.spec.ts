@@ -603,4 +603,240 @@ describe("useGame", () => {
       expect(toValue(capturedCanTranslateQuestions)).toBe(expected);
     });
   });
+
+  describe("syncQuestionsWithGameSettings", () => {
+    it("should not truncate the questions when the settings filters are unchanged.", async() => {
+      const store = mockStore(useGameStore);
+      const game = useGame();
+
+      await game.syncQuestionsWithGameSettings();
+
+      expect(store.truncateQuestions).not.toHaveBeenCalled();
+    });
+
+    it("should not refetch when the settings filters are unchanged.", async() => {
+      const store = mockStore(useGameStore);
+      const game = useGame();
+
+      await game.syncQuestionsWithGameSettings();
+
+      expect(store.fetchAndAppendRandomQuestions).not.toHaveBeenCalled();
+    });
+
+    it("should not refetch when the settings are toggled away and back to the applied filters.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      await game.syncQuestionsWithGameSettings();
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false });
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      store.fetchAndAppendRandomQuestions.mockClear();
+
+      await game.syncQuestionsWithGameSettings();
+
+      expect(store.fetchAndAppendRandomQuestions).not.toHaveBeenCalled();
+    });
+
+    it("should truncate the questions after the current one when the filters changed.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      store.questions = Array.from({ length: 10 }, () => createFakeQuestion());
+      await nextTick();
+      for (let index = 0; index < 4; index++) {
+        game.advanceToNextQuestion();
+      }
+      await nextTick();
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+
+      await game.syncQuestionsWithGameSettings();
+
+      expect(store.truncateQuestions).toHaveBeenCalledExactlyOnceWith(5);
+    });
+
+    it("should refetch with the current filters and the kept question ids excluded when the filters changed.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      const fakeQuestions = Array.from({ length: 10 }, () => createFakeQuestion());
+      store.questions = fakeQuestions;
+      await nextTick();
+      for (let index = 0; index < 4; index++) {
+        game.advanceToNextQuestion();
+      }
+      await nextTick();
+      store.truncateQuestions.mockImplementation((length: number) => {
+        store.questions = store.questions.slice(0, length);
+      });
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      store.fetchAndAppendRandomQuestions.mockClear();
+
+      await game.syncQuestionsWithGameSettings();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        excludedIds: fakeQuestions.slice(0, 5).map(question => question.id),
+      });
+    });
+
+    it("should reset the exhausted state when a settings change triggers a refetch.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      await game.initialize();
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      let resolveFetch: (() => void) | undefined;
+      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => new Promise<void>(resolve => {
+        store.isPending = true;
+        resolveFetch = resolve;
+      }));
+
+      const applyPromise = game.syncQuestionsWithGameSettings();
+      await flushPromises();
+
+      expect(game.gameState.value).toBe("loading");
+
+      resolveFetch?.();
+      await applyPromise;
+      await flushPromises();
+    });
+
+    it("should re-arm the prefetch when a settings change triggers a refetch.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      store.questions = Array.from({ length: 25 }, () => createFakeQuestion());
+      store.fetchAndAppendRandomQuestions.mockImplementation(async() => {
+        await Promise.resolve();
+        store.questions = [...store.questions, ...Array.from({ length: 25 }, () => createFakeQuestion())];
+      });
+      await nextTick();
+      for (let index = 0; index < 20; index++) {
+        game.advanceToNextQuestion();
+      }
+      await nextTick();
+      await flushPromises();
+      store.truncateQuestions.mockImplementation((length: number) => {
+        store.questions = store.questions.slice(0, length);
+      });
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      await game.syncQuestionsWithGameSettings();
+      store.fetchAndAppendRandomQuestions.mockClear();
+      for (let index = 20; index < 36; index++) {
+        game.advanceToNextQuestion();
+      }
+      await nextTick();
+      await flushPromises();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledOnce();
+    });
+
+    it("should not truncate the questions when a fetch is still pending.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      store.questions = [createFakeQuestion(), createFakeQuestion()];
+      await nextTick();
+      store.isPending = true;
+      await nextTick();
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+
+      const applyPromise = game.syncQuestionsWithGameSettings();
+      await nextTick();
+
+      expect(store.truncateQuestions).not.toHaveBeenCalled();
+
+      store.isPending = false;
+      await applyPromise;
+      await flushPromises();
+    });
+
+    it("should mark the game exhausted when the settings refetch returns no new questions.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      store.questions = Array.from({ length: 10 }, () => createFakeQuestion());
+      await nextTick();
+      game.advanceToNextQuestion();
+      await nextTick();
+      store.truncateQuestions.mockImplementation((length: number) => {
+        store.questions = store.questions.slice(0, length);
+      });
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue(undefined);
+      await game.syncQuestionsWithGameSettings();
+      game.advanceToNextQuestion();
+      await nextTick();
+
+      expect(game.gameState.value).toBe("game-over");
+    });
+
+    it("should not mark the game exhausted when the settings refetch fails.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      store.questions = Array.from({ length: 3 }, () => createFakeQuestion());
+      await nextTick();
+      game.advanceToNextQuestion();
+      await nextTick();
+      store.truncateQuestions.mockImplementation((length: number) => {
+        store.questions = store.questions.slice(0, length);
+      });
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue(undefined);
+      store.isError = true;
+
+      await game.syncQuestionsWithGameSettings();
+
+      expect(game.gameState.value).toBe("playing");
+    });
+
+    it("should keep the kept questions when the settings refetch fails.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      const fakeQuestions = Array.from({ length: 10 }, () => createFakeQuestion());
+      store.questions = fakeQuestions;
+      await nextTick();
+      for (let index = 0; index < 4; index++) {
+        game.advanceToNextQuestion();
+      }
+      await nextTick();
+      store.truncateQuestions.mockImplementation((length: number) => {
+        store.questions = store.questions.slice(0, length);
+      });
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue(undefined);
+      store.isError = true;
+
+      await game.syncQuestionsWithGameSettings();
+
+      expect(store.questions).toStrictEqual(fakeQuestions.slice(0, 5));
+    });
+
+    it("should retry the fetch on the next question when the settings refetch fails.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      store.questions = Array.from({ length: 3 }, () => createFakeQuestion());
+      await nextTick();
+      game.advanceToNextQuestion();
+      await nextTick();
+      store.truncateQuestions.mockImplementation((length: number) => {
+        store.questions = store.questions.slice(0, length);
+      });
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue(undefined);
+      store.isError = true;
+      await game.syncQuestionsWithGameSettings();
+      store.fetchAndAppendRandomQuestions.mockClear();
+
+      game.advanceToNextQuestion();
+      await nextTick();
+      await flushPromises();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledOnce();
+    });
+  });
 });
