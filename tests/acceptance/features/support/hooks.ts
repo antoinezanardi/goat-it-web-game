@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-import { After, AfterAll, Before, BeforeAll, Status } from "@cucumber/cucumber";
+import { After, AfterAll, Before, BeforeAll, Status, setDefaultTimeout } from "@cucumber/cucumber";
 import { createPage, createTest } from "@nuxt/test-utils/e2e";
 import type { Db, MongoClient } from "mongodb";
 
@@ -12,6 +12,7 @@ import {
   AFTER_ALL_TIMEOUT,
   BEFORE_ALL_TIMEOUT,
   BEFORE_TIMEOUT,
+  DEFAULT_STEP_TIMEOUT,
   SANDBOX_GAME_KEY,
   SHARED_BUILD_DIR,
 } from "#acceptance/features/support/constants/hooks.constants.ts";
@@ -61,6 +62,8 @@ const { beforeEach, afterEach, afterAll, beforeAll } = createTest({
     },
   },
 });
+
+setDefaultTimeout(DEFAULT_STEP_TIMEOUT);
 
 let mongoClient: MongoClient | undefined;
 let mongoDatabase: Db | undefined;
