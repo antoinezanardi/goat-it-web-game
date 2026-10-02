@@ -21,7 +21,7 @@ describe("GameSettingsAdultContentSwitch Component", () => {
 
   beforeEach(async() => {
     wrapper = await mountGameSettingsAdultContentSwitch();
-    mockStore(useGameSettingsStore).isAdultContentEnabled = false;
+    mockStore(useGameSettingsStore).settings = { isAdultContentEnabled: false };
     await nextTick();
   });
 
@@ -73,7 +73,7 @@ describe("GameSettingsAdultContentSwitch Component", () => {
 
   it("should render the enabled description when adult content is enabled.", async() => {
     const store = mockStore(useGameSettingsStore);
-    store.isAdultContentEnabled = true;
+    store.settings = { isAdultContentEnabled: true };
     await nextTick();
 
     expect(wrapper.get("[data-testid='game-settings-adult-content-description']").text()).toBe("game.settings.adultContent.descriptionEnabled");
@@ -81,7 +81,7 @@ describe("GameSettingsAdultContentSwitch Component", () => {
 
   it("should render the active icon class when adult content is enabled.", async() => {
     const store = mockStore(useGameSettingsStore);
-    store.isAdultContentEnabled = true;
+    store.settings = { isAdultContentEnabled: true };
     await nextTick();
     const icon = wrapper.findComponent<typeof UIcon>("[data-testid='game-settings-adult-content-icon']");
 

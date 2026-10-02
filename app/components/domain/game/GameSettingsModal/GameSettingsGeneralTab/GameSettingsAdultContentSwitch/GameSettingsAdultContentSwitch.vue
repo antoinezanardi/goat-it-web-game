@@ -9,7 +9,7 @@ const store = useGameSettingsStore();
 const { t } = useI18n();
 
 const isAdultContentEnabled = computed<boolean>({
-  get: () => store.isAdultContentEnabled,
+  get: () => store.settings.isAdultContentEnabled,
   set: (value: boolean): void => store.setAdultContentEnabled(value),
 });
 

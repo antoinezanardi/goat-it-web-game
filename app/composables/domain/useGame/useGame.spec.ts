@@ -1,16 +1,20 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { flushPromises, mount } from "@vue/test-utils";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, nextTick, toValue } from "vue";
 import type { MaybeRefOrGetter, Ref } from "vue";
 
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
+import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 import { createUseGameQuestionTranslationMock } from "~~/tests/unit/utils/mocks/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation.mock";
 import type { UseGameQuestionTranslationMock } from "~~/tests/unit/utils/mocks/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation.mock";
 
 import type { useGame as UseGameType } from "~/composables/domain/useGame/useGame";
+import type { UseGameSettingsCookie } from "~/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
+import { GAME_SETTINGS_DEFAULTS } from "~/stores/domain/game-settings/game-settings.constants";
+import type { GameSettings } from "~/stores/domain/game-settings/game-settings.types";
 import type { Question } from "#shared/types/question.types";
 import { useGameStore } from "@/stores/domain/game/game.store";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
@@ -34,6 +38,11 @@ mockNuxtImport("useGameQuestionTranslation", () => (questions: Ref<Question[]>, 
 
   return useGameQuestionTranslationMock;
 });
+
+mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
+  readGameSettingsCookie: (): GameSettings => GAME_SETTINGS_DEFAULTS,
+  writeGameSettingsCookie: vi.fn<UseGameSettingsCookie["writeGameSettingsCookie"]>(),
+}));
 
 describe("useGame", () => {
   beforeEach(async() => {
@@ -198,7 +207,7 @@ describe("useGame", () => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.isAdultContentEnabled = true;
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
 
       await game.initialize();
 
@@ -363,7 +372,7 @@ describe("useGame", () => {
       const game = useGame();
       const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
       store.questions = fakeQuestions;
-      settingsStore.isAdultContentEnabled = true;
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
       await nextTick();
       store.fetchAndAppendRandomQuestions.mockClear();
       for (let index = 0; index < 20; index++) {

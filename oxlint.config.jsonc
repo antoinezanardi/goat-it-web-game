@@ -75,6 +75,7 @@
     "useGSAP": "readonly",
     "useGame": "readonly",
     "useGameQuestionTranslation": "readonly",
+    "useGameSettingsCookie": "readonly",
     "useGameSettingsStore": "readonly",
     "useGameStore": "readonly",
     "useGameTutorialInvitation": "readonly",
@@ -1479,7 +1480,8 @@
         "**/tests/unit/setup/**/*.ts"
       ],
       "rules": {
-        "node/no-process-env": "off"
+        "node/no-process-env": "off",
+        "unicorn/no-null": "off"
       }
     },
     // ---- Override for composable mock setup files -----

@@ -30,7 +30,7 @@ function useGame(): UseGame {
   const hasTriggeredPrefetch = ref<boolean>(false);
 
   function getGameSettingsFetchFilters(): Pick<FindRandomQuestionsBodyDto, "isAdultContent"> {
-    return settingsStore.isAdultContentEnabled ? {} : { isAdultContent: false };
+    return settingsStore.settings.isAdultContentEnabled ? {} : { isAdultContent: false };
   }
 
   const randomQuestionsRequestBody = computed<FindRandomQuestionsBodyDto>(() => {
