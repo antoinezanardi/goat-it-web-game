@@ -295,14 +295,71 @@ describe(useQuestionCardRing, () => {
     expect(slots.value[1]?.question).toBe(questions.value[3]);
   });
 
-  it("should not restage when questions shrink.", async() => {
+  it("should clear the next slot question when the questions array no longer has a question at that offset.", async() => {
     const { slots } = useQuestionCardRing(createOptions());
-    const originalFarSlotQuestion = slots.value[1]?.question;
 
     questions.value = questions.value.slice(0, -1);
     await nextTick();
 
-    expect(slots.value[1]?.question).toBe(originalFarSlotQuestion);
+    expect(slots.value[1]?.question).toBeUndefined();
+  });
+
+  it("should stage the replaced current question in the active slot when the questions array is replaced at the same length.", async() => {
+    const { slots } = useQuestionCardRing(createOptions());
+
+    questions.value = [createFakeQuestion(), createFakeQuestion(), createFakeQuestion()];
+    await nextTick();
+
+    expect(slots.value[0]?.question).toBe(questions.value[1]);
+  });
+
+  it("should stage the replaced next question in the next slot when the questions array is replaced at the same length.", async() => {
+    const { slots } = useQuestionCardRing(createOptions());
+
+    questions.value = [createFakeQuestion(), createFakeQuestion(), createFakeQuestion()];
+    await nextTick();
+
+    expect(slots.value[1]?.question).toBe(questions.value[2]);
+  });
+
+  it("should keep the unchanged previous question in the previous slot when the questions array is replaced at the same length.", async() => {
+    const { slots } = useQuestionCardRing(createOptions());
+    const previousQuestion = createFakeQuestion();
+
+    questions.value = [previousQuestion, createFakeQuestion(), createFakeQuestion()];
+    await nextTick();
+    questions.value = [previousQuestion, createFakeQuestion(), createFakeQuestion()];
+    await nextTick();
+
+    expect(slots.value[2]?.question).toBe(questions.value[0]);
+  });
+
+  it("should stage the refetched question in the next slot when the questions array shrinks and then grows.", async() => {
+    currentIndex.value = 0;
+    const { slots } = useQuestionCardRing(createOptions());
+
+    questions.value = questions.value.slice(0, 1);
+    await nextTick();
+    questions.value = [...questions.value, createFakeQuestion(), createFakeQuestion(), createFakeQuestion()];
+    await nextTick();
+
+    expect(slots.value[1]?.question).toBe(questions.value[1]);
+  });
+
+  it("should apply the replaced questions after the restage completes when the questions array is replaced during a transition.", async() => {
+    const { complete, currentSlotIndex, slots } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    questions.value = [createFakeQuestion(), createFakeQuestion(), createFakeQuestion()];
+    complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    flushRestage();
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+
+    expect(slots.value[currentSlotIndex.value]?.question).toBe(questions.value[2]);
   });
 
   it("should not stage when questions grow while a transition is in progress.", async() => {
