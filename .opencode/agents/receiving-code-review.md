@@ -1,7 +1,7 @@
 ---
 description: Triages and evaluates code review feedback (PR comments, peer review) for the goat-it-web-game project. Reads → restates → verifies → evaluates → responds with technical rigor and apply fixes if user agrees.
 mode: primary
-model: opencode-go/minimax-m3
+model: opencode-go/deepseek-v4.1-flash
 temperature: 0.3
 steps: 80
 hidden: false
@@ -15,6 +15,7 @@ permission:
     "git show *": "allow"
     "git merge-base *": "allow"
     "git --no-pager *": "allow"
+    "git blame *": "allow"
     "git add *": "deny"
     "git commit *": "deny"
     "git push *": "deny"
@@ -28,6 +29,7 @@ permission:
     "timeout *": "allow"
     "find *": "allow"
     "echo *": "allow"
+    "pnpm exec *": "allow"
     "pnpm run lint *": "allow"
     "pnpm run lint:*:fix *": "allow"
     "pnpm run typecheck *": "allow"

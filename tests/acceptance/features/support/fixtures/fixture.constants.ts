@@ -3,13 +3,16 @@ import { SINGLE_QUESTION_THEMES_FIXTURE_SET } from "#acceptance/features/support
 import { SIXTY_QUESTION_THEMES_FIXTURE_SET } from "#acceptance/features/support/fixtures/question-theme/sets/sixty-question-themes.fixture-set.ts";
 import { TWO_ENGLISH_ONLY_QUESTION_THEMES_FIXTURE_SET } from "#acceptance/features/support/fixtures/question-theme/sets/two-english-only-question-themes.fixture-set.ts";
 import { FIVE_ACTIVE_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/five-active-questions.fixture-set.ts";
+import { SINGLE_ADULT_CONTENT_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-adult-content-question.fixture-set.ts";
 import { SINGLE_MULTI_THEMES_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-multi-themes-question.fixture-set.ts";
 import { SINGLE_NO_CONTEXT_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-no-context-question.fixture-set.ts";
 import { SINGLE_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-question.fixture-set.ts";
 import { SINGLE_TRANSLATABLE_QUESTION_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/single-translatable-question.fixture-set.ts";
 import { SIXTY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/sixty-questions.fixture-set.ts";
 import { TWO_ENGLISH_ONLY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/two-english-only-questions.fixture-set.ts";
-import type { FixtureDomain, FixtureRegistry } from "#acceptance/features/support/fixtures/fixture.types.ts";
+import { GAME_SETTINGS_ADULT_CONTENT_ENABLED_COOKIE_FIXTURE_SET } from "#acceptance/features/support/fixtures/cookie/sets/game-settings-adult-content-enabled.fixture-set.ts";
+import { GAME_SETTINGS_CORRUPT_COOKIE_FIXTURE_SET } from "#acceptance/features/support/fixtures/cookie/sets/game-settings-corrupt.fixture-set.ts";
+import type { CookieFixtureRegistry, FixtureDomain, FixtureRegistry } from "#acceptance/features/support/fixtures/fixture.types.ts";
 
 const DOMAIN_TO_COLLECTION_MAP: Record<FixtureDomain, string> = {
   "question": "questions",
@@ -60,10 +63,20 @@ const FIXTURE_REGISTRY: FixtureRegistry = {
       data: SINGLE_MULTI_THEMES_QUESTION_FIXTURE_SET,
       dependencies: [["question-theme", "five-question-themes"]],
     },
+    "single-adult-content-question": {
+      data: SINGLE_ADULT_CONTENT_QUESTION_FIXTURE_SET,
+      dependencies: [["question-theme", "five-question-themes"]],
+    },
   },
 } as const;
 
+const COOKIE_FIXTURE_REGISTRY: CookieFixtureRegistry = {
+  "game-settings-adult-content-enabled": GAME_SETTINGS_ADULT_CONTENT_ENABLED_COOKIE_FIXTURE_SET,
+  "game-settings-corrupt": GAME_SETTINGS_CORRUPT_COOKIE_FIXTURE_SET,
+} as const;
+
 export {
+  COOKIE_FIXTURE_REGISTRY,
   DOMAIN_TO_COLLECTION_MAP,
   FIXTURE_REGISTRY,
 };

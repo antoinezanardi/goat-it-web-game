@@ -54,6 +54,7 @@ onBeforeRouteLeave(async() => {
 });
 
 const {
+  syncQuestionsWithGameSettings,
   advanceToNextQuestion,
   canGoToPreviousQuestion,
   currentIndex,
@@ -121,6 +122,10 @@ function onOpenSettings(): void {
 
 function onSettingsOpenChange(isOpen: boolean): void {
   isSettingsModalOpen.value = isOpen;
+  if (isOpen) {
+    return;
+  }
+  void syncQuestionsWithGameSettings();
 }
 
 const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTourRequested.value || isLeaveConfirmationOpen.value || isSettingsModalOpen.value);

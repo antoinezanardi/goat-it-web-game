@@ -248,6 +248,28 @@ describe("useGameStore", () => {
     });
   });
 
+  describe("truncateQuestions", () => {
+    it("should keep only the first questions up to the given length when invoked.", () => {
+      const store = useGameStore();
+      const fakeQuestions = [createFakeQuestion(), createFakeQuestion(), createFakeQuestion()];
+      store.questions = fakeQuestions;
+
+      store.truncateQuestions(2);
+
+      expect(store.questions).toStrictEqual(fakeQuestions.slice(0, 2));
+    });
+
+    it("should keep all questions when the given length exceeds the questions count.", () => {
+      const store = useGameStore();
+      const fakeQuestions = [createFakeQuestion()];
+      store.questions = fakeQuestions;
+
+      store.truncateQuestions(5);
+
+      expect(store.questions).toStrictEqual(fakeQuestions);
+    });
+  });
+
   describe("useAsyncAction setup", () => {
     it("should pass the repository getRandom function as action to the first useAsyncAction when created.", () => {
       useGameStore();

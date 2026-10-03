@@ -60,10 +60,13 @@ describe(useQuestionCardRing, () => {
     vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
   });
 
-  it("should stage the current question in the active slot when the composable is set up.", () => {
+  it.each<{ description: string; slotIndex: number; questionIndex: number }>([
+    { description: "the current question in the active slot", slotIndex: 0, questionIndex: 1 },
+    { description: "the next question in the +1 slot", slotIndex: 1, questionIndex: 2 },
+  ])("should stage $description when the composable is set up.", ({ slotIndex, questionIndex }) => {
     const { slots } = useQuestionCardRing(createOptions());
 
-    expect(slots.value[0]?.question).toBe(questions.value[1]);
+    expect(slots.value[slotIndex]?.question).toBe(questions.value[questionIndex]);
   });
 
   it("should mark the active slot as active when the composable is set up.", () => {
@@ -72,24 +75,14 @@ describe(useQuestionCardRing, () => {
     expect(slots.value[0]?.isActive).toBe(true);
   });
 
-  it("should stage the next question in the +1 slot when the composable is set up.", () => {
+  it.each<{ condition: string; index: number; slotDescription: string; slotIndex: number }>([
+    { condition: "0", index: 0, slotDescription: "-1", slotIndex: 2 },
+    { condition: "at the last question", index: 2, slotDescription: "+1", slotIndex: 1 },
+  ])("should stage undefined in the $slotDescription slot when currentIndex is $condition.", ({ index, slotIndex }) => {
+    currentIndex.value = index;
     const { slots } = useQuestionCardRing(createOptions());
 
-    expect(slots.value[1]?.question).toBe(questions.value[2]);
-  });
-
-  it("should stage undefined in the -1 slot when currentIndex is 0.", () => {
-    currentIndex.value = 0;
-    const { slots } = useQuestionCardRing(createOptions());
-
-    expect(slots.value[2]?.question).toBeUndefined();
-  });
-
-  it("should stage undefined in the +1 slot when currentIndex is at the last question.", () => {
-    currentIndex.value = 2;
-    const { slots } = useQuestionCardRing(createOptions());
-
-    expect(slots.value[1]?.question).toBeUndefined();
+    expect(slots.value[slotIndex]?.question).toBeUndefined();
   });
 
   it.each<{ direction: "backward" | "forward"; expectedActiveIndex: number }>([
@@ -103,40 +96,31 @@ describe(useQuestionCardRing, () => {
     expect(currentSlotIndex.value).toBe(expectedActiveIndex);
   });
 
-  it("should mark the active slot with the active data-testid when the composable is set up.", () => {
+  it.each<{ description: string; expectedDataTestid: string; slotIndex: number }>([
+    { description: "the active slot with the active data-testid", expectedDataTestid: "game-question", slotIndex: 0 },
+    { description: "non-active slots with the staged data-testid", expectedDataTestid: "game-question-staged", slotIndex: 1 },
+  ])("should mark $description when the composable is set up.", ({ expectedDataTestid, slotIndex }) => {
     const { slots } = useQuestionCardRing(createOptions());
 
-    expect(slots.value[0]?.dataTestid).toBe("game-question");
+    expect(slots.value[slotIndex]?.dataTestid).toBe(expectedDataTestid);
   });
 
-  it("should mark non-active slots with the staged data-testid when the composable is set up.", () => {
+  it.each<{ description: string; expectedInert: boolean; slotIndex: number }>([
+    { description: "the active slot", expectedInert: false, slotIndex: 0 },
+    { description: "non-active slots", expectedInert: true, slotIndex: 1 },
+  ])("should set inert on $description to $expectedInert when the composable is set up.", ({ expectedInert, slotIndex }) => {
     const { slots } = useQuestionCardRing(createOptions());
 
-    expect(slots.value[1]?.dataTestid).toBe("game-question-staged");
+    expect(slots.value[slotIndex]?.inert).toBe(expectedInert);
   });
 
-  it("should set inert on the active slot to false when the composable is set up.", () => {
+  it.each<{ description: string; expectedAriaHidden: string | undefined; slotIndex: number }>([
+    { description: "the active slot", expectedAriaHidden: undefined, slotIndex: 0 },
+    { description: "non-active slots", expectedAriaHidden: "true", slotIndex: 1 },
+  ])("should set aria-hidden on $description to $expectedAriaHidden when the composable is set up.", ({ expectedAriaHidden, slotIndex }) => {
     const { slots } = useQuestionCardRing(createOptions());
 
-    expect(slots.value[0]?.inert).toBe(false);
-  });
-
-  it("should set aria-hidden on the active slot to undefined when the composable is set up.", () => {
-    const { slots } = useQuestionCardRing(createOptions());
-
-    expect(slots.value[0]?.ariaHidden).toBeUndefined();
-  });
-
-  it("should set inert on non-active slots to true when the composable is set up.", () => {
-    const { slots } = useQuestionCardRing(createOptions());
-
-    expect(slots.value[1]?.inert).toBe(true);
-  });
-
-  it("should set aria-hidden on non-active slots to true when the composable is set up.", () => {
-    const { slots } = useQuestionCardRing(createOptions());
-
-    expect(slots.value[1]?.ariaHidden).toBe("true");
+    expect(slots.value[slotIndex]?.ariaHidden).toBe(expectedAriaHidden);
   });
 
   it("should freeze all slots when a transition starts.", async() => {
@@ -148,24 +132,17 @@ describe(useQuestionCardRing, () => {
     expect(slots.value.every(slot => slot.isFrozen)).toBe(true);
   });
 
-  it("should unfreeze the new active slot when a transition is completed.", async() => {
+  it.each<{ action: string; expectedFrozen: boolean; slotIndex: number }>([
+    { action: "unfreeze the new active slot", expectedFrozen: false, slotIndex: 1 },
+    { action: "keep non-active slots frozen", expectedFrozen: true, slotIndex: 0 },
+  ])("should $action when a transition is completed.", async({ expectedFrozen, slotIndex }) => {
     const { complete, slots } = useQuestionCardRing(createOptions());
 
     pendingDirection.value = "forward";
     await nextTick();
     complete("forward");
 
-    expect(slots.value[1]?.isFrozen).toBe(false);
-  });
-
-  it("should keep non-active slots frozen when a transition is completed.", async() => {
-    const { complete, slots } = useQuestionCardRing(createOptions());
-
-    pendingDirection.value = "forward";
-    await nextTick();
-    complete("forward");
-
-    expect(slots.value[0]?.isFrozen).toBe(true);
+    expect(slots.value[slotIndex]?.isFrozen).toBe(expectedFrozen);
   });
 
   it("should freeze all slots when the document is hidden.", () => {
@@ -295,14 +272,65 @@ describe(useQuestionCardRing, () => {
     expect(slots.value[1]?.question).toBe(questions.value[3]);
   });
 
-  it("should not restage when questions shrink.", async() => {
+  it("should clear the next slot question when the questions array no longer has a question at that offset.", async() => {
     const { slots } = useQuestionCardRing(createOptions());
-    const originalFarSlotQuestion = slots.value[1]?.question;
 
     questions.value = questions.value.slice(0, -1);
     await nextTick();
 
-    expect(slots.value[1]?.question).toBe(originalFarSlotQuestion);
+    expect(slots.value[1]?.question).toBeUndefined();
+  });
+
+  it.each<{ description: string; questionIndex: number; slotIndex: number }>([
+    { description: "the replaced current question in the active slot", questionIndex: 1, slotIndex: 0 },
+    { description: "the replaced next question in the next slot", questionIndex: 2, slotIndex: 1 },
+  ])("should stage $description when the questions array is replaced at the same length.", async({ questionIndex, slotIndex }) => {
+    const { slots } = useQuestionCardRing(createOptions());
+
+    questions.value = [createFakeQuestion(), createFakeQuestion(), createFakeQuestion()];
+    await nextTick();
+
+    expect(slots.value[slotIndex]?.question).toBe(questions.value[questionIndex]);
+  });
+
+  it("should keep the unchanged previous question in the previous slot when the questions array is replaced at the same length.", async() => {
+    const { slots } = useQuestionCardRing(createOptions());
+    const previousQuestion = createFakeQuestion();
+
+    questions.value = [previousQuestion, createFakeQuestion(), createFakeQuestion()];
+    await nextTick();
+    questions.value = [previousQuestion, createFakeQuestion(), createFakeQuestion()];
+    await nextTick();
+
+    expect(slots.value[2]?.question).toBe(questions.value[0]);
+  });
+
+  it("should stage the refetched question in the next slot when the questions array shrinks and then grows.", async() => {
+    currentIndex.value = 0;
+    const { slots } = useQuestionCardRing(createOptions());
+
+    questions.value = questions.value.slice(0, 1);
+    await nextTick();
+    questions.value = [...questions.value, createFakeQuestion(), createFakeQuestion(), createFakeQuestion()];
+    await nextTick();
+
+    expect(slots.value[1]?.question).toBe(questions.value[1]);
+  });
+
+  it("should apply the replaced questions after the restage completes when the questions array is replaced during a transition.", async() => {
+    const { complete, currentSlotIndex, slots } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    questions.value = [createFakeQuestion(), createFakeQuestion(), createFakeQuestion()];
+    complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    flushRestage();
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+
+    expect(slots.value[currentSlotIndex.value]?.question).toBe(questions.value[2]);
   });
 
   it("should not stage when questions grow while a transition is in progress.", async() => {

@@ -1,6 +1,10 @@
+import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
+import { until } from "@vueuse/core";
 import { storeToRefs } from "pinia";
+import { isEqual } from "radashi";
 
 import type { Question } from "#shared/types/question.types";
+import type { GameSettingsFetchFilters } from "~/composables/domain/useGame/use-game.types";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
 
 type GamePageState = "loading" | "playing" | "game-over";
@@ -12,6 +16,7 @@ type UseGame = {
   isFetchingQuestions: ComputedRef<boolean>;
   isTranslating: ComputedRef<boolean>;
   questions: Ref<Question[]>;
+  syncQuestionsWithGameSettings: () => Promise<void>;
   advanceToNextQuestion: () => void;
   goToPreviousQuestion: () => void;
   initialize: () => Promise<void>;
@@ -20,20 +25,31 @@ type UseGame = {
 
 function useGame(): UseGame {
   const store = useGameStore();
-  const { questions, isPending, isFetchingQuestionsByIds } = storeToRefs(store);
+  const { questions, isError, isPending, isFetchingQuestionsByIds } = storeToRefs(store);
+  const settingsStore = useGameSettingsStore();
 
   const currentIndex = ref<number>(0);
   const canGoToPreviousQuestion = computed<boolean>(() => currentIndex.value > 0);
   const isExhausted = ref<boolean>(false);
   const hasTriggeredPrefetch = ref<boolean>(false);
 
-  const excludedIdsBody = computed(() => {
+  function getGameSettingsFetchFilters(): GameSettingsFetchFilters {
+    return settingsStore.settings.isAdultContentEnabled ? {} : { isAdultContent: false };
+  }
+
+  const appliedFetchFilters = ref<GameSettingsFetchFilters>(getGameSettingsFetchFilters());
+
+  const randomQuestionsRequestBody = computed<FindRandomQuestionsBodyDto>(() => {
     if (questions.value.length === 0) {
-      return GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY;
+      return {
+        ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY,
+        ...getGameSettingsFetchFilters(),
+      };
     }
     return {
       limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
       excludedIds: questions.value.map(question => question.id),
+      ...getGameSettingsFetchFilters(),
     };
   });
 
@@ -59,7 +75,8 @@ function useGame(): UseGame {
   const isFetchingQuestions = computed<boolean>(() => isPending.value || isFetchingQuestionsByIds.value);
 
   async function initialize(): Promise<void> {
-    await store.fetchAndAppendRandomQuestions(excludedIdsBody.value);
+    appliedFetchFilters.value = getGameSettingsFetchFilters();
+    await store.fetchAndAppendRandomQuestions(randomQuestionsRequestBody.value);
     if (questions.value.length === 0) {
       isExhausted.value = true;
     }
@@ -80,7 +97,7 @@ function useGame(): UseGame {
 
     hasTriggeredPrefetch.value = true;
     const lengthBefore = questions.value.length;
-    await store.fetchAndAppendRandomQuestions(excludedIdsBody.value);
+    await store.fetchAndAppendRandomQuestions(randomQuestionsRequestBody.value);
     if (questions.value.length === lengthBefore) {
       isExhausted.value = true;
     }
@@ -103,6 +120,23 @@ function useGame(): UseGame {
       currentIndex.value++;
     }
   }
+
+  async function syncQuestionsWithGameSettings(): Promise<void> {
+    const currentFetchFilters = getGameSettingsFetchFilters();
+    if (isEqual(currentFetchFilters, appliedFetchFilters.value)) {
+      return;
+    }
+    await until(isPending).toBe(false);
+    store.truncateQuestions(currentIndex.value + 1);
+    isExhausted.value = false;
+    hasTriggeredPrefetch.value = false;
+    appliedFetchFilters.value = currentFetchFilters;
+    const lengthBefore = questions.value.length;
+    await store.fetchAndAppendRandomQuestions(randomQuestionsRequestBody.value);
+    if (!isError.value && questions.value.length === lengthBefore) {
+      isExhausted.value = true;
+    }
+  }
   return {
     canGoToPreviousQuestion,
     currentIndex,
@@ -110,6 +144,7 @@ function useGame(): UseGame {
     isFetchingQuestions,
     isTranslating,
     questions,
+    syncQuestionsWithGameSettings,
     advanceToNextQuestion,
     goToPreviousQuestion,
     initialize,

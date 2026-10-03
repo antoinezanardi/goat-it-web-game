@@ -6,6 +6,7 @@
       "medium": "This question is moderately difficult to deduce",
       "hard": "This question is hard to deduce"
     },
+    "adultContentTooltip": "This question is intended for a mature audience",
     "category": {
       "trivia": "Trivia",
       "lexicon": "Lexicon",

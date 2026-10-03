@@ -6,6 +6,7 @@
       "medium": "Cette question est moyennement difficile à déduire",
       "hard": "Cette question est difficile à déduire"
     },
+    "adultContentTooltip": "Cette question est destinée à un public averti",
     "category": {
       "trivia": "Savoir & faits insolites",
       "lexicon": "Lexique",

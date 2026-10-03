@@ -27,6 +27,7 @@ type QuestionFixtureDocument = {
     trivia?: Record<string, readonly string[]>;
   };
   cognitiveDifficulty: string;
+  isAdultContent: boolean;
   author: {
     role: string;
     name?: string;
@@ -41,6 +42,13 @@ type QuestionFixtureDocument = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+type CookieFixture = {
+  name: string;
+  value: string;
+};
+
+type CookieFixtureRegistry = Record<string, readonly CookieFixture[]>;
 
 type FixtureRegistry = {
   "question-theme": {
@@ -57,6 +65,7 @@ type FixtureRegistry = {
     "five-active-questions": FixtureDefinition<QuestionFixtureDocument>;
     "sixty-questions": FixtureDefinition<QuestionFixtureDocument>;
     "single-multi-themes-question": FixtureDefinition<QuestionFixtureDocument>;
+    "single-adult-content-question": FixtureDefinition<QuestionFixtureDocument>;
   };
 };
 
@@ -80,6 +89,8 @@ type FixtureDefinition<TData> = {
 
 export type {
   AnyFixtureReference,
+  CookieFixture,
+  CookieFixtureRegistry,
   FixtureDefinition,
   FixtureDomain,
   FixtureKey,

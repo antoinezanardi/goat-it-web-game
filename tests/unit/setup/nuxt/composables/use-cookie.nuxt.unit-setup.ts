@@ -3,9 +3,9 @@ import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createUseCookieMockState } from "~~/tests/unit/utils/mocks/composables/nuxt/useCookie/useCookie.mock";
 import type { UseCookieMockState } from "~~/tests/unit/utils/mocks/composables/nuxt/useCookie/useCookie.mock";
 
-// Acceptable as useCookie<string | boolean | null> requires null as the initial value for the cookie guard
-// oxlint-disable-next-line unicorn/no-null
-const useCookieMockState: UseCookieMockState<string | boolean | null> = createUseCookieMockState<string | boolean | null>(null);
+type UseCookieMockPayload = string | boolean | number | Record<string, unknown> | null | undefined;
+
+const useCookieMockState: UseCookieMockState<UseCookieMockPayload> = createUseCookieMockState<UseCookieMockPayload>(null);
 
 mockNuxtImport("useCookie", () => (name: string, options?: Record<string, unknown>) => {
   useCookieMockState.capturedName.current = name;

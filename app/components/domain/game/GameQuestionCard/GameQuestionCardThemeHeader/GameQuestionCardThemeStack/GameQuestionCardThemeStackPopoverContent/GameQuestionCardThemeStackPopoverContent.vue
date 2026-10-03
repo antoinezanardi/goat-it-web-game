@@ -19,6 +19,7 @@ const { t } = useI18n();
       data-testid="theme-popover-row"
     >
       <GameQuestionCardThemeIcon
+        :data-testid="`theme-icon-${assignment.theme.slug}`"
         :is-hint="assignment.isHint"
         size="sm"
         :theme="assignment.theme"

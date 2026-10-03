@@ -8,6 +8,7 @@ import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
 import { GameQuestionCardThemeStackPopoverContent } from "#components";
+import type { GameQuestionCardThemeIcon, UBadge } from "#components";
 
 import type { QuestionTheme } from "#shared/types/question-theme.types";
 import type { GameQuestionCardThemeStackPopoverContentProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/GameQuestionCardThemeStackPopoverContent/game-question-card-theme-stack-popover-content.types";
@@ -57,6 +58,13 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     expect(rows).toHaveLength(2);
   });
 
+  it("should render the theme icons in the theme assignment order when mounted.", () => {
+    const themeIconSlugs = wrapper.findAll("[data-testid^='theme-icon-']")
+      .map(icon => icon.attributes("data-testid")?.replace("theme-icon-", ""));
+
+    expect(themeIconSlugs).toStrictEqual([primaryTheme.slug, secondaryTheme.slug]);
+  });
+
   it("should render the theme label in its row when mounted.", () => {
     const rows = wrapper.findAll("[data-testid='theme-popover-row']");
 
@@ -89,22 +97,22 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     expect(row.find(`[data-testid='${badge}']`).exists()).toBe(expected);
   });
 
-  it.each<{ index: number; expected: boolean }>([
-    { index: 0, expected: true },
-    { index: 1, expected: false },
-  ])("should pass isHint $expected to the row at index $index's theme icon when mounted.", ({ index, expected }) => {
-    const icons = wrapper.findAllComponents({ name: "GameQuestionCardThemeIcon" });
+  it.each<{ slug: string; expected: boolean }>([
+    { slug: primaryTheme.slug, expected: true },
+    { slug: secondaryTheme.slug, expected: false },
+  ])("should pass isHint $expected to the $slug theme icon when mounted.", ({ slug, expected }) => {
+    const icon = wrapper.findComponent<typeof GameQuestionCardThemeIcon>(`[data-testid='theme-icon-${slug}']`);
 
-    expect(icons[index]?.props("isHint")).toBe(expected);
+    expect(icon.props("isHint")).toBe(expected);
   });
 
-  it.each<{ index: number; expected: QuestionTheme }>([
-    { index: 0, expected: primaryTheme },
-    { index: 1, expected: secondaryTheme },
-  ])("should pass the row at index $index's theme to its theme icon when mounted.", ({ index, expected }) => {
-    const icons = wrapper.findAllComponents({ name: "GameQuestionCardThemeIcon" });
+  it.each<{ slug: string; expected: QuestionTheme }>([
+    { slug: primaryTheme.slug, expected: primaryTheme },
+    { slug: secondaryTheme.slug, expected: secondaryTheme },
+  ])("should pass the $slug theme to its theme icon when mounted.", ({ slug, expected }) => {
+    const icon = wrapper.findComponent<typeof GameQuestionCardThemeIcon>(`[data-testid='theme-icon-${slug}']`);
 
-    expect(icons[index]?.props("theme")).toBe(expected);
+    expect(icon.props("theme")).toBe(expected);
   });
 
   it.each<{ badge: string; prop: "icon" | "label"; expected: string }>([
@@ -113,7 +121,8 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
     { badge: "theme-hint-badge", prop: "icon", expected: QUESTION_HINT_ICON },
     { badge: "theme-hint-badge", prop: "label", expected: "questions.themeStack.hintBadge" },
   ])("should set the $badge $prop to $expected when mounted.", ({ badge, prop, expected }) => {
-    const badgeComponent = wrapper.findAllComponents({ name: "UBadge" }).find(comp => comp.attributes("data-testid") === badge);
+    const badgeComponent = wrapper.findAllComponents<typeof UBadge>({ name: "UBadge" })
+      .find(component => component.attributes("data-testid") === badge);
 
     expect(badgeComponent?.props(prop)).toBe(expected);
   });

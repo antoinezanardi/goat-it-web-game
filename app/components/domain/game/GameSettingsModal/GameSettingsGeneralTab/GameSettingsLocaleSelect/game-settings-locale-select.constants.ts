@@ -1,0 +1,3 @@
+const GAME_SETTINGS_LOCALE_SELECT_ICON = "i-lucide-globe";
+
+export { GAME_SETTINGS_LOCALE_SELECT_ICON };

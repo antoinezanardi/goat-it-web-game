@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { QUESTION_THEME_UNKNOWN_ICON } from "~/composables/domain/question-theme/constants/question-theme.constants";
-import { getThemeIcon, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { QUESTION_THEME_UNKNOWN_ICON } from "@/composables/domain/question-theme/constants/question-theme.constants";
+import { getThemeIcon, resolveThemeColor } from "@/composables/domain/question-theme/helpers/question-theme.helpers";
 
 describe(getThemeIcon, () => {
   it.each<{ slug: string; expectedIcon: string }>([

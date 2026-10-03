@@ -39,6 +39,10 @@ export const useGameStore = defineStore(StoreNames.GAME, () => {
   function resetQuestions(): void {
     questions.value = [];
   }
+
+  function truncateQuestions(length: number): void {
+    questions.value = questions.value.slice(0, length);
+  }
   return {
     questions,
     fetchStatus,
@@ -48,6 +52,7 @@ export const useGameStore = defineStore(StoreNames.GAME, () => {
     fetchRandomQuestions,
     fetchAndAppendRandomQuestions,
     resetQuestions,
+    truncateQuestions,
     fetchQuestionsByIds,
     fetchQuestionsByIdsStatus,
     isFetchingQuestionsByIds,
