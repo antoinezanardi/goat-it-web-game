@@ -9,7 +9,11 @@ import type { GameTutorialPopoverContent } from "#components";
 import { GameTutorial } from "#components";
 
 import type { GameTutorialProps } from "@/components/domain/game/GameTutorial/game-tutorial.types";
-import { GAME_TUTORIAL_SPOTLIGHT_PADDING, GAME_TUTORIAL_STEPS } from "@/components/domain/game/GameTutorial/game-tutorial.constants";
+import {
+  GAME_TUTORIAL_POPOVER_UI,
+  GAME_TUTORIAL_SPOTLIGHT_PADDING,
+  GAME_TUTORIAL_STEPS,
+} from "@/components/domain/game/GameTutorial/game-tutorial.constants";
 
 const GAME_TUTORIAL_IN_CARD_TARGET_TEST_IDS = [
   "game-question-header",
@@ -229,6 +233,57 @@ describe("GameTutorial Component", () => {
     await startTour();
 
     expect(getGameTutorialPopoverContent().props("hasNext")).toBe(true);
+  });
+
+  it("should keep the popover closed when the tour has not started.", () => {
+    expect(wrapper.findComponent({ name: "UPopover" }).props("open")).toBe(false);
+  });
+
+  it("should open the popover when the tour starts.", async() => {
+    await startTour();
+
+    expect(wrapper.findComponent({ name: "UPopover" }).props("open")).toBe(true);
+  });
+
+  it("should disable popover dismissal when the tour starts.", async() => {
+    await startTour();
+
+    expect(wrapper.findComponent({ name: "UPopover" }).props("dismissible")).toBe(false);
+  });
+
+  it("should apply the custom popover ui options when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UPopover" }).props("ui")).toStrictEqual(GAME_TUTORIAL_POPOVER_UI);
+  });
+
+  it("should reference the targeted card header when navigating to a targeted step.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(wrapper.findComponent({ name: "UPopover" }).props("reference")).toBe(getActiveCardElement("game-question-header"));
+  });
+
+  it("should pass no maximum height to the popover content when the centered first step is active.", async() => {
+    await startTour();
+
+    expect(getGameTutorialPopoverContent().props("maxHeight")).toBe("none");
+  });
+
+  it("should pass the space above the target as maximum height to the popover content when the target is near the viewport bottom.", async() => {
+    getActiveCardElement("game-question-header").getBoundingClientRect = (): DOMRect => ({
+      bottom: 700,
+      height: 100,
+      left: 0,
+      right: 100,
+      top: 600,
+      width: 100,
+      x: 0,
+      y: 600,
+      toJSON: (): Record<string, never> => ({}),
+    });
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(getGameTutorialPopoverContent().props("maxHeight")).toBe("584px");
   });
 
   it("should render the first step title when the tour starts.", async() => {

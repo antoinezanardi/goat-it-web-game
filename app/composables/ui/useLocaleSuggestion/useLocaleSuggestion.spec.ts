@@ -75,16 +75,11 @@ describe("useLocaleSuggestion", () => {
     expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 34_560_000, sameSite: "lax" });
   });
 
-  it("should not add a toast when the i18n_redirected cookie holds a valid locale.", async() => {
-    useCookieMockState.cookieRef.value = "fr";
-
-    await useLocaleSuggestion();
-
-    expect(useAppToastMock.addInfoToast).not.toHaveBeenCalled();
-  });
-
-  it("should not add a toast when the i18n_redirected cookie holds the current locale.", async() => {
-    useCookieMockState.cookieRef.value = "en";
+  it.each<{ cookieValue: string; description: string }>([
+    { cookieValue: "fr", description: "a valid locale" },
+    { cookieValue: "en", description: "the current locale" },
+  ])("should not add a toast when the i18n_redirected cookie holds $description.", async({ cookieValue }) => {
+    useCookieMockState.cookieRef.value = cookieValue;
 
     await useLocaleSuggestion();
 
@@ -166,58 +161,40 @@ describe("useLocaleSuggestion", () => {
     expect(i18nMock.setLocale).toHaveBeenCalledExactlyOnceWith("fr");
   });
 
-  it("should persist the suggested locale to the cookie when the accept action is clicked.", async() => {
+  it.each<{ action: "accept" | "decline"; actionIndex: number; expectedCookieValue: string; localeKind: string }>([
+    { action: "accept", actionIndex: 0, expectedCookieValue: "fr", localeKind: "suggested" },
+    { action: "decline", actionIndex: 1, expectedCookieValue: "en", localeKind: "current" },
+  ])("should persist the $localeKind locale to the cookie when the $action action is clicked.", async({ actionIndex, expectedCookieValue }) => {
     stubNavigatorLanguages(["fr-FR", "fr"]);
     await useLocaleSuggestion();
 
-    callOnClick(getAddedToastArguments()?.actions?.[0]?.onClick);
+    callOnClick(getAddedToastArguments()?.actions?.[actionIndex]?.onClick);
 
-    expect(useCookieMockState.cookieRef.value).toBe("fr");
+    expect(useCookieMockState.cookieRef.value).toBe(expectedCookieValue);
   });
 
-  it("should close the toast when the accept action is clicked.", async() => {
+  it.each<{ action: "accept" | "decline"; actionIndex: number }>([
+    { action: "accept", actionIndex: 0 },
+    { action: "decline", actionIndex: 1 },
+  ])("should close the toast when the $action action is clicked.", async({ actionIndex }) => {
     stubNavigatorLanguages(["fr-FR", "fr"]);
     await useLocaleSuggestion();
 
-    callOnClick(getAddedToastArguments()?.actions?.[0]?.onClick);
+    callOnClick(getAddedToastArguments()?.actions?.[actionIndex]?.onClick);
 
     expect(useAppToastMock.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
   });
 
-  it("should persist the current locale to the cookie when the decline action is clicked.", async() => {
+  it.each<{ action: string; condition: string; expectedCookieValue: string | null; open: boolean }>([
+    { action: "persist the current locale to the cookie", condition: "the toast is closed without answering", expectedCookieValue: "en", open: false },
+    { action: "keep the cookie untouched", condition: "the toast open update emits while open", expectedCookieValue: null, open: true },
+  ])("should $action when $condition.", async({ expectedCookieValue, open }) => {
     stubNavigatorLanguages(["fr-FR", "fr"]);
     await useLocaleSuggestion();
 
-    callOnClick(getAddedToastArguments()?.actions?.[1]?.onClick);
+    getAddedToastArguments()?.["onUpdate:open"]?.(open);
 
-    expect(useCookieMockState.cookieRef.value).toBe("en");
-  });
-
-  it("should close the toast when the decline action is clicked.", async() => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
-    await useLocaleSuggestion();
-
-    callOnClick(getAddedToastArguments()?.actions?.[1]?.onClick);
-
-    expect(useAppToastMock.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
-  });
-
-  it("should persist the current locale to the cookie when the toast is closed without answering.", async() => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
-    await useLocaleSuggestion();
-
-    getAddedToastArguments()?.["onUpdate:open"]?.(false);
-
-    expect(useCookieMockState.cookieRef.value).toBe("en");
-  });
-
-  it("should keep the cookie untouched when the toast open update emits while open.", async() => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
-    await useLocaleSuggestion();
-
-    getAddedToastArguments()?.["onUpdate:open"]?.(true);
-
-    expect(useCookieMockState.cookieRef.value).toBeNull();
+    expect(useCookieMockState.cookieRef.value).toBe(expectedCookieValue);
   });
 
   it("should not overwrite the cookie when the toast is closed after the accept action was clicked.", async() => {

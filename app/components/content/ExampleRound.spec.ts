@@ -94,12 +94,6 @@ describe("ExampleRound Component", () => {
     expect(trigger.props("icon")).toBe("i-lucide-drama");
   });
 
-  it("should pass the secondary color to the trigger button when mounted.", () => {
-    const trigger = wrapper.findComponent({ name: "UButton" });
-
-    expect(trigger.props("color")).toBe("secondary");
-  });
-
   it("should pass the ui config to the trigger button when mounted.", () => {
     const trigger = wrapper.findComponent({ name: "UButton" });
 

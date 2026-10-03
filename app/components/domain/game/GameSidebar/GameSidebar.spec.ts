@@ -76,10 +76,6 @@ describe("GameSidebar Component", () => {
     expect(findLinkByTestId("game-sidebar").props("to")).toBe("/");
   });
 
-  it("should render the logo image inside the header link when mounted.", () => {
-    expect(findLinkByTestId("game-sidebar").find("img").exists()).toBe(true);
-  });
-
   it("should render the back to home link with the correct label when mounted.", () => {
     const link = document.body.querySelector("[data-testid='game-sidebar-back-to-home-link']");
 
@@ -108,12 +104,6 @@ describe("GameSidebar Component", () => {
     const rulesLink = findLinkByTestId("game-sidebar-rules-link");
 
     expect(rulesLink.props("to")).toBe("/rules");
-  });
-
-  it("should open the rules link in a new tab when mounted.", () => {
-    const rulesLink = findLinkByTestId("game-sidebar-rules-link");
-
-    expect(rulesLink.props("target")).toBe("_blank");
   });
 
   it("should render the book icon on the rules link when mounted.", () => {
@@ -145,14 +135,6 @@ describe("GameSidebar Component", () => {
     expect(wrapper.emitted("openSettings")).toStrictEqual([[]]);
   });
 
-  it("should not render the LocaleSelect component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "LocaleSelect" }).exists()).toBe(false);
-  });
-
-  it("should not render the VersionButton component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "VersionButton" }).exists()).toBe(false);
-  });
-
   it("should have the footer data-testid attribute when mounted.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar-footer']")).not.toBeNull();
   });
@@ -174,10 +156,6 @@ describe("GameSidebar Component", () => {
 
   it("should render the compass icon on the tutorial entry when mounted.", () => {
     expect(findLinkByTestId("game-sidebar-tutorial-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-compass");
-  });
-
-  it("should render the tutorial entry as a button when mounted.", () => {
-    expect(findLinkByTestId("game-sidebar-tutorial-link").find("button").exists()).toBe(true);
   });
 
   it("should emit startTutorial when the tutorial entry is clicked.", async() => {

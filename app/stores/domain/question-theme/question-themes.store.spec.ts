@@ -1,3 +1,4 @@
+import { createFakeFindQuestionThemesQueryDto } from "@goat-it/schemas/testing/question-theme";
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
 
@@ -125,11 +126,11 @@ describe("useQuestionThemesStore", () => {
 
     it("should call fetchQuestionThemes with query when called with query params.", async() => {
       const store = useQuestionThemesStore();
-      const query = {
-        "sort-by": "slug" as const,
-        "sort-order": "asc" as const,
+      const query = createFakeFindQuestionThemesQueryDto({
+        "sort-by": "slug",
+        "sort-order": "asc",
         "limit": 10,
-      };
+      });
 
       await store.fetchAndStoreQuestionThemes(query);
 
