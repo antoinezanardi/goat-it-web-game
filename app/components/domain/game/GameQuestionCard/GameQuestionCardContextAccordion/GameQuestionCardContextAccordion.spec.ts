@@ -3,8 +3,10 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import type { MockInstance } from "vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
+import type { ComponentPublicInstance } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup";
 
@@ -113,16 +115,13 @@ describe("GameQuestionCardContextAccordion Component", () => {
     expect(wrapper.find("[data-testid='game-question-context']").text()).toBe("Padded context.");
   });
 
-  it("should render a trivia list with the correct number of items when trivia is provided.", async() => {
-    wrapper = await mountAndOpenAccordion({ props: { trivia: ["Fact one", "Fact two"] } });
+  it.each<{ trivia: string[]; count: number; itemLabel: string }>([
+    { trivia: ["Fact one", "Fact two"], count: 2, itemLabel: "two items" },
+    { trivia: ["Fact one"], count: 1, itemLabel: "a single item" },
+  ])("should render a trivia list with $itemLabel when trivia is provided.", async({ trivia, count }) => {
+    wrapper = await mountAndOpenAccordion({ props: { trivia } });
 
-    expect(wrapper.findAll("li")).toHaveLength(2);
-  });
-
-  it("should render only a single trivia item when trivia has one element.", async() => {
-    wrapper = await mountAndOpenAccordion({ props: { trivia: ["Fact one"] } });
-
-    expect(wrapper.findAll("li")).toHaveLength(1);
+    expect(wrapper.findAll("li")).toHaveLength(count);
   });
 
   it("should pass only non-blank trivia items to the trivia content when trivia mixes blank and valid items.", async() => {
@@ -249,9 +248,12 @@ describe("GameQuestionCardContextAccordion Component", () => {
       expect(scrollIntoViewSpy).not.toHaveBeenCalled();
     });
 
+    type GameQuestionCardContextAccordionVm = ComponentVm & { rootElementReference: ComponentPublicInstance | null };
+
     it("should not scroll the accordion into view when the root element reference is null.", async() => {
       wrapper = await mountOpenAndSettleAccordion({ props: { context: "Context text." } });
-      getWrapperVm(wrapper).$.refs.rootElementReference = null;
+      const vm = getWrapperVm<GameQuestionCardContextAccordionVm>(wrapper);
+      vm.$.refs.rootElementReference = null;
       getAccordionRootElement(wrapper).dispatchEvent(new Event("animationend"));
 
       expect(scrollIntoViewSpy).not.toHaveBeenCalled();

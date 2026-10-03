@@ -42,7 +42,7 @@ describe("GameSidebarToggleButton Component", () => {
   it("should emit click when the button is clicked.", async() => {
     await wrapper.find("button").trigger("click");
 
-    expect(wrapper.emitted("click")).toBeDefined();
+    expect(wrapper.emitted("click")).toStrictEqual([[]]);
   });
 
   it("should have the data-testid attribute when mounted.", () => {

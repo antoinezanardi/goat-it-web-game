@@ -28,11 +28,13 @@ function getSourceLinkLabel(url: string): string {
     <UTooltip
       v-for="url in sourceUrls"
       :key="url"
+      :data-testid="`source-tooltip-${url}`"
       :text="getSourceLinkLabel(url)"
     >
       <ULink
         :aria-label="getSourceLinkLabel(url)"
         :class="GAME_QUESTION_CARD_SOURCE_LINK_CLASSES"
+        :data-testid="`source-link-${url}`"
         rel="noopener noreferrer"
         target="_blank"
         :to="url"

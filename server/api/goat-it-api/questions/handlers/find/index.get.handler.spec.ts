@@ -100,26 +100,13 @@ describe("Server Goat It API Questions Find Handler", () => {
       expect(result).toStrictEqual(expectedQuestions);
     });
 
-    it("should throw a ZodError when ids are empty.", async() => {
-      vi.mocked(getQuery).mockReturnValue({ ids: [] });
-
-      await expect(findQuestionsHandler(mockedEvent)).rejects.toThrow(ZodError);
-    });
-
-    it("should throw ZodError when an id is invalid.", async() => {
-      vi.mocked(getQuery).mockReturnValue({ ids: ["not-a-valid-id"] });
-
-      await expect(findQuestionsHandler(mockedEvent)).rejects.toThrow(ZodError);
-    });
-
-    it("should throw ZodError when ids contain duplicates.", async() => {
-      vi.mocked(getQuery).mockReturnValue({ ids: [validMongoId, validMongoId] });
-
-      await expect(findQuestionsHandler(mockedEvent)).rejects.toThrow(ZodError);
-    });
-
-    it("should throw ZodError when more than 100 ids are provided.", async() => {
-      vi.mocked(getQuery).mockReturnValue({ ids: Array.from({ length: 101 }, () => validMongoId) });
+    it.each<{ description: string; query: unknown }>([
+      { description: "ids are empty", query: { ids: [] } },
+      { description: "an id is invalid", query: { ids: ["not-a-valid-id"] } },
+      { description: "ids contain duplicates", query: { ids: [validMongoId, validMongoId] } },
+      { description: "more than 100 ids are provided", query: { ids: Array.from({ length: 101 }, () => validMongoId) } },
+    ])("should throw a ZodError when $description.", async({ query }) => {
+      vi.mocked(getQuery).mockReturnValue(query);
 
       await expect(findQuestionsHandler(mockedEvent)).rejects.toThrow(ZodError);
     });

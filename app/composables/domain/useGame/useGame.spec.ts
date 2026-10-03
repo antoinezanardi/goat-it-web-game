@@ -253,7 +253,17 @@ describe("useGame", () => {
     });
 
     it("should clear previously loaded questions before the initial fetch when mounted.", async() => {
+      const initialWrapper = mount(defineComponent({
+        setup(): () => null {
+          useGame();
+
+          return (): null => null;
+        },
+      }));
       const store = mockStore(useGameStore);
+      await flushPromises();
+      initialWrapper.unmount();
+      store.fetchAndAppendRandomQuestions.mockClear();
       store.questions = [createFakeQuestion(), createFakeQuestion()];
       store.resetQuestions.mockImplementation(() => {
         store.questions = [];
@@ -524,18 +534,14 @@ describe("useGame", () => {
   });
 
   describe("isTranslating", () => {
-    it("should be false when the translation composable is not translating.", () => {
-      useGameQuestionTranslationMock.isTranslatingRef.value = false;
+    it.each<{ isTranslating: boolean; expected: boolean }>([
+      { isTranslating: false, expected: false },
+      { isTranslating: true, expected: true },
+    ])("should be $expected when isTranslating is $isTranslating.", ({ isTranslating, expected }) => {
+      useGameQuestionTranslationMock.isTranslatingRef.value = isTranslating;
       const game = useGame();
 
-      expect(game.isTranslating.value).toBe(false);
-    });
-
-    it("should be true when the translation composable is translating.", () => {
-      useGameQuestionTranslationMock.isTranslatingRef.value = true;
-      const game = useGame();
-
-      expect(game.isTranslating.value).toBe(true);
+      expect(game.isTranslating.value).toBe(expected);
     });
   });
 
