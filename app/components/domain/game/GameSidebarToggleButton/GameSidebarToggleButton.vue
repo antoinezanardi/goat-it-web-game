@@ -13,7 +13,10 @@ function onClick(): void {
 </script>
 
 <template>
-  <UTooltip :text="ariaLabel">
+  <UTooltip
+    :portal="false"
+    :text="ariaLabel"
+  >
     <UButton
       :aria-label="ariaLabel"
       class="game-question-navigation-button--themed h-10 rounded-full w-10"

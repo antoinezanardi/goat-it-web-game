@@ -26,6 +26,7 @@ defineExpose({
   <UPopover
     enable-touch
     mode="hover"
+    :portal="false"
   >
     <UBadge
       ref="badgeElementReference"
@@ -34,6 +35,7 @@ defineExpose({
       color="warning"
       data-testid="game-question-hint"
       :icon="QUESTION_HINT_ICON"
+      role="img"
       size="md"
       square
       variant="subtle"

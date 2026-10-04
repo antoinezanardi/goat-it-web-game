@@ -68,11 +68,11 @@ describe("GameSidebar Component", () => {
     expect(slideover.props("ui")).toStrictEqual(GAME_SIDEBAR_UI);
   });
 
-  it("should render the brand text in the header when mounted.", () => {
+  it("should render the brand text in the sidebar title when mounted.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")?.textContent).toContain("home.brand");
   });
 
-  it("should render the sidebar header as a link to the home page when mounted.", () => {
+  it("should render the sidebar title as a link to the home page when mounted.", () => {
     expect(findLinkByTestId("game-sidebar").props("to")).toBe("/");
   });
 

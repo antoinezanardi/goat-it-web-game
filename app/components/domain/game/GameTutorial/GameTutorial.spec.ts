@@ -440,7 +440,11 @@ describe("GameTutorial Component", () => {
     await clickGameTutorialButton("game-tutorial-next");
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({ side: "top", sideOffset: 12 });
+    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({
+      "side": "top",
+      "sideOffset": 12,
+      "aria-label": "game.interactiveTutorial.steps.question.title",
+    });
   });
 
   it("should not render the spotlight window when the centered first step is active.", async() => {
@@ -523,7 +527,11 @@ describe("GameTutorial Component", () => {
     globalThis.dispatchEvent(new globalThis.Event("resize"));
     await flushPromises();
 
-    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({ side: "top", sideOffset: 12 });
+    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({
+      "side": "top",
+      "sideOffset": 12,
+      "aria-label": "game.interactiveTutorial.steps.framework.title",
+    });
   });
 
   it("should recompute the spotlight window when the window is resized while the tour is open.", async() => {
