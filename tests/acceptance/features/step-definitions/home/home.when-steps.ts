@@ -2,14 +2,14 @@ import { When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
+import { clickAndGetOpenedTab } from "#acceptance/features/support/helpers/tab.helpers.ts";
 
 When(/^the user clicks on the version button$/u, async function(this: GoatItWorld): Promise<void> {
   const versionButton = this.page.locator("[data-testid='github-version-button']");
-  const openedTabPromise = this.context.waitForEvent("page");
 
-  await versionButton.click();
+  await expect(versionButton).toBeVisible();
 
-  this.openedTabPage = await openedTabPromise;
+  this.openedTabPage = await clickAndGetOpenedTab(this.context, versionButton);
 });
 
 When(/^the user clicks the play button on the home page$/u, async function(this: GoatItWorld): Promise<void> {

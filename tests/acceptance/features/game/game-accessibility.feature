@@ -20,7 +20,7 @@ Feature: 🎮 Game Page Accessibility
     And a game question should be displayed
     When the user navigates back
     Then a confirmation modal should be displayed
-    Then the page should not contain accessibility issues in <view> mode
+    And the page should not contain accessibility issues in <view> mode
 
     Examples:
       | view    |

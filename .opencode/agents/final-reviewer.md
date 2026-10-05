@@ -151,9 +151,10 @@ No files are automatically ignored in the diff review.
 
 - **Trigger:** the diff adds or modifies anything under `tests/acceptance/` or a `.feature` file.
 - Load the `acceptance-testing` skill; consult `docs/acceptance-testing.md` for the sections relevant to the changed files (feature patterns §5, step definitions §6, Playwright integration §7).
-- Check: feature files live in `tests/acceptance/features/<domain>/`; step definitions follow the `<domain>.<given|when|then>-steps.ts` split with helpers extracted per step type (`helpers/<domain>.<step-type>-steps.helpers.ts`, **never shared across step types**); DataTable rows are validated with Zod schemas; feature tags follow the established naming so orchestrators can scope runs with `--tags`; no hardcoded waits/sleeps where Playwright auto-waiting applies.
-- Static analysis only — never execute acceptance tests.
-- Report every violation as `` `[A]` `file:line` — expected pattern ``.
+- Read `.opencode/commands/lint-acceptance-tests.md` section 4 IN FULL; classify each file with its §3 classification table (feature, step, step constants, step helper, datatable schema, support registry, support helper, step misc, other).
+- Apply the universal checks `[AU1]`–`[AU2]` plus the file-type's block (`[FT*]`, `[ST*]`, `[SC*]`, `[SH*]`, `[DS*]`, `[SU*]`) — **static analysis only**; never execute acceptance tests (quality gates belong to the gatekeeper).
+- Entries under "Established patterns — do NOT flag" are conventions, not violations.
+- Report every violation as `` `[tag]` `file:line` — expected pattern ``.
 
 ## Return format
 
@@ -186,7 +187,7 @@ No files are automatically ignored in the diff review.
 - `[tag]` `file:line` — violation description (or "All spec files conform to the checklist")
 
 **Acceptance-test conventions:**
-- `[A]` `file:line` — violation description (or "No acceptance-test files changed" / "Conforms to the guide")
+- `[tag]` `file:line` — violation description (or "No acceptance-test files changed" / "Conforms to the checklist")
 
 **Security:**
 - [issues or "No security concerns"]
@@ -200,7 +201,7 @@ No files are automatically ignored in the diff review.
 **Assessment:** Ready to merge | Ready with minor follow-ups | Needs changes before merge
 ```
 
-**Hard verdict gate:** the assessment MUST be `Needs changes before merge` if ANY of the following holds — one or more Critical issues; a spec requirement unimplemented; a security finding; any unit-test `[U*]`–`[T*]` violation or acceptance-test `[A]` violation. Only a fully clean report (or Minor-only findings) may yield `Ready to merge` / `Ready with minor follow-ups`.
+**Hard verdict gate:** the assessment MUST be `Needs changes before merge` if ANY of the following holds — one or more Critical issues; a spec requirement unimplemented; a security finding; any unit-test `[U*]`–`[T*]` violation or acceptance-test `[AU*]`–`[SU*]` violation. Only a fully clean report (or Minor-only findings) may yield `Ready to merge` / `Ready with minor follow-ups`.
 
 ## Skills to load
 
