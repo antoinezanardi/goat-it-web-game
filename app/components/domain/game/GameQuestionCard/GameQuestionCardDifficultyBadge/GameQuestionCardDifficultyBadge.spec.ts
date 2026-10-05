@@ -4,6 +4,7 @@ import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import { createMainLandmark, removeMainLandmark } from "~~/tests/unit/utils/helpers/main-landmark.helpers";
 
 import { GameQuestionCardDifficultyBadge } from "#components";
 
@@ -26,11 +27,13 @@ describe("GameQuestionCardDifficultyBadge Component", () => {
   }
 
   beforeEach(async() => {
+    createMainLandmark();
     wrapper = await mountGameQuestionCardDifficultyBadge();
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    removeMainLandmark();
   });
 
   it("should render GameQuestionCardDifficultyBadge when mounted.", () => {

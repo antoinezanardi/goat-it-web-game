@@ -21,13 +21,14 @@ function onOpenSettings(): void {
 
 <template>
   <USlideover
+    :close="false"
     :open="props.isOpen"
     side="left"
     :title="t('home.brand')"
     :ui="GAME_SIDEBAR_UI"
     @update:open="onUpdateOpen"
   >
-    <template #header>
+    <template #title>
       <ULink
         class="flex gap-2 items-center"
         data-testid="game-sidebar"

@@ -16,6 +16,7 @@ const difficultyIcon = computed<string>(() => getDifficultyIcon(props.difficulty
   <UPopover
     enable-touch
     mode="hover"
+    portal="main"
   >
     <UBadge
       :aria-label="tooltipText"
@@ -24,6 +25,7 @@ const difficultyIcon = computed<string>(() => getDifficultyIcon(props.difficulty
       :color="difficultyColor"
       data-testid="game-question-difficulty"
       :icon="difficultyIcon"
+      role="img"
       size="lg"
       square
       variant="subtle"

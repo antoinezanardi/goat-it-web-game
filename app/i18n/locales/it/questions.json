@@ -25,6 +25,7 @@
       "otherThemes": "+{count} altro tema | +{count} altri temi",
       "primaryBadge": "Principale",
       "hintBadge": "Suggerimento",
+      "triggerLabel": "Mostra i temi",
       "primaryThemeHintTooltip": "Il tema principale è un indizio per la risposta",
       "themeHintTooltip": "Questo tema è un indizio per la risposta"
     }
