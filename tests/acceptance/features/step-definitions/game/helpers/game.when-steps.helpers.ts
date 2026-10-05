@@ -1,7 +1,15 @@
 import { expect } from "@playwright/test";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
+
+async function getVisibleGameDialog(page: Page): Promise<Locator> {
+  const dialog = page.getByRole("dialog").first();
+
+  await expect(dialog).toBeVisible();
+
+  return dialog;
+}
 
 async function readNextQuestionButtonState(page: Page): Promise<"disabled" | "settled"> {
   return page.evaluate(() => {
@@ -25,5 +33,6 @@ async function waitForQuestionCardTransition(world: GoatItWorld): Promise<void> 
 }
 
 export {
+  getVisibleGameDialog,
   waitForQuestionCardTransition,
 };

@@ -247,7 +247,7 @@ Available skills: `acceptance-testing`, `brainstorming`, `nuxt`, `nuxt-ui`, `rec
 `systematic-debugging`, `unit-testing`, `vite`, `vitest`, `vue`, `vueuse`, `writing-plans`, `writing-skills`.
 
 - **When writing unit tests** (including inside plans): always load the `unit-testing` skill first and verify the result against the `.opencode/commands/lint-unit-tests.md` §4 checklist.
-- **When writing acceptance tests** (including inside plans): always load the `acceptance-testing` skill first.
+- **When writing acceptance tests** (including inside plans): always load the `acceptance-testing` skill first and verify the result against the `.opencode/commands/lint-acceptance-tests.md` §4 checklist.
 - **When brainstorming or writing plans**: always consult the `nuxt`, `nuxt-ui`, and `vueuse` skills.
 
 ## OpenCode commands (`.opencode/commands/`)
@@ -256,6 +256,7 @@ Slash commands available in OpenCode sessions:
 
 - `/complete-i18n`   – Translate all French locale JSON files into every other locale.
 - `/lint-unit-tests` – Audit spec files against unit testing conventions, then fix user-approved violations.
+- `/lint-acceptance-tests` – Audit feature/step/helper files against acceptance testing conventions, then fix user-approved violations.
 - `/write-unit-test` – Write a complete, passing unit test for a given source file.
 - `/write-acceptance-test` – Write a complete acceptance test (feature + steps) for a given page/feature.
 

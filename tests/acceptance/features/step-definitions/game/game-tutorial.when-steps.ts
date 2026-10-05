@@ -6,18 +6,21 @@ import {
   getGameTourTooltip,
 } from "#acceptance/features/support/helpers/game.helpers.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
+import { getVisibleGameDialog } from "#acceptance/features/step-definitions/game/helpers/game.when-steps.helpers.ts";
 
 When(
   /^the user opens the interactive tutorial from the game sidebar$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const dialog = this.page.getByRole("dialog");
+    if (!await this.page.getByRole("dialog").first().isVisible()) {
+      const sidebarToggleButton = this.page.getByTestId("game-sidebar-toggle-button");
 
-    if (!await dialog.isVisible()) {
-      await this.page.getByTestId("game-sidebar-toggle-button").click();
-      await expect(dialog).toBeVisible();
+      await expect(sidebarToggleButton).toBeVisible();
+      await sidebarToggleButton.click();
     }
 
+    const dialog = await getVisibleGameDialog(this.page);
     const tutorialLink = dialog.getByTestId("game-sidebar-tutorial-link");
+
     await expect(tutorialLink).toBeVisible();
     await tutorialLink.click();
     await expect(getGameTourTooltip(this.page)).toBeVisible();

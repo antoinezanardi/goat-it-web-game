@@ -215,7 +215,7 @@ BeforeAll({ timeout: BEFORE_ALL_TIMEOUT }, async () => {
 });
 
 Before({ timeout: BEFORE_TIMEOUT }, async function (this: GoatItWorld) {
-  resetSandboxData();
+  resetSandboxData(this.mongoDb);
   beforeEach();
   this.page = await createPage();
   this.context = this.page.context();
@@ -223,7 +223,7 @@ Before({ timeout: BEFORE_TIMEOUT }, async function (this: GoatItWorld) {
 
 After(async function (this: GoatItWorld, scenario) {
   if (scenario.result?.status === Status.FAILED) {
-    await generateScreenshotOnScenarioFailure(this, scenario);
+    await generateScreenshotOnScenarioFailure(this.page, (data, mediaType) => this.attach(data, mediaType), scenario);
   }
   afterEach();
   await this.context.close();
@@ -1071,9 +1071,9 @@ Each worker targets its own sandbox instance at `http://localhost:<9090 + worker
 
 ### 9.2 MongoDB reset
 
-Before each scenario, the `Before` hook calls `resetSandboxData()` which runs a `mongosh` command via `docker compose ... exec` against the worker's MongoDB container (`goat-it-api-sandbox-mongodb-<workerId>`) to execute `db.dropDatabase()` for the sandbox database. This ensures each test starts with a clean state.
+Before each scenario, the `Before` hook calls `resetSandboxData(this.mongoDb)`, which runs `db.dropDatabase()` on the sandbox database through the worker's MongoDB connection. The connection is created once in `BeforeAll` via `getMongoClient(workerId)` and `getMongoDatabase(client)`, and closed in `AfterAll`. This ensures each test starts with a clean state.
 
-The reset uses `execSync` with a timeout of `RESET_SANDBOX_DATA_TIMEOUT_IN_MS` (10s).
+The MongoDB client is created with `RESET_SANDBOX_DATA_TIMEOUT_IN_MS` (10s) as its connect timeout.
 
 ### 9.3 Health check
 
