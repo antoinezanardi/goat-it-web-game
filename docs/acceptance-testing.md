@@ -215,7 +215,7 @@ BeforeAll({ timeout: BEFORE_ALL_TIMEOUT }, async () => {
 });
 
 Before({ timeout: BEFORE_TIMEOUT }, async function (this: GoatItWorld) {
-  resetSandboxData(this.mongoDb);
+  await resetSandboxData(this.mongoDb);
   beforeEach();
   this.page = await createPage();
   this.context = this.page.context();

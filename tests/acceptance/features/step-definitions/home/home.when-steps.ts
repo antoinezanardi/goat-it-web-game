@@ -2,7 +2,7 @@ import { When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-import { clickAndGetOpenedTab } from "#acceptance/features/step-definitions/element/helpers/element.when-steps.helpers.ts";
+import { clickAndGetOpenedTab } from "#acceptance/features/support/helpers/tab.helpers.ts";
 
 When(/^the user clicks on the version button$/u, async function(this: GoatItWorld): Promise<void> {
   const versionButton = this.page.locator("[data-testid='github-version-button']");

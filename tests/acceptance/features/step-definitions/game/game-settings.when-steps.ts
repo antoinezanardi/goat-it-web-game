@@ -2,12 +2,12 @@ import { When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-import { getVisibleGameDialog } from "#acceptance/features/step-definitions/game/helpers/game.when-steps.helpers.ts";
+import { getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
 
 When(
   /^the user clicks the settings button in the game sidebar$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const dialog = await getVisibleGameDialog(this.page);
+    const dialog = await getVisibleDefaultModal(this.page);
     const settingsButton = dialog.getByTestId("game-sidebar-settings-button");
 
     await expect(settingsButton).toBeVisible();

@@ -3,7 +3,7 @@ import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
-import { clickAndGetOpenedTab } from "#acceptance/features/step-definitions/element/helpers/element.when-steps.helpers.ts";
+import { clickAndGetOpenedTab } from "#acceptance/features/support/helpers/tab.helpers.ts";
 import { waitForQuestionCardTransition } from "#acceptance/features/step-definitions/game/helpers/game.when-steps.helpers.ts";
 
 When(

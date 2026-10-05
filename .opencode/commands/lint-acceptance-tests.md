@@ -9,7 +9,7 @@ Audit acceptance test files against the repository conventions defined in `docs/
 
 The audit is **static analysis only** — never execute tests or run shell commands beyond the scoped lint/typecheck/acceptance commands specified in the quality gate (step 9). Deep semantic checks (coverage, mutation, unit tests) are out of scope.
 
-To protect the main context during the **audit phase**, files are NEVER read by the main agent: after classification, audit work is dispatched to parallel `general` subagents that return only structured violation summaries. During the **fix phase**, the main agent may read and edit files directly only for mechanical categories touching at most 2 files (step 8, *Direct fix allowance*); all other fixes remain delegated to subagents. The main agent aggregates, reports, asks for approval, then applies fixes.
+To protect the main context during the **audit phase**, files are NEVER read in full by the main agent: after classification, audit work is dispatched to parallel `general` subagents that return only structured violation summaries. The only permitted exception is the narrow line-number spot-check described in section 5 step 4 (*Collect & retry*) — the main agent may read only the specific lines needed for that sample. During the **fix phase**, the main agent may read and edit files directly only for mechanical categories touching at most 2 files (step 8, *Direct fix allowance*); all other fixes remain delegated to subagents. The main agent aggregates, reports, asks for approval, then applies fixes.
 
 Report all violations once in-chat, then use the question tool to validate with the user which violations to fix. **Never modify any file before explicit user approval.**
 
@@ -34,7 +34,7 @@ Apply the rules **in order**, first match wins:
 | 1 | Suffix `.feature`                                                         | Feature         |
 | 2 | Suffix `.given-steps.ts` / `.when-steps.ts` / `.then-steps.ts`            | Step            |
 | 3 | Suffix `.steps.constants.ts`                                              | StepConstants   |
-| 4 | Suffix `.steps.helpers.ts`                                                | StepHelper      |
+| 4 | Suffix `.given-steps.helpers.ts` / `.when-steps.helpers.ts` / `.then-steps.helpers.ts` | StepHelper      |
 | 5 | Suffix `.datatables.schemas.ts`                                           | DataTableSchema |
 | 6 | Path contains `support/constants/` or `support/types/`                    | SupportRegistry |
 | 7 | Path contains `support/helpers/` (not step helpers)                       | SupportHelper   |
@@ -74,7 +74,6 @@ These recurring shapes are accepted codebase conventions. Auditors must not repo
 - **[FT2] Tags format** — All tags must be lowercase kebab-case (no uppercase characters). Tags begin with `@` and contain only letters, digits, hyphens.
 - **[FT3] Background usage** — `Background:` is permitted **only** when 3 or more `Scenario:` blocks within the same feature share the same Given/And steps at the start (see `docs/acceptance-testing.md` §5.4). Features with fewer than 3 scenarios must inline the setup steps in each scenario instead.
 - **[FT4] No But keyword** — Use `And` to continue the most recent block type, never `But`.
-- **[FT5] Scenario Outline usage** — `Scenario Outline:` + `Examples:` is permitted **only** in `*-accessibility.feature` files (to express the light/dark × desktop/mobile matrix per `docs/acceptance-testing.md` §5.6). Non-accessibility features must use separate `Scenario:` blocks.
 - **[FT6] Step ordering** — Scenario steps must follow `Given` → `And` → `When` → `And` → `Then` → `And` sequence. `Given` sets up preconditions. `When` performs the user action. `Then` asserts the post-condition. Two consecutive same-keyword steps on adjacent step lines (ignoring DataTable rows between them) is a violation — e.g., `Given ...` followed immediately by `Given ...`, `When ...` followed by `When ...`, or `Then ...` followed by `Then ...` — the second must use `And`. A `When` after a `Then` (or vice versa) is valid — only same-keyword on adjacent step lines is a violation.
 - **[FT7] Scenario assertion** — Each scenario must have at least one `Then` step (or an `And` after a `Then` that implies assertion).
 - **[FT8] Feature path** — Feature files must live under `tests/acceptance/features/<domain>/`. Sub-domain directories (`<action>/` such as `archive`, `creation`, `filter`, `modification`, `translation`) are permitted one level deep. Flags if path does not match these patterns.
@@ -94,18 +93,18 @@ These checks apply to actual step definition files (`*-steps.ts`), not to helper
 - **[ST7] No async noise** — When steps should not wrap a single sync action in `async`/`await`. Use `async function(...)` only when at least one `await` is needed.
 - **[ST8] File naming** — Step files must follow `<domain>.{given|when|then}-steps.ts` naming pattern (e.g. `question-theme.given-steps.ts`).
 - **[ST9] DataTable Zod validation** — Every step function that receives a `DataTable` parameter MUST call `validateDataTableAndGetFirstRow(dataTable, SCHEMA)` or `validateDataTableAndGetRows(dataTable, SCHEMA)` from `#acceptance/features/support/helpers/datatable.helpers.ts` before using the data. Flags any step that receives `dataTable: DataTable` (or `queryDataTable`, `errorDataTable`, etc.) without validating it through a Zod schema.
-- **[ST10] Step helper extraction** — If the same logic pattern appears in 3+ different step functions across the codebase (e.g. navigation to a page, table row click, toast assertion), it must be extracted to a dedicated step helper file under `step-definitions/<domain>/helpers/` named `<domain>.<step-type>-steps.helpers.ts`, **never shared across step types** (a `when-steps.helpers.ts` file is for `when` steps only; do not mix `given` helpers into it).
+- **[ST10] Step helper extraction** — If the same logic pattern appears in 3+ different step functions (e.g. navigation to a page, table row click, toast assertion), it must be extracted to a helper. Placement follows the `docs/acceptance-testing.md` §6.5 decision tree: repeated within the same domain and step type → `step-definitions/<domain>/helpers/<domain>.<step-type>-steps.helpers.ts`, **never shared across step types** (a `when-steps.helpers.ts` file is for `when` steps only); repeated across step types or domains → `support/helpers/<name>.helpers.ts`, never placed in a domain-specific helper directory.
 
 #### StepConstants checks (`*.steps.constants.ts`)
 
 - **[SC1] Constant naming** — Exported constants must use `UPPER_SNAKE_CASE`.
 - **[SC2] No step registration** — Constants files must NOT call `Given()`, `When()`, or `Then()` from `@cucumber/cucumber`.
 
-#### StepHelper checks (`*.steps.helpers.ts`)
+#### StepHelper checks (`*-steps.helpers.ts`)
 
 These checks apply to step helper files only.
 
-- **[SH1] No step registration** — Helper files (`*.steps.helpers.ts`) must NOT call `Given()`, `When()`, or `Then()` from `@cucumber/cucumber`.
+- **[SH1] No step registration** — Helper files (`*-steps.helpers.ts`) must NOT call `Given()`, `When()`, or `Then()` from `@cucumber/cucumber`.
 - **[SH2] Single step-type scope** — Each helper file targets ONE step type only: a `when-steps.helpers.ts` contains helpers for `When` steps; a `given-steps.helpers.ts` contains helpers for `Given` steps. Never mix helpers for different step types in the same file.
 - **[SH3] Pure functions preferred** — Helpers should be pure functions that accept Playwright types (`Page`, `Locator`) and return values. Avoid helpers that capture `this` or rely on closed-over world state.
 
@@ -122,9 +121,9 @@ These checks apply to step helper files only.
 
 ### 5. Dispatch audit subagents
 
-During the audit phase the main agent must NOT read acceptance test files itself. Instead:
+During the audit phase the main agent must NOT read acceptance test files in full — the only permitted reads are the narrow line-number spot-checks described in section 5 step 4 (*Collect & retry*). Instead:
 
-1. **Batch** — Group the classified files by type in batches of 4-8 files per group (single-file input → one group of one; smaller remainders are acceptable). **Exception for Step files**: when batching `*-steps.ts` files, include any co-located `*.steps.helpers.ts` and `*.steps.constants.ts` files from the same directory in the same batch. **Exception for ST10**: the [ST10] step helper extraction check requires cross-referencing ALL step files and ALL step helpers across the entire codebase. Dispatch a dedicated ST10-only batch containing every `*-steps.ts` and `*.steps.helpers.ts` file (all directories, all domains). This batch applies ONLY [ST10] — all other step checks are covered by the per-directory batches.
+1. **Batch** — Group the classified files by type in batches of 4-8 files per group (single-file input → one group of one; smaller remainders are acceptable). **Exception for Step files**: when batching `*-steps.ts` files, include any `*.steps.constants.ts` files from the same directory and every file from the domain's `helpers/` subdirectory in the same batch. **Exception for ST10**: the [ST10] step helper extraction check requires cross-referencing ALL step files and ALL step helpers across the entire codebase. Dispatch a dedicated ST10-only batch containing every `*-steps.ts` and `*-steps.helpers.ts` file (all directories, all domains). This batch applies ONLY [ST10] — all other step checks are covered by the per-directory batches.
 2. **Dispatch** — Launch one `general` subagent per group via the Task tool, in parallel waves of at most ~6 concurrent tasks. Mark each task as read-only research/audit work.
 3. **Prompt** — Use exactly this template per group, filling `<TYPE>`, listing the file paths:
 
@@ -173,7 +172,7 @@ During the audit phase the main agent must NOT read acceptance test files itself
    Files to audit — all Step and StepHelper files:
    - <path1>
    - <path2>
-   - ... (every *-steps.ts and *.steps.helpers.ts file in the codebase)
+   - ... (every *-steps.ts and *-steps.helpers.ts file in the codebase)
 
    Steps:
    1. Read `.opencode/commands/lint-acceptance-tests.md` section 4 IN FULL and apply ONLY
@@ -183,8 +182,9 @@ During the audit phase the main agent must NOT read acceptance test files itself
       codebase (not just within this batch). Patterns include: page navigation wrappers,
       table row interaction, toast assertion, modal open/close, form fill by field name, etc.
    4. For each repeated pattern, list the specific files and line numbers where it appears,
-      and recommend extraction to a dedicated helper file under
-      `step-definitions/<domain>/helpers/<domain>.<step-type>-steps.helpers.ts`.
+     and recommend extraction following the `docs/acceptance-testing.md` §6.5 decision tree:
+     repeated within the same domain and step type → `step-definitions/<domain>/helpers/<domain>.<step-type>-steps.helpers.ts`;
+     shared across step types or domains → `support/helpers/<name>.helpers.ts`.
 
    Return EXACTLY this structure, nothing else:
 
@@ -199,7 +199,7 @@ During the audit phase the main agent must NOT read acceptance test files itself
    Do NOT return markdown tables, summary blocks, or any prose before or after.
    ```
 
-4. **Collect & retry** — If an agent fails or returns truncated/malformed output, re-dispatch ONCE with HALF the files per batch (split into two tasks), preserving the original single-type grouping. If it still fails, mark its files ⚠️ `unaudited — manual review` in the report. **Hallucination guard**: before returning, the subagent MUST verify that every reported line number exists in the file (line number ≤ total lines in that file). If a line number exceeds the file length, remove that violation from the output — it is a hallucination. The main agent should also spot-check a sample of reported line numbers against file contents.
+4. **Collect & retry** — If an agent fails or returns truncated/malformed output, re-dispatch ONCE with HALF the files per batch (split into two tasks), preserving the original single-type grouping. If it still fails, mark its files ⚠️ `unaudited — manual review` in the report. **Hallucination guard**: before returning, the subagent MUST verify that every reported line number exists in the file (line number ≤ total lines in that file). If a line number exceeds the file length, remove that violation from the output — it is a hallucination. The main agent may (and should) spot-check a sample of reported line numbers by reading only those specific lines — this is the sole exception to the audit-phase no-read rule.
 
 ### 6. Report
 

@@ -2,7 +2,7 @@ import { When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-import { getVisibleDefaultModal } from "#acceptance/features/step-definitions/modal/helpers/modal.when-steps.helpers.ts";
+import { getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
 
 When(
   /^the user clicks on the close button in the modal header$/u,
