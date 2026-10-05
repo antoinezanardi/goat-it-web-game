@@ -87,7 +87,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@commitlint/config-conventional": "^21.2.3",
-    "@cucumber/cucumber": "^13.2.1",
+    "@cucumber/cucumber": "^13.3.0",
     "@eslint/config-inspector": "^3.5.0",
     "@faker-js/faker": "^10.6.0",
     "@goat-it/schemas": "^0.0.26-beta",
