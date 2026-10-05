@@ -14,7 +14,7 @@ function onClick(): void {
 
 <template>
   <UTooltip
-    :portal="false"
+    portal="main"
     :text="ariaLabel"
   >
     <UButton

@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
+import { createMainLandmark, removeMainLandmark } from "~~/tests/unit/utils/helpers/main-landmark.helpers";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { useQuestionCardHighlightMock } from "~~/tests/unit/setup/nuxt/composables/use-question-card-highlight.nuxt.unit-setup";
 
@@ -18,11 +19,13 @@ describe("GameQuestionCardAdultContentBadge Component", () => {
   }
 
   beforeEach(async() => {
+    createMainLandmark();
     wrapper = await mountBadge();
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    removeMainLandmark();
   });
 
   it("should render GameQuestionCardAdultContentBadge when mounted.", () => {

@@ -9,7 +9,7 @@ const { t } = useI18n();
 
 <template>
   <ul
-    class="min-w-52 p-2"
+    class="[--ui-primary:var(--ui-color-primary-300)] [--ui-warning:var(--ui-color-warning-300)] min-w-52 p-2"
     data-testid="theme-popover-content"
   >
     <li

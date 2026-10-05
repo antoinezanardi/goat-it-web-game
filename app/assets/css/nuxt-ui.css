@@ -13,8 +13,3 @@
   --ui-border-muted: var(--color-stroke-subtle);
   --ui-border-accented: var(--color-stroke-subtle);
 }
-
-.dark {
-  --ui-primary: var(--ui-color-primary-300);
-  --ui-warning: var(--ui-color-warning-300);
-}

@@ -26,7 +26,7 @@ defineExpose({
   <UPopover
     enable-touch
     mode="hover"
-    :portal="false"
+    portal="main"
   >
     <UBadge
       ref="badgeElementReference"
