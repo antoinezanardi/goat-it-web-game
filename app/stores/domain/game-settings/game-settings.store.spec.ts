@@ -25,7 +25,7 @@ describe("useGameSettingsStore", () => {
       useCookieMockState.cookieRef.value = createFakeGameSettings({ isAdultContentEnabled: true });
       const store = useGameSettingsStore();
 
-      expect(store.settings).toStrictEqual({ isAdultContentEnabled: true });
+      expect(store.settings).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: true }));
     });
   });
 
@@ -35,7 +35,7 @@ describe("useGameSettingsStore", () => {
       { value: false },
     ])("should set settings.isAdultContentEnabled to $value when called with $value.", ({ value }) => {
       const store = useGameSettingsStore();
-      store.settings = { isAdultContentEnabled: !value };
+      store.settings = createFakeGameSettings({ isAdultContentEnabled: !value });
 
       store.setAdultContentEnabled(value);
 
@@ -47,7 +47,26 @@ describe("useGameSettingsStore", () => {
 
       store.setAdultContentEnabled(true);
 
-      expect(useCookieMockState.cookieRef.value).toStrictEqual({ isAdultContentEnabled: true });
+      expect(useCookieMockState.cookieRef.value).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: true }));
+    });
+  });
+
+  describe("setCognitiveDifficulties", () => {
+    it("should set settings.cognitiveDifficulties to the given values when called.", () => {
+      const store = useGameSettingsStore();
+
+      store.setCognitiveDifficulties(["easy", "hard"]);
+
+      expect(store.settings.cognitiveDifficulties).toStrictEqual(["easy", "hard"]);
+    });
+
+    it("should write the whole settings object to the cookie when called.", () => {
+      const store = useGameSettingsStore();
+      store.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+
+      store.setCognitiveDifficulties(["medium"]);
+
+      expect(useCookieMockState.cookieRef.value).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["medium"] }));
     });
   });
 });

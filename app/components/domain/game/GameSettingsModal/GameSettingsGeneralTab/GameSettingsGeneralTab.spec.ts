@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import { GameSettingsGeneralTab } from "#components";
-import type { GameSettingsAdultContentSwitch, GameSettingsLocaleSelect } from "#components";
+import type { GameSettingsAdultContentSwitch, GameSettingsCognitiveDifficultiesFilter, GameSettingsLocaleSelect } from "#components";
 
 import type { GameSettingsGeneralTabProps } from "@/components/domain/game/GameSettingsModal/GameSettingsGeneralTab/game-settings-general-tab.types";
 
@@ -41,8 +41,12 @@ describe("GameSettingsGeneralTab Component", () => {
     expect(wrapper.findComponent<typeof GameSettingsAdultContentSwitch>({ name: "GameSettingsAdultContentSwitch" }).exists()).toBe(true);
   });
 
-  it("should render the separator component when mounted.", () => {
-    expect(wrapper.findAllComponents({ name: "USeparator" })).toHaveLength(1);
+  it("should render the separator components when mounted.", () => {
+    expect(wrapper.findAllComponents({ name: "USeparator" })).toHaveLength(2);
+  });
+
+  it("should render the cognitive difficulties filter component when mounted.", () => {
+    expect(wrapper.findComponent<typeof GameSettingsCognitiveDifficultiesFilter>({ name: "GameSettingsCognitiveDifficultiesFilter" }).exists()).toBe(true);
   });
 
   it("should pass isDisabled as true to GameSettingsLocaleSelect when isLocaleSelectDisabled is true.", async() => {

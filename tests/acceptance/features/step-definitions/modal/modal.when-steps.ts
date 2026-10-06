@@ -2,7 +2,7 @@ import { When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-import { getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
+import { clickModalFooterButton, getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
 
 When(
   /^the user clicks on the close button in the modal header$/u,
@@ -21,10 +21,7 @@ When(
   async function(this: GoatItWorld): Promise<void> {
     const dialog = await getVisibleDefaultModal(this.page);
 
-    const closeButton = dialog.getByTestId("default-modal-footer-close-button");
-
-    await expect(closeButton).toBeVisible();
-    await closeButton.click();
+    await clickModalFooterButton(dialog, "close");
   },
 );
 
@@ -42,9 +39,6 @@ When(
   async function(this: GoatItWorld): Promise<void> {
     const dialog = await getVisibleDefaultModal(this.page);
 
-    const primaryButton = dialog.getByTestId("default-modal-footer-primary-button");
-
-    await expect(primaryButton).toBeVisible();
-    await primaryButton.click();
+    await clickModalFooterButton(dialog, "primary");
   },
 );

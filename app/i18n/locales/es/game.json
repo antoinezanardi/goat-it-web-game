@@ -24,6 +24,22 @@
         "label": "Contenido para adultos",
         "descriptionDisabled": "Solo aparecerán preguntas aptas para todos los públicos.",
         "descriptionEnabled": "Pueden aparecer preguntas que aborden temas sensibles (guerras, violencia, sexo…)."
+      },
+      "filters": {
+        "searchPlaceholder": "Buscar opciones…",
+        "selectedCount": "{count} seleccionados",
+        "confirmRestoreTitle": "¿Restaurar todas las opciones?",
+        "confirmRestoreDescription": "Si deseleccionas la última opción, se restaurarán todas las opciones.",
+        "confirmRestoreAction": "Restaurar todo"
+      },
+      "cognitiveDifficulties": {
+        "label": "Dificultad cognitiva",
+        "allSelected": "Todas las dificultades",
+        "options": {
+          "easy": "Fácil",
+          "medium": "Media",
+          "hard": "Difícil"
+        }
       }
     },
     "interactiveTutorial": {

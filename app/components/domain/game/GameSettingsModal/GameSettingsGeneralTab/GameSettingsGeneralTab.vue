@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { GameSettingsAdultContentSwitch, GameSettingsLocaleSelect } from "#components";
+import { GameSettingsAdultContentSwitch, GameSettingsCognitiveDifficultiesFilter, GameSettingsLocaleSelect } from "#components";
 
 import type { GameSettingsGeneralTabProps } from "@/components/domain/game/GameSettingsModal/GameSettingsGeneralTab/game-settings-general-tab.types";
 
@@ -12,6 +12,10 @@ const props = defineProps<GameSettingsGeneralTabProps>();
     data-testid="game-settings-general-tab"
   >
     <GameSettingsLocaleSelect :is-disabled="props.isLocaleSelectDisabled"/>
+
+    <USeparator/>
+
+    <GameSettingsCognitiveDifficultiesFilter/>
 
     <USeparator/>
 

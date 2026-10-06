@@ -1,3 +1,4 @@
+import { QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 import { until } from "@vueuse/core";
 import { storeToRefs } from "pinia";
@@ -34,7 +35,15 @@ function useGame(): UseGame {
   const hasTriggeredPrefetch = ref<boolean>(false);
 
   function getGameSettingsFetchFilters(): GameSettingsFetchFilters {
-    return settingsStore.settings.isAdultContentEnabled ? {} : { isAdultContent: false };
+    const filters: GameSettingsFetchFilters = {};
+    if (!settingsStore.settings.isAdultContentEnabled) {
+      filters.isAdultContent = false;
+    }
+    const selectedCognitiveDifficulties = [...new Set(settingsStore.settings.cognitiveDifficulties)];
+    if (selectedCognitiveDifficulties.length < QUESTION_COGNITIVE_DIFFICULTIES.length) {
+      filters.cognitiveDifficulties = selectedCognitiveDifficulties;
+    }
+    return filters;
   }
 
   const appliedFetchFilters = ref<GameSettingsFetchFilters>(getGameSettingsFetchFilters());
