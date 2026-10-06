@@ -48,6 +48,30 @@ describe("useGameSettingsCookie", () => {
       expect(readGameSettingsCookie()).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: true }));
     });
 
+    it("should return the defaults when the cookie holds an empty cognitive difficulties array.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: true, cognitiveDifficulties: [] };
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+
+      expect(readGameSettingsCookie()).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: true }));
+    });
+
+    it("should normalize the cognitive difficulties to unique values in canonical order when the cookie holds duplicates.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: false, cognitiveDifficulties: ["hard", "hard", "easy"] };
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+
+      expect(readGameSettingsCookie()).toStrictEqual(createFakeGameSettings({
+        isAdultContentEnabled: false,
+        cognitiveDifficulties: ["easy", "hard"],
+      }));
+    });
+
+    it("should return the defaults when the cookie holds unknown cognitive difficulties.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: false, cognitiveDifficulties: ["unknown"] };
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+
+      expect(readGameSettingsCookie()).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: false }));
+    });
+
     it("should return the defaults when the cookie holds an empty object.", () => {
       useCookieMockState.cookieRef.value = {};
       const { readGameSettingsCookie } = useGameSettingsCookie();

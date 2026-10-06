@@ -8,7 +8,11 @@ import type { GameSettings } from "~/stores/domain/game-settings/game-settings.t
 
 const GAME_SETTINGS_SCHEMA = z.object({
   isAdultContentEnabled: z.boolean().catch(false),
-  cognitiveDifficulties: z.enum(QUESTION_COGNITIVE_DIFFICULTIES).array().catch([...QUESTION_COGNITIVE_DIFFICULTIES]),
+  cognitiveDifficulties: z.enum(QUESTION_COGNITIVE_DIFFICULTIES)
+    .array()
+    .transform(difficulties => QUESTION_COGNITIVE_DIFFICULTIES.filter(difficulty => difficulties.includes(difficulty)))
+    .refine(difficulties => difficulties.length > 0)
+    .catch([...QUESTION_COGNITIVE_DIFFICULTIES]),
 });
 
 const GAME_SETTINGS_DEFAULTS: GameSettings = {

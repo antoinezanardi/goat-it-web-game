@@ -29,9 +29,8 @@
         "searchPlaceholder": "Search options…",
         "selectedCount": "{count} selected",
         "confirmRestoreTitle": "Restore all options?",
-        "confirmRestoreDescription": "Clearing the last selected option would leave nothing selected. Confirming restores all options.",
-        "confirmRestoreAction": "Select all",
-        "keepSelectionAction": "Keep last selected"
+        "confirmRestoreDescription": "Deselecting the last option will restore all options.",
+        "confirmRestoreAction": "Restore all"
       },
       "cognitiveDifficulties": {
         "label": "Cognitive difficulty",

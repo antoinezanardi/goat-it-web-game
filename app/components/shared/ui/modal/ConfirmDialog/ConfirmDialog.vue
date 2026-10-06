@@ -55,6 +55,7 @@ function onPrimaryButtonClickFromFooter(): void {
         :close-button-label="closeButtonLabel"
         data-testid="confirm-dialog-footer"
         :disable-shortcuts="disableShortcuts"
+        :primary-button-icon="primaryButtonIcon"
         :primary-button-label="primaryButtonLabel"
         @close-modal="onCloseModalFromFooter"
         @primary-button-click="onPrimaryButtonClickFromFooter"

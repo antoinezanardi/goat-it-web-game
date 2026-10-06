@@ -107,6 +107,18 @@ describe("ConfirmDialog Component", () => {
       expect(footer.props("primaryButtonLabel")).toBe("Delete it");
     });
 
+    it("should pass the custom primary button icon to the footer primary button when primaryButtonIcon prop is provided.", async() => {
+      wrapper = await mountConfirmDialogComponent({
+        props: {
+          ...defaultConfirmDialogProps,
+          primaryButtonIcon: "i-lucide-list-restart",
+        },
+      });
+      const footer = wrapper.findComponent<typeof DefaultModalFooter>("[data-testid='confirm-dialog-footer']");
+
+      expect(footer.props("primaryButtonIcon")).toBe("i-lucide-list-restart");
+    });
+
     it("should pass the default cancel label to the footer close button when no closeButtonLabel prop is provided.", () => {
       const footer = wrapper.findComponent<typeof DefaultModalFooter>("[data-testid='confirm-dialog-footer']");
 

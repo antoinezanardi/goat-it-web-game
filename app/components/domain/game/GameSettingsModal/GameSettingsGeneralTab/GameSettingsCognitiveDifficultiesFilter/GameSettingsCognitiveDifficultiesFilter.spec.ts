@@ -43,6 +43,12 @@ describe("GameSettingsCognitiveDifficultiesFilter Component", () => {
     expect(filter.props("label")).toBe("game.settings.cognitiveDifficulties.label");
   });
 
+  it("should pass the cognitive difficulty label icon to the generic filter when mounted.", () => {
+    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
+
+    expect(filter.props("labelIcon")).toBe("i-lucide-gauge");
+  });
+
   it("should pass the all selected translation key to the generic filter when mounted.", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
@@ -55,13 +61,13 @@ describe("GameSettingsCognitiveDifficultiesFilter Component", () => {
     expect(filter.props("summaryMode")).toBe("labels");
   });
 
-  it("should pass the localized cognitive difficulty options with their icons to the generic filter when mounted.", () => {
+  it("should pass the localized cognitive difficulty options with their icons and colors to the generic filter when mounted.", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
     expect(filter.props("options")).toStrictEqual([
-      { icon: "i-lucide-brain", label: "game.settings.cognitiveDifficulties.options.easy", value: "easy" },
-      { icon: "i-lucide-brain-cog", label: "game.settings.cognitiveDifficulties.options.medium", value: "medium" },
-      { icon: "i-lucide-brain-circuit", label: "game.settings.cognitiveDifficulties.options.hard", value: "hard" },
+      { color: "success", icon: "i-lucide-brain", label: "game.settings.cognitiveDifficulties.options.easy", value: "easy" },
+      { color: "warning", icon: "i-lucide-brain-cog", label: "game.settings.cognitiveDifficulties.options.medium", value: "medium" },
+      { color: "error", icon: "i-lucide-brain-circuit", label: "game.settings.cognitiveDifficulties.options.hard", value: "hard" },
     ]);
   });
 

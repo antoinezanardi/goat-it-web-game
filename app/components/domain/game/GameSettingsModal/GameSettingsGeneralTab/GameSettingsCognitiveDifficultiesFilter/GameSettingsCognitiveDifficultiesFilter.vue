@@ -3,19 +3,15 @@ import type { QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 import { QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 
 import type { GameSettingsFilterOption } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.types";
-import {
-  GAME_SETTINGS_COGNITIVE_DIFFICULTIES_ALL_SELECTED_KEY,
-  GAME_SETTINGS_COGNITIVE_DIFFICULTIES_LABEL_KEY,
-  GAME_SETTINGS_COGNITIVE_DIFFICULTIES_OPTIONS_KEY_PREFIX,
-} from "@/components/domain/game/GameSettingsModal/GameSettingsGeneralTab/GameSettingsCognitiveDifficultiesFilter/game-settings-cognitive-difficulties-filter.constants";
-import { getDifficultyIcon } from "~/composables/domain/question/helpers/question.helpers";
+import { getDifficultyColor, getDifficultyIcon } from "~/composables/domain/question/helpers/question.helpers";
 
 const store = useGameSettingsStore();
 const { t } = useI18n();
 
 const options = computed<GameSettingsFilterOption[]>(() => QUESTION_COGNITIVE_DIFFICULTIES.map(difficulty => ({
+  color: getDifficultyColor(difficulty),
   icon: getDifficultyIcon(difficulty),
-  label: t(`${GAME_SETTINGS_COGNITIVE_DIFFICULTIES_OPTIONS_KEY_PREFIX}.${difficulty}`),
+  label: t(`game.settings.cognitiveDifficulties.options.${difficulty}`),
   value: difficulty,
 })));
 
@@ -32,9 +28,10 @@ const selectedDifficulties = computed<string[]>({
 <template>
   <GameSettingsFilterMultiSelect
     v-model="selectedDifficulties"
-    :all-selected-label="t(GAME_SETTINGS_COGNITIVE_DIFFICULTIES_ALL_SELECTED_KEY)"
+    :all-selected-label="t('game.settings.cognitiveDifficulties.allSelected')"
     data-testid="game-settings-cognitive-difficulties-filter"
-    :label="t(GAME_SETTINGS_COGNITIVE_DIFFICULTIES_LABEL_KEY)"
+    :label="t('game.settings.cognitiveDifficulties.label')"
+    label-icon="i-lucide-gauge"
     :options="options"
     summary-mode="labels"
   />

@@ -29,9 +29,8 @@
         "searchPlaceholder": "Buscar opciones…",
         "selectedCount": "{count} seleccionados",
         "confirmRestoreTitle": "¿Restaurar todas las opciones?",
-        "confirmRestoreDescription": "Borrar la última opción seleccionada no dejaría ninguna opción. Confirmar restaura todas las opciones.",
-        "confirmRestoreAction": "Seleccionar todo",
-        "keepSelectionAction": "Mantener la última selección"
+        "confirmRestoreDescription": "Si deseleccionas la última opción, se restaurarán todas las opciones.",
+        "confirmRestoreAction": "Restaurar todo"
       },
       "cognitiveDifficulties": {
         "label": "Dificultad cognitiva",

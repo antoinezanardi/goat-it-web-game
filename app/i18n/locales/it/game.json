@@ -29,9 +29,8 @@
         "searchPlaceholder": "Cerca opzioni…",
         "selectedCount": "{count} selezionati",
         "confirmRestoreTitle": "Ripristinare tutte le opzioni?",
-        "confirmRestoreDescription": "Deselezionare l'ultima opzione selezionata non lascerebbe alcuna opzione. Confermando si ripristinano tutte le opzioni.",
-        "confirmRestoreAction": "Seleziona tutto",
-        "keepSelectionAction": "Mantieni l'ultima selezione"
+        "confirmRestoreDescription": "Se deselezioni l'ultima opzione, tutte le opzioni verranno ripristinate.",
+        "confirmRestoreAction": "Ripristina tutto"
       },
       "cognitiveDifficulties": {
         "label": "Difficoltà cognitiva",

@@ -12,15 +12,6 @@ import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/comp
 import { GameSettingsFilterMultiSelect } from "#components";
 import type { USelectMenu } from "#components";
 
-import {
-  GAME_SETTINGS_FILTER_MULTI_SELECT_CONFIRM_ACTION_KEY,
-  GAME_SETTINGS_FILTER_MULTI_SELECT_CONFIRM_DESCRIPTION_KEY,
-  GAME_SETTINGS_FILTER_MULTI_SELECT_CONFIRM_ICON,
-  GAME_SETTINGS_FILTER_MULTI_SELECT_CONFIRM_TITLE_KEY,
-  GAME_SETTINGS_FILTER_MULTI_SELECT_KEEP_ACTION_KEY,
-  GAME_SETTINGS_FILTER_MULTI_SELECT_SEARCH_PLACEHOLDER_KEY,
-  GAME_SETTINGS_FILTER_MULTI_SELECT_SELECTED_COUNT_KEY,
-} from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.constants";
 import type { GameSettingsFilterMultiSelectProps } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.types";
 
 function getCreatedModalInstance(): UseOverlayCreateReturnValue {
@@ -40,9 +31,9 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     label: "Cognitive difficulty",
     modelValue: ["easy", "medium", "hard"],
     options: [
-      { icon: "i-lucide-brain", label: "Easy", value: "easy" },
-      { icon: "i-lucide-brain-cog", label: "Medium", value: "medium" },
-      { icon: "i-lucide-brain-circuit", label: "Hard", value: "hard" },
+      { color: "success", icon: "i-lucide-brain", label: "Easy", value: "easy" },
+      { color: "warning", icon: "i-lucide-brain-cog", label: "Medium", value: "medium" },
+      { color: "error", icon: "i-lucide-brain-circuit", label: "Hard", value: "hard" },
     ],
     summaryMode: "labels",
   };
@@ -67,6 +58,16 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     expect(wrapper.get("[data-testid='game-settings-filter-multi-select-label']").text()).toBe("Cognitive difficulty");
   });
 
+  it("should not render the label icon when no label icon is provided.", () => {
+    expect(wrapper.find("[data-testid='game-settings-filter-multi-select-label-icon']").exists()).toBe(false);
+  });
+
+  it("should render the label icon when a label icon is provided.", async() => {
+    await wrapper.setProps({ labelIcon: "i-lucide-gauge" });
+
+    expect(wrapper.find("[data-testid='game-settings-filter-multi-select-label-icon']").exists()).toBe(true);
+  });
+
   it("should render the multi select input with the correct data-testid when mounted.", () => {
     expect(wrapper.find("[data-testid='game-settings-filter-multi-select-input']").exists()).toBe(true);
   });
@@ -79,14 +80,24 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     expect(wrapper.findComponent({ name: "USelectMenu" }).exists()).toBe(true);
   });
 
-  it("should pass the options as select menu items with their icons when mounted.", () => {
+  it("should pass the options as select menu items with their icons and colors when mounted.", () => {
     const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
 
     expect(selectMenu.props("items")).toStrictEqual([
-      { icon: "i-lucide-brain", label: "Easy", value: "easy" },
-      { icon: "i-lucide-brain-cog", label: "Medium", value: "medium" },
-      { icon: "i-lucide-brain-circuit", label: "Hard", value: "hard" },
+      { icon: "i-lucide-brain", label: "Easy", ui: { itemLeadingIcon: "text-success!" }, value: "easy" },
+      { icon: "i-lucide-brain-cog", label: "Medium", ui: { itemLeadingIcon: "text-warning!" }, value: "medium" },
+      { icon: "i-lucide-brain-circuit", label: "Hard", ui: { itemLeadingIcon: "text-error!" }, value: "hard" },
     ]);
+  });
+
+  it("should pass the options without icon styling when they have no color.", async() => {
+    await wrapper.setProps({
+      modelValue: ["easy"],
+      options: [{ icon: "i-lucide-brain", label: "Easy", value: "easy" }],
+    });
+    const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
+
+    expect(selectMenu.props("items")).toStrictEqual([{ icon: "i-lucide-brain", label: "Easy", value: "easy" }]);
   });
 
   it("should enable multiple selection on the select menu when mounted.", () => {
@@ -104,23 +115,44 @@ describe("GameSettingsFilterMultiSelect Component", () => {
   it("should pass the search placeholder translation key to the select menu when mounted.", () => {
     const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
 
-    expect(selectMenu.props("searchInput")).toStrictEqual({ placeholder: GAME_SETTINGS_FILTER_MULTI_SELECT_SEARCH_PLACEHOLDER_KEY });
+    expect(selectMenu.props("searchInput")).toStrictEqual({ placeholder: "game.settings.filters.searchPlaceholder" });
   });
 
   it("should render the all selected label when every option is selected.", () => {
     expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe("All difficulties");
   });
 
-  it("should render the selected labels joined when a subset of options is selected.", async() => {
+  it("should render the selected labels joined with the list conjunction when a subset of options is selected.", async() => {
     await wrapper.setProps({ modelValue: ["easy", "hard"] });
 
-    expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe("Easy, Hard");
+    expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe("Easy common.listConjunction Hard");
+  });
+
+  it("should separate the selected labels with commas and use the list conjunction only before the last one when several options are selected.", async() => {
+    await wrapper.setProps({
+      modelValue: ["dog", "cat", "cow", "sheep"],
+      options: [
+        { label: "Dog", value: "dog" },
+        { label: "Cat", value: "cat" },
+        { label: "Cow", value: "cow" },
+        { label: "Sheep", value: "sheep" },
+        { label: "Goat", value: "goat" },
+      ],
+    });
+
+    expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe("Dog, Cat, Cow common.listConjunction Sheep");
+  });
+
+  it("should render the single selected label without conjunction when one option is selected.", async() => {
+    await wrapper.setProps({ modelValue: ["easy"] });
+
+    expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe("Easy");
   });
 
   it("should render the selected count translation key when the summary mode is count.", async() => {
     await wrapper.setProps({ modelValue: ["easy"], summaryMode: "count" });
 
-    expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe(GAME_SETTINGS_FILTER_MULTI_SELECT_SELECTED_COUNT_KEY);
+    expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe("game.settings.filters.selectedCount");
   });
 
   it("should emit the selected values when the select menu emits a non-empty selection.", async() => {
@@ -140,14 +172,14 @@ describe("GameSettingsFilterMultiSelect Component", () => {
       expect.any(Object),
       expect.objectContaining({
         props: {
-          closeButtonLabel: GAME_SETTINGS_FILTER_MULTI_SELECT_KEEP_ACTION_KEY,
-          description: GAME_SETTINGS_FILTER_MULTI_SELECT_CONFIRM_DESCRIPTION_KEY,
+          description: "game.settings.filters.confirmRestoreDescription",
           disableShortcuts: true,
           dismissible: false,
-          icon: GAME_SETTINGS_FILTER_MULTI_SELECT_CONFIRM_ICON,
+          icon: "i-lucide-list-checks",
           iconClass: "text-warning",
-          primaryButtonLabel: GAME_SETTINGS_FILTER_MULTI_SELECT_CONFIRM_ACTION_KEY,
-          title: GAME_SETTINGS_FILTER_MULTI_SELECT_CONFIRM_TITLE_KEY,
+          primaryButtonIcon: "i-lucide-list-restart",
+          primaryButtonLabel: "game.settings.filters.confirmRestoreAction",
+          title: "game.settings.filters.confirmRestoreTitle",
         },
       }),
     );

@@ -29,9 +29,8 @@
         "searchPlaceholder": "Optionen suchen…",
         "selectedCount": "{count} ausgewählt",
         "confirmRestoreTitle": "Alle Optionen wiederherstellen?",
-        "confirmRestoreDescription": "Das Löschen der letzten ausgewählten Option würde keine Option übrig lassen. Bestätigen stellt alle Optionen wieder her.",
-        "confirmRestoreAction": "Alle auswählen",
-        "keepSelectionAction": "Letzte Auswahl behalten"
+        "confirmRestoreDescription": "Wenn Sie die letzte Option abwählen, werden alle Optionen wiederhergestellt.",
+        "confirmRestoreAction": "Alle wiederherstellen"
       },
       "cognitiveDifficulties": {
         "label": "Kognitive Schwierigkeit",
