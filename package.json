@@ -118,7 +118,7 @@
     "commitlint": "^21.2.3",
     "cross-env": "^10.1.0",
     "eslint": "^10.12.0",
-    "eslint-plugin-oxlint": "^1.86.0",
+    "eslint-plugin-oxlint": "^1.87.0",
     "eslint-plugin-unicorn": "^77.0.0",
     "fuse.js": "^7.5.0",
     "happy-dom": "^20.14.5",
