@@ -59,6 +59,7 @@ type FixtureRegistry = {
   };
   "question": {
     "single-question": FixtureDefinition<QuestionFixtureDocument>;
+    "cognitive-difficulty-questions": FixtureDefinition<QuestionFixtureDocument>;
     "single-translatable-question": FixtureDefinition<QuestionFixtureDocument>;
     "single-no-context-question": FixtureDefinition<QuestionFixtureDocument>;
     "two-english-only-questions": FixtureDefinition<QuestionFixtureDocument>;

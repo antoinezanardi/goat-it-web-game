@@ -24,6 +24,23 @@
         "label": "Adult content",
         "descriptionDisabled": "Only questions suitable for all audiences will appear.",
         "descriptionEnabled": "Questions involving sensitive topics (wars, violence, sex…) may appear."
+      },
+      "filters": {
+        "searchPlaceholder": "Search options…",
+        "selectedCount": "{count} selected",
+        "confirmRestoreTitle": "Restore all options?",
+        "confirmRestoreDescription": "Clearing the last selected option would leave nothing selected. Confirming restores all options.",
+        "confirmRestoreAction": "Select all",
+        "keepSelectionAction": "Keep last selected"
+      },
+      "cognitiveDifficulties": {
+        "label": "Cognitive difficulty",
+        "allSelected": "All difficulties",
+        "options": {
+          "easy": "Easy",
+          "medium": "Medium",
+          "hard": "Hard"
+        }
       }
     },
     "interactiveTutorial": {

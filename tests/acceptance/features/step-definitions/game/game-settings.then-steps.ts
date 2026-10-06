@@ -47,3 +47,12 @@ Then(
     await expect(modal.getByTestId("game-settings-adult-content-icon")).toHaveClass(/text-primary/u);
   },
 );
+
+Then(
+  /^the cognitive difficulty filter summary should be "(?<summary>[^"]*)"$/u,
+  async function(this: GoatItWorld, summary: string): Promise<void> {
+    const modal = this.page.getByTestId("game-settings-modal");
+
+    await expect(modal.getByTestId("game-settings-filter-multi-select-summary")).toHaveText(summary);
+  },
+);

@@ -214,6 +214,45 @@ describe("useGame", () => {
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
     });
 
+    it("should include only the selected cognitive difficulties in the initial fetch body when a partial selection is set.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "hard"] });
+
+      await game.initialize();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        cognitiveDifficulties: ["easy", "hard"],
+      });
+    });
+
+    it("should include the deduplicated cognitive difficulties in the initial fetch body when the selection holds duplicates.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "easy", "medium"] });
+
+      await game.initialize();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        cognitiveDifficulties: ["easy", "medium"],
+      });
+    });
+
+    it("should omit the cognitive difficulties from the initial fetch body when every difficulty is selected.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+
+      await game.initialize();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
+    });
+
     it("should trigger the initial fetch when mounted.", async() => {
       const wrapper = mount(defineComponent({
         setup(): () => null {
@@ -394,6 +433,28 @@ describe("useGame", () => {
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
         excludedIds: fakeQuestions.map(question => question.id),
+      });
+    });
+
+    it("should include only the selected cognitive difficulties in the prefetch body when a partial selection is set.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
+      store.questions = fakeQuestions;
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["hard"] });
+      await nextTick();
+      store.fetchAndAppendRandomQuestions.mockClear();
+      for (let index = 0; index < 20; index++) {
+        game.advanceToNextQuestion();
+      }
+      await nextTick();
+      await flushPromises();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        excludedIds: fakeQuestions.map(question => question.id),
+        cognitiveDifficulties: ["hard"],
       });
     });
 
@@ -637,6 +698,48 @@ describe("useGame", () => {
       await game.syncQuestionsWithGameSettings();
       settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false });
       settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      store.fetchAndAppendRandomQuestions.mockClear();
+
+      await game.syncQuestionsWithGameSettings();
+
+      expect(store.fetchAndAppendRandomQuestions).not.toHaveBeenCalled();
+    });
+
+    it("should refetch with the selected cognitive difficulties when they change.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      const fakeQuestions = Array.from({ length: 10 }, () => createFakeQuestion());
+      store.questions = fakeQuestions;
+      await nextTick();
+      for (let index = 0; index < 4; index++) {
+        game.advanceToNextQuestion();
+      }
+      await nextTick();
+      store.truncateQuestions.mockImplementation((length: number) => {
+        store.questions = store.questions.slice(0, length);
+      });
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+      store.fetchAndAppendRandomQuestions.mockClear();
+
+      await game.syncQuestionsWithGameSettings();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        excludedIds: fakeQuestions.slice(0, 5).map(question => question.id),
+        isAdultContent: false,
+        cognitiveDifficulties: ["easy"],
+      });
+    });
+
+    it("should not refetch when the cognitive difficulties are toggled away and back to the applied filters.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+      await game.syncQuestionsWithGameSettings();
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["hard"] });
+      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
       store.fetchAndAppendRandomQuestions.mockClear();
 
       await game.syncQuestionsWithGameSettings();

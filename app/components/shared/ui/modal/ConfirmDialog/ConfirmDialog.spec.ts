@@ -42,9 +42,7 @@ describe("ConfirmDialog Component", () => {
     });
 
     it("should render the modal with the correct data-testid when mounted.", () => {
-      const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
-
-      expect(getWrapperVm(modal).$attrs["data-testid"]).toBe("confirm-dialog-modal");
+      expect(document.body.querySelector("[data-testid='confirm-dialog-modal']")).not.toBeNull();
     });
 
     it("should close the modal when the modal emits update:open with false.", async() => {

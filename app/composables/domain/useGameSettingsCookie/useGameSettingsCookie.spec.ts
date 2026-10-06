@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
+import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 
 import { GAME_SETTINGS_COOKIE_OPTIONS } from "~/composables/domain/useGameSettingsCookie/use-game-settings-cookie.constants";
 import type { useGameSettingsCookie as UseGameSettingsCookieType } from "~/composables/domain/useGameSettingsCookie/useGameSettingsCookie";
@@ -33,18 +34,18 @@ describe("useGameSettingsCookie", () => {
   });
 
   describe("readGameSettingsCookie", () => {
-    it("should return the parsed settings when the cookie holds a valid object.", () => {
+    it("should return the parsed settings and default the cognitive difficulties when the cookie holds a legacy object.", () => {
       useCookieMockState.cookieRef.value = { isAdultContentEnabled: true };
       const { readGameSettingsCookie } = useGameSettingsCookie();
 
-      expect(readGameSettingsCookie()).toStrictEqual({ isAdultContentEnabled: true });
+      expect(readGameSettingsCookie()).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: true }));
     });
 
     it("should strip unknown keys when the cookie holds extra properties.", () => {
       useCookieMockState.cookieRef.value = { isAdultContentEnabled: true, extra: "value" };
       const { readGameSettingsCookie } = useGameSettingsCookie();
 
-      expect(readGameSettingsCookie()).toStrictEqual({ isAdultContentEnabled: true });
+      expect(readGameSettingsCookie()).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: true }));
     });
 
     it("should return the defaults when the cookie holds an empty object.", () => {
@@ -82,7 +83,7 @@ describe("useGameSettingsCookie", () => {
 
   describe("writeGameSettingsCookie", () => {
     it("should assign the settings to the cookie when called.", () => {
-      const settings: GameSettings = { isAdultContentEnabled: true };
+      const settings: GameSettings = createFakeGameSettings({ isAdultContentEnabled: true });
       const { writeGameSettingsCookie } = useGameSettingsCookie();
 
       writeGameSettingsCookie(settings);

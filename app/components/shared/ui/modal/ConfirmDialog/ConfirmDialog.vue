@@ -31,7 +31,6 @@ function onPrimaryButtonClickFromFooter(): void {
   <UModal
     v-model:open="isOpen"
     :close="close"
-    data-testid="confirm-dialog-modal"
     :dismissible="dismissible"
   >
     <template #title>
@@ -44,9 +43,11 @@ function onPrimaryButtonClickFromFooter(): void {
     </template>
 
     <template #body>
-      <p data-testid="confirm-dialog-description">
-        {{ description }}
-      </p>
+      <div data-testid="confirm-dialog-modal">
+        <p data-testid="confirm-dialog-description">
+          {{ description }}
+        </p>
+      </div>
     </template>
 
     <template #footer>

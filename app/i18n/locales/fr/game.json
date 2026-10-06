@@ -24,6 +24,23 @@
         "label": "Contenu adulte",
         "descriptionDisabled": "Seules les questions adaptées à tous les publics apparaîtront.",
         "descriptionEnabled": "Des questions comportant des sujets sensibles (guerres, violences, sexe…) peuvent apparaître."
+      },
+      "filters": {
+        "searchPlaceholder": "Rechercher des options…",
+        "selectedCount": "{count} sélectionnés",
+        "confirmRestoreTitle": "Restaurer toutes les options ?",
+        "confirmRestoreDescription": "Effacer la dernière option sélectionnée ne laisserait aucune option. Confirmer restaure toutes les options.",
+        "confirmRestoreAction": "Tout sélectionner",
+        "keepSelectionAction": "Garder la dernière sélection"
+      },
+      "cognitiveDifficulties": {
+        "label": "Difficulté cognitive",
+        "allSelected": "Toutes les difficultés",
+        "options": {
+          "easy": "Facile",
+          "medium": "Moyenne",
+          "hard": "Difficile"
+        }
       }
     },
     "interactiveTutorial": {
