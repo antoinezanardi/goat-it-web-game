@@ -126,7 +126,7 @@
     "is-ci": "^4.1.0",
     "lint-staged": "^17.6.0",
     "mongodb": "^7.7.0",
-    "nuxt": "^4.5.2",
+    "nuxt": "^4.6.0",
     "nuxt-og-image": "^6.10.3",
     "nuxt-schema-org": "^6.4.3",
     "nuxt-seo-utils": "^8.6.1",
