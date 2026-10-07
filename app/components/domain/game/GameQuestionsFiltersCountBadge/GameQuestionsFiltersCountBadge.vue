@@ -16,6 +16,7 @@ const accessibleLabel = computed<string>(() => t("game.questionsFilters.appliedC
   <UBadge
     v-bind="$attrs"
     :aria-label="accessibleLabel"
+    class="h-5 justify-center min-w-5 rounded-full"
     color="primary"
     size="sm"
     variant="solid"

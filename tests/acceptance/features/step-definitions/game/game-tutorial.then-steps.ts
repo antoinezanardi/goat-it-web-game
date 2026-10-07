@@ -1,8 +1,8 @@
 import { Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
+import { expectTutorialSpotlightCovers } from "#acceptance/features/step-definitions/game/helpers/game-tutorial.then-steps.helpers.ts";
 import {
-  expectTutorialSpotlightCovers,
   getGameTourBackdrop,
   getGameTourButton,
   getGameTourTitle,

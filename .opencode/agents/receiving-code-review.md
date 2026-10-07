@@ -45,6 +45,7 @@ permission:
     "xargs *": "allow"
     "mkdir *": "allow"
     "xxd *": "allow"
+    "docker ps *": "allow"
   task:
     "*": "deny"
     "gatekeeper": "allow"

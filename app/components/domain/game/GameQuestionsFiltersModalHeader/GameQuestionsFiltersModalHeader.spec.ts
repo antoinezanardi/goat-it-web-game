@@ -51,11 +51,13 @@ describe("GameQuestionsFiltersModalHeader Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).props("count")).toBe(2);
   });
 
-  it("should render the applied count badge even when the applied count is zero.", () => {
-    expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).exists()).toBe(true);
+  it("should not render the applied count badge when the applied count is zero.", () => {
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).exists()).toBe(false);
   });
 
-  it("should render the applied count badge with the modal count badge testid when mounted.", () => {
+  it("should render the applied count badge with the modal count badge testid when the applied count is not zero.", async() => {
+    await wrapper.setProps({ appliedCount: 1 });
+
     expect(wrapper.find("[data-testid='game-questions-filters-modal-count-badge']").exists()).toBe(true);
   });
 

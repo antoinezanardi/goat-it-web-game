@@ -24,19 +24,20 @@ function onReset(): void {
     />
 
     <GameQuestionsFiltersCountBadge
+      v-if="props.appliedCount > 0"
       :count="props.appliedCount"
       data-testid="game-questions-filters-modal-count-badge"
     />
 
     <UButton
       v-if="props.isResetVisible"
-      class="ml-auto"
+      class="me-10 ml-auto"
       color="neutral"
       data-testid="game-questions-filters-modal-reset-button"
       icon="i-lucide-rotate-ccw"
       :label="t('game.questionsFilters.reset')"
       size="sm"
-      variant="ghost"
+      variant="outline"
       @click="onReset"
     />
   </div>

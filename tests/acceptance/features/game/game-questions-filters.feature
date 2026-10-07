@@ -166,17 +166,20 @@ Feature: 🎛️ Game Questions Filters
     And the user opens the question filters from the game sidebar
     Then the element with testid "game-questions-filters-modal" should be visible
 
-  Scenario: 🎛️ Applied count is hidden on the trigger and shown as zero in the modal header
+  Scenario: 🎛️ Applied count is hidden on the trigger and in the modal header
     Given the user is on game page
     When the user opens the question filters
     Then the question filters trigger count badge should be hidden
-    And the question filters applied count in the modal header should be 0
+    And the element with testid "game-questions-filters-modal-count-badge" should be hidden
 
   Scenario: 🎛️ Editing the draft does not change the applied count
     Given the user is on game page
     When the user opens the question filters
     And the user turns on the questions filters adult content switch
-    Then the question filters applied count in the modal header should be 0
+    And the user clicks on the primary button in the modal
+    And the user opens the question filters
+    And the user turns off the questions filters adult content switch
+    Then the question filters applied count in the modal header should be 1
 
   Scenario: 🎛️ Applying a filter updates the applied count on the trigger and in the modal header
     Given the user is on game page
@@ -232,12 +235,13 @@ Feature: 🎛️ Game Questions Filters
     Given the user is on game page
     When the user opens the question filters
     And the user turns on the questions filters adult content switch
-    Then the element with testid "game-questions-filters-modal-count-badge" should have the accessible name "0 active filters"
+    Then the element with testid "game-questions-filters-modal-count-badge" should be hidden
     And the element with testid "game-questions-filters-modal-reset-button" should have the accessible name "Reset"
     When the user clicks on the primary button in the modal
     Then the element with testid "game-questions-filters-button-badge" should have the accessible name "1 active filter"
     When the user opens the question filters
-    And the user opens the questions filters difficulty filter
+    Then the element with testid "game-questions-filters-modal-count-badge" should have the accessible name "1 active filter"
+    When the user opens the questions filters difficulty filter
     And the user toggles the "Easy" cognitive difficulty option
     And the user closes the cognitive difficulty filter
     And the user clicks on the primary button in the modal

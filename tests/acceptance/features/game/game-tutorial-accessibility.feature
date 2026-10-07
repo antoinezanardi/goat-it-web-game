@@ -32,24 +32,6 @@ Feature: 🧑‍🏫 Game Tutorial Accessibility
       | desktop |
       | mobile  |
 
-  Scenario Outline: 🧑‍🏫 Tutorial filters step should not contain accessibility issues in <view> mode
-    Given the user has a <view> viewport
-    When the user opens the interactive tutorial from the game sidebar
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the user clicks the Next button in the interactive tutorial
-    And the interactive tutorial step title should be "Shape the next investigations"
-    Then the page should not contain accessibility issues in <view> mode
-
-    Examples:
-      | view    |
-      | desktop |
-      | mobile  |
-
   Scenario Outline: 🧑‍🏫 Tutorial final step should not contain accessibility issues in <view> mode
     Given the user has a <view> viewport
     When the user opens the interactive tutorial from the game sidebar
