@@ -26,7 +26,7 @@ describe("GameSettingsModal Component", () => {
   } as const;
 
   async function mountGameSettingsModal(options: MountSuspendedOptions<typeof GameSettingsModal> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameSettingsModal, { props: defaultGameSettingsModalProps, plugins: [createTestingPinia()], ...options });
+    return mountSuspended(GameSettingsModal, { props: defaultGameSettingsModalProps, global: { plugins: [createTestingPinia()] }, ...options });
   }
 
   beforeEach(async() => {

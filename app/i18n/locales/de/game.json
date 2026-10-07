@@ -42,6 +42,13 @@
         }
       }
     },
+    "questionsFilters": {
+      "triggerLabel": "Fragefilter öffnen",
+      "triggerTooltip": "Fragefilter",
+      "title": "Fragefilter",
+      "apply": "Filter anwenden",
+      "successToast": "Filter angewendet. Deine nächsten Fragen verwenden die aktualisierten Filter."
+    },
     "interactiveTutorial": {
       "label": "Interaktives Tutorial",
       "invitation": {

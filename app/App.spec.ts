@@ -18,7 +18,7 @@ describe("App Component", () => {
   }
 
   beforeEach(async() => {
-    wrapper = await mountAppComponent({ plugins: [createTestingPinia()] });
+    wrapper = await mountAppComponent({ global: { plugins: [createTestingPinia()] } });
     mockStore(useQuestionThemesStore);
   });
 

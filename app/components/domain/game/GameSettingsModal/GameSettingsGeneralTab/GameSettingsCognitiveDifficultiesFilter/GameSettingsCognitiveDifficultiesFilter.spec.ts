@@ -1,28 +1,28 @@
-import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
-import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
-import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 
 import { GameSettingsCognitiveDifficultiesFilter } from "#components";
 import type { GameSettingsFilterMultiSelect } from "#components";
 
-import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
+import type { GameSettingsCognitiveDifficultiesFilterProps } from "@/components/domain/game/GameSettingsModal/GameSettingsGeneralTab/GameSettingsCognitiveDifficultiesFilter/game-settings-cognitive-difficulties-filter.types";
 
 describe("GameSettingsCognitiveDifficultiesFilter Component", () => {
   let wrapper: VueWrapper;
 
+  const defaultGameSettingsCognitiveDifficultiesFilterProps: GameSettingsCognitiveDifficultiesFilterProps = {
+    modelValue: ["easy", "medium", "hard"],
+  };
+
   async function mountGameSettingsCognitiveDifficultiesFilter(options: MountSuspendedOptions<typeof GameSettingsCognitiveDifficultiesFilter> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameSettingsCognitiveDifficultiesFilter, { plugins: [createTestingPinia()], ...options });
+    return mountSuspended(GameSettingsCognitiveDifficultiesFilter, { props: defaultGameSettingsCognitiveDifficultiesFilterProps, ...options });
   }
 
   beforeEach(async() => {
     wrapper = await mountGameSettingsCognitiveDifficultiesFilter();
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings();
   });
 
   it("should render GameSettingsCognitiveDifficultiesFilter when mounted.", () => {
@@ -71,27 +71,23 @@ describe("GameSettingsCognitiveDifficultiesFilter Component", () => {
     ]);
   });
 
-  it("should bind the persisted cognitive difficulties to the generic filter when mounted.", () => {
+  it("should bind the model value to the generic filter when mounted.", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
     expect(filter.props("modelValue")).toStrictEqual(["easy", "medium", "hard"]);
   });
 
-  it("should set the cognitive difficulties on the store in option order when the generic filter emits a selection.", () => {
-    const store = mockStore(useGameSettingsStore);
-    const setCognitiveDifficultiesSpy = vi.spyOn(store, "setCognitiveDifficulties");
+  it("should emit update:modelValue in option order when the generic filter emits a selection.", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
     getWrapperVm(filter).$emit("update:modelValue", ["hard", "easy"]);
 
-    expect(setCognitiveDifficultiesSpy).toHaveBeenCalledExactlyOnceWith(["easy", "hard"]);
+    expect(wrapper.emitted("update:modelValue")).toStrictEqual([[["easy", "hard"]]]);
   });
 
   it("should ignore unknown values when the generic filter emits a selection.", () => {
-    const store = mockStore(useGameSettingsStore);
-    const setCognitiveDifficultiesSpy = vi.spyOn(store, "setCognitiveDifficulties");
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
     getWrapperVm(filter).$emit("update:modelValue", ["hard", "unknown"]);
 
-    expect(setCognitiveDifficultiesSpy).toHaveBeenCalledExactlyOnceWith(["hard"]);
+    expect(wrapper.emitted("update:modelValue")).toStrictEqual([[["hard"]]]);
   });
 });

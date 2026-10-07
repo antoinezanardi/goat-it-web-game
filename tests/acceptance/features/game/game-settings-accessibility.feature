@@ -11,8 +11,6 @@ Feature: ⚙️ Game Settings Accessibility
     And the user clicks the settings button in the game sidebar
     And the element with testid "game-settings-modal" should be visible
     And the element with testid "game-settings-general-tab" should be visible
-    And the element with testid "game-settings-cognitive-difficulties-filter" should be visible
-    And the element with testid "game-settings-adult-content-switch" should be visible
     Then the page should not contain accessibility issues in <view> mode
 
     Examples:
