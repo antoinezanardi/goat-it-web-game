@@ -365,40 +365,40 @@ describe("Game Page", () => {
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(false);
   });
 
-  it("should commit the applied adult content value to the game settings store when the filters modal emits apply.", async() => {
+  it("should commit the applied adult content value to the game settings store when the filters modal emits applyFilters.", async() => {
     const gameSettingsStore = mockStore(useGameSettingsStore);
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
     await nextTick();
 
     expect(gameSettingsStore.setAdultContentEnabled).toHaveBeenCalledExactlyOnceWith(true);
   });
 
-  it("should commit the applied cognitive difficulties to the game settings store when the filters modal emits apply.", async() => {
+  it("should commit the applied cognitive difficulties to the game settings store when the filters modal emits applyFilters.", async() => {
     const gameSettingsStore = mockStore(useGameSettingsStore);
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
     await nextTick();
 
     expect(gameSettingsStore.setCognitiveDifficulties).toHaveBeenCalledExactlyOnceWith(["easy"]);
   });
 
-  it("should start the question synchronization when the filters modal emits apply.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+  it("should start the question synchronization when the filters modal emits applyFilters.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
     await nextTick();
 
     expect(useGameMock.instance.syncQuestionsWithGameSettings).toHaveBeenCalledExactlyOnceWith();
   });
 
-  it("should show the success toast when the filters modal emits apply.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+  it("should show the success toast when the filters modal emits applyFilters.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
     await nextTick();
 
     expect(useAppToastMock.instance.addSuccessToast).toHaveBeenCalledExactlyOnceWith({ description: "game.questionsFilters.successToast" });
   });
 
-  it("should close the filters modal when the filters modal emits apply.", async() => {
+  it("should close the filters modal when the filters modal emits applyFilters.", async() => {
     getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
     await nextTick();
 
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(false);
@@ -409,7 +409,7 @@ describe("Game Page", () => {
     useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
       resolveSynchronization = resolve;
     }));
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
     await nextTick();
 
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isApplyPending")).toBe(true);
@@ -423,7 +423,7 @@ describe("Game Page", () => {
     useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
       resolveSynchronization = resolve;
     }));
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
     await nextTick();
     getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
     await nextTick();
@@ -439,7 +439,7 @@ describe("Game Page", () => {
     useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
       resolveSynchronization = resolve;
     }));
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
     await nextTick();
     resolveSynchronization?.();
     await flushPromises();

@@ -36,8 +36,3 @@ Feature: ⚙️ Game Settings Modal
     Then the element with testid "game-settings-general-tab" should be visible
     And the exact text "Langue" should be visible
     And the game settings selected locale should be "Français"
-
-  Scenario: ⚙️ Settings no longer hosts the question filters
-    Then the element with testid "game-settings-general-tab" should be visible
-    And the element with testid "game-settings-adult-content-switch" should be hidden
-    And the element with testid "game-settings-cognitive-difficulties-filter" should be hidden

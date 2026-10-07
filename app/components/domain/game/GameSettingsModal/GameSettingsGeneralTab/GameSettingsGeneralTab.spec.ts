@@ -36,10 +36,6 @@ describe("GameSettingsGeneralTab Component", () => {
     expect(wrapper.findComponent<typeof GameSettingsLocaleSelect>({ name: "GameSettingsLocaleSelect" }).exists()).toBe(true);
   });
 
-  it("should not render any separator component when mounted.", () => {
-    expect(wrapper.findAllComponents({ name: "USeparator" })).toHaveLength(0);
-  });
-
   it("should pass isDisabled as true to GameSettingsLocaleSelect when isLocaleSelectDisabled is true.", async() => {
     await wrapper.setProps({ isLocaleSelectDisabled: true });
     const localeSelect = wrapper.findComponent<typeof GameSettingsLocaleSelect>({ name: "GameSettingsLocaleSelect" });

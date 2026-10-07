@@ -46,7 +46,7 @@
       "triggerLabel": "Open question filters",
       "triggerTooltip": "Question filters",
       "title": "Question filters",
-      "apply": "Apply filters for the next questions",
+      "apply": "Apply filters",
       "successToast": "Filters applied. Your next questions will use the updated filters."
     },
     "interactiveTutorial": {

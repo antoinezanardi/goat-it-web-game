@@ -64,7 +64,7 @@ function onCognitiveDifficultiesChange(value: QuestionCognitiveDifficulty[]): vo
 }
 
 function onApply(): void {
-  emit("apply", {
+  emit("applyFilters", {
     isAdultContentEnabled: draft.value.isAdultContentEnabled,
     cognitiveDifficulties: [...draft.value.cognitiveDifficulties],
   });
@@ -107,6 +107,7 @@ function onApply(): void {
     <template #footer>
       <DefaultModalFooter
         data-testid="game-questions-filters-modal-footer"
+        disable-shortcuts
         :is-primary-button-disabled="isApplyDisabled"
         :is-primary-button-loading="props.isApplyPending"
         primary-button-icon="i-lucide-check"

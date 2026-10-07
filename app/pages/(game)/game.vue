@@ -198,7 +198,7 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
     <GameQuestionsFiltersModal
       :is-apply-pending="isApplyFiltersPending"
       :is-open="isFiltersModalOpen"
-      @apply="onFiltersApply"
+      @apply-filters="onFiltersApply"
       @update:is-open="onFiltersOpenChange"
     />
 

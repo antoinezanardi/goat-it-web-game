@@ -12,7 +12,7 @@ type GameQuestionsFiltersModalProps = {
 
 type GameQuestionsFiltersModalEmits = {
   "update:isOpen": [value: boolean];
-  "apply": [draft: GameQuestionsFiltersDraft];
+  "applyFilters": [draft: GameQuestionsFiltersDraft];
 };
 
 export type { GameQuestionsFiltersDraft, GameQuestionsFiltersModalEmits, GameQuestionsFiltersModalProps };

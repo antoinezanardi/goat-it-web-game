@@ -46,7 +46,7 @@
       "triggerLabel": "Abrir los filtros de preguntas",
       "triggerTooltip": "Filtros de preguntas",
       "title": "Filtros de preguntas",
-      "apply": "Aplicar filtros para las siguientes preguntas",
+      "apply": "Aplicar filtros",
       "successToast": "Filtros aplicados. Tus próximas preguntas usarán los filtros actualizados."
     },
     "interactiveTutorial": {

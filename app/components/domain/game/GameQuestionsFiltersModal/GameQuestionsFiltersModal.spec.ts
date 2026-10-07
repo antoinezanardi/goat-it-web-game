@@ -149,6 +149,12 @@ describe("GameQuestionsFiltersModal Component", () => {
     expect(getFooter().props("primaryButtonIcon")).toBe("i-lucide-check");
   });
 
+  it("should disable the footer shortcuts when opened.", async() => {
+    await openFiltersModal();
+
+    expect(getFooter().props("disableShortcuts")).toBe(true);
+  });
+
   it("should pass the apply pending state as loading to the footer when it is pending.", async() => {
     await openFiltersModal();
     await wrapper.setProps({ isApplyPending: true });
@@ -213,14 +219,14 @@ describe("GameQuestionsFiltersModal Component", () => {
     expect(getFooter().props("isPrimaryButtonDisabled")).toBe(false);
   });
 
-  it("should emit apply with the current draft when the footer primary button is clicked.", async() => {
+  it("should emit applyFilters with the current draft when the footer primary button is clicked.", async() => {
     mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
     await openFiltersModal();
     getWrapperVm(getAdultContentSwitch()).$emit("update:isAdultContentEnabled", true);
     await nextTick();
     getWrapperVm(getFooter()).$emit("primaryButtonClick");
 
-    expect(wrapper.emitted("apply")).toStrictEqual([[{ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] }]]);
+    expect(wrapper.emitted("applyFilters")).toStrictEqual([[{ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] }]]);
   });
 
   it("should emit update:isOpen when UModal emits update:open.", async() => {

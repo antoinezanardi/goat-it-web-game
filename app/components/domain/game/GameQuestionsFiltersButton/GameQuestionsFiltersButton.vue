@@ -20,7 +20,7 @@ function onClick(): void {
   >
     <UButton
       :aria-label="accessibleName"
-      class="h-10 rounded-full w-10"
+      class="game-question-navigation-button--themed h-10 rounded-full w-10"
       color="neutral"
       data-testid="game-questions-filters-button"
       icon="i-lucide-funnel"
