@@ -24,6 +24,7 @@ const GAME_TUTORIAL_IN_CARD_TARGET_TEST_IDS = [
 
 const GAME_TUTORIAL_PAGE_TARGET_TEST_IDS = [
   "game-next-question-button",
+  "game-questions-filters-button",
   "game-sidebar-toggle-button",
 ] as const;
 
@@ -298,7 +299,7 @@ describe("GameTutorial Component", () => {
     expect(getGameTutorialElement("game-tutorial-description").textContent).toBe("game.interactiveTutorial.steps.welcome.description");
   });
 
-  it("should render the eight steps in order when navigating forward with Next.", async() => {
+  it("should render the nine steps in order when navigating forward with Next.", async() => {
     await startTour();
 
     await expect(collectRenderedStepTitles()).resolves.toStrictEqual(GAME_TUTORIAL_STEP_KEYS.map(key => `game.interactiveTutorial.steps.${key}.title`));
@@ -639,6 +640,27 @@ describe("GameTutorial Component", () => {
     await startTour();
 
     expect(queryGameTutorialElement("game-tutorial-spotlight")).toBeNull();
+  });
+
+  it("should place the filters step directly before the sidebar step when ordered.", () => {
+    expect(GAME_TUTORIAL_STEP_KEYS.slice(-2)).toStrictEqual(["filters", "sidebar"]);
+  });
+
+  it("should keep the sidebar step as the final tutorial step when ordered.", () => {
+    expect(GAME_TUTORIAL_STEPS.at(-1)?.key).toBe("sidebar");
+  });
+
+  it("should reference the filters trigger when navigating to the filters step.", async() => {
+    await startTour();
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+    await clickGameTutorialButton("game-tutorial-next");
+
+    expect(wrapper.findComponent({ name: "UPopover" }).props("reference")).toBe(getGameTutorialElement("game-questions-filters-button"));
   });
 
   describe("keyboard shortcuts", () => {

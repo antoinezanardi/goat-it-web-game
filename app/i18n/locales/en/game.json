@@ -45,8 +45,11 @@
     "questionsFilters": {
       "triggerLabel": "Open question filters",
       "triggerTooltip": "Question filters",
+      "sidebarLabel": "Question filters",
+      "appliedCount": "{count} active filter | {count} active filters",
       "title": "Question filters",
       "apply": "Apply filters",
+      "reset": "Reset",
       "successToast": "Filters applied. Your next questions will use the updated filters."
     },
     "interactiveTutorial": {
@@ -92,6 +95,10 @@
         "continue": {
           "title": "Ready for the next investigation?",
           "description": "Investigation over? Move on to the Next question to continue the game. You can also hand the Game Master role to another player: everyone can then take a turn at presenting riddles. And if you want to revisit the previous card, use Previous when it's available."
+        },
+        "filters": {
+          "title": "Shape the next investigations",
+          "description": "Want a different flavour for the next questions? The funnel button in the top-right corner lets you filter them easily. Entirely optional."
         },
         "sidebar": {
           "title": "Everything is within reach",

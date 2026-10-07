@@ -45,8 +45,11 @@
     "questionsFilters": {
       "triggerLabel": "Fragefilter öffnen",
       "triggerTooltip": "Fragefilter",
+      "sidebarLabel": "Fragefilter",
+      "appliedCount": "{count} aktiver Filter | {count} aktive Filter",
       "title": "Fragefilter",
       "apply": "Filter anwenden",
+      "reset": "Zurücksetzen",
       "successToast": "Filter angewendet. Deine nächsten Fragen verwenden die aktualisierten Filter."
     },
     "interactiveTutorial": {
@@ -92,6 +95,10 @@
         "continue": {
           "title": "Bereit für die nächste Ermittlung?",
           "description": "Die Ermittlung ist vorbei? Gehe zur nächsten Frage über, um das Spiel fortzusetzen. Du kannst die Rolle des Spielleiters auch an einen anderen Spieler weitergeben: So kann jeder abwechselnd Rätsel präsentieren. Und wenn du die vorherige Karte noch einmal ansehen möchtest, nutze Zurück, wenn es verfügbar ist."
+        },
+        "filters": {
+          "title": "Gestalte die nächsten Ermittlungen",
+          "description": "Lust auf einen anderen Ton für die nächsten Fragen? Die Trichter-Schaltfläche oben rechts hilft dir, sie ganz einfach zu filtern. Völlig optional."
         },
         "sidebar": {
           "title": "Alles ist in Reichweite",

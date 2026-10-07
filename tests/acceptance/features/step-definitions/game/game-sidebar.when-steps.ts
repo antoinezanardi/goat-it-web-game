@@ -36,3 +36,10 @@ When(
     this.openedTabPage = await clickAndGetOpenedTab(this.context, rulesLink);
   },
 );
+
+When(
+  /^the user closes the game sidebar$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
+  },
+);

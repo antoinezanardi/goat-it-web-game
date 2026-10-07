@@ -26,7 +26,7 @@ Feature: 🧑‍🏫 Game Page Interactive Tutorial
     And the interactive tutorial should be visible
     And the interactive tutorial step title should be "You hold the answer. It's up to them to find it!"
 
-  Scenario: 🧑‍🏫 Complete eight-step tour can be navigated forward and finished
+  Scenario: 🧑‍🏫 Complete nine-step tour can be navigated forward and finished
     Given the database is populated with the question fixture set "single-question"
     And the user is on game page
     And a game question should be displayed
@@ -44,6 +44,9 @@ Feature: 🧑‍🏫 Game Page Interactive Tutorial
     Then the interactive tutorial step title should be "Reveal the story behind the answer"
     When the user clicks the Next button in the interactive tutorial
     Then the interactive tutorial step title should be "Ready for the next investigation?"
+    When the user clicks the Next button in the interactive tutorial
+    Then the interactive tutorial step title should be "Shape the next investigations"
+    And the interactive tutorial should target the filters trigger
     When the user clicks the Next button in the interactive tutorial
     Then the interactive tutorial step title should be "Everything is within reach"
     And the interactive tutorial should target the sidebar toggle

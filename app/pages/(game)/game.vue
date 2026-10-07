@@ -105,7 +105,11 @@ const isSettingsModalOpen = ref(false);
 
 const isFiltersModalOpen = ref(false);
 
+const isFiltersModalOpenRequested = ref(false);
+
 const isApplyFiltersPending = ref(false);
+
+const filtersButton = useTemplateRef<InstanceType<typeof GameQuestionsFiltersButton>>("filtersButton");
 
 function openSidebar(): void {
   isSidebarOpen.value = true;
@@ -135,6 +139,23 @@ function openFiltersModal(): void {
 
 function onFiltersOpenChange(isOpen: boolean): void {
   isFiltersModalOpen.value = isOpen;
+}
+
+function onOpenFiltersFromSidebar(): void {
+  isFiltersModalOpenRequested.value = true;
+  isSidebarOpen.value = false;
+}
+
+async function onSidebarAfterLeave(): Promise<void> {
+  if (!isFiltersModalOpenRequested.value) {
+    return;
+  }
+  isFiltersModalOpenRequested.value = false;
+  const playHighlight = filtersButton.value?.playHighlight;
+  if (playHighlight) {
+    await playHighlight();
+  }
+  openFiltersModal();
 }
 
 const { addSuccessToast } = useAppToast();
@@ -176,14 +197,18 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
       @click="openSidebar"
     />
 
-    <GameQuestionsFiltersButton
-      class="absolute right-4 top-4 z-20"
-      @click="openFiltersModal"
-    />
+    <div class="absolute right-4 top-4 z-20">
+      <GameQuestionsFiltersButton
+        ref="filtersButton"
+        @click="openFiltersModal"
+      />
+    </div>
 
     <GameSidebar
       :is-open="isSidebarOpen"
       :is-tutorial-available="isTutorialAvailable"
+      @after:leave="onSidebarAfterLeave"
+      @open-filters="onOpenFiltersFromSidebar"
       @open-settings="onOpenSettings"
       @start-tutorial="onStartTutorialFromSidebar"
       @update:is-open="onSidebarOpenChange"

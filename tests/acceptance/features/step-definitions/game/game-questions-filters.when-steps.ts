@@ -81,3 +81,25 @@ When(
     await clickModalFooterButton(confirmFooter, "close");
   },
 );
+
+When(
+  /^the user opens the question filters from the game sidebar$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const filtersLink = dialog.getByTestId("game-sidebar-filters-link");
+
+    await expect(filtersLink).toBeVisible();
+    await filtersLink.click();
+  },
+);
+
+When(
+  /^the user clicks the reset button in the question filters modal$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const resetButton = dialog.getByTestId("game-questions-filters-modal-reset-button");
+
+    await expect(resetButton).toBeVisible();
+    await resetButton.click();
+  },
+);

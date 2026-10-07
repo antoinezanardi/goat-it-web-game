@@ -45,8 +45,11 @@
     "questionsFilters": {
       "triggerLabel": "Apri i filtri delle domande",
       "triggerTooltip": "Filtri delle domande",
+      "sidebarLabel": "Filtri delle domande",
+      "appliedCount": "{count} filtro attivo | {count} filtri attivi",
       "title": "Filtri delle domande",
       "apply": "Applica i filtri",
+      "reset": "Reimposta",
       "successToast": "Filtri applicati. Le prossime domande useranno i filtri aggiornati."
     },
     "interactiveTutorial": {
@@ -92,6 +95,10 @@
         "continue": {
           "title": "Pronto per la prossima indagine?",
           "description": "L'indagine è finita? Passa alla Prossima domanda per continuare la partita. Puoi anche passare il ruolo di Game Master a un altro giocatore: così ognuno potrà presentare enigmi a turno. E se vuoi rivedere la carta precedente, usa Precedente quando è disponibile."
+        },
+        "filters": {
+          "title": "Dai un taglio alle prossime indagini",
+          "description": "Vuoi un tono diverso per le prossime domande? Il pulsante a forma di imbuto, in alto a destra, ti permette di filtrarle facilmente. Del tutto facoltativo."
         },
         "sidebar": {
           "title": "Tutto a portata di mano",
