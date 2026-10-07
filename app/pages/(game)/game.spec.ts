@@ -1,6 +1,7 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
+import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
@@ -16,11 +17,13 @@ import { useAppToastMock } from "~~/tests/unit/setup/nuxt/composables/use-app-to
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
 import { MOCKED_TOAST_ID } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
+import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 
 import type { GamePlaying } from "#components";
 
 import GamePage from "@/pages/(game)/game.vue";
 import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "~/composables/domain/question-theme/constants/question-theme.constants";
+import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 
 let capturedLeaveGuard: (() => Promise<boolean>) | undefined;
 
@@ -50,7 +53,7 @@ describe("Game Page", () => {
   let wrapper: VueWrapper;
 
   async function mountGamePage(options: MountSuspendedOptions<typeof GamePage> = {}): Promise<VueWrapper> {
-    return mountSuspended(GamePage, { shallow: true, ...options });
+    return mountSuspended(GamePage, { global: { plugins: [createTestingPinia()] }, shallow: true, ...options });
   }
 
   beforeEach(async() => {
@@ -331,18 +334,117 @@ describe("Game Page", () => {
     expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
   });
 
-  it("should apply the game settings changes when the settings modal closes.", async() => {
+  it("should not synchronize the questions when the settings modal closes.", async() => {
     getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", false);
+    await nextTick();
+
+    expect(useGameMock.instance.syncQuestionsWithGameSettings).not.toHaveBeenCalled();
+  });
+
+  it("should render the questions filters button when mounted.", () => {
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersButton" }).exists()).toBe(true);
+  });
+
+  it("should render the questions filters modal when mounted.", () => {
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).exists()).toBe(true);
+  });
+
+  it("should open the filters modal when the filters button emits click.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(true);
+  });
+
+  it("should close the filters modal when the filters modal emits update:isOpen with false.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("update:isOpen", false);
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(false);
+  });
+
+  it("should commit the applied adult content value to the game settings store when the filters modal emits apply.", async() => {
+    const gameSettingsStore = mockStore(useGameSettingsStore);
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    await nextTick();
+
+    expect(gameSettingsStore.setAdultContentEnabled).toHaveBeenCalledExactlyOnceWith(true);
+  });
+
+  it("should commit the applied cognitive difficulties to the game settings store when the filters modal emits apply.", async() => {
+    const gameSettingsStore = mockStore(useGameSettingsStore);
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    await nextTick();
+
+    expect(gameSettingsStore.setCognitiveDifficulties).toHaveBeenCalledExactlyOnceWith(["easy"]);
+  });
+
+  it("should start the question synchronization when the filters modal emits apply.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
     await nextTick();
 
     expect(useGameMock.instance.syncQuestionsWithGameSettings).toHaveBeenCalledExactlyOnceWith();
   });
 
-  it("should not apply the game settings changes when the settings modal opens.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", true);
+  it("should show the success toast when the filters modal emits apply.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
     await nextTick();
 
-    expect(useGameMock.instance.syncQuestionsWithGameSettings).not.toHaveBeenCalled();
+    expect(useAppToastMock.instance.addSuccessToast).toHaveBeenCalledExactlyOnceWith({ description: "game.questionsFilters.successToast" });
+  });
+
+  it("should close the filters modal when the filters modal emits apply.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(false);
+  });
+
+  it("should pass the apply pending state as isApplyPending to the filters modal when a refresh is pending.", async() => {
+    let resolveSynchronization: (() => void) | undefined;
+    useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
+      resolveSynchronization = resolve;
+    }));
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isApplyPending")).toBe(true);
+
+    resolveSynchronization?.();
+    await flushPromises();
+  });
+
+  it("should keep the filters modal reopenable when a refresh is pending.", async() => {
+    let resolveSynchronization: (() => void) | undefined;
+    useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
+      resolveSynchronization = resolve;
+    }));
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(true);
+
+    resolveSynchronization?.();
+    await flushPromises();
+  });
+
+  it("should clear the apply pending state when the refresh settles.", async() => {
+    let resolveSynchronization: (() => void) | undefined;
+    useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
+      resolveSynchronization = resolve;
+    }));
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("apply", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    await nextTick();
+    resolveSynchronization?.();
+    await flushPromises();
+
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isApplyPending")).toBe(false);
   });
 
   it("should pass isFetchingQuestions as the isFetchingQuestions prop to GameSettingsModal when mounted.", async() => {
@@ -605,6 +707,24 @@ describe("Game Page", () => {
       getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
       await flushPromises();
       getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", false);
+      await nextTick();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+    });
+
+    it("should forward areShortcutsDisabled as true to GamePlaying when the filters modal is open.", async() => {
+      await reachPlayingState();
+      getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
+      await nextTick();
+
+      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(true);
+    });
+
+    it("should forward areShortcutsDisabled as false to GamePlaying when the filters modal closes.", async() => {
+      await reachPlayingState();
+      getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
+      await nextTick();
+      getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("update:isOpen", false);
       await nextTick();
 
       expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);

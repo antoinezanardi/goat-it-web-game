@@ -42,6 +42,13 @@
         }
       }
     },
+    "questionsFilters": {
+      "triggerLabel": "Abrir os filtros de perguntas",
+      "triggerTooltip": "Filtros de perguntas",
+      "title": "Filtros de perguntas",
+      "apply": "Aplicar filtros para as próximas perguntas",
+      "successToast": "Filtros aplicados. As suas próximas perguntas usarão os filtros atualizados."
+    },
     "interactiveTutorial": {
       "label": "Tutorial interativo",
       "invitation": {

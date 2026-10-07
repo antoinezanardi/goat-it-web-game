@@ -39,7 +39,7 @@ describe("GameSettingsFilterMultiSelect Component", () => {
   };
 
   async function mountGameSettingsFilterMultiSelect(options: MountSuspendedOptions<typeof GameSettingsFilterMultiSelect> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameSettingsFilterMultiSelect, { props: defaultGameSettingsFilterMultiSelectProps, plugins: [createTestingPinia()], ...options });
+    return mountSuspended(GameSettingsFilterMultiSelect, { props: defaultGameSettingsFilterMultiSelectProps, global: { plugins: [createTestingPinia()] }, ...options });
   }
 
   beforeEach(async() => {
