@@ -1,3 +1,5 @@
+import type { SelectMenuItem } from "#ui/types";
+
 type GameSettingsFilterSummaryMode = "labels" | "count";
 
 type GameSettingsFilterOptionColor = "error" | "success" | "warning";
@@ -22,10 +24,16 @@ type GameSettingsFilterMultiSelectEmits = {
   "update:modelValue": [value: string[]];
 };
 
+type GameSettingsFilterMultiSelectItem = SelectMenuItem & {
+  trailingIcon: string;
+  value: string;
+};
+
 export type {
   GameSettingsFilterMultiSelectEmits,
   GameSettingsFilterMultiSelectProps,
   GameSettingsFilterOption,
   GameSettingsFilterOptionColor,
+  GameSettingsFilterMultiSelectItem,
   GameSettingsFilterSummaryMode,
 };

@@ -50,6 +50,10 @@
       "title": "Filtri delle domande",
       "apply": "Applica i filtri",
       "reset": "Reimposta",
+      "discardTitle": "Scartare i filtri non applicati?",
+      "discardDescription": "Le modifiche ai filtri non sono state applicate. Se chiudi ora, non verranno applicate.",
+      "discardBack": "Torna ai filtri",
+      "discardClose": "Chiudi senza applicare",
       "successToast": "Filtri applicati. Le prossime domande useranno i filtri aggiornati."
     },
     "interactiveTutorial": {

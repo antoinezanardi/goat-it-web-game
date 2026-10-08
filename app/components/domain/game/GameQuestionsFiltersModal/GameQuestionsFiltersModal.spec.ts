@@ -1,5 +1,6 @@
 import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
@@ -8,8 +9,10 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
+import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup";
+import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
-import { GameQuestionsFiltersModal } from "#components";
+import { ConfirmDialog, GameQuestionsFiltersModal } from "#components";
 import type {
   DefaultModalFooter,
   UModal,
@@ -17,7 +20,7 @@ import type {
   GameQuestionsFiltersModalHeader,
 } from "#components";
 
-import { GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
+import { GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS, GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
 import type { GameQuestionsFiltersModalProps } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 
@@ -43,6 +46,15 @@ describe("GameQuestionsFiltersModal Component", () => {
 
   function getFooter(): VueWrapper<InstanceType<typeof DefaultModalFooter>> {
     return wrapper.findComponent<typeof DefaultModalFooter>({ name: "DefaultModalFooter" });
+  }
+
+  function getCreatedModalInstance(): UseOverlayCreateReturnValue {
+    const createResult = useOverlayMock.instance.create.mock.results[0];
+
+    if (createResult?.type !== "return") {
+      throw new Error("Expected overlay.create() to have returned a modal instance");
+    }
+    return createResult.value;
   }
 
   async function openFiltersModal(): Promise<void> {
@@ -303,5 +315,105 @@ describe("GameQuestionsFiltersModal Component", () => {
     await openFiltersModal();
 
     expect(getContent().props("draft")).toStrictEqual({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+  });
+
+  it("should create the discard confirmation with the localized props when the footer close is triggered with a modified draft.", async() => {
+    await openFiltersModal();
+    emitAdultContentDraft(true);
+    await nextTick();
+    getWrapperVm(getFooter()).$emit("closeModal");
+    await flushPromises();
+
+    expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(
+      ConfirmDialog,
+      {
+        destroyOnClose: true,
+        props: {
+          close: false,
+          closeButtonLabel: "game.questionsFilters.discardBack",
+          description: "game.questionsFilters.discardDescription",
+          disableShortcuts: true,
+          icon: GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON,
+          iconClass: GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS,
+          primaryButtonLabel: "game.questionsFilters.discardClose",
+          title: "game.questionsFilters.discardTitle",
+        },
+      },
+    );
+  });
+
+  it("should close the filters modal when the discard confirmation is confirmed.", async() => {
+    await openFiltersModal();
+    emitAdultContentDraft(true);
+    await nextTick();
+    getWrapperVm(getFooter()).$emit("closeModal");
+    await flushPromises();
+    getCreatedModalInstance().close(true);
+    await flushPromises();
+
+    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[false]]);
+  });
+
+  it("should keep the filters modal open and preserve the draft when the discard confirmation is canceled.", async() => {
+    await openFiltersModal();
+    emitAdultContentDraft(true);
+    await nextTick();
+    getWrapperVm(getFooter()).$emit("closeModal");
+    await flushPromises();
+    getCreatedModalInstance().close(false);
+    await flushPromises();
+
+    expect(wrapper.emitted("update:isOpen")).toBeUndefined();
+  });
+
+  it("should create the discard confirmation when the modal requests to close with a modified draft.", async() => {
+    await openFiltersModal();
+    emitAdultContentDraft(true);
+    await nextTick();
+    getWrapperVm(wrapper.findComponent<typeof UModal>({ name: "UModal" })).$emit("update:open", false);
+    await flushPromises();
+
+    expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(ConfirmDialog, expect.objectContaining({ destroyOnClose: true }));
+  });
+
+  it("should emit update:isOpen when the modal requests to close with an unmodified draft.", async() => {
+    await openFiltersModal();
+    getWrapperVm(wrapper.findComponent<typeof UModal>({ name: "UModal" })).$emit("update:open", false);
+
+    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[false]]);
+  });
+
+  it("should not create the discard confirmation when the footer close is triggered with an unmodified draft.", async() => {
+    await openFiltersModal();
+    getWrapperVm(getFooter()).$emit("closeModal");
+
+    expect(useOverlayMock.instance.create).not.toHaveBeenCalled();
+  });
+
+  it("should not create the discard confirmation when the draft is reset back to the committed values before closing.", async() => {
+    await openFiltersModal();
+    emitAdultContentDraft(true);
+    await nextTick();
+    getWrapperVm(getHeader()).$emit("reset");
+    await nextTick();
+    getWrapperVm(getFooter()).$emit("closeModal");
+
+    expect(useOverlayMock.instance.create).not.toHaveBeenCalled();
+  });
+
+  it("should not create the discard confirmation when the footer primary button is clicked with a modified draft.", async() => {
+    await openFiltersModal();
+    emitAdultContentDraft(true);
+    await nextTick();
+    getWrapperVm(getFooter()).$emit("primaryButtonClick");
+
+    expect(useOverlayMock.instance.create).not.toHaveBeenCalled();
+  });
+
+  it("should emit update:isOpen with true when the modal emits update:open with true.", async() => {
+    await openFiltersModal();
+    getWrapperVm(wrapper.findComponent<typeof UModal>({ name: "UModal" })).$emit("update:open", true);
+
+    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[true]]);
   });
 });

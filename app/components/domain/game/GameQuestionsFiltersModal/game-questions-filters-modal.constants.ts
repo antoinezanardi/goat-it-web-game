@@ -1,7 +1,11 @@
+const GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON = "i-lucide-triangle-alert";
+
+const GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS = "text-warning";
+
 const GAME_QUESTIONS_FILTERS_MODAL_UI = {
   body: "flex flex-col",
   content: "min-h-120 sm:min-h-150",
   wrapper: "flex-1 min-w-0",
 } as const;
 
-export { GAME_QUESTIONS_FILTERS_MODAL_UI };
+export { GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS, GAME_QUESTIONS_FILTERS_MODAL_UI };

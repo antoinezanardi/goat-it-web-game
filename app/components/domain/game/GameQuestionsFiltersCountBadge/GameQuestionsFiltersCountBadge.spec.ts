@@ -11,6 +11,7 @@ import type { GameQuestionsFiltersCountBadgeProps } from "@/components/domain/ga
 describe("GameQuestionsFiltersCountBadge Component", () => {
   const defaultGameQuestionsFiltersCountBadgeProps: GameQuestionsFiltersCountBadgeProps = {
     count: 0,
+    displayMode: "count",
   } as const;
 
   let wrapper: VueWrapper;
@@ -54,5 +55,31 @@ describe("GameQuestionsFiltersCountBadge Component", () => {
     const attributesWrapper = await mountGameQuestionsFiltersCountBadge({ attrs: { class: "ml-1" } });
 
     expect(attributesWrapper.findComponent({ name: "UBadge" }).classes()).toContain("ml-1");
+  });
+
+  it("should render the localized applied count in the badge when the display mode is full.", async() => {
+    await wrapper.setProps({ count: 2, displayMode: "full" });
+
+    expect(wrapper.text()).toBe("game.questionsFilters.appliedCount");
+  });
+
+  it("should set the UBadge aria-label to the applied count translation key when the display mode is full.", async() => {
+    await wrapper.setProps({ count: 2, displayMode: "full" });
+    const badge = wrapper.findComponent({ name: "UBadge" });
+
+    expect(badge.attributes("aria-label")).toBe("game.questionsFilters.appliedCount");
+  });
+
+  it("should apply the numeric sizing classes to the badge when the display mode is count.", () => {
+    const badge = wrapper.findComponent({ name: "UBadge" });
+
+    expect(badge.classes()).toContain("h-5");
+  });
+
+  it("should omit the numeric sizing classes from the badge when the display mode is full.", async() => {
+    await wrapper.setProps({ displayMode: "full" });
+    const badge = wrapper.findComponent({ name: "UBadge" });
+
+    expect(badge.classes()).not.toContain("h-5");
   });
 });

@@ -16,8 +16,9 @@ function onReset(): void {
 </script>
 
 <template>
-  <div class="flex gap-2 items-center w-full">
+  <div class="flex flex-wrap gap-2 items-center w-full">
     <DefaultModalTitle
+      class="w-full"
       data-testid="game-questions-filters-modal-title"
       icon="i-lucide-funnel"
       :title="t('game.questionsFilters.title')"
@@ -27,6 +28,7 @@ function onReset(): void {
       v-if="props.appliedCount > 0"
       :count="props.appliedCount"
       data-testid="game-questions-filters-modal-count-badge"
+      display-mode="full"
     />
 
     <UButton

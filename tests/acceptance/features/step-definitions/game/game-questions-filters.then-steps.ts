@@ -74,8 +74,9 @@ Then(
   /^the question filters applied count in the modal header should be (?<count>\d+)$/u,
   async function(this: GoatItWorld, count: string): Promise<void> {
     const dialog = await getVisibleDefaultModal(this.page);
+    const expectedLabel = count === "1" ? `${count} active filter` : `${count} active filters`;
 
-    await expect(dialog.getByTestId("game-questions-filters-modal-count-badge")).toHaveText(count);
+    await expect(dialog.getByTestId("game-questions-filters-modal-count-badge")).toHaveText(expectedLabel);
   },
 );
 

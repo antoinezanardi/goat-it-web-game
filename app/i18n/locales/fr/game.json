@@ -50,6 +50,10 @@
       "title": "Filtres de questions",
       "apply": "Appliquer les filtres",
       "reset": "Réinitialiser",
+      "discardTitle": "Abandonner les filtres non appliqués ?",
+      "discardDescription": "Vos modifications de filtres n'ont pas été appliquées. Si vous fermez maintenant, elles ne seront pas prises en compte.",
+      "discardBack": "Revenir aux filtres",
+      "discardClose": "Fermer sans appliquer",
       "successToast": "Filtres appliqués. Vos prochaines questions utiliseront les filtres mis à jour."
     },
     "interactiveTutorial": {

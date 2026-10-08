@@ -2,7 +2,7 @@ import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
@@ -39,11 +39,26 @@ describe("GameSettingsFilterMultiSelect Component", () => {
   };
 
   async function mountGameSettingsFilterMultiSelect(options: MountSuspendedOptions<typeof GameSettingsFilterMultiSelect> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameSettingsFilterMultiSelect, { props: defaultGameSettingsFilterMultiSelectProps, global: { plugins: [createTestingPinia()] }, ...options });
+    return mountSuspended(GameSettingsFilterMultiSelect, {
+      props: defaultGameSettingsFilterMultiSelectProps,
+      global: { plugins: [createTestingPinia()] },
+      attachTo: document.body,
+      ...options,
+    });
+  }
+
+  async function openSelectMenu(): Promise<void> {
+    await wrapper.find("[data-testid='game-settings-filter-multi-select-input']").trigger("click");
+    await flushPromises();
   }
 
   beforeEach(async() => {
     wrapper = await mountGameSettingsFilterMultiSelect();
+  });
+
+  afterEach(() => {
+    wrapper.unmount();
+    document.body.innerHTML = "";
   });
 
   it("should render GameSettingsFilterMultiSelect when mounted.", () => {
@@ -84,9 +99,9 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
 
     expect(selectMenu.props("items")).toStrictEqual([
-      { icon: "i-lucide-brain", label: "Easy", ui: { itemLeadingIcon: "text-success!" }, value: "easy" },
-      { icon: "i-lucide-brain-cog", label: "Medium", ui: { itemLeadingIcon: "text-warning!" }, value: "medium" },
-      { icon: "i-lucide-brain-circuit", label: "Hard", ui: { itemLeadingIcon: "text-error!" }, value: "hard" },
+      { icon: "i-lucide-brain", label: "Easy", trailingIcon: "i-lucide-square-check", ui: { itemLeadingIcon: "text-success!" }, value: "easy" },
+      { icon: "i-lucide-brain-cog", label: "Medium", trailingIcon: "i-lucide-square-check", ui: { itemLeadingIcon: "text-warning!" }, value: "medium" },
+      { icon: "i-lucide-brain-circuit", label: "Hard", trailingIcon: "i-lucide-square-check", ui: { itemLeadingIcon: "text-error!" }, value: "hard" },
     ]);
   });
 
@@ -97,7 +112,7 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     });
     const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
 
-    expect(selectMenu.props("items")).toStrictEqual([{ icon: "i-lucide-brain", label: "Easy", value: "easy" }]);
+    expect(selectMenu.props("items")).toStrictEqual([{ icon: "i-lucide-brain", label: "Easy", trailingIcon: "i-lucide-square-check", value: "easy" }]);
   });
 
   it("should enable multiple selection on the select menu when mounted.", () => {
@@ -115,7 +130,7 @@ describe("GameSettingsFilterMultiSelect Component", () => {
   it("should pass the search placeholder translation key to the select menu when mounted.", () => {
     const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
 
-    expect(selectMenu.props("searchInput")).toStrictEqual({ placeholder: "game.settings.filters.searchPlaceholder" });
+    expect(selectMenu.props("searchInput")).toStrictEqual({ autofocus: false, placeholder: "game.settings.filters.searchPlaceholder" });
   });
 
   it("should render the all selected label when every option is selected.", () => {
@@ -213,5 +228,37 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     await flushPromises();
 
     expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe("All difficulties");
+  });
+
+  it("should pass the selected state icon only for the selected options when the model value selects a subset.", async() => {
+    await wrapper.setProps({ modelValue: ["hard"] });
+    const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
+
+    expect(selectMenu.props("items")).toStrictEqual([
+      { icon: "i-lucide-brain", label: "Easy", trailingIcon: "i-lucide-square", ui: { itemLeadingIcon: "text-success!" }, value: "easy" },
+      { icon: "i-lucide-brain-cog", label: "Medium", trailingIcon: "i-lucide-square", ui: { itemLeadingIcon: "text-warning!" }, value: "medium" },
+      { icon: "i-lucide-brain-circuit", label: "Hard", trailingIcon: "i-lucide-square-check", ui: { itemLeadingIcon: "text-error!" }, value: "hard" },
+    ]);
+  });
+
+  it("should render the selected state icon on a selected option when the menu opens.", async() => {
+    await openSelectMenu();
+    const stateIcon = document.body.querySelector("[data-testid='game-settings-filter-option-state-easy']");
+
+    expect(stateIcon?.classList.contains("i-lucide:square-check")).toBe(true);
+  });
+
+  it("should render the unselected state icon on an unselected option when the menu opens.", async() => {
+    await wrapper.setProps({ modelValue: ["hard"] });
+    await openSelectMenu();
+    const stateIcon = document.body.querySelector("[data-testid='game-settings-filter-option-state-easy']");
+
+    expect(stateIcon?.classList.contains("i-lucide:square")).toBe(true);
+  });
+
+  it("should hide the built-in selected icon of the select menu when mounted.", () => {
+    const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
+
+    expect(selectMenu.props("ui")).toStrictEqual({ itemTrailingIcon: "hidden" });
   });
 });
