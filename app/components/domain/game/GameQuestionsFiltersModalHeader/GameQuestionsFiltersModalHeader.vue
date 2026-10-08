@@ -33,7 +33,7 @@ function onReset(): void {
     />
 
     <UButton
-      :class="{ 'invisible': !props.isResetVisible }"
+      :class="{ 'invisible opacity-0': !props.isResetVisible }"
       color="neutral"
       data-testid="game-questions-filters-modal-reset-button"
       icon="i-lucide-rotate-ccw"
