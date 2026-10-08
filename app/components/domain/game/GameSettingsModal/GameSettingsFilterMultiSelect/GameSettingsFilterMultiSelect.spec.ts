@@ -256,9 +256,9 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     expect(stateIcon?.classList.contains("i-lucide:square")).toBe(true);
   });
 
-  it("should hide the built-in selected icon of the select menu when mounted.", () => {
+  it("should hide the built-in selected icon and center the trailing content of the select menu when mounted.", () => {
     const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
 
-    expect(selectMenu.props("ui")).toStrictEqual({ itemTrailingIcon: "hidden" });
+    expect(selectMenu.props("ui")).toStrictEqual({ itemTrailing: "self-center", itemTrailingIcon: "hidden" });
   });
 });

@@ -28,7 +28,7 @@ function onPrimaryButtonClickFromFooter(): void {
 
 function onUpdateOpen(value: boolean): void {
   isOpen.value = value;
-  if (value || !props.dismissible) {
+  if (value) {
     return;
   }
   emit("close", false);

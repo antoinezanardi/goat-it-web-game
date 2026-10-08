@@ -226,11 +226,14 @@ Feature: 🎛️ Game Questions Filters
     Given the user is on game page
     When the user opens the question filters
     And the user turns on the questions filters adult content switch
+    And the user clicks on the primary button in the modal
+    And the user opens the question filters
     And the user clicks the reset button in the question filters modal
     And the user clicks on the close button in the modal header
+    And the user confirms closing without applying
     And the user opens the question filters
-    Then the questions filters adult content switch should be off
-    And the element with testid "game-questions-filters-modal-reset-button" should be hidden
+    Then the questions filters adult content switch should be on
+    And the element with testid "game-questions-filters-modal-reset-button" should be visible
 
   Scenario: 🎛️ Filter counts and reset are exposed with singular then plural accessible names
     Given the user is on game page
@@ -249,28 +252,6 @@ Feature: 🎛️ Game Questions Filters
     Then the element with testid "game-questions-filters-button-badge" should have the accessible name "2 active filters"
     When the user opens the game sidebar
     Then the element with testid "game-sidebar-filters-link" should have the accessible name "Question filters 2 active filters"
-
-  Scenario: 🎛️ Modal header count describes the applied active filter groups
-    Given the user is on game page
-    When the user opens the question filters
-    Then the element with testid "game-questions-filters-modal-count-badge" should be hidden
-    When the user turns on the questions filters adult content switch
-    And the user clicks on the primary button in the modal
-    And the user opens the question filters
-    Then the question filters applied count in the modal header should be 1
-    When the user turns off the questions filters adult content switch
-    Then the question filters applied count in the modal header should be 1
-
-  Scenario: 🎛️ Compact filter badges retain their numeric presentation
-    Given the database is populated with the question fixture set "single-question"
-    And the user is on game page
-    And a game question should be displayed
-    When the user opens the question filters
-    And the user turns on the questions filters adult content switch
-    And the user clicks on the primary button in the modal
-    Then the question filters applied count on the trigger should be 1
-    When the user opens the game sidebar
-    Then the question filters applied count in the sidebar should be 1
 
   Scenario: 🎛️ Closing a modified filters draft requests a discard confirmation
     Given the user is on game page

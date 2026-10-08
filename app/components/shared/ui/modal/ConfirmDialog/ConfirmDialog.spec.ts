@@ -206,7 +206,7 @@ describe("ConfirmDialog Component", () => {
       expect(wrapper.emitted("close")).toStrictEqual([[false]]);
     });
 
-    it("should not emit close when the modal emits update:open with false and the dialog is not dismissible.", async() => {
+    it("should emit close with false when the modal emits update:open with false and the dialog is not dismissible.", async() => {
       wrapper = await mountConfirmDialogComponent({
         props: {
           ...defaultConfirmDialogProps,
@@ -217,7 +217,7 @@ describe("ConfirmDialog Component", () => {
       getWrapperVm(modal).$emit("update:open", false);
       await wrapper.vm.$nextTick();
 
-      expect(wrapper.emitted("close")).toBeUndefined();
+      expect(wrapper.emitted("close")).toStrictEqual([[false]]);
     });
 
     it("should keep the modal open when the modal emits update:open with true.", async() => {

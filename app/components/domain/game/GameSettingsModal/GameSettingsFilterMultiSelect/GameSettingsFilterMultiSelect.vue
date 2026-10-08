@@ -129,7 +129,7 @@ function onUpdateSelectedValues(value: string[]): void {
 
       <template #item-trailing="{ item }">
         <UIcon
-          class="shrink-0"
+          class="shrink-0 size-5"
           :data-testid="`game-settings-filter-option-state-${item.value}`"
           :name="item.trailingIcon"
         />

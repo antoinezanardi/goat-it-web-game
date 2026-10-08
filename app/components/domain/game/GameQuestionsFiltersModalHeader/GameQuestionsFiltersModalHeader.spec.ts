@@ -7,6 +7,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { GameQuestionsFiltersModalHeader } from "#components";
 import type { DefaultModalTitle, UButton } from "#components";
 
+import { GAME_QUESTIONS_FILTERS_RESET_BUTTON_UI } from "@/components/domain/game/GameQuestionsFiltersModalHeader/game-questions-filters-modal-header.constants";
 import type { GameQuestionsFiltersModalHeaderProps } from "@/components/domain/game/GameQuestionsFiltersModalHeader/game-questions-filters-modal-header.types";
 
 describe("GameQuestionsFiltersModalHeader Component", () => {
@@ -61,14 +62,14 @@ describe("GameQuestionsFiltersModalHeader Component", () => {
     expect(wrapper.find("[data-testid='game-questions-filters-modal-count-badge']").exists()).toBe(true);
   });
 
-  it("should not render the reset button when isResetVisible is false.", () => {
-    expect(getResetButton().exists()).toBe(false);
+  it("should render the reset button as invisible when isResetVisible is false.", () => {
+    expect(getResetButton().classes()).toContain("invisible");
   });
 
-  it("should render the reset button when isResetVisible is true.", async() => {
+  it("should render the reset button as visible when isResetVisible is true.", async() => {
     await wrapper.setProps({ isResetVisible: true });
 
-    expect(getResetButton().exists()).toBe(true);
+    expect(getResetButton().classes()).not.toContain("invisible");
   });
 
   it("should set the reset button label to the reset translation key when visible.", async() => {
@@ -81,6 +82,10 @@ describe("GameQuestionsFiltersModalHeader Component", () => {
     await wrapper.setProps({ isResetVisible: true });
 
     expect(getResetButton().props("icon")).toBe("i-lucide-rotate-ccw");
+  });
+
+  it("should color the reset button icon with the error color when visible.", () => {
+    expect(getResetButton().props("ui")).toStrictEqual(GAME_QUESTIONS_FILTERS_RESET_BUTTON_UI);
   });
 
   it("should emit reset when the reset button is clicked.", async() => {

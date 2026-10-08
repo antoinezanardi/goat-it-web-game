@@ -290,11 +290,14 @@ describe("GameQuestionsFiltersModal Component", () => {
     expect(getFooter().props("isPrimaryButtonDisabled")).toBe(false);
   });
 
-  it("should emit update:isOpen when UModal emits update:open.", async() => {
+  it.each<{ openValue: boolean; expectedEmitted: [[boolean]] }>([
+    { openValue: false, expectedEmitted: [[false]] },
+    { openValue: true, expectedEmitted: [[true]] },
+  ])("should emit update:isOpen as $openValue when UModal emits update:open as $openValue.", async({ openValue, expectedEmitted }) => {
     await openFiltersModal();
-    getWrapperVm(wrapper.findComponent<typeof UModal>({ name: "UModal" })).$emit("update:open", false);
+    getWrapperVm(wrapper.findComponent<typeof UModal>({ name: "UModal" })).$emit("update:open", openValue);
 
-    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[false]]);
+    expect(wrapper.emitted("update:isOpen")).toStrictEqual(expectedEmitted);
   });
 
   it("should emit update:isOpen as false when the footer emits closeModal.", async() => {
@@ -366,6 +369,31 @@ describe("GameQuestionsFiltersModal Component", () => {
     expect(wrapper.emitted("update:isOpen")).toBeUndefined();
   });
 
+  it("should not create another discard confirmation when a close is requested while one is already pending.", async() => {
+    await openFiltersModal();
+    emitAdultContentDraft(true);
+    await nextTick();
+    getWrapperVm(getFooter()).$emit("closeModal");
+    getWrapperVm(getFooter()).$emit("closeModal");
+    await flushPromises();
+
+    expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(ConfirmDialog, expect.objectContaining({ destroyOnClose: true }));
+  });
+
+  it("should create a new discard confirmation when closing again after the previous confirmation was canceled.", async() => {
+    await openFiltersModal();
+    emitAdultContentDraft(true);
+    await nextTick();
+    getWrapperVm(getFooter()).$emit("closeModal");
+    await flushPromises();
+    getCreatedModalInstance().close(false);
+    await flushPromises();
+    getWrapperVm(getFooter()).$emit("closeModal");
+    await flushPromises();
+
+    expect(useOverlayMock.instance.create).toHaveBeenCalledTimes(2);
+  });
+
   it("should create the discard confirmation when the modal requests to close with a modified draft.", async() => {
     await openFiltersModal();
     emitAdultContentDraft(true);
@@ -374,13 +402,6 @@ describe("GameQuestionsFiltersModal Component", () => {
     await flushPromises();
 
     expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(ConfirmDialog, expect.objectContaining({ destroyOnClose: true }));
-  });
-
-  it("should emit update:isOpen when the modal requests to close with an unmodified draft.", async() => {
-    await openFiltersModal();
-    getWrapperVm(wrapper.findComponent<typeof UModal>({ name: "UModal" })).$emit("update:open", false);
-
-    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[false]]);
   });
 
   it("should not create the discard confirmation when the footer close is triggered with an unmodified draft.", async() => {
@@ -408,12 +429,5 @@ describe("GameQuestionsFiltersModal Component", () => {
     getWrapperVm(getFooter()).$emit("primaryButtonClick");
 
     expect(useOverlayMock.instance.create).not.toHaveBeenCalled();
-  });
-
-  it("should emit update:isOpen with true when the modal emits update:open with true.", async() => {
-    await openFiltersModal();
-    getWrapperVm(wrapper.findComponent<typeof UModal>({ name: "UModal" })).$emit("update:open", true);
-
-    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[true]]);
   });
 });

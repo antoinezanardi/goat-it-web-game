@@ -54,10 +54,11 @@ When(
 
 When(
   /^the user returns from the discard confirmation by (?<action>going back|pressing escape)$/u,
-  async function(this: GoatItWorld, action: string): Promise<void> {
-    if (action === "going back") {
-      const confirmFooter = this.page.getByTestId("confirm-dialog-footer");
+  async function(this: GoatItWorld, action: "going back" | "pressing escape"): Promise<void> {
+    const confirmFooter = this.page.getByTestId("confirm-dialog-footer");
 
+    await expect(confirmFooter).toBeVisible();
+    if (action === "going back") {
       await clickModalFooterButton(confirmFooter, "close");
 
       return;

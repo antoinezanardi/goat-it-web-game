@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { UButton } from "#components";
 
+import { GAME_QUESTIONS_FILTERS_RESET_BUTTON_UI } from "@/components/domain/game/GameQuestionsFiltersModalHeader/game-questions-filters-modal-header.constants";
 import type {
   GameQuestionsFiltersModalHeaderEmits,
   GameQuestionsFiltersModalHeaderProps,
@@ -32,13 +33,13 @@ function onReset(): void {
     />
 
     <UButton
-      v-if="props.isResetVisible"
-      class="me-10 ml-auto"
+      :class="{ 'invisible': !props.isResetVisible }"
       color="neutral"
       data-testid="game-questions-filters-modal-reset-button"
       icon="i-lucide-rotate-ccw"
       :label="t('game.questionsFilters.reset')"
       size="sm"
+      :ui="GAME_QUESTIONS_FILTERS_RESET_BUTTON_UI"
       variant="outline"
       @click="onReset"
     />
