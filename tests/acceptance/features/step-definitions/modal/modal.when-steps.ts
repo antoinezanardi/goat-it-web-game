@@ -42,3 +42,27 @@ When(
     await clickModalFooterButton(dialog, "primary");
   },
 );
+
+When(
+  /^the user confirms closing without applying$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const confirmFooter = this.page.getByTestId("confirm-dialog-footer");
+
+    await clickModalFooterButton(confirmFooter, "primary");
+  },
+);
+
+When(
+  /^the user returns from the discard confirmation by (?<action>going back|pressing escape)$/u,
+  async function(this: GoatItWorld, action: "going back" | "pressing escape"): Promise<void> {
+    const confirmFooter = this.page.getByTestId("confirm-dialog-footer");
+
+    await expect(confirmFooter).toBeVisible();
+    if (action === "going back") {
+      await clickModalFooterButton(confirmFooter, "close");
+
+      return;
+    }
+    await this.page.keyboard.press("Escape");
+  },
+);

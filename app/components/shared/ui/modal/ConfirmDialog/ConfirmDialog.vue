@@ -25,13 +25,22 @@ function onPrimaryButtonClickFromFooter(): void {
   isOpen.value = false;
   emit("close", true);
 }
+
+function onUpdateOpen(value: boolean): void {
+  isOpen.value = value;
+  if (value) {
+    return;
+  }
+  emit("close", false);
+}
 </script>
 
 <template>
   <UModal
-    v-model:open="isOpen"
     :close="close"
     :dismissible="dismissible"
+    :open="isOpen"
+    @update:open="onUpdateOpen"
   >
     <template #title>
       <DefaultModalTitle

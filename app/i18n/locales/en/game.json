@@ -50,6 +50,10 @@
       "title": "Question filters",
       "apply": "Apply filters",
       "reset": "Reset",
+      "discardTitle": "Discard unapplied filters?",
+      "discardDescription": "Your filter changes haven't been applied. If you close now, they won't be applied.",
+      "discardBack": "Back to filters",
+      "discardClose": "Close without applying",
       "successToast": "Filters applied. Your next questions will use the updated filters."
     },
     "interactiveTutorial": {

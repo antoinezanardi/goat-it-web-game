@@ -40,6 +40,7 @@ Feature: 🎛️ Game Questions Filters
     When the user opens the question filters
     And the user turns on the questions filters adult content switch
     And the user clicks on the close button in the modal header
+    And the user confirms closing without applying
     And the user opens the question filters
     Then the questions filters adult content switch should be off
 
@@ -225,11 +226,14 @@ Feature: 🎛️ Game Questions Filters
     Given the user is on game page
     When the user opens the question filters
     And the user turns on the questions filters adult content switch
+    And the user clicks on the primary button in the modal
+    And the user opens the question filters
     And the user clicks the reset button in the question filters modal
     And the user clicks on the close button in the modal header
+    And the user confirms closing without applying
     And the user opens the question filters
-    Then the questions filters adult content switch should be off
-    And the element with testid "game-questions-filters-modal-reset-button" should be hidden
+    Then the questions filters adult content switch should be on
+    And the element with testid "game-questions-filters-modal-reset-button" should be visible
 
   Scenario: 🎛️ Filter counts and reset are exposed with singular then plural accessible names
     Given the user is on game page
@@ -248,3 +252,62 @@ Feature: 🎛️ Game Questions Filters
     Then the element with testid "game-questions-filters-button-badge" should have the accessible name "2 active filters"
     When the user opens the game sidebar
     Then the element with testid "game-sidebar-filters-link" should have the accessible name "Question filters 2 active filters"
+
+  Scenario: 🎛️ Closing a modified filters draft requests a discard confirmation
+    Given the user is on game page
+    When the user opens the question filters
+    And the user turns on the questions filters adult content switch
+    And the user clicks on the close button in the modal header
+    Then the element with testid "confirm-dialog-modal" should be visible
+
+  Scenario: 🎛️ Closing an unmodified filters draft closes directly
+    Given the user is on game page
+    When the user opens the question filters
+    And the user clicks on the close button in the modal header
+    Then the element with testid "game-questions-filters-modal" should be hidden
+    And the element with testid "confirm-dialog-modal" should be hidden
+
+  Scenario Outline: 🎛️ Returning from the discard confirmation preserves filter edits
+    Given the user is on game page
+    When the user opens the question filters
+    And the user turns on the questions filters adult content switch
+    And the user clicks on the close button in the modal header
+    Then the element with testid "confirm-dialog-modal" should be visible
+    When the user returns from the discard confirmation by <action>
+    Then the element with testid "game-questions-filters-modal" should be visible
+    And the questions filters adult content switch should be on
+
+    Examples:
+      | action          |
+      | going back      |
+      | pressing escape |
+
+  Scenario: 🎛️ Clicking outside the discard confirmation preserves filter edits
+    Given the user is on game page
+    When the user opens the question filters
+    And the user turns on the questions filters adult content switch
+    And the user clicks on the close button in the modal header
+    Then the element with testid "confirm-dialog-modal" should be visible
+    When the user clicks on the overlay outside of the modal
+    Then the element with testid "game-questions-filters-modal" should be visible
+    And the questions filters adult content switch should be on
+
+  Scenario: 🎛️ Confirming close discards unapplied filter edits
+    Given the user is on game page
+    When the user opens the question filters
+    And the user turns on the questions filters adult content switch
+    And the user clicks on the close button in the modal header
+    And the user confirms closing without applying
+    Then the element with testid "game-questions-filters-modal" should be hidden
+    When the user opens the question filters
+    Then the questions filters adult content switch should be off
+
+  Scenario: 🎛️ Applying filters does not show a discard confirmation
+    Given the user is on game page
+    When the user opens the question filters
+    And the user turns on the questions filters adult content switch
+    And the user clicks on the primary button in the modal
+    Then the element with testid "game-questions-filters-modal" should be hidden
+    And the element with testid "confirm-dialog-modal" should be hidden
+    And the toast with exact text "Filters applied. Your next questions will use the updated filters." should be visible
+

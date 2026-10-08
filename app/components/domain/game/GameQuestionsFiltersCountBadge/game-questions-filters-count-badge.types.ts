@@ -1,5 +1,8 @@
+type GameQuestionsFiltersCountBadgeDisplayMode = "count" | "full";
+
 type GameQuestionsFiltersCountBadgeProps = {
   count: number;
+  displayMode?: GameQuestionsFiltersCountBadgeDisplayMode;
 };
 
-export type { GameQuestionsFiltersCountBadgeProps };
+export type { GameQuestionsFiltersCountBadgeDisplayMode, GameQuestionsFiltersCountBadgeProps };

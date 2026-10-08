@@ -3,9 +3,9 @@ import { QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import type { QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 import { isEqual } from "radashi";
 
-import { GameQuestionsFiltersModalContent, GameQuestionsFiltersModalHeader } from "#components";
+import { ConfirmDialog, GameQuestionsFiltersModalContent, GameQuestionsFiltersModalHeader } from "#components";
 
-import { GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
+import { GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS, GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
 import type {
   GameQuestionsFiltersDraft,
   GameQuestionsFiltersModalEmits,
@@ -19,6 +19,8 @@ const emit = defineEmits<GameQuestionsFiltersModalEmits>();
 const { t } = useI18n();
 const settingsStore = useGameSettingsStore();
 const { activeFiltersCount } = useGameQuestionsFilters();
+
+const overlay = useOverlay();
 
 function readCommittedDraft(): GameQuestionsFiltersDraft {
   return {
@@ -35,7 +37,9 @@ const normalizedDraft = computed<GameQuestionsFiltersDraft>(() => ({
   cognitiveDifficulties: QUESTION_COGNITIVE_DIFFICULTIES.filter(difficulty => draft.value.cognitiveDifficulties.includes(difficulty)),
 }));
 
-const isApplyDisabled = computed<boolean>(() => props.isApplyPending || isEqual(normalizedDraft.value, snapshot.value));
+const isDraftModified = computed<boolean>(() => !isEqual(normalizedDraft.value, snapshot.value));
+
+const isApplyDisabled = computed<boolean>(() => props.isApplyPending || !isDraftModified.value);
 
 const isDraftModifiedFromDefaults = computed<boolean>(() => !isEqual(normalizedDraft.value, GAME_SETTINGS_DEFAULTS));
 
@@ -51,12 +55,55 @@ watch(() => props.isOpen, (isOpen: boolean) => {
   };
 });
 
+async function confirmDiscard(): Promise<boolean> {
+  const modal = overlay.create(ConfirmDialog, {
+    destroyOnClose: true,
+    props: {
+      close: false,
+      closeButtonLabel: t("game.questionsFilters.discardBack"),
+      description: t("game.questionsFilters.discardDescription"),
+      disableShortcuts: true,
+      icon: GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON,
+      iconClass: GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS,
+      primaryButtonLabel: t("game.questionsFilters.discardClose"),
+      title: t("game.questionsFilters.discardTitle"),
+    },
+  });
+
+  return await modal.open();
+}
+
+let isConfirmingDiscard = false;
+
+async function requestClose(): Promise<void> {
+  if (isConfirmingDiscard) {
+    return;
+  }
+  if (isDraftModified.value) {
+    isConfirmingDiscard = true;
+    try {
+      const shouldDiscard = await confirmDiscard();
+      if (!shouldDiscard) {
+        return;
+      }
+    } finally {
+      isConfirmingDiscard = false;
+    }
+  }
+  emit("update:isOpen", false);
+}
+
 function onUpdateOpen(value: boolean): void {
-  emit("update:isOpen", value);
+  if (value) {
+    emit("update:isOpen", true);
+
+    return;
+  }
+  void requestClose();
 }
 
 function onCloseModal(): void {
-  onUpdateOpen(false);
+  void requestClose();
 }
 
 function onAdultContentChange(value: boolean): void {

@@ -50,6 +50,10 @@
       "title": "Fragefilter",
       "apply": "Filter anwenden",
       "reset": "Zurücksetzen",
+      "discardTitle": "Nicht angewendete Filter verwerfen?",
+      "discardDescription": "Deine Filteränderungen wurden nicht angewendet. Wenn du jetzt schließt, werden sie nicht übernommen.",
+      "discardBack": "Zurück zu den Filtern",
+      "discardClose": "Ohne Anwenden schließen",
       "successToast": "Filter angewendet. Deine nächsten Fragen verwenden die aktualisierten Filter."
     },
     "interactiveTutorial": {

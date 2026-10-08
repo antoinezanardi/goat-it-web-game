@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { ConfirmDialog } from "#components";
 
-import type { SelectMenuItem } from "#ui/types";
 import type {
   GameSettingsFilterMultiSelectEmits,
+  GameSettingsFilterMultiSelectItem,
   GameSettingsFilterMultiSelectProps,
   GameSettingsFilterOptionColor,
 } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.types";
+import { GAME_SETTINGS_FILTER_MULTI_SELECT_UI } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.constants";
 
 const props = defineProps<GameSettingsFilterMultiSelectProps>();
 const emit = defineEmits<GameSettingsFilterMultiSelectEmits>();
@@ -22,14 +23,15 @@ const FILTER_OPTION_ICON_CLASS_MAP: Record<GameSettingsFilterOptionColor, string
 
 const selectedValues = ref<string[]>([]);
 
-const items = computed<SelectMenuItem[]>(() => props.options.map(option => ({
+const items = computed<GameSettingsFilterMultiSelectItem[]>(() => props.options.map(option => ({
   ...option.color ? { ui: { itemLeadingIcon: FILTER_OPTION_ICON_CLASS_MAP[option.color] } } : {},
   icon: option.icon,
   label: option.label,
+  trailingIcon: selectedValues.value.includes(option.value) ? "i-lucide-square-check" : "i-lucide-square",
   value: option.value,
 })));
 
-const searchInputProps = computed(() => ({ placeholder: t("game.settings.filters.searchPlaceholder") }));
+const searchInputProps = computed(() => ({ autofocus: false, placeholder: t("game.settings.filters.searchPlaceholder") }));
 
 const summaryLabel = computed<string>(() => {
   if (selectedValues.value.length === props.options.length) {
@@ -112,6 +114,7 @@ function onUpdateSelectedValues(value: string[]): void {
       :model-value="selectedValues"
       multiple
       :search-input="searchInputProps"
+      :ui="GAME_SETTINGS_FILTER_MULTI_SELECT_UI"
       value-key="value"
       @update:model-value="onUpdateSelectedValues"
     >
@@ -122,6 +125,14 @@ function onUpdateSelectedValues(value: string[]): void {
         >
           {{ summaryLabel }}
         </span>
+      </template>
+
+      <template #item-trailing="{ item }">
+        <UIcon
+          class="shrink-0 size-5"
+          :data-testid="`game-settings-filter-option-state-${item.value}`"
+          :name="item.trailingIcon"
+        />
       </template>
     </USelectMenu>
   </div>
