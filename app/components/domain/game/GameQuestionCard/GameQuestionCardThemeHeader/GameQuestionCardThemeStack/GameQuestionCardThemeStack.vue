@@ -8,6 +8,7 @@ import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.he
 
 const props = defineProps<GameQuestionCardThemeStackProps>();
 
+const { t } = useI18n();
 const highlight = useQuestionCardHighlight();
 const iconElementReferences = shallowRef<(HTMLElement | undefined)[]>([]);
 const isPopoverOpen = ref(false);
@@ -58,6 +59,7 @@ defineExpose({
     mode="click"
   >
     <button
+      :aria-label="t('questions.themeStack.triggerLabel')"
       class="-space-x-4 cursor-pointer disabled:cursor-default flex items-center"
       data-testid="theme-stack-trigger"
       :disabled="!isInteractive"

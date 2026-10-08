@@ -6,6 +6,7 @@
       "medium": "Cette question est moyennement difficile à déduire",
       "hard": "Cette question est difficile à déduire"
     },
+    "adultContentTooltip": "Cette question est destinée à un public averti",
     "category": {
       "trivia": "Savoir & faits insolites",
       "lexicon": "Lexique",
@@ -24,6 +25,7 @@
       "otherThemes": "+{count} autre thème | +{count} autres thèmes",
       "primaryBadge": "Principal",
       "hintBadge": "Indice",
+      "triggerLabel": "Afficher les thèmes",
       "primaryThemeHintTooltip": "Le thème principal est un indice pour la réponse",
       "themeHintTooltip": "Ce thème est un indice pour la réponse"
     }

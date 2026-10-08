@@ -20,7 +20,6 @@ async function checkAccessibility(world: GoatItWorld, mode: "desktop" | "mobile"
     .setLegacyMode()
     .withTags([...AXE_TAGS])
     .exclude("input[data-hidden]")
-    .exclude("[role='switch'][data-slot='base'][data-state]")
     .analyze();
 
   const violationsToReport = results.violations.filter(violation => !ignoredViolations.includes(violation.id));

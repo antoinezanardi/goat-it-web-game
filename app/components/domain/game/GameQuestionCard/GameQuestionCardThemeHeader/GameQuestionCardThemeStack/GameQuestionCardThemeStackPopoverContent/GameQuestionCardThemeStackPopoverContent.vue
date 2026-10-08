@@ -9,7 +9,7 @@ const { t } = useI18n();
 
 <template>
   <ul
-    class="min-w-52 p-2"
+    class="[--ui-primary:var(--ui-color-primary-300)] [--ui-warning:var(--ui-color-warning-300)] min-w-52 p-2"
     data-testid="theme-popover-content"
   >
     <li
@@ -19,6 +19,7 @@ const { t } = useI18n();
       data-testid="theme-popover-row"
     >
       <GameQuestionCardThemeIcon
+        :data-testid="`theme-icon-${assignment.theme.slug}`"
         :is-hint="assignment.isHint"
         size="sm"
         :theme="assignment.theme"

@@ -71,6 +71,7 @@ Feature: ⌨️ Game Page Keyboard Navigation
     And the user presses the right arrow key
     And the user presses the right arrow key
     And the user presses the right arrow key
+    And the user presses the right arrow key
     Then the interactive tutorial step title should be "Everything is within reach"
     When the user presses the right arrow key
     Then the interactive tutorial should be hidden
@@ -81,6 +82,7 @@ Feature: ⌨️ Game Page Keyboard Navigation
     And the user is on game page
     And a game question should be displayed
     When the user opens the interactive tutorial from the game sidebar
+    And the user presses the right arrow key
     And the user presses the right arrow key
     And the user presses the right arrow key
     And the user presses the right arrow key

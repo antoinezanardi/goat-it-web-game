@@ -19,7 +19,42 @@
         "general": "General",
         "about": "Acerca de"
       },
-      "languageLabel": "Idioma"
+      "languageLabel": "Idioma",
+      "adultContent": {
+        "label": "Contenido para adultos",
+        "descriptionDisabled": "Solo aparecerán preguntas aptas para todos los públicos.",
+        "descriptionEnabled": "Pueden aparecer preguntas que aborden temas sensibles (guerras, violencia, sexo…)."
+      },
+      "filters": {
+        "searchPlaceholder": "Buscar opciones…",
+        "selectedCount": "{count} seleccionados",
+        "confirmRestoreTitle": "¿Restaurar todas las opciones?",
+        "confirmRestoreDescription": "Si deseleccionas la última opción, se restaurarán todas las opciones.",
+        "confirmRestoreAction": "Restaurar todo"
+      },
+      "cognitiveDifficulties": {
+        "label": "Dificultad cognitiva",
+        "allSelected": "Todas las dificultades",
+        "options": {
+          "easy": "Fácil",
+          "medium": "Media",
+          "hard": "Difícil"
+        }
+      }
+    },
+    "questionsFilters": {
+      "triggerLabel": "Abrir los filtros de preguntas",
+      "triggerTooltip": "Filtros de preguntas",
+      "sidebarLabel": "Filtros de preguntas",
+      "appliedCount": "{count} filtro activo | {count} filtros activos",
+      "title": "Filtros de preguntas",
+      "apply": "Aplicar filtros",
+      "reset": "Restablecer",
+      "discardTitle": "¿Descartar los filtros no aplicados?",
+      "discardDescription": "Tus cambios de filtros no se han aplicado. Si cierras ahora, no se aplicarán.",
+      "discardBack": "Volver a los filtros",
+      "discardClose": "Cerrar sin aplicar",
+      "successToast": "Filtros aplicados. Tus próximas preguntas usarán los filtros actualizados."
     },
     "interactiveTutorial": {
       "label": "Tutorial interactivo",
@@ -64,6 +99,10 @@
         "continue": {
           "title": "¿Listo para la próxima investigación?",
           "description": "¿Ha terminado la investigación? Pasa a la Siguiente pregunta para continuar la partida. También puedes ceder el papel de Maestro del Juego a otro jugador: así cada uno podrá presentar enigmas a su vez. Y si quieres volver a ver la carta anterior, usa Anterior cuando esté disponible."
+        },
+        "filters": {
+          "title": "Da forma a las próximas investigaciones",
+          "description": "¿Quieres cambiar un poco de ambiente?\nEl botón en forma de embudo, en la esquina superior derecha, te permite filtrar las próximas preguntas a tu gusto. ¡La elección es tuya!"
         },
         "sidebar": {
           "title": "Todo está al alcance",

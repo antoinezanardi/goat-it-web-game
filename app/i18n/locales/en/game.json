@@ -19,7 +19,42 @@
         "general": "General",
         "about": "About"
       },
-      "languageLabel": "Language"
+      "languageLabel": "Language",
+      "adultContent": {
+        "label": "Adult content",
+        "descriptionDisabled": "Only questions suitable for all audiences will appear.",
+        "descriptionEnabled": "Questions involving sensitive topics (wars, violence, sex…) may appear."
+      },
+      "filters": {
+        "searchPlaceholder": "Search options…",
+        "selectedCount": "{count} selected",
+        "confirmRestoreTitle": "Restore all options?",
+        "confirmRestoreDescription": "Deselecting the last option will restore all options.",
+        "confirmRestoreAction": "Restore all"
+      },
+      "cognitiveDifficulties": {
+        "label": "Cognitive difficulty",
+        "allSelected": "All difficulties",
+        "options": {
+          "easy": "Easy",
+          "medium": "Medium",
+          "hard": "Hard"
+        }
+      }
+    },
+    "questionsFilters": {
+      "triggerLabel": "Open question filters",
+      "triggerTooltip": "Question filters",
+      "sidebarLabel": "Question filters",
+      "appliedCount": "{count} active filter | {count} active filters",
+      "title": "Question filters",
+      "apply": "Apply filters",
+      "reset": "Reset",
+      "discardTitle": "Discard unapplied filters?",
+      "discardDescription": "Your filter changes haven't been applied. If you close now, they won't be applied.",
+      "discardBack": "Back to filters",
+      "discardClose": "Close without applying",
+      "successToast": "Filters applied. Your next questions will use the updated filters."
     },
     "interactiveTutorial": {
       "label": "Interactive tutorial",
@@ -64,6 +99,10 @@
         "continue": {
           "title": "Ready for the next investigation?",
           "description": "Investigation over? Move on to the Next question to continue the game. You can also hand the Game Master role to another player: everyone can then take a turn at presenting riddles. And if you want to revisit the previous card, use Previous when it's available."
+        },
+        "filters": {
+          "title": "Shape the next investigations",
+          "description": "Want to switch things up a bit?\nThe funnel-shaped button in the top right corner lets you filter the next questions however you like. The choice is yours!"
         },
         "sidebar": {
           "title": "Everything is within reach",

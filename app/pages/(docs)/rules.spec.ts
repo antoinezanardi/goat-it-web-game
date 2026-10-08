@@ -159,13 +159,15 @@ describe("Rules Page", () => {
   });
 
   describe("SEO meta", () => {
-    it("should configure SEO meta tags when mounted.", async() => {
+    beforeEach(async() => {
       useAsyncDataMock.mockReturnValue({
         data: ref<null>(null),
         status: ref("pending"),
       });
       wrapper = await mountRulesPage();
+    });
 
+    it("should configure SEO meta tags when mounted.", () => {
       const useHeadMock = vi.mocked(useHead);
       const headInput = useHeadMock.mock.calls[0]?.[0] as
         | { title: () => string; meta: { name?: string; property?: string; content: () => string }[] } |
@@ -186,13 +188,15 @@ describe("Rules Page", () => {
   });
 
   describe("useAsyncData options", () => {
-    it("should pass watch: [locale] option to useAsyncData when mounted.", async() => {
+    beforeEach(async() => {
       useAsyncDataMock.mockReturnValue({
         data: ref<null>(null),
         status: ref("pending"),
       });
       wrapper = await mountRulesPage();
+    });
 
+    it("should pass watch: [locale] option to useAsyncData when mounted.", () => {
       const options = useAsyncDataMock.mock.calls[0]?.[2];
       const { locale } = useI18n();
 

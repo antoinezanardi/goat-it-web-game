@@ -5,6 +5,7 @@ import { expect } from "@playwright/test";
 import { validateDataTableAndGetRows } from "#acceptance/features/support/helpers/datatable.helpers.ts";
 import { ACCEPTANCE_TESTS_SITE_URL } from "#acceptance/features/support/constants/hooks.constants.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
+import { fetchSitemapXml } from "#acceptance/features/step-definitions/seo/helpers/seo.then-steps.helpers.ts";
 
 import { SEO_META_TAG_ROW_SCHEMA } from "./datatables/seo.datatables.schemas.ts";
 
@@ -44,9 +45,7 @@ Then(
 Then(
   /^the sitemap.xml should contain the route "(?<route>[^"]*)"$/u,
   async function(this: GoatItWorld, route: string): Promise<void> {
-    const baseUrl = new URL(this.page.url()).origin;
-    const response = await this.page.request.get(`${baseUrl}/sitemap.xml`);
-    const content = await response.text();
+    const content = await fetchSitemapXml(this.page);
 
     const routePattern = route === "/" ? /<loc>https?:\/\/[^<]+\/?<\/loc>/u : new RegExp(`<loc>https?://[^<]*${route.replaceAll(/[.*+?^${}()|[\]\\]/gu, String.raw`\$&`)}</loc>`, "u");
 
@@ -58,9 +57,7 @@ Then(
   /^the sitemap.xml should contain exactly the expected routes$/u,
   async function(this: GoatItWorld): Promise<void> {
     const expectedRoutes = ["/", "/game", "/rules"];
-    const baseUrl = new URL(this.page.url()).origin;
-    const response = await this.page.request.get(`${baseUrl}/sitemap.xml`);
-    const content = await response.text();
+    const content = await fetchSitemapXml(this.page);
 
     const locMatches = content.match(/<loc>[^<]*<\/loc>/gu) ?? [];
 
@@ -78,9 +75,7 @@ Then(
 Then(
   /^the sitemap.xml should contain hreflang alternates for all 6 locales$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const baseUrl = new URL(this.page.url()).origin;
-    const response = await this.page.request.get(`${baseUrl}/sitemap.xml`);
-    const content = await response.text();
+    const content = await fetchSitemapXml(this.page);
     const localeCodes = ["fr", "en", "de", "es", "it", "pt"];
 
     for (const locale of localeCodes) {

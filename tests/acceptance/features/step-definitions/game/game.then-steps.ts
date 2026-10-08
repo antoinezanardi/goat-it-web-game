@@ -3,6 +3,11 @@ import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
+import {
+  expectQuestionCardFieldText,
+  getThemePopoverRow,
+  hoverBadgeAndExpectPopoverText,
+} from "#acceptance/features/step-definitions/game/helpers/game.then-steps.helpers.ts";
 
 Then(
   /^a game question should be displayed$/u,
@@ -60,18 +65,14 @@ Then(
 Then(
   /^the question theme should be "(?<theme>[^"]*)"$/u,
   async function(this: GoatItWorld, theme: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
-
-    await expect(question.getByTestId("game-question-theme")).toHaveText(theme);
+    await expectQuestionCardFieldText(this.page, "game-question-theme", theme);
   },
 );
 
 Then(
   /^the question category should be "(?<category>[^"]*)"$/u,
   async function(this: GoatItWorld, category: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
-
-    await expect(question.getByTestId("game-question-category")).toHaveText(category);
+    await expectQuestionCardFieldText(this.page, "game-question-category", category);
   },
 );
 
@@ -81,34 +82,28 @@ Then(
     const question = getVisibleGameQuestionCard(this.page);
     const difficultyBadge = question.getByTestId("game-question-difficulty");
 
-    await expect(difficultyBadge).toBeVisible();
-    await difficultyBadge.hover();
-
     const gameQuestionDifficultyTooltip: Readonly<Record<string, string>> = {
       easy: "This question is easy to deduce",
       medium: "This question is moderately difficult to deduce",
       hard: "This question is hard to deduce",
     };
     const tooltipText = gameQuestionDifficultyTooltip[difficulty.toLowerCase()] ?? difficulty;
-    await expect(this.page.getByTestId("game-question-difficulty-popover")).toHaveText(tooltipText);
+
+    await hoverBadgeAndExpectPopoverText(this.page, difficultyBadge, "game-question-difficulty-popover", tooltipText);
   },
 );
 
 Then(
   /^the question statement should be "(?<statement>[^"]*)"$/u,
   async function(this: GoatItWorld, statement: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
-
-    await expect(question.getByTestId("game-question-statement")).toHaveText(statement);
+    await expectQuestionCardFieldText(this.page, "game-question-statement", statement);
   },
 );
 
 Then(
   /^the question answer should be "(?<answer>[^"]*)"$/u,
   async function(this: GoatItWorld, answer: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
-
-    await expect(question.getByTestId("game-question-answer")).toHaveText(answer);
+    await expectQuestionCardFieldText(this.page, "game-question-answer", answer);
   },
 );
 
@@ -125,9 +120,7 @@ Then(
 Then(
   /^the question context should be "(?<context>[^"]*)"$/u,
   async function(this: GoatItWorld, context: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
-
-    await expect(question.getByTestId("game-question-context")).toHaveText(context);
+    await expectQuestionCardFieldText(this.page, "game-question-context", context);
   },
 );
 
@@ -182,7 +175,7 @@ Then(
   /^the primary theme "(?<label>[^"]*)" should be flagged in the themes popover$/u,
   async function(this: GoatItWorld, label: string): Promise<void> {
     const popover = this.page.getByTestId("theme-popover-content");
-    const row = popover.locator("[data-testid='theme-popover-row']").filter({ hasText: label });
+    const row = getThemePopoverRow(popover, label);
 
     await expect(row.getByTestId("theme-primary-badge")).toBeVisible();
   },
@@ -208,7 +201,7 @@ Then(
   /^the hint theme "(?<label>[^"]*)" should be flagged in the themes popover$/u,
   async function(this: GoatItWorld, label: string): Promise<void> {
     const popover = this.page.getByTestId("theme-popover-content");
-    const row = popover.locator("[data-testid='theme-popover-row']").filter({ hasText: label });
+    const row = getThemePopoverRow(popover, label);
 
     await expect(row.getByTestId("theme-hint-badge")).toBeVisible();
   },
@@ -218,7 +211,7 @@ Then(
   /^the non-hint theme "(?<label>[^"]*)" should not be flagged in the themes popover$/u,
   async function(this: GoatItWorld, label: string): Promise<void> {
     const popover = this.page.getByTestId("theme-popover-content");
-    const row = popover.locator("[data-testid='theme-popover-row']").filter({ hasText: label });
+    const row = getThemePopoverRow(popover, label);
 
     await expect(row.getByTestId("theme-hint-badge")).toBeHidden();
   },
@@ -230,10 +223,7 @@ Then(
     const question = getVisibleGameQuestionCard(this.page);
     const hintBadge = question.getByTestId("game-question-hint");
 
-    await expect(hintBadge).toBeVisible();
-    await hintBadge.hover();
-
-    await expect(this.page.getByTestId("game-question-hint-popover")).toHaveText(text);
+    await hoverBadgeAndExpectPopoverText(this.page, hintBadge, "game-question-hint-popover", text);
   },
 );
 
@@ -241,13 +231,10 @@ Then(
   /^hovering the "(?<label>[^"]*)" hint badge in the themes popover shows the popover "(?<text>[^"]*)"$/u,
   async function(this: GoatItWorld, label: string, text: string): Promise<void> {
     const popover = this.page.getByTestId("theme-popover-content");
-    const row = popover.locator("[data-testid='theme-popover-row']").filter({ hasText: label });
+    const row = getThemePopoverRow(popover, label);
     const hintBadge = row.getByTestId("theme-hint-badge");
 
-    await expect(hintBadge).toBeVisible();
-    await hintBadge.hover();
-
-    await expect(this.page.getByTestId("theme-hint-popover")).toHaveText(text);
+    await hoverBadgeAndExpectPopoverText(this.page, hintBadge, "theme-hint-popover", text);
   },
 );
 
@@ -262,5 +249,33 @@ Then(
   /^exactly (?<count>\d+) game question cards? should be staged$/u,
   async function(this: GoatItWorld, count: string): Promise<void> {
     await expect(this.page.getByTestId("game-question-staged")).toHaveCount(Number(count));
+  },
+);
+
+Then(
+  /^the adult content badge should be visible$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+
+    await expect(question.getByTestId("game-question-adult-content")).toBeVisible();
+  },
+);
+
+Then(
+  /^the adult content badge should be hidden$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+
+    await expect(question.getByTestId("game-question-adult-content")).toBeHidden();
+  },
+);
+
+Then(
+  /^hovering the adult content badge shows the popover "(?<text>[^"]*)"$/u,
+  async function(this: GoatItWorld, text: string): Promise<void> {
+    const question = getVisibleGameQuestionCard(this.page);
+    const adultContentBadge = question.getByTestId("game-question-adult-content");
+
+    await hoverBadgeAndExpectPopoverText(this.page, adultContentBadge, "game-question-adult-content-popover", text);
   },
 );

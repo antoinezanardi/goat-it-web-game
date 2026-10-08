@@ -60,6 +60,7 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
     hasPendingRestage.value = false;
     isRestaging.value = false;
     options.onStaged?.();
+    stageSlots();
   }
 
   function scheduleRestage(): void {
@@ -111,15 +112,19 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
     }
   });
 
-  watch(() => toValue(questions).length, (nextLength, previousLength) => {
+  const stagedQuestionIds = computed<(string | undefined)[]>(() => {
+    const ids: (string | undefined)[] = [];
+    for (let offset = -QUESTION_CARD_RING_RADIUS; offset <= QUESTION_CARD_RING_RADIUS; offset++) {
+      ids.push(getQuestionAtOffset(offset)?.id);
+    }
+    return ids;
+  });
+
+  watch(stagedQuestionIds, () => {
     if (isTransitioning.value || isRestaging.value) {
       return;
     }
-
-    if (nextLength > previousLength) {
-      const farSlotIndex = getSlotIndexForOffset(QUESTION_CARD_RING_RADIUS);
-      slotQuestions.value[farSlotIndex] ??= getQuestionAtOffset(QUESTION_CARD_RING_RADIUS);
-    }
+    stageSlots();
   });
 
   function complete(direction: "backward" | "forward"): void {

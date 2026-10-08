@@ -8,6 +8,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { useGsapMock } from "~~/tests/unit/setup/nuxt/composables/use-gsap.nuxt.unit-setup";
 import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup";
 
+import type { GameQuestionCard } from "#components";
 import { GameQuestionCardSwitcher } from "#components";
 
 import type { GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
@@ -86,28 +87,42 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCard" }).props("isActive")).toBe(true);
   });
 
+  it("should mark the active question card as not frozen when mounted.", () => {
+    expect(wrapper.findComponent<typeof GameQuestionCard>("[data-testid='game-question']").props("isFrozen")).toBe(false);
+  });
+
+  it("should mark the staged question card as frozen when mounted.", () => {
+    expect(wrapper.findComponent<typeof GameQuestionCard>("[data-testid='game-question-staged']").props("isFrozen")).toBe(true);
+  });
+
   it("should render staged cards in the non-active slots when mounted.", () => {
     expect(wrapper.findAll("[data-testid='game-question-staged']")).toHaveLength(2);
   });
 
-  it("should set the active card container to resting state when mounted.", () => {
+  it.each<{
+    description: string;
+    getElement: () => Element;
+    expectedState: { opacity: number; rotation: number; xPercent: number; zIndex: number };
+  }>([
+    {
+      description: "active card container",
+      getElement: (): Element => getVisibleCardElement(wrapper).element,
+      expectedState: { opacity: 1, rotation: 0, xPercent: 0, zIndex: 1 },
+    },
+    {
+      description: "first staged container",
+      getElement: (): Element => getStagedCardElement(wrapper, 0).element,
+      expectedState: { opacity: 0, rotation: 0, xPercent: 0, zIndex: 0 },
+    },
+    {
+      description: "second staged container",
+      getElement: (): Element => getStagedCardElement(wrapper, 1).element,
+      expectedState: { opacity: 0, rotation: 0, xPercent: 0, zIndex: 0 },
+    },
+  ])("should set the $description to resting state when mounted.", ({ getElement, expectedState }) => {
     expect(useGsapMock.instance.set).toHaveBeenCalledWith(
-      getContainerParent(getVisibleCardElement(wrapper).element),
-      { opacity: 1, rotation: 0, xPercent: 0, zIndex: 1 },
-    );
-  });
-
-  it("should set the first staged container to resting state when mounted.", () => {
-    expect(useGsapMock.instance.set).toHaveBeenCalledWith(
-      getContainerParent(getStagedCardElement(wrapper, 0).element),
-      { opacity: 0, rotation: 0, xPercent: 0, zIndex: 0 },
-    );
-  });
-
-  it("should set the second staged container to resting state when mounted.", () => {
-    expect(useGsapMock.instance.set).toHaveBeenCalledWith(
-      getContainerParent(getStagedCardElement(wrapper, 1).element),
-      { opacity: 0, rotation: 0, xPercent: 0, zIndex: 0 },
+      getContainerParent(getElement()),
+      expectedState,
     );
   });
 
@@ -128,6 +143,28 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(stagedContainers.filter(container => container.classList.contains("opacity-0"))).toHaveLength(2);
   });
 
+  it.each<{ description: string; getContainer: () => HTMLElement; expectedAttributes: { ariaHidden: string | null; inert: boolean } }>([
+    {
+      description: "active card container",
+      getContainer: (): HTMLElement => getContainerParent(getVisibleCardElement(wrapper).element),
+      expectedAttributes: { ariaHidden: null, inert: false },
+    },
+    {
+      description: "first staged card container",
+      getContainer: (): HTMLElement => getContainerParent(getStagedCardElement(wrapper, 0).element),
+      expectedAttributes: { ariaHidden: "true", inert: true },
+    },
+    {
+      description: "second staged card container",
+      getContainer: (): HTMLElement => getContainerParent(getStagedCardElement(wrapper, 1).element),
+      expectedAttributes: { ariaHidden: "true", inert: true },
+    },
+  ])("should set the accessibility attributes of the $description when mounted.", ({ getContainer, expectedAttributes }) => {
+    const container = getContainer();
+
+    expect({ ariaHidden: container.getAttribute("aria-hidden"), inert: container.hasAttribute("inert") }).toStrictEqual(expectedAttributes);
+  });
+
   it("should start a forward slide when pendingDirection becomes forward.", async() => {
     await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();
@@ -135,48 +172,39 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(useGsapMock.instance.restart).toHaveBeenCalledWith();
   });
 
-  it("should position the entering card to the right when pendingDirection is forward.", async() => {
-    await wrapper.setProps({ pendingDirection: "forward" });
+  it.each<{ direction: "forward" | "backward"; side: "right" | "left"; stagedIndex: number; rotation: number; xPercent: number }>([
+    { direction: "forward", side: "right", stagedIndex: 0, rotation: 6, xPercent: 100 },
+    { direction: "backward", side: "left", stagedIndex: 1, rotation: -6, xPercent: -100 },
+  ])("should position the entering card to the $side when pendingDirection is $direction.", async({ direction, stagedIndex, rotation, xPercent }) => {
+    await wrapper.setProps({ pendingDirection: direction });
     await nextTick();
 
     expect(useGsapMock.instance.set).toHaveBeenCalledWith(
-      getContainerParent(getStagedCardElement(wrapper, 0).element),
-      { opacity: 0, rotation: 6, xPercent: 100, zIndex: 2 },
+      getContainerParent(getStagedCardElement(wrapper, stagedIndex).element),
+      { opacity: 0, rotation, xPercent, zIndex: 2 },
     );
   });
 
-  it("should position the entering card to the left when pendingDirection is backward.", async() => {
-    await wrapper.setProps({ pendingDirection: "backward" });
-    await nextTick();
+  type CardSlideVariables = { duration: number; ease: string; opacity: number; rotation: number; xPercent: number };
 
-    expect(useGsapMock.instance.set).toHaveBeenCalledWith(
-      getContainerParent(getStagedCardElement(wrapper, 1).element),
-      { opacity: 0, rotation: -6, xPercent: -100, zIndex: 2 },
-    );
-  });
-
-  it("should animate the leaving card out when pendingDirection is forward.", async() => {
+  it.each<{ description: string; timelineCall: number; getElement: () => Element; expectedVars: CardSlideVariables }>([
+    {
+      description: "leaving card out",
+      timelineCall: 1,
+      getElement: (): Element => getVisibleCardElement(wrapper).element,
+      expectedVars: { duration: 0.4, ease: "expo.out", opacity: 0, rotation: -6, xPercent: -100 },
+    },
+    {
+      description: "entering card in",
+      timelineCall: 2,
+      getElement: (): Element => getStagedCardElement(wrapper, 0).element,
+      expectedVars: { duration: 0.4, ease: "expo.out", opacity: 1, rotation: 0, xPercent: 0 },
+    },
+  ])("should animate the $description when pendingDirection is forward.", async({ timelineCall, getElement, expectedVars }) => {
     await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();
 
-    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(
-      1,
-      getContainerParent(getVisibleCardElement(wrapper).element),
-      { duration: 0.4, ease: "expo.out", opacity: 0, rotation: -6, xPercent: -100 },
-      0,
-    );
-  });
-
-  it("should animate the entering card in when pendingDirection is forward.", async() => {
-    await wrapper.setProps({ pendingDirection: "forward" });
-    await nextTick();
-
-    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(
-      2,
-      getContainerParent(getStagedCardElement(wrapper, 0).element),
-      { duration: 0.4, ease: "expo.out", opacity: 1, rotation: 0, xPercent: 0 },
-      0,
-    );
+    expect(useGsapMock.instance.timelineTo).toHaveBeenNthCalledWith(timelineCall, getContainerParent(getElement()), expectedVars, 0);
   });
 
   it("should never use autoAlpha when a slide starts.", async() => {

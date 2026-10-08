@@ -6,6 +6,8 @@ const props = defineProps<GameSidebarProps>();
 const emit = defineEmits<GameSidebarEmits>();
 const { t } = useI18n();
 
+const { activeFiltersCount } = useGameQuestionsFilters();
+
 function onUpdateOpen(value: boolean): void {
   emit("update:isOpen", value);
 }
@@ -17,17 +19,27 @@ function onStartTutorial(): void {
 function onOpenSettings(): void {
   emit("openSettings");
 }
+
+function onOpenFilters(): void {
+  emit("openFilters");
+}
+
+function onAfterLeave(): void {
+  emit("after:leave");
+}
 </script>
 
 <template>
   <USlideover
+    :close="false"
     :open="props.isOpen"
     side="left"
     :title="t('home.brand')"
     :ui="GAME_SIDEBAR_UI"
+    @after:leave="onAfterLeave"
     @update:open="onUpdateOpen"
   >
-    <template #header>
+    <template #title>
       <ULink
         class="flex gap-2 items-center"
         data-testid="game-sidebar"
@@ -58,6 +70,25 @@ function onOpenSettings(): void {
             name="i-lucide-compass"
           />
           {{ t("game.interactiveTutorial.label") }}
+        </ULink>
+
+        <ULink
+          class="flex gap-1.5 items-center"
+          data-testid="game-sidebar-filters-link"
+          @click="onOpenFilters"
+        >
+          <UIcon
+            class="size-4"
+            name="i-lucide-funnel"
+          />
+          {{ t("game.questionsFilters.sidebarLabel") }}
+
+          <GameQuestionsFiltersCountBadge
+            v-if="activeFiltersCount > 0"
+            class="ml-1"
+            :count="activeFiltersCount"
+            data-testid="game-sidebar-filters-count-badge"
+          />
         </ULink>
 
         <ULink

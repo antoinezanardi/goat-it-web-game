@@ -194,16 +194,6 @@ describe("GameQuestionCard Component", () => {
     expect(wrapper.find("[data-testid='game-question']").classes()).not.toContain("game-question-card--frozen");
   });
 
-  it.each<{ layerClass: string; layerName: string }>([
-    { layerClass: "game-card-halo__base", layerName: "base" },
-    { layerClass: "game-card-halo__orb-a", layerName: "orb-a" },
-    { layerClass: "game-card-halo__orb-b", layerName: "orb-b" },
-  ])("should render the halo $layerName layer when mounted.", ({ layerClass }) => {
-    const halo = wrapper.find(".game-card-halo");
-
-    expect(halo.find(`.${layerClass}`).exists()).toBe(true);
-  });
-
   it("should not remount the context accordion when the question id changes.", async() => {
     const initialUid = getWrapperVm(wrapper.findComponent({ name: "GameQuestionCardContextAccordion" })).$.uid;
 

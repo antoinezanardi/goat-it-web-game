@@ -6,7 +6,7 @@ import { createFakeQuestionContent } from "~~/tests/unit/utils/faketories/questi
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
-import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getNonEmptyTrivia, getPrimaryTheme, getSecondaryThemes, getSourceDomain, hasContextAndTriviaSection, hasNonEmptyContext, hasSecondaryThemes, isPrimaryThemeHint } from "~/composables/domain/question/helpers/question.helpers";
+import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getNonEmptyTrivia, getPrimaryTheme, getSecondaryThemes, getSourceDomain, hasContextAndTriviaSection, hasNonEmptyContext, hasSecondaryThemes, isPrimaryThemeHint } from "@/composables/domain/question/helpers/question.helpers";
 
 describe(getSourceDomain, () => {
   it("should extract the hostname when a full HTTPS URL is provided.", () => {

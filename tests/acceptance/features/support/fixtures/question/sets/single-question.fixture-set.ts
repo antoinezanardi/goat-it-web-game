@@ -42,6 +42,7 @@ const SINGLE_QUESTION_FIXTURE_SET = [
       "https://www.britannica.com/place/Paris",
     ],
     status: "active",
+    isAdultContent: false,
   },
 ] as const;
 

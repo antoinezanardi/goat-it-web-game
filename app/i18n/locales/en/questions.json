@@ -6,6 +6,7 @@
       "medium": "This question is moderately difficult to deduce",
       "hard": "This question is hard to deduce"
     },
+    "adultContentTooltip": "This question is intended for a mature audience",
     "category": {
       "trivia": "Trivia",
       "lexicon": "Lexicon",
@@ -24,6 +25,7 @@
       "otherThemes": "+{count} other theme | +{count} other themes",
       "primaryBadge": "Primary",
       "hintBadge": "Hint",
+      "triggerLabel": "Show themes",
       "primaryThemeHintTooltip": "The primary theme is a hint for the answer",
       "themeHintTooltip": "This theme is a hint for the answer"
     }

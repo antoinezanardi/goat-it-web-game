@@ -1,4 +1,5 @@
 import { When } from "@cucumber/cucumber";
+import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { waitForPageLoadStates } from "#acceptance/features/support/helpers/navigation.helpers.ts";
@@ -26,8 +27,12 @@ When(
 When(
   /^the user scrolls to the "(?<heading>[^"]*)" heading$/u,
   async function(this: GoatItWorld, heading: string): Promise<void> {
-    await this.page.getByTestId("docs-toc").waitFor({ state: "visible" });
-    await this.page.getByRole("heading", { name: heading }).scrollIntoViewIfNeeded();
+    const docsToc = this.page.getByTestId("docs-toc");
+    const headingLocator = this.page.getByRole("heading", { name: heading });
+
+    await expect(docsToc).toBeVisible();
+    await expect(headingLocator).toBeVisible();
+    await headingLocator.scrollIntoViewIfNeeded();
     await this.page.mouse.move(0, 0);
     await this.page.mouse.wheel(0, 1);
   },

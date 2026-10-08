@@ -25,14 +25,22 @@ function onPrimaryButtonClickFromFooter(): void {
   isOpen.value = false;
   emit("close", true);
 }
+
+function onUpdateOpen(value: boolean): void {
+  isOpen.value = value;
+  if (value) {
+    return;
+  }
+  emit("close", false);
+}
 </script>
 
 <template>
   <UModal
-    v-model:open="isOpen"
     :close="close"
-    data-testid="confirm-dialog-modal"
     :dismissible="dismissible"
+    :open="isOpen"
+    @update:open="onUpdateOpen"
   >
     <template #title>
       <DefaultModalTitle
@@ -44,9 +52,11 @@ function onPrimaryButtonClickFromFooter(): void {
     </template>
 
     <template #body>
-      <p data-testid="confirm-dialog-description">
-        {{ description }}
-      </p>
+      <div data-testid="confirm-dialog-modal">
+        <p data-testid="confirm-dialog-description">
+          {{ description }}
+        </p>
+      </div>
     </template>
 
     <template #footer>
@@ -54,6 +64,7 @@ function onPrimaryButtonClickFromFooter(): void {
         :close-button-label="closeButtonLabel"
         data-testid="confirm-dialog-footer"
         :disable-shortcuts="disableShortcuts"
+        :primary-button-icon="primaryButtonIcon"
         :primary-button-label="primaryButtonLabel"
         @close-modal="onCloseModalFromFooter"
         @primary-button-click="onPrimaryButtonClickFromFooter"

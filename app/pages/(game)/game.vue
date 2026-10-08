@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { nextTick } from "vue";
 
-import { ConfirmDialog, GameSettingsModal, GameTutorial } from "#components";
+import { ConfirmDialog, GameQuestionsFiltersButton, GameQuestionsFiltersModal, GameSettingsModal, GameTutorial } from "#components";
 
 import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "~/composables/domain/question-theme/constants/question-theme.constants";
 import { GAME_PAGE_TITLE_KEY } from "@/pages/(game)/game.constants";
+import type { GameQuestionsFiltersDraft } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
 
 const { t } = useI18n();
 
@@ -54,6 +55,7 @@ onBeforeRouteLeave(async() => {
 });
 
 const {
+  syncQuestionsWithGameSettings,
   advanceToNextQuestion,
   canGoToPreviousQuestion,
   currentIndex,
@@ -101,6 +103,14 @@ const isSidebarOpen = ref(false);
 
 const isSettingsModalOpen = ref(false);
 
+const isFiltersModalOpen = ref(false);
+
+const isFiltersModalOpenRequested = ref(false);
+
+const isApplyFiltersPending = ref(false);
+
+const filtersButton = useTemplateRef<InstanceType<typeof GameQuestionsFiltersButton>>("filtersButton");
+
 function openSidebar(): void {
   isSidebarOpen.value = true;
 }
@@ -123,7 +133,53 @@ function onSettingsOpenChange(isOpen: boolean): void {
   isSettingsModalOpen.value = isOpen;
 }
 
-const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTourRequested.value || isLeaveConfirmationOpen.value || isSettingsModalOpen.value);
+function openFiltersModal(): void {
+  isFiltersModalOpen.value = true;
+}
+
+function onFiltersOpenChange(isOpen: boolean): void {
+  isFiltersModalOpen.value = isOpen;
+}
+
+function onOpenFiltersFromSidebar(): void {
+  isFiltersModalOpenRequested.value = true;
+  isSidebarOpen.value = false;
+}
+
+async function onSidebarAfterLeave(): Promise<void> {
+  if (!isFiltersModalOpenRequested.value) {
+    return;
+  }
+  isFiltersModalOpenRequested.value = false;
+  const playHighlight = filtersButton.value?.playHighlight;
+  if (playHighlight) {
+    await playHighlight();
+  }
+  openFiltersModal();
+}
+
+const { addSuccessToast } = useAppToast();
+const gameSettingsStore = useGameSettingsStore();
+
+async function onFiltersApply(draft: GameQuestionsFiltersDraft): Promise<void> {
+  gameSettingsStore.setAdultContentEnabled(draft.isAdultContentEnabled);
+  gameSettingsStore.setCognitiveDifficulties(draft.cognitiveDifficulties);
+  isFiltersModalOpen.value = false;
+  isApplyFiltersPending.value = true;
+  const synchronization = syncQuestionsWithGameSettings();
+  addSuccessToast({ description: t("game.questionsFilters.successToast") });
+  try {
+    await synchronization;
+  } finally {
+    isApplyFiltersPending.value = false;
+  }
+}
+
+const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
+  isTourRequested.value ||
+  isLeaveConfirmationOpen.value ||
+  isSettingsModalOpen.value ||
+  isFiltersModalOpen.value);
 </script>
 
 <template>
@@ -141,9 +197,18 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTo
       @click="openSidebar"
     />
 
+    <div class="absolute right-4 top-4 z-20">
+      <GameQuestionsFiltersButton
+        ref="filtersButton"
+        @click="openFiltersModal"
+      />
+    </div>
+
     <GameSidebar
       :is-open="isSidebarOpen"
       :is-tutorial-available="isTutorialAvailable"
+      @after:leave="onSidebarAfterLeave"
+      @open-filters="onOpenFiltersFromSidebar"
       @open-settings="onOpenSettings"
       @start-tutorial="onStartTutorialFromSidebar"
       @update:is-open="onSidebarOpenChange"
@@ -153,6 +218,13 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value || isTo
       :is-fetching-questions="isFetchingQuestions"
       :is-open="isSettingsModalOpen"
       @update:is-open="onSettingsOpenChange"
+    />
+
+    <GameQuestionsFiltersModal
+      :is-apply-pending="isApplyFiltersPending"
+      :is-open="isFiltersModalOpen"
+      @apply-filters="onFiltersApply"
+      @update:is-open="onFiltersOpenChange"
     />
 
     <GameTutorial

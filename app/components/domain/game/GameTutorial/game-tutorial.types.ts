@@ -17,6 +17,7 @@ type GameTutorialStepKey =
   | "answer" |
   "clues" |
   "continue" |
+  "filters" |
   "framework" |
   "question" |
   "sidebar" |

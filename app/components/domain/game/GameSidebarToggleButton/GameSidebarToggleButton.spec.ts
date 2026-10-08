@@ -1,8 +1,9 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import { createMainLandmark, removeMainLandmark } from "~~/tests/unit/utils/helpers/main-landmark.helpers";
 
 import { GameSidebarToggleButton } from "#components";
 
@@ -16,7 +17,12 @@ describe("GameSidebarToggleButton Component", () => {
   }
 
   beforeEach(async() => {
+    createMainLandmark();
     wrapper = await mountGameSidebarToggleButton();
+  });
+
+  afterEach(() => {
+    removeMainLandmark();
   });
 
   it("should render GameSidebarToggleButton when mounted.", () => {
@@ -42,7 +48,7 @@ describe("GameSidebarToggleButton Component", () => {
   it("should emit click when the button is clicked.", async() => {
     await wrapper.find("button").trigger("click");
 
-    expect(wrapper.emitted("click")).toBeDefined();
+    expect(wrapper.emitted("click")).toStrictEqual([[]]);
   });
 
   it("should have the data-testid attribute when mounted.", () => {

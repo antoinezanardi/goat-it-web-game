@@ -19,7 +19,42 @@
         "general": "Général",
         "about": "À propos"
       },
-      "languageLabel": "Langue"
+      "languageLabel": "Langue",
+      "adultContent": {
+        "label": "Contenu adulte",
+        "descriptionDisabled": "Seules les questions adaptées à tous les publics apparaîtront.",
+        "descriptionEnabled": "Des questions comportant des sujets sensibles (guerres, violences, sexe…) peuvent apparaître."
+      },
+      "filters": {
+        "searchPlaceholder": "Rechercher des options…",
+        "selectedCount": "{count} sélectionnés",
+        "confirmRestoreTitle": "Restaurer toutes les options ?",
+        "confirmRestoreDescription": "Si vous désélectionnez la dernière option, toutes les options seront restaurées.",
+        "confirmRestoreAction": "Tout restaurer"
+      },
+      "cognitiveDifficulties": {
+        "label": "Difficulté cognitive",
+        "allSelected": "Toutes les difficultés",
+        "options": {
+          "easy": "Facile",
+          "medium": "Moyenne",
+          "hard": "Difficile"
+        }
+      }
+    },
+    "questionsFilters": {
+      "triggerLabel": "Ouvrir les filtres de questions",
+      "triggerTooltip": "Filtres de questions",
+      "sidebarLabel": "Filtres de questions",
+      "appliedCount": "{count} filtre actif | {count} filtres actifs",
+      "title": "Filtres de questions",
+      "apply": "Appliquer les filtres",
+      "reset": "Réinitialiser",
+      "discardTitle": "Abandonner les filtres non appliqués ?",
+      "discardDescription": "Vos modifications de filtres n'ont pas été appliquées. Si vous fermez maintenant, elles ne seront pas prises en compte.",
+      "discardBack": "Revenir aux filtres",
+      "discardClose": "Fermer sans appliquer",
+      "successToast": "Filtres appliqués. Vos prochaines questions utiliseront les filtres mis à jour."
     },
     "interactiveTutorial": {
       "label": "Tutoriel interactif",
@@ -64,6 +99,10 @@
         "continue": {
           "title": "Prêt pour la prochaine enquête ?",
           "description": "L'enquête est terminée ? Passez à la Question suivante pour continuer la partie. Vous pouvez aussi passer le rôle de MJ à un autre joueur : chacun pourra ainsi faire découvrir des énigmes à son tour. Et si vous voulez revoir la carte précédente, utilisez Précédent lorsqu'il est disponible."
+        },
+        "filters": {
+          "title": "Ajustez les prochaines enquêtes",
+          "description": "Envie de changer un peu d'ambiance ?\nLe bouton en forme d'entonnoir, en haut à droite, vous permet de filtrer les prochaines questions selon vos envies. À vous de choisir !"
         },
         "sidebar": {
           "title": "Tout est à portée de main",

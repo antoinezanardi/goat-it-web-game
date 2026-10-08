@@ -1,3 +1,4 @@
+import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
@@ -25,7 +26,7 @@ describe("GameSettingsModal Component", () => {
   } as const;
 
   async function mountGameSettingsModal(options: MountSuspendedOptions<typeof GameSettingsModal> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameSettingsModal, { props: defaultGameSettingsModalProps, ...options });
+    return mountSuspended(GameSettingsModal, { props: defaultGameSettingsModalProps, global: { plugins: [createTestingPinia()] }, ...options });
   }
 
   beforeEach(async() => {

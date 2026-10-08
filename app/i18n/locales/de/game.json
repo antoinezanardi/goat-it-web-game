@@ -19,7 +19,42 @@
         "general": "Allgemein",
         "about": "Über"
       },
-      "languageLabel": "Sprache"
+      "languageLabel": "Sprache",
+      "adultContent": {
+        "label": "Erwachseneninhalte",
+        "descriptionDisabled": "Es werden nur Fragen angezeigt, die für alle Zielgruppen geeignet sind.",
+        "descriptionEnabled": "Es können Fragen zu sensiblen Themen (Kriege, Gewalt, Sex…) erscheinen."
+      },
+      "filters": {
+        "searchPlaceholder": "Optionen suchen…",
+        "selectedCount": "{count} ausgewählt",
+        "confirmRestoreTitle": "Alle Optionen wiederherstellen?",
+        "confirmRestoreDescription": "Wenn Sie die letzte Option abwählen, werden alle Optionen wiederhergestellt.",
+        "confirmRestoreAction": "Alle wiederherstellen"
+      },
+      "cognitiveDifficulties": {
+        "label": "Kognitive Schwierigkeit",
+        "allSelected": "Alle Schwierigkeitsgrade",
+        "options": {
+          "easy": "Leicht",
+          "medium": "Mittel",
+          "hard": "Schwer"
+        }
+      }
+    },
+    "questionsFilters": {
+      "triggerLabel": "Fragefilter öffnen",
+      "triggerTooltip": "Fragefilter",
+      "sidebarLabel": "Fragefilter",
+      "appliedCount": "{count} aktiver Filter | {count} aktive Filter",
+      "title": "Fragefilter",
+      "apply": "Filter anwenden",
+      "reset": "Zurücksetzen",
+      "discardTitle": "Nicht angewendete Filter verwerfen?",
+      "discardDescription": "Deine Filteränderungen wurden nicht angewendet. Wenn du jetzt schließt, werden sie nicht übernommen.",
+      "discardBack": "Zurück zu den Filtern",
+      "discardClose": "Ohne Anwenden schließen",
+      "successToast": "Filter angewendet. Deine nächsten Fragen verwenden die aktualisierten Filter."
     },
     "interactiveTutorial": {
       "label": "Interaktives Tutorial",
@@ -64,6 +99,10 @@
         "continue": {
           "title": "Bereit für die nächste Ermittlung?",
           "description": "Die Ermittlung ist vorbei? Gehe zur nächsten Frage über, um das Spiel fortzusetzen. Du kannst die Rolle des Spielleiters auch an einen anderen Spieler weitergeben: So kann jeder abwechselnd Rätsel präsentieren. Und wenn du die vorherige Karte noch einmal ansehen möchtest, nutze Zurück, wenn es verfügbar ist."
+        },
+        "filters": {
+          "title": "Gestalte die nächsten Ermittlungen",
+          "description": "Lust auf etwas Abwechslung?\nDie Trichter-Schaltfläche oben rechts hilft dir, die nächsten Fragen nach deinen Wünschen zu filtern. Du entscheidest!"
         },
         "sidebar": {
           "title": "Alles ist in Reichweite",

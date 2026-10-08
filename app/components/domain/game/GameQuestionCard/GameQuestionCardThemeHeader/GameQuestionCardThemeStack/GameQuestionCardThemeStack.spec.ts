@@ -58,6 +58,10 @@ describe("GameQuestionCardThemeStack Component", () => {
     expect(wrapper.find("[data-testid='theme-stack-trigger']").exists()).toBe(true);
   });
 
+  it("should set the theme stack trigger aria-label to the trigger label i18n key when mounted.", () => {
+    expect(wrapper.find("[data-testid='theme-stack-trigger']").attributes("aria-label")).toBe("questions.themeStack.triggerLabel");
+  });
+
   it("should render one icon per theme in the stack when mounted.", () => {
     const icons = wrapper.findAllComponents({ name: "UIcon" });
 

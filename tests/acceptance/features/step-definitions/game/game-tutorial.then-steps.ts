@@ -1,10 +1,10 @@
 import { Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
+import { expectTutorialSpotlightCovers } from "#acceptance/features/step-definitions/game/helpers/game-tutorial.then-steps.helpers.ts";
 import {
   getGameTourBackdrop,
   getGameTourButton,
-  getGameTourSpotlight,
   getGameTourTitle,
   getGameTourTooltip,
 } from "#acceptance/features/support/helpers/game.helpers.ts";
@@ -42,21 +42,13 @@ Then(
 Then(
   /^the interactive tutorial should target the sidebar toggle$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const sidebarToggle = this.page.getByTestId("game-sidebar-toggle-button");
-    const spotlight = getGameTourSpotlight(this.page);
+    await expectTutorialSpotlightCovers(this.page, this.page.getByTestId("game-sidebar-toggle-button"));
+  },
+);
 
-    await expect(sidebarToggle).toBeVisible();
-    await expect(spotlight).toBeVisible();
-
-    const toggleBox = await sidebarToggle.boundingBox();
-    const spotlightBox = await spotlight.boundingBox();
-
-    if (toggleBox === null || spotlightBox === null) {
-      throw new Error("Could not measure the sidebar toggle or the interactive tutorial spotlight window.");
-    }
-    expect(spotlightBox.x).toBeLessThanOrEqual(toggleBox.x);
-    expect(spotlightBox.y).toBeLessThanOrEqual(toggleBox.y);
-    expect(spotlightBox.x + spotlightBox.width).toBeGreaterThanOrEqual(toggleBox.x + toggleBox.width);
-    expect(spotlightBox.y + spotlightBox.height).toBeGreaterThanOrEqual(toggleBox.y + toggleBox.height);
+Then(
+  /^the interactive tutorial should target the filters trigger$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expectTutorialSpotlightCovers(this.page, this.page.getByTestId("game-questions-filters-button"));
   },
 );
