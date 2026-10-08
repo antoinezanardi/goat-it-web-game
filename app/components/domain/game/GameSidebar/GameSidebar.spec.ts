@@ -1,15 +1,20 @@
+import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
+import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
+import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 
 import type { UButton, ULink } from "#components";
 import { GameSidebar } from "#components";
 
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
 import type { GameSidebarProps } from "@/components/domain/game/GameSidebar/game-sidebar.types";
+import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 
 describe("GameSidebar Component", () => {
   let wrapper: VueWrapper;
@@ -20,7 +25,7 @@ describe("GameSidebar Component", () => {
   } as const;
 
   async function mountGameSidebar(options: MountSuspendedOptions<typeof GameSidebar> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameSidebar, { props: defaultGameSidebarProps, attachTo: document.body, ...options });
+    return mountSuspended(GameSidebar, { props: defaultGameSidebarProps, attachTo: document.body, global: { plugins: [createTestingPinia()] }, ...options });
   }
 
   function findLinkByTestId(testId: string): VueWrapper<InstanceType<typeof ULink>> {
@@ -168,5 +173,54 @@ describe("GameSidebar Component", () => {
     await wrapper.setProps({ isTutorialAvailable: false });
 
     expect(document.body.querySelector("[data-testid='game-sidebar-tutorial-link']")).toBeNull();
+  });
+
+  it("should render the question filters action directly after the tutorial action when mounted.", () => {
+    const sidebarLinks = [...document.body.querySelectorAll<HTMLElement>("[data-testid='game-sidebar-tutorial-link'], [data-testid='game-sidebar-filters-link']")]
+      .map(element => element.dataset.testid);
+
+    expect(sidebarLinks).toStrictEqual(["game-sidebar-tutorial-link", "game-sidebar-filters-link"]);
+  });
+
+  it("should render the question filters label when mounted.", () => {
+    expect(document.body.querySelector("[data-testid='game-sidebar-filters-link']")?.textContent).toContain("game.questionsFilters.sidebarLabel");
+  });
+
+  it("should render the funnel icon on the question filters action when mounted.", () => {
+    expect(findLinkByTestId("game-sidebar-filters-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-funnel");
+  });
+
+  it("should not render the question filters count badge when no filter group is active.", () => {
+    expect(document.body.querySelector("[data-testid='game-sidebar-filters-count-badge']")).toBeNull();
+  });
+
+  it("should render the question filters count badge with the applied count when a filter group is active.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).props("count")).toBe(1);
+  });
+
+  it("should forward the data-testid attribute to the question filters count badge when a filter group is active.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    await nextTick();
+
+    expect(document.body.querySelector("[data-testid='game-sidebar-filters-count-badge']")).not.toBeNull();
+  });
+
+  it("should not set an explicit aria-label on the question filters action when mounted.", () => {
+    expect(document.body.querySelector("[data-testid='game-sidebar-filters-link']")?.getAttribute("aria-label")).toBeNull();
+  });
+
+  it("should emit openFilters when the question filters action is clicked.", async() => {
+    await findLinkByTestId("game-sidebar-filters-link").find("button").trigger("click");
+
+    expect(wrapper.emitted("openFilters")).toStrictEqual([[]]);
+  });
+
+  it("should emit after:leave when the slideover emits after:leave.", () => {
+    getWrapperVm(wrapper.findComponent({ name: "USlideover" })).$emit("after:leave");
+
+    expect(wrapper.emitted("after:leave")).toStrictEqual([[]]);
   });
 });

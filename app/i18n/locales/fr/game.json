@@ -45,8 +45,11 @@
     "questionsFilters": {
       "triggerLabel": "Ouvrir les filtres de questions",
       "triggerTooltip": "Filtres de questions",
+      "sidebarLabel": "Filtres de questions",
+      "appliedCount": "{count} filtre actif | {count} filtres actifs",
       "title": "Filtres de questions",
       "apply": "Appliquer les filtres",
+      "reset": "Réinitialiser",
       "successToast": "Filtres appliqués. Vos prochaines questions utiliseront les filtres mis à jour."
     },
     "interactiveTutorial": {
@@ -92,6 +95,10 @@
         "continue": {
           "title": "Prêt pour la prochaine enquête ?",
           "description": "L'enquête est terminée ? Passez à la Question suivante pour continuer la partie. Vous pouvez aussi passer le rôle de MJ à un autre joueur : chacun pourra ainsi faire découvrir des énigmes à son tour. Et si vous voulez revoir la carte précédente, utilisez Précédent lorsqu'il est disponible."
+        },
+        "filters": {
+          "title": "Ajustez les prochaines enquêtes",
+          "description": "Envie de changer un peu d'ambiance ?\nLe bouton en forme d'entonnoir, en haut à droite, vous permet de filtrer les prochaines questions selon vos envies. À vous de choisir !"
         },
         "sidebar": {
           "title": "Tout est à portée de main",

@@ -45,8 +45,11 @@
     "questionsFilters": {
       "triggerLabel": "Abrir os filtros de perguntas",
       "triggerTooltip": "Filtros de perguntas",
+      "sidebarLabel": "Filtros de perguntas",
+      "appliedCount": "{count} filtro ativo | {count} filtros ativos",
       "title": "Filtros de perguntas",
       "apply": "Aplicar filtros",
+      "reset": "Redefinir",
       "successToast": "Filtros aplicados. As suas próximas perguntas usarão os filtros atualizados."
     },
     "interactiveTutorial": {
@@ -92,6 +95,10 @@
         "continue": {
           "title": "Pronto para a próxima investigação?",
           "description": "A investigação terminou? Passe para a Próxima pergunta para continuar o jogo. Você também pode passar o papel de Mestre do Jogo para outro jogador: assim cada um poderá apresentar enigmas na sua vez. E se quiser rever a cartela anterior, use Anterior quando estiver disponível."
+        },
+        "filters": {
+          "title": "Dê um novo tom às próximas investigações",
+          "description": "Quer mudar um pouco de ambiente?\nO botão em forma de funil, no canto superior direito, permite filtrar as próximas perguntas ao seu gosto. A escolha é sua!"
         },
         "sidebar": {
           "title": "Tudo ao alcance das mãos",

@@ -55,3 +55,35 @@ Then(
     await expect(applyButton).toBeEnabled();
   },
 );
+
+Then(
+  /^the question filters trigger count badge should be hidden$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expect(this.page.getByTestId("game-questions-filters-button-badge")).toBeHidden();
+  },
+);
+
+Then(
+  /^the question filters applied count on the trigger should be (?<count>\d+)$/u,
+  async function(this: GoatItWorld, count: string): Promise<void> {
+    await expect(this.page.getByTestId("game-questions-filters-button-badge")).toHaveText(count);
+  },
+);
+
+Then(
+  /^the question filters applied count in the modal header should be (?<count>\d+)$/u,
+  async function(this: GoatItWorld, count: string): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+
+    await expect(dialog.getByTestId("game-questions-filters-modal-count-badge")).toHaveText(count);
+  },
+);
+
+Then(
+  /^the question filters applied count in the sidebar should be (?<count>\d+)$/u,
+  async function(this: GoatItWorld, count: string): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+
+    await expect(dialog.getByTestId("game-sidebar-filters-count-badge")).toHaveText(count);
+  },
+);

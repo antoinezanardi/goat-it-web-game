@@ -42,6 +42,7 @@ Feature: 🧑‍🏫 Game Tutorial Accessibility
     And the user clicks the Next button in the interactive tutorial
     And the user clicks the Next button in the interactive tutorial
     And the user clicks the Next button in the interactive tutorial
+    And the user clicks the Next button in the interactive tutorial
     And the interactive tutorial step title should be "Everything is within reach"
     Then the page should not contain accessibility issues in <view> mode
 

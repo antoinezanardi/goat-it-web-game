@@ -3,7 +3,7 @@ import { QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import type { QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 import { isEqual } from "radashi";
 
-import { GameSettingsAdultContentSwitch, GameSettingsCognitiveDifficultiesFilter } from "#components";
+import { GameQuestionsFiltersModalContent, GameQuestionsFiltersModalHeader } from "#components";
 
 import { GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
 import type {
@@ -11,12 +11,14 @@ import type {
   GameQuestionsFiltersModalEmits,
   GameQuestionsFiltersModalProps,
 } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
+import { GAME_SETTINGS_DEFAULTS } from "~/stores/domain/game-settings/game-settings.constants";
 
 const props = defineProps<GameQuestionsFiltersModalProps>();
 const emit = defineEmits<GameQuestionsFiltersModalEmits>();
 
 const { t } = useI18n();
 const settingsStore = useGameSettingsStore();
+const { activeFiltersCount } = useGameQuestionsFilters();
 
 function readCommittedDraft(): GameQuestionsFiltersDraft {
   return {
@@ -34,6 +36,8 @@ const normalizedDraft = computed<GameQuestionsFiltersDraft>(() => ({
 }));
 
 const isApplyDisabled = computed<boolean>(() => props.isApplyPending || isEqual(normalizedDraft.value, snapshot.value));
+
+const isDraftModifiedFromDefaults = computed<boolean>(() => !isEqual(normalizedDraft.value, GAME_SETTINGS_DEFAULTS));
 
 watch(() => props.isOpen, (isOpen: boolean) => {
   if (!isOpen) {
@@ -63,6 +67,13 @@ function onCognitiveDifficultiesChange(value: QuestionCognitiveDifficulty[]): vo
   draft.value = { ...draft.value, cognitiveDifficulties: value };
 }
 
+function onReset(): void {
+  draft.value = {
+    isAdultContentEnabled: GAME_SETTINGS_DEFAULTS.isAdultContentEnabled,
+    cognitiveDifficulties: [...GAME_SETTINGS_DEFAULTS.cognitiveDifficulties],
+  };
+}
+
 function onApply(): void {
   emit("applyFilters", {
     isAdultContentEnabled: draft.value.isAdultContentEnabled,
@@ -78,30 +89,19 @@ function onApply(): void {
     @update:open="onUpdateOpen"
   >
     <template #title>
-      <DefaultModalTitle
-        data-testid="game-questions-filters-modal-title"
-        icon="i-lucide-funnel"
-        :title="t('game.questionsFilters.title')"
+      <GameQuestionsFiltersModalHeader
+        :applied-count="activeFiltersCount"
+        :is-reset-visible="isDraftModifiedFromDefaults"
+        @reset="onReset"
       />
     </template>
 
     <template #body>
-      <div
-        class="flex flex-col gap-3"
-        data-testid="game-questions-filters-modal"
-      >
-        <GameSettingsCognitiveDifficultiesFilter
-          :model-value="draft.cognitiveDifficulties"
-          @update:model-value="onCognitiveDifficultiesChange"
-        />
-
-        <USeparator/>
-
-        <GameSettingsAdultContentSwitch
-          :is-adult-content-enabled="draft.isAdultContentEnabled"
-          @update:is-adult-content-enabled="onAdultContentChange"
-        />
-      </div>
+      <GameQuestionsFiltersModalContent
+        :draft="draft"
+        @update:cognitive-difficulties="onCognitiveDifficultiesChange"
+        @update:is-adult-content-enabled="onAdultContentChange"
+      />
     </template>
 
     <template #footer>

@@ -3,7 +3,8 @@ import { flushPromises } from "@vue/test-utils";
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { nextTick } from "vue";
+import { defineComponent, h, nextTick } from "vue";
+import type { Component, VNode } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
@@ -54,6 +55,27 @@ describe("Game Page", () => {
 
   async function mountGamePage(options: MountSuspendedOptions<typeof GamePage> = {}): Promise<VueWrapper> {
     return mountSuspended(GamePage, { global: { plugins: [createTestingPinia()] }, shallow: true, ...options });
+  }
+
+  function createGameQuestionsFiltersButtonStub(playHighlight: () => Promise<void>): Component {
+    return defineComponent({
+      name: "GameQuestionsFiltersButton",
+      setup(_props, { expose }): () => VNode {
+        expose({ playHighlight });
+
+        return (): VNode => h("div");
+      },
+    });
+  }
+
+  async function mountGamePageWithFiltersButtonStub(playHighlight: () => Promise<void>): Promise<VueWrapper> {
+    return mountSuspended(GamePage, {
+      global: {
+        plugins: [createTestingPinia()],
+        stubs: { GameQuestionsFiltersButton: createGameQuestionsFiltersButtonStub(playHighlight) },
+      },
+      shallow: true,
+    });
   }
 
   beforeEach(async() => {
@@ -777,6 +799,97 @@ describe("Game Page", () => {
       await nextTick();
 
       expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+    });
+  });
+
+  describe("question filters discoverability", () => {
+    async function requestFiltersFromSidebar(localWrapper: VueWrapper): Promise<void> {
+      getWrapperVm(localWrapper.findComponent({ name: "GameSidebar" })).$emit("openFilters");
+      await nextTick();
+    }
+
+    async function emitSidebarAfterLeave(localWrapper: VueWrapper): Promise<void> {
+      getWrapperVm(localWrapper.findComponent({ name: "GameSidebar" })).$emit("after:leave");
+      await flushPromises();
+    }
+
+    function isFiltersModalOpen(localWrapper: VueWrapper): unknown {
+      return localWrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen");
+    }
+
+    it("should close the sidebar when the sidebar emits openFilters.", async() => {
+      await requestFiltersFromSidebar(wrapper);
+
+      expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
+    });
+
+    it("should not open the filters modal when the sidebar emits openFilters but has not left yet.", async() => {
+      await requestFiltersFromSidebar(wrapper);
+
+      expect(isFiltersModalOpen(wrapper)).toBe(false);
+    });
+
+    it("should open the filters modal when the sidebar emits after:leave after a filters request.", async() => {
+      await requestFiltersFromSidebar(wrapper);
+      await emitSidebarAfterLeave(wrapper);
+
+      expect(isFiltersModalOpen(wrapper)).toBe(true);
+    });
+
+    it("should not open the filters modal when the sidebar emits after:leave without a filters request.", async() => {
+      await emitSidebarAfterLeave(wrapper);
+
+      expect(isFiltersModalOpen(wrapper)).toBe(false);
+    });
+
+    it("should consume the pending filters request when the sidebar leaves so a later after:leave does not reopen the modal.", async() => {
+      await requestFiltersFromSidebar(wrapper);
+      await emitSidebarAfterLeave(wrapper);
+      getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("update:isOpen", false);
+      await nextTick();
+      await emitSidebarAfterLeave(wrapper);
+
+      expect(isFiltersModalOpen(wrapper)).toBe(false);
+    });
+
+    it("should play the trigger highlight when the sidebar emits after:leave after a filters request.", async() => {
+      const playHighlight = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
+      const localWrapper = await mountGamePageWithFiltersButtonStub(playHighlight);
+      await requestFiltersFromSidebar(localWrapper);
+      await emitSidebarAfterLeave(localWrapper);
+
+      expect(playHighlight).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it("should keep the filters modal closed when the trigger highlight promise has not settled.", async() => {
+      let resolveHighlight: (() => void) | undefined;
+      const playHighlight = vi.fn<() => Promise<void>>().mockReturnValue(new Promise<void>(resolve => {
+        resolveHighlight = resolve;
+      }));
+      const localWrapper = await mountGamePageWithFiltersButtonStub(playHighlight);
+      await requestFiltersFromSidebar(localWrapper);
+      getWrapperVm(localWrapper.findComponent({ name: "GameSidebar" })).$emit("after:leave");
+      await nextTick();
+      const isOpenBeforeSettle = isFiltersModalOpen(localWrapper);
+      resolveHighlight?.();
+      await flushPromises();
+
+      expect(isOpenBeforeSettle).toBe(false);
+    });
+
+    it("should open the filters modal when the trigger highlight promise settles.", async() => {
+      let resolveHighlight: (() => void) | undefined;
+      const playHighlight = vi.fn<() => Promise<void>>().mockReturnValue(new Promise<void>(resolve => {
+        resolveHighlight = resolve;
+      }));
+      const localWrapper = await mountGamePageWithFiltersButtonStub(playHighlight);
+      await requestFiltersFromSidebar(localWrapper);
+      getWrapperVm(localWrapper.findComponent({ name: "GameSidebar" })).$emit("after:leave");
+      await nextTick();
+      resolveHighlight?.();
+      await flushPromises();
+
+      expect(isFiltersModalOpen(localWrapper)).toBe(true);
     });
   });
 });

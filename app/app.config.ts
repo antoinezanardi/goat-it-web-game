@@ -1,3 +1,4 @@
+import { NUXT_UI_BADGES_CONFIG } from "@/config/badges.config.ts";
 import { NUXT_UI_BUTTONS_CONFIG } from "@/config/buttons.config.ts";
 import { NUXT_UI_POPOVER_CONFIG } from "@/config/popover.config.ts";
 import { NUXT_UI_TABS_CONFIG } from "@/config/tabs.config.ts";
@@ -15,6 +16,7 @@ export default defineAppConfig({
       error: "red",
       neutral: "zinc",
     },
+    badge: NUXT_UI_BADGES_CONFIG,
     button: NUXT_UI_BUTTONS_CONFIG,
     popover: NUXT_UI_POPOVER_CONFIG,
     tabs: NUXT_UI_TABS_CONFIG,
