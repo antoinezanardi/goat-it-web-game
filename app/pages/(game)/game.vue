@@ -7,7 +7,7 @@ import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "~/composables/domain/question-theme/constants/question-theme.constants";
 import { GAME_PAGE_TITLE_KEY } from "@/pages/(game)/game.constants";
-import type { GameQuestionsFiltersDraft } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
+import type { GameQuestionsFiltersApplyPayload } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
 
 const { t } = useI18n();
 
@@ -161,9 +161,13 @@ async function onSidebarAfterLeave(): Promise<void> {
 const { addSuccessToast } = useAppToast();
 const gameSettingsStore = useGameSettingsStore();
 
-async function onFiltersApply(draft: GameQuestionsFiltersDraft): Promise<void> {
+async function onFiltersApply(draft: GameQuestionsFiltersApplyPayload): Promise<void> {
   gameSettingsStore.setAdultContentEnabled(draft.isAdultContentEnabled);
   gameSettingsStore.setCognitiveDifficulties(draft.cognitiveDifficulties);
+  gameSettingsStore.setCategories(draft.categories);
+  if (draft.themeIds !== undefined) {
+    gameSettingsStore.setThemeIds(draft.themeIds);
+  }
   isFiltersModalOpen.value = false;
   isApplyFiltersPending.value = true;
   const synchronization = syncQuestionsWithGameSettings();

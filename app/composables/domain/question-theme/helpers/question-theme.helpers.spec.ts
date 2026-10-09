@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { QUESTION_THEME_UNKNOWN_ICON } from "@/composables/domain/question-theme/constants/question-theme.constants";
-import { getThemeIcon, resolveThemeColor } from "@/composables/domain/question-theme/helpers/question-theme.helpers";
+import { getThemeIcon, normalizeThemeSelection, resolveThemeColor } from "@/composables/domain/question-theme/helpers/question-theme.helpers";
 
 describe(getThemeIcon, () => {
   it.each<{ slug: string; expectedIcon: string }>([
@@ -39,5 +39,23 @@ describe(resolveThemeColor, () => {
     ["undefined", undefined, "#A1A1AA"],
   ])("should return the correct value when %s is provided.", (_title, input, expected) => {
     expect(resolveThemeColor(input)).toBe(expected);
+  });
+});
+
+describe(normalizeThemeSelection, () => {
+  it("should return the saved theme ids unchanged when no active catalog is available.", () => {
+    expect(normalizeThemeSelection(["theme-a", "stale"], [])).toStrictEqual(["theme-a", "stale"]);
+  });
+
+  it("should keep only the saved theme ids that are still active when a catalog is available.", () => {
+    expect(normalizeThemeSelection(["theme-a", "stale", "theme-b"], ["theme-b", "theme-a"])).toStrictEqual(["theme-b", "theme-a"]);
+  });
+
+  it("should return every active theme when all the saved theme ids are stale.", () => {
+    expect(normalizeThemeSelection(["stale-1", "stale-2"], ["theme-a", "theme-b"])).toStrictEqual(["theme-a", "theme-b"]);
+  });
+
+  it("should return every active theme when the saved theme ids are empty and a catalog is available.", () => {
+    expect(normalizeThemeSelection([], ["theme-a", "theme-b"])).toStrictEqual(["theme-a", "theme-b"]);
   });
 });

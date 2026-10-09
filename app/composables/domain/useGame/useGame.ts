@@ -1,4 +1,4 @@
-import { QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
+import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 import { until } from "@vueuse/core";
 import { storeToRefs } from "pinia";
@@ -28,6 +28,7 @@ function useGame(): UseGame {
   const store = useGameStore();
   const { questions, isError, isPending, isFetchingQuestionsByIds } = storeToRefs(store);
   const settingsStore = useGameSettingsStore();
+  const questionThemesStore = useQuestionThemesStore();
 
   const currentIndex = ref<number>(0);
   const canGoToPreviousQuestion = computed<boolean>(() => currentIndex.value > 0);
@@ -42,6 +43,20 @@ function useGame(): UseGame {
     const selectedCognitiveDifficulties = [...new Set(settingsStore.settings.cognitiveDifficulties)];
     if (selectedCognitiveDifficulties.length < QUESTION_COGNITIVE_DIFFICULTIES.length) {
       filters.cognitiveDifficulties = selectedCognitiveDifficulties;
+    }
+    const selectedCategories = QUESTION_CATEGORIES.filter(category => settingsStore.settings.categories.includes(category));
+    if (selectedCategories.length < QUESTION_CATEGORIES.length) {
+      filters.categories = selectedCategories;
+    }
+    const activeThemeIds = questionThemesStore.activeQuestionThemeIds;
+    const savedThemeIds = [...new Set(settingsStore.settings.themeIds)];
+    if (activeThemeIds.length > 0) {
+      const activeSelection = activeThemeIds.filter(themeId => savedThemeIds.includes(themeId));
+      if (activeSelection.length > 0 && activeSelection.length < activeThemeIds.length) {
+        filters.themeIds = activeSelection;
+      }
+    } else if (savedThemeIds.length > 0) {
+      filters.themeIds = savedThemeIds;
     }
     return filters;
   }
@@ -146,6 +161,11 @@ function useGame(): UseGame {
       isExhausted.value = true;
     }
   }
+
+  watch(() => questionThemesStore.activeQuestionThemeIds, async() => {
+    await syncQuestionsWithGameSettings();
+  });
+
   return {
     canGoToPreviousQuestion,
     currentIndex,

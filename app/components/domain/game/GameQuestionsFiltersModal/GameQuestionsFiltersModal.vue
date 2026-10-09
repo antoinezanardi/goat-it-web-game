@@ -1,16 +1,18 @@
 <script lang="ts" setup>
-import { QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
-import type { QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
+import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
+import type { QuestionCategory, QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 import { isEqual } from "radashi";
 
 import { ConfirmDialog, GameQuestionsFiltersModalContent, GameQuestionsFiltersModalHeader } from "#components";
 
 import { GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS, GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
 import type {
+  GameQuestionsFiltersApplyPayload,
   GameQuestionsFiltersDraft,
   GameQuestionsFiltersModalEmits,
   GameQuestionsFiltersModalProps,
 } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
+import { normalizeThemeSelection } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 import { GAME_SETTINGS_DEFAULTS } from "~/stores/domain/game-settings/game-settings.constants";
 
 const props = defineProps<GameQuestionsFiltersModalProps>();
@@ -18,6 +20,7 @@ const emit = defineEmits<GameQuestionsFiltersModalEmits>();
 
 const { t } = useI18n();
 const settingsStore = useGameSettingsStore();
+const questionThemesStore = useQuestionThemesStore();
 const { activeFiltersCount } = useGameQuestionsFilters();
 
 const overlay = useOverlay();
@@ -26,6 +29,8 @@ function readCommittedDraft(): GameQuestionsFiltersDraft {
   return {
     isAdultContentEnabled: settingsStore.settings.isAdultContentEnabled,
     cognitiveDifficulties: [...settingsStore.settings.cognitiveDifficulties],
+    categories: [...settingsStore.settings.categories],
+    themeIds: normalizeThemeSelection(settingsStore.settings.themeIds, questionThemesStore.activeQuestionThemeIds),
   };
 }
 
@@ -35,13 +40,29 @@ const draft = ref<GameQuestionsFiltersDraft>(readCommittedDraft());
 const normalizedDraft = computed<GameQuestionsFiltersDraft>(() => ({
   isAdultContentEnabled: draft.value.isAdultContentEnabled,
   cognitiveDifficulties: QUESTION_COGNITIVE_DIFFICULTIES.filter(difficulty => draft.value.cognitiveDifficulties.includes(difficulty)),
+  categories: QUESTION_CATEGORIES.filter(category => draft.value.categories.includes(category)),
+  themeIds: normalizeThemeSelection(draft.value.themeIds, questionThemesStore.activeQuestionThemeIds),
 }));
 
-const isDraftModified = computed<boolean>(() => !isEqual(normalizedDraft.value, snapshot.value));
+const normalizedSnapshot = computed<GameQuestionsFiltersDraft>(() => ({
+  ...snapshot.value,
+  themeIds: normalizeThemeSelection(snapshot.value.themeIds, questionThemesStore.activeQuestionThemeIds),
+}));
+
+const isCatalogAvailable = computed<boolean>(() => questionThemesStore.activeQuestionThemeIds.length > 0);
+
+const defaultDraft = computed<GameQuestionsFiltersDraft>(() => ({
+  isAdultContentEnabled: GAME_SETTINGS_DEFAULTS.isAdultContentEnabled,
+  cognitiveDifficulties: [...GAME_SETTINGS_DEFAULTS.cognitiveDifficulties],
+  categories: [...GAME_SETTINGS_DEFAULTS.categories],
+  themeIds: normalizeThemeSelection(GAME_SETTINGS_DEFAULTS.themeIds, questionThemesStore.activeQuestionThemeIds),
+}));
+
+const isDraftModified = computed<boolean>(() => !isEqual(normalizedDraft.value, normalizedSnapshot.value));
 
 const isApplyDisabled = computed<boolean>(() => props.isApplyPending || !isDraftModified.value);
 
-const isDraftModifiedFromDefaults = computed<boolean>(() => !isEqual(normalizedDraft.value, GAME_SETTINGS_DEFAULTS));
+const isDraftModifiedFromDefaults = computed<boolean>(() => !isEqual(normalizedDraft.value, defaultDraft.value));
 
 watch(() => props.isOpen, (isOpen: boolean) => {
   if (!isOpen) {
@@ -52,6 +73,8 @@ watch(() => props.isOpen, (isOpen: boolean) => {
   draft.value = {
     isAdultContentEnabled: committedDraft.isAdultContentEnabled,
     cognitiveDifficulties: [...committedDraft.cognitiveDifficulties],
+    categories: [...committedDraft.categories],
+    themeIds: [...committedDraft.themeIds],
   };
 });
 
@@ -114,18 +137,33 @@ function onCognitiveDifficultiesChange(value: QuestionCognitiveDifficulty[]): vo
   draft.value = { ...draft.value, cognitiveDifficulties: value };
 }
 
+function onCategoriesChange(value: QuestionCategory[]): void {
+  draft.value = { ...draft.value, categories: value };
+}
+
+function onThemeIdsChange(value: string[]): void {
+  draft.value = { ...draft.value, themeIds: value };
+}
+
 function onReset(): void {
   draft.value = {
     isAdultContentEnabled: GAME_SETTINGS_DEFAULTS.isAdultContentEnabled,
     cognitiveDifficulties: [...GAME_SETTINGS_DEFAULTS.cognitiveDifficulties],
+    categories: [...GAME_SETTINGS_DEFAULTS.categories],
+    themeIds: normalizeThemeSelection(GAME_SETTINGS_DEFAULTS.themeIds, questionThemesStore.activeQuestionThemeIds),
   };
 }
 
 function onApply(): void {
-  emit("applyFilters", {
+  const payload: GameQuestionsFiltersApplyPayload = {
     isAdultContentEnabled: draft.value.isAdultContentEnabled,
     cognitiveDifficulties: [...draft.value.cognitiveDifficulties],
-  });
+    categories: [...draft.value.categories],
+  };
+  if (isCatalogAvailable.value) {
+    payload.themeIds = [...normalizedDraft.value.themeIds];
+  }
+  emit("applyFilters", payload);
 }
 </script>
 
@@ -146,8 +184,10 @@ function onApply(): void {
     <template #body>
       <GameQuestionsFiltersModalContent
         :draft="draft"
+        @update:categories="onCategoriesChange"
         @update:cognitive-difficulties="onCognitiveDifficultiesChange"
         @update:is-adult-content-enabled="onAdultContentChange"
+        @update:theme-ids="onThemeIdsChange"
       />
     </template>
 

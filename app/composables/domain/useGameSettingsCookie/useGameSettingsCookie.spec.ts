@@ -1,3 +1,4 @@
+import { QUESTION_CATEGORIES } from "@goat-it/schemas/question";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
@@ -102,6 +103,55 @@ describe("useGameSettingsCookie", () => {
       const { readGameSettingsCookie } = useGameSettingsCookie();
 
       expect(readGameSettingsCookie()).toStrictEqual(GAME_SETTINGS_DEFAULTS);
+    });
+
+    it("should default the categories to every category when the cookie omits them.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: false, cognitiveDifficulties: ["easy"], themeIds: ["theme-a"] };
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+
+      expect(readGameSettingsCookie().categories).toStrictEqual([...QUESTION_CATEGORIES]);
+    });
+
+    it("should normalize the categories to unique values in canonical order when the cookie holds duplicates.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: false, cognitiveDifficulties: ["easy"], categories: ["riddle", "riddle", "trivia"] };
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+
+      expect(readGameSettingsCookie().categories).toStrictEqual(["trivia", "riddle"]);
+    });
+
+    it("should return the default categories when the cookie holds an empty categories array.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: false, cognitiveDifficulties: ["easy"], categories: [] };
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+
+      expect(readGameSettingsCookie().categories).toStrictEqual([...QUESTION_CATEGORIES]);
+    });
+
+    it("should return the default categories when the cookie holds unknown categories.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: false, cognitiveDifficulties: ["easy"], categories: ["unknown"] };
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+
+      expect(readGameSettingsCookie().categories).toStrictEqual([...QUESTION_CATEGORIES]);
+    });
+
+    it("should default the theme ids to an empty list when the cookie omits them.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: false, cognitiveDifficulties: ["easy"], categories: ["trivia"] };
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+
+      expect(readGameSettingsCookie().themeIds).toStrictEqual([]);
+    });
+
+    it("should deduplicate the theme ids when the cookie holds duplicates.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: false, cognitiveDifficulties: ["easy"], categories: ["trivia"], themeIds: ["theme-b", "theme-a", "theme-b"] };
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+
+      expect(readGameSettingsCookie().themeIds).toStrictEqual(["theme-b", "theme-a"]);
+    });
+
+    it("should default the theme ids to an empty list when the cookie holds an invalid theme ids value.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: false, cognitiveDifficulties: ["easy"], categories: ["trivia"], themeIds: "theme-a" };
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+
+      expect(readGameSettingsCookie().themeIds).toStrictEqual([]);
     });
   });
 

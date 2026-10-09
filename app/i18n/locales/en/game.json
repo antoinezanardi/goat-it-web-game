@@ -50,6 +50,17 @@
       "title": "Question filters",
       "apply": "Apply filters",
       "reset": "Reset",
+      "categories": {
+        "label": "Category",
+        "allSelected": "All categories"
+      },
+      "themes": {
+        "label": "Theme",
+        "allSelected": "All themes",
+        "loading": "Loading themes…",
+        "unavailable": "Themes are unavailable right now.",
+        "refreshFailed": "Couldn't refresh themes in the selected language."
+      },
       "discardTitle": "Discard unapplied filters?",
       "discardDescription": "Your filter changes haven't been applied. If you close now, they won't be applied.",
       "discardBack": "Back to filters",

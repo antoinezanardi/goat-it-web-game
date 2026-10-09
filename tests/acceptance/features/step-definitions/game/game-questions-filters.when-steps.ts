@@ -103,3 +103,61 @@ When(
     await resetButton.click();
   },
 );
+
+When(
+  /^the user opens the questions filters theme filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const filterTrigger = dialog.getByTestId("game-questions-filters-theme-filter-input");
+
+    await expect(filterTrigger).toBeVisible();
+    await filterTrigger.click();
+  },
+);
+
+When(
+  /^the user opens the questions filters category filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const filterTrigger = dialog.getByTestId("game-questions-filters-category-filter-input");
+
+    await expect(filterTrigger).toBeVisible();
+    await filterTrigger.click();
+  },
+);
+
+When(
+  /^the user toggles the "(?<theme>[^"]+)" theme option$/u,
+  async function(this: GoatItWorld, theme: string): Promise<void> {
+    const option = this.page.getByRole("option", { name: theme });
+
+    await expect(option).toBeVisible();
+    await option.click();
+  },
+);
+
+When(
+  /^the user toggles the "(?<category>[^"]+)" category option$/u,
+  async function(this: GoatItWorld, category: string): Promise<void> {
+    const option = this.page.getByRole("option", { name: category });
+
+    await expect(option).toBeVisible();
+    await option.click();
+  },
+);
+
+When(
+  /^the user closes the theme filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
+    await expect(this.page.getByRole("listbox")).toBeHidden();
+  },
+);
+
+When(
+  /^the user closes the category filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
+    await expect(this.page.getByRole("listbox")).toBeHidden();
+  },
+);

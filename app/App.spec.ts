@@ -2,6 +2,7 @@ import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
@@ -80,5 +81,14 @@ describe("App Component", () => {
 
       expect(defineOgImageMock).toHaveBeenCalledExactlyOnceWith("Image.takumi");
     });
+  });
+
+  it("should refetch the question themes when the locale changes.", async() => {
+    const questionThemesStore = mockStore(useQuestionThemesStore);
+    const { locale } = useI18n();
+    locale.value = "fr";
+    await nextTick();
+
+    expect(questionThemesStore.fetchAndStoreQuestionThemes).toHaveBeenCalledExactlyOnceWith();
   });
 });

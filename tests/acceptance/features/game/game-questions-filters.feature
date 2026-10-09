@@ -311,3 +311,95 @@ Feature: 🎛️ Game Questions Filters
     And the element with testid "confirm-dialog-modal" should be hidden
     And the toast with exact text "Filters applied. Your next questions will use the updated filters." should be visible
 
+  Scenario: 🏷️ Categories and themes are unrestricted by default
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    When the user opens the question filters
+    Then the questions filters category filter summary should be "All categories"
+    And the questions filters theme filter summary should be "All themes"
+
+  Scenario: 🏷️ Applying selected categories persists them across reloads
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    When the user opens the question filters
+    And the user opens the questions filters category filter
+    And the user toggles the "Lexicon" category option
+    And the user toggles the "Riddle" category option
+    And the user toggles the "Explanation" category option
+    And the user closes the category filter
+    And the user clicks on the primary button in the modal
+    And the user reloads the page
+    And the user opens the question filters
+    Then the questions filters category filter summary should be "1 selected"
+
+  Scenario: 🏷️ Applying selected themes persists them across reloads
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    When the user opens the question filters
+    And the user opens the questions filters theme filter
+    And the user toggles the "Cinema" theme option
+    And the user closes the theme filter
+    And the user clicks on the primary button in the modal
+    And the user reloads the page
+    And the user opens the question filters
+    Then the questions filters theme filter summary should be "3 selected"
+
+  Scenario: 🏷️ Removing the final category requires confirmation
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    When the user opens the question filters
+    And the user opens the questions filters category filter
+    And the user toggles the "Trivia" category option
+    And the user toggles the "Lexicon" category option
+    And the user toggles the "Riddle" category option
+    And the user toggles the "Explanation" category option
+    Then the element with testid "confirm-dialog-modal" should be visible
+    When the user confirms restoring all options in the confirmation dialog
+    Then the questions filters category filter summary should be "All categories"
+
+  Scenario: 🏷️ The applied badge counts narrowed category and theme groups
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    When the user opens the question filters
+    And the user opens the questions filters category filter
+    And the user toggles the "Lexicon" category option
+    And the user closes the category filter
+    And the user opens the questions filters theme filter
+    And the user toggles the "Cinema" theme option
+    And the user closes the theme filter
+    And the user turns on the questions filters adult content switch
+    And the user clicks on the primary button in the modal
+    Then the question filters applied count on the trigger should be 3
+
+  Scenario: 🏷️ Selected categories filter the upcoming questions
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    And a game question should be displayed
+    When the user opens the question filters
+    And the user opens the questions filters category filter
+    And the user toggles the "Lexicon" category option
+    And the user toggles the "Riddle" category option
+    And the user toggles the "Explanation" category option
+    And the user closes the category filter
+    And the user clicks on the primary button in the modal
+    Then a game question should be displayed
+    When the user goes to the next question
+    Then the question category should be "Trivia"
+
+  Scenario: 🌐 Theme labels refresh after changing the locale
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    And a game question should be displayed
+    When the user opens the question filters
+    And the user opens the questions filters theme filter
+    Then the option named "Cinema" should be visible
+    When the user closes the theme filter
+    And the user clicks on the close button in the modal header
+    And the user opens the game sidebar
+    And the user clicks the settings button in the game sidebar
+    And the user selects the "Français" locale option in the game settings
+    And the user clicks on the close button in the modal header
+    And the user opens the question filters
+    And the user opens the questions filters theme filter
+    Then the option named "Cinéma" should be visible
+

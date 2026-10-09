@@ -1,8 +1,14 @@
-import type { QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
+import type { QuestionCategory, QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 
 type GameQuestionsFiltersDraft = {
   isAdultContentEnabled: boolean;
   cognitiveDifficulties: QuestionCognitiveDifficulty[];
+  categories: QuestionCategory[];
+  themeIds: string[];
+};
+
+type GameQuestionsFiltersApplyPayload = Omit<GameQuestionsFiltersDraft, "themeIds"> & {
+  themeIds?: string[];
 };
 
 type GameQuestionsFiltersModalProps = {
@@ -12,7 +18,7 @@ type GameQuestionsFiltersModalProps = {
 
 type GameQuestionsFiltersModalEmits = {
   "update:isOpen": [value: boolean];
-  "applyFilters": [draft: GameQuestionsFiltersDraft];
+  "applyFilters": [draft: GameQuestionsFiltersApplyPayload];
 };
 
-export type { GameQuestionsFiltersDraft, GameQuestionsFiltersModalEmits, GameQuestionsFiltersModalProps };
+export type { GameQuestionsFiltersApplyPayload, GameQuestionsFiltersDraft, GameQuestionsFiltersModalEmits, GameQuestionsFiltersModalProps };

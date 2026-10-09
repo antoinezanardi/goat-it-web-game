@@ -9,7 +9,10 @@ import type {
 } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.types";
 import { GAME_SETTINGS_FILTER_MULTI_SELECT_UI } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.constants";
 
-const props = defineProps<GameSettingsFilterMultiSelectProps>();
+const props = withDefaults(defineProps<GameSettingsFilterMultiSelectProps>(), {
+  selectTestId: "game-settings-filter-multi-select-input",
+  summaryTestId: "game-settings-filter-multi-select-summary",
+});
 const emit = defineEmits<GameSettingsFilterMultiSelectEmits>();
 
 const { t } = useI18n();
@@ -109,7 +112,7 @@ function onUpdateSelectedValues(value: string[]): void {
 
     <USelectMenu
       :aria-label="props.label"
-      data-testid="game-settings-filter-multi-select-input"
+      :data-testid="props.selectTestId"
       :items="items"
       :model-value="selectedValues"
       multiple
@@ -121,7 +124,7 @@ function onUpdateSelectedValues(value: string[]): void {
       <template #default>
         <span
           class="truncate"
-          data-testid="game-settings-filter-multi-select-summary"
+          :data-testid="props.summaryTestId"
         >
           {{ summaryLabel }}
         </span>

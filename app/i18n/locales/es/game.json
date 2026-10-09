@@ -50,6 +50,17 @@
       "title": "Filtros de preguntas",
       "apply": "Aplicar filtros",
       "reset": "Restablecer",
+      "categories": {
+        "label": "Categoría",
+        "allSelected": "Todas las categorías"
+      },
+      "themes": {
+        "label": "Tema",
+        "allSelected": "Todos los temas",
+        "loading": "Cargando temas…",
+        "unavailable": "Los temas no están disponibles en este momento.",
+        "refreshFailed": "No se pudieron actualizar los temas en el idioma seleccionado."
+      },
       "discardTitle": "¿Descartar los filtros no aplicados?",
       "discardDescription": "Tus cambios de filtros no se han aplicado. Si cierras ahora, no se aplicarán.",
       "discardBack": "Volver a los filtros",

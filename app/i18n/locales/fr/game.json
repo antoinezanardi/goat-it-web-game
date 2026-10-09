@@ -50,6 +50,17 @@
       "title": "Filtres de questions",
       "apply": "Appliquer les filtres",
       "reset": "Réinitialiser",
+      "categories": {
+        "label": "Catégorie",
+        "allSelected": "Toutes les catégories"
+      },
+      "themes": {
+        "label": "Thème",
+        "allSelected": "Tous les thèmes",
+        "loading": "Chargement des thèmes…",
+        "unavailable": "Les thèmes ne sont pas disponibles pour le moment.",
+        "refreshFailed": "Impossible d'actualiser les thèmes dans la langue sélectionnée."
+      },
       "discardTitle": "Abandonner les filtres non appliqués ?",
       "discardDescription": "Vos modifications de filtres n'ont pas été appliquées. Si vous fermez maintenant, elles ne seront pas prises en compte.",
       "discardBack": "Revenir aux filtres",
