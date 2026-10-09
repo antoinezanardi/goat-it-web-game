@@ -18,6 +18,8 @@ type GameSettingsFilterMultiSelectProps = {
   allSelectedLabel: string;
   summaryMode: GameSettingsFilterSummaryMode;
   modelValue: string[];
+  selectTestId?: string;
+  summaryTestId?: string;
 };
 
 type GameSettingsFilterMultiSelectEmits = {

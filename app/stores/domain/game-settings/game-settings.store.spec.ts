@@ -69,4 +69,60 @@ describe("useGameSettingsStore", () => {
       expect(useCookieMockState.cookieRef.value).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["medium"] }));
     });
   });
+
+  describe("setCategories", () => {
+    it("should set settings.categories to the given values when called.", () => {
+      const store = useGameSettingsStore();
+
+      store.setCategories(["trivia", "riddle"]);
+
+      expect(store.settings.categories).toStrictEqual(["trivia", "riddle"]);
+    });
+
+    it("should write the whole settings object to the cookie when called.", () => {
+      const store = useGameSettingsStore();
+      store.settings = createFakeGameSettings({
+        isAdultContentEnabled: false,
+        cognitiveDifficulties: ["easy", "medium", "hard"],
+        categories: ["trivia", "lexicon", "riddle", "explanation"],
+      });
+
+      store.setCategories(["riddle"]);
+
+      expect(useCookieMockState.cookieRef.value).toStrictEqual(createFakeGameSettings({
+        isAdultContentEnabled: false,
+        cognitiveDifficulties: ["easy", "medium", "hard"],
+        categories: ["riddle"],
+      }));
+    });
+  });
+
+  describe("setThemeIds", () => {
+    it("should set settings.themeIds to the given values when called.", () => {
+      const store = useGameSettingsStore();
+
+      store.setThemeIds(["theme-a", "theme-b"]);
+
+      expect(store.settings.themeIds).toStrictEqual(["theme-a", "theme-b"]);
+    });
+
+    it("should write the whole settings object to the cookie when called.", () => {
+      const store = useGameSettingsStore();
+      store.settings = createFakeGameSettings({
+        isAdultContentEnabled: false,
+        cognitiveDifficulties: ["easy", "medium", "hard"],
+        categories: ["trivia", "lexicon", "riddle", "explanation"],
+        themeIds: [],
+      });
+
+      store.setThemeIds(["theme-a"]);
+
+      expect(useCookieMockState.cookieRef.value).toStrictEqual(createFakeGameSettings({
+        isAdultContentEnabled: false,
+        cognitiveDifficulties: ["easy", "medium", "hard"],
+        categories: ["trivia", "lexicon", "riddle", "explanation"],
+        themeIds: ["theme-a"],
+      }));
+    });
+  });
 });

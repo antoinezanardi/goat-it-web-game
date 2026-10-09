@@ -1,4 +1,4 @@
-import type { QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
+import type { QuestionCategory, QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 
 import type { GameSettings } from "~/stores/domain/game-settings/game-settings.types";
 
@@ -15,9 +15,21 @@ export const useGameSettingsStore = defineStore(StoreNames.GAME_SETTINGS, () => 
     settings.value = { ...settings.value, cognitiveDifficulties: value };
     gameSettingsCookie.writeGameSettingsCookie(settings.value);
   }
+
+  function setCategories(value: QuestionCategory[]): void {
+    settings.value = { ...settings.value, categories: value };
+    gameSettingsCookie.writeGameSettingsCookie(settings.value);
+  }
+
+  function setThemeIds(value: string[]): void {
+    settings.value = { ...settings.value, themeIds: value };
+    gameSettingsCookie.writeGameSettingsCookie(settings.value);
+  }
   return {
     settings,
     setAdultContentEnabled,
     setCognitiveDifficulties,
+    setCategories,
+    setThemeIds,
   };
 });

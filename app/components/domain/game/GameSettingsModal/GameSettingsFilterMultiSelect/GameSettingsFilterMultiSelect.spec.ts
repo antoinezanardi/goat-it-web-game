@@ -261,4 +261,24 @@ describe("GameSettingsFilterMultiSelect Component", () => {
 
     expect(selectMenu.props("ui")).toStrictEqual({ itemTrailing: "self-center", itemTrailingIcon: "hidden" });
   });
+
+  it("should render the input with the default select test id when none is provided.", () => {
+    expect(wrapper.find("[data-testid='game-settings-filter-multi-select-input']").exists()).toBe(true);
+  });
+
+  it("should render the input with the provided select test id when provided.", async() => {
+    await wrapper.setProps({ selectTestId: "custom-filter-input" });
+
+    expect(wrapper.find("[data-testid='custom-filter-input']").exists()).toBe(true);
+  });
+
+  it("should render the summary with the default summary test id when none is provided.", () => {
+    expect(wrapper.find("[data-testid='game-settings-filter-multi-select-summary']").exists()).toBe(true);
+  });
+
+  it("should render the summary with the provided summary test id when provided.", async() => {
+    await wrapper.setProps({ summaryTestId: "custom-filter-summary" });
+
+    expect(wrapper.find("[data-testid='custom-filter-summary']").exists()).toBe(true);
+  });
 });

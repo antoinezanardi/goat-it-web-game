@@ -1,7 +1,12 @@
 <script lang="ts" setup>
-import type { QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
+import type { QuestionCategory, QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 
-import { GameSettingsAdultContentSwitch, GameSettingsCognitiveDifficultiesFilter } from "#components";
+import {
+  GameQuestionsFiltersCategoryFilter,
+  GameQuestionsFiltersThemeFilter,
+  GameSettingsAdultContentSwitch,
+  GameSettingsCognitiveDifficultiesFilter,
+} from "#components";
 
 import type {
   GameQuestionsFiltersModalContentEmits,
@@ -18,6 +23,14 @@ function onAdultContentChange(value: boolean): void {
 function onCognitiveDifficultiesChange(value: QuestionCognitiveDifficulty[]): void {
   emit("update:cognitiveDifficulties", value);
 }
+
+function onCategoriesChange(value: QuestionCategory[]): void {
+  emit("update:categories", value);
+}
+
+function onThemeIdsChange(value: string[]): void {
+  emit("update:themeIds", value);
+}
 </script>
 
 <template>
@@ -25,6 +38,20 @@ function onCognitiveDifficultiesChange(value: QuestionCognitiveDifficulty[]): vo
     class="flex flex-col gap-3"
     data-testid="game-questions-filters-modal"
   >
+    <GameQuestionsFiltersThemeFilter
+      :model-value="props.draft.themeIds"
+      @update:model-value="onThemeIdsChange"
+    />
+
+    <USeparator/>
+
+    <GameQuestionsFiltersCategoryFilter
+      :model-value="props.draft.categories"
+      @update:model-value="onCategoriesChange"
+    />
+
+    <USeparator/>
+
     <GameSettingsCognitiveDifficultiesFilter
       :model-value="props.draft.cognitiveDifficulties"
       @update:model-value="onCognitiveDifficultiesChange"

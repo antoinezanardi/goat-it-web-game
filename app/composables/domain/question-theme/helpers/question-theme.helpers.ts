@@ -13,4 +13,15 @@ function resolveThemeColor(color?: string): string {
   return color;
 }
 
-export { getThemeIcon, resolveThemeColor };
+function normalizeThemeSelection(themeIds: readonly string[], activeThemeIds: readonly string[]): string[] {
+  if (activeThemeIds.length === 0) {
+    return [...themeIds];
+  }
+  const activeSelection = activeThemeIds.filter(themeId => themeIds.includes(themeId));
+  if (activeSelection.length === 0) {
+    return [...activeThemeIds];
+  }
+  return activeSelection;
+}
+
+export { getThemeIcon, normalizeThemeSelection, resolveThemeColor };

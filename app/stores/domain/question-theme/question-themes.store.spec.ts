@@ -54,6 +54,53 @@ describe("useQuestionThemesStore", () => {
     });
   });
 
+  describe("activeQuestionThemes", () => {
+    it("should expose an empty array when there are no themes.", () => {
+      const store = useQuestionThemesStore();
+
+      expect(store.activeQuestionThemes).toStrictEqual([]);
+    });
+
+    it("should expose only the active themes when themes have mixed statuses.", () => {
+      const store = useQuestionThemesStore();
+      const activeTheme = createFakeQuestionTheme({ status: "active" });
+      const archivedTheme = createFakeQuestionTheme({ status: "archived" });
+      store.questionThemes = [activeTheme, archivedTheme];
+
+      expect(store.activeQuestionThemes).toStrictEqual([activeTheme]);
+    });
+  });
+
+  describe("activeQuestionThemeIds", () => {
+    it("should return only the active theme ids when themes have mixed statuses.", () => {
+      const store = useQuestionThemesStore();
+      store.questionThemes = [
+        createFakeQuestionTheme({ id: "active-1", status: "active" }),
+        createFakeQuestionTheme({ id: "archived-1", status: "archived" }),
+        createFakeQuestionTheme({ id: "active-2", status: "active" }),
+      ];
+
+      expect(store.activeQuestionThemeIds).toStrictEqual(["active-1", "active-2"]);
+    });
+  });
+
+  describe("catalogStatus", () => {
+    it.each<{ status: "idle" | "pending" | "success" | "error"; activeThemesCount: number; expected: string }>([
+      { status: "success", activeThemesCount: 1, expected: "ready" },
+      { status: "pending", activeThemesCount: 1, expected: "refreshing" },
+      { status: "error", activeThemesCount: 1, expected: "stale" },
+      { status: "pending", activeThemesCount: 0, expected: "loading" },
+      { status: "idle", activeThemesCount: 0, expected: "loading" },
+      { status: "error", activeThemesCount: 0, expected: "unavailable" },
+    ])("should be $expected when fetchStatus is $status and there are $activeThemesCount active themes.", ({ status, activeThemesCount, expected }) => {
+      const store = useQuestionThemesStore();
+      store.questionThemes = Array.from({ length: activeThemesCount }, () => createFakeQuestionTheme({ status: "active" }));
+      fetchAsyncActionMock.fetchStatus.value = status;
+
+      expect(store.catalogStatus).toBe(expected);
+    });
+  });
+
   describe("fetchStatus", () => {
     it("should reflect the fetchStatus value from useAsyncAction when created.", () => {
       const store = useQuestionThemesStore();
