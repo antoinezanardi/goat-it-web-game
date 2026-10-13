@@ -91,6 +91,8 @@ const VITEST_NUXT_PROJECT_SETUP_FILES = [
 
 const VITEST_COMPOSABLES_MOCK_SETUP_FILES: readonly string[] = [
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-fetch-status.nuxt.unit-setup.ts"),
+  path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-async-data.nuxt.unit-setup.ts"),
+  path.resolve(processCwd, "tests/unit/setup/nuxt/composables/query-collection.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-async-action.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-app-toast.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/composables/use-goat-it-api-error-toast.nuxt.unit-setup.ts"),

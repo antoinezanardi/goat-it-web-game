@@ -13,6 +13,7 @@ import { SIXTY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtur
 import { TWO_ENGLISH_ONLY_QUESTIONS_FIXTURE_SET } from "#acceptance/features/support/fixtures/question/sets/two-english-only-questions.fixture-set.ts";
 import { GAME_SETTINGS_ADULT_CONTENT_ENABLED_COOKIE_FIXTURE_SET } from "#acceptance/features/support/fixtures/cookie/sets/game-settings-adult-content-enabled.fixture-set.ts";
 import { GAME_SETTINGS_CORRUPT_COOKIE_FIXTURE_SET } from "#acceptance/features/support/fixtures/cookie/sets/game-settings-corrupt.fixture-set.ts";
+import { CHANGELOG_OUTDATED_COOKIE_FIXTURE_SET } from "#acceptance/features/support/fixtures/cookie/sets/changelog-outdated.fixture-set.ts";
 import type { CookieFixtureRegistry, FixtureDomain, FixtureRegistry } from "#acceptance/features/support/fixtures/fixture.types.ts";
 
 const DOMAIN_TO_COLLECTION_MAP: Record<FixtureDomain, string> = {
@@ -78,6 +79,7 @@ const FIXTURE_REGISTRY: FixtureRegistry = {
 const COOKIE_FIXTURE_REGISTRY: CookieFixtureRegistry = {
   "game-settings-adult-content-enabled": GAME_SETTINGS_ADULT_CONTENT_ENABLED_COOKIE_FIXTURE_SET,
   "game-settings-corrupt": GAME_SETTINGS_CORRUPT_COOKIE_FIXTURE_SET,
+  "changelog-outdated": CHANGELOG_OUTDATED_COOKIE_FIXTURE_SET,
 } as const;
 
 export {

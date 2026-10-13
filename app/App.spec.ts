@@ -91,4 +91,8 @@ describe("App Component", () => {
 
     expect(questionThemesStore.fetchAndStoreQuestionThemes).toHaveBeenCalledExactlyOnceWith();
   });
+
+  it("should render the ChangelogModal component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "ChangelogModal" }).exists()).toBe(true);
+  });
 });
