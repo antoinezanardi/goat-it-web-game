@@ -41,8 +41,8 @@ on:
       NUXT_GOAT_IT_API_GAME_KEY:
         description: 'Game key used to authenticate requests to the Goat It API'
         required: true
-      NUXT_OG_IMAGE_SECURITY_SECRET:
-        description: 'Secret used to sign nuxt-og-image URLs'
+      NUXT_APP_SECRET:
+        description: 'Application secret used to sign nuxt-og-image URLs'
         required: true
 
 jobs:
@@ -94,7 +94,7 @@ jobs:
           secrets: |
             "goat_it_api_base_url=${{ secrets.NUXT_GOAT_IT_API_BASE_URL }}"
             "goat_it_api_game_key=${{ secrets.NUXT_GOAT_IT_API_GAME_KEY }}"
-            "goat_it_og_image_security_secret=${{ secrets.NUXT_OG_IMAGE_SECURITY_SECRET }}"
+            "goat_it_app_secret=${{ secrets.NUXT_APP_SECRET }}"
 
       - name: Set formatted platform directory in environment variable 🌿
         shell: bash

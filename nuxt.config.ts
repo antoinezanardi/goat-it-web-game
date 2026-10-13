@@ -68,6 +68,7 @@ export default defineNuxtConfig({
     fonts: false,
   },
   runtimeConfig: {
+    appSecret: process.env.NUXT_APP_SECRET,
     goatItApi: {
       baseUrl: "",
       gameKey: "",
@@ -239,7 +240,6 @@ export default defineNuxtConfig({
   },
   ogImage: {
     security: {
-      secret: process.env.NUXT_OG_IMAGE_SECURITY_SECRET ?? "goat-it-og-image-dev-secret",
       strict: true,
     },
   },
