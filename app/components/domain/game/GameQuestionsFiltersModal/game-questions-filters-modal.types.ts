@@ -4,10 +4,6 @@ type GameQuestionsFiltersDraft = {
   isAdultContentEnabled: boolean;
   cognitiveDifficulties: QuestionCognitiveDifficulty[];
   categories: QuestionCategory[];
-  themeIds: string[];
-};
-
-type GameQuestionsFiltersApplyPayload = Omit<GameQuestionsFiltersDraft, "themeIds"> & {
   themeIds?: string[];
 };
 
@@ -18,7 +14,7 @@ type GameQuestionsFiltersModalProps = {
 
 type GameQuestionsFiltersModalEmits = {
   "update:isOpen": [value: boolean];
-  "applyFilters": [draft: GameQuestionsFiltersApplyPayload];
+  "applyFilters": [draft: GameQuestionsFiltersDraft];
 };
 
-export type { GameQuestionsFiltersApplyPayload, GameQuestionsFiltersDraft, GameQuestionsFiltersModalEmits, GameQuestionsFiltersModalProps };
+export type { GameQuestionsFiltersDraft, GameQuestionsFiltersModalEmits, GameQuestionsFiltersModalProps };

@@ -6,7 +6,7 @@ import { createFakeQuestionContent } from "~~/tests/unit/utils/faketories/questi
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 
-import { getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyRingClass, getNonEmptyTrivia, getPrimaryTheme, getSecondaryThemes, getSourceDomain, hasContextAndTriviaSection, hasNonEmptyContext, hasSecondaryThemes, isPrimaryThemeHint } from "@/composables/domain/question/helpers/question.helpers";
+import { getCategoryColor, getCategoryIcon, getDifficultyColor, getDifficultyIcon, getDifficultyIconColor, getDifficultyRingClass, getNonEmptyTrivia, getPrimaryTheme, getSecondaryThemes, getSourceDomain, hasContextAndTriviaSection, hasNonEmptyContext, hasSecondaryThemes, isPrimaryThemeHint, isQuestionCategory, isQuestionCognitiveDifficulty } from "@/composables/domain/question/helpers/question.helpers";
 
 describe(getSourceDomain, () => {
   it("should extract the hostname when a full HTTPS URL is provided.", () => {
@@ -33,6 +33,42 @@ describe(getCategoryIcon, () => {
   });
 });
 
+describe(getCategoryColor, () => {
+  it.each<{ category: QuestionCategory; color: string }>([
+    { category: "trivia", color: "#F59E0B" },
+    { category: "lexicon", color: "#3B82F6" },
+    { category: "riddle", color: "#A855F7" },
+    { category: "explanation", color: "#10B981" },
+  ])("should return the $color color when category is $category.", ({ category, color }) => {
+    expect(getCategoryColor(category)).toBe(color);
+  });
+});
+
+describe(isQuestionCategory, () => {
+  it.each<{ value: string; expected: boolean }>([
+    { value: "trivia", expected: true },
+    { value: "lexicon", expected: true },
+    { value: "riddle", expected: true },
+    { value: "explanation", expected: true },
+    { value: "unknown", expected: false },
+    { value: "", expected: false },
+  ])("should return $expected when the value is $value.", ({ value, expected }) => {
+    expect(isQuestionCategory(value)).toBe(expected);
+  });
+});
+
+describe(isQuestionCognitiveDifficulty, () => {
+  it.each<{ value: string; expected: boolean }>([
+    { value: "easy", expected: true },
+    { value: "medium", expected: true },
+    { value: "hard", expected: true },
+    { value: "insane", expected: false },
+    { value: "", expected: false },
+  ])("should return $expected when the value is $value.", ({ value, expected }) => {
+    expect(isQuestionCognitiveDifficulty(value)).toBe(expected);
+  });
+});
+
 describe(getDifficultyColor, () => {
   it.each<{ difficulty: QuestionCognitiveDifficulty; color: string }>([
     { difficulty: "easy", color: "success" },
@@ -40,6 +76,16 @@ describe(getDifficultyColor, () => {
     { difficulty: "hard", color: "error" },
   ])("should return the $color color when difficulty is $difficulty.", ({ difficulty, color }) => {
     expect(getDifficultyColor(difficulty)).toBe(color);
+  });
+});
+
+describe(getDifficultyIconColor, () => {
+  it.each<{ difficulty: QuestionCognitiveDifficulty; color: string }>([
+    { difficulty: "easy", color: "#22C55E" },
+    { difficulty: "medium", color: "#F59E0B" },
+    { difficulty: "hard", color: "#EF4444" },
+  ])("should return the $color color when difficulty is $difficulty.", ({ difficulty, color }) => {
+    expect(getDifficultyIconColor(difficulty)).toBe(color);
   });
 });
 

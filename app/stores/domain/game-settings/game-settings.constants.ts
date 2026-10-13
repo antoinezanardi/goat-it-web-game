@@ -19,15 +19,17 @@ const GAME_SETTINGS_SCHEMA = z.object({
     .refine(categories => categories.length > 0)
     .catch([...QUESTION_CATEGORIES]),
   themeIds: z.array(z.string())
-    .transform(themeIds => [...new Set(themeIds)])
-    .catch([]),
+    .transform(themeIds => (themeIds.length > 0 ? [...new Set(themeIds)] : undefined))
+    .optional()
+    // Acceptable as removing the explicit argument makes oxlint's promise/valid-params misfire on zod's `.catch()`
+    // oxlint-disable-next-line unicorn/no-useless-undefined
+    .catch(undefined),
 });
 
 const GAME_SETTINGS_DEFAULTS: GameSettings = {
   isAdultContentEnabled: false,
   cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
   categories: [...QUESTION_CATEGORIES],
-  themeIds: [],
 };
 
 export { GAME_SETTINGS_DEFAULTS, GAME_SETTINGS_SCHEMA };

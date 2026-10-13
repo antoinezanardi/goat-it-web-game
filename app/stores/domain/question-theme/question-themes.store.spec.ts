@@ -84,13 +84,30 @@ describe("useQuestionThemesStore", () => {
     });
   });
 
+  describe("isThemesCatalogAvailable", () => {
+    it("should be false when there are no active themes.", () => {
+      const store = useQuestionThemesStore();
+      store.questionThemes = [createFakeQuestionTheme({ status: "archived" })];
+
+      expect(store.isThemesCatalogAvailable).toBe(false);
+    });
+
+    it("should be true when there is at least one active theme.", () => {
+      const store = useQuestionThemesStore();
+      store.questionThemes = [createFakeQuestionTheme({ status: "active" })];
+
+      expect(store.isThemesCatalogAvailable).toBe(true);
+    });
+  });
+
   describe("catalogStatus", () => {
     it.each<{ status: "idle" | "pending" | "success" | "error"; activeThemesCount: number; expected: string }>([
       { status: "success", activeThemesCount: 1, expected: "ready" },
       { status: "pending", activeThemesCount: 1, expected: "refreshing" },
       { status: "error", activeThemesCount: 1, expected: "stale" },
-      { status: "pending", activeThemesCount: 0, expected: "loading" },
       { status: "idle", activeThemesCount: 0, expected: "loading" },
+      { status: "pending", activeThemesCount: 0, expected: "loading" },
+      { status: "success", activeThemesCount: 0, expected: "unavailable" },
       { status: "error", activeThemesCount: 0, expected: "unavailable" },
     ])("should be $expected when fetchStatus is $status and there are $activeThemesCount active themes.", ({ status, activeThemesCount, expected }) => {
       const store = useQuestionThemesStore();

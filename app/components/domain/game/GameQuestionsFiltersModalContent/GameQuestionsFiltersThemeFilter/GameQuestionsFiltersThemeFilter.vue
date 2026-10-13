@@ -1,35 +1,33 @@
 <script lang="ts" setup>
-import type { QuestionTheme } from "#shared/types/question-theme.types";
 import type { GameSettingsFilterOption } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.types";
 import type {
   GameQuestionsFiltersThemeFilterEmits,
   GameQuestionsFiltersThemeFilterProps,
 } from "@/components/domain/game/GameQuestionsFiltersModalContent/GameQuestionsFiltersThemeFilter/game-questions-filters-theme-filter.types";
-import { getThemeIcon, normalizeThemeSelection } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { getThemeIcon, resolveSelectedThemeIds, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 
 const props = defineProps<GameQuestionsFiltersThemeFilterProps>();
 const emit = defineEmits<GameQuestionsFiltersThemeFilterEmits>();
 const { t } = useI18n();
 const questionThemesStore = useQuestionThemesStore();
 
-const activeThemes = computed<QuestionTheme[]>(() => questionThemesStore.activeQuestionThemes);
-const isCatalogAvailable = computed<boolean>(() => activeThemes.value.length > 0);
+const isCatalogLoading = computed<boolean>(() => questionThemesStore.catalogStatus === "loading");
+const statusIconName = computed<string>(() => (isCatalogLoading.value ? "i-lucide-loader-circle" : "i-lucide-triangle-alert"));
+const selectedThemeIds = computed<string[]>(() => resolveSelectedThemeIds(props.modelValue, questionThemesStore.activeQuestionThemeIds) ?? []);
 
-const activeThemeIds = computed<string[]>(() => activeThemes.value.map(theme => theme.id));
-const selectedThemeIds = computed<string[]>(() => normalizeThemeSelection(props.modelValue, activeThemeIds.value));
-
-const options = computed<GameSettingsFilterOption[]>(() => activeThemes.value.map(theme => ({
+const options = computed<GameSettingsFilterOption[]>(() => questionThemesStore.activeQuestionThemes.map(theme => ({
+  color: resolveThemeColor(theme.color),
   icon: getThemeIcon(theme.slug),
   label: theme.label,
   value: theme.id,
 })));
 
 const unavailableStatusLabel = computed<string>(() => (
-  questionThemesStore.catalogStatus === "loading" ? t("game.questionsFilters.themes.loading") : t("game.questionsFilters.themes.unavailable")
+  isCatalogLoading.value ? t("game.questionsFilters.themes.loading") : t("game.questionsFilters.themes.unavailable")
 ));
 
 function onUpdateSelectedThemes(values: string[]): void {
-  emit("update:modelValue", activeThemeIds.value.filter(themeId => values.includes(themeId)));
+  emit("update:modelValue", questionThemesStore.activeQuestionThemeIds.filter(themeId => values.includes(themeId)));
 }
 </script>
 
@@ -39,7 +37,7 @@ function onUpdateSelectedThemes(values: string[]): void {
     data-testid="game-questions-filters-theme-filter"
   >
     <GameSettingsFilterMultiSelect
-      v-if="isCatalogAvailable"
+      v-if="questionThemesStore.isThemesCatalogAvailable"
       :all-selected-label="t('game.questionsFilters.themes.allSelected')"
       data-testid="game-questions-filters-theme-filter-select"
       :label="t('game.questionsFilters.themes.label')"
@@ -59,14 +57,15 @@ function onUpdateSelectedThemes(values: string[]): void {
     >
       <UIcon
         class="shrink-0 size-5"
+        :class="{ 'animate-spin': isCatalogLoading }"
         data-testid="game-questions-filters-theme-filter-status-icon"
-        name="i-lucide-loader-circle"
+        :name="statusIconName"
       />
       {{ unavailableStatusLabel }}
     </div>
 
     <span
-      v-if="isCatalogAvailable && questionThemesStore.catalogStatus === 'stale'"
+      v-if="questionThemesStore.isThemesCatalogAvailable && questionThemesStore.catalogStatus === 'stale'"
       class="text-error text-sm"
       data-testid="game-questions-filters-theme-filter-refresh-error"
     >

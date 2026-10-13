@@ -73,14 +73,14 @@ describe("GameQuestionsFiltersCategoryFilter Component", () => {
     expect(filter.props("summaryTestId")).toBe("game-questions-filters-category-filter-summary");
   });
 
-  it("should pass the localized category options with their icons to the generic filter when mounted.", () => {
+  it("should pass the localized category options with their icons and colors to the generic filter when mounted.", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
     expect(filter.props("options")).toStrictEqual([
-      { icon: "i-lucide-sparkle", label: "questions.category.trivia", value: "trivia" },
-      { icon: "i-lucide-languages", label: "questions.category.lexicon", value: "lexicon" },
-      { icon: "i-lucide-puzzle", label: "questions.category.riddle", value: "riddle" },
-      { icon: "i-lucide-atom", label: "questions.category.explanation", value: "explanation" },
+      { color: "#F59E0B", icon: "i-lucide-sparkle", label: "questions.category.trivia", value: "trivia" },
+      { color: "#3B82F6", icon: "i-lucide-languages", label: "questions.category.lexicon", value: "lexicon" },
+      { color: "#A855F7", icon: "i-lucide-puzzle", label: "questions.category.riddle", value: "riddle" },
+      { color: "#10B981", icon: "i-lucide-atom", label: "questions.category.explanation", value: "explanation" },
     ]);
   });
 
@@ -90,11 +90,11 @@ describe("GameQuestionsFiltersCategoryFilter Component", () => {
     expect(filter.props("modelValue")).toStrictEqual(["trivia", "lexicon", "riddle", "explanation"]);
   });
 
-  it("should emit update:modelValue in schema order when the generic filter emits a selection.", () => {
+  it("should emit the selected valid values in selection order when the generic filter emits a selection.", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
     getWrapperVm(filter).$emit("update:modelValue", ["riddle", "trivia"]);
 
-    expect(wrapper.emitted("update:modelValue")).toStrictEqual([[["trivia", "riddle"]]]);
+    expect(wrapper.emitted("update:modelValue")).toStrictEqual([[["riddle", "trivia"]]]);
   });
 
   it("should ignore unknown values when the generic filter emits a selection.", () => {

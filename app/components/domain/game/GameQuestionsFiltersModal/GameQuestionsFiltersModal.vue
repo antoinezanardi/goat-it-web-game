@@ -7,12 +7,11 @@ import { ConfirmDialog, GameQuestionsFiltersModalContent, GameQuestionsFiltersMo
 
 import { GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS, GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
 import type {
-  GameQuestionsFiltersApplyPayload,
   GameQuestionsFiltersDraft,
   GameQuestionsFiltersModalEmits,
   GameQuestionsFiltersModalProps,
 } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
-import { normalizeThemeSelection } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { resolveSelectedThemeIds } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
 import { GAME_SETTINGS_DEFAULTS } from "~/stores/domain/game-settings/game-settings.constants";
 
 const props = defineProps<GameQuestionsFiltersModalProps>();
@@ -30,7 +29,7 @@ function readCommittedDraft(): GameQuestionsFiltersDraft {
     isAdultContentEnabled: settingsStore.settings.isAdultContentEnabled,
     cognitiveDifficulties: [...settingsStore.settings.cognitiveDifficulties],
     categories: [...settingsStore.settings.categories],
-    themeIds: normalizeThemeSelection(settingsStore.settings.themeIds, questionThemesStore.activeQuestionThemeIds),
+    themeIds: resolveSelectedThemeIds(settingsStore.settings.themeIds, questionThemesStore.activeQuestionThemeIds),
   };
 }
 
@@ -41,21 +40,19 @@ const normalizedDraft = computed<GameQuestionsFiltersDraft>(() => ({
   isAdultContentEnabled: draft.value.isAdultContentEnabled,
   cognitiveDifficulties: QUESTION_COGNITIVE_DIFFICULTIES.filter(difficulty => draft.value.cognitiveDifficulties.includes(difficulty)),
   categories: QUESTION_CATEGORIES.filter(category => draft.value.categories.includes(category)),
-  themeIds: normalizeThemeSelection(draft.value.themeIds, questionThemesStore.activeQuestionThemeIds),
+  themeIds: resolveSelectedThemeIds(draft.value.themeIds, questionThemesStore.activeQuestionThemeIds),
 }));
 
 const normalizedSnapshot = computed<GameQuestionsFiltersDraft>(() => ({
   ...snapshot.value,
-  themeIds: normalizeThemeSelection(snapshot.value.themeIds, questionThemesStore.activeQuestionThemeIds),
+  themeIds: resolveSelectedThemeIds(snapshot.value.themeIds, questionThemesStore.activeQuestionThemeIds),
 }));
-
-const isCatalogAvailable = computed<boolean>(() => questionThemesStore.activeQuestionThemeIds.length > 0);
 
 const defaultDraft = computed<GameQuestionsFiltersDraft>(() => ({
   isAdultContentEnabled: GAME_SETTINGS_DEFAULTS.isAdultContentEnabled,
   cognitiveDifficulties: [...GAME_SETTINGS_DEFAULTS.cognitiveDifficulties],
   categories: [...GAME_SETTINGS_DEFAULTS.categories],
-  themeIds: normalizeThemeSelection(GAME_SETTINGS_DEFAULTS.themeIds, questionThemesStore.activeQuestionThemeIds),
+  themeIds: resolveSelectedThemeIds(GAME_SETTINGS_DEFAULTS.themeIds, questionThemesStore.activeQuestionThemeIds),
 }));
 
 const isDraftModified = computed<boolean>(() => !isEqual(normalizedDraft.value, normalizedSnapshot.value));
@@ -74,7 +71,7 @@ watch(() => props.isOpen, (isOpen: boolean) => {
     isAdultContentEnabled: committedDraft.isAdultContentEnabled,
     cognitiveDifficulties: [...committedDraft.cognitiveDifficulties],
     categories: [...committedDraft.categories],
-    themeIds: [...committedDraft.themeIds],
+    themeIds: committedDraft.themeIds === undefined ? undefined : [...committedDraft.themeIds],
   };
 });
 
@@ -150,19 +147,17 @@ function onReset(): void {
     isAdultContentEnabled: GAME_SETTINGS_DEFAULTS.isAdultContentEnabled,
     cognitiveDifficulties: [...GAME_SETTINGS_DEFAULTS.cognitiveDifficulties],
     categories: [...GAME_SETTINGS_DEFAULTS.categories],
-    themeIds: normalizeThemeSelection(GAME_SETTINGS_DEFAULTS.themeIds, questionThemesStore.activeQuestionThemeIds),
+    themeIds: resolveSelectedThemeIds(GAME_SETTINGS_DEFAULTS.themeIds, questionThemesStore.activeQuestionThemeIds),
   };
 }
 
 function onApply(): void {
-  const payload: GameQuestionsFiltersApplyPayload = {
+  const payload: GameQuestionsFiltersDraft = {
     isAdultContentEnabled: draft.value.isAdultContentEnabled,
     cognitiveDifficulties: [...draft.value.cognitiveDifficulties],
     categories: [...draft.value.categories],
+    themeIds: normalizedDraft.value.themeIds === undefined ? undefined : [...normalizedDraft.value.themeIds],
   };
-  if (isCatalogAvailable.value) {
-    payload.themeIds = [...normalizedDraft.value.themeIds];
-  }
   emit("applyFilters", payload);
 }
 </script>

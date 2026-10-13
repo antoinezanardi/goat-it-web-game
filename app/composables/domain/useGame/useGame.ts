@@ -1,11 +1,11 @@
-import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 import { until } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { isEqual } from "radashi";
 
 import type { Question } from "#shared/types/question.types";
-import type { GameSettingsFetchFilters } from "~/composables/domain/useGame/use-game.types";
+import { buildGameSettingsFetchFilters } from "~/composables/domain/useGameQuestionsFilters/helpers/game-questions-filters.helpers";
+import type { GameSettingsFetchFilters } from "~/composables/domain/useGameQuestionsFilters/use-game-questions-filters.types";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
 
 type GamePageState = "loading" | "playing" | "game-over";
@@ -36,29 +36,7 @@ function useGame(): UseGame {
   const hasTriggeredPrefetch = ref<boolean>(false);
 
   function getGameSettingsFetchFilters(): GameSettingsFetchFilters {
-    const filters: GameSettingsFetchFilters = {};
-    if (!settingsStore.settings.isAdultContentEnabled) {
-      filters.isAdultContent = false;
-    }
-    const selectedCognitiveDifficulties = [...new Set(settingsStore.settings.cognitiveDifficulties)];
-    if (selectedCognitiveDifficulties.length < QUESTION_COGNITIVE_DIFFICULTIES.length) {
-      filters.cognitiveDifficulties = selectedCognitiveDifficulties;
-    }
-    const selectedCategories = QUESTION_CATEGORIES.filter(category => settingsStore.settings.categories.includes(category));
-    if (selectedCategories.length < QUESTION_CATEGORIES.length) {
-      filters.categories = selectedCategories;
-    }
-    const activeThemeIds = questionThemesStore.activeQuestionThemeIds;
-    const savedThemeIds = [...new Set(settingsStore.settings.themeIds)];
-    if (activeThemeIds.length > 0) {
-      const activeSelection = activeThemeIds.filter(themeId => savedThemeIds.includes(themeId));
-      if (activeSelection.length > 0 && activeSelection.length < activeThemeIds.length) {
-        filters.themeIds = activeSelection;
-      }
-    } else if (savedThemeIds.length > 0) {
-      filters.themeIds = savedThemeIds;
-    }
-    return filters;
+    return buildGameSettingsFetchFilters(settingsStore.settings, questionThemesStore.activeQuestionThemeIds);
   }
 
   const appliedFetchFilters = ref<GameSettingsFetchFilters>(getGameSettingsFetchFilters());

@@ -13,15 +13,15 @@ function resolveThemeColor(color?: string): string {
   return color;
 }
 
-function normalizeThemeSelection(themeIds: readonly string[], activeThemeIds: readonly string[]): string[] {
+function resolveSelectedThemeIds(savedThemeIds: readonly string[] | undefined, activeThemeIds: readonly string[]): string[] | undefined {
   if (activeThemeIds.length === 0) {
-    return [...themeIds];
+    return savedThemeIds === undefined ? undefined : [...savedThemeIds];
   }
-  const activeSelection = activeThemeIds.filter(themeId => themeIds.includes(themeId));
+  const activeSelection = activeThemeIds.filter(themeId => savedThemeIds?.includes(themeId) ?? false);
   if (activeSelection.length === 0) {
     return [...activeThemeIds];
   }
   return activeSelection;
 }
 
-export { getThemeIcon, normalizeThemeSelection, resolveThemeColor };
+export { getThemeIcon, resolveSelectedThemeIds, resolveThemeColor };

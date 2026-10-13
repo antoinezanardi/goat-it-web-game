@@ -1,13 +1,14 @@
 import type { FindQuestionThemesQueryDto } from "@goat-it/schemas/question-theme";
 import { DEFAULT_QUESTION_THEME_STATUS } from "@goat-it/schemas/question-theme";
 
-import type { QuestionThemeCatalogStatus } from "~/stores/domain/question-theme/question-theme-catalog.types";
+type QuestionThemeCatalogStatus = "loading" | "refreshing" | "ready" | "stale" | "unavailable";
 
 export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, () => {
   const questionThemes = ref<QuestionTheme[]>([]);
   const questionThemeSlugs = computed<string[]>(() => questionThemes.value.map(theme => theme.slug));
   const activeQuestionThemes = computed<QuestionTheme[]>(() => questionThemes.value.filter(theme => theme.status === DEFAULT_QUESTION_THEME_STATUS));
   const activeQuestionThemeIds = computed<string[]>(() => activeQuestionThemes.value.map(theme => theme.id));
+  const isThemesCatalogAvailable = computed<boolean>(() => activeQuestionThemes.value.length > 0);
 
   const repository = questionThemesRepository($fetch);
   const { handleGoatItApiError } = useGoatItApiErrorToast();
@@ -16,6 +17,7 @@ export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, ()
   const {
     execute: fetchQuestionThemes,
     fetchStatus,
+    isIdle,
     isPending,
     isSuccess,
     isError,
@@ -25,13 +27,13 @@ export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, ()
   );
 
   const catalogStatus = computed<QuestionThemeCatalogStatus>(() => {
-    if (activeQuestionThemes.value.length > 0) {
+    if (isThemesCatalogAvailable.value) {
       if (isPending.value) {
         return "refreshing";
       }
       return isError.value ? "stale" : "ready";
     }
-    return isPending.value || !isError.value ? "loading" : "unavailable";
+    return isPending.value || isIdle.value ? "loading" : "unavailable";
   });
 
   async function fetchAndStoreQuestionThemes(query?: FindQuestionThemesQueryDto): Promise<void> {
@@ -45,6 +47,7 @@ export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, ()
     questionThemeSlugs,
     activeQuestionThemes,
     activeQuestionThemeIds,
+    isThemesCatalogAvailable,
     catalogStatus,
     fetchStatus,
     isPending,

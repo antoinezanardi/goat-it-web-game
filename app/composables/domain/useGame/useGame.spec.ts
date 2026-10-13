@@ -1,7 +1,7 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { flushPromises, mount } from "@vue/test-utils";
-import { QUESTION_CATEGORIES } from "@goat-it/schemas/question";
+import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, nextTick, toValue } from "vue";
 import type { MaybeRefOrGetter, Ref } from "vue";
@@ -27,6 +27,12 @@ const GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY = {
   ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY,
   isAdultContent: false,
 } as const;
+
+const UNRESTRICTED_SETTINGS_FIELDS: Partial<GameSettings> = {
+  categories: [...QUESTION_CATEGORIES],
+  cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+  themeIds: undefined,
+};
 
 let useGame: typeof UseGameType;
 let useGameQuestionTranslationMock: UseGameQuestionTranslationMock;
@@ -210,7 +216,7 @@ describe("useGame", () => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
 
       await game.initialize();
 
@@ -221,7 +227,7 @@ describe("useGame", () => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "hard"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "hard"] });
 
       await game.initialize();
 
@@ -231,25 +237,15 @@ describe("useGame", () => {
       });
     });
 
-    it("should include the deduplicated cognitive difficulties in the initial fetch body when the selection holds duplicates.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "easy", "medium"] });
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        cognitiveDifficulties: ["easy", "medium"],
-      });
-    });
-
     it("should omit the cognitive difficulties from the initial fetch body when every difficulty is selected.", async() => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+      settingsStore.settings = createFakeGameSettings({
+        ...UNRESTRICTED_SETTINGS_FIELDS,
+        isAdultContentEnabled: true,
+        cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      });
 
       await game.initialize();
 
@@ -260,7 +256,7 @@ describe("useGame", () => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, categories: ["trivia", "riddle"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, categories: ["trivia", "riddle"] });
 
       await game.initialize();
 
@@ -274,7 +270,7 @@ describe("useGame", () => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, categories: [...QUESTION_CATEGORIES] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, categories: [...QUESTION_CATEGORIES] });
 
       await game.initialize();
 
@@ -285,7 +281,7 @@ describe("useGame", () => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, themeIds: ["theme-a"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a"] });
 
       await game.initialize();
 
@@ -300,7 +296,7 @@ describe("useGame", () => {
       const questionThemesStore = mockStore(useQuestionThemesStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, themeIds: ["theme-a"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a"] });
       questionThemesStore.questionThemes = [
         createFakeQuestionTheme({ id: "theme-a", status: "active" }),
         createFakeQuestionTheme({ id: "theme-b", status: "active" }),
@@ -319,7 +315,7 @@ describe("useGame", () => {
       const questionThemesStore = mockStore(useQuestionThemesStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, themeIds: ["theme-a", "theme-b"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a", "theme-b"] });
       questionThemesStore.questionThemes = [
         createFakeQuestionTheme({ id: "theme-a", status: "active" }),
         createFakeQuestionTheme({ id: "theme-b", status: "active" }),
@@ -335,7 +331,7 @@ describe("useGame", () => {
       const questionThemesStore = mockStore(useQuestionThemesStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, themeIds: ["stale-theme"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["stale-theme"] });
       questionThemesStore.questionThemes = [createFakeQuestionTheme({ id: "theme-a", status: "active" })];
 
       await game.initialize();
@@ -511,7 +507,7 @@ describe("useGame", () => {
       const game = useGame();
       const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
       store.questions = fakeQuestions;
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
       await nextTick();
       store.fetchAndAppendRandomQuestions.mockClear();
       for (let index = 0; index < 20; index++) {
@@ -532,7 +528,7 @@ describe("useGame", () => {
       const game = useGame();
       const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
       store.questions = fakeQuestions;
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["hard"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, cognitiveDifficulties: ["hard"] });
       await nextTick();
       store.fetchAndAppendRandomQuestions.mockClear();
       for (let index = 0; index < 20; index++) {
@@ -784,10 +780,10 @@ describe("useGame", () => {
       const store = mockStore(useGameStore);
       const settingsStore = mockStore(useGameSettingsStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
       await game.syncQuestionsWithGameSettings();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
       store.fetchAndAppendRandomQuestions.mockClear();
 
       await game.syncQuestionsWithGameSettings();
@@ -809,7 +805,7 @@ describe("useGame", () => {
       store.truncateQuestions.mockImplementation((length: number) => {
         store.questions = store.questions.slice(0, length);
       });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
       store.fetchAndAppendRandomQuestions.mockClear();
 
       await game.syncQuestionsWithGameSettings();
@@ -826,10 +822,10 @@ describe("useGame", () => {
       const store = mockStore(useGameStore);
       const settingsStore = mockStore(useGameSettingsStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
       await game.syncQuestionsWithGameSettings();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["hard"] });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["hard"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
       store.fetchAndAppendRandomQuestions.mockClear();
 
       await game.syncQuestionsWithGameSettings();
@@ -868,7 +864,7 @@ describe("useGame", () => {
       store.truncateQuestions.mockImplementation((length: number) => {
         store.questions = store.questions.slice(0, length);
       });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
       store.fetchAndAppendRandomQuestions.mockClear();
 
       await game.syncQuestionsWithGameSettings();
@@ -1042,7 +1038,7 @@ describe("useGame", () => {
       const settingsStore = mockStore(useGameSettingsStore);
       const questionThemesStore = mockStore(useQuestionThemesStore);
       const store = mockStore(useGameStore);
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, themeIds: ["theme-a", "theme-b"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a", "theme-b"] });
       const wrapper = mount(defineComponent({
         setup(): () => null {
           useGame();

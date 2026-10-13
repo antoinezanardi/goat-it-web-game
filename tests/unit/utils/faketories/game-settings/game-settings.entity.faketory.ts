@@ -6,9 +6,9 @@ import type { GameSettings } from "~/stores/domain/game-settings/game-settings.t
 function createFakeGameSettings(gameSettings: Partial<GameSettings> = {}): GameSettings {
   return {
     isAdultContentEnabled: faker.datatype.boolean(),
-    cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
-    categories: [...QUESTION_CATEGORIES],
-    themeIds: [],
+    cognitiveDifficulties: faker.helpers.arrayElements([...QUESTION_COGNITIVE_DIFFICULTIES]),
+    categories: faker.helpers.arrayElements([...QUESTION_CATEGORIES]),
+    themeIds: faker.helpers.arrayElements(Array.from({ length: faker.number.int({ min: 1, max: 4 }) }, () => faker.string.uuid())),
     ...gameSettings,
   };
 }

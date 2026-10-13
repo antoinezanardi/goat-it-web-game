@@ -1,5 +1,5 @@
 type GameQuestionsFiltersThemeFilterProps = {
-  modelValue: string[];
+  modelValue?: string[];
 };
 
 type GameQuestionsFiltersThemeFilterEmits = {

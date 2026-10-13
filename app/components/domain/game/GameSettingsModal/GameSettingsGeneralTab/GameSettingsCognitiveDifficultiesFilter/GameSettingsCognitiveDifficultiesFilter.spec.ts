@@ -65,9 +65,9 @@ describe("GameSettingsCognitiveDifficultiesFilter Component", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
     expect(filter.props("options")).toStrictEqual([
-      { color: "success", icon: "i-lucide-brain", label: "game.settings.cognitiveDifficulties.options.easy", value: "easy" },
-      { color: "warning", icon: "i-lucide-brain-cog", label: "game.settings.cognitiveDifficulties.options.medium", value: "medium" },
-      { color: "error", icon: "i-lucide-brain-circuit", label: "game.settings.cognitiveDifficulties.options.hard", value: "hard" },
+      { color: "#22C55E", icon: "i-lucide-brain", label: "game.settings.cognitiveDifficulties.options.easy", value: "easy" },
+      { color: "#F59E0B", icon: "i-lucide-brain-cog", label: "game.settings.cognitiveDifficulties.options.medium", value: "medium" },
+      { color: "#EF4444", icon: "i-lucide-brain-circuit", label: "game.settings.cognitiveDifficulties.options.hard", value: "hard" },
     ]);
   });
 
@@ -77,11 +77,11 @@ describe("GameSettingsCognitiveDifficultiesFilter Component", () => {
     expect(filter.props("modelValue")).toStrictEqual(["easy", "medium", "hard"]);
   });
 
-  it("should emit update:modelValue in option order when the generic filter emits a selection.", () => {
+  it("should emit the selected valid values in selection order when the generic filter emits a selection.", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
     getWrapperVm(filter).$emit("update:modelValue", ["hard", "easy"]);
 
-    expect(wrapper.emitted("update:modelValue")).toStrictEqual([[["easy", "hard"]]]);
+    expect(wrapper.emitted("update:modelValue")).toStrictEqual([[["hard", "easy"]]]);
   });
 
   it("should ignore unknown values when the generic filter emits a selection.", () => {

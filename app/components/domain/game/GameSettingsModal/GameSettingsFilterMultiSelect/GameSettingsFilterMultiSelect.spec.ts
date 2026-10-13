@@ -31,9 +31,9 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     label: "Cognitive difficulty",
     modelValue: ["easy", "medium", "hard"],
     options: [
-      { color: "success", icon: "i-lucide-brain", label: "Easy", value: "easy" },
-      { color: "warning", icon: "i-lucide-brain-cog", label: "Medium", value: "medium" },
-      { color: "error", icon: "i-lucide-brain-circuit", label: "Hard", value: "hard" },
+      { color: "#22C55E", icon: "i-lucide-brain", label: "Easy", value: "easy" },
+      { color: "#F59E0B", icon: "i-lucide-brain-cog", label: "Medium", value: "medium" },
+      { color: "#EF4444", icon: "i-lucide-brain-circuit", label: "Hard", value: "hard" },
     ],
     summaryMode: "labels",
   };
@@ -99,13 +99,13 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
 
     expect(selectMenu.props("items")).toStrictEqual([
-      { icon: "i-lucide-brain", label: "Easy", trailingIcon: "i-lucide-square-check", ui: { itemLeadingIcon: "text-success!" }, value: "easy" },
-      { icon: "i-lucide-brain-cog", label: "Medium", trailingIcon: "i-lucide-square-check", ui: { itemLeadingIcon: "text-warning!" }, value: "medium" },
-      { icon: "i-lucide-brain-circuit", label: "Hard", trailingIcon: "i-lucide-square-check", ui: { itemLeadingIcon: "text-error!" }, value: "hard" },
+      { color: "#22C55E", icon: "i-lucide-brain", label: "Easy", trailingIcon: "i-lucide-square-check", value: "easy" },
+      { color: "#F59E0B", icon: "i-lucide-brain-cog", label: "Medium", trailingIcon: "i-lucide-square-check", value: "medium" },
+      { color: "#EF4444", icon: "i-lucide-brain-circuit", label: "Hard", trailingIcon: "i-lucide-square-check", value: "hard" },
     ]);
   });
 
-  it("should pass the options without icon styling when they have no color.", async() => {
+  it("should omit the color from the select menu items when the options have no color.", async() => {
     await wrapper.setProps({
       modelValue: ["easy"],
       options: [{ icon: "i-lucide-brain", label: "Easy", value: "easy" }],
@@ -235,10 +235,28 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
 
     expect(selectMenu.props("items")).toStrictEqual([
-      { icon: "i-lucide-brain", label: "Easy", trailingIcon: "i-lucide-square", ui: { itemLeadingIcon: "text-success!" }, value: "easy" },
-      { icon: "i-lucide-brain-cog", label: "Medium", trailingIcon: "i-lucide-square", ui: { itemLeadingIcon: "text-warning!" }, value: "medium" },
-      { icon: "i-lucide-brain-circuit", label: "Hard", trailingIcon: "i-lucide-square-check", ui: { itemLeadingIcon: "text-error!" }, value: "hard" },
+      { color: "#22C55E", icon: "i-lucide-brain", label: "Easy", trailingIcon: "i-lucide-square", value: "easy" },
+      { color: "#F59E0B", icon: "i-lucide-brain-cog", label: "Medium", trailingIcon: "i-lucide-square", value: "medium" },
+      { color: "#EF4444", icon: "i-lucide-brain-circuit", label: "Hard", trailingIcon: "i-lucide-square-check", value: "hard" },
     ]);
+  });
+
+  it("should render the option leading icon with the option color when the menu is open and the option has a color.", async() => {
+    await openSelectMenu();
+    const leadingIcon = document.body.querySelector<HTMLElement>("[data-testid='game-settings-filter-option-leading-easy']");
+
+    expect(leadingIcon?.style.color).toBe("#22C55E");
+  });
+
+  it("should not apply an inline color to the option leading icon when the menu is open and the option has no color.", async() => {
+    await wrapper.setProps({
+      modelValue: ["easy"],
+      options: [{ icon: "i-lucide-brain", label: "Easy", value: "easy" }],
+    });
+    await openSelectMenu();
+    const leadingIcon = document.body.querySelector<HTMLElement>("[data-testid='game-settings-filter-option-leading-easy']");
+
+    expect(leadingIcon?.style.color).toBe("");
   });
 
   it("should render the selected state icon on a selected option when the menu opens.", async() => {
