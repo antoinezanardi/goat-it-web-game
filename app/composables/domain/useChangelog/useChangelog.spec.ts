@@ -7,34 +7,34 @@ import type { Ref } from "vue";
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
 import { createUseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
 import type { UseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
-import { createFakeChangelogEntry } from "~~/tests/unit/utils/faketories/changelog/changelog-entry.entity.faketory";
 
-import type { useChangelog as UseChangelogType } from "~/composables/domain/useChangelog/useChangelog";
-import type { ChangelogEntry, UseChangelog } from "~/composables/domain/useChangelog/use-changelog.types";
-import { CHANGELOG_STATE_KEYS, CHANGELOG_TOAST_ICON } from "~/composables/domain/useChangelog/use-changelog.constants";
-import type { Toast } from "#ui/composables";
 import { CookieNames } from "#shared/enums/cookie.enums";
+import { StateNames } from "#shared/enums/state.enums";
+import type { Toast } from "#ui/composables";
+import type { useChangelog as UseChangelogType } from "~/composables/domain/useChangelog/useChangelog";
+import type { UseChangelog } from "~/composables/domain/useChangelog/use-changelog.types";
+import { CHANGELOG_TOAST_ICON } from "~/composables/domain/useChangelog/use-changelog.constants";
 
 let useAppToastMock: UseAppToastMock;
 
 mockNuxtImport("useAppToast", () => (): UseAppToastMock => useAppToastMock);
 
 let useChangelog: typeof UseChangelogType;
-let entries: Ref<ChangelogEntry[]>;
+let latestVersion: Ref<string | undefined>;
 let changelog: UseChangelog;
 let openState: Ref<boolean>;
 let unreadState: Ref<boolean>;
 
 function resetSharedState(): void {
-  clearNuxtState([CHANGELOG_STATE_KEYS.IS_OPEN, CHANGELOG_STATE_KEYS.IS_UNREAD]);
+  clearNuxtState([StateNames.CHANGELOG_IS_OPEN, StateNames.CHANGELOG_IS_UNREAD]);
 }
 
 function mountChangelogHarness(): void {
   mount(defineComponent({
     setup(): () => null {
-      changelog = useChangelog({ entries });
-      openState = useState<boolean>(CHANGELOG_STATE_KEYS.IS_OPEN);
-      unreadState = useState<boolean>(CHANGELOG_STATE_KEYS.IS_UNREAD);
+      changelog = useChangelog({ latestVersion });
+      openState = useState<boolean>(StateNames.CHANGELOG_IS_OPEN);
+      unreadState = useState<boolean>(StateNames.CHANGELOG_IS_UNREAD);
 
       return (): null => null;
     },
@@ -69,7 +69,7 @@ describe("useChangelog", () => {
     useCookieMockState.capturedName.current = undefined;
     useCookieMockState.capturedOptions.current = undefined;
     useCookieMockState.cookieRef.value = null;
-    entries = ref<ChangelogEntry[]>([createFakeChangelogEntry({ version: "1.9.0", date: "2026-09-25" })]);
+    latestVersion = ref<string | undefined>("1.9.0");
     ({ useChangelog } = await import("~/composables/domain/useChangelog/useChangelog"));
     mountChangelogHarness();
   });
@@ -88,15 +88,6 @@ describe("useChangelog", () => {
     it("should default the unread state to false when mounted.", () => {
       expect(unreadState.value).toBe(false);
     });
-
-    it("should sort the entries by date descending when the entries are unsorted.", () => {
-      entries.value = [
-        createFakeChangelogEntry({ version: "1.0.0", date: "2026-08-01" }),
-        createFakeChangelogEntry({ version: "2.0.0", date: "2026-09-25" }),
-      ];
-
-      expect(changelog.entries.value.map(entry => entry.version)).toStrictEqual(["2.0.0", "1.0.0"]);
-    });
   });
 
   describe("first visit", () => {
@@ -114,7 +105,7 @@ describe("useChangelog", () => {
 
     it("should clear the unread state when there is no changelog entry.", () => {
       resetSharedState();
-      entries = ref<ChangelogEntry[]>([]);
+      latestVersion = ref<string | undefined>(undefined);
       mountChangelogHarness();
 
       expect(unreadState.value).toBe(false);
@@ -122,7 +113,7 @@ describe("useChangelog", () => {
 
     it("should not show a toast when there is no changelog entry.", () => {
       resetSharedState();
-      entries = ref<ChangelogEntry[]>([]);
+      latestVersion = ref<string | undefined>(undefined);
       mountChangelogHarness();
 
       expect(useAppToastMock.addInfoToast).not.toHaveBeenCalled();
@@ -174,6 +165,48 @@ describe("useChangelog", () => {
       mountChangelogHarness();
 
       expect(useAppToastMock.addInfoToast).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("release data availability", () => {
+    it("should mark the latest release as seen when the release data becomes available while the modal is open.", async() => {
+      resetSharedState();
+      useCookieMockState.cookieRef.value = { lastSeenVersion: "1.8.0", lastNotifiedVersion: "1.8.0" };
+      latestVersion = ref<string | undefined>("1.8.0");
+      mountChangelogHarness();
+      changelog.open();
+      await nextTick();
+
+      latestVersion.value = "1.9.0";
+      await nextTick();
+
+      expect(getLastSeenVersionCookie()).toBe("1.9.0");
+    });
+
+    it("should clear the unread state when the release data becomes available while the modal is open.", async() => {
+      resetSharedState();
+      useCookieMockState.cookieRef.value = { lastSeenVersion: "1.8.0", lastNotifiedVersion: "1.8.0" };
+      latestVersion = ref<string | undefined>("1.8.0");
+      mountChangelogHarness();
+      changelog.open();
+      await nextTick();
+
+      latestVersion.value = "1.9.0";
+      await nextTick();
+
+      expect(unreadState.value).toBe(false);
+    });
+
+    it("should not mark the latest release as seen when the release data becomes available while the modal is closed.", async() => {
+      resetSharedState();
+      useCookieMockState.cookieRef.value = { lastSeenVersion: "1.8.0", lastNotifiedVersion: "1.8.0" };
+      latestVersion = ref<string | undefined>("1.8.0");
+      mountChangelogHarness();
+
+      latestVersion.value = "1.9.0";
+      await nextTick();
+
+      expect(getLastSeenVersionCookie()).toBe("1.8.0");
     });
   });
 

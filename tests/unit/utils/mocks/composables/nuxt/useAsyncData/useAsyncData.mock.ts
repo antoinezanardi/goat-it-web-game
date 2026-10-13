@@ -6,11 +6,14 @@ import type { Ref } from "vue";
 type UseAsyncDataMockOptions = {
   watch?: unknown[];
   default?: () => unknown;
+  immediate?: boolean;
+  server?: boolean;
 };
 
 type UseAsyncDataMockResult = {
   data: Ref<unknown>;
   status: Ref<string>;
+  execute: Mock<() => Promise<unknown>>;
 };
 
 type UseAsyncDataMockSignature = (
@@ -25,6 +28,7 @@ function createUseAsyncDataMock(): UseAsyncDataMock {
   return vi.fn<UseAsyncDataMockSignature>().mockReturnValue({
     data: ref<unknown>(undefined),
     status: ref("success"),
+    execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(),
   });
 }
 

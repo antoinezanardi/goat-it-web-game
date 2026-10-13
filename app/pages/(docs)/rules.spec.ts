@@ -20,6 +20,7 @@ describe("Rules Page", () => {
       useAsyncDataMock.instance.mockReturnValue({
         data: ref<unknown>(null),
         status: ref("pending"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
@@ -56,6 +57,7 @@ describe("Rules Page", () => {
       useAsyncDataMock.instance.mockReturnValue({
         data: ref<unknown>([{ title: "How to play", description: "Rules" }, []]),
         status: ref("success"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
@@ -108,6 +110,7 @@ describe("Rules Page", () => {
       useAsyncDataMock.instance.mockReturnValue({
         data: ref<unknown>(null),
         status: ref("success"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
@@ -126,6 +129,7 @@ describe("Rules Page", () => {
       useAsyncDataMock.instance.mockReturnValue({
         data: ref<unknown>(null),
         status: ref("error"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
@@ -144,6 +148,7 @@ describe("Rules Page", () => {
       useAsyncDataMock.instance.mockReturnValue({
         data: ref<unknown>(null),
         status: ref("pending"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
@@ -173,6 +178,7 @@ describe("Rules Page", () => {
       useAsyncDataMock.instance.mockReturnValue({
         data: ref<unknown>(null),
         status: ref("pending"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });

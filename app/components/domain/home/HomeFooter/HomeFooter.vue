@@ -17,7 +17,7 @@ import { HOME_HOW_TO_PLAY_BUTTON_UI } from "@/components/domain/home/HomeFooter/
       variant="solid"
     />
 
-    <div class="flex gap-2 items-center">
+    <div class="flex flex-col-reverse gap-2 items-center sm:flex-row">
       <ChangelogWhatsNewButton data-testid="home-changelog-button"/>
 
       <VersionButton/>

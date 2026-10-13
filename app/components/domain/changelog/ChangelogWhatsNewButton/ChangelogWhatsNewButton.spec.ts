@@ -6,12 +6,13 @@ import type { Ref } from "vue";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import { ChangelogWhatsNewButton } from "#components";
+import type { ChangelogWhatsNewButtonContent } from "#components";
 
 import type { ChangelogWhatsNewButtonProps } from "@/components/domain/changelog/ChangelogWhatsNewButton/changelog-whats-new-button.types";
-import { CHANGELOG_STATE_KEYS } from "~/composables/domain/useChangelog/use-changelog.constants";
+import { StateNames } from "#shared/enums/state.enums";
 
 describe("ChangelogWhatsNewButton Component", () => {
-  const defaultChangelogWhatsNewButtonProps: ChangelogWhatsNewButtonProps = { variant: "button" };
+  const defaultChangelogWhatsNewButtonProps: ChangelogWhatsNewButtonProps = { variant: "button" } as const;
   let wrapper: VueWrapper;
 
   async function mountChangelogWhatsNewButton(options: MountSuspendedOptions<typeof ChangelogWhatsNewButton> = {}): Promise<VueWrapper> {
@@ -19,11 +20,11 @@ describe("ChangelogWhatsNewButton Component", () => {
   }
 
   function getUnreadState(): Ref<boolean> {
-    return useState<boolean>(CHANGELOG_STATE_KEYS.IS_UNREAD, () => false);
+    return useState<boolean>(StateNames.CHANGELOG_IS_UNREAD, () => false);
   }
 
   function getOpenState(): Ref<boolean> {
-    return useState<boolean>(CHANGELOG_STATE_KEYS.IS_OPEN, () => false);
+    return useState<boolean>(StateNames.CHANGELOG_IS_OPEN, () => false);
   }
 
   beforeEach(async() => {
@@ -36,12 +37,12 @@ describe("ChangelogWhatsNewButton Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
-  it("should render the entry point label translation key in the button variant when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UButton" }).props("label")).toBe("changelog.entryPoint");
+  it("should render the changelog entry point content in the button variant when mounted.", () => {
+    expect(wrapper.findComponent<typeof ChangelogWhatsNewButtonContent>({ name: "ChangelogWhatsNewButtonContent" }).exists()).toBe(true);
   });
 
-  it("should render the sparkles icon in the button variant when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UButton" }).props("icon")).toBe("i-lucide-sparkles");
+  it("should render the entry point label translation key in the button variant when mounted.", () => {
+    expect(wrapper.text()).toContain("changelog.entryPoint");
   });
 
   it("should not render the menu link as the root when the variant is button.", () => {

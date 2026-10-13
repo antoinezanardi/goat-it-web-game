@@ -1,6 +1,6 @@
-import { sortChangelogEntries } from "~/composables/domain/useChangelog/helpers/changelog.helpers";
-import type { ChangelogEntry, UseChangelog, UseChangelogOptions } from "~/composables/domain/useChangelog/use-changelog.types";
-import { CHANGELOG_STATE_KEYS, CHANGELOG_TOAST_ICON } from "~/composables/domain/useChangelog/use-changelog.constants";
+import { StateNames } from "#shared/enums/state.enums";
+import type { UseChangelog, UseChangelogOptions } from "~/composables/domain/useChangelog/use-changelog.types";
+import { CHANGELOG_TOAST_ICON } from "~/composables/domain/useChangelog/use-changelog.constants";
 import { useChangelogCookie } from "~/composables/domain/useChangelogCookie/useChangelogCookie";
 
 function useChangelog(options: UseChangelogOptions): UseChangelog {
@@ -8,11 +8,10 @@ function useChangelog(options: UseChangelogOptions): UseChangelog {
   const { t } = useI18n();
   const { readChangelogState, writeChangelogState } = useChangelogCookie();
 
-  const isOpen = useState<boolean>(CHANGELOG_STATE_KEYS.IS_OPEN, () => false);
-  const isUnread = useState<boolean>(CHANGELOG_STATE_KEYS.IS_UNREAD, () => false);
+  const isOpen = useState<boolean>(StateNames.CHANGELOG_IS_OPEN, () => false);
+  const isUnread = useState<boolean>(StateNames.CHANGELOG_IS_UNREAD, () => false);
 
-  const entries = computed<ChangelogEntry[]>(() => sortChangelogEntries([...toValue(options.entries)]));
-  const latestVersion = computed<string | undefined>(() => entries.value[0]?.version);
+  const latestVersion = computed<string | undefined>(() => toValue(options.latestVersion));
 
   const lastSeenVersion = ref<string>("");
   const lastNotifiedVersion = ref<string>("");
@@ -91,16 +90,17 @@ function useChangelog(options: UseChangelogOptions): UseChangelog {
     syncUnreadState();
   }
 
-  watch(latestVersion, initializeFromStoredState, { immediate: true });
+  if (import.meta.client) {
+    watch(latestVersion, initializeFromStoredState, { immediate: true });
+  }
 
-  watch(isOpen, isOpenValue => {
+  watch([isOpen, latestVersion], ([isOpenValue]) => {
     if (isOpenValue) {
       markLatestReleaseAsSeen();
     }
   });
 
   return {
-    entries,
     isOpen,
     open,
     close,

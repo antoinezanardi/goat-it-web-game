@@ -1,4 +1,4 @@
-import type { ComputedRef, MaybeRefOrGetter, Ref } from "vue";
+import type { MaybeRefOrGetter, Ref } from "vue";
 
 type ChangelogEntry = {
   version: string;
@@ -10,11 +10,10 @@ type ChangelogEntry = {
 };
 
 type UseChangelogOptions = {
-  entries: MaybeRefOrGetter<ChangelogEntry[]>;
+  latestVersion: MaybeRefOrGetter<string | undefined>;
 };
 
 type UseChangelog = {
-  entries: ComputedRef<ChangelogEntry[]>;
   isOpen: Ref<boolean>;
   open: () => void;
   close: () => void;
