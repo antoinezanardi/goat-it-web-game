@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import { CHANGELOG_ICON } from "@/components/shared/core/changelog/changelog.constants";
 import type { ChangelogCollectionName } from "@/components/domain/changelog/ChangelogModal/changelog-modal.types";
-import { CHANGELOG_MODAL_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
+import { CHANGELOG_MODAL_UI, CHANGELOG_VERSION_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
 import { sortChangelogEntries } from "~/composables/domain/useChangelog/helpers/changelog.helpers";
 
 const { locale, t } = useI18n();
@@ -30,6 +31,8 @@ const {
 );
 
 const sortedChangelogEntries = computed(() => sortChangelogEntries(changelogEntries.value));
+
+const isChangelogEntriesLoading = computed<boolean>(() => changelogEntriesStatus.value === "idle" || changelogEntriesStatus.value === "pending");
 
 const { isOpen, close } = useChangelog({ latestVersion });
 
@@ -69,14 +72,14 @@ function onUpdateOpen(value: boolean): void {
     <template #title>
       <DefaultModalTitle
         data-testid="changelog-modal-title"
-        icon="i-lucide-sparkles"
+        :icon="CHANGELOG_ICON"
         :title="t('changelog.modal.title')"
       />
     </template>
 
     <template #body>
       <div data-testid="changelog-modal">
-        <LoadingSpinner v-if="changelogEntriesStatus === 'idle' || changelogEntriesStatus === 'pending'"/>
+        <LoadingSpinner v-if="isChangelogEntriesLoading"/>
 
         <p v-else-if="changelogEntriesStatus === 'error'">
           {{ t("errors.generic") }}
@@ -84,6 +87,7 @@ function onUpdateOpen(value: boolean): void {
 
         <UChangelogVersions
           v-else
+          class="docs-prose"
           :indicator="false"
         >
           <UChangelogVersion
@@ -94,6 +98,7 @@ function onUpdateOpen(value: boolean): void {
             :description="entry.description"
             :indicator="false"
             :title="entry.title"
+            :ui="CHANGELOG_VERSION_UI"
           >
             <template #body>
               <ContentRenderer
@@ -107,15 +112,10 @@ function onUpdateOpen(value: boolean): void {
     </template>
 
     <template #footer>
-      <div class="flex justify-end w-full">
-        <UButton
-          color="neutral"
-          data-testid="changelog-modal-footer-close-button"
-          icon="i-lucide-x"
-          :label="t('common.close')"
-          @click="close"
-        />
-      </div>
+      <DefaultModalFooter
+        data-testid="changelog-modal-footer"
+        @close-modal="close"
+      />
     </template>
   </UModal>
 </template>

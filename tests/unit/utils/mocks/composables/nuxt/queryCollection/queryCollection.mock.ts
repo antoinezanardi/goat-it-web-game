@@ -16,7 +16,7 @@ type QueryCollectionMock = Mock<QueryCollectionMockSignature>;
 function createQueryCollectionMockEntry(): QueryCollectionMockEntry {
   const entry: QueryCollectionMockEntry = {
     all: vi.fn<() => Promise<unknown>>().mockResolvedValue([]),
-    first: vi.fn<() => Promise<unknown>>().mockResolvedValue(),
+    first: vi.fn<() => Promise<void>>().mockResolvedValue(),
     select: vi.fn<(...fields: string[]) => QueryCollectionMockEntry>(),
     order: vi.fn<(field: string, direction: "ASC" | "DESC") => QueryCollectionMockEntry>(),
     limit: vi.fn<(limit: number) => QueryCollectionMockEntry>(),

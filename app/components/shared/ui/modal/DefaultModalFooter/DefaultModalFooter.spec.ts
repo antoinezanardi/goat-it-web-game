@@ -105,6 +105,20 @@ describe("DefaultModalFooter Component", () => {
   });
 
   describe("Primary button", () => {
+    describe("When no primary button label is provided", () => {
+      beforeEach(async() => {
+        wrapper = await mountDefaultModalFooterComponent({ props: {} });
+      });
+
+      it("should not render the primary button when the primary button label is not provided.", () => {
+        expect(wrapper.find("[data-testid='default-modal-footer-primary-button']").exists()).toBe(false);
+      });
+
+      it("should still render the close button when the primary button label is not provided.", () => {
+        expect(wrapper.find("[data-testid='default-modal-footer-close-button']").exists()).toBe(true);
+      });
+    });
+
     describe("Label", () => {
       it("should pass the primaryButtonLabel prop to the primary button when mounted.", () => {
         const primaryButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-primary-button']");
@@ -246,6 +260,14 @@ describe("DefaultModalFooter Component", () => {
 
     it("should not emit primaryButtonClick when the meta+enter shortcut is triggered and shortcuts are disabled.", async() => {
       await wrapper.setProps({ disableShortcuts: true });
+
+      dispatchMetaEnterKeydown();
+
+      expect(wrapper.emitted("primaryButtonClick")).toBeUndefined();
+    });
+
+    it("should not emit primaryButtonClick when meta+enter is pressed and no primary button label is provided.", async() => {
+      wrapper = await mountDefaultModalFooterComponent({ props: {} });
 
       dispatchMetaEnterKeydown();
 

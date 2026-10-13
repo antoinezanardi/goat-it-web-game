@@ -28,7 +28,7 @@ function createUseAsyncDataMock(): UseAsyncDataMock {
   return vi.fn<UseAsyncDataMockSignature>().mockReturnValue({
     data: ref<unknown>(undefined),
     status: ref("success"),
-    execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(),
+    execute: vi.fn<() => Promise<void>>().mockResolvedValue(),
   });
 }
 

@@ -8,6 +8,8 @@ const props = withDefaults(defineProps<ChangelogWhatsNewButtonProps>(), {
 
 const isOpen = useState<boolean>(StateNames.CHANGELOG_IS_OPEN, () => false);
 
+const isButtonVariant = computed<boolean>(() => props.variant === "button");
+
 function onOpenChangelog(): void {
   isOpen.value = true;
 }
@@ -15,13 +17,13 @@ function onOpenChangelog(): void {
 
 <template>
   <UButton
-    v-if="props.variant === 'button'"
-    color="secondary"
+    v-if="isButtonVariant"
+    color="primary"
     size="md"
-    variant="outline"
+    variant="soft"
     @click="onOpenChangelog"
   >
-    <ChangelogWhatsNewButtonContent icon-class="text-primary"/>
+    <ChangelogWhatsNewButtonContent/>
   </UButton>
 
   <ULink

@@ -8,12 +8,12 @@ import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-coo
 import { createUseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
 import type { UseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
 
+import { CHANGELOG_ICON, CHANGELOG_TOAST_DURATION_IN_MS } from "@/components/shared/core/changelog/changelog.constants";
 import { CookieNames } from "#shared/enums/cookie.enums";
 import { StateNames } from "#shared/enums/state.enums";
 import type { Toast } from "#ui/composables";
 import type { useChangelog as UseChangelogType } from "~/composables/domain/useChangelog/useChangelog";
 import type { UseChangelog } from "~/composables/domain/useChangelog/use-changelog.types";
-import { CHANGELOG_TOAST_ICON } from "~/composables/domain/useChangelog/use-changelog.constants";
 
 let useAppToastMock: UseAppToastMock;
 
@@ -145,7 +145,8 @@ describe("useChangelog", () => {
       expect(useAppToastMock.addInfoToast).toHaveBeenCalledExactlyOnceWith({
         title: "changelog.toast.title",
         description: "changelog.toast.description",
-        icon: CHANGELOG_TOAST_ICON,
+        duration: CHANGELOG_TOAST_DURATION_IN_MS,
+        icon: CHANGELOG_ICON,
         type: "background",
         actions: [{ label: "changelog.toast.action", color: "primary", onClick: expect.any(Function) as () => void }],
       });

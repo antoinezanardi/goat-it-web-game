@@ -7,15 +7,13 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import { ChangelogWhatsNewButtonContent } from "#components";
 
-import type { ChangelogWhatsNewButtonContentProps } from "@/components/domain/changelog/ChangelogWhatsNewButton/changelog-whats-new-button-content.types";
 import { StateNames } from "#shared/enums/state.enums";
 
 describe("ChangelogWhatsNewButtonContent Component", () => {
-  const defaultChangelogWhatsNewButtonContentProps: ChangelogWhatsNewButtonContentProps = {} as const;
   let wrapper: VueWrapper;
 
   async function mountChangelogWhatsNewButtonContent(options: MountSuspendedOptions<typeof ChangelogWhatsNewButtonContent> = {}): Promise<VueWrapper> {
-    return mountSuspended(ChangelogWhatsNewButtonContent, { props: defaultChangelogWhatsNewButtonContentProps, ...options });
+    return mountSuspended(ChangelogWhatsNewButtonContent, { ...options });
   }
 
   function getUnreadState(): Ref<boolean> {
@@ -39,10 +37,8 @@ describe("ChangelogWhatsNewButtonContent Component", () => {
     expect(wrapper.text()).toContain("changelog.entryPoint");
   });
 
-  it("should apply the icon class to the icon when the icon class prop is provided.", async() => {
-    wrapper = await mountChangelogWhatsNewButtonContent({ props: { iconClass: "text-primary" } });
-
-    expect(wrapper.findComponent({ name: "UIcon" }).classes()).toContain("text-primary");
+  it("should render the client-only wrapper around the unread indicator when mounted.", () => {
+    expect(wrapper.findComponent({ name: "ClientOnly" }).exists()).toBe(true);
   });
 
   it("should not render the unread indicator when the changelog is read.", () => {

@@ -16,9 +16,9 @@ import type { QueryCollectionMockEntry } from "~~/tests/unit/utils/mocks/composa
 import type { UseAsyncDataMockResult } from "~~/tests/unit/utils/mocks/composables/nuxt/useAsyncData/useAsyncData.mock";
 
 import { ChangelogModal } from "#components";
-import type { DefaultModalTitle, UButton, UChangelogVersion } from "#components";
+import type { DefaultModalFooter, DefaultModalTitle, UChangelogVersion } from "#components";
 
-import { CHANGELOG_MODAL_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
+import { CHANGELOG_MODAL_UI, CHANGELOG_VERSION_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
 import type { ChangelogEntry } from "~/composables/domain/useChangelog/use-changelog.types";
 import { StateNames } from "#shared/enums/state.enums";
 
@@ -138,6 +138,13 @@ describe("ChangelogModal Component", () => {
       .map(version => version.props("indicator"));
 
     expect(indicatorProps).toStrictEqual(defaultChangelogEntries.map(() => false));
+  });
+
+  it("should pass the changelog version ui config to every changelog version when mounted.", () => {
+    const versionUiProps = wrapper.findAllComponents<typeof UChangelogVersion>({ name: "UChangelogVersion" })
+      .map(version => version.props("ui"));
+
+    expect(versionUiProps).toStrictEqual(defaultChangelogEntries.map(() => CHANGELOG_VERSION_UI));
   });
 
   it("should render one UChangelogVersion per entry when mounted.", () => {
@@ -382,26 +389,16 @@ describe("ChangelogModal Component", () => {
     expect(getOpenState().value).toBe(true);
   });
 
-  it("should render the modal footer close button when mounted.", () => {
-    expect(wrapper.findComponent<typeof UButton>("[data-testid='changelog-modal-footer-close-button']").exists()).toBe(true);
+  it("should render the default modal footer when mounted.", () => {
+    expect(wrapper.findComponent<typeof DefaultModalFooter>({ name: "DefaultModalFooter" }).exists()).toBe(true);
   });
 
-  it("should pass the close label to the modal footer close button when mounted.", () => {
-    const footerCloseButton = wrapper.findComponent<typeof UButton>("[data-testid='changelog-modal-footer-close-button']");
-
-    expect(footerCloseButton.props("label")).toBe("common.close");
+  it("should render the changelog modal footer with the correct data-testid when mounted.", () => {
+    expect(document.body.querySelector("[data-testid='changelog-modal-footer']")).not.toBeNull();
   });
 
-  it("should pass the x icon to the modal footer close button when mounted.", () => {
-    const footerCloseButton = wrapper.findComponent<typeof UButton>("[data-testid='changelog-modal-footer-close-button']");
-
-    expect(footerCloseButton.props("icon")).toBe("i-lucide-x");
-  });
-
-  it("should close the changelog when the footer close button is clicked.", async() => {
-    const footerCloseButton = wrapper.findComponent<typeof UButton>("[data-testid='changelog-modal-footer-close-button']");
-
-    await footerCloseButton.trigger("click");
+  it("should close the changelog when the default modal footer reports a close.", () => {
+    getWrapperVm(wrapper.findComponent({ name: "DefaultModalFooter" })).$emit("closeModal");
 
     expect(getOpenState().value).toBe(false);
   });

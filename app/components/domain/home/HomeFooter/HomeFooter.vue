@@ -18,9 +18,9 @@ import { HOME_HOW_TO_PLAY_BUTTON_UI } from "@/components/domain/home/HomeFooter/
     />
 
     <div class="flex flex-col-reverse gap-2 items-center sm:flex-row">
-      <ChangelogWhatsNewButton data-testid="home-changelog-button"/>
-
       <VersionButton/>
+
+      <ChangelogWhatsNewButton data-testid="home-changelog-button"/>
     </div>
   </footer>
 </template>

@@ -1,6 +1,6 @@
+import { CHANGELOG_ICON, CHANGELOG_TOAST_DURATION_IN_MS } from "@/components/shared/core/changelog/changelog.constants";
 import { StateNames } from "#shared/enums/state.enums";
 import type { UseChangelog, UseChangelogOptions } from "~/composables/domain/useChangelog/use-changelog.types";
-import { CHANGELOG_TOAST_ICON } from "~/composables/domain/useChangelog/use-changelog.constants";
 import { useChangelogCookie } from "~/composables/domain/useChangelogCookie/useChangelogCookie";
 
 function useChangelog(options: UseChangelogOptions): UseChangelog {
@@ -36,7 +36,8 @@ function useChangelog(options: UseChangelogOptions): UseChangelog {
     addInfoToast({
       title: t("changelog.toast.title"),
       description: t("changelog.toast.description"),
-      icon: CHANGELOG_TOAST_ICON,
+      duration: CHANGELOG_TOAST_DURATION_IN_MS,
+      icon: CHANGELOG_ICON,
       type: "background",
       actions: [
         {
@@ -90,9 +91,10 @@ function useChangelog(options: UseChangelogOptions): UseChangelog {
     syncUnreadState();
   }
 
-  if (import.meta.client) {
-    watch(latestVersion, initializeFromStoredState, { immediate: true });
-  }
+  onMounted(() => {
+    initializeFromStoredState();
+    watch(latestVersion, initializeFromStoredState);
+  });
 
   watch([isOpen, latestVersion], ([isOpenValue]) => {
     if (isOpenValue) {
