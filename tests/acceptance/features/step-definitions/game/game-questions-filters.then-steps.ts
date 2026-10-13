@@ -88,3 +88,21 @@ Then(
     await expect(dialog.getByTestId("game-sidebar-filters-count-badge")).toHaveText(count);
   },
 );
+
+Then(
+  /^the questions filters theme filter summary should be "(?<summary>[^"]*)"$/u,
+  async function(this: GoatItWorld, summary: string): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+
+    await expect(dialog.getByTestId("game-questions-filters-theme-filter-summary")).toHaveText(summary);
+  },
+);
+
+Then(
+  /^the questions filters category filter summary should be "(?<summary>[^"]*)"$/u,
+  async function(this: GoatItWorld, summary: string): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+
+    await expect(dialog.getByTestId("game-questions-filters-category-filter-summary")).toHaveText(summary);
+  },
+);

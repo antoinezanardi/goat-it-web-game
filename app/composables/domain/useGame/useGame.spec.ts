@@ -1,6 +1,7 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { flushPromises, mount } from "@vue/test-utils";
+import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, nextTick, toValue } from "vue";
 import type { MaybeRefOrGetter, Ref } from "vue";
@@ -10,6 +11,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 import { createUseGameQuestionTranslationMock } from "~~/tests/unit/utils/mocks/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation.mock";
 import type { UseGameQuestionTranslationMock } from "~~/tests/unit/utils/mocks/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation.mock";
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import type { useGame as UseGameType } from "~/composables/domain/useGame/useGame";
 import type { UseGameSettingsCookie } from "~/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
@@ -18,12 +20,19 @@ import type { GameSettings } from "~/stores/domain/game-settings/game-settings.t
 import type { Question } from "#shared/types/question.types";
 import { useGameStore } from "@/stores/domain/game/game.store";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
+import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY } from "~/pages/(game)/game.constants";
 
 const GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY = {
   ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY,
   isAdultContent: false,
 } as const;
+
+const UNRESTRICTED_SETTINGS_FIELDS: Partial<GameSettings> = {
+  categories: [...QUESTION_CATEGORIES],
+  cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+  themeIds: undefined,
+};
 
 let useGame: typeof UseGameType;
 let useGameQuestionTranslationMock: UseGameQuestionTranslationMock;
@@ -207,7 +216,7 @@ describe("useGame", () => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
 
       await game.initialize();
 
@@ -218,7 +227,7 @@ describe("useGame", () => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "hard"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "hard"] });
 
       await game.initialize();
 
@@ -228,25 +237,102 @@ describe("useGame", () => {
       });
     });
 
-    it("should include the deduplicated cognitive difficulties in the initial fetch body when the selection holds duplicates.", async() => {
+    it("should omit the cognitive difficulties from the initial fetch body when every difficulty is selected.", async() => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "easy", "medium"] });
+      settingsStore.settings = createFakeGameSettings({
+        ...UNRESTRICTED_SETTINGS_FIELDS,
+        isAdultContentEnabled: true,
+        cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      });
+
+      await game.initialize();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
+    });
+
+    it("should include only the selected categories in the initial fetch body when a partial selection is set.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, categories: ["trivia", "riddle"] });
 
       await game.initialize();
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        cognitiveDifficulties: ["easy", "medium"],
+        categories: ["trivia", "riddle"],
       });
     });
 
-    it("should omit the cognitive difficulties from the initial fetch body when every difficulty is selected.", async() => {
+    it("should omit the categories from the initial fetch body when every category is selected.", async() => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, categories: [...QUESTION_CATEGORIES] });
+
+      await game.initialize();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
+    });
+
+    it("should send the saved theme ids as-is in the initial fetch body when no catalog is available.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a"] });
+
+      await game.initialize();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        themeIds: ["theme-a"],
+      });
+    });
+
+    it("should include only the narrowed active theme ids in the initial fetch body when a catalog is available.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const questionThemesStore = mockStore(useQuestionThemesStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a"] });
+      questionThemesStore.questionThemes = [
+        createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+        createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+      ];
+
+      await game.initialize();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        themeIds: ["theme-a"],
+      });
+    });
+
+    it("should omit the theme ids from the initial fetch body when every active theme is selected.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const questionThemesStore = mockStore(useQuestionThemesStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a", "theme-b"] });
+      questionThemesStore.questionThemes = [
+        createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+        createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+      ];
+
+      await game.initialize();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
+    });
+
+    it("should omit the theme ids from the initial fetch body when every saved theme id is stale.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const questionThemesStore = mockStore(useQuestionThemesStore);
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["stale-theme"] });
+      questionThemesStore.questionThemes = [createFakeQuestionTheme({ id: "theme-a", status: "active" })];
 
       await game.initialize();
 
@@ -421,7 +507,7 @@ describe("useGame", () => {
       const game = useGame();
       const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
       store.questions = fakeQuestions;
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
       await nextTick();
       store.fetchAndAppendRandomQuestions.mockClear();
       for (let index = 0; index < 20; index++) {
@@ -442,7 +528,7 @@ describe("useGame", () => {
       const game = useGame();
       const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
       store.questions = fakeQuestions;
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["hard"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, cognitiveDifficulties: ["hard"] });
       await nextTick();
       store.fetchAndAppendRandomQuestions.mockClear();
       for (let index = 0; index < 20; index++) {
@@ -694,10 +780,10 @@ describe("useGame", () => {
       const store = mockStore(useGameStore);
       const settingsStore = mockStore(useGameSettingsStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
       await game.syncQuestionsWithGameSettings();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
       store.fetchAndAppendRandomQuestions.mockClear();
 
       await game.syncQuestionsWithGameSettings();
@@ -719,7 +805,7 @@ describe("useGame", () => {
       store.truncateQuestions.mockImplementation((length: number) => {
         store.questions = store.questions.slice(0, length);
       });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
       store.fetchAndAppendRandomQuestions.mockClear();
 
       await game.syncQuestionsWithGameSettings();
@@ -736,10 +822,10 @@ describe("useGame", () => {
       const store = mockStore(useGameStore);
       const settingsStore = mockStore(useGameSettingsStore);
       const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
       await game.syncQuestionsWithGameSettings();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["hard"] });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["hard"] });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
       store.fetchAndAppendRandomQuestions.mockClear();
 
       await game.syncQuestionsWithGameSettings();
@@ -778,7 +864,7 @@ describe("useGame", () => {
       store.truncateQuestions.mockImplementation((length: number) => {
         store.questions = store.questions.slice(0, length);
       });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
       store.fetchAndAppendRandomQuestions.mockClear();
 
       await game.syncQuestionsWithGameSettings();
@@ -946,6 +1032,31 @@ describe("useGame", () => {
       await flushPromises();
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledOnce();
+    });
+
+    it("should synchronize the questions when the active theme catalog loads and the derived filters change.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const questionThemesStore = mockStore(useQuestionThemesStore);
+      const store = mockStore(useGameStore);
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a", "theme-b"] });
+      const wrapper = mount(defineComponent({
+        setup(): () => null {
+          useGame();
+
+          return (): null => null;
+        },
+      }));
+      await flushPromises();
+      store.fetchAndAppendRandomQuestions.mockClear();
+      questionThemesStore.questionThemes = [
+        createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+        createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+      ];
+      await nextTick();
+      await flushPromises();
+      wrapper.unmount();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
     });
   });
 });

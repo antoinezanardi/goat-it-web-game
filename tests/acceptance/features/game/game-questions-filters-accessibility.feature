@@ -9,6 +9,8 @@ Feature: 🎛️ Game Questions Filters Accessibility
     And a game question should be displayed
     When the user opens the question filters
     And the element with testid "game-questions-filters-modal" should be visible
+    And the element with testid "game-questions-filters-theme-filter" should be visible
+    And the element with testid "game-questions-filters-category-filter" should be visible
     Then the page should not contain accessibility issues in <view> mode
 
     Examples:

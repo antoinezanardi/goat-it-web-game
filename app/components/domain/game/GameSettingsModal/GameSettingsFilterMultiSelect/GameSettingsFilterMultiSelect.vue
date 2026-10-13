@@ -5,26 +5,22 @@ import type {
   GameSettingsFilterMultiSelectEmits,
   GameSettingsFilterMultiSelectItem,
   GameSettingsFilterMultiSelectProps,
-  GameSettingsFilterOptionColor,
 } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.types";
 import { GAME_SETTINGS_FILTER_MULTI_SELECT_UI } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.constants";
 
-const props = defineProps<GameSettingsFilterMultiSelectProps>();
+const props = withDefaults(defineProps<GameSettingsFilterMultiSelectProps>(), {
+  selectTestId: "game-settings-filter-multi-select-input",
+  summaryTestId: "game-settings-filter-multi-select-summary",
+});
 const emit = defineEmits<GameSettingsFilterMultiSelectEmits>();
 
 const { t } = useI18n();
 const overlay = useOverlay();
 
-const FILTER_OPTION_ICON_CLASS_MAP: Record<GameSettingsFilterOptionColor, string> = {
-  error: "text-error!",
-  success: "text-success!",
-  warning: "text-warning!",
-};
-
 const selectedValues = ref<string[]>([]);
 
 const items = computed<GameSettingsFilterMultiSelectItem[]>(() => props.options.map(option => ({
-  ...option.color ? { ui: { itemLeadingIcon: FILTER_OPTION_ICON_CLASS_MAP[option.color] } } : {},
+  ...option.color === undefined ? {} : { color: option.color },
   icon: option.icon,
   label: option.label,
   trailingIcon: selectedValues.value.includes(option.value) ? "i-lucide-square-check" : "i-lucide-square",
@@ -109,7 +105,7 @@ function onUpdateSelectedValues(value: string[]): void {
 
     <USelectMenu
       :aria-label="props.label"
-      data-testid="game-settings-filter-multi-select-input"
+      :data-testid="props.selectTestId"
       :items="items"
       :model-value="selectedValues"
       multiple
@@ -118,10 +114,20 @@ function onUpdateSelectedValues(value: string[]): void {
       value-key="value"
       @update:model-value="onUpdateSelectedValues"
     >
+      <template #item-leading="{ item }">
+        <UIcon
+          v-if="item.icon"
+          class="shrink-0 size-5"
+          :data-testid="`game-settings-filter-option-leading-${item.value}`"
+          :name="item.icon"
+          :style="item.color === undefined ? undefined : { 'color': item.color }"
+        />
+      </template>
+
       <template #default>
         <span
           class="truncate"
-          data-testid="game-settings-filter-multi-select-summary"
+          :data-testid="props.summaryTestId"
         >
           {{ summaryLabel }}
         </span>

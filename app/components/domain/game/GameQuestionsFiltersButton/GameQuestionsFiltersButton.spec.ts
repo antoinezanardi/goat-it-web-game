@@ -1,3 +1,4 @@
+import { QUESTION_CATEGORIES } from "@goat-it/schemas/question";
 import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
@@ -78,21 +79,36 @@ describe("GameQuestionsFiltersButton Component", () => {
   });
 
   it("should render the count badge with one when only one filter group is active.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({
+      categories: [...QUESTION_CATEGORIES],
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy", "medium", "hard"],
+      themeIds: undefined,
+    });
     await nextTick();
 
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).props("count")).toBe(1);
   });
 
   it("should render the count badge with two when both filter groups are active.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["hard"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({
+      categories: [...QUESTION_CATEGORIES],
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["hard"],
+      themeIds: undefined,
+    });
     await nextTick();
 
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).props("count")).toBe(2);
   });
 
   it("should forward the data-testid attribute to the count badge when a filter group is active.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({
+      categories: [...QUESTION_CATEGORIES],
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy", "medium", "hard"],
+      themeIds: undefined,
+    });
     await nextTick();
 
     expect(wrapper.find("[data-testid='game-questions-filters-button-badge']").exists()).toBe(true);

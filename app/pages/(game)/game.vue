@@ -164,6 +164,10 @@ const gameSettingsStore = useGameSettingsStore();
 async function onFiltersApply(draft: GameQuestionsFiltersDraft): Promise<void> {
   gameSettingsStore.setAdultContentEnabled(draft.isAdultContentEnabled);
   gameSettingsStore.setCognitiveDifficulties(draft.cognitiveDifficulties);
+  gameSettingsStore.setCategories(draft.categories);
+  if (draft.themeIds !== undefined) {
+    gameSettingsStore.setThemeIds(draft.themeIds);
+  }
   isFiltersModalOpen.value = false;
   isApplyFiltersPending.value = true;
   const synchronization = syncQuestionsWithGameSettings();

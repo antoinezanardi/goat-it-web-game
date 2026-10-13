@@ -50,6 +50,17 @@
       "title": "Fragefilter",
       "apply": "Filter anwenden",
       "reset": "Zurücksetzen",
+      "categories": {
+        "label": "Kategorie",
+        "allSelected": "Alle Kategorien"
+      },
+      "themes": {
+        "label": "Thema",
+        "allSelected": "Alle Themen",
+        "loading": "Themen werden geladen…",
+        "unavailable": "Themen sind derzeit nicht verfügbar.",
+        "refreshFailed": "Themen konnten in der ausgewählten Sprache nicht aktualisiert werden."
+      },
       "discardTitle": "Nicht angewendete Filter verwerfen?",
       "discardDescription": "Deine Filteränderungen wurden nicht angewendet. Wenn du jetzt schließt, werden sie nicht übernommen.",
       "discardBack": "Zurück zu den Filtern",

@@ -1,3 +1,4 @@
+import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
@@ -9,6 +10,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
@@ -22,7 +24,9 @@ import type {
 
 import { GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS, GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
 import type { GameQuestionsFiltersModalProps } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
+import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
+import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
 
 describe("GameQuestionsFiltersModal Component", () => {
   let wrapper: VueWrapper;
@@ -31,6 +35,12 @@ describe("GameQuestionsFiltersModal Component", () => {
     isApplyPending: false,
     isOpen: false,
   } as const;
+
+  const UNRESTRICTED_SETTINGS_FIELDS: Partial<GameSettings> = {
+    categories: [...QUESTION_CATEGORIES],
+    cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+    themeIds: undefined,
+  };
 
   async function mountGameQuestionsFiltersModal(options: MountSuspendedOptions<typeof GameQuestionsFiltersModal> = {}): Promise<VueWrapper> {
     return mountSuspended(GameQuestionsFiltersModal, { props: defaultGameQuestionsFiltersModalProps, global: { plugins: [createTestingPinia()] }, ...options });
@@ -134,14 +144,14 @@ describe("GameQuestionsFiltersModal Component", () => {
   });
 
   it("should pass the applied count to the header when the committed settings have one active group.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
     await openFiltersModal();
 
     expect(getHeader().props("appliedCount")).toBe(1);
   });
 
   it("should keep the applied count passed to the header unchanged when the draft changes.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
     await openFiltersModal();
     emitAdultContentDraft(true);
     await nextTick();
@@ -164,26 +174,43 @@ describe("GameQuestionsFiltersModal Component", () => {
   });
 
   it("should pass the committed adult content value to the content draft when opened.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
     await openFiltersModal();
 
-    expect(getContent().props("draft")).toStrictEqual({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    expect(getContent().props("draft")).toStrictEqual({
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      categories: [...QUESTION_CATEGORIES],
+      themeIds: undefined,
+    });
   });
 
   it("should update the draft adult content when the content emits update:isAdultContentEnabled.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
     await openFiltersModal();
     emitAdultContentDraft(true);
     await nextTick();
 
-    expect(getContent().props("draft")).toStrictEqual({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    expect(getContent().props("draft")).toStrictEqual({
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      categories: [...QUESTION_CATEGORIES],
+      themeIds: undefined,
+    });
   });
 
   it("should update the draft cognitive difficulties when the content emits update:cognitiveDifficulties.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
     await openFiltersModal();
     emitCognitiveDifficultiesDraft(["easy"]);
     await nextTick();
 
-    expect(getContent().props("draft")).toStrictEqual({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+    expect(getContent().props("draft")).toStrictEqual({
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: ["easy"],
+      categories: [...QUESTION_CATEGORIES],
+      themeIds: undefined,
+    });
   });
 
   it("should disable the apply action when the draft matches the committed values.", async() => {
@@ -244,31 +271,50 @@ describe("GameQuestionsFiltersModal Component", () => {
   });
 
   it("should emit applyFilters with the current draft when the footer primary button is clicked.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
     await openFiltersModal();
     emitAdultContentDraft(true);
     await nextTick();
     getWrapperVm(getFooter()).$emit("primaryButtonClick");
 
-    expect(wrapper.emitted("applyFilters")).toStrictEqual([[{ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] }]]);
+    expect(wrapper.emitted("applyFilters")).toStrictEqual([
+      [
+        {
+          isAdultContentEnabled: true,
+          cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+          categories: [...QUESTION_CATEGORIES],
+          themeIds: undefined,
+        },
+      ],
+    ]);
   });
 
   it("should reset the adult content draft to disabled when the header emits reset.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
     await openFiltersModal();
     getWrapperVm(getHeader()).$emit("reset");
     await nextTick();
 
-    expect(getContent().props("draft")).toStrictEqual({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    expect(getContent().props("draft")).toStrictEqual({
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      categories: [...QUESTION_CATEGORIES],
+      themeIds: undefined,
+    });
   });
 
   it("should reset the cognitive difficulties draft to all difficulties when the header emits reset.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
     await openFiltersModal();
     getWrapperVm(getHeader()).$emit("reset");
     await nextTick();
 
-    expect(getContent().props("draft")).toStrictEqual({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    expect(getContent().props("draft")).toStrictEqual({
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      categories: [...QUESTION_CATEGORIES],
+      themeIds: undefined,
+    });
   });
 
   it("should not emit applyFilters when the header emits reset.", async() => {
@@ -309,15 +355,20 @@ describe("GameQuestionsFiltersModal Component", () => {
 
   it("should reset the draft to the latest committed values when reopened.", async() => {
     const store = mockStore(useGameSettingsStore);
-    store.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    store.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
     await openFiltersModal();
     emitAdultContentDraft(true);
     await nextTick();
     await wrapper.setProps({ isOpen: false });
-    store.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    store.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
     await openFiltersModal();
 
-    expect(getContent().props("draft")).toStrictEqual({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    expect(getContent().props("draft")).toStrictEqual({
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      categories: [...QUESTION_CATEGORIES],
+      themeIds: undefined,
+    });
   });
 
   it("should create the discard confirmation with the localized props when the footer close is triggered with a modified draft.", async() => {
@@ -429,5 +480,149 @@ describe("GameQuestionsFiltersModal Component", () => {
     getWrapperVm(getFooter()).$emit("primaryButtonClick");
 
     expect(useOverlayMock.instance.create).not.toHaveBeenCalled();
+  });
+
+  it("should include the committed categories and theme ids in the content draft when opened.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({
+      ...UNRESTRICTED_SETTINGS_FIELDS,
+      isAdultContentEnabled: false,
+      categories: ["trivia", "riddle"],
+      themeIds: ["theme-a"],
+    });
+    await openFiltersModal();
+
+    expect(getContent().props("draft")).toStrictEqual({
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      categories: ["trivia", "riddle"],
+      themeIds: ["theme-a"],
+    });
+  });
+
+  it("should update the draft categories when the content emits update:categories.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
+    await openFiltersModal();
+    getWrapperVm(getContent()).$emit("update:categories", ["trivia"]);
+    await nextTick();
+
+    expect(getContent().props("draft")).toStrictEqual({
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      categories: ["trivia"],
+      themeIds: undefined,
+    });
+  });
+
+  it("should update the draft theme ids when the content emits update:themeIds.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
+    await openFiltersModal();
+    getWrapperVm(getContent()).$emit("update:themeIds", ["theme-a"]);
+    await nextTick();
+
+    expect(getContent().props("draft")).toStrictEqual({
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      categories: [...QUESTION_CATEGORIES],
+      themeIds: ["theme-a"],
+    });
+  });
+
+  it("should include the selected theme ids in the apply payload when an active catalog is available.", async() => {
+    mockStore(useQuestionThemesStore).questionThemes = [
+      createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+      createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+    ];
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({
+      ...UNRESTRICTED_SETTINGS_FIELDS,
+      isAdultContentEnabled: false,
+      themeIds: ["theme-a"],
+    });
+    await openFiltersModal();
+    getWrapperVm(getFooter()).$emit("primaryButtonClick");
+
+    expect(wrapper.emitted("applyFilters")).toStrictEqual([
+      [
+        {
+          isAdultContentEnabled: false,
+          cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+          categories: [...QUESTION_CATEGORIES],
+          themeIds: ["theme-a"],
+        },
+      ],
+    ]);
+  });
+
+  it("should reset the theme ids to every active theme when the catalog is available and the header emits reset.", async() => {
+    mockStore(useQuestionThemesStore).questionThemes = [
+      createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+      createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+    ];
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({
+      ...UNRESTRICTED_SETTINGS_FIELDS,
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy"],
+      categories: ["trivia"],
+      themeIds: ["theme-a"],
+    });
+    await openFiltersModal();
+    getWrapperVm(getHeader()).$emit("reset");
+    await nextTick();
+
+    expect(getContent().props("draft")).toStrictEqual({
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      categories: [...QUESTION_CATEGORIES],
+      themeIds: ["theme-a", "theme-b"],
+    });
+  });
+
+  it("should keep the apply button disabled when the catalog loads after the modal is opened without theme changes.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
+    await openFiltersModal();
+    mockStore(useQuestionThemesStore).questionThemes = [
+      createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+      createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+    ];
+    await nextTick();
+
+    expect(getFooter().props("isPrimaryButtonDisabled")).toBe(true);
+  });
+
+  it("should keep the reset hidden when the catalog loads after the modal is opened without user changes.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
+    await openFiltersModal();
+    mockStore(useQuestionThemesStore).questionThemes = [
+      createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+      createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+    ];
+    await nextTick();
+
+    expect(getHeader().props("isResetVisible")).toBe(false);
+  });
+
+  it("should enable the apply button when the catalog loads after the modal is opened and the user narrows the themes.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
+    await openFiltersModal();
+    mockStore(useQuestionThemesStore).questionThemes = [
+      createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+      createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+    ];
+    await nextTick();
+    getWrapperVm(getContent()).$emit("update:themeIds", ["theme-a"]);
+    await nextTick();
+
+    expect(getFooter().props("isPrimaryButtonDisabled")).toBe(false);
+  });
+
+  it("should show the reset button when the catalog loads after opening with a narrowed committed theme selection.", async() => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, themeIds: ["theme-a"] });
+    await openFiltersModal();
+    mockStore(useQuestionThemesStore).questionThemes = [
+      createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+      createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+    ];
+    await nextTick();
+
+    expect(getHeader().props("isResetVisible")).toBe(true);
   });
 });

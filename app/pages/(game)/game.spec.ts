@@ -1,5 +1,6 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
+import { QUESTION_CATEGORIES } from "@goat-it/schemas/question";
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -389,7 +390,11 @@ describe("Game Page", () => {
 
   it("should commit the applied adult content value to the game settings store when the filters modal emits applyFilters.", async() => {
     const gameSettingsStore = mockStore(useGameSettingsStore);
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy"],
+      categories: [...QUESTION_CATEGORIES],
+    });
     await nextTick();
 
     expect(gameSettingsStore.setAdultContentEnabled).toHaveBeenCalledExactlyOnceWith(true);
@@ -397,21 +402,70 @@ describe("Game Page", () => {
 
   it("should commit the applied cognitive difficulties to the game settings store when the filters modal emits applyFilters.", async() => {
     const gameSettingsStore = mockStore(useGameSettingsStore);
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy"],
+      categories: [...QUESTION_CATEGORIES],
+    });
     await nextTick();
 
     expect(gameSettingsStore.setCognitiveDifficulties).toHaveBeenCalledExactlyOnceWith(["easy"]);
   });
 
+  it("should commit the applied categories to the game settings store when the filters modal emits applyFilters.", async() => {
+    const gameSettingsStore = mockStore(useGameSettingsStore);
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: ["easy", "medium", "hard"],
+      categories: ["trivia"],
+    });
+    await nextTick();
+
+    expect(gameSettingsStore.setCategories).toHaveBeenCalledExactlyOnceWith(["trivia"]);
+  });
+
+  it("should commit the applied theme ids to the game settings store when the filters modal emits applyFilters with theme ids.", async() => {
+    const gameSettingsStore = mockStore(useGameSettingsStore);
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: ["easy", "medium", "hard"],
+      categories: [...QUESTION_CATEGORIES],
+      themeIds: ["theme-a"],
+    });
+    await nextTick();
+
+    expect(gameSettingsStore.setThemeIds).toHaveBeenCalledExactlyOnceWith(["theme-a"]);
+  });
+
+  it("should not commit theme ids when the filters modal emits applyFilters without theme ids.", async() => {
+    const gameSettingsStore = mockStore(useGameSettingsStore);
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: false,
+      cognitiveDifficulties: ["easy", "medium", "hard"],
+      categories: [...QUESTION_CATEGORIES],
+    });
+    await nextTick();
+
+    expect(gameSettingsStore.setThemeIds).not.toHaveBeenCalled();
+  });
+
   it("should start the question synchronization when the filters modal emits applyFilters.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy"],
+      categories: [...QUESTION_CATEGORIES],
+    });
     await nextTick();
 
     expect(useGameMock.instance.syncQuestionsWithGameSettings).toHaveBeenCalledExactlyOnceWith();
   });
 
   it("should show the success toast when the filters modal emits applyFilters.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy"],
+      categories: [...QUESTION_CATEGORIES],
+    });
     await nextTick();
 
     expect(useAppToastMock.instance.addSuccessToast).toHaveBeenCalledExactlyOnceWith({ description: "game.questionsFilters.successToast" });
@@ -420,7 +474,11 @@ describe("Game Page", () => {
   it("should close the filters modal when the filters modal emits applyFilters.", async() => {
     getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy"],
+      categories: [...QUESTION_CATEGORIES],
+    });
     await nextTick();
 
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(false);
@@ -431,7 +489,11 @@ describe("Game Page", () => {
     useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
       resolveSynchronization = resolve;
     }));
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy"],
+      categories: [...QUESTION_CATEGORIES],
+    });
     await nextTick();
 
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isApplyPending")).toBe(true);
@@ -445,7 +507,11 @@ describe("Game Page", () => {
     useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
       resolveSynchronization = resolve;
     }));
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy"],
+      categories: [...QUESTION_CATEGORIES],
+    });
     await nextTick();
     getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
     await nextTick();
@@ -461,7 +527,11 @@ describe("Game Page", () => {
     useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
       resolveSynchronization = resolve;
     }));
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", { isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy"],
+      categories: [...QUESTION_CATEGORIES],
+    });
     await nextTick();
     resolveSynchronization?.();
     await flushPromises();

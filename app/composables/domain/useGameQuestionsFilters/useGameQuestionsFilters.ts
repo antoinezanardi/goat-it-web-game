@@ -3,8 +3,12 @@ import type { UseGameQuestionsFilters } from "~/composables/domain/useGameQuesti
 
 function useGameQuestionsFilters(): UseGameQuestionsFilters {
   const gameSettingsStore = useGameSettingsStore();
+  const questionThemesStore = useQuestionThemesStore();
 
-  const activeFiltersCount = computed<number>(() => GAME_QUESTIONS_FILTER_GROUP_ACTIVITY_CHECKS.filter(check => check(gameSettingsStore.settings)).length);
+  const activeFiltersCount = computed<number>(() => GAME_QUESTIONS_FILTER_GROUP_ACTIVITY_CHECKS.filter(check => check(
+    gameSettingsStore.settings,
+    questionThemesStore.activeQuestionThemeIds,
+  )).length);
 
   return { activeFiltersCount };
 }

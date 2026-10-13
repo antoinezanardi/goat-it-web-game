@@ -1,3 +1,4 @@
+import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
@@ -22,10 +23,16 @@ describe("useGameSettingsStore", () => {
     });
 
     it("should be restored from the settings cookie when adult content is enabled.", () => {
-      useCookieMockState.cookieRef.value = createFakeGameSettings({ isAdultContentEnabled: true });
+      const settings = createFakeGameSettings({
+        isAdultContentEnabled: true,
+        categories: [...QUESTION_CATEGORIES],
+        cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+        themeIds: ["theme-a"],
+      });
+      useCookieMockState.cookieRef.value = settings;
       const store = useGameSettingsStore();
 
-      expect(store.settings).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: true }));
+      expect(store.settings).toStrictEqual(settings);
     });
   });
 
@@ -47,7 +54,7 @@ describe("useGameSettingsStore", () => {
 
       store.setAdultContentEnabled(true);
 
-      expect(useCookieMockState.cookieRef.value).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: true }));
+      expect(useCookieMockState.cookieRef.value).toStrictEqual({ ...GAME_SETTINGS_DEFAULTS, isAdultContentEnabled: true });
     });
   });
 
@@ -62,11 +69,61 @@ describe("useGameSettingsStore", () => {
 
     it("should write the whole settings object to the cookie when called.", () => {
       const store = useGameSettingsStore();
-      store.settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+      const settings = createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"] });
+      store.settings = settings;
 
       store.setCognitiveDifficulties(["medium"]);
 
-      expect(useCookieMockState.cookieRef.value).toStrictEqual(createFakeGameSettings({ isAdultContentEnabled: false, cognitiveDifficulties: ["medium"] }));
+      expect(useCookieMockState.cookieRef.value).toStrictEqual({ ...settings, cognitiveDifficulties: ["medium"] });
+    });
+  });
+
+  describe("setCategories", () => {
+    it("should set settings.categories to the given values when called.", () => {
+      const store = useGameSettingsStore();
+
+      store.setCategories(["trivia", "riddle"]);
+
+      expect(store.settings.categories).toStrictEqual(["trivia", "riddle"]);
+    });
+
+    it("should write the whole settings object to the cookie when called.", () => {
+      const store = useGameSettingsStore();
+      const settings = createFakeGameSettings({
+        isAdultContentEnabled: false,
+        cognitiveDifficulties: ["easy", "medium", "hard"],
+        categories: ["trivia", "lexicon", "riddle", "explanation"],
+      });
+      store.settings = settings;
+
+      store.setCategories(["riddle"]);
+
+      expect(useCookieMockState.cookieRef.value).toStrictEqual({ ...settings, categories: ["riddle"] });
+    });
+  });
+
+  describe("setThemeIds", () => {
+    it("should set settings.themeIds to the given values when called.", () => {
+      const store = useGameSettingsStore();
+
+      store.setThemeIds(["theme-a", "theme-b"]);
+
+      expect(store.settings.themeIds).toStrictEqual(["theme-a", "theme-b"]);
+    });
+
+    it("should write the whole settings object to the cookie when called.", () => {
+      const store = useGameSettingsStore();
+      const settings = createFakeGameSettings({
+        isAdultContentEnabled: false,
+        cognitiveDifficulties: ["easy", "medium", "hard"],
+        categories: ["trivia", "lexicon", "riddle", "explanation"],
+        themeIds: ["theme-b"],
+      });
+      store.settings = settings;
+
+      store.setThemeIds(["theme-a"]);
+
+      expect(useCookieMockState.cookieRef.value).toStrictEqual({ ...settings, themeIds: ["theme-a"] });
     });
   });
 });

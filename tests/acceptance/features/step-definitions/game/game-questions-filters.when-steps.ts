@@ -2,6 +2,7 @@ import { When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
+import { toggleOptionByName } from "#acceptance/features/step-definitions/game/helpers/game.when-steps.helpers.ts";
 import { clickModalFooterButton, getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
 
 When(
@@ -50,10 +51,7 @@ When(
 When(
   /^the user toggles the "(?<difficulty>[^"]+)" cognitive difficulty option$/u,
   async function(this: GoatItWorld, difficulty: string): Promise<void> {
-    const option = this.page.getByRole("option", { name: difficulty });
-
-    await expect(option).toBeVisible();
-    await option.click();
+    await toggleOptionByName(this.page, difficulty);
   },
 );
 
@@ -101,5 +99,57 @@ When(
 
     await expect(resetButton).toBeVisible();
     await resetButton.click();
+  },
+);
+
+When(
+  /^the user opens the questions filters theme filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const filterTrigger = dialog.getByTestId("game-questions-filters-theme-filter-input");
+
+    await expect(filterTrigger).toBeVisible();
+    await filterTrigger.click();
+  },
+);
+
+When(
+  /^the user opens the questions filters category filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const filterTrigger = dialog.getByTestId("game-questions-filters-category-filter-input");
+
+    await expect(filterTrigger).toBeVisible();
+    await filterTrigger.click();
+  },
+);
+
+When(
+  /^the user toggles the "(?<theme>[^"]+)" theme option$/u,
+  async function(this: GoatItWorld, theme: string): Promise<void> {
+    await toggleOptionByName(this.page, theme);
+  },
+);
+
+When(
+  /^the user toggles the "(?<category>[^"]+)" category option$/u,
+  async function(this: GoatItWorld, category: string): Promise<void> {
+    await toggleOptionByName(this.page, category);
+  },
+);
+
+When(
+  /^the user closes the theme filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
+    await expect(this.page.getByRole("listbox")).toBeHidden();
+  },
+);
+
+When(
+  /^the user closes the category filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
+    await expect(this.page.getByRole("listbox")).toBeHidden();
   },
 );

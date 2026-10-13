@@ -1,11 +1,11 @@
-import { QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 import { until } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { isEqual } from "radashi";
 
 import type { Question } from "#shared/types/question.types";
-import type { GameSettingsFetchFilters } from "~/composables/domain/useGame/use-game.types";
+import { buildGameSettingsFetchFilters } from "~/composables/domain/useGameQuestionsFilters/helpers/game-questions-filters.helpers";
+import type { GameSettingsFetchFilters } from "~/composables/domain/useGameQuestionsFilters/use-game-questions-filters.types";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
 
 type GamePageState = "loading" | "playing" | "game-over";
@@ -28,6 +28,7 @@ function useGame(): UseGame {
   const store = useGameStore();
   const { questions, isError, isPending, isFetchingQuestionsByIds } = storeToRefs(store);
   const settingsStore = useGameSettingsStore();
+  const questionThemesStore = useQuestionThemesStore();
 
   const currentIndex = ref<number>(0);
   const canGoToPreviousQuestion = computed<boolean>(() => currentIndex.value > 0);
@@ -35,15 +36,7 @@ function useGame(): UseGame {
   const hasTriggeredPrefetch = ref<boolean>(false);
 
   function getGameSettingsFetchFilters(): GameSettingsFetchFilters {
-    const filters: GameSettingsFetchFilters = {};
-    if (!settingsStore.settings.isAdultContentEnabled) {
-      filters.isAdultContent = false;
-    }
-    const selectedCognitiveDifficulties = [...new Set(settingsStore.settings.cognitiveDifficulties)];
-    if (selectedCognitiveDifficulties.length < QUESTION_COGNITIVE_DIFFICULTIES.length) {
-      filters.cognitiveDifficulties = selectedCognitiveDifficulties;
-    }
-    return filters;
+    return buildGameSettingsFetchFilters(settingsStore.settings, questionThemesStore.activeQuestionThemeIds);
   }
 
   const appliedFetchFilters = ref<GameSettingsFetchFilters>(getGameSettingsFetchFilters());
@@ -146,6 +139,11 @@ function useGame(): UseGame {
       isExhausted.value = true;
     }
   }
+
+  watch(() => questionThemesStore.activeQuestionThemeIds, async() => {
+    await syncQuestionsWithGameSettings();
+  });
+
   return {
     canGoToPreviousQuestion,
     currentIndex,

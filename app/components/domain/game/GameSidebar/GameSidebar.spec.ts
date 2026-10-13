@@ -1,3 +1,4 @@
+import { QUESTION_CATEGORIES } from "@goat-it/schemas/question";
 import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
@@ -195,14 +196,24 @@ describe("GameSidebar Component", () => {
   });
 
   it("should render the question filters count badge with the applied count when a filter group is active.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({
+      categories: [...QUESTION_CATEGORIES],
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy", "medium", "hard"],
+      themeIds: undefined,
+    });
     await nextTick();
 
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).props("count")).toBe(1);
   });
 
   it("should forward the data-testid attribute to the question filters count badge when a filter group is active.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"] });
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings({
+      categories: [...QUESTION_CATEGORIES],
+      isAdultContentEnabled: true,
+      cognitiveDifficulties: ["easy", "medium", "hard"],
+      themeIds: undefined,
+    });
     await nextTick();
 
     expect(document.body.querySelector("[data-testid='game-sidebar-filters-count-badge']")).not.toBeNull();
