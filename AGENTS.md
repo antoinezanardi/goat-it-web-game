@@ -23,6 +23,7 @@ handling, Nuxt conventions, and other repo-specific rules).
 - Tests:
   - Full unit run:   `pnpm run test:unit`
   - With coverage:   `pnpm run test:unit:cov`
+  - Timing profile (import-duration breakdown): `pnpm run test:unit:timing`
   - Watch mode:      `pnpm run test:unit:watch`
   - Acceptance (Cucumber + Playwright): `pnpm run test:acceptance`
   - Acceptance build only: `pnpm run test:acceptance:build`
