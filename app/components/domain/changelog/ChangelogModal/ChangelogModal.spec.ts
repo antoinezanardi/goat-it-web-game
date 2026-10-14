@@ -85,6 +85,9 @@ describe("ChangelogModal Component", () => {
     useState<boolean>(StateNames.CHANGELOG_IS_UNREAD, () => false).value = false;
     getOpenState().value = true;
     wrapper = await mountChangelogModal();
+    await flushPromises();
+    await vi.dynamicImportSettled();
+    await flushPromises();
   });
 
   afterEach(() => {

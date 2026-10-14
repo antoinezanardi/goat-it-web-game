@@ -48,7 +48,9 @@ function onAfterLeave(): void {
         <img
           alt=""
           class="h-8 w-8"
+          height="64"
           src="/img/logo/logo-64.avif"
+          width="64"
         >
 
         <span class="font-semibold text-fg-primary text-lg">

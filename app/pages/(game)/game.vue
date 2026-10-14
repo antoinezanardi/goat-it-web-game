@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { nextTick } from "vue";
 
-import { ConfirmDialog, GameQuestionsFiltersButton, GameQuestionsFiltersModal, GameSettingsModal, GameTutorial } from "#components";
+import { GameQuestionsFiltersButton, LazyConfirmDialog } from "#components";
 
 import { getPrimaryTheme } from "~/composables/domain/question/helpers/question.helpers";
 import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
@@ -28,7 +28,7 @@ async function confirmLeave(): Promise<boolean> {
   isLeaveConfirmationOpen.value = true;
 
   try {
-    const modal = overlay.create(ConfirmDialog, {
+    const modal = overlay.create(LazyConfirmDialog, {
       destroyOnClose: true,
       props: {
         disableShortcuts: true,

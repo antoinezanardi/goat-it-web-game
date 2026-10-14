@@ -3,7 +3,7 @@ import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/s
 import type { QuestionCategory, QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 import { isEqual } from "radashi";
 
-import { ConfirmDialog, GameQuestionsFiltersModalContent, GameQuestionsFiltersModalHeader } from "#components";
+import { ConfirmDialog } from "#components";
 
 import { GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS, GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
 import type {
@@ -35,6 +35,7 @@ function readCommittedDraft(): GameQuestionsFiltersDraft {
 
 const snapshot = ref<GameQuestionsFiltersDraft>(readCommittedDraft());
 const draft = ref<GameQuestionsFiltersDraft>(readCommittedDraft());
+const hasEverOpened = ref<boolean>(false);
 
 const normalizedDraft = computed<GameQuestionsFiltersDraft>(() => ({
   isAdultContentEnabled: draft.value.isAdultContentEnabled,
@@ -65,6 +66,7 @@ watch(() => props.isOpen, (isOpen: boolean) => {
   if (!isOpen) {
     return;
   }
+  hasEverOpened.value = true;
   const committedDraft = readCommittedDraft();
   snapshot.value = committedDraft;
   draft.value = {
@@ -73,7 +75,7 @@ watch(() => props.isOpen, (isOpen: boolean) => {
     categories: [...committedDraft.categories],
     themeIds: committedDraft.themeIds === undefined ? undefined : [...committedDraft.themeIds],
   };
-});
+}, { immediate: true });
 
 async function confirmDiscard(): Promise<boolean> {
   const modal = overlay.create(ConfirmDialog, {
@@ -163,40 +165,46 @@ function onApply(): void {
 </script>
 
 <template>
-  <UModal
-    :open="props.isOpen"
-    :ui="GAME_QUESTIONS_FILTERS_MODAL_UI"
-    @update:open="onUpdateOpen"
+  <div
+    id="game-questions-filters-modal-container"
+    class="contents"
   >
-    <template #title>
-      <GameQuestionsFiltersModalHeader
-        :applied-count="activeFiltersCount"
-        :is-reset-visible="isDraftModifiedFromDefaults"
-        @reset="onReset"
-      />
-    </template>
+    <LazyUModal
+      v-if="hasEverOpened"
+      :open="props.isOpen"
+      :ui="GAME_QUESTIONS_FILTERS_MODAL_UI"
+      @update:open="onUpdateOpen"
+    >
+      <template #title>
+        <LazyGameQuestionsFiltersModalHeader
+          :applied-count="activeFiltersCount"
+          :is-reset-visible="isDraftModifiedFromDefaults"
+          @reset="onReset"
+        />
+      </template>
 
-    <template #body>
-      <GameQuestionsFiltersModalContent
-        :draft="draft"
-        @update:categories="onCategoriesChange"
-        @update:cognitive-difficulties="onCognitiveDifficultiesChange"
-        @update:is-adult-content-enabled="onAdultContentChange"
-        @update:theme-ids="onThemeIdsChange"
-      />
-    </template>
+      <template #body>
+        <LazyGameQuestionsFiltersModalContent
+          :draft="draft"
+          @update:categories="onCategoriesChange"
+          @update:cognitive-difficulties="onCognitiveDifficultiesChange"
+          @update:is-adult-content-enabled="onAdultContentChange"
+          @update:theme-ids="onThemeIdsChange"
+        />
+      </template>
 
-    <template #footer>
-      <DefaultModalFooter
-        data-testid="game-questions-filters-modal-footer"
-        disable-shortcuts
-        :is-primary-button-disabled="isApplyDisabled"
-        :is-primary-button-loading="props.isApplyPending"
-        primary-button-icon="i-lucide-check"
-        :primary-button-label="t('game.questionsFilters.apply')"
-        @close-modal="onCloseModal"
-        @primary-button-click="onApply"
-      />
-    </template>
-  </UModal>
+      <template #footer>
+        <DefaultModalFooter
+          data-testid="game-questions-filters-modal-footer"
+          disable-shortcuts
+          :is-primary-button-disabled="isApplyDisabled"
+          :is-primary-button-loading="props.isApplyPending"
+          primary-button-icon="i-lucide-check"
+          :primary-button-label="t('game.questionsFilters.apply')"
+          @close-modal="onCloseModal"
+          @primary-button-click="onApply"
+        />
+      </template>
+    </LazyUModal>
+  </div>
 </template>

@@ -58,6 +58,7 @@
     "refDebounced": "readonly",
     "clearNuxtState": "readonly",
     "clearTimeout": "readonly",
+    "cancelAnimationFrame": "readonly",
     "requestAnimationFrame": "readonly",
     "setTimeout": "readonly",
     "shallowRef": "readonly",

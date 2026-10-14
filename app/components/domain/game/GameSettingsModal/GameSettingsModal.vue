@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { GameSettingsAboutTab, GameSettingsGeneralTab } from "#components";
-
 import type { TabsItem } from "#ui/types";
 import type { GameSettingsModalEmits, GameSettingsModalProps } from "@/components/domain/game/GameSettingsModal/game-settings-modal.types";
 import {
@@ -16,6 +14,7 @@ const emit = defineEmits<GameSettingsModalEmits>();
 const { t } = useI18n();
 
 const activeTab = ref<string | number>(GAME_SETTINGS_TAB_GENERAL);
+const hasEverOpened = ref<boolean>(false);
 
 const tabItems = computed<TabsItem[]>(() => [
   {
@@ -35,8 +34,9 @@ const tabItems = computed<TabsItem[]>(() => [
 watch(() => props.isOpen, (isOpen: boolean) => {
   if (isOpen) {
     activeTab.value = GAME_SETTINGS_TAB_GENERAL;
+    hasEverOpened.value = true;
   }
-});
+}, { immediate: true });
 
 function onUpdateOpen(value: boolean): void {
   emit("update:isOpen", value);
@@ -44,41 +44,47 @@ function onUpdateOpen(value: boolean): void {
 </script>
 
 <template>
-  <UModal
-    :open="props.isOpen"
-    scrollable
-    :ui="GAME_SETTINGS_MODAL_UI"
-    @update:open="onUpdateOpen"
+  <div
+    id="game-settings-modal-container"
+    class="contents"
   >
-    <template #title>
-      <DefaultModalTitle
-        data-testid="game-settings-modal-title"
-        icon="i-lucide-settings"
-        :title="t('game.settings.title')"
-      />
-    </template>
+    <LazyUModal
+      v-if="hasEverOpened"
+      :open="props.isOpen"
+      scrollable
+      :ui="GAME_SETTINGS_MODAL_UI"
+      @update:open="onUpdateOpen"
+    >
+      <template #title>
+        <DefaultModalTitle
+          data-testid="game-settings-modal-title"
+          icon="i-lucide-settings"
+          :title="t('game.settings.title')"
+        />
+      </template>
 
-    <template #body>
-      <div
-        class="flex flex-1 flex-col gap-4"
-        data-testid="game-settings-modal"
-      >
-        <UTabs
-          v-model="activeTab"
-          :items="tabItems"
-          :ui="GAME_SETTINGS_MODAL_TABS_UI"
+      <template #body>
+        <div
+          class="flex flex-1 flex-col gap-4"
+          data-testid="game-settings-modal"
         >
-          <template #general>
-            <GameSettingsGeneralTab :is-locale-select-disabled="props.isFetchingQuestions"/>
-          </template>
+          <UTabs
+            v-model="activeTab"
+            :items="tabItems"
+            :ui="GAME_SETTINGS_MODAL_TABS_UI"
+          >
+            <template #general>
+              <LazyGameSettingsGeneralTab :is-locale-select-disabled="props.isFetchingQuestions"/>
+            </template>
 
-          <template #about>
-            <div class="flex flex-1 items-center justify-center">
-              <GameSettingsAboutTab/>
-            </div>
-          </template>
-        </UTabs>
-      </div>
-    </template>
-  </UModal>
+            <template #about>
+              <div class="flex flex-1 items-center justify-center">
+                <LazyGameSettingsAboutTab/>
+              </div>
+            </template>
+          </UTabs>
+        </div>
+      </template>
+    </LazyUModal>
+  </div>
 </template>
