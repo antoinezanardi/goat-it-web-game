@@ -123,7 +123,6 @@ These setup files run automatically before tests in the relevant projects. You d
 | `use-head.nuxt.unit-setup.ts`         | Mocks `useHead` via `vi.hoisted` + `mockNuxtImport`; exposes as a `vi.fn` spy                                                                                                                                  |
 | `use-seo-meta.nuxt.unit-setup.ts`     | Mocks `useSeoMeta` via `vi.hoisted` + `mockNuxtImport`; exposes as a `vi.fn` spy                                                                                                                               |
 | `call-once.nuxt.unit-setup.ts`        | Mocks `callOnce` via `vi.hoisted` + `mockNuxtImport`; exposes as a `vi.fn` spy                                                                                                                                 |
-| `define-og-image.nuxt.unit-setup.ts`  | Mocks `defineOgImage` via `vi.hoisted` + `mockNuxtImport`; exposes as a `vi.fn` spy                                                                                                                            |
 | `virtualizer.nuxt.unit-setup.ts`      | Mocks element geometry (`getBoundingClientRect`, `offset*`, `client*`, `scroll*` dimensions) so virtual-scroll logic is testable in happy-dom                                                                  |
 
 ### Stores project only
@@ -348,7 +347,7 @@ describe("MyComponent Component", () => {
 
 #### Key rules
 
-- Import the component from `#components` (Nuxt auto-import). If not present yet, run `nuxt prepare` to generate the auto-imports. **Exceptions:** `App.vue` and `OgImage.takumi.vue` are imported by direct path.
+- Import the component from `#components` (Nuxt auto-import). If not present yet, run `nuxt prepare` to generate the auto-imports. **Exception:** `App.vue` is imported by direct path.
 - Use `describe("MyComponent Component", ...)` — always pass a string label in the form `"<ComponentName> Component"`, **never** a direct component reference. Nested thematic describes are encouraged for grouping (e.g. `"Close button"` → `"Label"` / `"Disabled state"`).
 - Declare default props as a typed `const` at the top of the `describe` block (before the mount helper), so every test can reference or override them: `const defaultMyComponentProperties: MyComponentProperties = { ... } as const`. **Required whenever the component declares at least one prop, even optional.** If `as const` genuinely cannot compile (deep-readonly mismatch with mutable arrays/faketory values in the props type), omit `as const` and keep the typed annotation.
 - Create a `mountXxxComponent` helper that accepts `MountSuspendedOptions<typeof Xxx>` and spreads it after defaults. This allows individual tests to override any option.

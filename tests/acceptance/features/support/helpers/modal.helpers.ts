@@ -14,6 +14,14 @@ async function getVisibleDefaultModal(page: Page): Promise<Locator> {
   return dialog;
 }
 
+async function getVisibleConfirmDialogFooter(page: Page): Promise<Locator> {
+  const confirmFooter = page.getByTestId("confirm-dialog-footer");
+
+  await expect(confirmFooter).toBeVisible();
+
+  return confirmFooter;
+}
+
 async function clickModalFooterButton(container: Locator, button: keyof typeof MODAL_FOOTER_BUTTON_TEST_IDS): Promise<void> {
   const buttonLocator = container.getByTestId(MODAL_FOOTER_BUTTON_TEST_IDS[button]);
 
@@ -23,5 +31,6 @@ async function clickModalFooterButton(container: Locator, button: keyof typeof M
 
 export {
   clickModalFooterButton,
+  getVisibleConfirmDialogFooter,
   getVisibleDefaultModal,
 };

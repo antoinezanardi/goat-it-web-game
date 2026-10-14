@@ -27,9 +27,7 @@ function useGameQuestionTranslation(questions: Ref<Question[]>, canTranslateQues
       }
     }
 
-    // Acceptable as questions is a Vue Ref and updating .value is the standard reactive pattern
-    // oxlint-disable-next-line eslint/no-param-reassign
-    questions.value = snapshot.map(question => translationById.get(question.id) ?? question);
+    store.replaceQuestions(snapshot.map(question => translationById.get(question.id) ?? question));
   }
 
   watch(locale, async() => {

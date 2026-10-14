@@ -3,15 +3,15 @@ import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { toggleOptionByName } from "#acceptance/features/step-definitions/game/helpers/game.when-steps.helpers.ts";
-import { clickModalFooterButton, getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
+import { clickVisibleLocator } from "#acceptance/features/support/helpers/locator.helpers.ts";
+import { clickModalFooterButton, getVisibleConfirmDialogFooter, getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
 
 When(
   /^the user opens the question filters$/u,
   async function(this: GoatItWorld): Promise<void> {
     const filtersButton = this.page.getByTestId("game-questions-filters-button");
 
-    await expect(filtersButton).toBeVisible();
-    await filtersButton.click();
+    await clickVisibleLocator(filtersButton);
   },
 );
 
@@ -21,8 +21,7 @@ When(
     const dialog = await getVisibleDefaultModal(this.page);
     const switchControl = dialog.getByTestId("game-settings-adult-content-switch").getByRole("switch");
 
-    await expect(switchControl).toBeVisible();
-    await switchControl.click();
+    await clickVisibleLocator(switchControl);
   },
 );
 
@@ -32,8 +31,7 @@ When(
     const dialog = await getVisibleDefaultModal(this.page);
     const switchControl = dialog.getByTestId("game-settings-adult-content-switch").getByRole("switch");
 
-    await expect(switchControl).toBeVisible();
-    await switchControl.click();
+    await clickVisibleLocator(switchControl);
   },
 );
 
@@ -43,8 +41,7 @@ When(
     const dialog = await getVisibleDefaultModal(this.page);
     const filterTrigger = dialog.getByTestId("game-settings-filter-multi-select-input");
 
-    await expect(filterTrigger).toBeVisible();
-    await filterTrigger.click();
+    await clickVisibleLocator(filterTrigger);
   },
 );
 
@@ -65,7 +62,7 @@ When(
 When(
   /^the user confirms restoring all options in the confirmation dialog$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const confirmFooter = this.page.getByTestId("confirm-dialog-footer");
+    const confirmFooter = await getVisibleConfirmDialogFooter(this.page);
 
     await clickModalFooterButton(confirmFooter, "primary");
   },
@@ -74,7 +71,7 @@ When(
 When(
   /^the user keeps the last selected option in the confirmation dialog$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const confirmFooter = this.page.getByTestId("confirm-dialog-footer");
+    const confirmFooter = await getVisibleConfirmDialogFooter(this.page);
 
     await clickModalFooterButton(confirmFooter, "close");
   },
@@ -86,8 +83,7 @@ When(
     const dialog = await getVisibleDefaultModal(this.page);
     const filtersLink = dialog.getByTestId("game-sidebar-filters-link");
 
-    await expect(filtersLink).toBeVisible();
-    await filtersLink.click();
+    await clickVisibleLocator(filtersLink);
   },
 );
 
@@ -97,8 +93,7 @@ When(
     const dialog = await getVisibleDefaultModal(this.page);
     const resetButton = dialog.getByTestId("game-questions-filters-modal-reset-button");
 
-    await expect(resetButton).toBeVisible();
-    await resetButton.click();
+    await clickVisibleLocator(resetButton);
   },
 );
 
@@ -108,8 +103,7 @@ When(
     const dialog = await getVisibleDefaultModal(this.page);
     const filterTrigger = dialog.getByTestId("game-questions-filters-theme-filter-input");
 
-    await expect(filterTrigger).toBeVisible();
-    await filterTrigger.click();
+    await clickVisibleLocator(filterTrigger);
   },
 );
 
@@ -119,8 +113,7 @@ When(
     const dialog = await getVisibleDefaultModal(this.page);
     const filterTrigger = dialog.getByTestId("game-questions-filters-category-filter-input");
 
-    await expect(filterTrigger).toBeVisible();
-    await filterTrigger.click();
+    await clickVisibleLocator(filterTrigger);
   },
 );
 

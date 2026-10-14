@@ -63,11 +63,19 @@ useSeoMeta({
 
 <style scoped>
 #home-page {
+  position: relative;
+  isolation: isolate;
+}
+
+#home-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
   background-image: url('/img/home-bg.avif');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
   box-shadow: inset 0 0 0 1000px rgb(0 0 0 / 0.4);
 }
 

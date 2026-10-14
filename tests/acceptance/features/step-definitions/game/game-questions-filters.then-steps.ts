@@ -3,6 +3,7 @@ import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
+import { expectDefaultModalElementText } from "#acceptance/features/step-definitions/game/helpers/game.then-steps.helpers.ts";
 
 Then(
   /^the questions filters adult content switch should be (?<state>on|off)$/u,
@@ -17,9 +18,7 @@ Then(
 Then(
   /^the questions filters adult content description should be "(?<description>[^"]*)"$/u,
   async function(this: GoatItWorld, description: string): Promise<void> {
-    const dialog = await getVisibleDefaultModal(this.page);
-
-    await expect(dialog.getByTestId("game-settings-adult-content-description")).toHaveText(description);
+    await expectDefaultModalElementText(this.page, "game-settings-adult-content-description", description);
   },
 );
 
@@ -35,9 +34,7 @@ Then(
 Then(
   /^the questions filters difficulty filter summary should be "(?<summary>[^"]*)"$/u,
   async function(this: GoatItWorld, summary: string): Promise<void> {
-    const dialog = await getVisibleDefaultModal(this.page);
-
-    await expect(dialog.getByTestId("game-settings-filter-multi-select-summary")).toHaveText(summary);
+    await expectDefaultModalElementText(this.page, "game-settings-filter-multi-select-summary", summary);
   },
 );
 
@@ -73,36 +70,29 @@ Then(
 Then(
   /^the question filters applied count in the modal header should be (?<count>\d+)$/u,
   async function(this: GoatItWorld, count: string): Promise<void> {
-    const dialog = await getVisibleDefaultModal(this.page);
     const expectedLabel = count === "1" ? `${count} active filter` : `${count} active filters`;
 
-    await expect(dialog.getByTestId("game-questions-filters-modal-count-badge")).toHaveText(expectedLabel);
+    await expectDefaultModalElementText(this.page, "game-questions-filters-modal-count-badge", expectedLabel);
   },
 );
 
 Then(
   /^the question filters applied count in the sidebar should be (?<count>\d+)$/u,
   async function(this: GoatItWorld, count: string): Promise<void> {
-    const dialog = await getVisibleDefaultModal(this.page);
-
-    await expect(dialog.getByTestId("game-sidebar-filters-count-badge")).toHaveText(count);
+    await expectDefaultModalElementText(this.page, "game-sidebar-filters-count-badge", count);
   },
 );
 
 Then(
   /^the questions filters theme filter summary should be "(?<summary>[^"]*)"$/u,
   async function(this: GoatItWorld, summary: string): Promise<void> {
-    const dialog = await getVisibleDefaultModal(this.page);
-
-    await expect(dialog.getByTestId("game-questions-filters-theme-filter-summary")).toHaveText(summary);
+    await expectDefaultModalElementText(this.page, "game-questions-filters-theme-filter-summary", summary);
   },
 );
 
 Then(
   /^the questions filters category filter summary should be "(?<summary>[^"]*)"$/u,
   async function(this: GoatItWorld, summary: string): Promise<void> {
-    const dialog = await getVisibleDefaultModal(this.page);
-
-    await expect(dialog.getByTestId("game-questions-filters-category-filter-summary")).toHaveText(summary);
+    await expectDefaultModalElementText(this.page, "game-questions-filters-category-filter-summary", summary);
   },
 );

@@ -11,8 +11,6 @@ watch(locale, () => {
   void fetchAndStoreQuestionThemes();
 });
 
-defineOgImage("Image.takumi");
-
 useHead({
   link: [
     { rel: "manifest", href: "/manifest.webmanifest" },

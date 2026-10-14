@@ -37,23 +37,6 @@ describe("useQuestionThemesStore", () => {
     });
   });
 
-  describe("questionThemeSlugs", () => {
-    it("should return an empty array when there are no question themes.", () => {
-      const store = useQuestionThemesStore();
-
-      expect(store.questionThemeSlugs).toStrictEqual<string[]>([]);
-    });
-
-    it("should return the slugs of all question themes when there are themes.", () => {
-      const store = useQuestionThemesStore();
-      const fakeTheme1 = createFakeQuestionTheme({ slug: "theme-one" });
-      const fakeTheme2 = createFakeQuestionTheme({ slug: "theme-two" });
-      store.questionThemes = [fakeTheme1, fakeTheme2];
-
-      expect(store.questionThemeSlugs).toStrictEqual(["theme-one", "theme-two"]);
-    });
-  });
-
   describe("activeQuestionThemes", () => {
     it("should expose an empty array when there are no themes.", () => {
       const store = useQuestionThemesStore();

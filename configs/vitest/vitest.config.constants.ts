@@ -2,7 +2,6 @@ import path from "node:path";
 
 import type { ModuleOptions as SitemapModuleOptions } from "@nuxtjs/sitemap";
 import type { NuxtConfig } from "@nuxt/schema";
-import type { ModuleOptions as OgImageModuleOptions } from "nuxt-og-image";
 import type { TestProjectInlineConfiguration } from "vitest/config";
 import type { InlineConfig } from "vitest/node";
 
@@ -10,7 +9,6 @@ import { VitestProjectNames } from "./vitest.config.enums.ts";
 
 type UnitTestNuxtOverrides = NuxtConfig & {
   sitemap?: Partial<SitemapModuleOptions>;
-  ogImage?: Partial<OgImageModuleOptions>;
   site?: { indexable?: boolean };
 };
 
@@ -53,7 +51,6 @@ const UNIT_TEST_NUXT_OVERRIDES: UnitTestNuxtOverrides = {
   },
   site: { indexable: false },
   sitemap: { enabled: false },
-  ogImage: { enabled: false },
   experimental: { viteEnvironmentApi: false },
 } as const;
 
@@ -103,7 +100,6 @@ const VITEST_NUXT_PROJECT_SETUP_FILES = [
   path.resolve(processCwd, "tests/unit/setup/nuxt/use-head.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/use-seo-meta.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/call-once.nuxt.unit-setup.ts"),
-  path.resolve(processCwd, "tests/unit/setup/nuxt/define-og-image.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/define-page-meta.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/virtualizer.nuxt.unit-setup.ts"),
 ] as const;

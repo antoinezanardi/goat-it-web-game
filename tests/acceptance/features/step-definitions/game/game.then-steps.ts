@@ -4,6 +4,7 @@ import { expect } from "@playwright/test";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
 import {
+  expectQuestionCardElementVisibility,
   expectQuestionCardFieldText,
   getThemePopoverRow,
   hoverBadgeAndExpectPopoverText,
@@ -137,18 +138,14 @@ Then(
 Then(
   /^the question context accordion should be hidden$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
-
-    await expect(question.getByTestId("game-question-context-accordion-trigger")).toBeHidden();
+    await expectQuestionCardElementVisibility(this.page, "game-question-context-accordion-trigger", false);
   },
 );
 
 Then(
   /^the theme icon stack should be visible$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
-
-    await expect(question.getByTestId("theme-stack-trigger")).toBeVisible();
+    await expectQuestionCardElementVisibility(this.page, "theme-stack-trigger", true);
   },
 );
 
@@ -191,9 +188,7 @@ Then(
 Then(
   /^the primary theme hint badge should be visible$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
-
-    await expect(question.getByTestId("game-question-hint")).toBeVisible();
+    await expectQuestionCardElementVisibility(this.page, "game-question-hint", true);
   },
 );
 
@@ -255,18 +250,14 @@ Then(
 Then(
   /^the adult content badge should be visible$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
-
-    await expect(question.getByTestId("game-question-adult-content")).toBeVisible();
+    await expectQuestionCardElementVisibility(this.page, "game-question-adult-content", true);
   },
 );
 
 Then(
   /^the adult content badge should be hidden$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
-
-    await expect(question.getByTestId("game-question-adult-content")).toBeHidden();
+    await expectQuestionCardElementVisibility(this.page, "game-question-adult-content", false);
   },
 );
 

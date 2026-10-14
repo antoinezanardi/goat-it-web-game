@@ -60,13 +60,12 @@ function handleGoatItApiError(error: unknown): never {
   if (!parsedError.success) {
     throw createError({
       statusCode: HttpStatusCode.INTERNAL_SERVER_ERROR,
-      message: "Internal server error",
+      data: {},
     });
   }
 
   throw createError({
     statusCode: parsedError.data.statusCode,
-    message: parsedError.data.message,
     data: { errorCode: parsedError.data.errorCode },
   });
 }
