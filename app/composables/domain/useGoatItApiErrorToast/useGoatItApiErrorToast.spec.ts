@@ -202,6 +202,7 @@ describe("useGoatItApiErrorToast", () => {
     ])("should call addErrorToast with generic fallback description when $condition.", ({ createError, title }) => {
       vi.mocked(useI18nMock.te).mockReturnValue(false);
       vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      vi.spyOn(console, "error").mockReturnValue();
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
       handleGoatItApiError(createError(), title);

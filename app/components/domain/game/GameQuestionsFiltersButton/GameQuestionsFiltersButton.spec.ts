@@ -2,12 +2,11 @@ import { QUESTION_CATEGORIES } from "@goat-it/schemas/question";
 import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
-import { createMainLandmark, removeMainLandmark } from "~~/tests/unit/utils/helpers/main-landmark.helpers";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
@@ -26,12 +25,7 @@ describe("GameQuestionsFiltersButton Component", () => {
   }
 
   beforeEach(async() => {
-    createMainLandmark();
     wrapper = await mountGameQuestionsFiltersButton();
-  });
-
-  afterEach(() => {
-    removeMainLandmark();
   });
 
   it("should render GameQuestionsFiltersButton when mounted.", () => {
