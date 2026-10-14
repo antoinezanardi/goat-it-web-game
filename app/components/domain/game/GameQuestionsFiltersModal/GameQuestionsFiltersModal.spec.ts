@@ -3,7 +3,7 @@ import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
@@ -70,6 +70,9 @@ describe("GameQuestionsFiltersModal Component", () => {
   async function openFiltersModal(): Promise<void> {
     await wrapper.setProps({ isOpen: true });
     await nextTick();
+    await flushPromises();
+    await vi.dynamicImportSettled();
+    await flushPromises();
   }
 
   function emitAdultContentDraft(value: boolean): void {
@@ -106,7 +109,8 @@ describe("GameQuestionsFiltersModal Component", () => {
     expect(modal.props("open")).toBe(true);
   });
 
-  it("should pass the GAME_QUESTIONS_FILTERS_MODAL_UI ui config to UModal when mounted.", () => {
+  it("should pass the GAME_QUESTIONS_FILTERS_MODAL_UI ui config to UModal when opened.", async() => {
+    await openFiltersModal();
     const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
 
     expect(modal.props("ui")).toStrictEqual(GAME_QUESTIONS_FILTERS_MODAL_UI);

@@ -1,10 +1,12 @@
+import { mount } from "@vue/test-utils";
+import type { VueWrapper } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Mock } from "vitest";
-import { nextTick, ref } from "vue";
+import { defineComponent, nextTick, ref } from "vue";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-import type { UseQuestionCardRingOptions } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.types";
+import type { UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.types";
 import { QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
 import { useQuestionCardRing } from "~/composables/domain/useQuestionCardRing/useQuestionCardRing";
 import type { Question } from "#shared/types/question.types";
@@ -16,6 +18,7 @@ describe(useQuestionCardRing, () => {
   let onStaged: Mock<() => void>;
   let onResetSlot: Mock<(slotIndex: number) => void>;
   let requestAnimationFrameCallbacks: FrameRequestCallback[];
+  let ring: UseQuestionCardRingReturn;
 
   function createOptions(): UseQuestionCardRingOptions {
     return {
@@ -59,6 +62,16 @@ describe(useQuestionCardRing, () => {
     });
     vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
   });
+
+  function mountRingHarness(): VueWrapper {
+    return mount(defineComponent({
+      setup(): () => null {
+        ring = useQuestionCardRing(createOptions());
+
+        return (): null => null;
+      },
+    }));
+  }
 
   it.each<{ description: string; slotIndex: number; questionIndex: number }>([
     { description: "the current question in the active slot", slotIndex: 0, questionIndex: 1 },
@@ -260,6 +273,23 @@ describe(useQuestionCardRing, () => {
     vi.useRealTimers();
 
     expect(onStaged).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("should not restage when the component unmounts while the safety timeout is pending.", async() => {
+    vi.useFakeTimers();
+    freezeAnimationFrames();
+    const wrapper = mountRingHarness();
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    ring.complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    wrapper.unmount();
+    vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
+    vi.useRealTimers();
+
+    expect(onStaged).not.toHaveBeenCalled();
   });
 
   it("should stage a newly available next question when the questions array grows.", async() => {

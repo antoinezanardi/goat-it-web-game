@@ -36,6 +36,8 @@ const isChangelogEntriesLoading = computed<boolean>(() => changelogEntriesStatus
 
 const { isOpen, close } = useChangelog({ latestVersion });
 
+const { hasEverOpened } = useLazyModal({ isOpen });
+
 const requestedLocale = ref<string>();
 
 function requestChangelogEntries(): void {
@@ -63,60 +65,63 @@ function onUpdateOpen(value: boolean): void {
 </script>
 
 <template>
-  <UModal
-    :open="isOpen"
-    scrollable
-    :ui="CHANGELOG_MODAL_UI"
-    @update:open="onUpdateOpen"
+  <div
+    id="changelog-modal-container"
+    class="contents"
   >
-    <template #title>
-      <DefaultModalTitle
-        data-testid="changelog-modal-title"
-        :icon="CHANGELOG_ICON"
-        :title="t('changelog.modal.title')"
-      />
-    </template>
+    <LazyUModal
+      v-if="hasEverOpened"
+      :open="isOpen"
+      scrollable
+      :ui="CHANGELOG_MODAL_UI"
+      @update:open="onUpdateOpen"
+    >
+      <template #title>
+        <DefaultModalTitle
+          data-testid="changelog-modal-title"
+          :icon="CHANGELOG_ICON"
+          :title="t('changelog.modal.title')"
+        />
+      </template>
 
-    <template #body>
-      <div data-testid="changelog-modal">
-        <LoadingSpinner v-if="isChangelogEntriesLoading"/>
+      <template #body>
+        <div data-testid="changelog-modal">
+          <LoadingSpinner v-if="isChangelogEntriesLoading"/>
 
-        <p v-else-if="changelogEntriesStatus === 'error'">
-          {{ t("errors.generic") }}
-        </p>
+          <p v-else-if="changelogEntriesStatus === 'error'">
+            {{ t("errors.generic") }}
+          </p>
 
-        <UChangelogVersions
-          v-else
-          class="docs-prose"
-          :indicator="false"
-        >
-          <UChangelogVersion
-            v-for="entry in sortedChangelogEntries"
-            :key="entry.version"
-            :badge="`v${entry.version}`"
-            :date="entry.date"
-            :description="entry.description"
+          <LazyUChangelogVersions
+            v-else
+            class="docs-prose"
             :indicator="false"
-            :title="entry.title"
-            :ui="CHANGELOG_VERSION_UI"
           >
-            <template #body>
-              <ContentRenderer
-                class="docs-prose"
-                :value="entry"
-              />
-            </template>
-          </UChangelogVersion>
-        </UChangelogVersions>
-      </div>
-    </template>
+            <LazyUChangelogVersion
+              v-for="entry in sortedChangelogEntries"
+              :key="entry.version"
+              :badge="`v${entry.version}`"
+              :date="entry.date"
+              :description="entry.description"
+              :indicator="false"
+              :title="entry.title"
+              :ui="CHANGELOG_VERSION_UI"
+            >
+              <template #body>
+                <LazyContentRenderer :value="entry"/>
+              </template>
+            </LazyUChangelogVersion>
+          </LazyUChangelogVersions>
+        </div>
+      </template>
 
-    <template #footer>
-      <DefaultModalFooter
-        data-testid="changelog-modal-footer"
-        disable-shortcuts
-        @close-modal="close"
-      />
-    </template>
-  </UModal>
+      <template #footer>
+        <DefaultModalFooter
+          data-testid="changelog-modal-footer"
+          disable-shortcuts
+          @close-modal="close"
+        />
+      </template>
+    </LazyUModal>
+  </div>
 </template>

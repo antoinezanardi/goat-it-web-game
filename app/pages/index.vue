@@ -25,7 +25,10 @@ useSeoMeta({
         id="home-logo"
         :alt="t('home.brand')"
         class="h-auto md:w-64 min-w-32 sm:w-60 w-52"
+        fetchpriority="high"
+        height="512"
         src="/img/logo/logo-512.avif"
+        width="512"
       >
 
       <div class="flex flex-col gap-4 items-center text-center">

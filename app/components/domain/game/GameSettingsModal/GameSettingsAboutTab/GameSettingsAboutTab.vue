@@ -13,7 +13,11 @@ const { t } = useI18n();
       :alt="t('home.brand')"
       class="h-auto w-24"
       data-testid="game-settings-about-logo"
+      decoding="async"
+      height="192"
+      loading="lazy"
       src="/img/logo/logo-192.avif"
+      width="192"
     >
 
     <div class="flex flex-col gap-1">

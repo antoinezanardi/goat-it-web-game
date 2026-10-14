@@ -1,4 +1,4 @@
-import { computed, nextTick, ref, toValue, watch } from "vue";
+import { computed, getCurrentScope, nextTick, onScopeDispose, ref, toValue, watch } from "vue";
 import { useDocumentVisibility } from "@vueuse/core";
 
 import { QUESTION_CARD_RING_RADIUS, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS, QUESTION_CARD_RING_SIZE } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
@@ -23,6 +23,8 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
   // Acceptable as the timeout handle is only assigned inside scheduleRestage before it is ever cleared
   // oxlint-disable-next-line typescript/init-declarations
   let restageSafetyTimeout: ReturnType<typeof setTimeout> | undefined;
+  let restageAnimationFrame = 0;
+  let nestedRestageAnimationFrame = 0;
 
   function getSlotIndexForOffset(offset: number): number {
     return (currentSlotIndex.value + offset + QUESTION_CARD_RING_SIZE) % QUESTION_CARD_RING_SIZE;
@@ -70,15 +72,25 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
       swapFarSlot();
       finishRestage();
     }, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
-    requestAnimationFrame(() => {
+    restageAnimationFrame = requestAnimationFrame(() => {
       swapFarSlot();
       void nextTick(() => {
-        requestAnimationFrame(() => {
+        nestedRestageAnimationFrame = requestAnimationFrame(() => {
           clearTimeout(restageSafetyTimeout);
           finishRestage();
         });
       });
     });
+  }
+
+  function clearRestageHandles(): void {
+    clearTimeout(restageSafetyTimeout);
+    cancelAnimationFrame(restageAnimationFrame);
+    cancelAnimationFrame(nestedRestageAnimationFrame);
+  }
+
+  if (getCurrentScope()) {
+    onScopeDispose(clearRestageHandles);
   }
 
   const slots = computed<QuestionCardRingSlot[]>(() => {
