@@ -222,8 +222,8 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0(@nuxt/schema@4.6.1)(@oxc-project/types@0.153.0)(confbox@0.3.1)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(nuxt@4.6.1(877d1f8c8d70b6a59dfd1869c023a3e4))(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.3)(vite@8.3.4(@types/node@25.9.9)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))(vue@3.5.43(typescript@6.0.3))(zod@4.6.7)
       '@pinia/nuxt':
-        specifier: ^1.0.2
-        version: 1.0.2(magic-string@1.4.3)(magicast@0.5.5)(oxc-parser@0.153.0)(pinia@4.0.3(@vue/devtools-api@8.1.5)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3)))(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.3)(vite@8.3.4(@types/node@25.9.9)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))
+        specifier: ^1.0.3
+        version: 1.0.3(@nuxt/schema@4.6.1)(confbox@0.3.1)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(pinia@4.0.3(@vue/devtools-api@8.1.5)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3)))(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.3)(vite@8.3.4(@types/node@25.9.9)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))
       '@pinia/testing':
         specifier: ^2.0.1
         version: 2.0.1(pinia@4.0.3(@vue/devtools-api@8.1.5)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3)))
@@ -3388,10 +3388,10 @@ packages:
     resolution: {integrity: sha512-tmmZ3lQxAe/k/+rNnXQRawJ4NjxO2hqiOLTHvWchtGZULp4RyFeh6aU4XdOYBFe2KE1oShQTv4AblOs2iOrNnQ==}
     engines: {node: '>= 10.0.0'}
 
-  '@pinia/nuxt@1.0.2':
-    resolution: {integrity: sha512-x+G/zz7SDjLq3TUf0jpaXiOb03ZY+O3i0q8aMP76Lz3MS/NaE71SJCCZjYiF8dNsz/0oOnCPT2DKghkumXlVRw==}
+  '@pinia/nuxt@1.0.3':
+    resolution: {integrity: sha512-riI5CHfiQUNqFJjY+KuopkOtxSiex2CQYEHdQHiZRhS20ebtkiXQXtYbL/ecni3vhOJvW1PyVfPT7j5SzwvpLQ==}
     peerDependencies:
-      pinia: ^4.0.3
+      pinia: ^4.1.0
 
   '@pinia/testing@2.0.1':
     resolution: {integrity: sha512-pQ4a4SCzdiLrhM4yv/TQG2ufNmktNlLZjjN6X/qMhXvZIiDN3L4L4WrChmcufX2LIarbl/ZPWOty1RB5KZIb2A==}
@@ -14902,13 +14902,18 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.5.6
       '@parcel/watcher-win32-x64': 2.5.6
 
-  '@pinia/nuxt@1.0.2(magic-string@1.4.3)(magicast@0.5.5)(oxc-parser@0.153.0)(pinia@4.0.3(@vue/devtools-api@8.1.5)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3)))(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.3)(vite@8.3.4(@types/node@25.9.9)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))':
+  '@pinia/nuxt@1.0.3(@nuxt/schema@4.6.1)(confbox@0.3.1)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(pinia@4.0.3(@vue/devtools-api@8.1.5)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3)))(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.3)(vite@8.3.4(@types/node@25.9.9)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))':
     dependencies:
-      '@nuxt/kit': 4.5.2(magic-string@1.4.3)(magicast@0.5.5)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.3)(vite@8.3.4(@types/node@25.9.9)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))
+      '@nuxt/kit': 4.6.1(@nuxt/schema@4.6.1)(confbox@0.3.1)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.3)(vite@8.3.4(@types/node@25.9.9)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.46.2)(yaml@2.9.0)))
       pinia: 4.0.3(@vue/devtools-api@8.1.5)(typescript@6.0.3)(vue@3.5.43(typescript@6.0.3))
     transitivePeerDependencies:
+      - '@nuxt/schema'
+      - confbox
+      - dotenv
+      - giget
+      - jiti
       - magic-string
-      - magicast
+      - mlly
       - oxc-parser
       - rolldown
       - unplugin
