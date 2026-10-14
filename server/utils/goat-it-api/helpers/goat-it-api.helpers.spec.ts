@@ -129,6 +129,9 @@ describe(createGoatItApiFetchOptions, () => {
         "goat-it-api-key": "secret-game-key",
         "Accept-Language": "fr",
       },
+      retry: 2,
+      retryDelay: 300,
+      timeout: 10_000,
     };
 
     const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
@@ -143,6 +146,9 @@ describe(createGoatItApiFetchOptions, () => {
         "goat-it-api-key": "secret-game-key",
         "Accept-Language": "en",
       },
+      retry: 2,
+      retryDelay: 300,
+      timeout: 10_000,
     };
 
     const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
@@ -158,6 +164,9 @@ describe(createGoatItApiFetchOptions, () => {
         "goat-it-api-key": "secret-game-key",
         "Accept-Language": "fr",
       },
+      retry: 2,
+      retryDelay: 300,
+      timeout: 10_000,
     };
 
     const fetchOptions = createGoatItApiFetchOptions(mockedEvent);

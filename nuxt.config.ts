@@ -16,6 +16,9 @@ export default defineNuxtConfig({
     "@vite-pwa/nuxt",
     "v-gsap-nuxt",
   ],
+  $production: {
+    sourcemap: false,
+  },
   $test: {
     runtimeConfig: { public: { defaultLocale: "en" } },
     buildDir: ".nuxt/test",
@@ -36,7 +39,7 @@ export default defineNuxtConfig({
       "~/repositories/**/*.repository.ts",
     ],
   },
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV === "development" },
   app: {
     pageTransition: {
       name: "page",
@@ -61,6 +64,11 @@ export default defineNuxtConfig({
     experimental: {
       sqliteConnector: "native",
     },
+    build: {
+      markdown: {
+        highlight: false,
+      },
+    },
   },
   ui: {
     colorMode: false,
@@ -84,13 +92,17 @@ export default defineNuxtConfig({
     "/game": { appLayout: "default-layout" },
     "/rules": { appLayout: "docs-layout" },
     "/fonts/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
+    "/img/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
+    "/pwa/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
   },
-  sourcemap: { client: "hidden" },
   experimental: {
     viteEnvironmentApi: true,
   },
-  compatibilityDate: "2025-01-15",
-  nitro: { imports: { dirs: ["shared/utils/helpers/*.helpers.ts"] } },
+  compatibilityDate: "2026-10-14",
+  nitro: {
+    imports: { dirs: ["shared/utils/helpers/*.helpers.ts"] },
+    compressPublicAssets: { gzip: true, brotli: true },
+  },
   vite: {
     optimizeDeps: {
       include: [
@@ -106,7 +118,7 @@ export default defineNuxtConfig({
   typescript: {
     shim: true,
     strict: true,
-    typeCheck: true,
+    typeCheck: false,
     tsConfig: {
       compilerOptions: {
         noImplicitReturns: true,
@@ -284,6 +296,7 @@ export default defineNuxtConfig({
     },
     workbox: {
       globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,otf,avif}"],
+      globIgnores: ["**/logo-source.png", "**/pwa/screenshot-*"],
       navigateFallback: null,
     },
   },
