@@ -15,7 +15,7 @@ const { data: latestRelease } = useAsyncData(
     .order("date", "DESC")
     .limit(1)
     .first(),
-  { watch: [locale], default: () => { /* empty */ } },
+  { watch: [locale] },
 );
 
 const latestVersion = computed<string | undefined>(() => latestRelease.value?.version);
@@ -114,6 +114,7 @@ function onUpdateOpen(value: boolean): void {
     <template #footer>
       <DefaultModalFooter
         data-testid="changelog-modal-footer"
+        disable-shortcuts
         @close-modal="close"
       />
     </template>

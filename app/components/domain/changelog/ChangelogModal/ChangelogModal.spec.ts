@@ -251,10 +251,10 @@ describe("ChangelogModal Component", () => {
     expect(options?.watch).toStrictEqual([locale]);
   });
 
-  it("should default the latest release to undefined when mounted.", () => {
+  it("should not pass a default factory for the latest release query when mounted.", () => {
     const options = useAsyncDataMock.instance.mock.calls[0]?.[2];
 
-    expect(options?.default?.()).toBeUndefined();
+    expect(options?.default).toBeUndefined();
   });
 
   it("should fetch the changelog entries on the client only when mounted.", () => {
@@ -395,6 +395,10 @@ describe("ChangelogModal Component", () => {
 
   it("should render the changelog modal footer with the correct data-testid when mounted.", () => {
     expect(document.body.querySelector("[data-testid='changelog-modal-footer']")).not.toBeNull();
+  });
+
+  it("should disable the shortcuts on the default modal footer when mounted.", () => {
+    expect(wrapper.findComponent<typeof DefaultModalFooter>({ name: "DefaultModalFooter" }).props("disableShortcuts")).toBe(true);
   });
 
   it("should close the changelog when the default modal footer reports a close.", () => {

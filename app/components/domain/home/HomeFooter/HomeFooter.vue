@@ -16,11 +16,5 @@ import { HOME_HOW_TO_PLAY_BUTTON_UI } from "@/components/domain/home/HomeFooter/
       :ui="HOME_HOW_TO_PLAY_BUTTON_UI"
       variant="solid"
     />
-
-    <div class="flex flex-col-reverse gap-2 items-center sm:flex-row">
-      <VersionButton/>
-
-      <ChangelogWhatsNewButton data-testid="home-changelog-button"/>
-    </div>
   </footer>
 </template>

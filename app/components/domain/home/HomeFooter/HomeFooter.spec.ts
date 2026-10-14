@@ -55,16 +55,4 @@ describe("HomeFooter Component", () => {
 
     expect(button.props("ui")).toStrictEqual(HOME_HOW_TO_PLAY_BUTTON_UI);
   });
-
-  it("should render the VersionButton component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "VersionButton" }).exists()).toBe(true);
-  });
-
-  it("should render the changelog entry point component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "ChangelogWhatsNewButton" }).exists()).toBe(true);
-  });
-
-  it("should render the changelog entry point with the home-changelog-button data-testid when mounted.", () => {
-    expect(wrapper.find("[data-testid='home-changelog-button']").exists()).toBe(true);
-  });
 });
