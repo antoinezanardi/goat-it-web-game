@@ -20,16 +20,15 @@ describe("ChangelogWhatsNewButton Component", () => {
   }
 
   function getUnreadState(): Ref<boolean> {
-    return useState<boolean>(StateNames.CHANGELOG_IS_UNREAD, () => false);
+    return useState<boolean>(StateNames.CHANGELOG_IS_UNREAD);
   }
 
   function getOpenState(): Ref<boolean> {
-    return useState<boolean>(StateNames.CHANGELOG_IS_OPEN, () => false);
+    return useState<boolean>(StateNames.CHANGELOG_IS_OPEN);
   }
 
   beforeEach(async() => {
-    getUnreadState().value = false;
-    getOpenState().value = false;
+    clearNuxtState([StateNames.CHANGELOG_IS_OPEN, StateNames.CHANGELOG_IS_UNREAD]);
     wrapper = await mountChangelogWhatsNewButton();
   });
 

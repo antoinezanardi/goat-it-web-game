@@ -17,11 +17,11 @@ describe("ChangelogWhatsNewButtonContent Component", () => {
   }
 
   function getUnreadState(): Ref<boolean> {
-    return useState<boolean>(StateNames.CHANGELOG_IS_UNREAD, () => false);
+    return useState<boolean>(StateNames.CHANGELOG_IS_UNREAD);
   }
 
   beforeEach(async() => {
-    getUnreadState().value = false;
+    clearNuxtState(StateNames.CHANGELOG_IS_UNREAD);
     wrapper = await mountChangelogWhatsNewButtonContent();
   });
 
