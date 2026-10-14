@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { GameSettingsAboutTab, GameSettingsGeneralTab } from "#components";
+
 import type { TabsItem } from "#ui/types";
 import type { GameSettingsModalEmits, GameSettingsModalProps } from "@/components/domain/game/GameSettingsModal/game-settings-modal.types";
 import {
@@ -14,7 +16,7 @@ const emit = defineEmits<GameSettingsModalEmits>();
 const { t } = useI18n();
 
 const activeTab = ref<string | number>(GAME_SETTINGS_TAB_GENERAL);
-const hasEverOpened = ref<boolean>(false);
+const { hasEverOpened } = useLazyModal({ isOpen: () => props.isOpen });
 
 const tabItems = computed<TabsItem[]>(() => [
   {
@@ -34,9 +36,8 @@ const tabItems = computed<TabsItem[]>(() => [
 watch(() => props.isOpen, (isOpen: boolean) => {
   if (isOpen) {
     activeTab.value = GAME_SETTINGS_TAB_GENERAL;
-    hasEverOpened.value = true;
   }
-}, { immediate: true });
+});
 
 function onUpdateOpen(value: boolean): void {
   emit("update:isOpen", value);
@@ -74,12 +75,12 @@ function onUpdateOpen(value: boolean): void {
             :ui="GAME_SETTINGS_MODAL_TABS_UI"
           >
             <template #general>
-              <LazyGameSettingsGeneralTab :is-locale-select-disabled="props.isFetchingQuestions"/>
+              <GameSettingsGeneralTab :is-locale-select-disabled="props.isFetchingQuestions"/>
             </template>
 
             <template #about>
               <div class="flex flex-1 items-center justify-center">
-                <LazyGameSettingsAboutTab/>
+                <GameSettingsAboutTab/>
               </div>
             </template>
           </UTabs>

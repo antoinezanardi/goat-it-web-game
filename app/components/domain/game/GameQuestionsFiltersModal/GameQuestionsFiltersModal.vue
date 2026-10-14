@@ -35,7 +35,7 @@ function readCommittedDraft(): GameQuestionsFiltersDraft {
 
 const snapshot = ref<GameQuestionsFiltersDraft>(readCommittedDraft());
 const draft = ref<GameQuestionsFiltersDraft>(readCommittedDraft());
-const hasEverOpened = ref<boolean>(false);
+const { hasEverOpened } = useLazyModal({ isOpen: () => props.isOpen });
 
 const normalizedDraft = computed<GameQuestionsFiltersDraft>(() => ({
   isAdultContentEnabled: draft.value.isAdultContentEnabled,
@@ -66,7 +66,6 @@ watch(() => props.isOpen, (isOpen: boolean) => {
   if (!isOpen) {
     return;
   }
-  hasEverOpened.value = true;
   const committedDraft = readCommittedDraft();
   snapshot.value = committedDraft;
   draft.value = {
@@ -75,7 +74,7 @@ watch(() => props.isOpen, (isOpen: boolean) => {
     categories: [...committedDraft.categories],
     themeIds: committedDraft.themeIds === undefined ? undefined : [...committedDraft.themeIds],
   };
-}, { immediate: true });
+});
 
 async function confirmDiscard(): Promise<boolean> {
   const modal = overlay.create(ConfirmDialog, {

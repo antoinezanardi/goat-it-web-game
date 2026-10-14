@@ -38,7 +38,6 @@ describe("ChangelogModal Component", () => {
   async function mountChangelogModal(options: MountSuspendedOptions<typeof ChangelogModal> = {}): Promise<VueWrapper> {
     return mountSuspended(ChangelogModal, {
       attachTo: document.body,
-      global: { stubs: { ContentRenderer: { name: "ContentRenderer", template: "<div data-testid='changelog-entry-body'/>" } } },
       ...options,
     });
   }
@@ -184,15 +183,7 @@ describe("ChangelogModal Component", () => {
   });
 
   it("should render a ContentRenderer body per entry when mounted.", () => {
-    expect(document.body.querySelectorAll("[data-testid='changelog-entry-body']")).toHaveLength(defaultChangelogEntries.length);
-  });
-
-  it("should render every entry body with the docs prose class when mounted.", () => {
-    const contentRendererClasses = wrapper.findAllComponents({ name: "ContentRenderer" }).map(contentRenderer => contentRenderer.classes());
-
-    for (const entryClasses of contentRendererClasses) {
-      expect(entryClasses).toContain("docs-prose");
-    }
+    expect(wrapper.findAllComponents({ name: "ContentRenderer" })).toHaveLength(defaultChangelogEntries.length);
   });
 
   it("should render a loading spinner when the changelog entries are pending.", async() => {

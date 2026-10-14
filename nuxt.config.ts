@@ -92,6 +92,7 @@ export default defineNuxtConfig({
     "/game": { appLayout: "default-layout" },
     "/rules": { appLayout: "docs-layout" },
     "/fonts/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
+    "/_i18n/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
     "/img/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
     "/pwa/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
   },
@@ -246,6 +247,7 @@ export default defineNuxtConfig({
     experimental: {
       optimizeMessageBundling: process.env.NODE_ENV !== "development",
       nitroContextDetection: true,
+      prerenderMessages: true,
     },
     detectBrowserLanguage: false,
   },

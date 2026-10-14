@@ -36,13 +36,7 @@ const isChangelogEntriesLoading = computed<boolean>(() => changelogEntriesStatus
 
 const { isOpen, close } = useChangelog({ latestVersion });
 
-const hasEverOpened = ref<boolean>(false);
-
-watch(isOpen, (isOpenValue: boolean) => {
-  if (isOpenValue) {
-    hasEverOpened.value = true;
-  }
-}, { immediate: true });
+const { hasEverOpened } = useLazyModal({ isOpen });
 
 const requestedLocale = ref<string>();
 
@@ -114,10 +108,7 @@ function onUpdateOpen(value: boolean): void {
               :ui="CHANGELOG_VERSION_UI"
             >
               <template #body>
-                <ContentRenderer
-                  class="docs-prose"
-                  :value="entry"
-                />
+                <LazyContentRenderer :value="entry"/>
               </template>
             </LazyUChangelogVersion>
           </LazyUChangelogVersions>
