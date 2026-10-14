@@ -12,8 +12,14 @@ useSeoMeta({
 <template>
   <div
     id="home-page"
-    class="bg-app-bg flex flex-col min-h-dvh overflow-hidden"
+    class="bg-app-bg flex flex-col min-h-dvh overflow-hidden relative"
   >
+    <div class="absolute flex gap-2 right-4 top-4">
+      <ChangelogWhatsNewButton data-testid="home-changelog-button"/>
+
+      <VersionButton/>
+    </div>
+
     <div class="flex flex-1 flex-col gap-6 items-center justify-center">
       <img
         id="home-logo"

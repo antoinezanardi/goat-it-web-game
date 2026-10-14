@@ -143,6 +143,7 @@ export default defineNuxtConfig({
           "fr/game.json",
           "fr/seo.json",
           "fr/docs.json",
+          "fr/changelog.json",
         ],
       },
       {
@@ -158,6 +159,7 @@ export default defineNuxtConfig({
           "en/game.json",
           "en/seo.json",
           "en/docs.json",
+          "en/changelog.json",
         ],
       },
       {
@@ -173,6 +175,7 @@ export default defineNuxtConfig({
           "de/game.json",
           "de/seo.json",
           "de/docs.json",
+          "de/changelog.json",
         ],
       },
       {
@@ -188,6 +191,7 @@ export default defineNuxtConfig({
           "es/game.json",
           "es/seo.json",
           "es/docs.json",
+          "es/changelog.json",
         ],
       },
       {
@@ -203,6 +207,7 @@ export default defineNuxtConfig({
           "it/game.json",
           "it/seo.json",
           "it/docs.json",
+          "it/changelog.json",
         ],
       },
       {
@@ -218,6 +223,7 @@ export default defineNuxtConfig({
           "pt/game.json",
           "pt/seo.json",
           "pt/docs.json",
+          "pt/changelog.json",
         ],
       },
     ],

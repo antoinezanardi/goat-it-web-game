@@ -36,5 +36,7 @@ useHead({
         <NuxtPage/>
       </NuxtLayout>
     </UMain>
+
+    <ChangelogModal/>
   </UApp>
 </template>

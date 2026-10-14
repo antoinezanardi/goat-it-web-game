@@ -91,6 +91,11 @@ function onAfterLeave(): void {
           />
         </ULink>
 
+        <ChangelogWhatsNewButton
+          data-testid="game-sidebar-changelog-link"
+          variant="menu"
+        />
+
         <ULink
           class="flex gap-1.5 items-center"
           data-testid="game-sidebar-rules-link"

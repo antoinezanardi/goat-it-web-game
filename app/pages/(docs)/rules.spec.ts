@@ -1,31 +1,12 @@
 import type { VueWrapper } from "@vue/test-utils";
-import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
-import type { Ref } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import { useAsyncDataMock } from "~~/tests/unit/setup/nuxt/composables/use-async-data.nuxt.unit-setup";
 
 import RulesPage from "@/pages/(docs)/rules.vue";
-
-type AsyncDataStatus = "idle" | "pending" | "success" | "error";
-
-type AsyncDataMockReturnValue = {
-  data: Ref<unknown>;
-  status: Ref<AsyncDataStatus>;
-};
-
-type AsyncDataMockSignature = (
-  key: string,
-  handler: () => Promise<unknown>,
-  options?: { watch: unknown[] },
-) => AsyncDataMockReturnValue;
-
-const { useAsyncDataMock } = vi.hoisted(() => ({
-  useAsyncDataMock: vi.fn<AsyncDataMockSignature>(),
-}));
-
-mockNuxtImport("useAsyncData", () => useAsyncDataMock);
 
 describe("Rules Page", () => {
   let wrapper: VueWrapper;
@@ -36,9 +17,10 @@ describe("Rules Page", () => {
 
   describe("when content is pending.", () => {
     beforeEach(async() => {
-      useAsyncDataMock.mockReturnValue({
-        data: ref<null>(null),
+      useAsyncDataMock.instance.mockReturnValue({
+        data: ref<unknown>(null),
         status: ref("pending"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
@@ -60,11 +42,11 @@ describe("Rules Page", () => {
     });
 
     it("should call useAsyncData when mounted.", () => {
-      expect(useAsyncDataMock).toHaveBeenCalledOnce();
+      expect(useAsyncDataMock.instance).toHaveBeenCalledOnce();
     });
 
     it("should call useAsyncData with locale-prefixed key when mounted.", () => {
-      const key = useAsyncDataMock.mock.calls[0]?.[0];
+      const key = useAsyncDataMock.instance.mock.calls[0]?.[0];
 
       expect(key).toBe("rules-en");
     });
@@ -72,9 +54,10 @@ describe("Rules Page", () => {
 
   describe("when content loads successfully.", () => {
     beforeEach(async() => {
-      useAsyncDataMock.mockReturnValue({
-        data: ref([{ title: "How to play", description: "Rules" }, []]),
+      useAsyncDataMock.instance.mockReturnValue({
+        data: ref<unknown>([{ title: "How to play", description: "Rules" }, []]),
         status: ref("success"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
@@ -124,9 +107,10 @@ describe("Rules Page", () => {
 
   describe("when content is not found.", () => {
     beforeEach(async() => {
-      useAsyncDataMock.mockReturnValue({
-        data: ref<null>(null),
+      useAsyncDataMock.instance.mockReturnValue({
+        data: ref<unknown>(null),
         status: ref("success"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
@@ -142,9 +126,10 @@ describe("Rules Page", () => {
 
   describe("when content fetch errors.", () => {
     beforeEach(async() => {
-      useAsyncDataMock.mockReturnValue({
-        data: ref<null>(null),
+      useAsyncDataMock.instance.mockReturnValue({
+        data: ref<unknown>(null),
         status: ref("error"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
@@ -160,9 +145,10 @@ describe("Rules Page", () => {
 
   describe("SEO meta", () => {
     beforeEach(async() => {
-      useAsyncDataMock.mockReturnValue({
-        data: ref<null>(null),
+      useAsyncDataMock.instance.mockReturnValue({
+        data: ref<unknown>(null),
         status: ref("pending"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
@@ -189,15 +175,16 @@ describe("Rules Page", () => {
 
   describe("useAsyncData options", () => {
     beforeEach(async() => {
-      useAsyncDataMock.mockReturnValue({
-        data: ref<null>(null),
+      useAsyncDataMock.instance.mockReturnValue({
+        data: ref<unknown>(null),
         status: ref("pending"),
+        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
       });
       wrapper = await mountRulesPage();
     });
 
     it("should pass watch: [locale] option to useAsyncData when mounted.", () => {
-      const options = useAsyncDataMock.mock.calls[0]?.[2];
+      const options = useAsyncDataMock.instance.mock.calls[0]?.[2];
       const { locale } = useI18n();
 
       expect(options?.watch).toStrictEqual([locale]);

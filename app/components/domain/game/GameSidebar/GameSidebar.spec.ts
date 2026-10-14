@@ -229,6 +229,26 @@ describe("GameSidebar Component", () => {
     expect(wrapper.emitted("openFilters")).toStrictEqual([[]]);
   });
 
+  it("should render the changelog entry with the correct data-testid when mounted.", () => {
+    expect(document.body.querySelector("[data-testid='game-sidebar-changelog-link']")).not.toBeNull();
+  });
+
+  it("should render the changelog entry label when mounted.", () => {
+    expect(document.body.querySelector("[data-testid='game-sidebar-changelog-link']")?.textContent).toContain("changelog.entryPoint");
+  });
+
+  it("should render the sparkles icon on the changelog entry when mounted.", () => {
+    expect(findLinkByTestId("game-sidebar-changelog-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-sparkles");
+  });
+
+  it("should render the changelog entry between the filters and the rules links when mounted.", () => {
+    const sidebarLinksSelector = "[data-testid='game-sidebar-filters-link'], [data-testid='game-sidebar-changelog-link'], [data-testid='game-sidebar-rules-link']";
+    const sidebarLinks = [...document.body.querySelectorAll<HTMLElement>(sidebarLinksSelector)]
+      .map(element => element.dataset.testid);
+
+    expect(sidebarLinks).toStrictEqual(["game-sidebar-filters-link", "game-sidebar-changelog-link", "game-sidebar-rules-link"]);
+  });
+
   it("should emit after:leave when the slideover emits after:leave.", () => {
     getWrapperVm(wrapper.findComponent({ name: "USlideover" })).$emit("after:leave");
 

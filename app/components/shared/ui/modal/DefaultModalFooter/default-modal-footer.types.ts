@@ -1,5 +1,5 @@
 type DefaultModalFooterProps = {
-  primaryButtonLabel: string;
+  primaryButtonLabel?: string;
   primaryButtonIcon?: string;
   closeButtonLabel?: string;
   isPrimaryButtonDisabled?: boolean;
