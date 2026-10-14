@@ -136,7 +136,7 @@
     "nuxtseo-layer-devtools": "^6.0.2",
     "oxlint": "^1.88.0",
     "oxlint-tsgolint": "^7.0.2004",
-    "pinia": "^4.0.3",
+    "pinia": "^4.1.0",
     "playwright": "^1.64.0",
     "playwright-core": "^1.64.0",
     "radashi": "^12.9.6",
