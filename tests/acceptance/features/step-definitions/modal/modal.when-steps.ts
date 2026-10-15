@@ -1,8 +1,8 @@
 import { When } from "@cucumber/cucumber";
-import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-import { clickModalFooterButton, getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
+import { clickVisibleLocator } from "#acceptance/features/support/helpers/locator.helpers.ts";
+import { clickModalFooterButton, getVisibleConfirmDialogFooter, getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
 
 When(
   /^the user clicks on the close button in the modal header$/u,
@@ -11,8 +11,7 @@ When(
 
     const closeButton = dialog.getByRole("button", { name: "Close" }).first();
 
-    await expect(closeButton).toBeVisible();
-    await closeButton.click();
+    await clickVisibleLocator(closeButton);
   },
 );
 
@@ -46,7 +45,7 @@ When(
 When(
   /^the user confirms closing without applying$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const confirmFooter = this.page.getByTestId("confirm-dialog-footer");
+    const confirmFooter = await getVisibleConfirmDialogFooter(this.page);
 
     await clickModalFooterButton(confirmFooter, "primary");
   },
@@ -55,9 +54,8 @@ When(
 When(
   /^the user returns from the discard confirmation by (?<action>going back|pressing escape)$/u,
   async function(this: GoatItWorld, action: "going back" | "pressing escape"): Promise<void> {
-    const confirmFooter = this.page.getByTestId("confirm-dialog-footer");
+    const confirmFooter = await getVisibleConfirmDialogFooter(this.page);
 
-    await expect(confirmFooter).toBeVisible();
     if (action === "going back") {
       await clickModalFooterButton(confirmFooter, "close");
 

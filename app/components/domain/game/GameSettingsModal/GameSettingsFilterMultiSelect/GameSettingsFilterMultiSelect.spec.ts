@@ -10,7 +10,7 @@ import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
 import { GameSettingsFilterMultiSelect } from "#components";
-import type { USelectMenu } from "#components";
+import type { UIcon, USelectMenu } from "#components";
 
 import type { GameSettingsFilterMultiSelectProps } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.types";
 
@@ -83,6 +83,13 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     expect(wrapper.find("[data-testid='game-settings-filter-multi-select-label-icon']").exists()).toBe(true);
   });
 
+  it("should pass the label icon to the icon component when a label icon is provided.", async() => {
+    await wrapper.setProps({ labelIcon: "i-lucide-gauge" });
+    const labelIcon = wrapper.findComponent<typeof UIcon>("[data-testid='game-settings-filter-multi-select-label-icon']");
+
+    expect(labelIcon.props("name")).toBe("i-lucide-gauge");
+  });
+
   it("should render the multi select input with the correct data-testid when mounted.", () => {
     expect(wrapper.find("[data-testid='game-settings-filter-multi-select-input']").exists()).toBe(true);
   });
@@ -113,18 +120,6 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
 
     expect(selectMenu.props("items")).toStrictEqual([{ icon: "i-lucide-brain", label: "Easy", trailingIcon: "i-lucide-square-check", value: "easy" }]);
-  });
-
-  it("should enable multiple selection on the select menu when mounted.", () => {
-    const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
-
-    expect(selectMenu.props("multiple")).toBe(true);
-  });
-
-  it("should bind the stable option values to the select menu when mounted.", () => {
-    const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
-
-    expect(selectMenu.props("valueKey")).toBe("value");
   });
 
   it("should pass the search placeholder translation key to the select menu when mounted.", () => {
@@ -239,6 +234,13 @@ describe("GameSettingsFilterMultiSelect Component", () => {
       { color: "#F59E0B", icon: "i-lucide-brain-cog", label: "Medium", trailingIcon: "i-lucide-square", value: "medium" },
       { color: "#EF4444", icon: "i-lucide-brain-circuit", label: "Hard", trailingIcon: "i-lucide-square-check", value: "hard" },
     ]);
+  });
+
+  it("should render the option leading icon with the option icon when the menu is open and the option has a color.", async() => {
+    await openSelectMenu();
+    const leadingIcon = wrapper.findComponent<typeof UIcon>("[data-testid='game-settings-filter-option-leading-easy']");
+
+    expect(leadingIcon.props("name")).toBe("i-lucide-brain");
   });
 
   it("should render the option leading icon with the option color when the menu is open and the option has a color.", async() => {

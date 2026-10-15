@@ -9,6 +9,17 @@ async function expectQuestionCardFieldText(page: Page, testId: string, value: st
   await expect(question.getByTestId(testId)).toHaveText(value);
 }
 
+async function expectQuestionCardElementVisibility(page: Page, testId: string, isVisible: boolean): Promise<void> {
+  const question = getVisibleGameQuestionCard(page);
+
+  if (isVisible) {
+    await expect(question.getByTestId(testId)).toBeVisible();
+
+    return;
+  }
+  await expect(question.getByTestId(testId)).toBeHidden();
+}
+
 function getThemePopoverRow(popover: Locator, label: string): Locator {
   return popover.locator("[data-testid='theme-popover-row']").filter({ hasText: label });
 }
@@ -21,6 +32,7 @@ async function hoverBadgeAndExpectPopoverText(page: Page, badge: Locator, popove
 }
 
 export {
+  expectQuestionCardElementVisibility,
   expectQuestionCardFieldText,
   getThemePopoverRow,
   hoverBadgeAndExpectPopoverText,

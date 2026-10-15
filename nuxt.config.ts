@@ -8,7 +8,6 @@ export default defineNuxtConfig({
     "@nuxt/content",
     "@nuxtjs/robots",
     "@nuxtjs/sitemap",
-    "nuxt-og-image",
     "nuxt-schema-org",
     "nuxt-seo-utils",
     "@pinia/nuxt",
@@ -101,6 +100,7 @@ export default defineNuxtConfig({
   },
   compatibilityDate: "2026-10-14",
   nitro: {
+    ignore: ["api/**/handlers/**"],
     imports: { dirs: ["shared/utils/helpers/*.helpers.ts"] },
     compressPublicAssets: { gzip: true, brotli: true },
   },
@@ -258,11 +258,6 @@ export default defineNuxtConfig({
       },
     },
   },
-  ogImage: {
-    security: {
-      strict: true,
-    },
-  },
   pinia: { storesDirs: ["stores/**"] },
   pwa: {
     registerType: "autoUpdate",
@@ -298,7 +293,7 @@ export default defineNuxtConfig({
     },
     workbox: {
       globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,otf,avif}"],
-      globIgnores: ["**/logo-source.png", "**/pwa/screenshot-*"],
+      globIgnores: ["**/pwa/screenshot-*"],
       navigateFallback: null,
     },
   },

@@ -1035,6 +1035,14 @@ describe("useGame", () => {
     });
 
     it("should synchronize the questions when the active theme catalog loads and the derived filters change.", async() => {
+      const initialWrapper = mount(defineComponent({
+        setup(): () => null {
+          useGame();
+
+          return (): null => null;
+        },
+      }));
+      initialWrapper.unmount();
       const settingsStore = mockStore(useGameSettingsStore);
       const questionThemesStore = mockStore(useQuestionThemesStore);
       const store = mockStore(useGameStore);

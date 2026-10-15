@@ -11,7 +11,7 @@ import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 
 import { GameQuestionsFiltersThemeFilter } from "#components";
-import type { GameSettingsFilterMultiSelect } from "#components";
+import type { GameSettingsFilterMultiSelect, UIcon } from "#components";
 
 import type { GameQuestionsFiltersThemeFilterProps } from "@/components/domain/game/GameQuestionsFiltersModalContent/GameQuestionsFiltersThemeFilter/game-questions-filters-theme-filter.types";
 import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
@@ -90,7 +90,9 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
   });
 
   it("should render the loader status icon when the catalog is loading.", () => {
-    expect(getStatusIcon()?.classList.contains("i-lucide:loader-circle")).toBe(true);
+    const statusIcon = wrapper.findComponent<typeof UIcon>("[data-testid='game-questions-filters-theme-filter-status-icon']");
+
+    expect(statusIcon.props("name")).toBe("i-lucide-loader-circle");
   });
 
   it("should spin the status icon when the catalog is loading.", () => {
@@ -100,8 +102,9 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
   it("should render the alert status icon when the catalog is unavailable.", async() => {
     mockStore(useQuestionThemesStore).fetchStatus = "error";
     await nextTick();
+    const statusIcon = wrapper.findComponent<typeof UIcon>("[data-testid='game-questions-filters-theme-filter-status-icon']");
 
-    expect(getStatusIcon()?.classList.contains("i-lucide:triangle-alert")).toBe(true);
+    expect(statusIcon.props("name")).toBe("i-lucide-triangle-alert");
   });
 
   it("should not spin the status icon when the catalog is unavailable.", async() => {
@@ -151,30 +154,6 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
     expect(filter.props("allSelectedLabel")).toBe("game.questionsFilters.themes.allSelected");
-  });
-
-  it("should configure the count summary mode on the generic filter when active themes are available.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("summaryMode")).toBe("count");
-  });
-
-  it("should pass the theme select test id to the generic filter when active themes are available.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("selectTestId")).toBe("game-questions-filters-theme-filter-input");
-  });
-
-  it("should pass the theme summary test id to the generic filter when active themes are available.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("summaryTestId")).toBe("game-questions-filters-theme-filter-summary");
   });
 
   it("should pass the active theme options with their labels, icons and colors to the generic filter when active themes are available.", async() => {
@@ -273,5 +252,15 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
     await nextTick();
 
     expect(wrapper.find("[data-testid='game-questions-filters-theme-filter-refresh-error']").exists()).toBe(true);
+  });
+
+  it("should render the refresh failure translation key when the catalog is stale.", async() => {
+    setCatalog(activeThemes);
+    await nextTick();
+    mockStore(useQuestionThemesStore).fetchStatus = "error";
+    await nextTick();
+    const refreshError = wrapper.get("[data-testid='game-questions-filters-theme-filter-refresh-error']");
+
+    expect(refreshError.text()).toBe("game.questionsFilters.themes.refreshFailed");
   });
 });

@@ -75,14 +75,6 @@ describe("App Component", () => {
     });
   });
 
-  describe("defineOgImage", () => {
-    it("should call defineOgImage with the correct component when mounted.", () => {
-      const defineOgImageMock = vi.mocked(defineOgImage);
-
-      expect(defineOgImageMock).toHaveBeenCalledExactlyOnceWith("Image.takumi");
-    });
-  });
-
   it("should refetch the question themes when the locale changes.", async() => {
     const questionThemesStore = mockStore(useQuestionThemesStore);
     const { locale } = useI18n();

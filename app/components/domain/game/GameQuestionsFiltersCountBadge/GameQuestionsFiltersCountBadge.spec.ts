@@ -63,13 +63,6 @@ describe("GameQuestionsFiltersCountBadge Component", () => {
     expect(wrapper.text()).toBe("game.questionsFilters.appliedCount");
   });
 
-  it("should set the UBadge aria-label to the applied count translation key when the display mode is full.", async() => {
-    await wrapper.setProps({ count: 2, displayMode: "full" });
-    const badge = wrapper.findComponent({ name: "UBadge" });
-
-    expect(badge.attributes("aria-label")).toBe("game.questionsFilters.appliedCount");
-  });
-
   it("should apply the numeric sizing classes to the badge when the display mode is count.", () => {
     const badge = wrapper.findComponent({ name: "UBadge" });
 

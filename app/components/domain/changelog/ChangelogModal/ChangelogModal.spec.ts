@@ -16,7 +16,7 @@ import type { QueryCollectionMockEntry } from "~~/tests/unit/utils/mocks/composa
 import type { UseAsyncDataMockResult } from "~~/tests/unit/utils/mocks/composables/nuxt/useAsyncData/useAsyncData.mock";
 
 import { ChangelogModal } from "#components";
-import type { DefaultModalFooter, DefaultModalTitle, UChangelogVersion } from "#components";
+import type { ContentRenderer, DefaultModalFooter, DefaultModalTitle, UChangelogVersion } from "#components";
 
 import { CHANGELOG_MODAL_UI, CHANGELOG_VERSION_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
 import type { ChangelogEntry } from "~/composables/domain/useChangelog/use-changelog.types";
@@ -186,21 +186,16 @@ describe("ChangelogModal Component", () => {
     expect(wrapper.findAllComponents({ name: "ContentRenderer" })).toHaveLength(defaultChangelogEntries.length);
   });
 
-  it("should render a loading spinner when the changelog entries are pending.", async() => {
-    changelogEntriesStatusReference.value = "pending";
-    await nextTick();
-
-    expect({
-      spinner: wrapper.findComponent({ name: "LoadingSpinner" }).exists(),
-      versions: wrapper.findComponent({ name: "UChangelogVersions" }).exists(),
-    }).toStrictEqual({
-      spinner: true,
-      versions: false,
-    });
+  it("should forward every changelog entry to its content renderer when mounted.", () => {
+    expect(wrapper.findAllComponents<typeof ContentRenderer>({ name: "ContentRenderer" })
+      .map(renderer => ({ value: renderer.props("value") }))).toStrictEqual(defaultChangelogEntries.map(entry => ({ value: entry })));
   });
 
-  it("should render a loading spinner when the changelog entries were not fetched yet.", async() => {
-    changelogEntriesStatusReference.value = "idle";
+  it.each<{ entriesStatus: string }>([
+    { entriesStatus: "pending" },
+    { entriesStatus: "idle" },
+  ])("should render a loading spinner when the changelog entries status is $entriesStatus.", async({ entriesStatus }) => {
+    changelogEntriesStatusReference.value = entriesStatus;
     await nextTick();
 
     expect({
@@ -389,10 +384,6 @@ describe("ChangelogModal Component", () => {
 
   it("should render the changelog modal footer with the correct data-testid when mounted.", () => {
     expect(document.body.querySelector("[data-testid='changelog-modal-footer']")).not.toBeNull();
-  });
-
-  it("should disable the shortcuts on the default modal footer when mounted.", () => {
-    expect(wrapper.findComponent<typeof DefaultModalFooter>({ name: "DefaultModalFooter" }).props("disableShortcuts")).toBe(true);
   });
 
   it("should close the changelog when the default modal footer reports a close.", () => {

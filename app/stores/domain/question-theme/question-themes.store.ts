@@ -5,7 +5,6 @@ type QuestionThemeCatalogStatus = "loading" | "refreshing" | "ready" | "stale" |
 
 export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, () => {
   const questionThemes = ref<QuestionTheme[]>([]);
-  const questionThemeSlugs = computed<string[]>(() => questionThemes.value.map(theme => theme.slug));
   const activeQuestionThemes = computed<QuestionTheme[]>(() => questionThemes.value.filter(theme => theme.status === DEFAULT_QUESTION_THEME_STATUS));
   const activeQuestionThemeIds = computed<string[]>(() => activeQuestionThemes.value.map(theme => theme.id));
   const isThemesCatalogAvailable = computed<boolean>(() => activeQuestionThemes.value.length > 0);
@@ -44,7 +43,6 @@ export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, ()
   }
   return {
     questionThemes,
-    questionThemeSlugs,
     activeQuestionThemes,
     activeQuestionThemeIds,
     isThemesCatalogAvailable,

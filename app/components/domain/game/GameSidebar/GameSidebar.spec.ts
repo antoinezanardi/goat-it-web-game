@@ -74,6 +74,12 @@ describe("GameSidebar Component", () => {
     expect(slideover.props("ui")).toStrictEqual(GAME_SIDEBAR_UI);
   });
 
+  it("should pass false as the close prop to USlideover when mounted.", () => {
+    const slideover = wrapper.findComponent({ name: "USlideover" });
+
+    expect(slideover.props("close")).toBe(false);
+  });
+
   it("should render the brand text in the sidebar title when mounted.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")?.textContent).toContain("home.brand");
   });

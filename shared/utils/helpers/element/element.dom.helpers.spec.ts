@@ -51,15 +51,11 @@ describe(isEditableKeyboardTarget, () => {
     expect(isEditableKeyboardTarget(element)).toBe(true);
   });
 
-  it("should return false when the target is an ordinary HTML element.", () => {
-    expect(isEditableKeyboardTarget(document.createElement("div"))).toBe(false);
-  });
-
-  it("should return false when the target is null.", () => {
-    expect(isEditableKeyboardTarget(null)).toBe(false);
-  });
-
-  it("should return false when the target is a non-HTML element.", () => {
-    expect(isEditableKeyboardTarget(document.createElementNS("http://www.w3.org/2000/svg", "svg"))).toBe(false);
+  it.each<{ description: string; target: Parameters<typeof isEditableKeyboardTarget>[0] }>([
+    { description: "an ordinary HTML element", target: document.createElement("div") },
+    { description: "null", target: null },
+    { description: "a non-HTML element", target: document.createElementNS("http://www.w3.org/2000/svg", "svg") },
+  ])("should return false when the target is $description.", ({ target }) => {
+    expect(isEditableKeyboardTarget(target)).toBe(false);
   });
 });

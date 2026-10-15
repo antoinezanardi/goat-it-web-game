@@ -10,7 +10,7 @@ import { findQuestionsHandler } from "#server/api/goat-it-api/questions/handlers
 
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
 
-describe("Server Goat It API Questions Find Handler", () => {
+describe("Server Goat It API Questions Find Get Handler", () => {
   const mockedEvent = createFakeH3Event();
   const validMongoId = "507f1f77bcf86cd799439011";
   const anotherValidMongoId = "507f1f77bcf86cd799439012";

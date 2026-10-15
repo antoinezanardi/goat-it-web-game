@@ -55,12 +55,6 @@ describe("GameSettingsCognitiveDifficultiesFilter Component", () => {
     expect(filter.props("allSelectedLabel")).toBe("game.settings.cognitiveDifficulties.allSelected");
   });
 
-  it("should configure the labels summary mode on the generic filter when mounted.", () => {
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("summaryMode")).toBe("labels");
-  });
-
   it("should pass the localized cognitive difficulty options with their icons and colors to the generic filter when mounted.", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 

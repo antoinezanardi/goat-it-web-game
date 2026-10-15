@@ -3,6 +3,7 @@ import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
+import { clickVisibleLocator } from "#acceptance/features/support/helpers/locator.helpers.ts";
 import { clickAndGetOpenedTab } from "#acceptance/features/support/helpers/tab.helpers.ts";
 import { waitForQuestionCardTransition } from "#acceptance/features/step-definitions/game/helpers/game.when-steps.helpers.ts";
 
@@ -11,8 +12,7 @@ When(
   { timeout: 90_000 },
   async function(this: GoatItWorld): Promise<void> {
     const nextButton = this.page.getByTestId("game-next-question-button");
-    await expect(nextButton).toBeVisible();
-    await nextButton.click();
+    await clickVisibleLocator(nextButton);
     await waitForQuestionCardTransition(this);
   },
 );
@@ -22,8 +22,7 @@ When(
   { timeout: 90_000 },
   async function(this: GoatItWorld): Promise<void> {
     const previousButton = this.page.getByTestId("game-previous-question-button");
-    await expect(previousButton).toBeVisible();
-    await previousButton.click();
+    await clickVisibleLocator(previousButton);
     await waitForQuestionCardTransition(this);
   },
 );
@@ -62,8 +61,7 @@ When(
   /^the user clicks the back to home button$/u,
   async function(this: GoatItWorld): Promise<void> {
     const backToHomeLink = this.page.getByRole("link", { name: "Back to Home" });
-    await expect(backToHomeLink).toBeVisible();
-    await backToHomeLink.click();
+    await clickVisibleLocator(backToHomeLink);
   },
 );
 
@@ -72,8 +70,7 @@ When(
   async function(this: GoatItWorld): Promise<void> {
     const question = getVisibleGameQuestionCard(this.page);
     const trigger = question.getByTestId("game-question-context-accordion-trigger");
-    await expect(trigger).toBeVisible();
-    await trigger.click();
+    await clickVisibleLocator(trigger);
   },
 );
 
@@ -83,8 +80,6 @@ When(
     const question = getVisibleGameQuestionCard(this.page);
     const sourceNav = question.getByTestId("game-question-source-links");
     const link = sourceNav.getByText(domain, { exact: true });
-    await expect(link).toBeVisible();
-
     this.openedTabPage = await clickAndGetOpenedTab(this.context, link);
   },
 );
@@ -95,8 +90,7 @@ When(
     const question = getVisibleGameQuestionCard(this.page);
 
     const themeStackTrigger = question.getByTestId("theme-stack-trigger");
-    await expect(themeStackTrigger).toBeVisible();
-    await themeStackTrigger.click();
+    await clickVisibleLocator(themeStackTrigger);
   },
 );
 
@@ -107,8 +101,7 @@ When(
     const labelRegex = new RegExp(`\\+${count} other themes?`, "iu");
 
     const otherThemesText = question.getByText(labelRegex);
-    await expect(otherThemesText).toBeVisible();
-    await otherThemesText.click();
+    await clickVisibleLocator(otherThemesText);
   },
 );
 

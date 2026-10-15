@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
+import type { UIcon } from "#components";
 import { GameTutorialPopoverContent } from "#components";
 
 import type { GameTutorialPopoverContentProps } from "@/components/domain/game/GameTutorial/GameTutorialPopoverContent/game-tutorial-popover-content.types";
@@ -33,7 +34,8 @@ describe("GameTutorialPopoverContent Component", () => {
   }
 
   function getRenderedIconNames(): string[] {
-    return wrapper.findAllComponents({ name: "UIcon" }).map(icon => icon.props("name") as string);
+    return wrapper.findAllComponents<typeof UIcon>({ name: "UIcon" })
+      .map(icon => String(icon.props("name")));
   }
 
   beforeEach(async() => {
@@ -134,6 +136,15 @@ describe("GameTutorialPopoverContent Component", () => {
     wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasNext: false } });
 
     expect(getGameTutorialPopoverContentElement("game-tutorial-finish").text()).toContain("game.interactiveTutorial.controls.finish");
+  });
+
+  it("should render the Finish control icon when there is no next step.", async() => {
+    wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasNext: false } });
+
+    expect(getRenderedIconNames()).toStrictEqual([
+      defaultGameTutorialPopoverContentProps.icon,
+      GAME_TUTORIAL_CONTROL_ICONS.finish,
+    ]);
   });
 
   it("should emit finish when the Finish control is clicked.", async() => {

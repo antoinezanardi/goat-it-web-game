@@ -59,11 +59,10 @@ describe(resolveSelectedThemeIds, () => {
     expect(resolveSelectedThemeIds(["stale-1", "stale-2"], ["theme-a", "theme-b"])).toStrictEqual(["theme-a", "theme-b"]);
   });
 
-  it("should return every active theme when the saved theme ids are undefined and a catalog is available.", () => {
-    expect(resolveSelectedThemeIds(undefined, ["theme-a", "theme-b"])).toStrictEqual(["theme-a", "theme-b"]);
-  });
-
-  it("should return every active theme when the saved theme ids are empty and a catalog is available.", () => {
-    expect(resolveSelectedThemeIds([], ["theme-a", "theme-b"])).toStrictEqual(["theme-a", "theme-b"]);
+  it.each<{ savedIdsState: string; savedThemeIds: Parameters<typeof resolveSelectedThemeIds>[0] }>([
+    { savedIdsState: "are undefined", savedThemeIds: undefined },
+    { savedIdsState: "are empty", savedThemeIds: [] },
+  ])("should return every active theme when the saved theme ids $savedIdsState and a catalog is available.", ({ savedThemeIds }) => {
+    expect(resolveSelectedThemeIds(savedThemeIds, ["theme-a", "theme-b"])).toStrictEqual(["theme-a", "theme-b"]);
   });
 });

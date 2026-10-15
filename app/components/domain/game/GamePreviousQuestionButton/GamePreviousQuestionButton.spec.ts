@@ -6,6 +6,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import { GamePreviousQuestionButton } from "#components";
 
+import { GAME_PREVIOUS_QUESTION_BUTTON_UI } from "@/components/domain/game/GamePreviousQuestionButton/game-previous-question-button.constants";
 import type { GamePreviousQuestionButtonProps } from "@/components/domain/game/GamePreviousQuestionButton/game-previous-question-button.types";
 
 describe("GamePreviousQuestionButton Component", () => {
@@ -57,5 +58,11 @@ describe("GamePreviousQuestionButton Component", () => {
 
   it("should render the arrow-left icon when mounted.", () => {
     expect(wrapper.findComponent({ name: "UButton" }).props("icon")).toBe("i-lucide-arrow-left");
+  });
+
+  it("should pass the GAME_PREVIOUS_QUESTION_BUTTON_UI ui config to the button when mounted.", () => {
+    const button = wrapper.findComponent({ name: "UButton" });
+
+    expect(button.props("ui")).toStrictEqual(GAME_PREVIOUS_QUESTION_BUTTON_UI);
   });
 });

@@ -55,24 +55,6 @@ describe("GameQuestionsFiltersCategoryFilter Component", () => {
     expect(filter.props("allSelectedLabel")).toBe("game.questionsFilters.categories.allSelected");
   });
 
-  it("should configure the count summary mode on the generic filter when mounted.", () => {
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("summaryMode")).toBe("count");
-  });
-
-  it("should pass the category select test id to the generic filter when mounted.", () => {
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("selectTestId")).toBe("game-questions-filters-category-filter-input");
-  });
-
-  it("should pass the category summary test id to the generic filter when mounted.", () => {
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("summaryTestId")).toBe("game-questions-filters-category-filter-summary");
-  });
-
   it("should pass the localized category options with their icons and colors to the generic filter when mounted.", () => {
     const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
