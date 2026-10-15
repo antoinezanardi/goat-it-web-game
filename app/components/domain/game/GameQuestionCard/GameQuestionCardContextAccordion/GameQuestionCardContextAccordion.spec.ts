@@ -12,7 +12,11 @@ import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composab
 
 import { GameQuestionCardContextAccordion } from "#components";
 
-import { GAME_QUESTION_CARD_CONTEXT_ACCORDION_EXPAND_SAFETY_TIMEOUT_MS } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.constants";
+import {
+  GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI,
+  GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI,
+  GAME_QUESTION_CARD_CONTEXT_ACCORDION_EXPAND_SAFETY_TIMEOUT_MS,
+} from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.constants";
 import type { GameQuestionCardContextAccordionProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.types";
 
 describe("GameQuestionCardContextAccordion Component", () => {
@@ -101,6 +105,18 @@ describe("GameQuestionCardContextAccordion Component", () => {
     const trigger = wrapper.findComponent({ name: "UButton" });
 
     expect(trigger.props("trailingIcon")).toBe("i-lucide-chevron-down");
+  });
+
+  it("should pass the GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI ui config to UCollapsible when mounted.", () => {
+    const collapsible = wrapper.findComponent({ name: "UCollapsible" });
+
+    expect(collapsible.props("ui")).toStrictEqual(GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI);
+  });
+
+  it("should pass the GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI ui config to the trigger button when mounted.", () => {
+    const trigger = wrapper.findComponent({ name: "UButton" });
+
+    expect(trigger.props("ui")).toStrictEqual(GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI);
   });
 
   it("should render the context paragraph when context is provided.", async() => {

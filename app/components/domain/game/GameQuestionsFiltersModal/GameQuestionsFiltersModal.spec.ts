@@ -293,22 +293,17 @@ describe("GameQuestionsFiltersModal Component", () => {
     ]);
   });
 
-  it("should reset the adult content draft to disabled when the header emits reset.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
-    await openFiltersModal();
-    getWrapperVm(getHeader()).$emit("reset");
-    await nextTick();
-
-    expect(getContent().props("draft")).toStrictEqual({
-      isAdultContentEnabled: false,
-      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
-      categories: [...QUESTION_CATEGORIES],
-      themeIds: undefined,
-    });
-  });
-
-  it("should reset the cognitive difficulties draft to all difficulties when the header emits reset.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
+  it.each<{ description: string; settings: Partial<GameSettings> }>([
+    {
+      description: "the adult content draft was enabled",
+      settings: { ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true },
+    },
+    {
+      description: "a cognitive difficulty was selected",
+      settings: { ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] },
+    },
+  ])("should reset the draft when $description and the header emits reset.", async({ settings }) => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings(settings);
     await openFiltersModal();
     getWrapperVm(getHeader()).$emit("reset");
     await nextTick();

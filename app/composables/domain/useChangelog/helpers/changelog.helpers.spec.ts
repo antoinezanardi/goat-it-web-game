@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { createFakeChangelogEntry } from "~~/tests/unit/utils/faketories/changelog/changelog-entry.entity.faketory";
 
-import { sortChangelogEntries } from "~/composables/domain/useChangelog/helpers/changelog.helpers";
-import type { ChangelogEntry } from "~/composables/domain/useChangelog/use-changelog.types";
+import { sortChangelogEntries } from "@/composables/domain/useChangelog/helpers/changelog.helpers";
+import type { ChangelogEntry } from "@/composables/domain/useChangelog/use-changelog.types";
 
 describe(sortChangelogEntries, () => {
   it("should sort entries by date descending when dates differ.", () => {

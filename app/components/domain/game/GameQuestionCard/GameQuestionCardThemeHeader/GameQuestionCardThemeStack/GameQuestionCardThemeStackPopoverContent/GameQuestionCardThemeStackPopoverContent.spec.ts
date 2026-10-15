@@ -23,7 +23,7 @@ describe("GameQuestionCardThemeStackPopoverContent Component", () => {
       createFakeQuestionThemeAssignment({ isPrimary: true, isHint: true, theme: primaryTheme }),
       createFakeQuestionThemeAssignment({ isPrimary: false, isHint: false, theme: secondaryTheme }),
     ],
-  };
+  } as const;
 
   let wrapper: VueWrapper;
 

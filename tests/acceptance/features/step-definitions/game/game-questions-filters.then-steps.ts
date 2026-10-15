@@ -2,8 +2,7 @@ import { Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-import { getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
-import { expectDefaultModalElementText } from "#acceptance/features/step-definitions/game/helpers/game.then-steps.helpers.ts";
+import { expectDefaultModalElementText, getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
 
 Then(
   /^the questions filters adult content switch should be (?<state>on|off)$/u,

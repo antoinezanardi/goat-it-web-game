@@ -42,8 +42,8 @@ export const useGameStore = defineStore(StoreNames.GAME, () => {
     questions.value = questions.value.slice(0, length);
   }
 
-  function replaceQuestions(nextQuestions: Question[]): void {
-    questions.value = nextQuestions;
+  function replaceQuestions(updatedQuestions: Question[]): void {
+    questions.value = updatedQuestions;
   }
   return {
     questions,

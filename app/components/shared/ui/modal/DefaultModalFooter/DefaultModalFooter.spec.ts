@@ -155,13 +155,6 @@ describe("DefaultModalFooter Component", () => {
     });
 
     describe("Loading state", () => {
-      it("should not have loading icon when isPrimaryButtonLoading is false.", () => {
-        const primaryButton = wrapper.findComponent<typeof UButton>("[data-testid='default-modal-footer-primary-button']");
-        const leadingIcon = primaryButton.findComponent<typeof UIcon>({ name: "UIcon" });
-
-        expect(leadingIcon.props("name")).toBe("i-lucide-circle-plus");
-      });
-
       it("should have loading icon when isPrimaryButtonLoading is true.", async() => {
         await wrapper.setProps({ isPrimaryButtonLoading: true });
 

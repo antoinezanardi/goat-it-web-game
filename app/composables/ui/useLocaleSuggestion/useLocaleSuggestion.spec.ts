@@ -15,19 +15,10 @@ let i18nMock: UseI18nMock;
 
 let useAppToastMock: UseAppToastMock;
 
-// Acceptable as import() form is required to mock a module from a factory with importOriginal
-// oxlint-disable-next-line vitest/prefer-import-in-mock
-vi.mock(import("#app/nuxt"), async importOriginal => {
-  const actual = await importOriginal();
-
-  return {
-    ...actual,
-    useNuxtApp: ((...arguments_: Parameters<typeof actual.useNuxtApp>) => ({
-      ...actual.useNuxtApp(...arguments_),
-      $i18n: i18nMock,
-    })) as typeof actual.useNuxtApp,
-  };
-});
+mockNuxtImport("useNuxtApp", (original: typeof useNuxtApp) => ((...arguments_: Parameters<typeof useNuxtApp>) => ({
+  ...original(...arguments_),
+  $i18n: i18nMock,
+})) as typeof useNuxtApp);
 
 mockNuxtImport("useAppToast", () => (): UseAppToastMock => useAppToastMock);
 

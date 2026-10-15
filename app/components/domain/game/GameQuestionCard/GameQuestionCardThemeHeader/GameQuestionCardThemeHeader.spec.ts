@@ -30,12 +30,6 @@ describe("GameQuestionCardThemeHeader Component", () => {
     }),
   } as const;
 
-  type GameQuestionCardThemeStackVm = ComponentVm & { playHighlight: () => Promise<void>; toggleOpen: () => void };
-
-  type GameQuestionCardHintBadgeVm = ComponentVm & { playHighlight: () => Promise<void> };
-
-  type GameQuestionCardAdultContentBadgeVm = ComponentVm & { playHighlight: () => Promise<void> };
-
   type GameQuestionCardThemeHeaderVm = ComponentVm & { playActiveHighlightSequence: () => Promise<void> };
 
   let wrapper: VueWrapper;
@@ -226,9 +220,9 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
     await flushPromises();
 
-    const headerVm = getWrapperVm(activeWrapper);
-    const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
-    const hintBadgeVm = headerVm.$.refs.hintBadgeRef as unknown as GameQuestionCardHintBadgeVm;
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(activeWrapper);
+    const themeStackVm = headerVm.$.refs.themeStackRef;
+    const hintBadgeVm = headerVm.$.refs.hintBadgeRef;
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
       [themeStackVm, hintBadgeVm, null],
@@ -249,9 +243,9 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
     await flushPromises();
 
-    const headerVm = getWrapperVm(wrapper);
-    const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
-    const hintBadgeVm = headerVm.$.refs.hintBadgeRef as unknown as GameQuestionCardHintBadgeVm;
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(wrapper);
+    const themeStackVm = headerVm.$.refs.themeStackRef;
+    const hintBadgeVm = headerVm.$.refs.hintBadgeRef;
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
       [themeStackVm, hintBadgeVm, null],
@@ -272,8 +266,8 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
     await flushPromises();
 
-    const headerVm = getWrapperVm(wrapper);
-    const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(wrapper);
+    const themeStackVm = headerVm.$.refs.themeStackRef;
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
       [themeStackVm, null, null],
@@ -291,8 +285,8 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
     await flushPromises();
 
-    const headerVm = getWrapperVm(wrapper);
-    const hintBadgeVm = headerVm.$.refs.hintBadgeRef as unknown as GameQuestionCardHintBadgeVm;
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(wrapper);
+    const hintBadgeVm = headerVm.$.refs.hintBadgeRef;
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
       [undefined, hintBadgeVm, null],
@@ -362,8 +356,8 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
     await flushPromises();
 
-    const headerVm = getWrapperVm(wrapper);
-    const adultContentBadgeVm = headerVm.$.refs.adultContentBadgeRef as unknown as GameQuestionCardAdultContentBadgeVm;
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(wrapper);
+    const adultContentBadgeVm = headerVm.$.refs.adultContentBadgeRef;
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
       [undefined, null, adultContentBadgeVm],

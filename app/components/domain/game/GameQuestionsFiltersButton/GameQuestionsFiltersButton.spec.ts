@@ -72,28 +72,32 @@ describe("GameQuestionsFiltersButton Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).exists()).toBe(false);
   });
 
-  it("should render the count badge with one when only one filter group is active.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({
-      categories: [...QUESTION_CATEGORIES],
-      isAdultContentEnabled: true,
-      cognitiveDifficulties: ["easy", "medium", "hard"],
-      themeIds: undefined,
-    });
+  it.each<{ description: string; expectedCount: number; settings: Parameters<typeof createFakeGameSettings>[0] }>([
+    {
+      description: "only one filter group is active",
+      expectedCount: 1,
+      settings: {
+        categories: [...QUESTION_CATEGORIES],
+        isAdultContentEnabled: true,
+        cognitiveDifficulties: ["easy", "medium", "hard"],
+        themeIds: undefined,
+      },
+    },
+    {
+      description: "both filter groups are active",
+      expectedCount: 2,
+      settings: {
+        categories: [...QUESTION_CATEGORIES],
+        isAdultContentEnabled: true,
+        cognitiveDifficulties: ["hard"],
+        themeIds: undefined,
+      },
+    },
+  ])("should render the count badge with $expectedCount when $description.", async({ expectedCount, settings }) => {
+    mockStore(useGameSettingsStore).settings = createFakeGameSettings(settings);
     await nextTick();
 
-    expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).props("count")).toBe(1);
-  });
-
-  it("should render the count badge with two when both filter groups are active.", async() => {
-    mockStore(useGameSettingsStore).settings = createFakeGameSettings({
-      categories: [...QUESTION_CATEGORIES],
-      isAdultContentEnabled: true,
-      cognitiveDifficulties: ["hard"],
-      themeIds: undefined,
-    });
-    await nextTick();
-
-    expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).props("count")).toBe(2);
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersCountBadge" }).props("count")).toBe(expectedCount);
   });
 
   it("should forward the data-testid attribute to the count badge when a filter group is active.", async() => {

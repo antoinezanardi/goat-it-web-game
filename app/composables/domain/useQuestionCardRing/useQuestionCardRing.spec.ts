@@ -8,10 +8,10 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 
 import type { UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.types";
 import { QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
-import { useQuestionCardRing } from "~/composables/domain/useQuestionCardRing/useQuestionCardRing";
+import type { useQuestionCardRing as UseQuestionCardRingType } from "~/composables/domain/useQuestionCardRing/useQuestionCardRing";
 import type { Question } from "#shared/types/question.types";
 
-describe(useQuestionCardRing, () => {
+describe("useQuestionCardRing", () => {
   let questions: Ref<Question[]>;
   let currentIndex: Ref<number>;
   let pendingDirection: Ref<"backward" | "forward" | undefined>;
@@ -19,6 +19,7 @@ describe(useQuestionCardRing, () => {
   let onResetSlot: Mock<(slotIndex: number) => void>;
   let requestAnimationFrameCallbacks: FrameRequestCallback[];
   let ring: UseQuestionCardRingReturn;
+  let useQuestionCardRing: typeof UseQuestionCardRingType;
 
   function createOptions(): UseQuestionCardRingOptions {
     return {
@@ -45,7 +46,7 @@ describe(useQuestionCardRing, () => {
     });
   }
 
-  beforeEach(() => {
+  beforeEach(async() => {
     vi.resetAllMocks();
     questions = ref<Question[]>([createFakeQuestion(), createFakeQuestion(), createFakeQuestion()]);
     currentIndex = ref(1);
@@ -61,6 +62,7 @@ describe(useQuestionCardRing, () => {
       return requestAnimationFrameCallbacks.length;
     });
     vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
+    ({ useQuestionCardRing } = await import("~/composables/domain/useQuestionCardRing/useQuestionCardRing"));
   });
 
   function mountRingHarness(): VueWrapper {
