@@ -1,5 +1,85 @@
 # 🐐👑 Goat It Web Admin Versioning Changelog
 
+## [1.10.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.9.0...v1.10.0) (2026-10-16)
+
+### 🚀 Features
+
+* **changelog:** add localized end-user changelog experience ([#439](https://github.com/antoinezanardi/goat-it-web-game/issues/439)) ([2a0a2c4](https://github.com/antoinezanardi/goat-it-web-game/commit/2a0a2c479fa10d74805040280182a5a8c4f445b7))
+* **game:** add adult content option to game settings ([#375](https://github.com/antoinezanardi/goat-it-web-game/issues/375)) ([8b211d7](https://github.com/antoinezanardi/goat-it-web-game/commit/8b211d7e9bb2e8a64786671af3fb397fd844b22c))
+* **game:** add category and theme filters to the game questions filters modal ([#416](https://github.com/antoinezanardi/goat-it-web-game/issues/416)) ([2fa159e](https://github.com/antoinezanardi/goat-it-web-game/commit/2fa159e57598f044a602bbd6eb9e4e1e3045c68b))
+* **game:** apply game settings changes when the settings modal closes ([#385](https://github.com/antoinezanardi/goat-it-web-game/issues/385)) ([a2cbd99](https://github.com/antoinezanardi/goat-it-web-game/commit/a2cbd9928835c24c0134bc4ecf7a293dd96462cb))
+* **game:** filter questions by cognitive difficulty ([#401](https://github.com/antoinezanardi/goat-it-web-game/issues/401)) ([d485489](https://github.com/antoinezanardi/goat-it-web-game/commit/d485489d47f08d83677a78f0199215a33349f0cc))
+* **game:** guard question filter drafts and refine filters modal UX ([#410](https://github.com/antoinezanardi/goat-it-web-game/issues/410)) ([a505d53](https://github.com/antoinezanardi/goat-it-web-game/commit/a505d53662ea6fec4e70ac918c932393432bd1b7))
+* **game:** improve question filters discoverability ([#404](https://github.com/antoinezanardi/goat-it-web-game/issues/404)) ([449cd74](https://github.com/antoinezanardi/goat-it-web-game/commit/449cd741bd249450a91fa8f4447f1887b7bfd268))
+* **game:** move question filters into a dedicated apply modal ([#403](https://github.com/antoinezanardi/goat-it-web-game/issues/403)) ([5c36606](https://github.com/antoinezanardi/goat-it-web-game/commit/5c3660657b59daede1681e404cf1e995f950501e))
+* **game:** persist game settings across reloads ([#378](https://github.com/antoinezanardi/goat-it-web-game/issues/378)) ([9e32b8c](https://github.com/antoinezanardi/goat-it-web-game/commit/9e32b8c8fbd951f23ec10d2d5f1c05756f4d2f0c))
+* **game:** show an adult content badge on the question card ([#372](https://github.com/antoinezanardi/goat-it-web-game/issues/372)) ([5bf3b33](https://github.com/antoinezanardi/goat-it-web-game/commit/5bf3b333566fc35f87ad880ed7bd6a2ff823e5c8))
+
+### 📖 Docs
+
+* **changelog:** add end-user changelog for v1.10.0 ([#517](https://github.com/antoinezanardi/goat-it-web-game/issues/517)) ([d407270](https://github.com/antoinezanardi/goat-it-web-game/commit/d407270b4da00d73d7cd8a10f1b316a7650e8149))
+* **changelogs:** add opencode command for generating changelog entries ([#516](https://github.com/antoinezanardi/goat-it-web-game/issues/516)) ([5b83fe1](https://github.com/antoinezanardi/goat-it-web-game/commit/5b83fe15eaa29ef72f4017e3d4b18c68ece9b45f))
+
+### ⚡️ Performance
+
+* **build:** replace runtime og image with static asset ([#452](https://github.com/antoinezanardi/goat-it-web-game/issues/452)) ([d8913c4](https://github.com/antoinezanardi/goat-it-web-game/commit/d8913c47288f75ad361561f325dc6a86827eaf2e))
+* **build:** shrink deploy artifacts and harden upstream fetches ([#450](https://github.com/antoinezanardi/goat-it-web-game/issues/450)) ([3adabd3](https://github.com/antoinezanardi/goat-it-web-game/commit/3adabd3478e83f112273002b49d2631ff3c4e94e))
+* **vitest:** halve warm unit runs with persistent fs module cache ([#445](https://github.com/antoinezanardi/goat-it-web-game/issues/445)) ([9bf8aac](https://github.com/antoinezanardi/goat-it-web-game/commit/9bf8aacef5f54ec52b56918f58e47c93d67aba6e))
+
+### ✅ Tests
+
+* **acceptance:** lint tests command ([#397](https://github.com/antoinezanardi/goat-it-web-game/issues/397)) ([2bb04c9](https://github.com/antoinezanardi/goat-it-web-game/commit/2bb04c9212489e4876e2f7b2360b5982c0b2f6fd))
+* **accessibility:** extend acceptance coverage to game states ([#393](https://github.com/antoinezanardi/goat-it-web-game/issues/393)) ([2ca18aa](https://github.com/antoinezanardi/goat-it-web-game/commit/2ca18aa790822983f958be0dc4f82e06bf1eec43))
+* fix unit test convention violations across specs ([#388](https://github.com/antoinezanardi/goat-it-web-game/issues/388)) ([a4e3dd5](https://github.com/antoinezanardi/goat-it-web-game/commit/a4e3dd56463139654056d047aa00118e1639eacf))
+
+### 🧹 Chore
+
+* **seo:** upgrade all deps to v6 ([145b016](https://github.com/antoinezanardi/goat-it-web-game/commit/145b016a9e7bad371ad7136f38b934fbaa1fa623))
+* sync release v1.9.0 from main ([50abebd](https://github.com/antoinezanardi/goat-it-web-game/commit/50abebd255ce31445b8399d5e91a6040eda3c3b1))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `@cucumber/cucumber` | `^13.3.0` |
+| `@iconify-json/lucide` | `^1.2.145` |
+| `@nuxt/content` | `^3.16.2` |
+| `@nuxt/hints` | `^1.1.5` |
+| `@nuxt/test-utils` | `^4.3.3` |
+| `@nuxtjs/robots` | `^6.2.4` |
+| `@nuxtjs/sitemap` | `^9.1.0` |
+| `@pinia/nuxt` | `^1.0.3` |
+| `@pinia/testing` | `^2.0.2` |
+| `@takumi-rs/core` | `^2.16.2` |
+| `@tanstack/vue-table` | `^9.3.1` |
+| `@types/node` | `^25.9.9` |
+| `conventional-changelog-writer` | `^9.3.0` |
+| `eslint` | `^10.12.0` |
+| `eslint-plugin-oxlint` | `^1.87.0` |
+| `eslint-plugin-unicorn` | `v78` |
+| `happy-dom` | `v21` |
+| `lint-staged` | `^17.6.0` |
+| `mongodb` | `^7.7.0` |
+| `nuxt` | `^4.6.1` |
+| `nuxt-og-image` | `^7.0.7` |
+| `nuxt-schema-org` | `^6.4.3` |
+| `nuxt-seo-utils` | `^9.0.1` |
+| `nuxt-site-config` | `^5.0.3` |
+| `oxlint` | `^1.87.0` |
+| `oxlint-tsgolint` | `^7.0.2004` |
+| `pinia` | `^4.1.0` |
+| `unhead` | `^3.4.3` |
+| `vite` | `^8.3.4` |
+| `zod` | `^4.6.7` |
+| `mongo docker tag` | `v9` |
+| `node.js` | `v26.12.0` |
+| `oxlint monorepo` | `^1.88.0` |
+| `playwright monorepo` | `^1.64.1` |
+| `pnpm` | `v12.9.1` |
+| `sonarsource/sonarqube-scan-action action` | `v8.3` |
+| `vitest monorepo` | `^5.0.5` |
+| `vue-language-tools monorepo` | `^3.3.13` |
+
 ## [1.9.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.8.0...v1.9.0) (2026-09-25)
 
 ### 🚀 Features
