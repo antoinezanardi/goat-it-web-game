@@ -23,6 +23,7 @@ describe(isInternalHostname, () => {
     { hostname: "goat-it-api-production" },
     { hostname: "10.0.0.8" },
     { hostname: "172.16.0.1" },
+    { hostname: "172.20.0.1" },
     { hostname: "172.31.255.254" },
     { hostname: "192.168.1.20" },
   ])("should return true when the hostname \"$hostname\" is internal.", ({ hostname }) => {
