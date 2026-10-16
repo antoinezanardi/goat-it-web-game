@@ -27,6 +27,7 @@ permission:
     "git add *": "deny"
     "git commit *": "deny"
     "git push *": "deny"
+    "gh *": "allow"
   task: deny
   webfetch: deny
 ---

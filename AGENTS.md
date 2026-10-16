@@ -239,6 +239,10 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - Conventional commits enforced by commitlint: `type(scope): message`.
   Common types: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`.
 - Validate branch names: `pnpm run validate:branch-name`.
+- **When dealing with GitHub or the repository, use the `gh` CLI as much as possible**
+  (issues, PRs, workflows, runs, reviews, comments, releases, secrets). Prefer `gh` subcommands
+  (`gh issue view`, `gh pr view`, `gh pr checks`, `gh run list`, …) and `gh api` for the rest —
+  never `curl` or the web UI. `gh` commands are allowed for ALL agents (main and subagents alike).
 
 ## Agent skills (`.agents/skills/`)
 

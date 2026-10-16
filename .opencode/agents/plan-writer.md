@@ -34,6 +34,7 @@ permission:
     "xargs *": "allow"
     "npm view *": "allow"
     "pnpm view *": "allow"
+    "gh *": "allow"
   task:
     "*": "deny"
     "explore": "allow"

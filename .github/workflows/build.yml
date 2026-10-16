@@ -116,8 +116,8 @@ jobs:
         id: lint-codebase
         uses: ./.github/actions/lint
 
-  audit:
-    name: Audit Dependencies 🔎
+  audit-dependencies:
+    name: Audit Dependencies 🛡️
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs:
@@ -126,8 +126,8 @@ jobs:
       - name: Checkout GitHub repository 📡
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Audit Dependencies 🔎
-        uses: ./.github/actions/audit
+      - name: Audit Dependencies 🛡️
+        uses: ./.github/actions/audit-dependencies
 
   unit-tests:
     name: Unit Tests 🧪
