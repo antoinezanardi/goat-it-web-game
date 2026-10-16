@@ -25,7 +25,7 @@ jobs:
       security-events: write
     steps:
       - name: Checkout repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Perform CodeQL Analysis ❇️
         uses: ./.github/actions/code-ql
@@ -38,7 +38,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Create dummy package.json for ActionLint 📄
         run: |
@@ -49,7 +49,7 @@ jobs:
           }' > package.json
 
       - name: Lint GitHub Workflows 🐙
-        uses: raven-actions/actionlint@v2.2.0
+        uses: raven-actions/actionlint@3d39aea434753780c3b3d4a1a31c854b4dbf49d7 # v2.2.0
         with:
           matcher: true
           fail-on-error: true
@@ -64,7 +64,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install project 📦
         uses: ./.github/actions/install-project
@@ -79,7 +79,7 @@ jobs:
         platform: ["linux/amd64", "linux/arm64"]
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Docker Build 🐳
         uses: ./.github/actions/docker-build
@@ -94,7 +94,7 @@ jobs:
       - install
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Build application ✨
         uses: ./.github/actions/build
@@ -110,11 +110,24 @@ jobs:
       - install
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Lint Codebase 🔍
         id: lint-codebase
         uses: ./.github/actions/lint
+
+  audit:
+    name: Audit Dependencies 🔎
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - install
+    steps:
+      - name: Checkout GitHub repository 📡
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Audit Dependencies 🔎
+        uses: ./.github/actions/audit
 
   unit-tests:
     name: Unit Tests 🧪
@@ -124,7 +137,7 @@ jobs:
       - install
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Unit Tests 🧪
         id: unit-tests
@@ -138,7 +151,7 @@ jobs:
       - install
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Acceptance Tests 🥒
         id: acceptance-tests
@@ -156,7 +169,7 @@ jobs:
     if: github.actor != 'renovate[bot]'
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: SonarCloud Analysis 🌥️
         uses: ./.github/actions/sonarcloud

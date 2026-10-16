@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
 
@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install project 📦
         uses: ./.github/actions/install-project
@@ -45,7 +45,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -55,7 +55,7 @@ jobs:
 
       - name: Release 🏷️
         id: release
-        run: npx semantic-release --extends ./configs/semantic-release/release.config.mjs
+        run: pnpm exec semantic-release --extends ./configs/semantic-release/release.config.mjs
 
     outputs:
       new-release-published: ${{ steps.release.outputs.new-release-published }}
@@ -70,7 +70,7 @@ jobs:
     if: needs.release.outputs.new-release-published == 'true'
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           token: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
           fetch-depth: 0
@@ -104,7 +104,7 @@ jobs:
       vitest-lines-percent: ${{ steps.unit-tests.outputs.vitest-lines-percent }}
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Unit Tests 🧪
         id: unit-tests
@@ -120,7 +120,7 @@ jobs:
       acceptance-tests-count: ${{ steps.acceptance-tests.outputs.acceptance-tests-count }}
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Acceptance Tests 🥒
         id: acceptance-tests
@@ -135,7 +135,7 @@ jobs:
       - acceptance-tests
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Generate Badges 💠
         uses: ./.github/actions/badges
@@ -160,7 +160,7 @@ jobs:
       - unit-tests
     steps:
       - name: Checkout GitHub repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: SonarCloud Analysis 🌥️
         uses: ./.github/actions/sonarcloud
