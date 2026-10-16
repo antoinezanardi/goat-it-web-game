@@ -28,6 +28,8 @@ COPY --chown=node:node pnpm-workspace.yaml ./
 COPY --chown=node:node tsconfig*.json ./
 COPY --chown=node:node scripts/post-install-prepare.sh ./scripts/post-install-prepare.sh
 COPY --chown=node:node app/i18n ./app/i18n
+# nuxt.config.ts imports shared/constants at config load — required before the postinstall "nuxt prepare" step runs.
+COPY --chown=node:node shared/constants ./shared/constants
 
 RUN pnpm install --frozen-lockfile
 

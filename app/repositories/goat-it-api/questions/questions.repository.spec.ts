@@ -30,7 +30,7 @@ describe(questionsRepository, () => {
 
       await repository.getByIds(ids);
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions", { query: { ids, limit: 0 } });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions", { query: { ids, limit: 100 } });
     });
 
     it("should return questions from fetch when called.", async() => {

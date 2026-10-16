@@ -6,6 +6,7 @@ import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-e
 
 import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";
 import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { getQuestionThemesHandler } from "#server/api/goat-it-api/question-themes/handlers/get-all/index.get.handler";
 
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
@@ -34,10 +35,10 @@ describe("Server Goat It API Question Themes Get Handler", () => {
       expect(createGoatItApiFetchOptions).toHaveBeenCalledExactlyOnceWith(mockedEvent);
     });
 
-    it("should get query from event when called.", async() => {
+    it("should read the validated query from the event when called.", async() => {
       await getQuestionThemesHandler(mockedEvent);
 
-      expect(getQuery).toHaveBeenCalledExactlyOnceWith(mockedEvent);
+      expect(getValidatedQuery).toHaveBeenCalledExactlyOnceWith(mockedEvent, expect.any(Function));
     });
 
     it("should fetch question themes from goat it api with correct endpoint, fetch options and query when called.", async() => {
@@ -52,13 +53,35 @@ describe("Server Goat It API Question Themes Get Handler", () => {
       vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
       await getQuestionThemesHandler(mockedEvent);
 
-      expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, { ...expectedFetchOptions, query: { "sort-by": "slug", "sort-order": "asc", "limit": 0 } });
+      expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, { ...expectedFetchOptions, query: { "sort-by": "slug", "sort-order": "asc", "limit": 50 } });
     });
 
-    it("should throw zod error when query params are invalid.", async() => {
+    it.each<{ providedLimit: number; expectedLimit: number }>([
+      { providedLimit: 0, expectedLimit: 100 },
+      { providedLimit: 5000, expectedLimit: 100 },
+      { providedLimit: 5, expectedLimit: 5 },
+      { providedLimit: 100, expectedLimit: 100 },
+    ])("should clamp the forwarded limit to $expectedLimit when the provided limit is $providedLimit.", async({ providedLimit, expectedLimit }) => {
+      const expectedEndpoint = "/question-themes";
+      const expectedFetchOptions = {
+        baseURL: "https://api.goat-it.com",
+        headers: {
+          "goat-it-api-key": "test-game-key",
+        },
+      };
+      vi.mocked(createGoatItApiEndpoint).mockReturnValue(expectedEndpoint);
+      vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
+      vi.mocked(getQuery).mockReturnValue({ limit: providedLimit });
+
+      await getQuestionThemesHandler(mockedEvent);
+
+      expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, { ...expectedFetchOptions, query: { "sort-by": "slug", "sort-order": "asc", "limit": expectedLimit } });
+    });
+
+    it("should reject with a bad request error when query params are invalid.", async() => {
       vi.mocked(getQuery).mockReturnValue({ "sort-by": "invalid-field" });
 
-      await expect(getQuestionThemesHandler(mockedEvent)).rejects.toThrow(ZodError);
+      await expect(getQuestionThemesHandler(mockedEvent)).rejects.toMatchObject({ statusCode: HttpStatusCode.BAD_REQUEST });
     });
 
     it("should return mapped question themes when called.", async() => {

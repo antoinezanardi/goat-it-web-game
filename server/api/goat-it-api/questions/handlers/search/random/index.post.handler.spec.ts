@@ -7,6 +7,7 @@ import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-e
 
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
 import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { getRandomQuestionsHandler } from "#server/api/goat-it-api/questions/handlers/search/random/index.post.handler";
 
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
@@ -36,10 +37,10 @@ describe("Server Goat It API Questions Search Random Post Handler", () => {
       expect(createGoatItApiFetchOptions).toHaveBeenCalledExactlyOnceWith(mockedEvent);
     });
 
-    it("should read body from the event when called.", async() => {
+    it("should read the validated body from the event when called.", async() => {
       await getRandomQuestionsHandler(mockedEvent);
 
-      expect(readBody).toHaveBeenCalledExactlyOnceWith(mockedEvent);
+      expect(readValidatedBody).toHaveBeenCalledExactlyOnceWith(mockedEvent, expect.any(Function));
     });
 
     it("should post random questions to goat it api with correct endpoint, fetch options and body when called.", async() => {
@@ -90,10 +91,10 @@ describe("Server Goat It API Questions Search Random Post Handler", () => {
       expect(result).toStrictEqual(expectedQuestions);
     });
 
-    it("should throw ZodError when body is invalid.", async() => {
+    it("should reject with a bad request error when body is invalid.", async() => {
       vi.mocked(readBody).mockResolvedValue({ limit: "not-a-number" });
 
-      await expect(getRandomQuestionsHandler(mockedEvent)).rejects.toThrow(ZodError);
+      await expect(getRandomQuestionsHandler(mockedEvent)).rejects.toMatchObject({ statusCode: HttpStatusCode.BAD_REQUEST });
     });
 
     it("should call handleGoatItApiError when $fetch throws an error.", async() => {
