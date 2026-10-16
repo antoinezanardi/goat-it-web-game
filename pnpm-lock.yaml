@@ -188,8 +188,8 @@ importers:
         specifier: ^10.6.0
         version: 10.6.0
       '@goat-it/schemas':
-        specifier: ^0.0.26-beta
-        version: 0.0.26-beta(@faker-js/faker@10.6.0)(zod@4.6.7)
+        specifier: ^0.0.26
+        version: 0.0.26(@faker-js/faker@10.6.0)(zod@4.6.7)
       '@iconify-json/lucide':
         specifier: ^1.2.145
         version: 1.2.145
@@ -1776,11 +1776,11 @@ packages:
     peerDependencies:
       vue: '>=3.3.0'
 
-  '@goat-it/schemas@0.0.26-beta':
-    resolution: {integrity: sha512-JI7pdncPROnOvmkzQQ53RRtml0kN2H5RtEiqjWhTVzIJnm1RdwgCuup4zO702xz7yZ8bD518L0Nio18FtnC2Pg==}
+  '@goat-it/schemas@0.0.26':
+    resolution: {integrity: sha512-QoZZVYKfFFCO5P3KxdPaVTH/NNyKq9VuifCQ4B9bz3OCy5voXR+oJqR0OmwTaJlBUd2w1hbFpYMdHkeBaQW3lw==}
     peerDependencies:
       '@faker-js/faker': '>=10.6.0'
-      zod: ^4.6.5
+      zod: ^4.6.7
 
   '@html-validate/stylish@6.0.0':
     resolution: {integrity: sha512-d1/lI3qIXhGVJF3+MmKEBn1dRX6U4Z+BDaOdDI3E6SXcO+OQ7hC/3mSo6BIjwQlcuV6NdDOKm6QCrzIQL1EezQ==}
@@ -12137,7 +12137,7 @@ snapshots:
       '@floating-ui/utils': 0.2.12
       vue: 3.5.43(typescript@6.0.3)
 
-  '@goat-it/schemas@0.0.26-beta(@faker-js/faker@10.6.0)(zod@4.6.7)':
+  '@goat-it/schemas@0.0.26(@faker-js/faker@10.6.0)(zod@4.6.7)':
     dependencies:
       '@faker-js/faker': 10.6.0
       type-fest: 5.10.0
