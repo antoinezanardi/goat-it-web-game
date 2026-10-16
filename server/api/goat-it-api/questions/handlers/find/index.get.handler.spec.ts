@@ -6,6 +6,7 @@ import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-e
 
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
 import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { findQuestionsHandler } from "#server/api/goat-it-api/questions/handlers/find/index.get.handler";
 
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
@@ -33,10 +34,10 @@ describe("Server Goat It API Questions Find Get Handler", () => {
       expect(createGoatItApiFetchOptions).toHaveBeenCalledExactlyOnceWith(mockedEvent);
     });
 
-    it("should read query from the event when called.", async() => {
+    it("should read the validated query from the event when called.", async() => {
       await findQuestionsHandler(mockedEvent);
 
-      expect(getQuery).toHaveBeenCalledExactlyOnceWith(mockedEvent);
+      expect(getValidatedQuery).toHaveBeenCalledExactlyOnceWith(mockedEvent, expect.any(Function));
     });
 
     it("should fetch questions with the correct endpoint, fetch options and parsed query when called.", async() => {
@@ -87,6 +88,35 @@ describe("Server Goat It API Questions Find Get Handler", () => {
       );
     });
 
+    it.each<{ providedLimit: number; expectedLimit: number }>([
+      { providedLimit: 0, expectedLimit: 100 },
+      { providedLimit: 5000, expectedLimit: 100 },
+      { providedLimit: 25, expectedLimit: 25 },
+      { providedLimit: 100, expectedLimit: 100 },
+    ])("should clamp the forwarded limit to $expectedLimit when the provided limit is $providedLimit.", async({ providedLimit, expectedLimit }) => {
+      const expectedEndpoint = "/questions";
+      const expectedFetchOptions = {
+        baseURL: "https://api.goat-it.com",
+        headers: {
+          "goat-it-api-key": "test-game-key",
+        },
+      };
+      vi.mocked(createGoatItApiEndpoint).mockReturnValue(expectedEndpoint);
+      vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
+      vi.mocked(getQuery).mockReturnValue({ ids: validMongoId, limit: providedLimit });
+
+      await findQuestionsHandler(mockedEvent);
+
+      expect($fetch).toHaveBeenCalledExactlyOnceWith(
+        expectedEndpoint,
+        {
+          ...expectedFetchOptions,
+          method: "GET",
+          query: { "sort-by": "createdAt", "sort-order": "desc", "limit": expectedLimit, "ids": [validMongoId] },
+        },
+      );
+    });
+
     it("should return mapped questions when called.", async() => {
       const fakeQuestions = [
         createFakeQuestionDto({ author: { role: "admin", name: "Test Admin" } }),
@@ -105,10 +135,10 @@ describe("Server Goat It API Questions Find Get Handler", () => {
       { description: "an id is invalid", query: { ids: ["not-a-valid-id"] } },
       { description: "ids contain duplicates", query: { ids: [validMongoId, validMongoId] } },
       { description: "more than 100 ids are provided", query: { ids: Array.from({ length: 101 }, () => validMongoId) } },
-    ])("should throw a ZodError when $description.", async({ query }) => {
+    ])("should reject with a bad request error when $description.", async({ query }) => {
       vi.mocked(getQuery).mockReturnValue(query);
 
-      await expect(findQuestionsHandler(mockedEvent)).rejects.toThrow(ZodError);
+      await expect(findQuestionsHandler(mockedEvent)).rejects.toMatchObject({ statusCode: HttpStatusCode.BAD_REQUEST });
     });
 
     it("should call handleGoatItApiError when $fetch throws an error.", async() => {

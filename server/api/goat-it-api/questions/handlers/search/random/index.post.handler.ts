@@ -9,8 +9,7 @@ import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiEr
 async function getRandomQuestionsHandler(event: H3Event): Promise<Question[]> {
   const endpoint = createGoatItApiEndpoint("questions", { suffix: "search/random" });
   const fetchOptions = createGoatItApiFetchOptions(event);
-  const rawBody: unknown = await readBody(event);
-  const body = FIND_RANDOM_QUESTIONS_BODY_DTO.parse(rawBody);
+  const body = await readValidatedBody(event, rawBody => FIND_RANDOM_QUESTIONS_BODY_DTO.parse(rawBody));
 
   try {
     const rawData = await $fetch(endpoint, { ...fetchOptions, method: "POST", body });

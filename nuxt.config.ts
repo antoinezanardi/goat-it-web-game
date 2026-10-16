@@ -1,3 +1,5 @@
+import { DEFAULT_LOCALE_FALLBACK } from "./shared/constants/locale.constants";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
@@ -49,7 +51,7 @@ export default defineNuxtConfig({
       mode: "out-in",
     },
     head: {
-      htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE, class: "dark" },
+      htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE ?? DEFAULT_LOCALE_FALLBACK, class: "dark" },
       titleTemplate: "%s",
     },
   },
@@ -79,7 +81,7 @@ export default defineNuxtConfig({
       baseUrl: "",
       gameKey: "",
     },
-    public: { defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE },
+    public: { defaultLocale: DEFAULT_LOCALE_FALLBACK },
   },
   ignore: [
     "configs/**/*.ts",
@@ -140,7 +142,7 @@ export default defineNuxtConfig({
     },
   },
   i18n: {
-    defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE,
+    defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE ?? DEFAULT_LOCALE_FALLBACK,
     locales: [
       {
         code: "fr",

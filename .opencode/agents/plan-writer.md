@@ -19,6 +19,7 @@ permission:
     "git branch *": "allow"
     "git log *": "allow"
     "git diff *": "allow"
+    "git rev-parse *": "allow"
     "ls *": "allow"
     "cat *": "allow"
     "head *": "allow"
@@ -35,6 +36,8 @@ permission:
     "npm view *": "allow"
     "pnpm view *": "allow"
     "gh *": "allow"
+    "curl *": "allow"
+    "od *": "allow"
   task:
     "*": "deny"
     "explore": "allow"
