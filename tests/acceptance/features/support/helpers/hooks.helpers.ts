@@ -1,5 +1,6 @@
 import { rimraf } from "rimraf";
 import { MongoClient } from "mongodb";
+import type { Page } from "@playwright/test";
 import type { ITestCaseHookParameter as TestCaseHookParameter } from "@cucumber/cucumber";
 import type { Db } from "mongodb";
 
@@ -12,7 +13,6 @@ import {
   SANDBOX_MONGODB_DATABASE_NAME,
   SANDBOX_MONGODB_PORT_BASE,
 } from "#acceptance/features/support/constants/hooks.constants.ts";
-import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { MS_IN_SECOND } from "#shared/utils/helpers/time/time.constants.ts";
 import { sleep } from "#shared/utils/helpers/time/time.helpers.ts";
 
@@ -46,16 +46,20 @@ function sanitizeScenarioName(name: string): string {
     .slice(0, MAX_LENGTH);
 }
 
-async function generateScreenshotOnScenarioFailure(world: GoatItWorld, scenario: TestCaseHookParameter): Promise<void> {
+async function generateScreenshotOnScenarioFailure(
+  page: Page,
+  attach: (data: Buffer, mediaType: string) => void,
+  scenario: TestCaseHookParameter,
+): Promise<void> {
   const screenShotExtension = ".png";
   const sanitizedName = sanitizeScenarioName(scenario.pickle.name);
   const screenShotRelativePath = `${ACCEPTANCE_TESTS_REPORTS_SCREENSHOTS_PATH}/${sanitizedName}-${Date.now()}${screenShotExtension}`;
-  const screenShot = await world.page.screenshot({
+  const screenShot = await page.screenshot({
     path: screenShotRelativePath,
     fullPage: true,
   });
 
-  world.attach(screenShot, "image/png");
+  attach(screenShot, "image/png");
   const screenShotFullPath = `${process.cwd()}/${screenShotRelativePath}`;
 
   console.info(`Screenshot for failure scenario: ${scenario.pickle.name} saved at: "${screenShotFullPath}"`);
@@ -76,9 +80,9 @@ function getMongoDatabase(client: MongoClient): Db {
   return client.db(SANDBOX_MONGODB_DATABASE_NAME);
 }
 
-async function resetSandboxData(world: GoatItWorld): Promise<void> {
+async function resetSandboxData(database: Db): Promise<void> {
   try {
-    await world.mongoDb.dropDatabase();
+    await database.dropDatabase();
   } catch(error: unknown) {
     throw new Error(`Failed to reset the Goat It API sandbox data.`, { cause: error });
   }

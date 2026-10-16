@@ -3,13 +3,16 @@ import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
+import { clickVisibleLocator } from "#acceptance/features/support/helpers/locator.helpers.ts";
+import { clickAndGetOpenedTab } from "#acceptance/features/support/helpers/tab.helpers.ts";
 import { waitForQuestionCardTransition } from "#acceptance/features/step-definitions/game/helpers/game.when-steps.helpers.ts";
 
 When(
   /^the user goes to the next question$/u,
   { timeout: 90_000 },
   async function(this: GoatItWorld): Promise<void> {
-    await this.page.getByTestId("game-next-question-button").click();
+    const nextButton = this.page.getByTestId("game-next-question-button");
+    await clickVisibleLocator(nextButton);
     await waitForQuestionCardTransition(this);
   },
 );
@@ -18,7 +21,8 @@ When(
   /^the user goes to the previous question$/u,
   { timeout: 90_000 },
   async function(this: GoatItWorld): Promise<void> {
-    await this.page.getByTestId("game-previous-question-button").click();
+    const previousButton = this.page.getByTestId("game-previous-question-button");
+    await clickVisibleLocator(previousButton);
     await waitForQuestionCardTransition(this);
   },
 );
@@ -40,6 +44,9 @@ When(
         return;
       }
 
+      // Acceptable as each visibility assertion must be sequential to let the page render the next question
+      // oxlint-disable-next-line eslint/no-await-in-loop
+      await expect(nextButton).toBeVisible();
       // Acceptable as each click must be sequential to let the page render the next question
       // oxlint-disable-next-line eslint/no-await-in-loop
       await nextButton.click();
@@ -53,7 +60,8 @@ When(
 When(
   /^the user clicks the back to home button$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await this.page.getByRole("link", { name: "Back to Home" }).click();
+    const backToHomeLink = this.page.getByRole("link", { name: "Back to Home" });
+    await clickVisibleLocator(backToHomeLink);
   },
 );
 
@@ -62,8 +70,7 @@ When(
   async function(this: GoatItWorld): Promise<void> {
     const question = getVisibleGameQuestionCard(this.page);
     const trigger = question.getByTestId("game-question-context-accordion-trigger");
-    await expect(trigger).toBeVisible();
-    await trigger.click();
+    await clickVisibleLocator(trigger);
   },
 );
 
@@ -73,13 +80,7 @@ When(
     const question = getVisibleGameQuestionCard(this.page);
     const sourceNav = question.getByTestId("game-question-source-links");
     const link = sourceNav.getByText(domain, { exact: true });
-    await expect(link).toBeVisible();
-
-    const [openedTabPage] = await Promise.all([
-      this.context.waitForEvent("page"),
-      link.click(),
-    ]);
-    this.openedTabPage = openedTabPage;
+    this.openedTabPage = await clickAndGetOpenedTab(this.context, link);
   },
 );
 
@@ -88,7 +89,8 @@ When(
   async function(this: GoatItWorld): Promise<void> {
     const question = getVisibleGameQuestionCard(this.page);
 
-    await question.getByTestId("theme-stack-trigger").click();
+    const themeStackTrigger = question.getByTestId("theme-stack-trigger");
+    await clickVisibleLocator(themeStackTrigger);
   },
 );
 
@@ -98,7 +100,8 @@ When(
     const question = getVisibleGameQuestionCard(this.page);
     const labelRegex = new RegExp(`\\+${count} other themes?`, "iu");
 
-    await question.getByText(labelRegex).click();
+    const otherThemesText = question.getByText(labelRegex);
+    await clickVisibleLocator(otherThemesText);
   },
 );
 

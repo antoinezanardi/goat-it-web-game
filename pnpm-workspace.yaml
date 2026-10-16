@@ -1,12 +1,11 @@
 overrides:
-  conventional-changelog-writer: ^9.2.1
+  conventional-changelog-writer: ^9.3.0
   eslint-plugin-import-x: 4.17.1
-  unhead: ^3.4.1
-  vite: ^8.3.1
+  unhead: ^3.4.3
+  vite: ^8.3.4
 
 allowBuilds:
   '@parcel/watcher': true
-  better-sqlite3: true
   esbuild: true
   sharp: true
   unrs-resolver: true

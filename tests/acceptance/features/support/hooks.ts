@@ -7,7 +7,7 @@ import type { Db, MongoClient } from "mongodb";
 
 import {
   ACCEPTANCE_TESTS_DEFAULT_LOCALE,
-  ACCEPTANCE_TESTS_OG_IMAGE_SECURITY_SECRET,
+  ACCEPTANCE_TESTS_APP_SECRET,
   ACCEPTANCE_TESTS_SITE_URL,
   AFTER_ALL_TIMEOUT,
   BEFORE_ALL_TIMEOUT,
@@ -39,7 +39,7 @@ const { beforeEach, afterEach, afterAll, beforeAll } = createTest({
     NUXT_GOAT_IT_API_GAME_KEY: SANDBOX_GAME_KEY,
     NUXT_PUBLIC_DEFAULT_LOCALE: ACCEPTANCE_TESTS_DEFAULT_LOCALE,
     NUXT_PUBLIC_SITE_URL: ACCEPTANCE_TESTS_SITE_URL,
-    NUXT_OG_IMAGE_SECURITY_SECRET: ACCEPTANCE_TESTS_OG_IMAGE_SECURITY_SECRET,
+    NUXT_APP_SECRET: ACCEPTANCE_TESTS_APP_SECRET,
   },
   browserOptions: {
     type: "chromium",
@@ -89,9 +89,10 @@ Before({ timeout: BEFORE_TIMEOUT }, async function(this: GoatItWorld): Promise<v
   // Acceptable as mongoClient and mongoDatabase are guaranteed to be assigned in BeforeAll before Before runs
   // oxlint-disable-next-line typescript/no-non-null-assertion
   this.mongoClient = mongoClient!;
+  // Acceptable as mongoDatabase is guaranteed to be assigned in BeforeAll before Before runs
   // oxlint-disable-next-line typescript/no-non-null-assertion
   this.mongoDb = mongoDatabase!;
-  await resetSandboxData(this);
+  await resetSandboxData(this.mongoDb);
   beforeEach();
   this.page = await createPage();
   this.context = this.page.context();
@@ -100,7 +101,7 @@ Before({ timeout: BEFORE_TIMEOUT }, async function(this: GoatItWorld): Promise<v
 After(async function(this: GoatItWorld, scenario): Promise<void> {
   if (scenario.result?.status === Status.FAILED) {
     try {
-      await generateScreenshotOnScenarioFailure(this, scenario);
+      await generateScreenshotOnScenarioFailure(this.page, (data, mediaType) => this.attach(data, mediaType), scenario);
     } catch(error: unknown) {
       console.error("Failed to generate screenshot on scenario failure:", error);
     }

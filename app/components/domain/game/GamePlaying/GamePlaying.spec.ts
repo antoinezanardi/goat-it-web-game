@@ -185,16 +185,10 @@ describe("GamePlaying Component", () => {
       expect(getSwitcher().props("pendingDirection")).toBe("backward");
     });
 
-    it("should emit advance when the transition completes in forward direction.", async() => {
-      clickNext();
-      await nextTick();
-      completeTransition();
-      await nextTick();
-
-      expect(wrapper.emitted("advance")).toHaveLength(1);
-    });
-
-    it("should emit previous when the transition completes in backward direction.", async() => {
+    it.each<{ direction: "forward" | "backward"; buttonName: "GameNextQuestionButton" | "GamePreviousQuestionButton"; expectedEvent: "advance" | "previous" }>([
+      { direction: "forward", buttonName: "GameNextQuestionButton", expectedEvent: "advance" },
+      { direction: "backward", buttonName: "GamePreviousQuestionButton", expectedEvent: "previous" },
+    ])("should emit $expectedEvent when the transition completes in $direction direction.", async({ buttonName, expectedEvent }) => {
       wrapper = await mountGamePlayingComponent({
         props: {
           canGoToPreviousQuestion: true,
@@ -204,12 +198,12 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      clickPrevious();
+      getWrapperVm(wrapper.findComponent({ name: buttonName })).$emit("click");
       await nextTick();
       completeTransition();
       await nextTick();
 
-      expect(wrapper.emitted("previous")).toHaveLength(1);
+      expect(wrapper.emitted(expectedEvent)).toHaveLength(1);
     });
 
     it("should hold the transition guard when a transition completes but staged has not fired.", async() => {
@@ -316,14 +310,10 @@ describe("GamePlaying Component", () => {
       expect(wrapper.emitted("previous")).toHaveLength(1);
     });
 
-    it("should disable the Next button when a transition is active.", async() => {
-      clickNext();
-      await nextTick();
-
-      expect(wrapper.findComponent({ name: "GameNextQuestionButton" }).props("disabled")).toBe(true);
-    });
-
-    it("should disable the Previous button when a transition is active.", async() => {
+    it.each<{ buttonName: "GameNextQuestionButton" | "GamePreviousQuestionButton" }>([
+      { buttonName: "GameNextQuestionButton" },
+      { buttonName: "GamePreviousQuestionButton" },
+    ])("should disable the $buttonName when a transition is active.", async({ buttonName }) => {
       wrapper = await mountGamePlayingComponent({
         props: {
           canGoToPreviousQuestion: true,
@@ -333,22 +323,18 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      clickPrevious();
+      getWrapperVm(wrapper.findComponent({ name: buttonName })).$emit("click");
       await nextTick();
 
-      expect(wrapper.findComponent({ name: "GamePreviousQuestionButton" }).props("disabled")).toBe(true);
+      expect(wrapper.findComponent({ name: buttonName }).props("disabled")).toBe(true);
     });
   });
 
   describe("keyboard shortcuts", () => {
-    it("should start a forward transition when the right arrow key is pressed.", async() => {
-      pressKey("ArrowRight");
-      await nextTick();
-
-      expect(getSwitcher().props("pendingDirection")).toBe("forward");
-    });
-
-    it("should start a backward transition when the left arrow key is pressed and a previous question exists.", async() => {
+    it.each<{ key: "ArrowLeft" | "ArrowRight"; expectedDirection: "forward" | "backward" }>([
+      { key: "ArrowRight", expectedDirection: "forward" },
+      { key: "ArrowLeft", expectedDirection: "backward" },
+    ])("should start a $expectedDirection transition when the $key key is pressed and a previous question exists.", async({ key, expectedDirection }) => {
       wrapper = await mountGamePlayingComponent({
         props: {
           canGoToPreviousQuestion: true,
@@ -359,10 +345,10 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      pressKey("ArrowLeft");
+      pressKey(key);
       await nextTick();
 
-      expect(getSwitcher().props("pendingDirection")).toBe("backward");
+      expect(getSwitcher().props("pendingDirection")).toBe(expectedDirection);
     });
 
     it("should not navigate when the left arrow key is pressed and no previous question exists.", async() => {
@@ -372,7 +358,10 @@ describe("GamePlaying Component", () => {
       expect(wrapper.emitted("previous")).toBeUndefined();
     });
 
-    it("should not navigate when the left arrow key is pressed during an active forward transition.", async() => {
+    it.each<{ firstKey: "ArrowLeft" | "ArrowRight"; secondKey: "ArrowLeft" | "ArrowRight"; expectedDirection: "forward" | "backward" }>([
+      { firstKey: "ArrowRight", secondKey: "ArrowLeft", expectedDirection: "forward" },
+      { firstKey: "ArrowLeft", secondKey: "ArrowRight", expectedDirection: "backward" },
+    ])("should not navigate when the $secondKey key is pressed during an active $expectedDirection transition.", async({ firstKey, secondKey, expectedDirection }) => {
       wrapper = await mountGamePlayingComponent({
         props: {
           canGoToPreviousQuestion: true,
@@ -383,48 +372,18 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      pressKey("ArrowRight");
+      pressKey(firstKey);
       await nextTick();
-      pressKey("ArrowLeft");
+      pressKey(secondKey);
       await nextTick();
 
-      expect(getSwitcher().props("pendingDirection")).toBe("forward");
+      expect(getSwitcher().props("pendingDirection")).toBe(expectedDirection);
     });
 
-    it("should not navigate when the right arrow key is pressed during an active backward transition.", async() => {
-      wrapper = await mountGamePlayingComponent({
-        props: {
-          canGoToPreviousQuestion: true,
-          currentIndex: 1,
-          currentQuestion: secondQuestion,
-          questions: [firstQuestion, secondQuestion, thirdQuestion],
-          areShortcutsDisabled: false,
-        },
-      });
-
-      pressKey("ArrowLeft");
-      await nextTick();
-      pressKey("ArrowRight");
-      await nextTick();
-
-      expect(getSwitcher().props("pendingDirection")).toBe("backward");
-    });
-
-    it("should not navigate when the right arrow key is pressed and shortcuts are disabled.", async() => {
-      wrapper = await mountGamePlayingComponent({
-        props: {
-          ...defaultGamePlayingProps,
-          areShortcutsDisabled: true,
-        },
-      });
-
-      pressKey("ArrowRight");
-      await nextTick();
-
-      expect(getSwitcher().props("pendingDirection")).toBeUndefined();
-    });
-
-    it("should not navigate when the left arrow key is pressed and shortcuts are disabled.", async() => {
+    it.each<{ key: "ArrowLeft" | "ArrowRight" }>([
+      { key: "ArrowRight" },
+      { key: "ArrowLeft" },
+    ])("should not navigate when the $key key is pressed and shortcuts are disabled.", async({ key }) => {
       wrapper = await mountGamePlayingComponent({
         props: {
           canGoToPreviousQuestion: true,
@@ -435,24 +394,16 @@ describe("GamePlaying Component", () => {
         },
       });
 
-      pressKey("ArrowLeft");
+      pressKey(key);
       await nextTick();
 
       expect(getSwitcher().props("pendingDirection")).toBeUndefined();
     });
 
-    it("should not navigate when the right arrow key is pressed on an editable target.", async() => {
-      const input = document.createElement("input");
-      document.body.append(input);
-
-      pressKeyOnElement(input, "ArrowRight");
-      await nextTick();
-      input.remove();
-
-      expect(getSwitcher().props("pendingDirection")).toBeUndefined();
-    });
-
-    it("should not navigate when the left arrow key is pressed on an editable target.", async() => {
+    it.each<{ key: "ArrowLeft" | "ArrowRight" }>([
+      { key: "ArrowRight" },
+      { key: "ArrowLeft" },
+    ])("should not navigate when the $key key is pressed on an editable target.", async({ key }) => {
       wrapper = await mountGamePlayingComponent({
         props: {
           canGoToPreviousQuestion: true,
@@ -465,7 +416,7 @@ describe("GamePlaying Component", () => {
       const input = document.createElement("input");
       document.body.append(input);
 
-      pressKeyOnElement(input, "ArrowLeft");
+      pressKeyOnElement(input, key);
       await nextTick();
       input.remove();
 
@@ -497,21 +448,13 @@ describe("GamePlaying Component", () => {
       expect(event.defaultPrevented).toBe(true);
     });
 
-    it("should not prevent the default event when the right arrow key is rejected.", async() => {
-      wrapper = await mountGamePlayingComponent({
-        props: {
-          ...defaultGamePlayingProps,
-          areShortcutsDisabled: true,
-        },
-      });
+    it.each<{ key: "ArrowLeft" | "ArrowRight"; props: GamePlayingProps; rejectionReason: string }>([
+      { key: "ArrowRight", props: { ...defaultGamePlayingProps, areShortcutsDisabled: true }, rejectionReason: "shortcuts are disabled" },
+      { key: "ArrowLeft", props: defaultGamePlayingProps, rejectionReason: "no previous question exists" },
+    ])("should not prevent the default event when the $key key is rejected because $rejectionReason.", async({ key, props }) => {
+      wrapper = await mountGamePlayingComponent({ props });
 
-      const event = pressKey("ArrowRight");
-
-      expect(event.defaultPrevented).toBe(false);
-    });
-
-    it("should not prevent the default event when the left arrow key is rejected on the first question.", () => {
-      const event = pressKey("ArrowLeft");
+      const event = pressKey(key);
 
       expect(event.defaultPrevented).toBe(false);
     });

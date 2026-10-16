@@ -3,10 +3,13 @@ import { APP_TOAST_CONFIG, APP_TOOLTIP_CONFIG } from "~/app.constants";
 
 const questionThemesStore = useQuestionThemesStore();
 const { fetchAndStoreQuestionThemes } = questionThemesStore;
+const { locale } = useI18n();
 
 void callOnce(fetchAndStoreQuestionThemes);
 
-defineOgImage("Image.takumi");
+watch(locale, () => {
+  void fetchAndStoreQuestionThemes();
+});
 
 useHead({
   link: [
@@ -31,5 +34,7 @@ useHead({
         <NuxtPage/>
       </NuxtLayout>
     </UMain>
+
+    <ChangelogModal/>
   </UApp>
 </template>

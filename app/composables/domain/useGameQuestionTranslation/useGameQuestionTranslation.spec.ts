@@ -67,7 +67,7 @@ describe("useGameQuestionTranslation", () => {
       locale.value = "fr";
       await flushPromises();
 
-      expect(questions.value).toStrictEqual([translatedFirst, translatedSecond, translatedThird]);
+      expect(store.replaceQuestions).toHaveBeenCalledExactlyOnceWith([translatedFirst, translatedSecond, translatedThird]);
     });
 
     it("should retain missing IDs untouched when the response does not cover all selected IDs.", async() => {
@@ -84,7 +84,7 @@ describe("useGameQuestionTranslation", () => {
       locale.value = "fr";
       await flushPromises();
 
-      expect(questions.value).toStrictEqual([translatedFirst, secondQuestion, thirdQuestion]);
+      expect(store.replaceQuestions).toHaveBeenCalledExactlyOnceWith([translatedFirst, secondQuestion, thirdQuestion]);
     });
 
     it("should ignore unexpected IDs in the response when the response contains IDs not in the selection.", async() => {
@@ -101,7 +101,7 @@ describe("useGameQuestionTranslation", () => {
       locale.value = "fr";
       await flushPromises();
 
-      expect(questions.value).toStrictEqual([translatedFirst, secondQuestion]);
+      expect(store.replaceQuestions).toHaveBeenCalledExactlyOnceWith([translatedFirst, secondQuestion]);
     });
 
     it("should keep the first record when the response contains duplicate IDs for the same question.", async() => {
@@ -117,7 +117,7 @@ describe("useGameQuestionTranslation", () => {
       locale.value = "fr";
       await flushPromises();
 
-      expect(questions.value).toStrictEqual([firstTranslated]);
+      expect(store.replaceQuestions).toHaveBeenCalledExactlyOnceWith([firstTranslated]);
     });
   });
 
@@ -174,7 +174,7 @@ describe("useGameQuestionTranslation", () => {
       locale.value = "fr";
       await flushPromises();
 
-      expect(questions.value).toStrictEqual(fakeQuestions);
+      expect(store.replaceQuestions).not.toHaveBeenCalled();
     });
   });
 

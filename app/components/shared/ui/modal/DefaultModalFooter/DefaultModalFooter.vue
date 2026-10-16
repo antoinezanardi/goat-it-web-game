@@ -16,7 +16,7 @@ const closeButtonDisplayedLabel = computed<string>(() => {
   return t("common.close");
 });
 
-const canFirePrimary = computed<boolean>(() => !props.isPrimaryButtonDisabled && !props.isPrimaryButtonLoading);
+const canFirePrimary = computed<boolean>(() => Boolean(props.primaryButtonLabel) && !props.isPrimaryButtonDisabled && !props.isPrimaryButtonLoading);
 
 function onClickFromCloseButton(): void {
   emit("closeModal");
@@ -67,6 +67,7 @@ defineShortcuts({
     </UButton>
 
     <UButton
+      v-if="primaryButtonLabel"
       :aria-label="primaryButtonLabel"
       data-testid="default-modal-footer-primary-button"
       :disabled="isPrimaryButtonDisabled"

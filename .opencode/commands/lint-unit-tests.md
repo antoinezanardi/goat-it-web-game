@@ -67,6 +67,7 @@ These recurring shapes are accepted codebase conventions. Auditors must not repo
 
 - Worthiness `.attributes()` fallbacks where `.props()` is impractical (e.g. asserting a `text` prop that falls through to a stub) — covered by the "Dynamically-bound props" worthy-item exception; existing sibling-spec usages confirm the convention.
 - Count-only `findAllComponents({ name: "..." })` usage that never indexes positionally into siblings.
+- Typed self-filtering lookups when a wrapper shares the component's root element — `findAllComponents<typeof C>({ name: "C" }).find(component => component.attributes("data-testid") === id)` is acceptable when a reka-ui `asChild` trigger (e.g. `UPopover`'s `HoverCardTrigger` wrapping a `UBadge`) renders the same DOM root, so `findComponent<typeof C>("[data-testid='…']")` resolves to the wrapper instead of the component; the lookup stays typed and non-positional.
 - `getWrapperVm<T>` + local `ComponentVm` extension asserting derived computed values when the rendered output itself is not observable in happy-dom (see [C8]).
 - Environment-coupled server helper specs stubbing `useRuntimeConfig` / h3 globals (see [N1] exception).
 
@@ -79,7 +80,7 @@ These recurring shapes are accepted codebase conventions. Auditors must not repo
 - **[C5] No shallow** — `shallow: true` is forbidden in component tests. Exception: `App.vue` (root app shell) keeps `shallow: true`.
 - **[C6] Store access order** — When a store is used: `createTestingPinia()` plugin, then `mockStore(useXxxStore)` strictly after `mountSuspended` in `beforeEach`.
 - **[C7] Shared wrapper lifecycle** — `let wrapper: VueWrapper` declared at the top of `describe`; `beforeEach` assigns it via the mount helper so every test consumes a freshly-reset wrapper.
-- **[C8] VM/setupState access** — Accessing component internals (`setupState`, exposed methods, template refs) must go through `getWrapperVm<T>` from `~~/tests/unit/utils/helpers/vtu.helpers` with a local VM type extending `ComponentVm` (e.g. `type XxxVm = ComponentVm & { toggleOpen: () => void }`). Never cast the wrapper directly (`wrapper as VueWrapper & { setupState: ... }`). Note: the instance proxy unwraps refs — type ref members as their inner value (e.g. `isTransitioning: boolean`) and assign through the proxy instead of mutating `.value`.
+- **[C8] VM/setupState access** — Accessing component internals (`setupState`, exposed methods, template refs) must go through `getWrapperVm<T>` from `~~/tests/unit/utils/helpers/vtu.helpers` with a local VM type extending `ComponentVm` (e.g. `type XxxVm = ComponentVm & { toggleOpen: () => void }`). Never cast the wrapper directly (`wrapper as VueWrapper & { setupState: ... }`). Note: the instance proxy unwraps refs — type ref members as their inner value (e.g. `isTransitioning: boolean`), and regular refs may be assigned through the proxy. **Template refs (`useTemplateRef`) are readonly through the proxy**: `vm.someRef = null` fails at runtime (`Set operation on key "value" failed: target is readonly`), so mutate via `vm.$.refs.someRef = null` instead. Declare the local VM type with the ref member under its own name (e.g. `type XxxVm = ComponentVm & { someRef: ComponentPublicInstance | null }`) — never redeclare `$` inside the local type, as its one-character name trips oxlint `id-length`.
 
 #### Page checks
 
@@ -138,7 +139,7 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 - **[CO2] Typing** — `import type { useFoo as UseFooType }` + module-level `let useFoo: typeof UseFooType`.
 - **[CO3] Module-level mocks** — Each mocked dependency declared at module level with `mockNuxtImport(...)` factory referencing it.
 - **[CO4] beforeEach order** — Mocks recreated before the dynamic composable import.
-- **[CO5] Store access order** — When a composable harness mounts a component that uses a store, apply [C6]: `createTestingPinia()` first, then `mockStore(useXxxStore)` strictly after the mount call.
+- **[CO5] Store access order** — When a composable harness mounts a component that uses a store, apply [C6]: `createTestingPinia()` first, then `mockStore(useXxxStore)` strictly after the mount call. **Judgmental case:** when the test must preset store state or mock implementations *before* mount (e.g. verifying state cleared during lifecycle hooks), do NOT apply a one-line reorder — obtain the store after an initial `mount()`, preset state and mock implementations, then remount the harness for the assertion (the store instance is shared through the active testing pinia). Classify these as judgmental, not mechanical.
 
 #### Store checks
 
@@ -265,7 +266,7 @@ Work through approved categories ONE at a time:
 - Respect repo conventions: no comments (except allowed lint-disable/JSDoc forms), correct import grouping/order, no `any`.
 - Known linter constraints while editing: at most ONE `expect()` call per test body (`vitest(max-expects)`); hooks must live inside `describe` blocks (`vitest(require-top-level-describe)`).
 - When a category is done, run focused lint + tests across its modified files **plus** `pnpm run test:unit:cov` (full coverage gate — fixes may add or reshape tests), and fix forward until green BEFORE moving to the next category.
-- After each completed category, report its outcome (files changed, violations fixed, verification results) and ask the user whether to proceed to the next approved/pending category — do not chain categories silently.
+- After each completed category, report its outcome (files changed, violations fixed, verification results) and ask the user whether to proceed to the next approved/pending category, offering a "proceed with all remaining approved categories" option (each category's outcome must still be reported) — do not chain categories silently.
 - Do NOT touch anything beyond the approved categories' violations.
 - Do NOT commit.
 

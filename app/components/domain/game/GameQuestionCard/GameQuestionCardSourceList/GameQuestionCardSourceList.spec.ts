@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import { GameQuestionCardSourceList } from "#components";
+import type { ULink, UTooltip } from "#components";
 
 import type { GameQuestionCardSourceListProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardSourceList/game-question-card-source-list.types";
 
@@ -38,13 +39,13 @@ describe("GameQuestionCardSourceList Component", () => {
     expect(wrapper.findAllComponents({ name: "ULink" })).toHaveLength(2);
   });
 
-  it.each<{ index: number; url: string }>([
-    { index: 0, url: "https://en.wikipedia.org/wiki/Goat" },
-    { index: 1, url: "https://www.britannica.com/animal/goat" },
-  ])("should pass the source URL as the to prop of each ULink when sources are provided.", ({ index, url }) => {
-    const links = wrapper.findAllComponents({ name: "ULink" });
+  it.each<{ url: string }>([
+    { url: "https://en.wikipedia.org/wiki/Goat" },
+    { url: "https://www.britannica.com/animal/goat" },
+  ])("should pass the source URL as the to prop of each ULink when sources are provided.", ({ url }) => {
+    const link = wrapper.findComponent<typeof ULink>(`[data-testid='source-link-${url}']`);
 
-    expect(links[index]?.props("to")).toBe(url);
+    expect(link.props("to")).toBe(url);
   });
 
   it("should render a nav element with the correct aria-label when sourceUrls are provided.", () => {
@@ -84,9 +85,9 @@ describe("GameQuestionCardSourceList Component", () => {
   });
 
   it("should include the UTooltip text with the sourceTooltip i18n key for the first link when sourceUrls are provided.", () => {
-    const firstTooltip = wrapper.findAllComponents({ name: "UTooltip" })[0];
+    const firstTooltip = wrapper.findComponent<typeof UTooltip>("[data-testid='source-tooltip-https://en.wikipedia.org/wiki/Goat']");
 
-    expect(firstTooltip?.props("text")).toBe("questions.sourceTooltip");
+    expect(firstTooltip.props("text")).toBe("questions.sourceTooltip");
   });
 
   it("should render the external link icon on each link when mounted.", () => {

@@ -6,6 +6,7 @@
       "medium": "Diese Frage ist mittelschwer zu erschließen",
       "hard": "Diese Frage ist schwer zu erschließen"
     },
+    "adultContentTooltip": "Diese Frage ist für ein erwachsenes Publikum gedacht",
     "category": {
       "trivia": "Wissenswertes",
       "lexicon": "Lexikon",
@@ -24,6 +25,7 @@
       "otherThemes": "+{count} weiteres Thema | +{count} weitere Themen",
       "primaryBadge": "Primär",
       "hintBadge": "Hinweis",
+      "triggerLabel": "Themen anzeigen",
       "primaryThemeHintTooltip": "Das Hauptthema ist ein Hinweis auf die Antwort",
       "themeHintTooltip": "Dieses Thema ist ein Hinweis auf die Antwort"
     }

@@ -1,0 +1,148 @@
+import { When } from "@cucumber/cucumber";
+import { expect } from "@playwright/test";
+
+import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
+import { toggleOptionByName } from "#acceptance/features/step-definitions/game/helpers/game.when-steps.helpers.ts";
+import { clickVisibleLocator } from "#acceptance/features/support/helpers/locator.helpers.ts";
+import { clickModalFooterButton, getVisibleConfirmDialogFooter, getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
+
+When(
+  /^the user opens the question filters$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const filtersButton = this.page.getByTestId("game-questions-filters-button");
+
+    await clickVisibleLocator(filtersButton);
+  },
+);
+
+When(
+  /^the user turns on the questions filters adult content switch$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const switchControl = dialog.getByTestId("game-settings-adult-content-switch").getByRole("switch");
+
+    await clickVisibleLocator(switchControl);
+  },
+);
+
+When(
+  /^the user turns off the questions filters adult content switch$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const switchControl = dialog.getByTestId("game-settings-adult-content-switch").getByRole("switch");
+
+    await clickVisibleLocator(switchControl);
+  },
+);
+
+When(
+  /^the user opens the questions filters difficulty filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const filterTrigger = dialog.getByTestId("game-settings-filter-multi-select-input");
+
+    await clickVisibleLocator(filterTrigger);
+  },
+);
+
+When(
+  /^the user toggles the "(?<difficulty>[^"]+)" cognitive difficulty option$/u,
+  async function(this: GoatItWorld, difficulty: string): Promise<void> {
+    await toggleOptionByName(this.page, difficulty);
+  },
+);
+
+When(
+  /^the user closes the cognitive difficulty filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
+  },
+);
+
+When(
+  /^the user confirms restoring all options in the confirmation dialog$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const confirmFooter = await getVisibleConfirmDialogFooter(this.page);
+
+    await clickModalFooterButton(confirmFooter, "primary");
+  },
+);
+
+When(
+  /^the user keeps the last selected option in the confirmation dialog$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const confirmFooter = await getVisibleConfirmDialogFooter(this.page);
+
+    await clickModalFooterButton(confirmFooter, "close");
+  },
+);
+
+When(
+  /^the user opens the question filters from the game sidebar$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const filtersLink = dialog.getByTestId("game-sidebar-filters-link");
+
+    await clickVisibleLocator(filtersLink);
+  },
+);
+
+When(
+  /^the user clicks the reset button in the question filters modal$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const resetButton = dialog.getByTestId("game-questions-filters-modal-reset-button");
+
+    await clickVisibleLocator(resetButton);
+  },
+);
+
+When(
+  /^the user opens the questions filters theme filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const filterTrigger = dialog.getByTestId("game-questions-filters-theme-filter-input");
+
+    await clickVisibleLocator(filterTrigger);
+  },
+);
+
+When(
+  /^the user opens the questions filters category filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const dialog = await getVisibleDefaultModal(this.page);
+    const filterTrigger = dialog.getByTestId("game-questions-filters-category-filter-input");
+
+    await clickVisibleLocator(filterTrigger);
+  },
+);
+
+When(
+  /^the user toggles the "(?<theme>[^"]+)" theme option$/u,
+  async function(this: GoatItWorld, theme: string): Promise<void> {
+    await toggleOptionByName(this.page, theme);
+  },
+);
+
+When(
+  /^the user toggles the "(?<category>[^"]+)" category option$/u,
+  async function(this: GoatItWorld, category: string): Promise<void> {
+    await toggleOptionByName(this.page, category);
+  },
+);
+
+When(
+  /^the user closes the theme filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
+    await expect(this.page.getByRole("listbox")).toBeHidden();
+  },
+);
+
+When(
+  /^the user closes the category filter$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
+    await expect(this.page.getByRole("listbox")).toBeHidden();
+  },
+);

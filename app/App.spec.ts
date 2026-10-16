@@ -2,6 +2,7 @@ import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
@@ -18,7 +19,7 @@ describe("App Component", () => {
   }
 
   beforeEach(async() => {
-    wrapper = await mountAppComponent({ plugins: [createTestingPinia()] });
+    wrapper = await mountAppComponent({ global: { plugins: [createTestingPinia()] } });
     mockStore(useQuestionThemesStore);
   });
 
@@ -74,11 +75,16 @@ describe("App Component", () => {
     });
   });
 
-  describe("defineOgImage", () => {
-    it("should call defineOgImage with the correct component when mounted.", () => {
-      const defineOgImageMock = vi.mocked(defineOgImage);
+  it("should refetch the question themes when the locale changes.", async() => {
+    const questionThemesStore = mockStore(useQuestionThemesStore);
+    const { locale } = useI18n();
+    locale.value = "fr";
+    await nextTick();
 
-      expect(defineOgImageMock).toHaveBeenCalledExactlyOnceWith("Image.takumi");
-    });
+    expect(questionThemesStore.fetchAndStoreQuestionThemes).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("should render the ChangelogModal component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "ChangelogModal" }).exists()).toBe(true);
   });
 });

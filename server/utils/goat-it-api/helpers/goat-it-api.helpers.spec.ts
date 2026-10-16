@@ -129,6 +129,9 @@ describe(createGoatItApiFetchOptions, () => {
         "goat-it-api-key": "secret-game-key",
         "Accept-Language": "fr",
       },
+      retry: 2,
+      retryDelay: 300,
+      timeout: 10_000,
     };
 
     const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
@@ -143,6 +146,9 @@ describe(createGoatItApiFetchOptions, () => {
         "goat-it-api-key": "secret-game-key",
         "Accept-Language": "en",
       },
+      retry: 2,
+      retryDelay: 300,
+      timeout: 10_000,
     };
 
     const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
@@ -158,6 +164,9 @@ describe(createGoatItApiFetchOptions, () => {
         "goat-it-api-key": "secret-game-key",
         "Accept-Language": "fr",
       },
+      retry: 2,
+      retryDelay: 300,
+      timeout: 10_000,
     };
 
     const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
@@ -165,19 +174,6 @@ describe(createGoatItApiFetchOptions, () => {
     expect(fetchOptions).toStrictEqual<Parameters<typeof $fetch>[1]>(expectedFetchOptions);
   });
 });
-
-type GoatItApiFetchErrorTestCase = {
-  description: string;
-  errorData: unknown;
-  expectedStatusCode: number;
-  expectedMessage: string;
-};
-
-type GoatItApiErrorCodeDataTestCase = {
-  description: string;
-  errorData: unknown;
-  expectedData: { errorCode?: string };
-};
 
 describe(handleGoatItApiError, () => {
   beforeEach(() => mockGoatItApiEnvironment());
@@ -195,40 +191,6 @@ describe(handleGoatItApiError, () => {
   };
   const invalidErrorData = { unexpected: "shape" };
 
-  const fetchErrorTestCases: GoatItApiFetchErrorTestCase[] = [
-    {
-      description: "valid ApiResponseExceptionDto data with errorCode",
-      errorData: validErrorDataWithErrorCode,
-      expectedStatusCode: 409,
-      expectedMessage: "Question theme is referenced by live questions",
-    },
-    {
-      description: "valid ApiResponseExceptionDto data without errorCode",
-      errorData: validErrorDataWithoutErrorCode,
-      expectedStatusCode: 400,
-      expectedMessage: "The request could not be understood",
-    },
-    {
-      description: "invalid data that does not match ApiResponseExceptionDto",
-      errorData: invalidErrorData,
-      expectedStatusCode: 500,
-      expectedMessage: "Internal server error",
-    },
-  ];
-
-  const errorCodeDataTestCases: GoatItApiErrorCodeDataTestCase[] = [
-    {
-      description: "valid ApiResponseExceptionDto data with errorCode",
-      errorData: validErrorDataWithErrorCode,
-      expectedData: { errorCode: "questionThemeReferencedByLiveQuestions" },
-    },
-    {
-      description: "valid ApiResponseExceptionDto data without errorCode",
-      errorData: validErrorDataWithoutErrorCode,
-      expectedData: { errorCode: undefined },
-    },
-  ];
-
   function createFailingFetchError(data: unknown): FetchError {
     const fetchError = new FetchError("Goat It API error");
 
@@ -238,14 +200,50 @@ describe(handleGoatItApiError, () => {
   }
 
   describe("when error is a FetchError", () => {
-    it.each(fetchErrorTestCases)(
+    it.each<{
+      description: string;
+      errorData: unknown;
+    }>([
+      {
+        description: "valid ApiResponseExceptionDto data with errorCode",
+        errorData: validErrorDataWithErrorCode,
+      },
+      {
+        description: "valid ApiResponseExceptionDto data without errorCode",
+        errorData: validErrorDataWithoutErrorCode,
+      },
+      {
+        description: "invalid data that does not match ApiResponseExceptionDto",
+        errorData: invalidErrorData,
+      },
+    ])(
       "should throw an H3Error when error data is $description.",
       ({ errorData }) => {
         expect(() => handleGoatItApiError(createFailingFetchError(errorData))).toThrow(H3Error);
       },
     );
 
-    it.each(fetchErrorTestCases)(
+    it.each<{
+      description: string;
+      errorData: unknown;
+      expectedStatusCode: number;
+    }>([
+      {
+        description: "valid ApiResponseExceptionDto data with errorCode",
+        errorData: validErrorDataWithErrorCode,
+        expectedStatusCode: 409,
+      },
+      {
+        description: "valid ApiResponseExceptionDto data without errorCode",
+        errorData: validErrorDataWithoutErrorCode,
+        expectedStatusCode: 400,
+      },
+      {
+        description: "invalid data that does not match ApiResponseExceptionDto",
+        errorData: invalidErrorData,
+        expectedStatusCode: 500,
+      },
+    ])(
       "should throw an H3Error with status code $expectedStatusCode when error data is $description.",
       ({ errorData, expectedStatusCode }) => {
         const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(errorData)));
@@ -254,16 +252,33 @@ describe(handleGoatItApiError, () => {
       },
     );
 
-    it.each(fetchErrorTestCases)(
-      "should throw an H3Error with the message '$expectedMessage' when error data is $description.",
-      ({ errorData, expectedMessage }) => {
-        const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(errorData)));
+    it("should not forward the upstream error message when error data is valid.", () => {
+      const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(validErrorDataWithErrorCode)));
 
-        expect(error.message).toBe(expectedMessage);
+      expect(error.message).not.toBe(validErrorDataWithErrorCode.message);
+    });
+
+    it.each<{
+      description: string;
+      errorData: unknown;
+      expectedData: { errorCode?: string };
+    }>([
+      {
+        description: "valid ApiResponseExceptionDto data with errorCode",
+        errorData: validErrorDataWithErrorCode,
+        expectedData: { errorCode: "questionThemeReferencedByLiveQuestions" },
       },
-    );
-
-    it.each(errorCodeDataTestCases)(
+      {
+        description: "valid ApiResponseExceptionDto data without errorCode",
+        errorData: validErrorDataWithoutErrorCode,
+        expectedData: { errorCode: undefined },
+      },
+      {
+        description: "invalid data that does not match ApiResponseExceptionDto",
+        errorData: invalidErrorData,
+        expectedData: {},
+      },
+    ])(
       "should throw an H3Error with the parsed errorCode in data when error data is $description.",
       ({ errorData, expectedData }) => {
         const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(errorData)));

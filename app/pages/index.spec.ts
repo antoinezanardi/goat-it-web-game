@@ -41,22 +41,12 @@ describe("Home Page", () => {
     });
   });
 
-  it("should render the h1 with brand translation key when mounted.", () => {
-    const h1 = wrapper.find("#home-brand");
-
-    expect(h1.text()).toBe("home.brand");
-  });
-
-  it("should render the h2 with tagline translation key when mounted.", () => {
-    const h2 = wrapper.find("#home-tagline");
-
-    expect(h2.text()).toBe("home.tagline");
-  });
-
-  it("should render the subtitle paragraph with translation key when mounted.", () => {
-    const subtitle = wrapper.find("#home-subtitle");
-
-    expect(subtitle.text()).toBe("home.subtitle");
+  it.each<{ selector: string; translationKey: string }>([
+    { selector: "#home-brand", translationKey: "home.brand" },
+    { selector: "#home-tagline", translationKey: "home.tagline" },
+    { selector: "#home-subtitle", translationKey: "home.subtitle" },
+  ])("should render $selector with its translation key when mounted.", ({ selector, translationKey }) => {
+    expect(wrapper.find(selector).text()).toBe(translationKey);
   });
 
   it("should render the logo image with brand translation key as alt when mounted.", () => {
@@ -67,6 +57,18 @@ describe("Home Page", () => {
 
   it("should render the HomePlayButton component when mounted.", () => {
     expect(wrapper.findComponent({ name: "HomePlayButton" }).exists()).toBe(true);
+  });
+
+  it("should render the VersionButton component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "VersionButton" }).exists()).toBe(true);
+  });
+
+  it("should render the changelog entry point component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "ChangelogWhatsNewButton" }).exists()).toBe(true);
+  });
+
+  it("should render the changelog entry point with the home-changelog-button data-testid when mounted.", () => {
+    expect(wrapper.find("[data-testid='home-changelog-button']").exists()).toBe(true);
   });
 
   it("should render the HomeFooter component when mounted.", () => {

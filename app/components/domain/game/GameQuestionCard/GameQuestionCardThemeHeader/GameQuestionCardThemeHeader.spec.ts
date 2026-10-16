@@ -30,10 +30,6 @@ describe("GameQuestionCardThemeHeader Component", () => {
     }),
   } as const;
 
-  type GameQuestionCardThemeStackVm = ComponentVm & { playHighlight: () => Promise<void>; toggleOpen: () => void };
-
-  type GameQuestionCardHintBadgeVm = ComponentVm & { playHighlight: () => Promise<void> };
-
   type GameQuestionCardThemeHeaderVm = ComponentVm & { playActiveHighlightSequence: () => Promise<void> };
 
   let wrapper: VueWrapper;
@@ -224,12 +220,12 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
     await flushPromises();
 
-    const headerVm = getWrapperVm(activeWrapper);
-    const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
-    const hintBadgeVm = headerVm.$.refs.hintBadgeRef as unknown as GameQuestionCardHintBadgeVm;
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(activeWrapper);
+    const themeStackVm = headerVm.$.refs.themeStackRef;
+    const hintBadgeVm = headerVm.$.refs.hintBadgeRef;
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
-      [themeStackVm, hintBadgeVm],
+      [themeStackVm, hintBadgeVm, null],
       { gapMs: 250 },
     );
   });
@@ -247,12 +243,12 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
     await flushPromises();
 
-    const headerVm = getWrapperVm(wrapper);
-    const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
-    const hintBadgeVm = headerVm.$.refs.hintBadgeRef as unknown as GameQuestionCardHintBadgeVm;
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(wrapper);
+    const themeStackVm = headerVm.$.refs.themeStackRef;
+    const hintBadgeVm = headerVm.$.refs.hintBadgeRef;
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
-      [themeStackVm, hintBadgeVm],
+      [themeStackVm, hintBadgeVm, null],
       { gapMs: 250 },
     );
   });
@@ -270,11 +266,11 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
     await flushPromises();
 
-    const headerVm = getWrapperVm(wrapper);
-    const themeStackVm = headerVm.$.refs.themeStackRef as unknown as GameQuestionCardThemeStackVm;
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(wrapper);
+    const themeStackVm = headerVm.$.refs.themeStackRef;
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
-      [themeStackVm, null],
+      [themeStackVm, null, null],
       { gapMs: 250 },
     );
   });
@@ -289,11 +285,11 @@ describe("GameQuestionCardThemeHeader Component", () => {
     });
     await flushPromises();
 
-    const headerVm = getWrapperVm(wrapper);
-    const hintBadgeVm = headerVm.$.refs.hintBadgeRef as unknown as GameQuestionCardHintBadgeVm;
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(wrapper);
+    const hintBadgeVm = headerVm.$.refs.hintBadgeRef;
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
-      [undefined, hintBadgeVm],
+      [undefined, hintBadgeVm, null],
       { gapMs: 250 },
     );
   });
@@ -309,7 +305,7 @@ describe("GameQuestionCardThemeHeader Component", () => {
     await flushPromises();
 
     expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
-      [undefined, null],
+      [undefined, null, null],
       { gapMs: 250 },
     );
   });
@@ -328,5 +324,44 @@ describe("GameQuestionCardThemeHeader Component", () => {
     await headerVm.playActiveHighlightSequence();
 
     expect(useQuestionCardHighlightMock.instance.playSequence).not.toHaveBeenCalled();
+  });
+
+  it("should render the GameQuestionCardAdultContentBadge when the question is adult content.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({ ...defaultGameQuestionCardThemeHeaderProps.question, isAdultContent: true }),
+    });
+
+    expect(wrapper.findComponent({ name: "GameQuestionCardAdultContentBadge" }).exists()).toBe(true);
+  });
+
+  it("should not render the GameQuestionCardAdultContentBadge when the question is not adult content.", () => {
+    expect(wrapper.findComponent({ name: "GameQuestionCardAdultContentBadge" }).exists()).toBe(false);
+  });
+
+  it("should place the adult content badge after the difficulty badge when the question is adult content.", async() => {
+    await wrapper.setProps({
+      question: createFakeQuestion({ ...defaultGameQuestionCardThemeHeaderProps.question, isAdultContent: true }),
+    });
+
+    const difficultyBadge = wrapper.get("[data-testid='game-question-difficulty']").element;
+    const adultContentBadge = wrapper.get("[data-testid='game-question-adult-content']").element;
+
+    expect(difficultyBadge.compareDocumentPosition(adultContentBadge)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it("should call playSequence with the adult content badge last when isActive becomes true for an adult content question.", async() => {
+    await wrapper.setProps({
+      isActive: true,
+      question: createFakeQuestion({ ...defaultGameQuestionCardThemeHeaderProps.question, isAdultContent: true }),
+    });
+    await flushPromises();
+
+    const headerVm = getWrapperVm<GameQuestionCardThemeHeaderVm>(wrapper);
+    const adultContentBadgeVm = headerVm.$.refs.adultContentBadgeRef;
+
+    expect(useQuestionCardHighlightMock.instance.playSequence).toHaveBeenCalledExactlyOnceWith(
+      [undefined, null, adultContentBadgeVm],
+      { gapMs: 250 },
+    );
   });
 });

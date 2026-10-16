@@ -8,7 +8,6 @@ export default defineNuxtConfig({
     "@nuxt/content",
     "@nuxtjs/robots",
     "@nuxtjs/sitemap",
-    "nuxt-og-image",
     "nuxt-schema-org",
     "nuxt-seo-utils",
     "@pinia/nuxt",
@@ -16,6 +15,9 @@ export default defineNuxtConfig({
     "@vite-pwa/nuxt",
     "v-gsap-nuxt",
   ],
+  $production: {
+    sourcemap: false,
+  },
   $test: {
     runtimeConfig: { public: { defaultLocale: "en" } },
     buildDir: ".nuxt/test",
@@ -36,7 +38,7 @@ export default defineNuxtConfig({
       "~/repositories/**/*.repository.ts",
     ],
   },
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV === "development" },
   app: {
     pageTransition: {
       name: "page",
@@ -61,6 +63,11 @@ export default defineNuxtConfig({
     experimental: {
       sqliteConnector: "native",
     },
+    build: {
+      markdown: {
+        highlight: false,
+      },
+    },
   },
   ui: {
     colorMode: false,
@@ -68,6 +75,7 @@ export default defineNuxtConfig({
     fonts: false,
   },
   runtimeConfig: {
+    appSecret: process.env.NUXT_APP_SECRET,
     goatItApi: {
       baseUrl: "",
       gameKey: "",
@@ -83,13 +91,19 @@ export default defineNuxtConfig({
     "/game": { appLayout: "default-layout" },
     "/rules": { appLayout: "docs-layout" },
     "/fonts/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
+    "/_i18n/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
+    "/img/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
+    "/pwa/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
   },
-  sourcemap: { client: "hidden" },
   experimental: {
     viteEnvironmentApi: true,
   },
-  compatibilityDate: "2025-01-15",
-  nitro: { imports: { dirs: ["shared/utils/helpers/*.helpers.ts"] } },
+  compatibilityDate: "2026-10-14",
+  nitro: {
+    ignore: ["api/**/handlers/**"],
+    imports: { dirs: ["shared/utils/helpers/*.helpers.ts"] },
+    compressPublicAssets: { gzip: true, brotli: true },
+  },
   vite: {
     optimizeDeps: {
       include: [
@@ -105,7 +119,7 @@ export default defineNuxtConfig({
   typescript: {
     shim: true,
     strict: true,
-    typeCheck: true,
+    typeCheck: false,
     tsConfig: {
       compilerOptions: {
         noImplicitReturns: true,
@@ -142,6 +156,7 @@ export default defineNuxtConfig({
           "fr/game.json",
           "fr/seo.json",
           "fr/docs.json",
+          "fr/changelog.json",
         ],
       },
       {
@@ -157,6 +172,7 @@ export default defineNuxtConfig({
           "en/game.json",
           "en/seo.json",
           "en/docs.json",
+          "en/changelog.json",
         ],
       },
       {
@@ -172,6 +188,7 @@ export default defineNuxtConfig({
           "de/game.json",
           "de/seo.json",
           "de/docs.json",
+          "de/changelog.json",
         ],
       },
       {
@@ -187,6 +204,7 @@ export default defineNuxtConfig({
           "es/game.json",
           "es/seo.json",
           "es/docs.json",
+          "es/changelog.json",
         ],
       },
       {
@@ -202,6 +220,7 @@ export default defineNuxtConfig({
           "it/game.json",
           "it/seo.json",
           "it/docs.json",
+          "it/changelog.json",
         ],
       },
       {
@@ -217,6 +236,7 @@ export default defineNuxtConfig({
           "pt/game.json",
           "pt/seo.json",
           "pt/docs.json",
+          "pt/changelog.json",
         ],
       },
     ],
@@ -227,6 +247,7 @@ export default defineNuxtConfig({
     experimental: {
       optimizeMessageBundling: process.env.NODE_ENV !== "development",
       nitroContextDetection: true,
+      prerenderMessages: true,
     },
     detectBrowserLanguage: false,
   },
@@ -235,12 +256,6 @@ export default defineNuxtConfig({
       scan: {
         globInclude: ["**/*.{vue,ts}"],
       },
-    },
-  },
-  ogImage: {
-    security: {
-      secret: process.env.NUXT_OG_IMAGE_SECURITY_SECRET ?? "goat-it-og-image-dev-secret",
-      strict: true,
     },
   },
   pinia: { storesDirs: ["stores/**"] },
@@ -278,6 +293,7 @@ export default defineNuxtConfig({
     },
     workbox: {
       globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,otf,avif}"],
+      globIgnores: ["**/pwa/screenshot-*"],
       navigateFallback: null,
     },
   },

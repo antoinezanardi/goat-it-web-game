@@ -25,7 +25,7 @@ services:
 
   mongodb-0:
     container_name: goat-it-api-sandbox-mongodb-0
-    image: mongo:8
+    image: mongo:9
     ports:
       - "127.0.0.1:27117:27017"
     volumes:
@@ -60,7 +60,7 @@ services:
 
   mongodb-1:
     container_name: goat-it-api-sandbox-mongodb-1
-    image: mongo:8
+    image: mongo:9
     ports:
       - "127.0.0.1:27118:27017"
     volumes:
@@ -95,7 +95,7 @@ services:
 
   mongodb-2:
     container_name: goat-it-api-sandbox-mongodb-2
-    image: mongo:8
+    image: mongo:9
     ports:
       - "127.0.0.1:27119:27017"
     volumes:
@@ -130,7 +130,7 @@ services:
 
   mongodb-3:
     container_name: goat-it-api-sandbox-mongodb-3
-    image: mongo:8
+    image: mongo:9
     ports:
       - "127.0.0.1:27120:27017"
     volumes:

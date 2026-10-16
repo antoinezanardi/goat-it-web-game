@@ -19,7 +19,6 @@
     "defineModel": "readonly",
     "defineNuxtConfig": "readonly",
     "defineNuxtPlugin": "readonly",
-    "defineOgImage": "readonly",
     "defineOptions": "readonly",
     "definePageMeta": "readonly",
     "defineShortcuts": "readonly",
@@ -36,6 +35,7 @@
     "HTMLTextAreaElement": "readonly",
     "KeyboardEvent": "readonly",
     "MouseEvent": "readonly",
+    "Node": "readonly",
     "window": "readonly",
     "fetch": "readonly",
     "getQuery": "readonly",
@@ -55,7 +55,9 @@
     "readBody": "readonly",
     "ref": "readonly",
     "refDebounced": "readonly",
+    "clearNuxtState": "readonly",
     "clearTimeout": "readonly",
+    "cancelAnimationFrame": "readonly",
     "requestAnimationFrame": "readonly",
     "setTimeout": "readonly",
     "shallowRef": "readonly",
@@ -67,6 +69,7 @@
     "useAppToast": "readonly",
     "useAsyncAction": "readonly",
     "useAsyncData": "readonly",
+    "useChangelog": "readonly",
     "useColorMode": "readonly",
     "useCookie": "readonly",
     "useFetch": "readonly",
@@ -74,12 +77,16 @@
     "useGSAP": "readonly",
     "useGame": "readonly",
     "useGameQuestionTranslation": "readonly",
+    "useGameQuestionsFilters": "readonly",
+    "useGameSettingsCookie": "readonly",
+    "useGameSettingsStore": "readonly",
     "useGameStore": "readonly",
     "useGameTutorialInvitation": "readonly",
     "useGoatItApiErrorToast": "readonly",
     "useHead": "readonly",
     "useHexColor": "readonly",
     "useI18n": "readonly",
+    "useLazyModal": "readonly",
     "useLocaleCookie": "readonly",
     "useLocaleSuggestion": "readonly",
     "useLocalizedValue": "readonly",
@@ -92,6 +99,7 @@
     "useRouter": "readonly",
     "useRuntimeConfig": "readonly",
     "useSeoMeta": "readonly",
+    "useState": "readonly",
     "useTableFilters": "readonly",
     "useTableGlobalFilter": "readonly",
     "useTemplateRef": "readonly",
@@ -1477,7 +1485,8 @@
         "**/tests/unit/setup/**/*.ts"
       ],
       "rules": {
-        "node/no-process-env": "off"
+        "node/no-process-env": "off",
+        "unicorn/no-null": "off"
       }
     },
     // ---- Override for composable mock setup files -----

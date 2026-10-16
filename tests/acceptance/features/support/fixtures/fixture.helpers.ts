@@ -1,6 +1,7 @@
+import { url } from "@nuxt/test-utils/e2e";
 import type { Document } from "mongodb";
 
-import { DOMAIN_TO_COLLECTION_MAP, FIXTURE_REGISTRY } from "#acceptance/features/support/fixtures/fixture.constants.ts";
+import { COOKIE_FIXTURE_REGISTRY, DOMAIN_TO_COLLECTION_MAP, FIXTURE_REGISTRY } from "#acceptance/features/support/fixtures/fixture.constants.ts";
 import type { FixtureDefinition, FixtureDomain, FixtureKey, FixtureReference } from "#acceptance/features/support/fixtures/fixture.types.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 
@@ -58,6 +59,20 @@ async function loadFixture<Domain extends FixtureDomain>(
   world.completedFixtureKeys.add(key);
 }
 
+async function loadCookieFixture(world: GoatItWorld, name: string): Promise<void> {
+  const cookieFixtureSet = COOKIE_FIXTURE_REGISTRY[name];
+
+  if (!cookieFixtureSet) {
+    throw new Error(`Unknown cookie fixture set: "${name}".`);
+  }
+  await world.context.addCookies(cookieFixtureSet.map(cookie => ({
+    name: cookie.name,
+    value: cookie.value,
+    url: url("/"),
+  })));
+}
+
 export {
+  loadCookieFixture,
   loadFixture,
 };

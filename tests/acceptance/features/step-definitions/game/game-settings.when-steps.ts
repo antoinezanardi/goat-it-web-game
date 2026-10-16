@@ -1,16 +1,16 @@
 import { When } from "@cucumber/cucumber";
-import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
+import { clickVisibleLocator } from "#acceptance/features/support/helpers/locator.helpers.ts";
+import { getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
 
 When(
   /^the user clicks the settings button in the game sidebar$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const dialog = this.page.getByRole("dialog").first();
+    const dialog = await getVisibleDefaultModal(this.page);
     const settingsButton = dialog.getByTestId("game-sidebar-settings-button");
 
-    await expect(settingsButton).toBeVisible();
-    await settingsButton.click();
+    await clickVisibleLocator(settingsButton);
   },
 );
 
@@ -20,11 +20,9 @@ When(
     const modal = this.page.getByTestId("game-settings-modal");
     const localeSelect = modal.getByTestId("locale-select");
 
-    await expect(localeSelect).toBeVisible();
-    await localeSelect.click();
+    await clickVisibleLocator(localeSelect);
 
     const option = this.page.getByRole("option", { name: locale });
-    await expect(option).toBeVisible();
-    await option.click();
+    await clickVisibleLocator(option);
   },
 );

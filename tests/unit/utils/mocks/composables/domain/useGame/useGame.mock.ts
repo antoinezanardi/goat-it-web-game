@@ -32,6 +32,7 @@ function createUseGameMock(): UseGameMock {
     isFetchingQuestions: computed(() => isFetchingQuestionsReference.value),
     isTranslating: computed(() => isTranslatingReference.value),
     questions: questionsReference,
+    syncQuestionsWithGameSettings: vi.fn<UseGame["syncQuestionsWithGameSettings"]>(),
     advanceToNextQuestion: vi.fn<UseGame["advanceToNextQuestion"]>(),
     goToPreviousQuestion: vi.fn<UseGame["goToPreviousQuestion"]>(),
     initialize: vi.fn<UseGame["initialize"]>(),

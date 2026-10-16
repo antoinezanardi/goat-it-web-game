@@ -24,6 +24,10 @@ describe("DocsBackToTop Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
+  it("should render the back to top button when mounted.", () => {
+    expect(wrapper.find("[data-testid='docs-back-to-top-button']").exists()).toBeTruthy();
+  });
+
   it("should render the button with the backToTop aria-label translation key when mounted.", () => {
     const button = wrapper.find("[data-testid='docs-back-to-top-button']");
 

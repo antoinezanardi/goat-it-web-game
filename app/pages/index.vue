@@ -12,14 +12,23 @@ useSeoMeta({
 <template>
   <div
     id="home-page"
-    class="bg-app-bg flex flex-col min-h-dvh overflow-hidden"
+    class="bg-app-bg flex flex-col min-h-dvh overflow-hidden relative"
   >
+    <div class="absolute flex gap-2 right-4 top-4">
+      <ChangelogWhatsNewButton data-testid="home-changelog-button"/>
+
+      <VersionButton/>
+    </div>
+
     <div class="flex flex-1 flex-col gap-6 items-center justify-center">
       <img
         id="home-logo"
         :alt="t('home.brand')"
         class="h-auto md:w-64 min-w-32 sm:w-60 w-52"
+        fetchpriority="high"
+        height="512"
         src="/img/logo/logo-512.avif"
+        width="512"
       >
 
       <div class="flex flex-col gap-4 items-center text-center">
@@ -54,11 +63,19 @@ useSeoMeta({
 
 <style scoped>
 #home-page {
+  position: relative;
+  isolation: isolate;
+}
+
+#home-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
   background-image: url('/img/home-bg.avif');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
   box-shadow: inset 0 0 0 1000px rgb(0 0 0 / 0.4);
 }
 

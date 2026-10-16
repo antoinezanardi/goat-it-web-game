@@ -36,6 +36,7 @@ const TWO_ENGLISH_ONLY_QUESTIONS_FIXTURE_SET = [
     },
     sourceUrls: ["https://en.wikipedia.org/wiki/Vertigo_(film)"],
     status: "active",
+    isAdultContent: false,
   },
   {
     _id: new ObjectId("bb22cc33dd44ee55ff660102"),
@@ -70,6 +71,7 @@ const TWO_ENGLISH_ONLY_QUESTIONS_FIXTURE_SET = [
     },
     sourceUrls: ["https://en.wikipedia.org/wiki/The_Dark_Side_of_the_Moon"],
     status: "pending",
+    isAdultContent: false,
   },
 ] as const;
 

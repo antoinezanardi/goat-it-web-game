@@ -1,31 +1,41 @@
 import { When } from "@cucumber/cucumber";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
+import { clickVisibleLocator } from "#acceptance/features/support/helpers/locator.helpers.ts";
+import { clickAndGetOpenedTab } from "#acceptance/features/support/helpers/tab.helpers.ts";
+import { getVisibleDefaultModal } from "#acceptance/features/support/helpers/modal.helpers.ts";
 
 When(
   /^the user opens the game sidebar$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await this.page.getByTestId("game-sidebar-toggle-button").click();
+    const toggleButton = this.page.getByTestId("game-sidebar-toggle-button");
+    await clickVisibleLocator(toggleButton);
   },
 );
 
 When(
   /^the user clicks the back to home link in the game sidebar$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const dialog = this.page.getByRole("dialog");
+    const dialog = await getVisibleDefaultModal(this.page);
+    const backToHomeLink = dialog.getByRole("link", { name: "Back to Home" });
 
-    await dialog.getByRole("link", { name: "Back to Home" }).click();
+    await clickVisibleLocator(backToHomeLink);
   },
 );
 
 When(
   /^the user clicks the rules link in the game sidebar$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const dialog = this.page.getByRole("dialog");
-    const openedTabPromise = this.context.waitForEvent("page");
+    const dialog = await getVisibleDefaultModal(this.page);
+    const rulesLink = dialog.getByRole("link", { name: "Rules", exact: true });
 
-    await dialog.getByRole("link", { name: "Rules", exact: true }).click();
+    this.openedTabPage = await clickAndGetOpenedTab(this.context, rulesLink);
+  },
+);
 
-    this.openedTabPage = await openedTabPromise;
+When(
+  /^the user closes the game sidebar$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
   },
 );

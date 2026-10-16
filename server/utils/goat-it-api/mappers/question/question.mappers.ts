@@ -14,6 +14,7 @@ function createQuestionFromQuestionDto(dto: QuestionDto): Question {
     })),
     content: dto.content,
     cognitiveDifficulty: dto.cognitiveDifficulty,
+    isAdultContent: dto.isAdultContent,
     author: dto.author,
     status: dto.status,
     rejection: dto.rejection,

@@ -6,6 +6,8 @@ const props = defineProps<GameSidebarProps>();
 const emit = defineEmits<GameSidebarEmits>();
 const { t } = useI18n();
 
+const { activeFiltersCount } = useGameQuestionsFilters();
+
 function onUpdateOpen(value: boolean): void {
   emit("update:isOpen", value);
 }
@@ -17,17 +19,27 @@ function onStartTutorial(): void {
 function onOpenSettings(): void {
   emit("openSettings");
 }
+
+function onOpenFilters(): void {
+  emit("openFilters");
+}
+
+function onAfterLeave(): void {
+  emit("after:leave");
+}
 </script>
 
 <template>
   <USlideover
+    :close="false"
     :open="props.isOpen"
     side="left"
     :title="t('home.brand')"
     :ui="GAME_SIDEBAR_UI"
+    @after:leave="onAfterLeave"
     @update:open="onUpdateOpen"
   >
-    <template #header>
+    <template #title>
       <ULink
         class="flex gap-2 items-center"
         data-testid="game-sidebar"
@@ -36,7 +48,9 @@ function onOpenSettings(): void {
         <img
           alt=""
           class="h-8 w-8"
+          height="64"
           src="/img/logo/logo-64.avif"
+          width="64"
         >
 
         <span class="font-semibold text-fg-primary text-lg">
@@ -59,6 +73,30 @@ function onOpenSettings(): void {
           />
           {{ t("game.interactiveTutorial.label") }}
         </ULink>
+
+        <ULink
+          class="flex gap-1.5 items-center"
+          data-testid="game-sidebar-filters-link"
+          @click="onOpenFilters"
+        >
+          <UIcon
+            class="size-4"
+            name="i-lucide-funnel"
+          />
+          {{ t("game.questionsFilters.sidebarLabel") }}
+
+          <GameQuestionsFiltersCountBadge
+            v-if="activeFiltersCount > 0"
+            class="ml-1"
+            :count="activeFiltersCount"
+            data-testid="game-sidebar-filters-count-badge"
+          />
+        </ULink>
+
+        <ChangelogWhatsNewButton
+          data-testid="game-sidebar-changelog-link"
+          variant="menu"
+        />
 
         <ULink
           class="flex gap-1.5 items-center"

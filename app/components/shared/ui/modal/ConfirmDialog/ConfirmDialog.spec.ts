@@ -42,9 +42,7 @@ describe("ConfirmDialog Component", () => {
     });
 
     it("should render the modal with the correct data-testid when mounted.", () => {
-      const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
-
-      expect(getWrapperVm(modal).$attrs["data-testid"]).toBe("confirm-dialog-modal");
+      expect(document.body.querySelector("[data-testid='confirm-dialog-modal']")).not.toBeNull();
     });
 
     it("should close the modal when the modal emits update:open with false.", async() => {
@@ -109,6 +107,18 @@ describe("ConfirmDialog Component", () => {
       expect(footer.props("primaryButtonLabel")).toBe("Delete it");
     });
 
+    it("should pass the custom primary button icon to the footer primary button when primaryButtonIcon prop is provided.", async() => {
+      wrapper = await mountConfirmDialogComponent({
+        props: {
+          ...defaultConfirmDialogProps,
+          primaryButtonIcon: "i-lucide-list-restart",
+        },
+      });
+      const footer = wrapper.findComponent<typeof DefaultModalFooter>("[data-testid='confirm-dialog-footer']");
+
+      expect(footer.props("primaryButtonIcon")).toBe("i-lucide-list-restart");
+    });
+
     it("should pass the default cancel label to the footer close button when no closeButtonLabel prop is provided.", () => {
       const footer = wrapper.findComponent<typeof DefaultModalFooter>("[data-testid='confirm-dialog-footer']");
 
@@ -164,28 +174,50 @@ describe("ConfirmDialog Component", () => {
       expect(modal.props(propName)).toBe(true);
     });
 
-    it("should pass dismissible as false to UModal when the prop is set to false.", async() => {
+    it.each<{ propName: "dismissible" | "close"; props: Partial<ConfirmDialogProps> }>([
+      { propName: "dismissible", props: { dismissible: false } },
+      { propName: "close", props: { close: false } },
+    ])("should pass $propName as false to UModal when the $propName prop is set to false.", async({ propName, props }) => {
       wrapper = await mountConfirmDialogComponent({
         props: {
           ...defaultConfirmDialogProps,
-          dismissible: false,
+          ...props,
         },
       });
       const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
 
-      expect(modal.props("dismissible")).toBe(false);
+      expect(modal.props(propName)).toBe(false);
     });
 
-    it("should pass close as false to UModal when the prop is set to false.", async() => {
+    it.each<{ dismissible: boolean }>([
+      { dismissible: true },
+      { dismissible: false },
+    ])("should emit close with false when the modal emits update:open with false and dismissible is $dismissible.", async({ dismissible }) => {
       wrapper = await mountConfirmDialogComponent({
         props: {
           ...defaultConfirmDialogProps,
-          close: false,
+          dismissible,
         },
       });
       const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
+      getWrapperVm(modal).$emit("update:open", false);
+      await wrapper.vm.$nextTick();
 
-      expect(modal.props("close")).toBe(false);
+      expect(wrapper.emitted("close")).toStrictEqual([[false]]);
+    });
+
+    it("should keep the modal open and not emit close when the modal emits update:open with true.", async() => {
+      const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
+      getWrapperVm(modal).$emit("update:open", true);
+      await wrapper.vm.$nextTick();
+
+      expect({
+        closeEmissions: wrapper.emitted("close"),
+        isOpen: Boolean(modal.props("open")),
+      }).toStrictEqual({
+        closeEmissions: undefined,
+        isOpen: true,
+      });
     });
   });
 });

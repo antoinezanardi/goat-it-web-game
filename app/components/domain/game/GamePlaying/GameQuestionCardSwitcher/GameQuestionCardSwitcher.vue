@@ -128,6 +128,7 @@ onUnmounted(() => {
       :aria-hidden="slot.ariaHidden"
       class="absolute inset-0 will-change-transform"
       :class="getCardContainerClass(slot.isActive)"
+      :data-testid="`game-question-slot-${index}`"
       :inert="slot.inert"
     >
       <GameQuestionCard

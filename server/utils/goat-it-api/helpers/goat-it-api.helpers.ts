@@ -5,6 +5,7 @@ import type { Locale } from "@goat-it/schemas/shared/locale";
 import type { H3Event } from "h3";
 
 import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
+import { GOAT_IT_API_REQUEST_RETRY_COUNT, GOAT_IT_API_REQUEST_RETRY_DELAY_IN_MS, GOAT_IT_API_REQUEST_TIMEOUT_IN_MS } from "#server/utils/goat-it-api/goat-it-api.constants";
 import type { CreateGoatItApiEndpointOptions, GoatItApiResourceName } from "#server/utils/goat-it-api/goat-it-api.types";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { CookieNames } from "#shared/enums/cookie.enums";
@@ -43,6 +44,9 @@ function createGoatItApiFetchOptions(event: H3Event): Parameters<typeof $fetch>[
       "goat-it-api-key": config.goatItApi.gameKey,
       "Accept-Language": extractLocaleFromEvent(event),
     },
+    retry: GOAT_IT_API_REQUEST_RETRY_COUNT,
+    retryDelay: GOAT_IT_API_REQUEST_RETRY_DELAY_IN_MS,
+    timeout: GOAT_IT_API_REQUEST_TIMEOUT_IN_MS,
   };
 }
 
@@ -56,13 +60,12 @@ function handleGoatItApiError(error: unknown): never {
   if (!parsedError.success) {
     throw createError({
       statusCode: HttpStatusCode.INTERNAL_SERVER_ERROR,
-      message: "Internal server error",
+      data: {},
     });
   }
 
   throw createError({
     statusCode: parsedError.data.statusCode,
-    message: parsedError.data.message,
     data: { errorCode: parsedError.data.errorCode },
   });
 }

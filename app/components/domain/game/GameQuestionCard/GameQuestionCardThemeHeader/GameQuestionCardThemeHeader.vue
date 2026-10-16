@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { nextTick, onMounted, watch } from "vue";
 
-import { GameQuestionCardHintBadge, GameQuestionCardThemeStack } from "#components";
+import { GameQuestionCardAdultContentBadge, GameQuestionCardHintBadge, GameQuestionCardThemeStack } from "#components";
 
 import { QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.constants";
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
@@ -23,10 +23,12 @@ const otherThemesLabel = computed(() => t("questions.themeStack.otherThemes", { 
 
 const themeStackReference = useTemplateRef<InstanceType<typeof GameQuestionCardThemeStack>>("themeStackRef");
 const hintBadgeReference = useTemplateRef<InstanceType<typeof GameQuestionCardHintBadge>>("hintBadgeRef");
+const adultContentBadgeReference = useTemplateRef<InstanceType<typeof GameQuestionCardAdultContentBadge>>("adultContentBadgeRef");
 
 const highlightTargets = computed(() => [
   hasOtherThemes.value ? themeStackReference.value : undefined,
   hintBadgeReference.value,
+  adultContentBadgeReference.value,
 ]);
 
 function handleOtherThemesClick(): void {
@@ -108,8 +110,13 @@ watch(() => props.isActive, triggerHighlightIfActive);
       </p>
     </div>
 
-    <div class="flex flex-col gap-2 items-center ml-auto">
+    <div class="flex flex-col gap-2 items-end ml-auto">
       <GameQuestionCardDifficultyBadge :difficulty="difficulty"/>
+
+      <GameQuestionCardAdultContentBadge
+        v-if="props.question.isAdultContent"
+        ref="adultContentBadgeRef"
+      />
     </div>
   </header>
 </template>

@@ -1,0 +1,13 @@
+{
+  "changelog": {
+    "entryPoint": "Novedades",
+    "modal": {
+      "title": "Novedades"
+    },
+    "toast": {
+      "title": "¡Hay novedades en Goat It!",
+      "description": "Descubre las últimas mejoras del juego.",
+      "action": "Leer las notas"
+    }
+  }
+}

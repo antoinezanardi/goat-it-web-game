@@ -16,7 +16,5 @@ import { HOME_HOW_TO_PLAY_BUTTON_UI } from "@/components/domain/home/HomeFooter/
       :ui="HOME_HOW_TO_PLAY_BUTTON_UI"
       variant="solid"
     />
-
-    <VersionButton/>
   </footer>
 </template>

@@ -1,3 +1,4 @@
+import { createFakeFindQuestionThemesQueryDto } from "@goat-it/schemas/testing/question-theme";
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
 
@@ -36,20 +37,67 @@ describe("useQuestionThemesStore", () => {
     });
   });
 
-  describe("questionThemeSlugs", () => {
-    it("should return an empty array when there are no question themes.", () => {
+  describe("activeQuestionThemes", () => {
+    it("should expose an empty array when there are no themes.", () => {
       const store = useQuestionThemesStore();
 
-      expect(store.questionThemeSlugs).toStrictEqual<string[]>([]);
+      expect(store.activeQuestionThemes).toStrictEqual([]);
     });
 
-    it("should return the slugs of all question themes when there are themes.", () => {
+    it("should expose only the active themes when themes have mixed statuses.", () => {
       const store = useQuestionThemesStore();
-      const fakeTheme1 = createFakeQuestionTheme({ slug: "theme-one" });
-      const fakeTheme2 = createFakeQuestionTheme({ slug: "theme-two" });
-      store.questionThemes = [fakeTheme1, fakeTheme2];
+      const activeTheme = createFakeQuestionTheme({ status: "active" });
+      const archivedTheme = createFakeQuestionTheme({ status: "archived" });
+      store.questionThemes = [activeTheme, archivedTheme];
 
-      expect(store.questionThemeSlugs).toStrictEqual(["theme-one", "theme-two"]);
+      expect(store.activeQuestionThemes).toStrictEqual([activeTheme]);
+    });
+  });
+
+  describe("activeQuestionThemeIds", () => {
+    it("should return only the active theme ids when themes have mixed statuses.", () => {
+      const store = useQuestionThemesStore();
+      store.questionThemes = [
+        createFakeQuestionTheme({ id: "active-1", status: "active" }),
+        createFakeQuestionTheme({ id: "archived-1", status: "archived" }),
+        createFakeQuestionTheme({ id: "active-2", status: "active" }),
+      ];
+
+      expect(store.activeQuestionThemeIds).toStrictEqual(["active-1", "active-2"]);
+    });
+  });
+
+  describe("isThemesCatalogAvailable", () => {
+    it("should be false when there are no active themes.", () => {
+      const store = useQuestionThemesStore();
+      store.questionThemes = [createFakeQuestionTheme({ status: "archived" })];
+
+      expect(store.isThemesCatalogAvailable).toBe(false);
+    });
+
+    it("should be true when there is at least one active theme.", () => {
+      const store = useQuestionThemesStore();
+      store.questionThemes = [createFakeQuestionTheme({ status: "active" })];
+
+      expect(store.isThemesCatalogAvailable).toBe(true);
+    });
+  });
+
+  describe("catalogStatus", () => {
+    it.each<{ status: "idle" | "pending" | "success" | "error"; activeThemesCount: number; expected: string }>([
+      { status: "success", activeThemesCount: 1, expected: "ready" },
+      { status: "pending", activeThemesCount: 1, expected: "refreshing" },
+      { status: "error", activeThemesCount: 1, expected: "stale" },
+      { status: "idle", activeThemesCount: 0, expected: "loading" },
+      { status: "pending", activeThemesCount: 0, expected: "loading" },
+      { status: "success", activeThemesCount: 0, expected: "unavailable" },
+      { status: "error", activeThemesCount: 0, expected: "unavailable" },
+    ])("should be $expected when fetchStatus is $status and there are $activeThemesCount active themes.", ({ status, activeThemesCount, expected }) => {
+      const store = useQuestionThemesStore();
+      store.questionThemes = Array.from({ length: activeThemesCount }, () => createFakeQuestionTheme({ status: "active" }));
+      fetchAsyncActionMock.fetchStatus.value = status;
+
+      expect(store.catalogStatus).toBe(expected);
     });
   });
 
@@ -125,11 +173,11 @@ describe("useQuestionThemesStore", () => {
 
     it("should call fetchQuestionThemes with query when called with query params.", async() => {
       const store = useQuestionThemesStore();
-      const query = {
-        "sort-by": "slug" as const,
-        "sort-order": "asc" as const,
+      const query = createFakeFindQuestionThemesQueryDto({
+        "sort-by": "slug",
+        "sort-order": "asc",
         "limit": 10,
-      };
+      });
 
       await store.fetchAndStoreQuestionThemes(query);
 

@@ -55,8 +55,4 @@ describe("HomeFooter Component", () => {
 
     expect(button.props("ui")).toStrictEqual(HOME_HOW_TO_PLAY_BUTTON_UI);
   });
-
-  it("should render the VersionButton component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "VersionButton" }).exists()).toBe(true);
-  });
 });

@@ -57,6 +57,11 @@ const GAME_TUTORIAL_STEPS: readonly GameTutorialStep[] = [
     target: "[data-testid='game-next-question-button']",
   },
   {
+    icon: "i-lucide-funnel",
+    key: "filters",
+    target: "[data-testid='game-questions-filters-button']",
+  },
+  {
     icon: "i-lucide-panel-left",
     key: "sidebar",
     target: "[data-testid='game-sidebar-toggle-button']",

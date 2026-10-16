@@ -24,6 +24,14 @@ async function waitForQuestionCardTransition(world: GoatItWorld): Promise<void> 
   await expect.poll(async() => readNextQuestionButtonState(world.page), { timeout: 60_000 }).not.toBe("disabled");
 }
 
+async function toggleOptionByName(page: Page, name: string): Promise<void> {
+  const option = page.getByRole("option", { name });
+
+  await expect(option).toBeVisible();
+  await option.click();
+}
+
 export {
+  toggleOptionByName,
   waitForQuestionCardTransition,
 };

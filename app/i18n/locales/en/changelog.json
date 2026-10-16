@@ -1,0 +1,13 @@
+{
+  "changelog": {
+    "entryPoint": "What's new",
+    "modal": {
+      "title": "What's new"
+    },
+    "toast": {
+      "title": "There's something new in Goat It!",
+      "description": "Discover the latest improvements to the game.",
+      "action": "Read notes"
+    }
+  }
+}

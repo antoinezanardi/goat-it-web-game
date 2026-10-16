@@ -27,10 +27,6 @@ const { t } = useI18n();
 
 const popoverMaxHeight = ref<string>("none");
 const popoverSide = ref<"bottom" | "top">("bottom");
-const popoverContent = computed(() => ({
-  side: popoverSide.value,
-  sideOffset: GAME_TUTORIAL_POPOVER_OFFSET,
-}));
 
 const tourSteps = computed(() => GAME_TUTORIAL_STEPS.map(step => {
   const { target } = step;
@@ -55,6 +51,13 @@ const {
   reference,
   start,
 } = useTour(tourSteps);
+
+const currentStepTitle = computed<string | undefined>(() => tourSteps.value[index.value]?.title);
+const popoverContent = computed(() => ({
+  "side": popoverSide.value,
+  "sideOffset": GAME_TUTORIAL_POPOVER_OFFSET,
+  "aria-label": currentStepTitle.value,
+}));
 
 const highlightRect = ref<GameTutorialSpotlightRect>();
 

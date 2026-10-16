@@ -130,40 +130,6 @@ describe("useGameStore", () => {
     });
   });
 
-  describe("isFetchingQuestionsByIdsSuccess", () => {
-    it.each<{ fetchStatus: "idle" | "success"; expected: boolean }>([
-      { fetchStatus: "idle", expected: false },
-      { fetchStatus: "success", expected: true },
-    ])("should be $expected when by ids fetchStatus is $fetchStatus.", ({ fetchStatus, expected }) => {
-      const store = useGameStore();
-      byIdsAsyncActionMock.fetchStatus.value = fetchStatus;
-
-      expect(store.isFetchingQuestionsByIdsSuccess).toBe(expected);
-    });
-  });
-
-  describe("isFetchingQuestionsByIdsError", () => {
-    it.each<{ fetchStatus: "idle" | "error"; expected: boolean }>([
-      { fetchStatus: "idle", expected: false },
-      { fetchStatus: "error", expected: true },
-    ])("should be $expected when by ids fetchStatus is $fetchStatus.", ({ fetchStatus, expected }) => {
-      const store = useGameStore();
-      byIdsAsyncActionMock.fetchStatus.value = fetchStatus;
-
-      expect(store.isFetchingQuestionsByIdsError).toBe(expected);
-    });
-  });
-
-  describe("fetchRandomQuestions", () => {
-    it("should call the execute function from useAsyncAction when invoked.", async() => {
-      const store = useGameStore();
-
-      await store.fetchRandomQuestions();
-
-      expect(randomAsyncActionMock.execute).toHaveBeenCalledExactlyOnceWith();
-    });
-  });
-
   describe("fetchQuestionsByIds", () => {
     it("should call the by ids execute function with the ids when invoked.", async() => {
       const store = useGameStore();
@@ -211,13 +177,14 @@ describe("useGameStore", () => {
     it("should preserve existing questions when appending a batch.", async() => {
       const initialQuestions = [createFakeQuestion()];
       const appendedQuestions = [createFakeQuestion(), createFakeQuestion()];
+      const expectedQuestions = [...initialQuestions, ...appendedQuestions];
       const store = useGameStore();
       store.questions = initialQuestions;
       randomAsyncActionMock.execute.mockResolvedValue(appendedQuestions);
 
       await store.fetchAndAppendRandomQuestions();
 
-      expect(store.questions).toStrictEqual([...initialQuestions, ...appendedQuestions]);
+      expect(store.questions).toStrictEqual(expectedQuestions);
     });
 
     it("should not mutate questions when fetchRandomQuestions resolves with undefined.", async() => {
@@ -226,6 +193,17 @@ describe("useGameStore", () => {
       await store.fetchAndAppendRandomQuestions();
 
       expect(store.questions).toStrictEqual([]);
+    });
+  });
+
+  describe("replaceQuestions", () => {
+    it("should replace the questions with the given questions when invoked.", () => {
+      const store = useGameStore();
+      const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
+
+      store.replaceQuestions(fakeQuestions);
+
+      expect(store.questions).toStrictEqual(fakeQuestions);
     });
   });
 
@@ -245,6 +223,28 @@ describe("useGameStore", () => {
       store.resetQuestions();
 
       expect(store.questions).toStrictEqual([]);
+    });
+  });
+
+  describe("truncateQuestions", () => {
+    it("should keep only the first questions up to the given length when invoked.", () => {
+      const store = useGameStore();
+      const fakeQuestions = [createFakeQuestion(), createFakeQuestion(), createFakeQuestion()];
+      store.questions = fakeQuestions;
+
+      store.truncateQuestions(2);
+
+      expect(store.questions).toStrictEqual(fakeQuestions.slice(0, 2));
+    });
+
+    it("should keep all questions when the given length exceeds the questions count.", () => {
+      const store = useGameStore();
+      const fakeQuestions = [createFakeQuestion()];
+      store.questions = fakeQuestions;
+
+      store.truncateQuestions(5);
+
+      expect(store.questions).toStrictEqual(fakeQuestions);
     });
   });
 

@@ -28,8 +28,6 @@ describe("LocaleSelect Component", () => {
   beforeEach(async() => {
     useCookieMockState.capturedName.current = undefined;
     useCookieMockState.capturedOptions.current = undefined;
-    // Acceptable as useCookie<string | null> requires null as the initial value for the cookie guard
-    // oxlint-disable-next-line unicorn/no-null
     useCookieMockState.cookieRef.value = null;
     wrapper = await mountLocaleSelect();
   });

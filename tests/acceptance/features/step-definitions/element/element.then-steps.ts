@@ -23,3 +23,17 @@ Then(
     await expect(this.page.getByRole("heading", { name: heading })).toBeInViewport();
   },
 );
+
+Then(
+  /^the element with testid "(?<testId>[^"]*)" should have the accessible name "(?<name>[^"]*)"$/u,
+  async function(this: GoatItWorld, testId: string, name: string): Promise<void> {
+    await expect(this.page.getByTestId(testId)).toHaveAccessibleName(name);
+  },
+);
+
+Then(
+  /^the option named "(?<name>[^"]*)" should be visible$/u,
+  async function(this: GoatItWorld, name: string): Promise<void> {
+    await expect(this.page.getByRole("option", { name })).toBeVisible();
+  },
+);

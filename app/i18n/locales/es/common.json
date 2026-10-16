@@ -6,6 +6,7 @@
     "close": "Cerrar",
     "confirm": "Confirmar",
     "cancel": "Cancelar",
+    "listConjunction": "y",
     "localeSuggestion": {
       "title": "¿Quieres jugar en español?",
       "description": "Este juego está disponible en tu idioma.",

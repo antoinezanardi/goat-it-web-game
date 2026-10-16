@@ -1,8 +1,9 @@
+import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import type { QuestionCategory, QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 
 import type { Question } from "#shared/types/question.types";
 import type { QuestionTheme } from "#shared/types/question-theme.types";
-import { DIFFICULTY_COLOR_MAP, DIFFICULTY_ICON_MAP, DIFFICULTY_RING_CLASS_MAP, QUESTION_CATEGORY_ICON_MAP } from "~/composables/domain/question/constants/question.constants";
+import { DIFFICULTY_COLOR_MAP, DIFFICULTY_ICON_COLOR_MAP, DIFFICULTY_ICON_MAP, DIFFICULTY_RING_CLASS_MAP, QUESTION_CATEGORY_COLOR_MAP, QUESTION_CATEGORY_ICON_MAP } from "~/composables/domain/question/constants/question.constants";
 
 function getPrimaryTheme(question: Question): QuestionTheme | undefined {
   return question.themes.find(theme => theme.isPrimary)?.theme;
@@ -44,8 +45,24 @@ function getCategoryIcon(category: QuestionCategory): string {
   return QUESTION_CATEGORY_ICON_MAP[category];
 }
 
+function getCategoryColor(category: QuestionCategory): string {
+  return QUESTION_CATEGORY_COLOR_MAP[category];
+}
+
+function isQuestionCategory(value: string): value is QuestionCategory {
+  return QUESTION_CATEGORIES.some(category => category === value);
+}
+
+function isQuestionCognitiveDifficulty(value: string): value is QuestionCognitiveDifficulty {
+  return QUESTION_COGNITIVE_DIFFICULTIES.some(difficulty => difficulty === value);
+}
+
 function getDifficultyColor(difficulty: QuestionCognitiveDifficulty): "success" | "warning" | "error" {
   return DIFFICULTY_COLOR_MAP[difficulty];
+}
+
+function getDifficultyIconColor(difficulty: QuestionCognitiveDifficulty): string {
+  return DIFFICULTY_ICON_COLOR_MAP[difficulty];
 }
 
 function getDifficultyIcon(difficulty: QuestionCognitiveDifficulty): string {
@@ -57,9 +74,11 @@ function getDifficultyRingClass(difficulty: QuestionCognitiveDifficulty): string
 }
 
 export {
+  getCategoryColor,
   getCategoryIcon,
   getDifficultyColor,
   getDifficultyIcon,
+  getDifficultyIconColor,
   getDifficultyRingClass,
   getNonEmptyTrivia,
   getPrimaryTheme,
@@ -69,4 +88,6 @@ export {
   hasNonEmptyContext,
   hasSecondaryThemes,
   isPrimaryThemeHint,
+  isQuestionCategory,
+  isQuestionCognitiveDifficulty,
 };
