@@ -43,6 +43,7 @@ permission:
     "wc *": "allow"
     "cut *": "allow"
     "docker compose *": "allow"
+    "gh *": "allow"
   task: deny
   webfetch: deny
 ---

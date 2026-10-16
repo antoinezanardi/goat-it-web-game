@@ -46,6 +46,7 @@ permission:
     "mkdir *": "allow"
     "xxd *": "allow"
     "docker ps *": "allow"
+    "gh *": "allow"
   task:
     "*": "deny"
     "gatekeeper": "allow"

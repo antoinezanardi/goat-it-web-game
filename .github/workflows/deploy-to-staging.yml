@@ -35,7 +35,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Deploy to preproduction server 🚀
         uses: ./.github/actions/deploy
@@ -44,3 +44,4 @@ jobs:
           ssh-user: ${{ secrets.PREPRODUCTION_SERVER_SSH_USER }}
           ssh-server-ip: ${{ secrets.PREPRODUCTION_SERVER_SSH_ADDRESS }}
           update-script-full-path: ${{ secrets.PREPRODUCTION_UPDATE_SCRIPT_FULL_PATH }}
+          known-hosts: ${{ secrets.PREPRODUCTION_SERVER_KNOWN_HOSTS }}

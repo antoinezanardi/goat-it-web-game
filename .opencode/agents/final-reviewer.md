@@ -29,6 +29,7 @@ permission:
     "git check-ignore *": "allow"
     "od *": "allow"
     "xxd *": "allow"
+    "gh *": "allow"
   task:
     "*": "deny"
     "explore": "allow"

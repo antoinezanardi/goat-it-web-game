@@ -22,6 +22,7 @@ permission:
     "pnpm run test:acceptance*": "allow"
     "pnpm run typecheck": "allow"
     "pnpm run lint*": "allow"
+    "gh *": "allow"
   read: allow
   grep: allow
   glob: allow
