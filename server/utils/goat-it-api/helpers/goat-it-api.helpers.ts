@@ -1,12 +1,15 @@
 import { FetchError } from "ofetch";
 import { getCookie } from "h3";
+import { z } from "zod";
 import { API_RESPONSE_EXCEPTION_DTO } from "@goat-it/schemas/shared/error";
 import type { Locale } from "@goat-it/schemas/shared/locale";
 import type { H3Event } from "h3";
 
 import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
 import { GOAT_IT_API_REQUEST_RETRY_COUNT, GOAT_IT_API_REQUEST_RETRY_DELAY_IN_MS, GOAT_IT_API_REQUEST_TIMEOUT_IN_MS } from "#server/utils/goat-it-api/goat-it-api.constants";
-import type { CreateGoatItApiEndpointOptions, GoatItApiResourceName } from "#server/utils/goat-it-api/goat-it-api.types";
+import type { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
+import { GoatItApiHeaderNames } from "#server/utils/goat-it-api/goat-it-api.enums";
+import type { CreateGoatItApiEndpointOptions } from "#server/utils/goat-it-api/goat-it-api.types";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { CookieNames } from "#shared/enums/cookie.enums";
 import { isNonEmptyString } from "#shared/utils/helpers/string/string.helpers";
@@ -18,7 +21,7 @@ function getRuntimeConfig(event: H3Event): AppRuntimeConfig {
   return useRuntimeConfig(event) as unknown as AppRuntimeConfig;
 }
 
-function createGoatItApiEndpoint(resourceName: GoatItApiResourceName, options?: CreateGoatItApiEndpointOptions): string {
+function createGoatItApiEndpoint(resourceName: GoatItApiResourceNames, options?: CreateGoatItApiEndpointOptions): string {
   let endpoint = `/${resourceName}`;
 
   if (isNonEmptyString(options?.id)) {
@@ -29,10 +32,8 @@ function createGoatItApiEndpoint(resourceName: GoatItApiResourceName, options?: 
   return endpoint;
 }
 
-function extractLocaleFromEvent(event: H3Event): Locale {
-  const config = getRuntimeConfig(event);
-
-  return resolveCookieLocale(getCookie(event, CookieNames.I18N_REDIRECTED), config.public.defaultLocale);
+function extractLocaleFromEvent(event: H3Event, defaultLocale: Locale): Locale {
+  return resolveCookieLocale(getCookie(event, CookieNames.I18N_REDIRECTED), defaultLocale);
 }
 
 function createGoatItApiFetchOptions(event: H3Event): Parameters<typeof $fetch>[1] {
@@ -41,8 +42,8 @@ function createGoatItApiFetchOptions(event: H3Event): Parameters<typeof $fetch>[
   return {
     baseURL: config.goatItApi.baseUrl,
     headers: {
-      "goat-it-api-key": config.goatItApi.gameKey,
-      "Accept-Language": extractLocaleFromEvent(event),
+      [GoatItApiHeaderNames.API_KEY]: config.goatItApi.gameKey,
+      [GoatItApiHeaderNames.ACCEPT_LANGUAGE]: extractLocaleFromEvent(event, config.public.defaultLocale),
     },
     retry: GOAT_IT_API_REQUEST_RETRY_COUNT,
     retryDelay: GOAT_IT_API_REQUEST_RETRY_DELAY_IN_MS,
@@ -50,7 +51,15 @@ function createGoatItApiFetchOptions(event: H3Event): Parameters<typeof $fetch>[
   };
 }
 
-function handleGoatItApiError(error: unknown): never {
+function parseAndMapGoatItApiResponse<Dto, Domain>(
+  rawData: unknown,
+  dtoSchema: z.ZodType<Dto>,
+  mapper: (dto: Dto) => Domain,
+): Domain[] {
+  return z.array(dtoSchema).parse(rawData).map(mapper);
+}
+
+function throwGoatItApiError(error: unknown): never {
   if (!(error instanceof FetchError)) {
     throw error;
   }
@@ -74,5 +83,6 @@ export {
   createGoatItApiEndpoint,
   createGoatItApiFetchOptions,
   extractLocaleFromEvent,
-  handleGoatItApiError,
+  parseAndMapGoatItApiResponse,
+  throwGoatItApiError,
 };

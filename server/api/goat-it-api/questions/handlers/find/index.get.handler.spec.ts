@@ -1,11 +1,13 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ZodError } from "zod";
+import { QUESTION_DTO } from "@goat-it/schemas/question";
 import { createFakeQuestionDto } from "@goat-it/schemas/testing/question";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
+import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint, createGoatItApiFetchOptions, parseAndMapGoatItApiResponse, throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { findQuestionsHandler } from "#server/api/goat-it-api/questions/handlers/find/index.get.handler";
 
@@ -117,13 +119,21 @@ describe("Server Goat It API Questions Find Get Handler", () => {
       );
     });
 
-    it("should return mapped questions when called.", async() => {
-      const fakeQuestions = [
-        createFakeQuestionDto({ author: { role: "admin", name: "Test Admin" } }),
-        createFakeQuestionDto({ author: { role: "admin", name: "Test Admin" } }),
+    it("should parse and map the fetched data with the question dto and mapper when called.", async() => {
+      const rawData = [createFakeQuestionDto()];
+      vi.mocked($fetch).mockResolvedValue(rawData);
+
+      await findQuestionsHandler(mockedEvent);
+
+      expect(parseAndMapGoatItApiResponse).toHaveBeenCalledExactlyOnceWith(rawData, QUESTION_DTO, createQuestionFromQuestionDto);
+    });
+
+    it("should return the parsed and mapped questions when called.", async() => {
+      const expectedQuestions = [
+        createFakeQuestion(),
+        createFakeQuestion(),
       ];
-      vi.mocked($fetch).mockResolvedValue(fakeQuestions);
-      const expectedQuestions = fakeQuestions.map(createQuestionFromQuestionDto);
+      vi.mocked(parseAndMapGoatItApiResponse).mockReturnValue(expectedQuestions);
 
       const result = await findQuestionsHandler(mockedEvent);
 
@@ -141,7 +151,7 @@ describe("Server Goat It API Questions Find Get Handler", () => {
       await expect(findQuestionsHandler(mockedEvent)).rejects.toMatchObject({ statusCode: HttpStatusCode.BAD_REQUEST });
     });
 
-    it("should call handleGoatItApiError when $fetch throws an error.", async() => {
+    it("should call throwGoatItApiError when $fetch throws an error.", async() => {
       const fetchError = new Error("Network error");
       vi.mocked($fetch).mockRejectedValue(fetchError);
 
@@ -151,16 +161,14 @@ describe("Server Goat It API Questions Find Get Handler", () => {
         void error;
       }
 
-      expect(handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fetchError);
+      expect(throwGoatItApiError).toHaveBeenCalledExactlyOnceWith(fetchError);
     });
 
-    it("should call handleGoatItApiError with zod error when the fetched data is invalid.", async() => {
-      vi.mocked($fetch).mockResolvedValue([
-        {
-          id: "invalid-id",
-          name: "Invalid Question",
-        },
-      ]);
+    it("should call throwGoatItApiError with the zod error when parsing the fetched data fails.", async() => {
+      const zodError = new ZodError([]);
+      vi.mocked(parseAndMapGoatItApiResponse).mockImplementation(() => {
+        throw zodError;
+      });
 
       try {
         await findQuestionsHandler(mockedEvent);
@@ -168,7 +176,7 @@ describe("Server Goat It API Questions Find Get Handler", () => {
         void error;
       }
 
-      expect(handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(expect.any(ZodError));
+      expect(throwGoatItApiError).toHaveBeenCalledExactlyOnceWith(zodError);
     });
   });
 });
