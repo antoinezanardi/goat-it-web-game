@@ -113,6 +113,16 @@ pnpm run docker:build:linux/arm64
 pnpm run docker:build:linux/amd64
 ```
 
+No secrets are required at build time. The image reads `NUXT_GOAT_IT_API_BASE_URL` and `NUXT_GOAT_IT_API_GAME_KEY` from the runtime environment:
+
+```bash
+# Run the production image (runtime environment variables are required)
+docker run -p 3002:3002 \
+  -e NUXT_GOAT_IT_API_BASE_URL=https://api.goat-it.fr \
+  -e NUXT_GOAT_IT_API_GAME_KEY=your_game_key_here \
+  goat-it-web-game
+```
+
 ### 🐐💽 Goat It API sandbox
 
 For development or testing purposes, you can run the Goat It API sandbox with the following command :

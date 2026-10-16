@@ -47,6 +47,7 @@
     "dev": "nuxt dev --dotenv envs/.env.development --port 4000",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "check:secrets-in-built-output": "sh scripts/check-secrets-in-built-output.sh",
     "start:dev": "pnpm run dev",
     "start:prod": "node .output/server/index.mjs",
     "typecheck": "nuxt typecheck",

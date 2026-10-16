@@ -10,8 +10,6 @@ const SANDBOX_BASE_PORT = 9090;
 
 const ACCEPTANCE_TESTS_SITE_URL = "https://test.goat-it.fr";
 
-const ACCEPTANCE_TESTS_APP_SECRET = "test_app_secret_for_acceptance_tests";
-
 const SANDBOX_GAME_KEY = "test_game_api_key_for_testing";
 
 const SANDBOX_HEALTH_CHECK_MAX_RETRIES = 10;
@@ -28,7 +26,6 @@ const SHARED_BUILD_DIR = ".nuxt/test";
 
 export {
   ACCEPTANCE_TESTS_DEFAULT_LOCALE,
-  ACCEPTANCE_TESTS_APP_SECRET,
   ACCEPTANCE_TESTS_SITE_URL,
   AFTER_ALL_TIMEOUT,
   BEFORE_ALL_TIMEOUT,
