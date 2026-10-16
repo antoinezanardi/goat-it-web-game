@@ -1,17 +1,23 @@
 import { FetchError } from "ofetch";
 import { H3Error, getCookie } from "h3";
+import { ZodError } from "zod";
+import { QUESTION_DTO } from "@goat-it/schemas/question";
 import type { Locale } from "@goat-it/schemas/shared/locale";
+import { createFakeQuestionDto } from "@goat-it/schemas/testing/question";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
+import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
 import {
   createGoatItApiEndpoint,
   createGoatItApiFetchOptions,
   extractLocaleFromEvent,
-  handleGoatItApiError,
+  parseAndMapGoatItApiResponse,
+  throwGoatItApiError,
 } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
-import type { CreateGoatItApiEndpointOptions, GoatItApiResourceName } from "#server/utils/goat-it-api/goat-it-api.types";
+import { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
+import type { CreateGoatItApiEndpointOptions } from "#server/utils/goat-it-api/goat-it-api.types";
 
 vi.stubGlobal("useRuntimeConfig", vi.fn());
 
@@ -46,15 +52,15 @@ describe(createGoatItApiEndpoint, () => {
 
   it.each<{
     description: string;
-    resourceName: GoatItApiResourceName;
+    resourceName: GoatItApiResourceNames;
     options?: CreateGoatItApiEndpointOptions;
     expectedEndpoint: string;
   }>([
-    { description: "no options", resourceName: "question-themes", expectedEndpoint: "/question-themes" },
-    { description: "an id option", resourceName: "question-themes", options: { id: "abc123" }, expectedEndpoint: "/question-themes/abc123" },
-    { description: "a suffix option", resourceName: "questions", options: { suffix: "search/random" }, expectedEndpoint: "/questions/search/random" },
-    { description: "an empty id option", resourceName: "question-themes", options: { id: "" }, expectedEndpoint: "/question-themes" },
-    { description: "an empty suffix option", resourceName: "questions", options: { suffix: "" }, expectedEndpoint: "/questions" },
+    { description: "no options", resourceName: GoatItApiResourceNames.QUESTION_THEMES, expectedEndpoint: "/question-themes" },
+    { description: "an id option", resourceName: GoatItApiResourceNames.QUESTION_THEMES, options: { id: "abc123" }, expectedEndpoint: "/question-themes/abc123" },
+    { description: "a suffix option", resourceName: GoatItApiResourceNames.QUESTIONS, options: { suffix: "search/random" }, expectedEndpoint: "/questions/search/random" },
+    { description: "an empty id option", resourceName: GoatItApiResourceNames.QUESTION_THEMES, options: { id: "" }, expectedEndpoint: "/question-themes" },
+    { description: "an empty suffix option", resourceName: GoatItApiResourceNames.QUESTIONS, options: { suffix: "" }, expectedEndpoint: "/questions" },
   ])(
     "should create the endpoint '$expectedEndpoint' for resource '$resourceName' when called with $description.",
     ({ resourceName, options, expectedEndpoint }) => {
@@ -71,7 +77,7 @@ describe(extractLocaleFromEvent, () => {
   it("should return cookie locale when i18n_redirected cookie is valid.", () => {
     vi.mocked(getCookie).mockReturnValue("fr");
 
-    const locale = extractLocaleFromEvent(mockedEvent);
+    const locale = extractLocaleFromEvent(mockedEvent, "en");
 
     expect(locale).toBe("fr");
   });
@@ -84,21 +90,19 @@ describe(extractLocaleFromEvent, () => {
   ])("should fall back to default locale when i18n_redirected cookie is $description.", ({ cookieValue }) => {
     vi.mocked(getCookie).mockReturnValue(cookieValue);
 
-    const locale = extractLocaleFromEvent(mockedEvent);
+    const locale = extractLocaleFromEvent(mockedEvent, "en");
 
     expect(locale).toBe("en");
   });
 
   it("should fall back to default locale when cookie is missing.", () => {
-    const locale = extractLocaleFromEvent(mockedEvent);
+    const locale = extractLocaleFromEvent(mockedEvent, "en");
 
     expect(locale).toBe("en");
   });
 
-  it("should fall back to the configured default locale when cookie is missing and default locale is fr.", () => {
-    mockGoatItApiEnvironment("fr");
-
-    const locale = extractLocaleFromEvent(mockedEvent);
+  it("should fall back to the provided default locale when cookie is missing and the default locale is fr.", () => {
+    const locale = extractLocaleFromEvent(mockedEvent, "fr");
 
     expect(locale).toBe("fr");
   });
@@ -108,11 +112,10 @@ describe(extractLocaleFromEvent, () => {
     { cookieValue: "FR", description: "an uppercase locale code" },
     { cookieValue: "ja", description: "an unsupported locale" },
     { cookieValue: "garbage", description: "a garbage value" },
-  ])("should fall back to the configured fr default locale when i18n_redirected cookie is $description.", ({ cookieValue }) => {
-    mockGoatItApiEnvironment("fr");
+  ])("should fall back to the provided fr default locale when i18n_redirected cookie is $description.", ({ cookieValue }) => {
     vi.mocked(getCookie).mockReturnValue(cookieValue);
 
-    const locale = extractLocaleFromEvent(mockedEvent);
+    const locale = extractLocaleFromEvent(mockedEvent, "fr");
 
     expect(locale).toBe("fr");
   });
@@ -175,7 +178,7 @@ describe(createGoatItApiFetchOptions, () => {
   });
 });
 
-describe(handleGoatItApiError, () => {
+describe(throwGoatItApiError, () => {
   beforeEach(() => mockGoatItApiEnvironment());
 
   const validErrorDataWithErrorCode = {
@@ -219,7 +222,7 @@ describe(handleGoatItApiError, () => {
     ])(
       "should throw an H3Error when error data is $description.",
       ({ errorData }) => {
-        expect(() => handleGoatItApiError(createFailingFetchError(errorData))).toThrow(H3Error);
+        expect(() => throwGoatItApiError(createFailingFetchError(errorData))).toThrow(H3Error);
       },
     );
 
@@ -246,14 +249,14 @@ describe(handleGoatItApiError, () => {
     ])(
       "should throw an H3Error with status code $expectedStatusCode when error data is $description.",
       ({ errorData, expectedStatusCode }) => {
-        const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(errorData)));
+        const error = getThrowableError(() => throwGoatItApiError(createFailingFetchError(errorData)));
 
         expect(error.statusCode).toBe(expectedStatusCode);
       },
     );
 
     it("should not forward the upstream error message when error data is valid.", () => {
-      const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(validErrorDataWithErrorCode)));
+      const error = getThrowableError(() => throwGoatItApiError(createFailingFetchError(validErrorDataWithErrorCode)));
 
       expect(error.message).not.toBe(validErrorDataWithErrorCode.message);
     });
@@ -281,7 +284,7 @@ describe(handleGoatItApiError, () => {
     ])(
       "should throw an H3Error with the parsed errorCode in data when error data is $description.",
       ({ errorData, expectedData }) => {
-        const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(errorData)));
+        const error = getThrowableError(() => throwGoatItApiError(createFailingFetchError(errorData)));
 
         expect(error.data).toStrictEqual(expectedData);
       },
@@ -291,6 +294,35 @@ describe(handleGoatItApiError, () => {
   it("should re-throw the original error when error is not a FetchError.", () => {
     const originalError = new Error("Some other error");
 
-    expect(() => handleGoatItApiError(originalError)).toThrow(originalError);
+    expect(() => throwGoatItApiError(originalError)).toThrow(originalError);
+  });
+});
+
+describe(parseAndMapGoatItApiResponse, () => {
+  it("should return the mapped domain objects when the raw data matches the dto schema.", () => {
+    const fakeQuestionDtos = [
+      createFakeQuestionDto(),
+      createFakeQuestionDto(),
+      createFakeQuestionDto(),
+    ];
+    const expectedQuestions = fakeQuestionDtos.map(createQuestionFromQuestionDto);
+
+    const questions = parseAndMapGoatItApiResponse(fakeQuestionDtos, QUESTION_DTO, createQuestionFromQuestionDto);
+
+    expect(questions).toStrictEqual(expectedQuestions);
+  });
+
+  it("should return an empty array when the raw data is an empty array.", () => {
+    const questions = parseAndMapGoatItApiResponse([], QUESTION_DTO, createQuestionFromQuestionDto);
+
+    expect(questions).toStrictEqual([]);
+  });
+
+  it("should throw a zod error when the raw data does not match the dto schema.", () => {
+    expect(() => parseAndMapGoatItApiResponse([{ id: "invalid-id" }], QUESTION_DTO, createQuestionFromQuestionDto)).toThrow(ZodError);
+  });
+
+  it("should throw a zod error when the raw data is not an array.", () => {
+    expect(() => parseAndMapGoatItApiResponse({ id: "invalid-id" }, QUESTION_DTO, createQuestionFromQuestionDto)).toThrow(ZodError);
   });
 });

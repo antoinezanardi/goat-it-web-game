@@ -1,11 +1,13 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ZodError } from "zod";
+import { QUESTION_THEME_DTO } from "@goat-it/schemas/question-theme";
 import { createFakeQuestionThemeDto } from "@goat-it/schemas/testing/question-theme";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint, createGoatItApiFetchOptions, parseAndMapGoatItApiResponse, throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { getQuestionThemesHandler } from "#server/api/goat-it-api/question-themes/handlers/get-all/index.get.handler";
 
@@ -84,20 +86,28 @@ describe("Server Goat It API Question Themes Get Handler", () => {
       await expect(getQuestionThemesHandler(mockedEvent)).rejects.toMatchObject({ statusCode: HttpStatusCode.BAD_REQUEST });
     });
 
-    it("should return mapped question themes when called.", async() => {
-      const fakeQuestionThemes = [
-        createFakeQuestionThemeDto(),
-        createFakeQuestionThemeDto(),
-        createFakeQuestionThemeDto(),
+    it("should parse and map the fetched data with the question theme dto and mapper when called.", async() => {
+      const rawData = [createFakeQuestionThemeDto()];
+      vi.mocked($fetch).mockResolvedValue(rawData);
+
+      await getQuestionThemesHandler(mockedEvent);
+
+      expect(parseAndMapGoatItApiResponse).toHaveBeenCalledExactlyOnceWith(rawData, QUESTION_THEME_DTO, createQuestionThemeFromQuestionThemeDto);
+    });
+
+    it("should return the parsed and mapped question themes when called.", async() => {
+      const expectedQuestionThemes = [
+        createFakeQuestionTheme(),
+        createFakeQuestionTheme(),
       ];
-      vi.mocked($fetch).mockResolvedValue(fakeQuestionThemes);
-      const expectedQuestionThemes = fakeQuestionThemes.map(createQuestionThemeFromQuestionThemeDto);
+      vi.mocked(parseAndMapGoatItApiResponse).mockReturnValue(expectedQuestionThemes);
+
       const result = await getQuestionThemesHandler(mockedEvent);
 
       expect(result).toStrictEqual(expectedQuestionThemes);
     });
 
-    it("should call handleGoatItApiError when $fetch throws an error.", async() => {
+    it("should call throwGoatItApiError when $fetch throws an error.", async() => {
       const fetchError = new Error("Network error");
       vi.mocked($fetch).mockRejectedValue(fetchError);
 
@@ -107,17 +117,14 @@ describe("Server Goat It API Question Themes Get Handler", () => {
         void error;
       }
 
-      expect(handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fetchError);
+      expect(throwGoatItApiError).toHaveBeenCalledExactlyOnceWith(fetchError);
     });
 
-    it("should call handleGoatItApiError with zod error when the fetched data is invalid.", async() => {
-      vi.mocked($fetch).mockResolvedValue([
-        {
-          id: "invalid-id",
-          name: "Invalid Question Theme",
-          description: "This question theme has an invalid ID.",
-        },
-      ]);
+    it("should call throwGoatItApiError with the zod error when parsing the fetched data fails.", async() => {
+      const zodError = new ZodError([]);
+      vi.mocked(parseAndMapGoatItApiResponse).mockImplementation(() => {
+        throw zodError;
+      });
 
       try {
         await getQuestionThemesHandler(mockedEvent);
@@ -125,7 +132,7 @@ describe("Server Goat It API Question Themes Get Handler", () => {
         void error;
       }
 
-      expect(handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(expect.any(ZodError));
+      expect(throwGoatItApiError).toHaveBeenCalledExactlyOnceWith(zodError);
     });
   });
 });
