@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE_FALLBACK } from "./shared/constants/locale.constants";
+import { DEFAULT_LOCALE_FALLBACK } from "#shared/constants/locale.constants.ts";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
