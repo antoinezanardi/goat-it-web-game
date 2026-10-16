@@ -53,10 +53,15 @@ describe("Server Goat It API Question Themes Get Handler", () => {
       vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
       await getQuestionThemesHandler(mockedEvent);
 
-      expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, { ...expectedFetchOptions, query: { "sort-by": "slug", "sort-order": "asc", "limit": 100 } });
+      expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, { ...expectedFetchOptions, query: { "sort-by": "slug", "sort-order": "asc", "limit": 50 } });
     });
 
-    it("should force the theme catalog limit to the maximum when a smaller limit is requested.", async() => {
+    it.each<{ providedLimit: number; expectedLimit: number }>([
+      { providedLimit: 0, expectedLimit: 100 },
+      { providedLimit: 5000, expectedLimit: 100 },
+      { providedLimit: 5, expectedLimit: 5 },
+      { providedLimit: 100, expectedLimit: 100 },
+    ])("should clamp the forwarded limit to $expectedLimit when the provided limit is $providedLimit.", async({ providedLimit, expectedLimit }) => {
       const expectedEndpoint = "/question-themes";
       const expectedFetchOptions = {
         baseURL: "https://api.goat-it.com",
@@ -66,11 +71,11 @@ describe("Server Goat It API Question Themes Get Handler", () => {
       };
       vi.mocked(createGoatItApiEndpoint).mockReturnValue(expectedEndpoint);
       vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
-      vi.mocked(getQuery).mockReturnValue({ limit: 5 });
+      vi.mocked(getQuery).mockReturnValue({ limit: providedLimit });
 
       await getQuestionThemesHandler(mockedEvent);
 
-      expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, { ...expectedFetchOptions, query: { "sort-by": "slug", "sort-order": "asc", "limit": 100 } });
+      expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, { ...expectedFetchOptions, query: { "sort-by": "slug", "sort-order": "asc", "limit": expectedLimit } });
     });
 
     it("should reject with a bad request error when query params are invalid.", async() => {
