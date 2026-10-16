@@ -160,3 +160,10 @@ Then(
     expect(response.headers()["content-type"]).toContain("image/png");
   },
 );
+
+Then(
+  /^the html lang attribute should be "(?<language>[^"]*)"$/u,
+  async function(this: GoatItWorld, language: string): Promise<void> {
+    await expect(this.page.locator("html")).toHaveAttribute("lang", language);
+  },
+);

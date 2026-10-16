@@ -51,7 +51,7 @@ export default defineNuxtConfig({
       mode: "out-in",
     },
     head: {
-      htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE ?? DEFAULT_LOCALE_FALLBACK, class: "dark" },
+      htmlAttrs: { class: "dark" },
       titleTemplate: "%s",
     },
   },
