@@ -75,7 +75,6 @@ export default defineNuxtConfig({
     fonts: false,
   },
   runtimeConfig: {
-    appSecret: process.env.NUXT_APP_SECRET,
     goatItApi: {
       baseUrl: "",
       gameKey: "",
