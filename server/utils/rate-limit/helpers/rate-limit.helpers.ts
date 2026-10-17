@@ -53,6 +53,10 @@ function buildRateLimitKey(event: H3Event, trustProxy: boolean): string | undefi
     return clientIp;
   }
 
+  if (!trustProxy) {
+    return undefined;
+  }
+
   const forwardedFor = getRequestHeader(event, "x-forwarded-for");
   const forwardedClientIp = forwardedFor?.split(",")[0]?.trim();
 

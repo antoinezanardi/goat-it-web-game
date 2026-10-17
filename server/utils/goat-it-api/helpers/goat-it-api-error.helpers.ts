@@ -2,15 +2,10 @@ import { FetchError } from "ofetch";
 import { API_RESPONSE_EXCEPTION_DTO } from "@goat-it/schemas/shared/error";
 import { z } from "zod";
 
+import { UPSTREAM_ERROR_LOG_PREFIX } from "#server/utils/goat-it-api/goat-it-api.constants";
+import type { ProxyErrorData } from "#server/utils/goat-it-api/goat-it-api.types";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { GOAT_IT_API_PROXY_ERROR_CODES } from "#shared/constants/goat-it-api.constants";
-
-const UPSTREAM_ERROR_LOG_PREFIX = "Goat It API upstream error:";
-
-type ProxyErrorData = {
-  errorCode?: string;
-  retryAfter?: string;
-};
 
 function logGoatItApiError(reason: string): void {
   console.error(`${UPSTREAM_ERROR_LOG_PREFIX} ${reason}`);

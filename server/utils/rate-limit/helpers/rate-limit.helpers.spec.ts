@@ -140,24 +140,32 @@ describe(buildRateLimitKey, () => {
     expect(key).toBe("203.0.113.7");
   });
 
-  it("should return the first forwarded client ip when the connection ip cannot be resolved and the forwarded header is present.", () => {
+  it("should ignore the forwarded header when the connection ip cannot be resolved and the trusted proxy flag is disabled.", () => {
     vi.mocked(getRequestHeader).mockReturnValue("203.0.113.9, 10.0.0.1");
 
-    const key = buildRateLimitKey(mockedEvent, false);
-
-    expect(key).toBe("203.0.113.9");
-  });
-
-  it("should return undefined when the connection ip cannot be resolved and the forwarded header is missing.", () => {
     const key = buildRateLimitKey(mockedEvent, false);
 
     expect(key).toBeUndefined();
   });
 
-  it("should return undefined when the connection ip cannot be resolved and the forwarded header is empty.", () => {
+  it("should return the first forwarded client ip when the connection ip cannot be resolved and the trusted proxy flag is enabled.", () => {
+    vi.mocked(getRequestHeader).mockReturnValue("203.0.113.9, 10.0.0.1");
+
+    const key = buildRateLimitKey(mockedEvent, true);
+
+    expect(key).toBe("203.0.113.9");
+  });
+
+  it("should return undefined when the connection ip cannot be resolved, the trusted proxy flag is enabled and the forwarded header is missing.", () => {
+    const key = buildRateLimitKey(mockedEvent, true);
+
+    expect(key).toBeUndefined();
+  });
+
+  it("should return undefined when the connection ip cannot be resolved, the trusted proxy flag is enabled and the forwarded header is empty.", () => {
     vi.mocked(getRequestHeader).mockReturnValue("");
 
-    const key = buildRateLimitKey(mockedEvent, false);
+    const key = buildRateLimitKey(mockedEvent, true);
 
     expect(key).toBeUndefined();
   });

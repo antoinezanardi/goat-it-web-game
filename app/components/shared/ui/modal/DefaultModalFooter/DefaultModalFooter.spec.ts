@@ -1,6 +1,6 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import type { VueWrapper } from "@vue/test-utils";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
@@ -26,6 +26,11 @@ describe("DefaultModalFooter Component", () => {
 
   beforeEach(async() => {
     wrapper = await mountDefaultModalFooterComponent();
+  });
+
+  afterEach(() => {
+    wrapper.unmount();
+    document.body.innerHTML = "";
   });
 
   it("should render DefaultModalFooter when mounted.", () => {
@@ -107,6 +112,7 @@ describe("DefaultModalFooter Component", () => {
   describe("Primary button", () => {
     describe("When no primary button label is provided", () => {
       beforeEach(async() => {
+        wrapper.unmount();
         wrapper = await mountDefaultModalFooterComponent({ props: {} });
       });
 
@@ -260,6 +266,7 @@ describe("DefaultModalFooter Component", () => {
     });
 
     it("should not emit primaryButtonClick when meta+enter is pressed and no primary button label is provided.", async() => {
+      wrapper.unmount();
       wrapper = await mountDefaultModalFooterComponent({ props: {} });
 
       dispatchMetaEnterKeydown();

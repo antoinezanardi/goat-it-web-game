@@ -1,10 +1,7 @@
 import type { H3Event } from "h3";
 
-import { GOAT_IT_API_MAXIMUM_REQUEST_BODY_BYTES } from "#server/utils/goat-it-api/goat-it-api.constants";
+import { CONTENT_LENGTH_PATTERN, GOAT_IT_API_MAXIMUM_REQUEST_BODY_BYTES, JSON_CONTENT_TYPE_PATTERN } from "#server/utils/goat-it-api/goat-it-api.constants";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
-
-const CONTENT_LENGTH_PATTERN = /^\d+$/u;
-const JSON_CONTENT_TYPE_PATTERN = /^application\/json(?:;|$)/iu;
 
 function resolveRequestBodyRejectionStatusCode(event: H3Event): HttpStatusCode | undefined {
   const contentLength = getRequestHeader(event, "content-length");

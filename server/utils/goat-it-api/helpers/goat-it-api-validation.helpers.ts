@@ -2,11 +2,10 @@ import { getValidatedQuery, readValidatedBody } from "h3";
 import { z } from "zod";
 import type { H3Event } from "h3";
 
+import type { UnrecognizedKeysIssue } from "#server/utils/goat-it-api/goat-it-api.types";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { GOAT_IT_API_PROXY_ERROR_CODES } from "#shared/constants/goat-it-api.constants";
 import { isRecord } from "#shared/utils/helpers/object/object.helpers";
-
-type UnrecognizedKeysIssue = z.core.$ZodIssueUnrecognizedKeys;
 
 function isUnrecognizedKeysIssue(issue: z.core.$ZodIssue): issue is UnrecognizedKeysIssue {
   return issue.code === "unrecognized_keys";

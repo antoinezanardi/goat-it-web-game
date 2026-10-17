@@ -270,6 +270,7 @@ Slash commands available in OpenCode sessions:
 - `docs/superpowers/` – Agent workflow artifacts: `specs/` (design specs from brainstormer), `plans/` (implementation plans from plan-writer).
 - `docs/unit-testing.md` – Full human-readable unit testing guide (patterns, examples, pitfalls).
 - `docs/acceptance-testing.md` – Full acceptance testing guide (Cucumber, Playwright, patterns, examples).
+- `docs/security.md` – Security hardening reference: security headers, CSP nonce, rate limiting, body guard, upstream fetch pipeline and error contract.
 
 ## MemPalace (persistent project memory)
 

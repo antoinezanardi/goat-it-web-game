@@ -117,28 +117,26 @@ describe(stampNonceOnInlineScripts, () => {
     ]);
   });
 
-  it("should keep the existing nonce when a script tag already has one.", () => {
-    const chunks = ["<script nonce=\"existing\" src=\"/app.js\"></script>"];
-
+  it.each<{ description: string; chunks: string[]; expectedChunks: string[] }>([
+    {
+      description: "a script tag already has a nonce",
+      chunks: ["<script nonce=\"existing\" src=\"/app.js\"></script>"],
+      expectedChunks: ["<script nonce=\"existing\" src=\"/app.js\"></script>"],
+    },
+    {
+      description: "the chunk contains no script tag",
+      chunks: ["<style>:root{color:red}</style>"],
+      expectedChunks: ["<style>:root{color:red}</style>"],
+    },
+    {
+      description: "a script tag is uppercase without a nonce",
+      chunks: ["<SCRIPT>window.__NUXT__={}</SCRIPT>"],
+      expectedChunks: ["<script nonce=\"nonce-value\">window.__NUXT__={}</SCRIPT>"],
+    },
+  ])("should return the expected chunks when $description.", ({ chunks, expectedChunks }) => {
     const stampedChunks = stampNonceOnInlineScripts(chunks, "nonce-value");
 
-    expect(stampedChunks).toStrictEqual(["<script nonce=\"existing\" src=\"/app.js\"></script>"]);
-  });
-
-  it("should leave the chunk untouched when it contains no script tag.", () => {
-    const chunks = ["<style>:root{color:red}</style>"];
-
-    const stampedChunks = stampNonceOnInlineScripts(chunks, "nonce-value");
-
-    expect(stampedChunks).toStrictEqual(["<style>:root{color:red}</style>"]);
-  });
-
-  it("should stamp uppercase script tags when no nonce is present.", () => {
-    const chunks = ["<SCRIPT>window.__NUXT__={}</SCRIPT>"];
-
-    const stampedChunks = stampNonceOnInlineScripts(chunks, "nonce-value");
-
-    expect(stampedChunks).toStrictEqual(["<script nonce=\"nonce-value\">window.__NUXT__={}</SCRIPT>"]);
+    expect(stampedChunks).toStrictEqual(expectedChunks);
   });
 });
 
