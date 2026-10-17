@@ -119,7 +119,6 @@ export default defineNuxtConfig({
         "@goat-it/schemas/shared/constants",
         "@goat-it/schemas/question",
         "@goat-it/schemas/question-theme",
-        "fuse.js",
         "radashi",
         "zod",
       ],
@@ -263,7 +262,7 @@ export default defineNuxtConfig({
   icon: {
     clientBundle: {
       scan: {
-        globInclude: ["**/*.{vue,ts}"],
+        globInclude: ["app/**/*.{vue,ts}"],
       },
     },
   },

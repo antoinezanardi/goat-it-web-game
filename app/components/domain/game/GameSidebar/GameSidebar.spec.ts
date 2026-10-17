@@ -84,6 +84,12 @@ describe("GameSidebar Component", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")?.textContent).toContain("home.brand");
   });
 
+  it("should provide lazy loading and asynchronous decoding hints to the brand logo when mounted.", () => {
+    const logo = document.body.querySelector<HTMLImageElement>("[data-testid='game-sidebar'] img");
+
+    expect({ decoding: logo?.getAttribute("decoding"), loading: logo?.getAttribute("loading") }).toStrictEqual({ decoding: "async", loading: "lazy" });
+  });
+
   it("should render the sidebar title as a link to the home page when mounted.", () => {
     expect(findLinkByTestId("game-sidebar").props("to")).toBe("/");
   });

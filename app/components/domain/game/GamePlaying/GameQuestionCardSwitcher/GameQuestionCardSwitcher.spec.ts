@@ -34,7 +34,7 @@ describe("GameQuestionCardSwitcher Component", () => {
   }
 
   function getCardContainers(wrapperInstance: VueWrapper): DOMWrapper<Element>[] {
-    return wrapperInstance.findAll(".absolute.inset-0.will-change-transform");
+    return wrapperInstance.findAll("[data-testid^='game-question-slot-']");
   }
 
   function getVisibleCardElement(wrapperInstance: VueWrapper): DOMWrapper<Element> {
@@ -147,6 +147,27 @@ describe("GameQuestionCardSwitcher Component", () => {
       .map(container => container.element);
 
     expect(stagedContainers.filter(container => container.classList.contains("opacity-0"))).toHaveLength(2);
+  });
+
+  it("should not apply the transition compositing class to the card containers when at rest.", () => {
+    expect(getCardContainers(wrapper).every(container => !container.classes("will-change-transform"))).toBe(true);
+  });
+
+  it("should apply the transition compositing class to the card containers when a slide is in progress.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+    await nextTick();
+
+    expect(getCardContainers(wrapper).every(container => container.classes("will-change-transform"))).toBe(true);
+  });
+
+  it("should remove the transition compositing class from the card containers when the slide completes.", async() => {
+    await wrapper.setProps({ pendingDirection: "forward" });
+    await nextTick();
+    useGsapMock.instance.capturedOnComplete.current?.();
+    await nextTick();
+
+    expect(getCardContainers(wrapper).every(container => !container.classes("will-change-transform"))).toBe(true);
   });
 
   it.each<{ description: string; getContainer: () => Element; expectedAttributes: { ariaHidden: string | null; inert: boolean } }>([

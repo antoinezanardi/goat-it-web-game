@@ -25,6 +25,7 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
   let restageSafetyTimeout: ReturnType<typeof setTimeout> | undefined;
   let restageAnimationFrame = 0;
   let nestedRestageAnimationFrame = 0;
+  let hasSwappedFarSlot = false;
 
   function getSlotIndexForOffset(offset: number): number {
     return (currentSlotIndex.value + offset + QUESTION_CARD_RING_SIZE) % QUESTION_CARD_RING_SIZE;
@@ -54,6 +55,14 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
     options.onResetSlot?.(getSlotIndexForOffset(farOffset));
   }
 
+  function swapFarSlotOnce(): void {
+    if (hasSwappedFarSlot) {
+      return;
+    }
+    hasSwappedFarSlot = true;
+    swapFarSlot();
+  }
+
   function finishRestage(): void {
     if (!isRestaging.value) {
       return;
@@ -67,13 +76,16 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
 
   function scheduleRestage(): void {
     isRestaging.value = true;
+    hasSwappedFarSlot = false;
     clearTimeout(restageSafetyTimeout);
     restageSafetyTimeout = setTimeout(() => {
-      swapFarSlot();
+      swapFarSlotOnce();
+      cancelAnimationFrame(restageAnimationFrame);
+      cancelAnimationFrame(nestedRestageAnimationFrame);
       finishRestage();
     }, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
     restageAnimationFrame = requestAnimationFrame(() => {
-      swapFarSlot();
+      swapFarSlotOnce();
       void nextTick(() => {
         nestedRestageAnimationFrame = requestAnimationFrame(() => {
           clearTimeout(restageSafetyTimeout);

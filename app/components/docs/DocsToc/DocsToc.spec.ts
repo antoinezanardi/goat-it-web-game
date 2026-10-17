@@ -59,14 +59,18 @@ describe("DocsToc Component", () => {
     expect(contentToc.props("ui")).toStrictEqual(DOCS_TOC_UI);
   });
 
-  it("should call the page:transition:finish hook when mounted.", () => {
-    expect(callHookSpy).toHaveBeenCalledExactlyOnceWith("page:transition:finish");
+  it("should not call the page:transition:finish hook when mounted.", () => {
+    expect(callHookSpy).not.toHaveBeenCalledWith("page:transition:finish");
   });
 
-  it("should call the page:transition:finish hook again when sections change.", async() => {
+  it("should update the table of contents links when the sections change.", async() => {
     await wrapper.setProps({ sections: [...defaultDocsTocProps.sections, { id: "/rules#answer", title: "Finding the answer", level: 2 }] });
     await flushPromises();
 
-    expect(callHookSpy).toHaveBeenNthCalledWith(2, "page:transition:finish");
+    expect(wrapper.findComponent({ name: "UContentToc" }).props("links")).toStrictEqual([
+      { id: "concept", text: "The concept", depth: 2 },
+      { id: "golden-rule", text: "The golden rule", depth: 2 },
+      { id: "answer", text: "Finding the answer", depth: 2 },
+    ]);
   });
 });
