@@ -120,7 +120,6 @@
     "eslint": "^10.12.0",
     "eslint-plugin-oxlint": "^1.88.0",
     "eslint-plugin-unicorn": "^78.0.0",
-    "fuse.js": "^7.5.0",
     "happy-dom": "^21.0.3",
     "husky": "^9.1.7",
     "is-ci": "^4.1.0",

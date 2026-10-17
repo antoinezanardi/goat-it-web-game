@@ -84,6 +84,12 @@ describe("App Component", () => {
     expect(questionThemesStore.fetchAndStoreQuestionThemes).toHaveBeenCalledExactlyOnceWith();
   });
 
+  it("should call once the question themes fetch when mounted.", () => {
+    const questionThemesStore = mockStore(useQuestionThemesStore);
+
+    expect(vi.mocked(callOnce)).toHaveBeenCalledExactlyOnceWith(questionThemesStore.fetchAndStoreQuestionThemes, expect.any(String));
+  });
+
   it("should render the ChangelogModal component when mounted.", () => {
     expect(wrapper.findComponent({ name: "ChangelogModal" }).exists()).toBe(true);
   });
