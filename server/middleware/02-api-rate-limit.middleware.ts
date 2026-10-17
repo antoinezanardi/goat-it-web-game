@@ -1,16 +1,21 @@
 import { getRuntimeConfig } from "#server/utils/runtime-config/helpers/runtime-config.helpers";
 import { buildRateLimitKey, getSharedRateLimiter } from "#server/utils/rate-limit/helpers/rate-limit.helpers";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
-
-const RATE_LIMIT_PATH_PREFIX = "/api/goat-it-api/";
+import { GOAT_IT_API_PROXY_ERROR_CODES, GOAT_IT_API_PROXY_PATH_PREFIX } from "#shared/constants/goat-it-api.constants";
 
 export default defineEventHandler((event): void => {
-  if (!event.path.startsWith(RATE_LIMIT_PATH_PREFIX)) {
+  if (!event.path.startsWith(GOAT_IT_API_PROXY_PATH_PREFIX)) {
     return;
   }
 
   const { rateLimit } = getRuntimeConfig(event);
-  const { isLimited, retryAfterInSeconds } = getSharedRateLimiter(rateLimit).check(buildRateLimitKey(event, rateLimit.trustProxy));
+  const rateLimitKey = buildRateLimitKey(event, rateLimit.trustProxy);
+
+  if (rateLimitKey === undefined) {
+    return;
+  }
+
+  const { isLimited, retryAfterInSeconds } = getSharedRateLimiter(rateLimit).check(rateLimitKey);
 
   if (!isLimited) {
     return;
@@ -20,6 +25,6 @@ export default defineEventHandler((event): void => {
   throw createError({
     statusCode: HttpStatusCode.TOO_MANY_REQUESTS,
     statusMessage: "Too Many Requests",
-    data: { errorCode: "rate-limited" },
+    data: { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.RATE_LIMITED },
   });
 });

@@ -1,9 +1,8 @@
 import { resolveRequestBodyRejectionStatusCode } from "#server/utils/goat-it-api/helpers/request-body-guard.helpers";
-
-const PROXY_POST_PATH_PREFIX = "/api/goat-it-api/";
+import { GOAT_IT_API_PROXY_ERROR_CODES, GOAT_IT_API_PROXY_PATH_PREFIX } from "#shared/constants/goat-it-api.constants";
 
 export default defineEventHandler((event): void => {
-  if (event.method !== "POST" || !event.path.startsWith(PROXY_POST_PATH_PREFIX)) {
+  if (event.method !== "POST" || !event.path.startsWith(GOAT_IT_API_PROXY_PATH_PREFIX)) {
     return;
   }
 
@@ -13,5 +12,5 @@ export default defineEventHandler((event): void => {
     return;
   }
 
-  throw createError({ statusCode: rejectionStatusCode, data: { errorCode: "invalid-request" } });
+  throw createError({ statusCode: rejectionStatusCode, data: { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.INVALID_REQUEST } });
 });

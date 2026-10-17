@@ -1,20 +1,9 @@
 import { FetchError } from "ofetch";
 
-import type { GoatItApiProxyErrorCode } from "#shared/constants/goat-it-api.constants";
+import { HTTP_STATUS_TO_PROXY_ERROR_CODE } from "~/composables/domain/useGoatItApiErrorToast/use-goat-it-api-error-toast.constants";
+import type { UseGoatItApiErrorToast } from "~/composables/domain/useGoatItApiErrorToast/use-goat-it-api-error-toast.types";
+import type { GoatItApiProxyErrorCode } from "#shared/types/goat-it-api.types";
 import { isRecord } from "#shared/utils/helpers/object/object.helpers";
-
-type UseGoatItApiErrorToast = {
-  handleGoatItApiError: (error: unknown, title: string) => void;
-};
-
-const HTTP_STATUS_TO_PROXY_ERROR_CODE: Readonly<Partial<Record<number, GoatItApiProxyErrorCode>>> = {
-  400: "invalid-request",
-  429: "rate-limited",
-  500: "internal-error",
-  502: "upstream-error",
-  503: "upstream-error",
-  504: "upstream-timeout",
-};
 
 function extractErrorCode(error: unknown): string | undefined {
   if (!(error instanceof FetchError) || !isRecord(error.data) || !isRecord(error.data.data)) {
@@ -36,7 +25,7 @@ function extractStatusCode(error: unknown): number | undefined {
   return error.statusCode;
 }
 
-function resolveStatusErrorCode(error: unknown): string | undefined {
+function resolveStatusErrorCode(error: unknown): GoatItApiProxyErrorCode | undefined {
   const statusCode = extractStatusCode(error);
 
   return statusCode === undefined ? undefined : HTTP_STATUS_TO_PROXY_ERROR_CODE[statusCode];
@@ -59,9 +48,6 @@ function useGoatItApiErrorToast(): UseGoatItApiErrorToast {
       }
 
       console.error(`Unknown Goat It API error code: ${errorCodeValue}`);
-      addErrorToast({ title, description: i18n.t("errors.unknown"), id: "api-error-unknown" });
-
-      return;
     }
 
     const statusErrorCode = resolveStatusErrorCode(error);
@@ -76,7 +62,5 @@ function useGoatItApiErrorToast(): UseGoatItApiErrorToast {
   }
   return { handleGoatItApiError };
 }
-
-export type { UseGoatItApiErrorToast };
 
 export { useGoatItApiErrorToast, extractErrorCode };

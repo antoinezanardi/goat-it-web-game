@@ -7,12 +7,14 @@ import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-e
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions, parseAndMapGoatItApiResponse, validateGoatItApiBody } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint, createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { parseAndMapGoatItApiResponse, validateGoatItApiBody } from "#server/utils/goat-it-api/helpers/goat-it-api-validation.helpers";
 import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error.helpers";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { getRandomQuestionsHandler } from "#server/api/goat-it-api/questions/handlers/search/random/index.post.handler";
 
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
+vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-validation.helpers"));
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-error.helpers"));
 
 describe("Server Goat It API Questions Search Random Post Handler", () => {

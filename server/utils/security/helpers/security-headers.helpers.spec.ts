@@ -1,10 +1,77 @@
-import { describe, expect, it } from "vitest";
+import type { H3Event } from "h3";
+import type { NitroApp } from "nitropack/types";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Mock } from "vitest";
 
 import {
   buildContentSecurityPolicy,
   generateCspNonce,
+  registerCspNonceHook,
   stampNonceOnInlineScripts,
 } from "#server/utils/security/helpers/security-headers.helpers";
+import type { CspMode } from "#shared/types/runtime-config.types";
+
+vi.stubGlobal("useRuntimeConfig", vi.fn());
+
+type RenderHtmlContext = {
+  head: string[];
+  body: string[];
+  bodyPrepend: string[];
+  bodyAppend: string[];
+};
+
+type RenderHtmlHandlerOptions = {
+  event: H3Event;
+  streaming: boolean;
+};
+
+type RenderHtmlHandler = (htmlContext: RenderHtmlContext, options: RenderHtmlHandlerOptions) => void;
+
+type RenderHtmlHookMock = Mock<(event: string, handler: RenderHtmlHandler) => void>;
+
+type SetHeaderMock = Mock<(name: string, value: string) => void>;
+
+const HTML_CHUNKS = {
+  head: ["<script>head</script>"],
+  body: ["<script>body</script>"],
+  bodyPrepend: ["<script>bodyPrepend</script>"],
+  bodyAppend: ["<script>bodyAppend</script>"],
+} as const;
+
+function createHtmlContext(): RenderHtmlContext {
+  return {
+    head: [...HTML_CHUNKS.head],
+    body: [...HTML_CHUNKS.body],
+    bodyPrepend: [...HTML_CHUNKS.bodyPrepend],
+    bodyAppend: [...HTML_CHUNKS.bodyAppend],
+  };
+}
+
+function createEventWithResponseHeaders(): { event: H3Event; setHeader: SetHeaderMock } {
+  const setHeader = vi.fn<(name: string, value: string) => void>();
+  // Acceptable as only the response header setter is needed to exercise the render hook
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  const event = { node: { res: { setHeader } } } as unknown as H3Event;
+
+  return { event, setHeader };
+}
+
+function registerRenderHtmlHook(cspMode: CspMode): { hookMock: RenderHtmlHookMock; handler: RenderHtmlHandler } {
+  const hookMock = vi.fn<(event: string, handler: RenderHtmlHandler) => void>();
+  // Acceptable as only the hook registration surface is needed to capture the render handler
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  const nitroApp = { hooks: { hook: hookMock } } as unknown as NitroApp;
+
+  vi.mocked(useRuntimeConfig).mockReturnValue({ security: { cspMode } } as unknown as ReturnType<typeof useRuntimeConfig>);
+  registerCspNonceHook(nitroApp);
+
+  const hookCall = hookMock.mock.calls[0];
+
+  if (hookCall === undefined) {
+    throw new Error("The render html hook was not registered");
+  }
+  return { hookMock, handler: hookCall[1] };
+}
 
 describe(buildContentSecurityPolicy, () => {
   it("should build the agreed content security policy when called with a nonce.", () => {
@@ -64,5 +131,112 @@ describe(stampNonceOnInlineScripts, () => {
     const stampedChunks = stampNonceOnInlineScripts(chunks, "nonce-value");
 
     expect(stampedChunks).toStrictEqual(["<style>:root{color:red}</style>"]);
+  });
+
+  it("should stamp uppercase script tags when no nonce is present.", () => {
+    const chunks = ["<SCRIPT>window.__NUXT__={}</SCRIPT>"];
+
+    const stampedChunks = stampNonceOnInlineScripts(chunks, "nonce-value");
+
+    expect(stampedChunks).toStrictEqual(["<script nonce=\"nonce-value\">window.__NUXT__={}</SCRIPT>"]);
+  });
+});
+
+describe(registerCspNonceHook, () => {
+  beforeEach(() => {
+    vi.mocked(useRuntimeConfig).mockReset();
+  });
+
+  it("should register the render html hook when called.", () => {
+    const { hookMock } = registerRenderHtmlHook("enforce");
+
+    expect(hookMock).toHaveBeenCalledExactlyOnceWith("render:html", expect.any(Function));
+  });
+
+  it("should leave the html chunks untouched when the csp mode is off.", () => {
+    const { handler } = registerRenderHtmlHook("off");
+    const htmlContext = createHtmlContext();
+    const { event } = createEventWithResponseHeaders();
+
+    handler(htmlContext, { event, streaming: false });
+
+    expect(htmlContext).toStrictEqual(createHtmlContext());
+  });
+
+  it("should not set a policy header when the csp mode is off.", () => {
+    const { handler } = registerRenderHtmlHook("off");
+    const { event, setHeader } = createEventWithResponseHeaders();
+
+    handler(createHtmlContext(), { event, streaming: false });
+
+    expect(setHeader).not.toHaveBeenCalled();
+  });
+
+  it("should stamp the head chunk when the csp mode is enforced.", () => {
+    const { handler } = registerRenderHtmlHook("enforce");
+    const htmlContext = createHtmlContext();
+    const { event } = createEventWithResponseHeaders();
+
+    handler(htmlContext, { event, streaming: false });
+
+    expect(htmlContext.head[0]).toContain("nonce=");
+  });
+
+  it("should stamp the body prepend chunk when the csp mode is enforced.", () => {
+    const { handler } = registerRenderHtmlHook("enforce");
+    const htmlContext = createHtmlContext();
+    const { event } = createEventWithResponseHeaders();
+
+    handler(htmlContext, { event, streaming: false });
+
+    expect(htmlContext.bodyPrepend[0]).toContain("nonce=");
+  });
+
+  it("should stamp the body append chunk when the csp mode is enforced and the render is not streaming.", () => {
+    const { handler } = registerRenderHtmlHook("enforce");
+    const htmlContext = createHtmlContext();
+    const { event } = createEventWithResponseHeaders();
+
+    handler(htmlContext, { event, streaming: false });
+
+    expect(htmlContext.bodyAppend[0]).toContain("nonce=");
+  });
+
+  it("should not stamp the app rendered body chunk when the csp mode is enforced.", () => {
+    const { handler } = registerRenderHtmlHook("enforce");
+    const htmlContext = createHtmlContext();
+    const { event } = createEventWithResponseHeaders();
+
+    handler(htmlContext, { event, streaming: false });
+
+    expect(htmlContext.body).toStrictEqual([...HTML_CHUNKS.body]);
+  });
+
+  it("should not stamp the body append chunk when the render is streaming.", () => {
+    const { handler } = registerRenderHtmlHook("enforce");
+    const htmlContext = createHtmlContext();
+    const { event } = createEventWithResponseHeaders();
+
+    handler(htmlContext, { event, streaming: true });
+
+    expect(htmlContext.bodyAppend).toStrictEqual([...HTML_CHUNKS.bodyAppend]);
+  });
+
+  it("should set the enforced policy header with the generated nonce when the csp mode is enforced.", () => {
+    const { handler } = registerRenderHtmlHook("enforce");
+    const { event, setHeader } = createEventWithResponseHeaders();
+
+    handler(createHtmlContext(), { event, streaming: false });
+
+    expect(setHeader).toHaveBeenCalledExactlyOnceWith("Content-Security-Policy", expect.stringContaining("'nonce-"));
+  });
+
+  it("should set the report only policy header when the csp mode is report-only.", () => {
+    const { handler } = registerRenderHtmlHook("report-only");
+    const { event, setHeader } = createEventWithResponseHeaders();
+
+    handler(createHtmlContext(), { event, streaming: false });
+
+    expect(setHeader).toHaveBeenCalledExactlyOnceWith("Content-Security-Policy-Report-Only", expect.stringContaining("'nonce-"));
   });
 });

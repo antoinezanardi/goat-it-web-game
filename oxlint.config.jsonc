@@ -104,6 +104,7 @@
     "usePreferredReducedMotion": "readonly",
     "useQuestionCardHighlight": "readonly",
     "useQuestionThemesStore": "readonly",
+    "useRequestFetch": "readonly",
     "useRoute": "readonly",
     "useRouter": "readonly",
     "useRuntimeConfig": "readonly",
@@ -1304,6 +1305,23 @@
       ],
       "rules": {
         "import/no-default-export": "off",
+        "eslint/no-param-reassign": [
+          "error",
+          {
+            "props": true,
+            "ignorePropertyModificationsFor": [
+              "htmlContext"
+            ]
+          }
+        ]
+      }
+    },
+    // ---- Override for security headers helper file -----
+    {
+      "files": [
+        "**/server/utils/security/helpers/security-headers.helpers.ts"
+      ],
+      "rules": {
         "eslint/no-param-reassign": [
           "error",
           {

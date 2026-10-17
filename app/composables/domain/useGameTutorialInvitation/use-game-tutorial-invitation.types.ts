@@ -1,6 +1,6 @@
 import type { Ref } from "vue";
 
-import type { GamePageState } from "~/composables/domain/useGame/useGame";
+import type { GamePageState } from "~/composables/domain/useGame/use-game.types";
 
 type GameTutorialInvitationOptions = {
   isTutorialAvailable: Readonly<Ref<boolean>>;

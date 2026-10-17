@@ -3,6 +3,7 @@ import { API_RESPONSE_EXCEPTION_DTO } from "@goat-it/schemas/shared/error";
 import { z } from "zod";
 
 import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { GOAT_IT_API_PROXY_ERROR_CODES } from "#shared/constants/goat-it-api.constants";
 
 const UPSTREAM_ERROR_LOG_PREFIX = "Goat It API upstream error:";
 
@@ -42,7 +43,7 @@ function getForwardedErrorCode(error: FetchError): string | undefined {
 }
 
 function createRateLimitedData(error: FetchError, response: Response): ProxyErrorData {
-  const data: ProxyErrorData = { errorCode: getForwardedErrorCode(error) ?? "rate-limited" };
+  const data: ProxyErrorData = { errorCode: getForwardedErrorCode(error) ?? GOAT_IT_API_PROXY_ERROR_CODES.RATE_LIMITED };
   const retryAfter = response.headers.get("retry-after");
 
   if (retryAfter !== null) {
@@ -58,7 +59,7 @@ function throwGoatItApiResponseError(error: FetchError, response: Response, stat
 
   if (status === HttpStatusCode.UNAUTHORIZED || status === HttpStatusCode.FORBIDDEN) {
     logGoatItApiError(`upstream status ${status}`);
-    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: "upstream-error" });
+    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.UPSTREAM_ERROR });
   }
 
   if (status >= HttpStatusCode.BAD_REQUEST && status < HttpStatusCode.INTERNAL_SERVER_ERROR) {
@@ -69,11 +70,11 @@ function throwGoatItApiResponseError(error: FetchError, response: Response, stat
     }
 
     logGoatItApiError(`unparseable upstream error body for status ${status}`);
-    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: "upstream-error" });
+    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.UPSTREAM_ERROR });
   }
 
   logGoatItApiError(`unexpected upstream status ${status}`);
-  throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: "upstream-error" });
+  throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.UPSTREAM_ERROR });
 }
 
 function throwGoatItApiNetworkError(error: FetchError): never {
@@ -81,20 +82,20 @@ function throwGoatItApiNetworkError(error: FetchError): never {
 
   if (cause instanceof Error && cause.name === "TimeoutError") {
     logGoatItApiError("upstream timeout");
-    throwProxyError(HttpStatusCode.GATEWAY_TIMEOUT, { errorCode: "upstream-timeout" });
+    throwProxyError(HttpStatusCode.GATEWAY_TIMEOUT, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.UPSTREAM_TIMEOUT });
   }
 
   if (cause instanceof Error && cause.name === "AbortError") {
-    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: "upstream-error" });
+    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.UPSTREAM_ERROR });
   }
 
   if (cause instanceof Error && cause.message === "unexpected redirect") {
     logGoatItApiError("unexpected upstream redirect");
-    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: "upstream-error" });
+    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.UPSTREAM_ERROR });
   }
 
   logGoatItApiError(`upstream network failure [${describeCause(cause)}]`);
-  throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: "upstream-error" });
+  throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.UPSTREAM_ERROR });
 }
 
 function throwGoatItApiFetchError(error: FetchError): never {
@@ -113,11 +114,11 @@ function throwGoatItApiError(error: unknown): never {
 
   if (error instanceof z.ZodError) {
     logGoatItApiError(`upstream payload contract drift on paths [${describeZodIssuePaths(error.issues)}]`);
-    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: "upstream-error" });
+    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.UPSTREAM_ERROR });
   }
 
   logGoatItApiError("unexpected non-fetch error");
-  throwProxyError(HttpStatusCode.INTERNAL_SERVER_ERROR, { errorCode: "internal-error" });
+  throwProxyError(HttpStatusCode.INTERNAL_SERVER_ERROR, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.INTERNAL_ERROR });
 }
 
 export { throwGoatItApiError };

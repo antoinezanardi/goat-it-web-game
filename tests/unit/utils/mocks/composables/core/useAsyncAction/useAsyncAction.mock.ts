@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
-import type { UseAsyncAction } from "~/composables/core/useAsyncAction/useAsyncAction";
+import type { UseAsyncAction } from "~/composables/core/useAsyncAction/use-async-action.types";
 import type { AsyncDataRequestStatus } from "#app";
 
 type UseAsyncActionMock = ToMock<UseAsyncAction<unknown, unknown[]>>;

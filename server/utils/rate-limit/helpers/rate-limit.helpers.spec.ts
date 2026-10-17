@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { getRequestHeader } from "h3";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
@@ -116,6 +117,7 @@ describe(buildRateLimitKey, () => {
 
   beforeEach(() => {
     vi.mocked(getRequestIP).mockReturnValue(undefined);
+    vi.mocked(getRequestHeader).mockReturnValue(undefined);
   });
 
   it("should read the forwarded client ip when the trusted proxy flag is enabled.", () => {
@@ -138,10 +140,26 @@ describe(buildRateLimitKey, () => {
     expect(key).toBe("203.0.113.7");
   });
 
-  it("should return a shared unknown key when the client ip cannot be resolved.", () => {
+  it("should return the first forwarded client ip when the connection ip cannot be resolved and the forwarded header is present.", () => {
+    vi.mocked(getRequestHeader).mockReturnValue("203.0.113.9, 10.0.0.1");
+
     const key = buildRateLimitKey(mockedEvent, false);
 
-    expect(key).toBe("unknown");
+    expect(key).toBe("203.0.113.9");
+  });
+
+  it("should return undefined when the connection ip cannot be resolved and the forwarded header is missing.", () => {
+    const key = buildRateLimitKey(mockedEvent, false);
+
+    expect(key).toBeUndefined();
+  });
+
+  it("should return undefined when the connection ip cannot be resolved and the forwarded header is empty.", () => {
+    vi.mocked(getRequestHeader).mockReturnValue("");
+
+    const key = buildRateLimitKey(mockedEvent, false);
+
+    expect(key).toBeUndefined();
   });
 });
 

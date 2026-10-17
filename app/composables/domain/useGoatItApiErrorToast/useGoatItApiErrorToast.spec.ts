@@ -305,6 +305,24 @@ describe("useGoatItApiErrorToast", () => {
       });
     });
 
+    it("should call addErrorToast with the status mapped message when the error has an unknown error code and a known status.", () => {
+      vi.mocked(useI18nMock.te).mockReturnValue(false);
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      vi.spyOn(console, "error").mockReturnValue();
+      const fetchError = new FetchError("Too Many Requests");
+      fetchError.data = { data: { errorCode: "custom-upstream-code" } };
+      fetchError.statusCode = 429;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, "Can't fetch question themes");
+
+      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+        title: "Can't fetch question themes",
+        description: "translated:errors.goatItApi.rate-limited",
+        id: "api-error-rate-limited",
+      });
+    });
+
     it("should call addErrorToast with the generic fallback description when the error has no error code and an unknown status.", () => {
       vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
       const fetchError = new FetchError("Not Found");

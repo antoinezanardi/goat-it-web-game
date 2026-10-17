@@ -1,28 +1,15 @@
 import { FetchError } from "ofetch";
 import type { H3Error } from "h3";
 import { z } from "zod";
+import { createFakeApiResponseExceptionDto } from "@goat-it/schemas/testing/shared";
 import { describe, expect, it, vi } from "vitest";
 
 import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error.helpers";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 
-const upstreamErrorCodeBody = {
-  statusCode: 429,
-  message: "Too many requests",
-  error: "Too Many Requests",
-  errorCode: "custom-upstream-code",
-};
-const upstreamBodyWithoutErrorCode = {
-  statusCode: 404,
-  message: "Not found",
-  error: "Not Found",
-};
-const upstreamClientErrorCodeBody = {
-  statusCode: 422,
-  message: "Unprocessable Entity",
-  error: "Unprocessable Entity",
-  errorCode: "custom-client-code",
-};
+const upstreamErrorCodeBody = createFakeApiResponseExceptionDto({ statusCode: 429, errorCode: "custom-upstream-code" });
+const upstreamBodyWithoutErrorCode = createFakeApiResponseExceptionDto({ statusCode: 404, errorCode: undefined });
+const upstreamClientErrorCodeBody = createFakeApiResponseExceptionDto({ statusCode: 422, errorCode: "custom-client-code" });
 const unparseableBody = { unexpected: "shape" };
 const timeoutCause = Object.assign(new Error("[TimeoutError]: The operation was aborted due to timeout"), { name: "TimeoutError" });
 const redirectCause = new Error("unexpected redirect");

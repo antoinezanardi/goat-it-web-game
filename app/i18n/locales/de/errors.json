@@ -6,8 +6,8 @@
     "goatItApi": {
       "invalid-request": "Die Anfrage konnte nicht verarbeitet werden. Bitte prüfen Sie Ihre Auswahl und versuchen Sie es erneut.",
       "rate-limited": "Zu viele Anfragen. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
-      "upstream-error": "Der Fragendienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
-      "upstream-timeout": "Der Fragendienst hat zu lange gebraucht, um zu antworten. Bitte versuchen Sie es später erneut.",
+      "upstream-error": "Der Spielserver ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
+      "upstream-timeout": "Der Spielserver hat zu lange gebraucht, um zu antworten. Bitte versuchen Sie es später erneut.",
       "internal-error": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
     }
   }

@@ -32,7 +32,7 @@ async function assertInlineScriptsCarryNonce(world: GoatItWorld, path: string): 
   const response = await world.context.request.get(url(path));
   const nonce = SECURITY_CSP_NONCE_PATTERN.exec(response.headers()["content-security-policy"] ?? "")?.groups?.nonce ?? "";
   const html = await response.text();
-  const scriptTags = html.match(/<script[^>]*>/gu) ?? [];
+  const scriptTags = html.match(/<script[^>]*>/giu) ?? [];
 
   expect(scriptTags.length > 0 && scriptTags.every(scriptTag => scriptTag.includes(`nonce="${nonce}"`))).toBe(true);
 }

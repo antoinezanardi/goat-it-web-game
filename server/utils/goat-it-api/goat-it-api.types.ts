@@ -3,11 +3,11 @@ type CreateGoatItApiEndpointOptions = {
   suffix?: string;
 };
 
-type CreateGoatItApiFetchOptionsOptions = {
+type CreateGoatItApiFetchOptionsOverrides = {
   method?: "GET" | "POST";
 };
 
 export type {
   CreateGoatItApiEndpointOptions,
-  CreateGoatItApiFetchOptionsOptions,
+  CreateGoatItApiFetchOptionsOverrides,
 };

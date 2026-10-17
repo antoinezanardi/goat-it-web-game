@@ -13,8 +13,14 @@ type FixedWindowRateLimiter = {
   check: (key: string) => RateLimitCheckResult;
 };
 
+type RateLimitWindow = {
+  count: number;
+  windowStartedAt: number;
+};
+
 export type {
   CreateFixedWindowRateLimiterOptions,
   FixedWindowRateLimiter,
   RateLimitCheckResult,
+  RateLimitWindow,
 };

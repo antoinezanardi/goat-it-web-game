@@ -1,12 +1,5 @@
 import type { Toast } from "#ui/composables";
-
-type UseAppToast = {
-  addSuccessToast: (options: Partial<Toast>) => Toast;
-  addErrorToast: (options: Partial<Toast>) => Toast;
-  addInfoToast: (options: Partial<Toast>) => Toast;
-  updateToast: (id: string | number, options: Omit<Partial<Toast>, "id">) => void;
-  removeToast: (id: string | number) => void;
-};
+import type { UseAppToast } from "~/composables/ui/useAppToast/use-app-toast.types";
 
 function useAppToast(): UseAppToast {
   const toast = useToast();
@@ -61,9 +54,5 @@ function useAppToast(): UseAppToast {
     removeToast,
   };
 }
-
-export type {
-  UseAppToast,
-};
 
 export { useAppToast };

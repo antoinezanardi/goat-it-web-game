@@ -4,24 +4,29 @@ const FIND_QUESTION_THEMES_QUERY_LIMIT_MAXIMUM = 100;
 
 const GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS = 15_000;
 
-const GOAT_IT_API_PROXY_ERROR_CODES = [
-  "invalid-request",
-  "rate-limited",
-  "upstream-error",
-  "upstream-timeout",
-  "internal-error",
-] as const;
+const GOAT_IT_API_CLIENT_FETCH_OPTIONS = Object.freeze({
+  timeout: GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS,
+});
 
-type GoatItApiProxyErrorCode = (typeof GOAT_IT_API_PROXY_ERROR_CODES)[number];
+const GOAT_IT_API_PROXY_PATH_PREFIX = "/api/goat-it-api/";
 
-export type {
-  GoatItApiProxyErrorCode,
-};
+const GOAT_IT_API_PROXY_ERROR_CODES = {
+  INVALID_REQUEST: "invalid-request",
+  RATE_LIMITED: "rate-limited",
+  UPSTREAM_ERROR: "upstream-error",
+  UPSTREAM_TIMEOUT: "upstream-timeout",
+  INTERNAL_ERROR: "internal-error",
+} as const;
+
+const GOAT_IT_API_PROXY_ERROR_CODE_VALUES = Object.values(GOAT_IT_API_PROXY_ERROR_CODES);
 
 export {
   FIND_QUESTION_THEMES_QUERY_LIMIT_MAXIMUM,
   FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM,
   FIND_QUERY_UNBOUNDED_LIMIT,
+  GOAT_IT_API_CLIENT_FETCH_OPTIONS,
   GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS,
   GOAT_IT_API_PROXY_ERROR_CODES,
+  GOAT_IT_API_PROXY_ERROR_CODE_VALUES,
+  GOAT_IT_API_PROXY_PATH_PREFIX,
 };

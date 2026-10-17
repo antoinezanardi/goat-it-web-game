@@ -6,6 +6,8 @@ import type { Db } from "mongodb";
 
 import { ACCEPTANCE_TESTS_REPORTS_SCREENSHOTS_PATH } from "#acceptance/features/support/constants/acceptance.constants.ts";
 import {
+  BROWSER_CLIENT_IP_MAXIMUM_OCTET,
+  BROWSER_CLIENT_IP_NETWORK_PREFIX,
   RESET_SANDBOX_DATA_TIMEOUT_IN_MS,
   SANDBOX_BASE_PORT,
   SANDBOX_HEALTH_CHECK_INTERVAL_IN_MS,
@@ -15,10 +17,6 @@ import {
 } from "#acceptance/features/support/constants/hooks.constants.ts";
 import { MS_IN_SECOND } from "#shared/utils/helpers/time/time.constants.ts";
 import { sleep } from "#shared/utils/helpers/time/time.helpers.ts";
-
-const BROWSER_CLIENT_IP_MAXIMUM_OCTET = 254;
-
-const BROWSER_CLIENT_IP_NETWORK_PREFIX = "10";
 
 function getWorkerId(): number {
   return Number(process.env.CUCUMBER_WORKER_ID ?? "0");

@@ -1,13 +1,4 @@
-import type { AsyncDataRequestStatus } from "#app";
-
-type UseAsyncAction<TResult, TArguments extends unknown[]> = {
-  execute: (...arguments_: TArguments) => Promise<TResult | undefined>;
-  fetchStatus: Ref<AsyncDataRequestStatus>;
-  isIdle: ComputedRef<boolean>;
-  isPending: ComputedRef<boolean>;
-  isSuccess: ComputedRef<boolean>;
-  isError: ComputedRef<boolean>;
-};
+import type { UseAsyncAction } from "~/composables/core/useAsyncAction/use-async-action.types";
 
 function useAsyncAction<TResult, TArguments extends unknown[] = []>(
   action: (...arguments_: TArguments) => Promise<TResult>,
@@ -46,9 +37,5 @@ function useAsyncAction<TResult, TArguments extends unknown[] = []>(
     isError,
   };
 }
-
-export type {
-  UseAsyncAction,
-};
 
 export { useAsyncAction };

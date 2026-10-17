@@ -1,17 +1,9 @@
+import { getRequestHeader } from "h3";
 import type { H3Event } from "h3";
 
 import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
-import type { CreateFixedWindowRateLimiterOptions, FixedWindowRateLimiter, RateLimitCheckResult } from "#server/utils/rate-limit/rate-limit.types";
-
-const RATE_LIMIT_MAP_PRUNE_THRESHOLD = 10_000;
-const MILLISECONDS_IN_SECOND = 1000;
-const MINIMUM_RETRY_AFTER_IN_SECONDS = 1;
-const UNKNOWN_CLIENT_KEY = "unknown";
-
-type RateLimitWindow = {
-  count: number;
-  windowStartedAt: number;
-};
+import { MILLISECONDS_IN_SECOND, MINIMUM_RETRY_AFTER_IN_SECONDS, RATE_LIMIT_MAP_PRUNE_THRESHOLD } from "#server/utils/rate-limit/rate-limit.constants";
+import type { CreateFixedWindowRateLimiterOptions, FixedWindowRateLimiter, RateLimitCheckResult, RateLimitWindow } from "#server/utils/rate-limit/rate-limit.types";
 
 function pruneExpiredWindows(windows: Map<string, RateLimitWindow>, now: () => number, windowInMs: number): void {
   for (const [key, window] of windows) {
@@ -54,10 +46,17 @@ function createFixedWindowRateLimiter(options: CreateFixedWindowRateLimiterOptio
   return { check };
 }
 
-function buildRateLimitKey(event: H3Event, trustProxy: boolean): string {
+function buildRateLimitKey(event: H3Event, trustProxy: boolean): string | undefined {
   const clientIp = trustProxy ? getRequestIP(event, { xForwardedFor: true }) : getRequestIP(event);
 
-  return clientIp ?? UNKNOWN_CLIENT_KEY;
+  if (clientIp !== undefined) {
+    return clientIp;
+  }
+
+  const forwardedFor = getRequestHeader(event, "x-forwarded-for");
+  const forwardedClientIp = forwardedFor?.split(",")[0]?.trim();
+
+  return forwardedClientIp === "" ? undefined : forwardedClientIp;
 }
 
 // Acceptable as the shared limiter is only assigned on first use before it is ever read
