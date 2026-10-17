@@ -14,3 +14,7 @@ runs:
     - name: Build application ✨
       shell: bash
       run: pnpm run build
+
+    - name: Check built output for leaked secrets 🔒
+      shell: bash
+      run: pnpm run check:secrets-in-built-output

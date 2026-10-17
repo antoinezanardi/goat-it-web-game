@@ -9,7 +9,7 @@ When(
   async function(this: GoatItWorld): Promise<void> {
     const dialog = await getVisibleDefaultModal(this.page);
 
-    const closeButton = dialog.getByRole("button", { name: "Close" }).first();
+    const closeButton = dialog.locator("[data-slot='close']");
 
     await clickVisibleLocator(closeButton);
   },

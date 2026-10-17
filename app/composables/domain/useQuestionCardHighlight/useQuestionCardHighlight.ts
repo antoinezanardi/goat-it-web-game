@@ -14,17 +14,14 @@ async function playSequence(
   const { gapMs = 0 } = options;
   const playableTargets = targets.filter((target): target is QuestionCardHighlightPlayable => target !== undefined && target !== null);
 
-  for (const [index, target] of playableTargets.entries()) {
-    // Acceptable as sequential await is intentional — playSequence must run targets one after another
-    // oxlint-disable-next-line eslint/no-await-in-loop
+  await playableTargets.reduce<Promise<void>>(async(previousPlay, target, index) => {
+    await previousPlay;
     await target.playHighlight();
 
     if (index < playableTargets.length - 1) {
-      // Acceptable as the gap delay must resolve sequentially between targets
-      // oxlint-disable-next-line eslint/no-await-in-loop
       await promiseTimeout(gapMs);
     }
-  }
+  }, Promise.resolve());
 }
 
 function readRestingScale(element: HTMLElement): number {

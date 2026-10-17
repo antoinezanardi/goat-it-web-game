@@ -1,24 +1,27 @@
 import { FIND_QUESTIONS_QUERY_DTO, QUESTION_DTO } from "@goat-it/schemas/question";
 import type { H3Event } from "h3";
-import { z } from "zod";
 
 import type { Question } from "#shared/types/question.types";
+import { FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM } from "#shared/constants/goat-it-api.constants";
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { clampFindQueryLimit } from "#server/utils/goat-it-api/helpers/find-query-limit.helpers";
+import { createGoatItApiEndpoint, createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { parseAndMapGoatItApiResponse, validateGoatItApiQuery } from "#server/utils/goat-it-api/helpers/goat-it-api-validation.helpers";
+import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error.helpers";
+import { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
 
 async function findQuestionsHandler(event: H3Event): Promise<Question[]> {
-  const endpoint = createGoatItApiEndpoint("questions");
-  const fetchOptions = createGoatItApiFetchOptions(event);
-  const rawQuery = getQuery(event);
-  const parsedQuery = FIND_QUESTIONS_QUERY_DTO.parse(rawQuery);
+  const endpoint = createGoatItApiEndpoint(GoatItApiResourceNames.QUESTIONS);
+  const fetchOptions = createGoatItApiFetchOptions(event, { method: "GET" });
+  const parsedQuery = await validateGoatItApiQuery(event, FIND_QUESTIONS_QUERY_DTO);
+  const query = { ...parsedQuery, limit: clampFindQueryLimit(parsedQuery.limit, FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM) };
 
   try {
-    const rawData = await $fetch(endpoint, { ...fetchOptions, method: "GET", query: parsedQuery });
-    const questions = z.array(QUESTION_DTO).parse(rawData);
+    const rawData = await $fetch(endpoint, { ...fetchOptions, method: "GET", query });
 
-    return questions.map(createQuestionFromQuestionDto);
+    return parseAndMapGoatItApiResponse(rawData, QUESTION_DTO, createQuestionFromQuestionDto);
   } catch(error: unknown) {
-    handleGoatItApiError(error);
+    throwGoatItApiError(error);
   }
 }
 

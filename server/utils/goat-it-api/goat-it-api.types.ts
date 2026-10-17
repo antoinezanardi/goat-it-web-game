@@ -1,15 +1,24 @@
-import type { TupleToUnion } from "type-fest";
-
-import type { GOAT_IT_API_RESOURCE_NAMES } from "#server/utils/goat-it-api/goat-it-api.constants";
+import type { z } from "zod";
 
 type CreateGoatItApiEndpointOptions = {
   id?: string;
   suffix?: string;
 };
 
-type GoatItApiResourceName = TupleToUnion<typeof GOAT_IT_API_RESOURCE_NAMES>;
+type CreateGoatItApiFetchOptionsOverrides = {
+  method?: "GET" | "POST";
+};
+
+type ProxyErrorData = {
+  errorCode?: string;
+  retryAfter?: string;
+};
+
+type UnrecognizedKeysIssue = z.core.$ZodIssueUnrecognizedKeys;
 
 export type {
   CreateGoatItApiEndpointOptions,
-  GoatItApiResourceName,
+  CreateGoatItApiFetchOptionsOverrides,
+  ProxyErrorData,
+  UnrecognizedKeysIssue,
 };

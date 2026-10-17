@@ -165,7 +165,7 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 - **[H4] Zod path** — A test asserting `ZodError` is thrown for invalid API data.
 - **[H5] Throw side-effects** — try/catch with `void error` around the awaited handler call.
 - **[H6] Status codes** — Values from the `HttpStatusCode` enum (`#server/utils/http/http.enums`), not raw numbers.
-- **[H7] Param/body assertions** — Routes with params assert `getRouterParam(event, "id")`; routes with body assert `readBody(event)`.
+- **[H7] Param/body assertions** — Routes with params assert the input path the handler actually uses: Goat It API handlers wired through the shared validation wrappers assert `validateGoatItApiQuery` / `validateGoatItApiBody` with `(event, SCHEMA)`; handlers still reading raw h3 inputs assert `getRouterParam(event, "id")` / `readBody(event)`.
 
 #### Node helper/mapper checks
 

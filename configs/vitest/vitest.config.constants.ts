@@ -48,6 +48,14 @@ const UNIT_TEST_NUXT_OVERRIDES: UnitTestNuxtOverrides = {
       baseUrl: "https://api.goat-it.com",
       gameKey: "test-game-key",
     },
+    rateLimit: {
+      maximumRequests: 60,
+      windowInMs: 60_000,
+      trustProxy: false,
+    },
+    security: {
+      cspMode: "enforce",
+    },
   },
   site: { indexable: false },
   sitemap: { enabled: false },

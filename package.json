@@ -36,7 +36,7 @@
     "x64",
     "arm64"
   ],
-  "packageManager": "pnpm@12.11.2",
+  "packageManager": "pnpm@12.14.0",
   "imports": {
     "#acceptance/*": "./tests/acceptance/*",
     "#shared/*": "./shared/*"
@@ -47,6 +47,7 @@
     "dev": "nuxt dev --dotenv envs/.env.development --port 4000",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "check:secrets-in-built-output": "sh scripts/check-secrets-in-built-output.sh",
     "start:dev": "pnpm run dev",
     "start:prod": "node .output/server/index.mjs",
     "typecheck": "nuxt typecheck",
@@ -91,13 +92,13 @@
     "@cucumber/cucumber": "^13.3.0",
     "@eslint/config-inspector": "^3.5.0",
     "@faker-js/faker": "^10.6.0",
-    "@goat-it/schemas": "^0.0.26-beta",
+    "@goat-it/schemas": "^0.0.26",
     "@iconify-json/lucide": "^1.2.145",
     "@nuxt/content": "^3.16.2",
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/hints": "^1.1.5",
     "@nuxt/test-utils": "^4.3.3",
-    "@nuxt/ui": "^4.11.2",
+    "@nuxt/ui": "^4.12.0",
     "@nuxtjs/i18n": "^10.6.0",
     "@nuxtjs/robots": "^7.0.2",
     "@nuxtjs/sitemap": "^9.1.0",

@@ -1,6 +1,8 @@
-import { FetchError } from "ofetch";
-import { H3Error, getCookie } from "h3";
+import { EventEmitter } from "node:events";
+
+import { getCookie } from "h3";
 import type { Locale } from "@goat-it/schemas/shared/locale";
+import type { H3Event } from "h3";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
@@ -9,9 +11,9 @@ import {
   createGoatItApiEndpoint,
   createGoatItApiFetchOptions,
   extractLocaleFromEvent,
-  handleGoatItApiError,
 } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
-import type { CreateGoatItApiEndpointOptions, GoatItApiResourceName } from "#server/utils/goat-it-api/goat-it-api.types";
+import { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
+import type { CreateGoatItApiEndpointOptions } from "#server/utils/goat-it-api/goat-it-api.types";
 
 vi.stubGlobal("useRuntimeConfig", vi.fn());
 
@@ -31,30 +33,27 @@ function mockGoatItApiEnvironment(defaultLocale: Locale = "en"): void {
   vi.mocked(getCookie).mockReturnValue(undefined);
 }
 
-function getThrowableError(function_: () => void): H3Error {
-  try {
-    function_();
-  } catch(error: unknown) {
-    return error as H3Error;
-  }
-
-  throw new Error("Expected function to throw");
-}
-
 describe(createGoatItApiEndpoint, () => {
   beforeEach(() => mockGoatItApiEnvironment());
 
   it.each<{
     description: string;
-    resourceName: GoatItApiResourceName;
+    resourceName: GoatItApiResourceNames;
     options?: CreateGoatItApiEndpointOptions;
     expectedEndpoint: string;
   }>([
-    { description: "no options", resourceName: "question-themes", expectedEndpoint: "/question-themes" },
-    { description: "an id option", resourceName: "question-themes", options: { id: "abc123" }, expectedEndpoint: "/question-themes/abc123" },
-    { description: "a suffix option", resourceName: "questions", options: { suffix: "search/random" }, expectedEndpoint: "/questions/search/random" },
-    { description: "an empty id option", resourceName: "question-themes", options: { id: "" }, expectedEndpoint: "/question-themes" },
-    { description: "an empty suffix option", resourceName: "questions", options: { suffix: "" }, expectedEndpoint: "/questions" },
+    { description: "no options", resourceName: GoatItApiResourceNames.QUESTION_THEMES, expectedEndpoint: "/question-themes" },
+    { description: "an id option", resourceName: GoatItApiResourceNames.QUESTION_THEMES, options: { id: "abc123" }, expectedEndpoint: "/question-themes/abc123" },
+    {
+      description: "an id option with query characters",
+      resourceName: GoatItApiResourceNames.QUESTION_THEMES,
+      options: { id: "abc?x=1" },
+      expectedEndpoint: "/question-themes/abc%3Fx%3D1",
+    },
+    { description: "an id option with a space", resourceName: GoatItApiResourceNames.QUESTION_THEMES, options: { id: "abc def" }, expectedEndpoint: "/question-themes/abc%20def" },
+    { description: "a suffix option", resourceName: GoatItApiResourceNames.QUESTIONS, options: { suffix: "search/random" }, expectedEndpoint: "/questions/search/random" },
+    { description: "an empty id option", resourceName: GoatItApiResourceNames.QUESTION_THEMES, options: { id: "" }, expectedEndpoint: "/question-themes" },
+    { description: "an empty suffix option", resourceName: GoatItApiResourceNames.QUESTIONS, options: { suffix: "" }, expectedEndpoint: "/questions" },
   ])(
     "should create the endpoint '$expectedEndpoint' for resource '$resourceName' when called with $description.",
     ({ resourceName, options, expectedEndpoint }) => {
@@ -71,7 +70,7 @@ describe(extractLocaleFromEvent, () => {
   it("should return cookie locale when i18n_redirected cookie is valid.", () => {
     vi.mocked(getCookie).mockReturnValue("fr");
 
-    const locale = extractLocaleFromEvent(mockedEvent);
+    const locale = extractLocaleFromEvent(mockedEvent, "en");
 
     expect(locale).toBe("fr");
   });
@@ -84,21 +83,19 @@ describe(extractLocaleFromEvent, () => {
   ])("should fall back to default locale when i18n_redirected cookie is $description.", ({ cookieValue }) => {
     vi.mocked(getCookie).mockReturnValue(cookieValue);
 
-    const locale = extractLocaleFromEvent(mockedEvent);
+    const locale = extractLocaleFromEvent(mockedEvent, "en");
 
     expect(locale).toBe("en");
   });
 
   it("should fall back to default locale when cookie is missing.", () => {
-    const locale = extractLocaleFromEvent(mockedEvent);
+    const locale = extractLocaleFromEvent(mockedEvent, "en");
 
     expect(locale).toBe("en");
   });
 
-  it("should fall back to the configured default locale when cookie is missing and default locale is fr.", () => {
-    mockGoatItApiEnvironment("fr");
-
-    const locale = extractLocaleFromEvent(mockedEvent);
+  it("should fall back to the provided default locale when cookie is missing and the default locale is fr.", () => {
+    const locale = extractLocaleFromEvent(mockedEvent, "fr");
 
     expect(locale).toBe("fr");
   });
@@ -108,189 +105,92 @@ describe(extractLocaleFromEvent, () => {
     { cookieValue: "FR", description: "an uppercase locale code" },
     { cookieValue: "ja", description: "an unsupported locale" },
     { cookieValue: "garbage", description: "a garbage value" },
-  ])("should fall back to the configured fr default locale when i18n_redirected cookie is $description.", ({ cookieValue }) => {
-    mockGoatItApiEnvironment("fr");
+  ])("should fall back to the provided fr default locale when i18n_redirected cookie is $description.", ({ cookieValue }) => {
     vi.mocked(getCookie).mockReturnValue(cookieValue);
 
-    const locale = extractLocaleFromEvent(mockedEvent);
+    const locale = extractLocaleFromEvent(mockedEvent, "fr");
 
     expect(locale).toBe("fr");
   });
 });
+
+type FakeResponse = EventEmitter & { writableEnded: boolean };
+
+function createEventWithResponse(writableEnded = false): { event: H3Event; response: FakeResponse } {
+  const response = Object.assign(new EventEmitter(), { writableEnded });
+  const event = {
+    context: { params: {} },
+    path: "/",
+    method: "GET",
+    node: { res: response },
+  } as unknown as H3Event;
+
+  return { event, response };
+}
 
 describe(createGoatItApiFetchOptions, () => {
   beforeEach(() => mockGoatItApiEnvironment());
 
   it("should create fetch options with baseURL, api key and the cookie locale accept-language header when called with event.", () => {
     vi.mocked(getCookie).mockReturnValue("fr");
-    const expectedFetchOptions: Parameters<typeof $fetch>[1] = {
+    const { event } = createEventWithResponse();
+
+    const fetchOptions = createGoatItApiFetchOptions(event);
+
+    expect(fetchOptions).toMatchObject({
       baseURL: "https://api.example.com",
       headers: {
         "goat-it-api-key": "secret-game-key",
         "Accept-Language": "fr",
       },
+      redirect: "error",
       retry: 2,
       retryDelay: 300,
-      timeout: 10_000,
-    };
-
-    const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
-
-    expect(fetchOptions).toStrictEqual<Parameters<typeof $fetch>[1]>(expectedFetchOptions);
-  });
-
-  it("should create fetch options with the default accept-language header when no cookie is present.", () => {
-    const expectedFetchOptions: Parameters<typeof $fetch>[1] = {
-      baseURL: "https://api.example.com",
-      headers: {
-        "goat-it-api-key": "secret-game-key",
-        "Accept-Language": "en",
-      },
-      retry: 2,
-      retryDelay: 300,
-      timeout: 10_000,
-    };
-
-    const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
-
-    expect(fetchOptions).toStrictEqual<Parameters<typeof $fetch>[1]>(expectedFetchOptions);
-  });
-
-  it("should create fetch options with the configured fr accept-language header when no cookie is present and default locale is fr.", () => {
-    mockGoatItApiEnvironment("fr");
-    const expectedFetchOptions: Parameters<typeof $fetch>[1] = {
-      baseURL: "https://api.example.com",
-      headers: {
-        "goat-it-api-key": "secret-game-key",
-        "Accept-Language": "fr",
-      },
-      retry: 2,
-      retryDelay: 300,
-      timeout: 10_000,
-    };
-
-    const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
-
-    expect(fetchOptions).toStrictEqual<Parameters<typeof $fetch>[1]>(expectedFetchOptions);
-  });
-});
-
-describe(handleGoatItApiError, () => {
-  beforeEach(() => mockGoatItApiEnvironment());
-
-  const validErrorDataWithErrorCode = {
-    statusCode: 409,
-    message: "Question theme is referenced by live questions",
-    error: "Conflict",
-    errorCode: "questionThemeReferencedByLiveQuestions",
-  };
-  const validErrorDataWithoutErrorCode = {
-    statusCode: 400,
-    message: "The request could not be understood",
-    error: "Bad Request",
-  };
-  const invalidErrorData = { unexpected: "shape" };
-
-  function createFailingFetchError(data: unknown): FetchError {
-    const fetchError = new FetchError("Goat It API error");
-
-    fetchError.data = data;
-
-    return fetchError;
-  }
-
-  describe("when error is a FetchError", () => {
-    it.each<{
-      description: string;
-      errorData: unknown;
-    }>([
-      {
-        description: "valid ApiResponseExceptionDto data with errorCode",
-        errorData: validErrorDataWithErrorCode,
-      },
-      {
-        description: "valid ApiResponseExceptionDto data without errorCode",
-        errorData: validErrorDataWithoutErrorCode,
-      },
-      {
-        description: "invalid data that does not match ApiResponseExceptionDto",
-        errorData: invalidErrorData,
-      },
-    ])(
-      "should throw an H3Error when error data is $description.",
-      ({ errorData }) => {
-        expect(() => handleGoatItApiError(createFailingFetchError(errorData))).toThrow(H3Error);
-      },
-    );
-
-    it.each<{
-      description: string;
-      errorData: unknown;
-      expectedStatusCode: number;
-    }>([
-      {
-        description: "valid ApiResponseExceptionDto data with errorCode",
-        errorData: validErrorDataWithErrorCode,
-        expectedStatusCode: 409,
-      },
-      {
-        description: "valid ApiResponseExceptionDto data without errorCode",
-        errorData: validErrorDataWithoutErrorCode,
-        expectedStatusCode: 400,
-      },
-      {
-        description: "invalid data that does not match ApiResponseExceptionDto",
-        errorData: invalidErrorData,
-        expectedStatusCode: 500,
-      },
-    ])(
-      "should throw an H3Error with status code $expectedStatusCode when error data is $description.",
-      ({ errorData, expectedStatusCode }) => {
-        const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(errorData)));
-
-        expect(error.statusCode).toBe(expectedStatusCode);
-      },
-    );
-
-    it("should not forward the upstream error message when error data is valid.", () => {
-      const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(validErrorDataWithErrorCode)));
-
-      expect(error.message).not.toBe(validErrorDataWithErrorCode.message);
     });
-
-    it.each<{
-      description: string;
-      errorData: unknown;
-      expectedData: { errorCode?: string };
-    }>([
-      {
-        description: "valid ApiResponseExceptionDto data with errorCode",
-        errorData: validErrorDataWithErrorCode,
-        expectedData: { errorCode: "questionThemeReferencedByLiveQuestions" },
-      },
-      {
-        description: "valid ApiResponseExceptionDto data without errorCode",
-        errorData: validErrorDataWithoutErrorCode,
-        expectedData: { errorCode: undefined },
-      },
-      {
-        description: "invalid data that does not match ApiResponseExceptionDto",
-        errorData: invalidErrorData,
-        expectedData: {},
-      },
-    ])(
-      "should throw an H3Error with the parsed errorCode in data when error data is $description.",
-      ({ errorData, expectedData }) => {
-        const error = getThrowableError(() => handleGoatItApiError(createFailingFetchError(errorData)));
-
-        expect(error.data).toStrictEqual(expectedData);
-      },
-    );
   });
 
-  it("should re-throw the original error when error is not a FetchError.", () => {
-    const originalError = new Error("Some other error");
+  it("should not set the timeout option when called.", () => {
+    const { event } = createEventWithResponse();
 
-    expect(() => handleGoatItApiError(originalError)).toThrow(originalError);
+    const fetchOptions = createGoatItApiFetchOptions(event);
+
+    expect(fetchOptions).not.toHaveProperty("timeout");
+  });
+
+  it("should compose an abort signal on the fetch options when called.", () => {
+    const { event } = createEventWithResponse();
+
+    const fetchOptions = createGoatItApiFetchOptions(event);
+
+    expect(fetchOptions?.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it.each<{ description: string; options?: { method: "GET" | "POST" }; expectedRetry: number }>([
+    { description: "no explicit method", options: undefined, expectedRetry: 2 },
+    { description: "the get method", options: { method: "GET" }, expectedRetry: 2 },
+    { description: "the post method", options: { method: "POST" }, expectedRetry: 0 },
+  ])("should set retry to $expectedRetry when the options carry $description.", ({ options, expectedRetry }) => {
+    const { event } = createEventWithResponse();
+
+    const fetchOptions = createGoatItApiFetchOptions(event, options);
+
+    expect(fetchOptions?.retry).toBe(expectedRetry);
+  });
+
+  it("should abort the fetch signal when the client disconnects before the response is sent.", () => {
+    const { event, response } = createEventWithResponse(false);
+    const fetchOptions = createGoatItApiFetchOptions(event);
+
+    response.emit("close");
+
+    expect(fetchOptions?.signal?.aborted).toBe(true);
+  });
+
+  it("should not abort the fetch signal when the response has already been sent.", () => {
+    const { event, response } = createEventWithResponse(true);
+    const fetchOptions = createGoatItApiFetchOptions(event);
+    response.emit("close");
+
+    expect(fetchOptions?.signal?.aborted).toBe(false);
   });
 });

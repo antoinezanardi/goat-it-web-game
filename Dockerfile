@@ -9,9 +9,7 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV CI="true"
 
-RUN npm install -g corepack --force
-
-RUN corepack enable
+RUN npm install -g pnpm@12.11.2
 
 RUN mkdir -p "$PNPM_HOME" && chown node:node "$PNPM_HOME"
 
@@ -24,13 +22,14 @@ USER node
 WORKDIR /app
 
 COPY --chown=node:node package.json ./
-COPY --chown=node:node envs ./
 COPY --chown=node:node nuxt.config.ts ./
 COPY --chown=node:node pnpm-lock.yaml ./
 COPY --chown=node:node pnpm-workspace.yaml ./
 COPY --chown=node:node tsconfig*.json ./
 COPY --chown=node:node scripts/post-install-prepare.sh ./scripts/post-install-prepare.sh
 COPY --chown=node:node app/i18n ./app/i18n
+# nuxt.config.ts imports shared/constants at config load — required before the postinstall "nuxt prepare" step runs.
+COPY --chown=node:node shared/constants ./shared/constants
 
 RUN pnpm install --frozen-lockfile
 
@@ -64,18 +63,17 @@ COPY --chown=node:node tsconfig.json ./
 COPY --chown=node:node app ./app
 COPY --chown=node:node server ./server
 COPY --chown=node:node shared ./shared
+# Nuxt auto-registers modules/*.ts and modules/*/index.ts as local modules — keep this copy in sync with the modules/ directory.
 COPY --chown=node:node modules ./modules
 COPY --chown=node:node public ./public
 
 COPY --chown=node:node content.config.ts ./
 COPY --chown=node:node content ./content
+COPY --chown=node:node scripts/check-secrets-in-built-output.sh ./scripts/check-secrets-in-built-output.sh
 
 COPY --chown=node:node --from=development /app/node_modules ./node_modules
 
-RUN --mount=type=secret,id=goat_it_api_base_url,env=NUXT_GOAT_IT_API_BASE_URL \
-    --mount=type=secret,id=goat_it_api_game_key,env=NUXT_GOAT_IT_API_GAME_KEY \
-    --mount=type=secret,id=goat_it_app_secret,env=NUXT_APP_SECRET \
-    pnpm run build
+RUN pnpm run build && pnpm run check:secrets-in-built-output
 
 FROM node:26.12.0-alpine AS production
 
