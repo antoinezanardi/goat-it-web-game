@@ -5,13 +5,14 @@ import type { Question } from "#shared/types/question.types";
 import { FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM } from "#shared/constants/goat-it-api.constants";
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
 import { clampFindQueryLimit } from "#server/utils/goat-it-api/helpers/find-query-limit.helpers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions, parseAndMapGoatItApiResponse, throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint, createGoatItApiFetchOptions, parseAndMapGoatItApiResponse, validateGoatItApiQuery } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error.helpers";
 import { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
 
 async function findQuestionsHandler(event: H3Event): Promise<Question[]> {
   const endpoint = createGoatItApiEndpoint(GoatItApiResourceNames.QUESTIONS);
-  const fetchOptions = createGoatItApiFetchOptions(event);
-  const parsedQuery = await getValidatedQuery(event, rawQuery => FIND_QUESTIONS_QUERY_DTO.parse(rawQuery));
+  const fetchOptions = createGoatItApiFetchOptions(event, { method: "GET" });
+  const parsedQuery = await validateGoatItApiQuery(event, FIND_QUESTIONS_QUERY_DTO);
   const query = { ...parsedQuery, limit: clampFindQueryLimit(parsedQuery.limit, FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM) };
 
   try {

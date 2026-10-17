@@ -28,7 +28,7 @@ describe(questionThemesRepository, () => {
 
       await repository.getAll();
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/question-themes", { query: undefined });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/question-themes", { query: undefined, timeout: 15_000 });
     });
 
     it("should call fetch with the correct endpoint and query when called with query params.", async() => {
@@ -42,7 +42,7 @@ describe(questionThemesRepository, () => {
 
       await repository.getAll(query);
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/question-themes", { query });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/question-themes", { query, timeout: 15_000 });
     });
 
     it("should return question themes from fetch when called.", async() => {

@@ -21,7 +21,7 @@ import type { Question } from "#shared/types/question.types";
 import { useGameStore } from "@/stores/domain/game/game.store";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
-import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY } from "~/pages/(game)/game.constants";
+import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM } from "~/pages/(game)/game.constants";
 
 const GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY = {
   ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY,
@@ -496,7 +496,7 @@ describe("useGame", () => {
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.map(question => question.id),
+        excludedIds: fakeQuestions.toReversed().map(question => question.id),
         isAdultContent: false,
       });
     });
@@ -518,7 +518,7 @@ describe("useGame", () => {
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.map(question => question.id),
+        excludedIds: fakeQuestions.toReversed().map(question => question.id),
       });
     });
 
@@ -539,7 +539,7 @@ describe("useGame", () => {
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.map(question => question.id),
+        excludedIds: fakeQuestions.toReversed().map(question => question.id),
         cognitiveDifficulties: ["hard"],
       });
     });
@@ -623,7 +623,7 @@ describe("useGame", () => {
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.map(question => question.id),
+        excludedIds: fakeQuestions.toReversed().map(question => question.id),
         isAdultContent: false,
       });
     });
@@ -674,7 +674,48 @@ describe("useGame", () => {
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: allQuestions.map(question => question.id),
+        excludedIds: allQuestions.toReversed().map(question => question.id),
+        isAdultContent: false,
+      });
+    });
+
+    it("should cap the excluded ids to the maximum when more than the maximum questions are loaded.", async() => {
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      const fakeQuestions = Array.from({ length: GAME_EXCLUDED_IDS_MAXIMUM + 5 }, (_unused, index) => createFakeQuestion({ id: `question-${index}` }));
+      store.questions = fakeQuestions;
+      await nextTick();
+      store.fetchAndAppendRandomQuestions.mockClear();
+      for (let index = 0; index < Math.ceil(fakeQuestions.length * 0.8); index++) {
+        game.advanceToNextQuestion();
+      }
+      await nextTick();
+      await flushPromises();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        excludedIds: fakeQuestions.slice(-GAME_EXCLUDED_IDS_MAXIMUM).toReversed().map(question => question.id),
+        isAdultContent: false,
+      });
+    });
+
+    it("should keep the most recent unique ids when the loaded questions contain duplicates.", async() => {
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      const sharedQuestion = createFakeQuestion({ id: "shared-question" });
+      const lastQuestion = createFakeQuestion({ id: "last-question" });
+      store.questions = [sharedQuestion, sharedQuestion, lastQuestion];
+      await nextTick();
+      store.fetchAndAppendRandomQuestions.mockClear();
+      for (let index = 0; index < 3; index++) {
+        game.advanceToNextQuestion();
+      }
+      await nextTick();
+      await flushPromises();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        excludedIds: ["last-question", "shared-question"],
         isAdultContent: false,
       });
     });
@@ -812,7 +853,7 @@ describe("useGame", () => {
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.slice(0, 5).map(question => question.id),
+        excludedIds: fakeQuestions.slice(0, 5).toReversed().map(question => question.id),
         isAdultContent: false,
         cognitiveDifficulties: ["easy"],
       });
@@ -871,7 +912,7 @@ describe("useGame", () => {
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.slice(0, 5).map(question => question.id),
+        excludedIds: fakeQuestions.slice(0, 5).toReversed().map(question => question.id),
       });
     });
 

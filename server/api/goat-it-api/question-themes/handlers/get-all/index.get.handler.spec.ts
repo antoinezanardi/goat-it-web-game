@@ -1,22 +1,25 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ZodError } from "zod";
-import { QUESTION_THEME_DTO } from "@goat-it/schemas/question-theme";
+import { FIND_QUESTION_THEMES_QUERY_DTO, QUESTION_THEME_DTO } from "@goat-it/schemas/question-theme";
 import { createFakeQuestionThemeDto } from "@goat-it/schemas/testing/question-theme";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions, parseAndMapGoatItApiResponse, throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint, createGoatItApiFetchOptions, parseAndMapGoatItApiResponse, validateGoatItApiQuery } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error.helpers";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { getQuestionThemesHandler } from "#server/api/goat-it-api/question-themes/handlers/get-all/index.get.handler";
 
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
+vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-error.helpers"));
 
 describe("Server Goat It API Question Themes Get Handler", () => {
   const mockedEvent = createFakeH3Event();
 
   beforeEach(() => {
+    vi.mocked(validateGoatItApiQuery).mockResolvedValue({ "sort-by": "slug", "sort-order": "asc", "limit": 50 });
     vi.mocked($fetch).mockResolvedValue([
       createFakeQuestionThemeDto(),
       createFakeQuestionThemeDto(),
@@ -31,16 +34,16 @@ describe("Server Goat It API Question Themes Get Handler", () => {
       expect(createGoatItApiEndpoint).toHaveBeenCalledExactlyOnceWith("question-themes");
     });
 
-    it("should create goat it api fetch options with event when called.", async() => {
+    it("should create goat it api fetch options with the get method when called.", async() => {
       await getQuestionThemesHandler(mockedEvent);
 
-      expect(createGoatItApiFetchOptions).toHaveBeenCalledExactlyOnceWith(mockedEvent);
+      expect(createGoatItApiFetchOptions).toHaveBeenCalledExactlyOnceWith(mockedEvent, { method: "GET" });
     });
 
-    it("should read the validated query from the event when called.", async() => {
+    it("should validate the query through the goat it api query validator when called.", async() => {
       await getQuestionThemesHandler(mockedEvent);
 
-      expect(getValidatedQuery).toHaveBeenCalledExactlyOnceWith(mockedEvent, expect.any(Function));
+      expect(validateGoatItApiQuery).toHaveBeenCalledExactlyOnceWith(mockedEvent, FIND_QUESTION_THEMES_QUERY_DTO);
     });
 
     it("should fetch question themes from goat it api with correct endpoint, fetch options and query when called.", async() => {
@@ -73,15 +76,15 @@ describe("Server Goat It API Question Themes Get Handler", () => {
       };
       vi.mocked(createGoatItApiEndpoint).mockReturnValue(expectedEndpoint);
       vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
-      vi.mocked(getQuery).mockReturnValue({ limit: providedLimit });
+      vi.mocked(validateGoatItApiQuery).mockResolvedValue({ "sort-by": "slug", "sort-order": "asc", "limit": providedLimit });
 
       await getQuestionThemesHandler(mockedEvent);
 
       expect($fetch).toHaveBeenCalledExactlyOnceWith(expectedEndpoint, { ...expectedFetchOptions, query: { "sort-by": "slug", "sort-order": "asc", "limit": expectedLimit } });
     });
 
-    it("should reject with a bad request error when query params are invalid.", async() => {
-      vi.mocked(getQuery).mockReturnValue({ "sort-by": "invalid-field" });
+    it("should reject with a bad request error when the query validator rejects the query.", async() => {
+      vi.mocked(validateGoatItApiQuery).mockRejectedValue(Object.assign(new Error("Validation Error"), { statusCode: HttpStatusCode.BAD_REQUEST }));
 
       await expect(getQuestionThemesHandler(mockedEvent)).rejects.toMatchObject({ statusCode: HttpStatusCode.BAD_REQUEST });
     });

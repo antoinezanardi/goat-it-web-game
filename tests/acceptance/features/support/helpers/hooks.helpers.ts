@@ -16,6 +16,10 @@ import {
 import { MS_IN_SECOND } from "#shared/utils/helpers/time/time.constants.ts";
 import { sleep } from "#shared/utils/helpers/time/time.helpers.ts";
 
+const BROWSER_CLIENT_IP_MAXIMUM_OCTET = 254;
+
+const BROWSER_CLIENT_IP_NETWORK_PREFIX = "10";
+
 function getWorkerId(): number {
   return Number(process.env.CUCUMBER_WORKER_ID ?? "0");
 }
@@ -26,6 +30,14 @@ function getSandboxBaseUrl(): string {
 
 function getSandboxMongoUri(workerId: number): string {
   return `mongodb://localhost:${SANDBOX_MONGODB_PORT_BASE + workerId}`;
+}
+
+function buildBrowserClientIp(workerId: number, sequence: number): string {
+  const workerOctet = workerId % BROWSER_CLIENT_IP_MAXIMUM_OCTET + 1;
+  const sequenceHighOctet = Math.floor((sequence - 1) / BROWSER_CLIENT_IP_MAXIMUM_OCTET) + 1;
+  const sequenceLowOctet = (sequence - 1) % BROWSER_CLIENT_IP_MAXIMUM_OCTET + 1;
+
+  return `${BROWSER_CLIENT_IP_NETWORK_PREFIX}.${workerOctet}.${sequenceHighOctet}.${sequenceLowOctet}`;
 }
 
 function removeAcceptanceTestsReportsScreenshotsDirectory(): void {
@@ -111,6 +123,7 @@ async function waitForSandboxHealthCheck(): Promise<void> {
 }
 
 export {
+  buildBrowserClientIp,
   generateScreenshotOnScenarioFailure,
   getMongoClient,
   getMongoDatabase,

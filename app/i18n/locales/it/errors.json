@@ -3,6 +3,12 @@
     "unknown": "Si è verificato un errore sconosciuto. Riprova più tardi.",
     "generic": "Si è verificato un errore. Per favore riprova più tardi.",
     "pageNotFound": "Pagina non trovata.",
-    "goatItApi": {}
+    "goatItApi": {
+      "invalid-request": "Impossibile elaborare la richiesta. Controlla la tua selezione e riprova.",
+      "rate-limited": "Troppe richieste. Attendi un momento e riprova.",
+      "upstream-error": "Il servizio delle domande è temporaneamente non disponibile. Riprova più tardi.",
+      "upstream-timeout": "Il servizio delle domande ha impiegato troppo tempo a rispondere. Riprova più tardi.",
+      "internal-error": "Si è verificato un errore imprevisto. Riprova più tardi."
+    }
   }
 }

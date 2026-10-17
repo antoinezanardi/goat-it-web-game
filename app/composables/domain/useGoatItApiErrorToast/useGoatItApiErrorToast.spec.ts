@@ -282,5 +282,53 @@ describe("useGoatItApiErrorToast", () => {
 
       expect(useI18nMock.te).not.toHaveBeenCalled();
     });
+
+    it.each<{ statusCode: number; expectedErrorCode: string }>([
+      { statusCode: 400, expectedErrorCode: "invalid-request" },
+      { statusCode: 429, expectedErrorCode: "rate-limited" },
+      { statusCode: 500, expectedErrorCode: "internal-error" },
+      { statusCode: 502, expectedErrorCode: "upstream-error" },
+      { statusCode: 503, expectedErrorCode: "upstream-error" },
+      { statusCode: 504, expectedErrorCode: "upstream-timeout" },
+    ])("should call addErrorToast with the $expectedErrorCode message when the error has no error code and status $statusCode.", ({ statusCode, expectedErrorCode }) => {
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const fetchError = new FetchError("Upstream error");
+      fetchError.statusCode = statusCode;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, "Can't fetch question themes");
+
+      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+        title: "Can't fetch question themes",
+        description: `translated:errors.goatItApi.${expectedErrorCode}`,
+        id: `api-error-${expectedErrorCode}`,
+      });
+    });
+
+    it("should call addErrorToast with the generic fallback description when the error has no error code and an unknown status.", () => {
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const fetchError = new FetchError("Not Found");
+      fetchError.statusCode = 404;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, "Can't fetch question themes");
+
+      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+        title: "Can't fetch question themes",
+        description: "translated:errors.unknown",
+        id: "api-error-unknown",
+      });
+    });
+
+    it("should not log when the error has no error code and a known status.", () => {
+      const consoleSpy = vi.spyOn(console, "error").mockReturnValue();
+      const fetchError = new FetchError("Too Many Requests");
+      fetchError.statusCode = 429;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, "Can't fetch question themes");
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+    });
   });
 });

@@ -3,6 +3,12 @@
     "unknown": "An unknown error occurred. Please try again later.",
     "generic": "An error occurred. Please try again later.",
     "pageNotFound": "Page not found.",
-    "goatItApi": {}
+    "goatItApi": {
+      "invalid-request": "The request could not be processed. Please check your selection and try again.",
+      "rate-limited": "Too many requests. Please wait a moment and try again.",
+      "upstream-error": "The question service is temporarily unavailable. Please try again later.",
+      "upstream-timeout": "The question service took too long to respond. Please try again later.",
+      "internal-error": "An unexpected error occurred. Please try again later."
+    }
   }
 }

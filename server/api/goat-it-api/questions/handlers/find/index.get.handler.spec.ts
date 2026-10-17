@@ -1,17 +1,19 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ZodError } from "zod";
-import { QUESTION_DTO } from "@goat-it/schemas/question";
+import { FIND_QUESTIONS_QUERY_DTO, QUESTION_DTO } from "@goat-it/schemas/question";
 import { createFakeQuestionDto } from "@goat-it/schemas/testing/question";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions, parseAndMapGoatItApiResponse, throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint, createGoatItApiFetchOptions, parseAndMapGoatItApiResponse, validateGoatItApiQuery } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error.helpers";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { findQuestionsHandler } from "#server/api/goat-it-api/questions/handlers/find/index.get.handler";
 
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
+vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-error.helpers"));
 
 describe("Server Goat It API Questions Find Get Handler", () => {
   const mockedEvent = createFakeH3Event();
@@ -19,7 +21,7 @@ describe("Server Goat It API Questions Find Get Handler", () => {
   const anotherValidMongoId = "507f1f77bcf86cd799439012";
 
   beforeEach(() => {
-    vi.mocked(getQuery).mockReturnValue({ ids: validMongoId, limit: 10 });
+    vi.mocked(validateGoatItApiQuery).mockResolvedValue({ "sort-by": "createdAt", "sort-order": "desc", "ids": [validMongoId], "limit": 10 });
     vi.mocked($fetch).mockResolvedValue([createFakeQuestionDto({ author: { role: "admin", name: "Test Admin" } })]);
   });
 
@@ -30,16 +32,16 @@ describe("Server Goat It API Questions Find Get Handler", () => {
       expect(createGoatItApiEndpoint).toHaveBeenCalledExactlyOnceWith("questions");
     });
 
-    it("should create goat it api fetch options with event when called.", async() => {
+    it("should create goat it api fetch options with the get method when called.", async() => {
       await findQuestionsHandler(mockedEvent);
 
-      expect(createGoatItApiFetchOptions).toHaveBeenCalledExactlyOnceWith(mockedEvent);
+      expect(createGoatItApiFetchOptions).toHaveBeenCalledExactlyOnceWith(mockedEvent, { method: "GET" });
     });
 
-    it("should read the validated query from the event when called.", async() => {
+    it("should validate the query through the goat it api query validator when called.", async() => {
       await findQuestionsHandler(mockedEvent);
 
-      expect(getValidatedQuery).toHaveBeenCalledExactlyOnceWith(mockedEvent, expect.any(Function));
+      expect(validateGoatItApiQuery).toHaveBeenCalledExactlyOnceWith(mockedEvent, FIND_QUESTIONS_QUERY_DTO);
     });
 
     it("should fetch questions with the correct endpoint, fetch options and parsed query when called.", async() => {
@@ -52,7 +54,7 @@ describe("Server Goat It API Questions Find Get Handler", () => {
       };
       vi.mocked(createGoatItApiEndpoint).mockReturnValue(expectedEndpoint);
       vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
-      vi.mocked(getQuery).mockReturnValue({ ids: [validMongoId, anotherValidMongoId], limit: 10 });
+      vi.mocked(validateGoatItApiQuery).mockResolvedValue({ "sort-by": "createdAt", "sort-order": "desc", "ids": [validMongoId, anotherValidMongoId], "limit": 10 });
 
       await findQuestionsHandler(mockedEvent);
 
@@ -76,7 +78,7 @@ describe("Server Goat It API Questions Find Get Handler", () => {
       };
       vi.mocked(createGoatItApiEndpoint).mockReturnValue(expectedEndpoint);
       vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
-      vi.mocked(getQuery).mockReturnValue({ ids: validMongoId });
+      vi.mocked(validateGoatItApiQuery).mockResolvedValue({ "sort-by": "createdAt", "sort-order": "desc", "ids": [validMongoId], "limit": 50 });
 
       await findQuestionsHandler(mockedEvent);
 
@@ -105,7 +107,7 @@ describe("Server Goat It API Questions Find Get Handler", () => {
       };
       vi.mocked(createGoatItApiEndpoint).mockReturnValue(expectedEndpoint);
       vi.mocked(createGoatItApiFetchOptions).mockReturnValue(expectedFetchOptions);
-      vi.mocked(getQuery).mockReturnValue({ ids: validMongoId, limit: providedLimit });
+      vi.mocked(validateGoatItApiQuery).mockResolvedValue({ "sort-by": "createdAt", "sort-order": "desc", "ids": [validMongoId], "limit": providedLimit });
 
       await findQuestionsHandler(mockedEvent);
 
@@ -140,13 +142,8 @@ describe("Server Goat It API Questions Find Get Handler", () => {
       expect(result).toStrictEqual(expectedQuestions);
     });
 
-    it.each<{ description: string; query: unknown }>([
-      { description: "ids are empty", query: { ids: [] } },
-      { description: "an id is invalid", query: { ids: ["not-a-valid-id"] } },
-      { description: "ids contain duplicates", query: { ids: [validMongoId, validMongoId] } },
-      { description: "more than 100 ids are provided", query: { ids: Array.from({ length: 101 }, () => validMongoId) } },
-    ])("should reject with a bad request error when $description.", async({ query }) => {
-      vi.mocked(getQuery).mockReturnValue(query);
+    it("should reject with a bad request error when the query validator rejects the query.", async() => {
+      vi.mocked(validateGoatItApiQuery).mockRejectedValue(Object.assign(new Error("Validation Error"), { statusCode: HttpStatusCode.BAD_REQUEST }));
 
       await expect(findQuestionsHandler(mockedEvent)).rejects.toMatchObject({ statusCode: HttpStatusCode.BAD_REQUEST });
     });

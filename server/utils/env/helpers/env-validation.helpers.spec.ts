@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 
 import type { RuntimeConfigOverrides } from "~~/tests/unit/utils/types/runtime-config.types";
 
-import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
+import type { AppRuntimeConfig, CspMode } from "#shared/types/runtime-config.types";
 import { isInternalHostname, validateAppRuntimeConfig } from "#server/utils/env/helpers/env-validation.helpers";
 
 function buildAppRuntimeConfig(overrides: RuntimeConfigOverrides = {}): AppRuntimeConfig {
@@ -11,6 +11,12 @@ function buildAppRuntimeConfig(overrides: RuntimeConfigOverrides = {}): AppRunti
       baseUrl: overrides.baseUrl ?? "https://api.goat-it.com",
       gameKey: overrides.gameKey ?? "test-game-key",
     },
+    rateLimit: {
+      maximumRequests: overrides.maximumRequests ?? 60,
+      windowInMs: overrides.windowInMs ?? 60_000,
+      trustProxy: overrides.trustProxy ?? false,
+    },
+    security: { cspMode: overrides.cspMode ?? "enforce" },
     public: { defaultLocale: overrides.defaultLocale ?? "en" },
   } as unknown as AppRuntimeConfig;
 }
@@ -53,6 +59,9 @@ describe(validateAppRuntimeConfig, () => {
     { description: "a private ip http base url in production", config: buildAppRuntimeConfig({ baseUrl: "http://192.168.1.20:9090" }), isProduction: true },
     { description: "a non https base url outside production", config: buildAppRuntimeConfig({ baseUrl: "http://api.goat-it.com" }), isProduction: false },
     { description: "an alternate supported locale", config: buildAppRuntimeConfig({ defaultLocale: "fr" }), isProduction: true },
+    { description: "a report-only csp mode", config: buildAppRuntimeConfig({ cspMode: "report-only" }), isProduction: true },
+    { description: "a disabled csp mode", config: buildAppRuntimeConfig({ cspMode: "off" }), isProduction: true },
+    { description: "a trusted proxy flag", config: buildAppRuntimeConfig({ trustProxy: true }), isProduction: true },
   ])("should not throw when the config has $description.", ({ config, isProduction }) => {
     expect(() => validateAppRuntimeConfig(config, { isProduction })).not.toThrow();
   });
@@ -117,6 +126,36 @@ describe(validateAppRuntimeConfig, () => {
       config: buildAppRuntimeConfig({ defaultLocale: "ja" }),
       isProduction: false,
       expectedMessage: "Invalid runtime environment: \"public.defaultLocale\" must be one of the supported locales.",
+    },
+    {
+      description: "a zero maximum request count",
+      config: buildAppRuntimeConfig({ maximumRequests: 0 }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"rateLimit.maximumRequests\" must be an integer greater than or equal to 1.",
+    },
+    {
+      description: "a fractional maximum request count",
+      config: buildAppRuntimeConfig({ maximumRequests: 2.5 }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"rateLimit.maximumRequests\" must be an integer greater than or equal to 1.",
+    },
+    {
+      description: "a zero rate limit window",
+      config: buildAppRuntimeConfig({ windowInMs: 0 }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"rateLimit.windowInMs\" must be an integer greater than or equal to 1.",
+    },
+    {
+      description: "a non boolean trusted proxy flag",
+      config: buildAppRuntimeConfig({ trustProxy: "true" as unknown as boolean }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"rateLimit.trustProxy\" must be a boolean.",
+    },
+    {
+      description: "an unsupported csp mode",
+      config: buildAppRuntimeConfig({ cspMode: "log-only" as unknown as CspMode }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"security.cspMode\" must be one of the supported modes.",
     },
   ])("should throw when the config has $description.", ({ config, isProduction, expectedMessage }) => {
     expect(() => validateAppRuntimeConfig(config, { isProduction })).toThrow(expectedMessage);

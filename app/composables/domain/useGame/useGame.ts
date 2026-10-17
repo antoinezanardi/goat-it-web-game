@@ -6,7 +6,8 @@ import { isEqual } from "radashi";
 import type { Question } from "#shared/types/question.types";
 import { buildGameSettingsFetchFilters } from "~/composables/domain/useGameQuestionsFilters/helpers/game-questions-filters.helpers";
 import type { GameSettingsFetchFilters } from "~/composables/domain/useGameQuestionsFilters/use-game-questions-filters.types";
-import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
+import { buildExcludedQuestionIds } from "~/composables/domain/useGame/helpers/game-excluded-ids.helpers";
+import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
 
 type GamePageState = "loading" | "playing" | "game-over";
 
@@ -50,7 +51,7 @@ function useGame(): UseGame {
     }
     return {
       limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-      excludedIds: questions.value.map(question => question.id),
+      excludedIds: buildExcludedQuestionIds(questions.value, GAME_EXCLUDED_IDS_MAXIMUM),
       ...getGameSettingsFetchFilters(),
     };
   });
