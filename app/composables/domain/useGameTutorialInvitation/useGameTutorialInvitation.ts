@@ -1,6 +1,6 @@
 import type { Toast } from "#ui/composables";
 import { CookieNames } from "#shared/enums/cookie.enums";
-import type { GamePageState } from "~/composables/domain/useGame/useGame";
+import type { GamePageState } from "~/composables/domain/useGame/use-game.types";
 import {
   GAME_TUTORIAL_INVITATION_DECISION_COOKIE_OPTIONS,
   GAME_TUTORIAL_INVITATION_TOAST_ID,

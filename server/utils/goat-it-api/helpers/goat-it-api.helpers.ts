@@ -1,33 +1,27 @@
-import { FetchError } from "ofetch";
 import { getCookie } from "h3";
-import { z } from "zod";
-import { API_RESPONSE_EXCEPTION_DTO } from "@goat-it/schemas/shared/error";
 import type { Locale } from "@goat-it/schemas/shared/locale";
 import type { H3Event } from "h3";
 
-import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
 import { GOAT_IT_API_REQUEST_RETRY_COUNT, GOAT_IT_API_REQUEST_RETRY_DELAY_IN_MS, GOAT_IT_API_REQUEST_TIMEOUT_IN_MS } from "#server/utils/goat-it-api/goat-it-api.constants";
+import { getRuntimeConfig } from "#server/utils/runtime-config/helpers/runtime-config.helpers";
 import type { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
 import { GoatItApiHeaderNames } from "#server/utils/goat-it-api/goat-it-api.enums";
-import type { CreateGoatItApiEndpointOptions } from "#server/utils/goat-it-api/goat-it-api.types";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
+import type { CreateGoatItApiEndpointOptions, CreateGoatItApiFetchOptionsOverrides } from "#server/utils/goat-it-api/goat-it-api.types";
 import { CookieNames } from "#shared/enums/cookie.enums";
 import { isNonEmptyString } from "#shared/utils/helpers/string/string.helpers";
 import { resolveCookieLocale } from "#shared/utils/helpers/locale/locale.helpers";
 
-function getRuntimeConfig(event: H3Event): AppRuntimeConfig {
-  // Acceptable as the NitroRuntimeConfig type does not expose custom runtimeConfig keys
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  return useRuntimeConfig(event) as unknown as AppRuntimeConfig;
+function encodePathSegment(segment: string): string {
+  return segment.split("/").map(part => encodeURIComponent(part)).join("/");
 }
 
 function createGoatItApiEndpoint(resourceName: GoatItApiResourceNames, options?: CreateGoatItApiEndpointOptions): string {
   let endpoint = `/${resourceName}`;
 
   if (isNonEmptyString(options?.id)) {
-    endpoint += `/${options.id}`;
+    endpoint += `/${encodePathSegment(options.id)}`;
   } else if (isNonEmptyString(options?.suffix)) {
-    endpoint += `/${options.suffix}`;
+    endpoint += `/${encodePathSegment(options.suffix)}`;
   }
   return endpoint;
 }
@@ -36,8 +30,21 @@ function extractLocaleFromEvent(event: H3Event, defaultLocale: Locale): Locale {
   return resolveCookieLocale(getCookie(event, CookieNames.I18N_REDIRECTED), defaultLocale);
 }
 
-function createGoatItApiFetchOptions(event: H3Event): Parameters<typeof $fetch>[1] {
+function createGoatItApiAbortSignal(event: H3Event): AbortSignal {
+  const disconnectController = new AbortController();
+
+  event.node.res.on("close", () => {
+    if (!event.node.res.writableEnded) {
+      disconnectController.abort();
+    }
+  });
+
+  return AbortSignal.any([disconnectController.signal, AbortSignal.timeout(GOAT_IT_API_REQUEST_TIMEOUT_IN_MS)]);
+}
+
+function createGoatItApiFetchOptions(event: H3Event, options?: CreateGoatItApiFetchOptionsOverrides): Parameters<typeof $fetch>[1] {
   const config = getRuntimeConfig(event);
+  const method = options?.method ?? "GET";
 
   return {
     baseURL: config.goatItApi.baseUrl,
@@ -45,44 +52,15 @@ function createGoatItApiFetchOptions(event: H3Event): Parameters<typeof $fetch>[
       [GoatItApiHeaderNames.API_KEY]: config.goatItApi.gameKey,
       [GoatItApiHeaderNames.ACCEPT_LANGUAGE]: extractLocaleFromEvent(event, config.public.defaultLocale),
     },
-    retry: GOAT_IT_API_REQUEST_RETRY_COUNT,
+    redirect: "error",
+    retry: method === "POST" ? 0 : GOAT_IT_API_REQUEST_RETRY_COUNT,
     retryDelay: GOAT_IT_API_REQUEST_RETRY_DELAY_IN_MS,
-    timeout: GOAT_IT_API_REQUEST_TIMEOUT_IN_MS,
+    signal: createGoatItApiAbortSignal(event),
   };
-}
-
-function parseAndMapGoatItApiResponse<Dto, Domain>(
-  rawData: unknown,
-  dtoSchema: z.ZodType<Dto>,
-  mapper: (dto: Dto) => Domain,
-): Domain[] {
-  return z.array(dtoSchema).parse(rawData).map(mapper);
-}
-
-function throwGoatItApiError(error: unknown): never {
-  if (!(error instanceof FetchError)) {
-    throw error;
-  }
-
-  const parsedError = API_RESPONSE_EXCEPTION_DTO.safeParse(error.data);
-
-  if (!parsedError.success) {
-    throw createError({
-      statusCode: HttpStatusCode.INTERNAL_SERVER_ERROR,
-      data: {},
-    });
-  }
-
-  throw createError({
-    statusCode: parsedError.data.statusCode,
-    data: { errorCode: parsedError.data.errorCode },
-  });
 }
 
 export {
   createGoatItApiEndpoint,
   createGoatItApiFetchOptions,
   extractLocaleFromEvent,
-  parseAndMapGoatItApiResponse,
-  throwGoatItApiError,
 };

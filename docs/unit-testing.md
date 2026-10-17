@@ -996,11 +996,11 @@ it("should call createError with the correct status code when the item is not fo
 - Always mock the helpers module using `import()` expression syntax: `vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"))`.
 - Use a **two-level `describe`** pattern: outer string label `"Server Goat It API <Resource> <Method> Handler"`, inner `describe(handlerFn, ...)` with the function reference.
 - Use `vi.mocked($fetch).mockResolvedValue(...)` — `$fetch` is already a global spy.
-- `createGoatItApiFetchOptions` receives the **event**: assert `toHaveBeenCalledExactlyOnceWith(event)`. The injected runtime config values are `baseUrl: "https://api.goat-it.com"` and `gameKey: "test-game-key"`, carried to the API as the `goat-it-api-key` header.
+- `createGoatItApiFetchOptions` receives the **event** and the HTTP method option: assert `toHaveBeenCalledExactlyOnceWith(event, { method: "GET" | "POST" })`. The injected runtime config values are `baseUrl: "https://api.goat-it.com"` and `gameKey: "test-game-key"`, carried to the API as the `goat-it-api-key` header.
 - Always test the Zod validation error path with invalid data.
 - Use `HttpStatusCode` enum from `#server/utils/http/http.enums` for status code assertions.
-- For routes with params: assert `getRouterParam` was called with `(event, "id")`.
-- For routes with body (POST/PATCH): assert `readBody` was called with `(event)`.
+- For routes with params: assert the input path the handler actually uses — Goat It API handlers wired through the shared validation wrappers assert `validateGoatItApiQuery(event, SCHEMA)`; handlers still reading raw params assert `getRouterParam` was called with `(event, "id")`.
+- For routes with body (POST/PATCH): assert the input path the handler actually uses — Goat It API handlers wired through the shared validation wrappers assert `validateGoatItApiBody(event, SCHEMA)`; handlers still reading the raw body assert `readBody` was called with `(event)`.
 
 #### Swallowing errors to assert side-effect calls
 

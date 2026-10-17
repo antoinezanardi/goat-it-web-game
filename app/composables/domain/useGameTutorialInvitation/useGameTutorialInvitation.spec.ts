@@ -13,7 +13,7 @@ import type { UseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/u
 
 import type { useGameTutorialInvitation as UseGameTutorialInvitationType } from "@/composables/domain/useGameTutorialInvitation/useGameTutorialInvitation";
 import type { UseGameTutorialInvitation } from "@/composables/domain/useGameTutorialInvitation/use-game-tutorial-invitation.types";
-import type { GamePageState } from "@/composables/domain/useGame/useGame";
+import type { GamePageState } from "@/composables/domain/useGame/use-game.types";
 import type { Toast } from "#ui/composables";
 import { CookieNames } from "#shared/enums/cookie.enums";
 

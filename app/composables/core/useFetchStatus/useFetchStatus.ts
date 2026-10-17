@@ -1,15 +1,5 @@
 import type { AsyncDataRequestStatus } from "#app";
-
-type UseFetchStatus = {
-  fetchStatus: Ref<AsyncDataRequestStatus>;
-  isIdle: ComputedRef<boolean>;
-  isPending: ComputedRef<boolean>;
-  isSuccess: ComputedRef<boolean>;
-  isError: ComputedRef<boolean>;
-  setFetchStatusToPending: () => void;
-  setFetchStatusToSuccess: () => void;
-  setFetchStatusToError: () => void;
-};
+import type { UseFetchStatus } from "~/composables/core/useFetchStatus/use-fetch-status.types";
 
 function useFetchStatus(): UseFetchStatus {
   const fetchStatus = ref<AsyncDataRequestStatus>("idle");
@@ -41,10 +31,6 @@ function useFetchStatus(): UseFetchStatus {
     setFetchStatusToError,
   };
 }
-
-export type {
-  UseFetchStatus,
-};
 
 export {
   useFetchStatus,

@@ -2,7 +2,7 @@ import { isValidLocale } from "@goat-it/schemas/shared/locale";
 import { z } from "zod";
 
 import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
-import { LOCAL_HOSTNAMES, RFC1918_IPV4_PATTERN } from "#server/utils/env/env.constants";
+import { LOCAL_HOSTNAMES, RFC1918_IPV4_PATTERN, SUPPORTED_CSP_MODES } from "#server/utils/env/env.constants";
 import type { ValidateAppRuntimeConfigOptions } from "#server/utils/env/env.types";
 
 function isInternalHostname(hostname: string): boolean {
@@ -14,6 +14,26 @@ function isInternalHostname(hostname: string): boolean {
     return true;
   }
   return z.ipv4().safeParse(hostname).success && RFC1918_IPV4_PATTERN.test(hostname);
+}
+
+function validateRateLimitConfig(rateLimit: AppRuntimeConfig["rateLimit"]): void {
+  if (!z.number().int().min(1).safeParse(rateLimit.maximumRequests).success) {
+    throw new Error("Invalid runtime environment: \"rateLimit.maximumRequests\" must be an integer greater than or equal to 1.");
+  }
+
+  if (!z.number().int().min(1).safeParse(rateLimit.windowInMs).success) {
+    throw new Error("Invalid runtime environment: \"rateLimit.windowInMs\" must be an integer greater than or equal to 1.");
+  }
+
+  if (typeof rateLimit.trustProxy !== "boolean") {
+    throw new TypeError("Invalid runtime environment: \"rateLimit.trustProxy\" must be a boolean.");
+  }
+}
+
+function validateSecurityConfig(security: AppRuntimeConfig["security"]): void {
+  if (!SUPPORTED_CSP_MODES.includes(security.cspMode)) {
+    throw new Error("Invalid runtime environment: \"security.cspMode\" must be one of the supported modes.");
+  }
 }
 
 function validateAppRuntimeConfig(config: AppRuntimeConfig, options: ValidateAppRuntimeConfigOptions): void {
@@ -39,6 +59,9 @@ function validateAppRuntimeConfig(config: AppRuntimeConfig, options: ValidateApp
   if (!isValidLocale(config.public.defaultLocale)) {
     throw new Error("Invalid runtime environment: \"public.defaultLocale\" must be one of the supported locales.");
   }
+
+  validateRateLimitConfig(config.rateLimit);
+  validateSecurityConfig(config.security);
 }
 
 export {

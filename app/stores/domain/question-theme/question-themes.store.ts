@@ -9,7 +9,7 @@ export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, ()
   const activeQuestionThemeIds = computed<string[]>(() => activeQuestionThemes.value.map(theme => theme.id));
   const isThemesCatalogAvailable = computed<boolean>(() => activeQuestionThemes.value.length > 0);
 
-  const repository = questionThemesRepository($fetch);
+  const repository = questionThemesRepository(useRequestFetch());
   const { handleGoatItApiError } = useGoatItApiErrorToast();
   const { t } = useI18n();
 

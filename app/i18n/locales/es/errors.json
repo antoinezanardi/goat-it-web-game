@@ -3,6 +3,12 @@
     "unknown": "Se ha producido un error desconocido. Inténtelo de nuevo más tarde.",
     "generic": "Se ha producido un error. Por favor, inténtelo de nuevo más tarde.",
     "pageNotFound": "Página no encontrada.",
-    "goatItApi": {}
+    "goatItApi": {
+      "invalid-request": "No se ha podido procesar la solicitud. Comprueba tu selección e inténtalo de nuevo.",
+      "rate-limited": "Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.",
+      "upstream-error": "El servidor del juego no está disponible temporalmente. Inténtalo de nuevo más tarde.",
+      "upstream-timeout": "El servidor del juego ha tardado demasiado en responder. Inténtalo de nuevo más tarde.",
+      "internal-error": "Se ha producido un error inesperado. Inténtalo de nuevo más tarde."
+    }
   }
 }

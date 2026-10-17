@@ -1,20 +1,16 @@
-import { FetchError } from "ofetch";
-import { H3Error, getCookie } from "h3";
-import { ZodError } from "zod";
-import { QUESTION_DTO } from "@goat-it/schemas/question";
+import { EventEmitter } from "node:events";
+
+import { getCookie } from "h3";
 import type { Locale } from "@goat-it/schemas/shared/locale";
-import { createFakeQuestionDto } from "@goat-it/schemas/testing/question";
+import type { H3Event } from "h3";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
-import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
 import {
   createGoatItApiEndpoint,
   createGoatItApiFetchOptions,
   extractLocaleFromEvent,
-  parseAndMapGoatItApiResponse,
-  throwGoatItApiError,
 } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
 import { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
 import type { CreateGoatItApiEndpointOptions } from "#server/utils/goat-it-api/goat-it-api.types";
@@ -37,16 +33,6 @@ function mockGoatItApiEnvironment(defaultLocale: Locale = "en"): void {
   vi.mocked(getCookie).mockReturnValue(undefined);
 }
 
-function getThrowableError(function_: () => void): H3Error {
-  try {
-    function_();
-  } catch(error: unknown) {
-    return error as H3Error;
-  }
-
-  throw new Error("Expected function to throw");
-}
-
 describe(createGoatItApiEndpoint, () => {
   beforeEach(() => mockGoatItApiEnvironment());
 
@@ -58,6 +44,13 @@ describe(createGoatItApiEndpoint, () => {
   }>([
     { description: "no options", resourceName: GoatItApiResourceNames.QUESTION_THEMES, expectedEndpoint: "/question-themes" },
     { description: "an id option", resourceName: GoatItApiResourceNames.QUESTION_THEMES, options: { id: "abc123" }, expectedEndpoint: "/question-themes/abc123" },
+    {
+      description: "an id option with query characters",
+      resourceName: GoatItApiResourceNames.QUESTION_THEMES,
+      options: { id: "abc?x=1" },
+      expectedEndpoint: "/question-themes/abc%3Fx%3D1",
+    },
+    { description: "an id option with a space", resourceName: GoatItApiResourceNames.QUESTION_THEMES, options: { id: "abc def" }, expectedEndpoint: "/question-themes/abc%20def" },
     { description: "a suffix option", resourceName: GoatItApiResourceNames.QUESTIONS, options: { suffix: "search/random" }, expectedEndpoint: "/questions/search/random" },
     { description: "an empty id option", resourceName: GoatItApiResourceNames.QUESTION_THEMES, options: { id: "" }, expectedEndpoint: "/question-themes" },
     { description: "an empty suffix option", resourceName: GoatItApiResourceNames.QUESTIONS, options: { suffix: "" }, expectedEndpoint: "/questions" },
@@ -121,208 +114,83 @@ describe(extractLocaleFromEvent, () => {
   });
 });
 
+type FakeResponse = EventEmitter & { writableEnded: boolean };
+
+function createEventWithResponse(writableEnded = false): { event: H3Event; response: FakeResponse } {
+  const response = Object.assign(new EventEmitter(), { writableEnded });
+  const event = {
+    context: { params: {} },
+    path: "/",
+    method: "GET",
+    node: { res: response },
+  } as unknown as H3Event;
+
+  return { event, response };
+}
+
 describe(createGoatItApiFetchOptions, () => {
   beforeEach(() => mockGoatItApiEnvironment());
 
   it("should create fetch options with baseURL, api key and the cookie locale accept-language header when called with event.", () => {
     vi.mocked(getCookie).mockReturnValue("fr");
-    const expectedFetchOptions: Parameters<typeof $fetch>[1] = {
+    const { event } = createEventWithResponse();
+
+    const fetchOptions = createGoatItApiFetchOptions(event);
+
+    expect(fetchOptions).toMatchObject({
       baseURL: "https://api.example.com",
       headers: {
         "goat-it-api-key": "secret-game-key",
         "Accept-Language": "fr",
       },
+      redirect: "error",
       retry: 2,
       retryDelay: 300,
-      timeout: 10_000,
-    };
-
-    const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
-
-    expect(fetchOptions).toStrictEqual<Parameters<typeof $fetch>[1]>(expectedFetchOptions);
-  });
-
-  it("should create fetch options with the default accept-language header when no cookie is present.", () => {
-    const expectedFetchOptions: Parameters<typeof $fetch>[1] = {
-      baseURL: "https://api.example.com",
-      headers: {
-        "goat-it-api-key": "secret-game-key",
-        "Accept-Language": "en",
-      },
-      retry: 2,
-      retryDelay: 300,
-      timeout: 10_000,
-    };
-
-    const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
-
-    expect(fetchOptions).toStrictEqual<Parameters<typeof $fetch>[1]>(expectedFetchOptions);
-  });
-
-  it("should create fetch options with the configured fr accept-language header when no cookie is present and default locale is fr.", () => {
-    mockGoatItApiEnvironment("fr");
-    const expectedFetchOptions: Parameters<typeof $fetch>[1] = {
-      baseURL: "https://api.example.com",
-      headers: {
-        "goat-it-api-key": "secret-game-key",
-        "Accept-Language": "fr",
-      },
-      retry: 2,
-      retryDelay: 300,
-      timeout: 10_000,
-    };
-
-    const fetchOptions = createGoatItApiFetchOptions(mockedEvent);
-
-    expect(fetchOptions).toStrictEqual<Parameters<typeof $fetch>[1]>(expectedFetchOptions);
-  });
-});
-
-describe(throwGoatItApiError, () => {
-  beforeEach(() => mockGoatItApiEnvironment());
-
-  const validErrorDataWithErrorCode = {
-    statusCode: 409,
-    message: "Question theme is referenced by live questions",
-    error: "Conflict",
-    errorCode: "questionThemeReferencedByLiveQuestions",
-  };
-  const validErrorDataWithoutErrorCode = {
-    statusCode: 400,
-    message: "The request could not be understood",
-    error: "Bad Request",
-  };
-  const invalidErrorData = { unexpected: "shape" };
-
-  function createFailingFetchError(data: unknown): FetchError {
-    const fetchError = new FetchError("Goat It API error");
-
-    fetchError.data = data;
-
-    return fetchError;
-  }
-
-  describe("when error is a FetchError", () => {
-    it.each<{
-      description: string;
-      errorData: unknown;
-    }>([
-      {
-        description: "valid ApiResponseExceptionDto data with errorCode",
-        errorData: validErrorDataWithErrorCode,
-      },
-      {
-        description: "valid ApiResponseExceptionDto data without errorCode",
-        errorData: validErrorDataWithoutErrorCode,
-      },
-      {
-        description: "invalid data that does not match ApiResponseExceptionDto",
-        errorData: invalidErrorData,
-      },
-    ])(
-      "should throw an H3Error when error data is $description.",
-      ({ errorData }) => {
-        expect(() => throwGoatItApiError(createFailingFetchError(errorData))).toThrow(H3Error);
-      },
-    );
-
-    it.each<{
-      description: string;
-      errorData: unknown;
-      expectedStatusCode: number;
-    }>([
-      {
-        description: "valid ApiResponseExceptionDto data with errorCode",
-        errorData: validErrorDataWithErrorCode,
-        expectedStatusCode: 409,
-      },
-      {
-        description: "valid ApiResponseExceptionDto data without errorCode",
-        errorData: validErrorDataWithoutErrorCode,
-        expectedStatusCode: 400,
-      },
-      {
-        description: "invalid data that does not match ApiResponseExceptionDto",
-        errorData: invalidErrorData,
-        expectedStatusCode: 500,
-      },
-    ])(
-      "should throw an H3Error with status code $expectedStatusCode when error data is $description.",
-      ({ errorData, expectedStatusCode }) => {
-        const error = getThrowableError(() => throwGoatItApiError(createFailingFetchError(errorData)));
-
-        expect(error.statusCode).toBe(expectedStatusCode);
-      },
-    );
-
-    it("should not forward the upstream error message when error data is valid.", () => {
-      const error = getThrowableError(() => throwGoatItApiError(createFailingFetchError(validErrorDataWithErrorCode)));
-
-      expect(error.message).not.toBe(validErrorDataWithErrorCode.message);
     });
-
-    it.each<{
-      description: string;
-      errorData: unknown;
-      expectedData: { errorCode?: string };
-    }>([
-      {
-        description: "valid ApiResponseExceptionDto data with errorCode",
-        errorData: validErrorDataWithErrorCode,
-        expectedData: { errorCode: "questionThemeReferencedByLiveQuestions" },
-      },
-      {
-        description: "valid ApiResponseExceptionDto data without errorCode",
-        errorData: validErrorDataWithoutErrorCode,
-        expectedData: { errorCode: undefined },
-      },
-      {
-        description: "invalid data that does not match ApiResponseExceptionDto",
-        errorData: invalidErrorData,
-        expectedData: {},
-      },
-    ])(
-      "should throw an H3Error with the parsed errorCode in data when error data is $description.",
-      ({ errorData, expectedData }) => {
-        const error = getThrowableError(() => throwGoatItApiError(createFailingFetchError(errorData)));
-
-        expect(error.data).toStrictEqual(expectedData);
-      },
-    );
   });
 
-  it("should re-throw the original error when error is not a FetchError.", () => {
-    const originalError = new Error("Some other error");
+  it("should not set the timeout option when called.", () => {
+    const { event } = createEventWithResponse();
 
-    expect(() => throwGoatItApiError(originalError)).toThrow(originalError);
-  });
-});
+    const fetchOptions = createGoatItApiFetchOptions(event);
 
-describe(parseAndMapGoatItApiResponse, () => {
-  it("should return the mapped domain objects when the raw data matches the dto schema.", () => {
-    const fakeQuestionDtos = [
-      createFakeQuestionDto(),
-      createFakeQuestionDto(),
-      createFakeQuestionDto(),
-    ];
-    const expectedQuestions = fakeQuestionDtos.map(createQuestionFromQuestionDto);
-
-    const questions = parseAndMapGoatItApiResponse(fakeQuestionDtos, QUESTION_DTO, createQuestionFromQuestionDto);
-
-    expect(questions).toStrictEqual(expectedQuestions);
+    expect(fetchOptions).not.toHaveProperty("timeout");
   });
 
-  it("should return an empty array when the raw data is an empty array.", () => {
-    const questions = parseAndMapGoatItApiResponse([], QUESTION_DTO, createQuestionFromQuestionDto);
+  it("should compose an abort signal on the fetch options when called.", () => {
+    const { event } = createEventWithResponse();
 
-    expect(questions).toStrictEqual([]);
+    const fetchOptions = createGoatItApiFetchOptions(event);
+
+    expect(fetchOptions?.signal).toBeInstanceOf(AbortSignal);
   });
 
-  it("should throw a zod error when the raw data does not match the dto schema.", () => {
-    expect(() => parseAndMapGoatItApiResponse([{ id: "invalid-id" }], QUESTION_DTO, createQuestionFromQuestionDto)).toThrow(ZodError);
+  it.each<{ description: string; options?: { method: "GET" | "POST" }; expectedRetry: number }>([
+    { description: "no explicit method", options: undefined, expectedRetry: 2 },
+    { description: "the get method", options: { method: "GET" }, expectedRetry: 2 },
+    { description: "the post method", options: { method: "POST" }, expectedRetry: 0 },
+  ])("should set retry to $expectedRetry when the options carry $description.", ({ options, expectedRetry }) => {
+    const { event } = createEventWithResponse();
+
+    const fetchOptions = createGoatItApiFetchOptions(event, options);
+
+    expect(fetchOptions?.retry).toBe(expectedRetry);
   });
 
-  it("should throw a zod error when the raw data is not an array.", () => {
-    expect(() => parseAndMapGoatItApiResponse({ id: "invalid-id" }, QUESTION_DTO, createQuestionFromQuestionDto)).toThrow(ZodError);
+  it("should abort the fetch signal when the client disconnects before the response is sent.", () => {
+    const { event, response } = createEventWithResponse(false);
+    const fetchOptions = createGoatItApiFetchOptions(event);
+
+    response.emit("close");
+
+    expect(fetchOptions?.signal?.aborted).toBe(true);
+  });
+
+  it("should not abort the fetch signal when the response has already been sent.", () => {
+    const { event, response } = createEventWithResponse(true);
+    const fetchOptions = createGoatItApiFetchOptions(event);
+    response.emit("close");
+
+    expect(fetchOptions?.signal?.aborted).toBe(false);
   });
 });

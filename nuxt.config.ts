@@ -81,6 +81,14 @@ export default defineNuxtConfig({
       baseUrl: "",
       gameKey: "",
     },
+    rateLimit: {
+      maximumRequests: 60,
+      windowInMs: 60_000,
+      trustProxy: false,
+    },
+    security: {
+      cspMode: "enforce",
+    },
     public: { defaultLocale: DEFAULT_LOCALE_FALLBACK },
   },
   ignore: [

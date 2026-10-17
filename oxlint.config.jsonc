@@ -5,11 +5,13 @@
   },
   "globals": {
     "$fetch": "readonly",
+    "AbortController": "readonly",
     "AbortSignal": "readonly",
     "StoreNames": "readonly",
     "URL": "readonly",
     "callOnce": "readonly",
     "computed": "readonly",
+    "crypto": "readonly",
     "console": "readonly",
     "createError": "readonly",
     "defineAppConfig": "readonly",
@@ -39,6 +41,8 @@
     "window": "readonly",
     "fetch": "readonly",
     "getQuery": "readonly",
+    "getRequestHeader": "readonly",
+    "getRequestIP": "readonly",
     "getRouterParam": "readonly",
     "getValidatedQuery": "readonly",
     "navigator": "readonly",
@@ -55,6 +59,9 @@
     "reactive": "readonly",
     "readBody": "readonly",
     "readValidatedBody": "readonly",
+    "setResponseHeader": "readonly",
+    "setResponseHeaders": "readonly",
+    "structuredClone": "readonly",
     "ref": "readonly",
     "refDebounced": "readonly",
     "clearNuxtState": "readonly",
@@ -97,6 +104,7 @@
     "usePreferredReducedMotion": "readonly",
     "useQuestionCardHighlight": "readonly",
     "useQuestionThemesStore": "readonly",
+    "useRequestFetch": "readonly",
     "useRoute": "readonly",
     "useRouter": "readonly",
     "useRuntimeConfig": "readonly",
@@ -1294,6 +1302,41 @@
     {
       "files": [
         "**/server/plugins/**/*.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off",
+        "eslint/no-param-reassign": [
+          "error",
+          {
+            "props": true,
+            "ignorePropertyModificationsFor": [
+              "htmlContext"
+            ]
+          }
+        ]
+      }
+    },
+    // ---- Override for security headers helper file -----
+    {
+      "files": [
+        "**/server/utils/security/helpers/security-headers.helpers.ts"
+      ],
+      "rules": {
+        "eslint/no-param-reassign": [
+          "error",
+          {
+            "props": true,
+            "ignorePropertyModificationsFor": [
+              "htmlContext"
+            ]
+          }
+        ]
+      }
+    },
+    // ---- Override for server middleware files -----
+    {
+      "files": [
+        "**/server/middleware/**/*.ts"
       ],
       "rules": {
         "import/no-default-export": "off"
