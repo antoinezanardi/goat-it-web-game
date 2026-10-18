@@ -1,7 +1,7 @@
 import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 
 import { resolveSelectedThemeIds } from "#shared/utils/helpers/question-theme/selection/question-theme-selection.helpers";
-import type { GameSettingsFetchFilters } from "@/composables/domain/useGameQuestionsFilters/use-game-questions-filters.types";
+import type { GameSettingsFetchFilters } from "@/composables/domain/useGame/helpers/game-questions-filters/game-questions-filters.types";
 import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 
 function buildGameSettingsFetchFilters(settings: GameSettings, activeThemeIds: readonly string[]): GameSettingsFetchFilters {

@@ -3,7 +3,7 @@ import { useEventListener } from "@vueuse/core";
 
 import { GameTutorialPopoverContent } from "#components";
 
-import { isEditableKeyboardTarget } from "#shared/utils/helpers/element/element.dom.helpers";
+import { isEditableKeyboardTarget } from "@/utils/core/element/element.dom.helpers";
 import type {
   GameTutorialEmits,
   GameTutorialProps,

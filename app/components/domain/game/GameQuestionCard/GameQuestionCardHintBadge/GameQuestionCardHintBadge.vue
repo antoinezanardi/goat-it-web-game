@@ -3,7 +3,7 @@ import { UBadge } from "#components";
 
 import type { GameQuestionCardHintBadgeExposed } from "@/components/domain/game/GameQuestionCard/GameQuestionCardHintBadge/game-question-card-hint-badge.types";
 import { QUESTION_HINT_ICON } from "@/utils/ui/question/question.constants";
-import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
+import { resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 
 const { t } = useI18n();
 

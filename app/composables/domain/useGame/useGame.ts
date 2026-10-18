@@ -4,11 +4,11 @@ import { storeToRefs } from "pinia";
 import { isEqual } from "radashi";
 
 import type { Question } from "#shared/types/question.types";
+import { buildExcludedQuestionIds } from "@/composables/domain/useGame/helpers/game-excluded-ids/game-excluded-ids.helpers";
+import { buildGameSettingsFetchFilters } from "@/composables/domain/useGame/helpers/game-questions-filters/game-questions-filters.helpers";
+import type { GameSettingsFetchFilters } from "@/composables/domain/useGame/helpers/game-questions-filters/game-questions-filters.types";
+import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM, GAME_PREFETCH_THRESHOLD } from "@/composables/domain/useGame/use-game.constants";
 import type { GamePageState, UseGame } from "@/composables/domain/useGame/use-game.types";
-import { buildGameSettingsFetchFilters } from "@/composables/domain/useGameQuestionsFilters/helpers/game-questions-filters/game-questions-filters.helpers";
-import type { GameSettingsFetchFilters } from "@/composables/domain/useGameQuestionsFilters/use-game-questions-filters.types";
-import { buildExcludedQuestionIds } from "@/utils/domain/game/helpers/game-excluded-ids/game-excluded-ids.helpers";
-import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM, GAME_PREFETCH_THRESHOLD } from "@/utils/domain/game/game.constants";
 
 function useGame(): UseGame {
   const store = useGameStore();

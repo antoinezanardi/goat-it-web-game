@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { createFakeChangelogEntry } from "~~/tests/unit/utils/faketories/changelog/changelog-entry.entity.faketory";
 
-import { sortChangelogEntries } from "@/composables/domain/useChangelog/helpers/changelog-sorting/changelog.helpers";
+import { sortChangelogEntries } from "@/components/domain/changelog/ChangelogModal/helpers/changelog-sorting/changelog-sorting.helpers";
 import type { ChangelogEntry } from "@/composables/domain/useChangelog/use-changelog.types";
 
 describe(sortChangelogEntries, () => {

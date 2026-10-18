@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onKeyStroke } from "@vueuse/core";
 
-import { isEditableKeyboardTarget } from "#shared/utils/helpers/element/element.dom.helpers";
+import { isEditableKeyboardTarget } from "@/utils/core/element/element.dom.helpers";
 import type { GameQuestionCardSwitcherDirection } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
 import type { GamePlayingEmits, GamePlayingProps } from "@/components/domain/game/GamePlaying/game-playing.types";
 

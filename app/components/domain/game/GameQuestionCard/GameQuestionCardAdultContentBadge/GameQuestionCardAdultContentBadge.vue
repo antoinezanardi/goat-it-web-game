@@ -3,7 +3,7 @@ import { UBadge } from "#components";
 
 import type { GameQuestionCardAdultContentBadgeExposed } from "@/components/domain/game/GameQuestionCard/GameQuestionCardAdultContentBadge/game-question-card-adult-content-badge.types";
 import { QUESTION_ADULT_CONTENT_ICON } from "@/utils/ui/question/question.constants";
-import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
+import { resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 
 const { t } = useI18n();
 

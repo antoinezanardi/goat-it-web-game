@@ -110,7 +110,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2026-10-14",
   nitro: {
     ignore: ["api/**/handlers/**"],
-    imports: { dirs: ["shared/utils/helpers/*.helpers.ts"] },
+    imports: { dirs: ["shared/utils/helpers/**/*.helpers.ts"] },
     compressPublicAssets: { gzip: true, brotli: true },
   },
   vite: {
@@ -308,6 +308,5 @@ export default defineNuxtConfig({
   seo: { validateAppHead: false },
   sitemap: {
     zeroRuntime: true,
-    exclude: ["/index.constants"],
   },
 });

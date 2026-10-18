@@ -2,8 +2,8 @@ import { isValidLocale } from "@goat-it/schemas/shared/locale";
 import { z } from "zod";
 
 import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
-import { LOCAL_HOSTNAMES, RFC1918_IPV4_PATTERN, SUPPORTED_CSP_MODES } from "#server/utils/env/env.constants";
-import type { ValidateAppRuntimeConfigOptions } from "#server/utils/env/env.types";
+import { LOCAL_HOSTNAMES, RFC1918_IPV4_PATTERN, SUPPORTED_CSP_MODES } from "#server/utils/env/helpers/env-validation/env-validation.constants";
+import type { ValidateAppRuntimeConfigOptions } from "#server/utils/env/helpers/env-validation/env-validation.types";
 
 function isInternalHostname(hostname: string): boolean {
   if (LOCAL_HOSTNAMES.includes(hostname)) {

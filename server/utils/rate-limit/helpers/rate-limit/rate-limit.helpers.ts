@@ -2,8 +2,8 @@ import { getRequestHeader } from "h3";
 import type { H3Event } from "h3";
 
 import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
-import { MILLISECONDS_IN_SECOND, MINIMUM_RETRY_AFTER_IN_SECONDS, RATE_LIMIT_MAP_PRUNE_THRESHOLD } from "#server/utils/rate-limit/rate-limit.constants";
-import type { CreateFixedWindowRateLimiterOptions, FixedWindowRateLimiter, RateLimitCheckResult, RateLimitWindow } from "#server/utils/rate-limit/rate-limit.types";
+import { MILLISECONDS_IN_SECOND, MINIMUM_RETRY_AFTER_IN_SECONDS, RATE_LIMIT_MAP_PRUNE_THRESHOLD } from "#server/utils/rate-limit/helpers/rate-limit/rate-limit.constants";
+import type { CreateFixedWindowRateLimiterOptions, FixedWindowRateLimiter, RateLimitCheckResult, RateLimitWindow } from "#server/utils/rate-limit/helpers/rate-limit/rate-limit.types";
 
 function pruneExpiredWindows(windows: Map<string, RateLimitWindow>, now: () => number, windowInMs: number): void {
   for (const [key, window] of windows) {

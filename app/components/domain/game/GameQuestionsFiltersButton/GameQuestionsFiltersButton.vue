@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { UButton } from "#components";
 
-import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
+import { resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 import { GAME_QUESTIONS_FILTERS_BUTTON_UI } from "@/components/domain/game/GameQuestionsFiltersButton/game-questions-filters-button.constants";
 import type { GameQuestionsFiltersButtonEmits, GameQuestionsFiltersButtonExposed } from "@/components/domain/game/GameQuestionsFiltersButton/game-questions-filters-button.types";
 

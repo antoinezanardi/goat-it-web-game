@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 
-import { buildGameSettingsFetchFilters } from "@/composables/domain/useGameQuestionsFilters/helpers/game-questions-filters/game-questions-filters.helpers";
-import type { GameSettingsFetchFilters } from "@/composables/domain/useGameQuestionsFilters/use-game-questions-filters.types";
+import { buildGameSettingsFetchFilters } from "@/composables/domain/useGame/helpers/game-questions-filters/game-questions-filters.helpers";
+import type { GameSettingsFetchFilters } from "@/composables/domain/useGame/helpers/game-questions-filters/game-questions-filters.types";
 import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 
 const UNRESTRICTED_SETTINGS_FIELDS: Partial<GameSettings> = {

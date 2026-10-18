@@ -89,6 +89,8 @@ An independently understood production unit owns a directory. If it has a unit s
 
 No `misc` or catch-all buckets. Use type-only imports where appropriate, named exports for utilities, kebab-case filenames for auxiliary files, and the project-enforced symbol casing. Default exports are reserved for framework entrypoints/config where required. Barrel exports and relative imports are forbidden.
 
+Domain directory names are always singular (`question-theme/`, `element/`), even when the files they contain name the entity in plural (`question-themes.store.ts`).
+
 ### 3.1 Choosing helper, type, and constant scope
 
 Choose placement by **production ownership and dependencies**, not by where a test imports the symbol:
@@ -251,7 +253,7 @@ shared/
 
 - Shared constants/types are contracts, not a fallback for app-local files.
 - Use explicit imports even where Nuxt supports shared utility auto-imports.
-- Existing single-unit utility domains (`element`, `locale`, `object`, `string`, `time`) keep source/spec at the domain directory level; do not add a second `helpers/` level.
+- Existing single-unit utility domains (`locale`, `object`, `string`, `time`) keep source/spec at the domain directory level; do not add a second `helpers/` level.
 - When a domain has multiple distinct helper responsibilities, give each responsibility a subdirectory under `shared/utils/helpers/<domain>/`, with source/spec together.
 - Question utilities are split by dependency: runtime-neutral context/theme/source/category/difficulty rules go under `shared/utils/helpers/question/<responsibility>/`; theme selection goes under `shared/utils/helpers/question-theme/selection/`. UI mappings/icons/colors/Tailwind classes stay under app UI utilities.
 - Do not add Vue, DOM, browser, Nuxt, or app UI dependencies to shared modules.

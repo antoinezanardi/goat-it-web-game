@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ComponentPublicInstance } from "vue";
 
-import { isEditableKeyboardTarget, resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
+import { isEditableKeyboardTarget, resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 
 describe(resolveHTMLElement, () => {
   it("should return the input element when the reference is an HTML element.", () => {

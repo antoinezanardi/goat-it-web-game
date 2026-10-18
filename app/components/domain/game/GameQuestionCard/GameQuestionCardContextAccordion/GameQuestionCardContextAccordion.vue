@@ -6,7 +6,7 @@ import type { ComponentPublicInstance } from "vue";
 import type { GameQuestionCardContextAccordionProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.types";
 import { GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI, GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI, GAME_QUESTION_CARD_CONTEXT_ACCORDION_EXPAND_SAFETY_TIMEOUT_MS } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.constants";
 import { getNonEmptyTrivia, hasNonEmptyContext } from "#shared/utils/helpers/question/context/question-context.helpers";
-import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
+import { resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 
 const props = defineProps<GameQuestionCardContextAccordionProps>();
 

@@ -4,7 +4,7 @@ import type { ComponentPublicInstance } from "vue";
 import type { GameQuestionCardThemeStackExposed, GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
 import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
 import type { QuestionThemeAssignment } from "#shared/types/question.types";
-import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
+import { resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 
 const props = defineProps<GameQuestionCardThemeStackProps>();
 
