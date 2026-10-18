@@ -11,8 +11,8 @@ import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-coo
 import type { ULocaleSelect } from "#components";
 import { LocaleSelect } from "#components";
 
-import { LOCALE_SELECT_UI } from "~/components/shared/core/localization/LocaleSelect/locale-select.constants";
-import type { LocaleSelectProps } from "~/components/shared/core/localization/LocaleSelect/locale-select.types";
+import { LOCALE_SELECT_UI } from "@/components/shared/core/localization/LocaleSelect/locale-select.constants";
+import type { LocaleSelectProps } from "@/components/shared/core/localization/LocaleSelect/locale-select.types";
 
 describe("LocaleSelect Component", () => {
   let wrapper: VueWrapper;

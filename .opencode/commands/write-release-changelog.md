@@ -10,6 +10,7 @@ Guide the end-user release changelog workflow for the upcoming release:
 4. Draft the English entry, get explicit approval, translate it to the other five locales, and present all six entries for final review.
 
 This command creates Markdown content only. It **never commits, never pushes, and never changes application code**.
+Before creating or editing release-content files, consult `docs/architecture.md` for documentation/content placement; use the specialist release instructions below for the release workflow.
 
 Reference repository: `antoinezanardi/goat-it-web-game`.
 

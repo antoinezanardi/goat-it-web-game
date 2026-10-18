@@ -17,8 +17,9 @@ Report all violations once in-chat, then use the question tool to validate with 
 
 ### 1. Load context
 
-1. Load the `acceptance-testing` skill from `.agents/skills/acceptance-testing/SKILL.md`.
-2. Read `docs/acceptance-testing.md` in full (sections 4-9 are the authoritative reference for conventions).
+1. Read `docs/architecture.md` for acceptance-file placement and repository boundaries.
+2. Load the `acceptance-testing` skill from `.agents/skills/acceptance-testing/SKILL.md`.
+3. Read `docs/acceptance-testing.md` in full (sections 4-9 are the authoritative reference for conventions).
 
 ### 2. Determine scope
 

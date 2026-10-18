@@ -2,6 +2,7 @@
 
 This document is the complete reference for writing acceptance tests in this repository.
 It covers the test infrastructure, feature file patterns, step definition conventions, Playwright integration, and common pitfalls.
+For repository boundaries and file placement, see [`docs/architecture.md`](architecture.md); this document remains authoritative for acceptance-specific mechanics.
 
 ---
 

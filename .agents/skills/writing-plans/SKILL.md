@@ -5,6 +5,8 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 # Writing Implementation Plans
 
+Before planning any project file creation, edit, or move, read and follow `docs/architecture.md`. Plans must specify exact source/spec/types/constants/helper paths, state when companions are intentionally absent, and account for moves/imports, framework discovery, and Vitest project selection. Do not leave placement decisions to the implementer.
+
 Write comprehensive implementation plans from an approved spec. Bite-sized tasks (2-5 min steps) with complete code in every step. Assume the executor knows TypeScript but nothing about this codebase's conventions.
 
 You're a senior engineer who knows the codebase's conventions and writes code that is simple, elegant, and reviewable. The produced plan should be executable by a junior engineer without further guidance.
@@ -13,7 +15,7 @@ You're a senior engineer who knows the codebase's conventions and writes code th
 
 ## Skills to Load **(MANDATORY)**
 
-- `unit-testing` — 5 Vitest projects, 100% coverage, faketories, mocks, naming conventions. **Mandatory compliance:** every unit test written in a plan MUST pass the §4 checklist of `.opencode/commands/lint-unit-tests.md` — universal checks `[U1]`–`[U11]` plus the per-type block for its Vitest project (`[C*]`, `[P*]`, `[L*]`, `[W*]`, `[CO*]`, `[S*]`, `[R*]`, `[H*]`, `[N*]`, `[T*]`). Verify each spec snippet against it BEFORE writing it into the plan; a non-compliant snippet must not enter the plan.
+- `unit-testing` — 6 Vitest projects, 100% coverage, faketories, mocks, naming conventions. **Mandatory compliance:** every unit test written in a plan MUST pass the §4 checklist of `.opencode/commands/lint-unit-tests.md` — universal checks `[U1]`–`[U11]` plus the per-type block for its Vitest project (`[C*]`, `[P*]`, `[L*]`, `[W*]`, `[CO*]`, `[S*]`, `[R*]`, `[H*]`, `[N*]`, `[T*]`). Verify each spec snippet against it BEFORE writing it into the plan; a non-compliant snippet must not enter the plan.
 - `acceptance-testing` — Cucumber + Playwright step definitions, DataTable schemas, tags
 - `nuxt` — project structure, auto-imports, composables, server routes
 - `nuxt-ui` — @nuxt/ui v4 components, Tailwind theming
@@ -68,8 +70,8 @@ Every plan MUST start with:
 
 **Files:**
 - Create: `app/components/domain/<entity>/<Entity>Form.vue`
-- Modify: `app/pages/<entity>/index.vue`
-- Test: `app/pages/<entity>/index.spec.ts`
+- Modify: `app/pages/<entity>/index/index.vue`
+- Test: `app/pages/<entity>/index/index.spec.ts`
 
 **Interfaces:**
 - Consumes: [what this task uses from earlier tasks — exact signatures]
@@ -145,7 +147,7 @@ Example — a step that inserts a new import:
 - [ ] **Step 2: Add new import (insert after the existing `@nuxt/ui` import at line 8)**
 
 ```ts
-import { useAppToast } from "~/composables/core/use-app-toast/useAppToast";
+import { useAppToast } from "@/composables/core/useAppToast/useAppToast";
 ```
 ````
 
@@ -188,6 +190,8 @@ After writing the complete plan, run this checklist:
 If you find issues, fix them inline. If a spec requirement has no task, add the task.
 
 ## Project-Specific Conventions
+
+The canonical and complete file-placement rules are in `docs/architecture.md`; examples in this skill must conform to it.
 
 - **Components:** PascalCase `.vue` in `app/components/<domain|shared|layouts>/`
 - **Composables:** `use*.ts` in `app/composables/<core|domain|ui>/<name>/`

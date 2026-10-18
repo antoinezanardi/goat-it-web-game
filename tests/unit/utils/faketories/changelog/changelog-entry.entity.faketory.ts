@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 
-import type { ChangelogEntry } from "~/composables/domain/useChangelog/use-changelog.types";
+import type { ChangelogEntry } from "@/composables/domain/useChangelog/use-changelog.types";
 
 function createFakeChangelogEntry(changelogEntry: Partial<ChangelogEntry> = {}): ChangelogEntry {
   const version = faker.system.semver();

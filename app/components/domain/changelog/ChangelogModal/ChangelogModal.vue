@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { CHANGELOG_ICON } from "@/components/shared/core/changelog/changelog.constants";
+import { CHANGELOG_ICON } from "@/utils/ui/changelog/changelog.constants";
 import type { ChangelogCollectionName } from "@/components/domain/changelog/ChangelogModal/changelog-modal.types";
 import { CHANGELOG_MODAL_UI, CHANGELOG_VERSION_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
-import { sortChangelogEntries } from "~/composables/domain/useChangelog/helpers/changelog.helpers";
+import { sortChangelogEntries } from "@/components/domain/changelog/ChangelogModal/helpers/changelog-sorting/changelog-sorting.helpers";
 
 const { locale, t } = useI18n();
 

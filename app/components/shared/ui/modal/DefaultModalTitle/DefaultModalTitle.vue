@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DefaultModalTitleProps } from "~/components/shared/ui/modal/DefaultModalTitle/default-modal-title.types";
+import type { DefaultModalTitleProps } from "@/components/shared/ui/modal/DefaultModalTitle/default-modal-title.types";
 
 defineProps<DefaultModalTitleProps>();
 </script>

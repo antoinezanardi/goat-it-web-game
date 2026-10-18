@@ -8,12 +8,13 @@ import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-coo
 import { createUseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
 import type { UseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
 
-import { CHANGELOG_ICON, CHANGELOG_TOAST_DURATION_IN_MS } from "@/components/shared/core/changelog/changelog.constants";
+import { CHANGELOG_TOAST_DURATION_IN_MS } from "@/composables/domain/useChangelog/use-changelog.constants";
+import { CHANGELOG_ICON } from "@/utils/ui/changelog/changelog.constants";
 import { CookieNames } from "#shared/enums/cookie.enums";
 import { StateNames } from "#shared/enums/state.enums";
 import type { Toast } from "#ui/composables";
-import type { useChangelog as UseChangelogType } from "~/composables/domain/useChangelog/useChangelog";
-import type { UseChangelog } from "~/composables/domain/useChangelog/use-changelog.types";
+import type { useChangelog as UseChangelogType } from "@/composables/domain/useChangelog/useChangelog";
+import type { UseChangelog } from "@/composables/domain/useChangelog/use-changelog.types";
 
 let useAppToastMock: UseAppToastMock;
 
@@ -70,7 +71,7 @@ describe("useChangelog", () => {
     useCookieMockState.capturedOptions.current = undefined;
     useCookieMockState.cookieRef.value = null;
     latestVersion = ref<string | undefined>("1.9.0");
-    ({ useChangelog } = await import("~/composables/domain/useChangelog/useChangelog"));
+    ({ useChangelog } = await import("@/composables/domain/useChangelog/useChangelog"));
     mountChangelogHarness();
   });
 

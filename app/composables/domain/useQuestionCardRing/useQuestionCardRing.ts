@@ -1,8 +1,8 @@
 import { computed, getCurrentScope, nextTick, onScopeDispose, ref, toValue, watch } from "vue";
 import { useDocumentVisibility } from "@vueuse/core";
 
-import { QUESTION_CARD_RING_RADIUS, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS, QUESTION_CARD_RING_SIZE } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
-import type { QuestionCardRingSlot, UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.types";
+import { QUESTION_CARD_RING_RADIUS, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS, QUESTION_CARD_RING_SIZE } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
+import type { QuestionCardRingSlot, UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.types";
 import type { Question } from "#shared/types/question.types";
 
 function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCardRingReturn {

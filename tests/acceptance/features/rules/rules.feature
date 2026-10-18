@@ -32,3 +32,8 @@ Feature: 📖 Rules Page
   Scenario: 📖 Rules page should navigate to the game page when clicking the start a game button
     When the user clicks on the link with name "Start a game"
     Then the user should be on game page
+
+  Scenario: 📖 Rules page should reveal the complete example round when expanding it
+    Then the element with testid "example-round-trigger" should be visible
+    When the user clicks on the button with name "Show a complete example of a round"
+    Then the text "Theme: Animals" should be visible

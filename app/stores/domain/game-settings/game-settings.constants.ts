@@ -4,7 +4,7 @@
 import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import { z } from "zod";
 
-import type { GameSettings } from "~/stores/domain/game-settings/game-settings.types";
+import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 
 const GAME_SETTINGS_SCHEMA = z.object({
   isAdultContentEnabled: z.boolean().catch(false),

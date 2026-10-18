@@ -10,6 +10,8 @@ metadata:
 
 # Vite
 
+For this repository's configuration and source placement boundaries, read and follow `docs/architecture.md` before editing project files.
+
 > Based on Vite 8 beta (Rolldown-powered). Vite 8 uses Rolldown bundler and Oxc transformer.
 
 Vite is a next-generation frontend build tool with fast dev server (native ESM + HMR) and optimized production builds.

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
 
-import type { useLocaleCookie as UseLocaleCookieType } from "~/composables/core/useLocaleCookie/useLocaleCookie";
+import type { useLocaleCookie as UseLocaleCookieType } from "@/composables/core/useLocaleCookie/useLocaleCookie";
 
 let useLocaleCookie: typeof UseLocaleCookieType;
 
@@ -11,7 +11,7 @@ describe("useLocaleCookie", () => {
     useCookieMockState.capturedName.current = undefined;
     useCookieMockState.capturedOptions.current = undefined;
     useCookieMockState.cookieRef.value = null;
-    ({ useLocaleCookie } = await import("~/composables/core/useLocaleCookie/useLocaleCookie"));
+    ({ useLocaleCookie } = await import("@/composables/core/useLocaleCookie/useLocaleCookie"));
   });
 
   it("should read the i18n_redirected cookie by name when called.", () => {

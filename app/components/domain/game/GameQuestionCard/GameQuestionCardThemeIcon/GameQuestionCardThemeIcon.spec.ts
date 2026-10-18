@@ -10,8 +10,8 @@ import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { GameQuestionCardThemeIcon } from "#components";
 
 import type { GameQuestionCardThemeIconProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
-import { QUESTION_THEME_UNKNOWN_ICON } from "~/composables/domain/question-theme/constants/question-theme.constants";
-import { getThemeIcon } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { QUESTION_THEME_UNKNOWN_ICON } from "@/utils/ui/question-theme/helpers/display/question-theme-display.constants";
+import { getThemeIcon } from "@/utils/ui/question-theme/helpers/display/question-theme-display.helpers";
 
 type GameQuestionCardThemeIconVm = ComponentVm & {
   borderStyle: string;

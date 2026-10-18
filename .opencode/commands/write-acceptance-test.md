@@ -10,8 +10,9 @@ Write a complete, passing acceptance test for the page or feature specified in t
 
 Before writing anything:
 
-1. Load the `acceptance-testing` skill from `.agents/skills/acceptance-testing/SKILL.md`.
-2. Read `docs/acceptance-testing.md` in full.
+1. Read `docs/architecture.md` for repository boundaries and acceptance-file placement.
+2. Load the `acceptance-testing` skill from `.agents/skills/acceptance-testing/SKILL.md`.
+3. Read `docs/acceptance-testing.md` in full.
 
 ### 2. Identify the target
 

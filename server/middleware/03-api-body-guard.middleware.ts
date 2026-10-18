@@ -1,4 +1,4 @@
-import { resolveRequestBodyRejectionStatusCode } from "#server/utils/goat-it-api/helpers/request-body-guard.helpers";
+import { resolveRequestBodyRejectionStatusCode } from "#server/utils/security/helpers/request-body-guard/request-body-guard.helpers";
 import { GOAT_IT_API_PROXY_ERROR_CODES, GOAT_IT_API_PROXY_PATH_PREFIX } from "#shared/constants/goat-it-api.constants";
 
 export default defineEventHandler((event): void => {

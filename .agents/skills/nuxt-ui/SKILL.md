@@ -6,6 +6,8 @@ license: MIT
 
 # Nuxt UI v4
 
+For this repository's component locations, companion files, and utility boundaries, read and follow `docs/architecture.md` before editing project files.
+
 Component library for Vue 3 and Nuxt 4+ built on Reka UI (headless) + Tailwind CSS v4 + Tailwind Variants.
 
 **Current stable version:** v4.4.0 (January 2026)

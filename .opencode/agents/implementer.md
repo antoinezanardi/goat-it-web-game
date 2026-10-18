@@ -54,6 +54,8 @@ You are the implementer subagent. You implement ONE detailed task from an implem
 
 ## Before you begin
 
+Read `docs/architecture.md` before creating, editing, or moving project files. Follow its unit ownership, companion-file, alias, dependency-boundary, and framework-discovery rules together with the plan.
+
 If anything is unclear (requirements, approach, dependencies, assumptions) — **ask now** via the orchestrator. Don't guess.
 
 ## Your job
@@ -87,7 +89,7 @@ If anything is unclear (requirements, approach, dependencies, assumptions) — *
 - `nuxt` — for `.vue` files, composables, server routes, auto-imports
 - `nuxt-ui` — for any UI component (`UButton`, `UTable`, `UBadge`, `UModal`, etc.)
 - `vueuse` — check BEFORE writing any custom composable (most patterns exist)
-- `unit-testing` — for any test file (5 Vitest projects, faketories, mocks)
+- `unit-testing` — for any test file (6 Vitest projects, faketories, mocks)
 - `acceptance-testing` — when writing `.feature` files or step definitions
 - `systematic-debugging` — when you hit a failing test you don't understand
 
@@ -97,7 +99,7 @@ If anything is unclear (requirements, approach, dependencies, assumptions) — *
 - Keep files focused — one responsibility, well-defined interface.
 - If a file you're creating is growing beyond the plan's intent, stop and report `DONE_WITH_CONCERNS`.
 - In existing codebases, follow established patterns. Don't restructure outside your task.
-- For Nuxt: trust auto-imports; don't add manual imports for components/composables/utils already auto-imported.
+- For Nuxt components, composables, and utilities, follow `docs/architecture.md` on explicit imports; do not assume auto-imports are the project convention.
 
 ## When you're in over your head
 

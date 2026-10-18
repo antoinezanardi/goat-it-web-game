@@ -4,7 +4,8 @@ import type {
   GameQuestionsFiltersThemeFilterEmits,
   GameQuestionsFiltersThemeFilterProps,
 } from "@/components/domain/game/GameQuestionsFiltersModalContent/GameQuestionsFiltersThemeFilter/game-questions-filters-theme-filter.types";
-import { getThemeIcon, resolveSelectedThemeIds, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { resolveSelectedThemeIds } from "#shared/utils/helpers/question-theme/selection/question-theme-selection.helpers";
+import { getThemeIcon, resolveThemeColor } from "@/utils/ui/question-theme/helpers/display/question-theme-display.helpers";
 
 const props = defineProps<GameQuestionsFiltersThemeFilterProps>();
 const emit = defineEmits<GameQuestionsFiltersThemeFilterEmits>();

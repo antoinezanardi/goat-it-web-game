@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
 
-import { CHANGELOG_STATE_COOKIE_OPTIONS } from "~/composables/domain/useChangelogCookie/use-changelog-cookie.constants";
-import type { useChangelogCookie as UseChangelogCookieType } from "~/composables/domain/useChangelogCookie/useChangelogCookie";
+import { CHANGELOG_STATE_COOKIE_OPTIONS } from "@/composables/domain/useChangelogCookie/use-changelog-cookie.constants";
+import type { useChangelogCookie as UseChangelogCookieType } from "@/composables/domain/useChangelogCookie/useChangelogCookie";
 import { CookieNames } from "#shared/enums/cookie.enums";
 
 let useChangelogCookie: typeof UseChangelogCookieType;
@@ -13,7 +13,7 @@ describe("useChangelogCookie", () => {
     useCookieMockState.capturedName.current = undefined;
     useCookieMockState.capturedOptions.current = undefined;
     useCookieMockState.cookieRef.value = null;
-    ({ useChangelogCookie } = await import("~/composables/domain/useChangelogCookie/useChangelogCookie"));
+    ({ useChangelogCookie } = await import("@/composables/domain/useChangelogCookie/useChangelogCookie"));
   });
 
   describe("cookie registration", () => {

@@ -19,7 +19,7 @@ import { ChangelogModal } from "#components";
 import type { ContentRenderer, DefaultModalFooter, DefaultModalTitle, UChangelogVersion } from "#components";
 
 import { CHANGELOG_MODAL_UI, CHANGELOG_VERSION_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
-import type { ChangelogEntry } from "~/composables/domain/useChangelog/use-changelog.types";
+import type { ChangelogEntry } from "@/composables/domain/useChangelog/use-changelog.types";
 import { StateNames } from "#shared/enums/state.enums";
 
 const defaultChangelogEntries: ChangelogEntry[] = [

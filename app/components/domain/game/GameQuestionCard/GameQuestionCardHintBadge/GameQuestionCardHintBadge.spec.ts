@@ -10,6 +10,8 @@ import { useQuestionCardHighlightMock } from "~~/tests/unit/setup/nuxt/composabl
 
 import { GameQuestionCardHintBadge } from "#components";
 
+import type { GameQuestionCardHintBadgeExposed } from "@/components/domain/game/GameQuestionCard/GameQuestionCardHintBadge/game-question-card-hint-badge.types";
+
 describe("GameQuestionCardHintBadge Component", () => {
   let wrapper: VueWrapper;
 
@@ -63,7 +65,7 @@ describe("GameQuestionCardHintBadge Component", () => {
     expect(content?.textContent).toBe("questions.themeStack.primaryThemeHintTooltip");
   });
 
-  type GameQuestionCardHintBadgeVm = ComponentVm & { playHighlight: () => Promise<void> };
+  type GameQuestionCardHintBadgeVm = ComponentVm & GameQuestionCardHintBadgeExposed;
 
   it("should call useQuestionCardHighlight().animate with its root element when playHighlight is called.", async() => {
     const vm = getWrapperVm<GameQuestionCardHintBadgeVm>(wrapper);

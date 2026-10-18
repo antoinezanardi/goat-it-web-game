@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { nextTick, ref } from "vue";
 
-import { useLazyModal } from "~/composables/ui/useLazyModal/useLazyModal";
+import { useLazyModal } from "@/composables/ui/useLazyModal/useLazyModal";
 
 describe(useLazyModal, () => {
   it("should not report the modal as ever opened when it starts closed.", () => {

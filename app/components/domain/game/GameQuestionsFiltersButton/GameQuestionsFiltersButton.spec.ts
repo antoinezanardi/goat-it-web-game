@@ -15,6 +15,7 @@ import { useQuestionCardHighlightMock } from "~~/tests/unit/setup/nuxt/composabl
 import { GameQuestionsFiltersButton } from "#components";
 
 import { GAME_QUESTIONS_FILTERS_BUTTON_UI } from "@/components/domain/game/GameQuestionsFiltersButton/game-questions-filters-button.constants";
+import type { GameQuestionsFiltersButtonExposed } from "@/components/domain/game/GameQuestionsFiltersButton/game-questions-filters-button.types";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 
 describe("GameQuestionsFiltersButton Component", () => {
@@ -112,7 +113,7 @@ describe("GameQuestionsFiltersButton Component", () => {
     expect(wrapper.find("[data-testid='game-questions-filters-button-badge']").exists()).toBe(true);
   });
 
-  type GameQuestionsFiltersButtonVm = ComponentVm & { playHighlight: () => Promise<void> };
+  type GameQuestionsFiltersButtonVm = ComponentVm & GameQuestionsFiltersButtonExposed;
 
   it("should call useQuestionCardHighlight().animate with the button element when playHighlight is called.", async() => {
     const vm = getWrapperVm<GameQuestionsFiltersButtonVm>(wrapper);

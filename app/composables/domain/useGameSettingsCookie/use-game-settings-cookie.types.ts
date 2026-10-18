@@ -1,4 +1,4 @@
-import type { GameSettings } from "~/stores/domain/game-settings/game-settings.types";
+import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 
 type UseGameSettingsCookie = {
   readGameSettingsCookie: () => GameSettings;

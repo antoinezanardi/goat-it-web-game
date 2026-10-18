@@ -68,6 +68,8 @@ If you haven't completed Phase 1, you cannot propose fixes.
 
 ## Phase 4: Implementation
 
+Before changing files, read `docs/architecture.md`; place regression specs with their production units and follow its companion/import rules.
+
 1. Write a failing regression test first (TDD)
 2. Implement the minimal fix
 3. Verify the fix AND no regressions

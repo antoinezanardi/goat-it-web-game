@@ -3,7 +3,7 @@ import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 export const useGameStore = defineStore(StoreNames.GAME, () => {
   const questions = ref<Question[]>([]);
 
-  const repository = questionsRepository($fetch);
+  const repository = questionsRepository(useRequestFetch());
   const { handleGoatItApiError } = useGoatItApiErrorToast();
   const { t } = useI18n();
 

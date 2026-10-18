@@ -1,6 +1,6 @@
 import { CookieNames } from "#shared/enums/cookie.enums";
-import { CHANGELOG_STATE_COOKIE_OPTIONS, CHANGELOG_STATE_SCHEMA } from "~/composables/domain/useChangelogCookie/use-changelog-cookie.constants";
-import type { ChangelogState, UseChangelogCookie } from "~/composables/domain/useChangelogCookie/use-changelog-cookie.types";
+import { CHANGELOG_STATE_COOKIE_OPTIONS, CHANGELOG_STATE_SCHEMA } from "@/composables/domain/useChangelogCookie/use-changelog-cookie.constants";
+import type { ChangelogState, UseChangelogCookie } from "@/composables/domain/useChangelogCookie/use-changelog-cookie.types";
 
 function useChangelogCookie(): UseChangelogCookie {
   const cookie = useCookie<unknown>(CookieNames.CHANGELOG_STATE, CHANGELOG_STATE_COOKIE_OPTIONS);

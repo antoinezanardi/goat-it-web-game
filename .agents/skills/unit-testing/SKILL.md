@@ -1,6 +1,6 @@
 ---
 name: unit-testing
-description: Use when writing or modifying unit tests in this project. Load this skill before creating any *.spec.ts file. Covers all five Vitest projects, mock patterns, faketories, composable/store/repository test wiring, and coverage requirements.
+description: Use when writing or modifying unit tests in this project. Load this skill before creating any *.spec.ts file. Covers all six Vitest projects, mock patterns, faketories, composable/store/repository test wiring, and coverage requirements.
 ---
 
 # Unit Testing
@@ -15,7 +15,7 @@ are mirrored below so anything written per this skill passes that audit.
 
 ## Step 0 — Before writing any test
 
-1. Read `docs/unit-testing.md` in full.
+1. Read `docs/architecture.md` for source/spec ownership and placement, then read `docs/unit-testing.md` in full for test mechanics.
 2. Identify the **file type** of the source file under test (component, page, layout, composable, store, repository, server handler, server util/mapper/helper, shared helper, i18n translation).
 3. Determine the **Vitest project** from the table below.
 4. Follow the exact pattern for that file type — no shortcuts.
@@ -34,6 +34,7 @@ are mirrored below so anything written per this skill passes that audit.
 | `app/**/*.{mappers,helpers,translations}.ts`                                    | `.{mappers,helpers,translations}.spec.ts` | `node`         |
 | `server/**/*.{mappers,helpers}.ts`                                              | `.{mappers,helpers}.spec.ts`              | `node`         |
 | `shared/**/*.{mappers,helpers}.ts`                                              | `.{mappers,helpers}.spec.ts`              | `node`         |
+| `**/*.dom.helpers.ts`                                                           | `.dom.helpers.spec.ts`                    | `dom`          |
 | Everything else in `app/`, `server/`, `shared/` that does not match a row above | `.spec.ts`                                | `nuxt`         |
 
 The `repositories` and `node` projects have **no Nuxt environment**. No `mountSuspended`, no `mockNuxtImport`, no global `$fetch`.

@@ -9,7 +9,7 @@ import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 
 import App from "@/App.vue";
 import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
-import { APP_TOAST_CONFIG, APP_TOOLTIP_CONFIG } from "~/app.constants";
+import { APP_TOAST_CONFIG, APP_TOOLTIP_CONFIG } from "@/app.constants";
 
 describe("App Component", () => {
   let wrapper: VueWrapper;

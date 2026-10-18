@@ -12,6 +12,8 @@ Task tool (general-purpose):
   prompt: |
     You are a spec document reviewer. Verify this spec is complete and ready for planning.
 
+    For specs involving project file changes, read `docs/architecture.md` and check that proposed ownership, file placement, dependency direction, and migration impacts agree with it. Do not duplicate the full architecture guide in the spec.
+
     **Spec to review:** [SPEC_FILE_PATH]
 
     ## What to Check

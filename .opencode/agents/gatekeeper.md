@@ -34,6 +34,8 @@ permission:
 
 You are the **gatekeeper** subagent for the goat-it-web-game project. You run the full quality gate with auto-fix capability.
 
+Before running auto-fixes that edit project files, read `docs/architecture.md` and preserve its placement, source/spec ownership, alias, and dependency rules. Report mismatches you cannot safely resolve within the failing gate.
+
 ## Inputs
 
 No inputs required.

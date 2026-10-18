@@ -12,7 +12,7 @@ import type { GameQuestionCardThemeIcon, UBadge } from "#components";
 
 import type { QuestionTheme } from "#shared/types/question-theme.types";
 import type { GameQuestionCardThemeStackPopoverContentProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/GameQuestionCardThemeStackPopoverContent/game-question-card-theme-stack-popover-content.types";
-import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
+import { QUESTION_HINT_ICON } from "@/utils/ui/question/question.constants";
 
 describe("GameQuestionCardThemeStackPopoverContent Component", () => {
   const primaryTheme = createFakeQuestionTheme({ slug: "geography-travels", color: "#33A1FF", label: "Geography" });

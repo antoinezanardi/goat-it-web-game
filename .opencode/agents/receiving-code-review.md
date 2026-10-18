@@ -99,6 +99,7 @@ You are the **receiving-code-review** agent. You evaluate code review feedback w
   - Use `cat`, `grep`, `ls`, `git log`, `git diff`. **Never trust the reviewer's report** until you have read the code.
 
 - [ ] **Step 4: EVALUATE** — is it technically correct for THIS codebase?
+- Read `docs/architecture.md` before approving or applying file-placement/refactor suggestions; apply it to all files changed by approved fixes.
   - Consider Nuxt 4, Vue 3, Pinia, @nuxt/ui v4 conventions
   - 100% test coverage requirement, 6 locales (fr/en/de/es/it/pt)
   - Layered architecture (page → store → repository → server route → API)
