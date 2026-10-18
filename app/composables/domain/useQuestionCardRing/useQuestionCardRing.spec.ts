@@ -277,6 +277,44 @@ describe("useQuestionCardRing", () => {
     expect(onStaged).toHaveBeenCalledExactlyOnceWith();
   });
 
+  it("should call onResetSlot only once when animation frames resume after the safety timeout restage.", async() => {
+    vi.useFakeTimers();
+    freezeAnimationFrames();
+    const { complete } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
+    flushRestage();
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+    vi.useRealTimers();
+
+    expect(onResetSlot).toHaveBeenCalledExactlyOnceWith(2);
+  });
+
+  it("should call onResetSlot only once when the safety timeout fires after the animation frames restaged.", async() => {
+    vi.useFakeTimers();
+    freezeAnimationFrames();
+    const { complete } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    flushRestage();
+    await nextTick();
+    vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
+    requestAnimationFrameCallbacks[0]?.(0);
+    vi.useRealTimers();
+
+    expect(onResetSlot).toHaveBeenCalledExactlyOnceWith(2);
+  });
+
   it("should not restage when the component unmounts while the safety timeout is pending.", async() => {
     vi.useFakeTimers();
     freezeAnimationFrames();

@@ -48,7 +48,9 @@ function onAfterLeave(): void {
         <img
           alt=""
           class="h-8 w-8"
+          decoding="async"
           height="64"
+          loading="lazy"
           src="/img/logo/logo-64.avif"
           width="64"
         >

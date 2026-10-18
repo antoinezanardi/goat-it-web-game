@@ -23,6 +23,7 @@ Feature: 📖 Rules Page
   Scenario: 📖 Rules page should scroll to a section when clicking a table of contents link
     When the user clicks on the table of contents link "The golden rule"
     Then the "The golden rule" heading should be in the viewport
+    And the table of contents link "The golden rule" should be active
 
   Scenario: 📖 Rules page should navigate to the home page when clicking the back link
     When the user clicks on the link with name "Back to home"

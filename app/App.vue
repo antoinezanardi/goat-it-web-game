@@ -5,7 +5,7 @@ const questionThemesStore = useQuestionThemesStore();
 const { fetchAndStoreQuestionThemes } = questionThemesStore;
 const { locale } = useI18n();
 
-void callOnce(fetchAndStoreQuestionThemes);
+await callOnce(fetchAndStoreQuestionThemes);
 
 watch(locale, () => {
   void fetchAndStoreQuestionThemes();
