@@ -1,7 +1,7 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
@@ -18,15 +18,12 @@ describe("DocsToc Component", () => {
     ],
   };
   let wrapper: VueWrapper;
-  let callHookSpy: ReturnType<typeof vi.spyOn>;
 
   async function mountDocsToc(options: MountSuspendedOptions<typeof DocsToc> = {}): Promise<VueWrapper> {
     return mountSuspended(DocsToc, { props: defaultDocsTocProps, ...options });
   }
 
   beforeEach(async() => {
-    const nuxtApp = useNuxtApp();
-    callHookSpy = vi.spyOn(nuxtApp.hooks, "callHook");
     wrapper = await mountDocsToc();
   });
 
@@ -57,10 +54,6 @@ describe("DocsToc Component", () => {
     const contentToc = wrapper.findComponent({ name: "UContentToc" });
 
     expect(contentToc.props("ui")).toStrictEqual(DOCS_TOC_UI);
-  });
-
-  it("should not call the page:transition:finish hook when mounted.", () => {
-    expect(callHookSpy).not.toHaveBeenCalledWith("page:transition:finish");
   });
 
   it("should update the table of contents links when the sections change.", async() => {

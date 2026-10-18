@@ -308,8 +308,8 @@ describe("useQuestionCardRing", () => {
     await nextTick();
     flushRestage();
     await nextTick();
-    requestAnimationFrameCallbacks[0]?.(0);
     vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
+    requestAnimationFrameCallbacks[0]?.(0);
     vi.useRealTimers();
 
     expect(onResetSlot).toHaveBeenCalledExactlyOnceWith(2);
