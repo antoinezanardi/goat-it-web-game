@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-import { buildExcludedQuestionIds } from "@/composables/domain/useGame/helpers/game-excluded-ids/game-excluded-ids.helpers";
-import { GAME_EXCLUDED_IDS_MAXIMUM } from "@/composables/domain/useGame/use-game.constants";
+import { buildExcludedQuestionIds } from "@/composables/domain/useGameQuestionFeed/helpers/game-excluded-ids/game-excluded-ids.helpers";
+import { GAME_EXCLUDED_IDS_MAXIMUM } from "@/composables/domain/useGameQuestionFeed/use-game-question-feed.constants";
 
 describe(buildExcludedQuestionIds, () => {
   it("should return an empty array when there are no questions.", () => {

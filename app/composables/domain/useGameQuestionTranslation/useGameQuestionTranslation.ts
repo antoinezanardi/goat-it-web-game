@@ -7,7 +7,8 @@ import type { UseGameQuestionTranslation } from "@/composables/domain/useGameQue
 function useGameQuestionTranslation(questions: Ref<Question[]>, canTranslateQuestions: MaybeRefOrGetter<boolean>): UseGameQuestionTranslation {
   const store = useGameStore();
   const { isFetchingQuestionsByIds } = storeToRefs(store);
-  const { locale } = useI18n();
+  const { handleGoatItApiError } = useGoatItApiErrorToast();
+  const { locale, t } = useI18n();
 
   const isTranslating = computed<boolean>(() => isFetchingQuestionsByIds.value);
 
@@ -15,13 +16,15 @@ function useGameQuestionTranslation(questions: Ref<Question[]>, canTranslateQues
     const snapshot = [...questions.value];
     const snapshotIds = snapshot.map(question => question.id);
     const selectedIds = snapshotIds.length <= TRANSLATION_ID_LIMIT ? snapshotIds : snapshotIds.slice(-TRANSLATION_ID_LIMIT);
-    const translated = await store.fetchQuestionsByIds(selectedIds);
-    if (!translated) {
+    const result = await store.fetchQuestionsByIds(selectedIds);
+    if (!result.ok) {
+      handleGoatItApiError(result.error, t("questions.cantFetch"));
+
       return;
     }
 
     const translationById: Map<string, Question> = new Map();
-    for (const question of translated) {
+    for (const question of result.value) {
       if (!translationById.has(question.id)) {
         translationById.set(question.id, question);
       }

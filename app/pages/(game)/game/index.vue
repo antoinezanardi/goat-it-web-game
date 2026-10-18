@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-import { nextTick } from "vue";
-
-import { GameQuestionsFiltersButton, LazyConfirmDialog } from "#components";
+import { GameQuestionsFiltersButton } from "#components";
 
 import { getPrimaryTheme } from "#shared/utils/helpers/question/themes/question-themes.helpers";
 import { resolveThemeColor } from "@/utils/ui/question-theme/helpers/display/question-theme-display.helpers";
 import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "@/utils/ui/question-theme/question-theme.constants";
 import { GAME_PAGE_TITLE_KEY } from "@/utils/ui/game-page/game-page.constants";
-import type { GameQuestionsFiltersDraft } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
 
 const { t } = useI18n();
 
@@ -18,40 +15,6 @@ useSeoMeta({
   description: () => t("seo.game.description"),
   ogTitle: () => t("seo.game.title"),
   ogDescription: () => t("seo.game.description"),
-});
-
-const overlay = useOverlay();
-
-const isLeaveConfirmationOpen = ref<boolean>(false);
-
-async function confirmLeave(): Promise<boolean> {
-  isLeaveConfirmationOpen.value = true;
-
-  try {
-    const modal = overlay.create(LazyConfirmDialog, {
-      destroyOnClose: true,
-      props: {
-        disableShortcuts: true,
-        dismissible: false,
-        icon: "i-lucide-log-out",
-        iconClass: "text-warning",
-        title: t("game.leaveConfirmTitle"),
-        description: t("game.leaveConfirmDescription"),
-        primaryButtonLabel: t("game.leave"),
-      },
-    });
-
-    return await modal.open();
-  } finally {
-    isLeaveConfirmationOpen.value = false;
-  }
-}
-
-onBeforeRouteLeave(async() => {
-  if (gameState.value !== "playing") {
-    return true;
-  }
-  return await confirmLeave();
 });
 
 const {
@@ -67,116 +30,49 @@ const {
   questions,
 } = useGame();
 
-const isTutorialAvailable = computed<boolean>(() => gameState.value === "playing" && currentQuestion.value !== undefined && !isTranslating.value && !isFetchingQuestions.value);
+const filtersButton = useTemplateRef<InstanceType<typeof GameQuestionsFiltersButton>>("filtersButton");
 
-const isTourRequested = ref<boolean>(false);
-
-async function startTutorial(): Promise<void> {
-  isSidebarOpen.value = false;
-  isTourRequested.value = false;
-  await nextTick();
-  isTourRequested.value = true;
-}
-
-const { acceptFromSidebar } = useGameTutorialInvitation({
-  gameState,
-  isTutorialAvailable,
-  onStartTutorial: startTutorial,
+const { isSidebarOpen, openSidebar, closeSidebar, setSidebarOpen } = useGameSidebar();
+const { isSettingsModalOpen, openSettingsModal, setSettingsModalOpen } = useGameSettingsModal();
+const {
+  isFiltersModalOpen,
+  isApplyFiltersPending,
+  openFiltersModal,
+  setFiltersModalOpen,
+  requestFiltersModalFromSidebar,
+  openRequestedFiltersModal,
+  applyFilters,
+} = useGameFiltersModal({
+  syncQuestionsWithGameSettings,
+  getFiltersButton: () => filtersButton.value ?? undefined,
 });
 
-function onStartTutorialFromSidebar(): void {
-  acceptFromSidebar();
-  void startTutorial();
-}
+const { isLeaveConfirmationOpen } = useGameLeaveConfirmation({ gameState });
 
-function onTourEnd(): void {
-  isTourRequested.value = false;
-}
-
-watch(currentIndex, () => {
-  isTourRequested.value = false;
+const {
+  isTutorialAvailable,
+  isTourRequested,
+  startTutorialFromSidebar,
+  endTour,
+} = useGameTutorial({
+  gameState,
+  currentIndex,
+  currentQuestion,
+  isFetchingQuestions,
+  isTranslating,
+  closeSidebar,
 });
 
 const pageThemeColor = computed<string>(() => (currentQuestion.value ? resolveThemeColor(getPrimaryTheme(currentQuestion.value)?.color) : NEUTRAL_GREY_FALLBACK_THEME_COLOR));
 
-const isSidebarOpen = ref(false);
-
-const isSettingsModalOpen = ref(false);
-
-const isFiltersModalOpen = ref(false);
-
-const isFiltersModalOpenRequested = ref(false);
-
-const isApplyFiltersPending = ref(false);
-
-const filtersButton = useTemplateRef<InstanceType<typeof GameQuestionsFiltersButton>>("filtersButton");
-
-function openSidebar(): void {
-  isSidebarOpen.value = true;
-}
-
-function onSidebarOpenChange(isOpen: boolean): void {
-  isSidebarOpen.value = isOpen;
-}
-
-async function openSettingsModal(): Promise<void> {
-  await nextTick();
-  isSettingsModalOpen.value = true;
-}
-
 function onOpenSettings(): void {
-  isSidebarOpen.value = false;
+  closeSidebar();
   void openSettingsModal();
 }
 
-function onSettingsOpenChange(isOpen: boolean): void {
-  isSettingsModalOpen.value = isOpen;
-}
-
-function openFiltersModal(): void {
-  isFiltersModalOpen.value = true;
-}
-
-function onFiltersOpenChange(isOpen: boolean): void {
-  isFiltersModalOpen.value = isOpen;
-}
-
 function onOpenFiltersFromSidebar(): void {
-  isFiltersModalOpenRequested.value = true;
-  isSidebarOpen.value = false;
-}
-
-async function onSidebarAfterLeave(): Promise<void> {
-  if (!isFiltersModalOpenRequested.value) {
-    return;
-  }
-  isFiltersModalOpenRequested.value = false;
-  const playHighlight = filtersButton.value?.playHighlight;
-  if (playHighlight) {
-    await playHighlight();
-  }
-  openFiltersModal();
-}
-
-const { addSuccessToast } = useAppToast();
-const gameSettingsStore = useGameSettingsStore();
-
-async function onFiltersApply(draft: GameQuestionsFiltersDraft): Promise<void> {
-  gameSettingsStore.setAdultContentEnabled(draft.isAdultContentEnabled);
-  gameSettingsStore.setCognitiveDifficulties(draft.cognitiveDifficulties);
-  gameSettingsStore.setCategories(draft.categories);
-  if (draft.themeIds !== undefined) {
-    gameSettingsStore.setThemeIds(draft.themeIds);
-  }
-  isFiltersModalOpen.value = false;
-  isApplyFiltersPending.value = true;
-  const synchronization = syncQuestionsWithGameSettings();
-  addSuccessToast({ description: t("game.questionsFilters.successToast") });
-  try {
-    await synchronization;
-  } finally {
-    isApplyFiltersPending.value = false;
-  }
+  requestFiltersModalFromSidebar();
+  closeSidebar();
 }
 
 const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
@@ -211,30 +107,30 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
     <GameSidebar
       :is-open="isSidebarOpen"
       :is-tutorial-available="isTutorialAvailable"
-      @after:leave="onSidebarAfterLeave"
+      @after:leave="openRequestedFiltersModal"
       @open-filters="onOpenFiltersFromSidebar"
       @open-settings="onOpenSettings"
-      @start-tutorial="onStartTutorialFromSidebar"
-      @update:is-open="onSidebarOpenChange"
+      @start-tutorial="startTutorialFromSidebar"
+      @update:is-open="setSidebarOpen"
     />
 
     <GameSettingsModal
       :is-fetching-questions="isFetchingQuestions"
       :is-open="isSettingsModalOpen"
-      @update:is-open="onSettingsOpenChange"
+      @update:is-open="setSettingsModalOpen"
     />
 
     <GameQuestionsFiltersModal
       :is-apply-pending="isApplyFiltersPending"
       :is-open="isFiltersModalOpen"
-      @apply-filters="onFiltersApply"
-      @update:is-open="onFiltersOpenChange"
+      @apply-filters="applyFilters"
+      @update:is-open="setFiltersModalOpen"
     />
 
     <GameTutorial
       v-if="isTutorialAvailable"
       :is-active="isTourRequested"
-      @tutorial-end="onTourEnd"
+      @tutorial-end="endTour"
     />
 
     <Transition

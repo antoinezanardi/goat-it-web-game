@@ -138,15 +138,15 @@ app/components/domain/game/GameSidebar/
 Location: `app/composables/{core,domain,ui}/useThing/`.
 
 ```text
-app/composables/domain/useGameQuestionsFilters/
-├── useGameQuestionsFilters.ts
-├── useGameQuestionsFilters.spec.ts
-├── use-game-questions-filters.types.ts
-├── use-game-questions-filters.constants.ts
+app/composables/domain/useGameQuestionFeed/
+├── useGameQuestionFeed.ts
+├── useGameQuestionFeed.spec.ts
+├── use-game-question-feed.types.ts
+├── use-game-question-feed.constants.ts
 └── helpers/
-    └── game-questions-filters/
-        ├── game-questions-filters.helpers.ts
-        └── game-questions-filters.helpers.spec.ts
+    └── game-excluded-ids/
+        ├── game-excluded-ids.helpers.ts
+        └── game-excluded-ids.helpers.spec.ts
 ```
 
 - Every composable owns its source/spec and a required named return type in a colocated kebab-case `.types.ts`. Keep the explicit function return annotation required by lint and reference the named type. This project convention is stricter than lint, which also permits inline return annotations.

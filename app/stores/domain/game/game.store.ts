@@ -1,37 +1,36 @@
 import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 
+import type { AsyncDataRequestStatus } from "#app";
+import type { UseAsyncActionResult } from "@/composables/core/useAsyncAction/use-async-action.types";
+
 export const useGameStore = defineStore(StoreNames.GAME, () => {
   const questions = ref<Question[]>([]);
 
   const repository = questionsRepository(useRequestFetch());
-  const { handleGoatItApiError } = useGoatItApiErrorToast();
-  const { t } = useI18n();
 
   const {
     execute: fetchRandomQuestions,
-    fetchStatus,
+    fetchStatus: randomQuestionsFetchStatus,
     isPending,
     isSuccess,
     isError,
-  } = useAsyncAction(
-    repository.getRandom,
-    (thrownError: unknown) => handleGoatItApiError(thrownError, t("questions.cantFetch")),
-  );
+  } = useAsyncAction(repository.getRandom);
 
   const {
     execute: fetchQuestionsByIds,
-    fetchStatus: fetchQuestionsByIdsStatus,
+    fetchStatus: questionsByIdsFetchStatus,
     isPending: isFetchingQuestionsByIds,
-  } = useAsyncAction(
-    repository.getByIds,
-    (thrownError: unknown) => handleGoatItApiError(thrownError, t("questions.cantFetch")),
-  );
+  } = useAsyncAction(repository.getByIds);
 
-  async function fetchAndAppendRandomQuestions(body?: FindRandomQuestionsBodyDto): Promise<void> {
-    const fetched = await fetchRandomQuestions(body);
-    if (fetched) {
-      questions.value.push(...fetched);
+  const fetchStatus = computed<AsyncDataRequestStatus>(() => randomQuestionsFetchStatus.value);
+  const fetchQuestionsByIdsStatus = computed<AsyncDataRequestStatus>(() => questionsByIdsFetchStatus.value);
+
+  async function fetchAndAppendRandomQuestions(body?: FindRandomQuestionsBodyDto): Promise<UseAsyncActionResult<Question[]>> {
+    const result = await fetchRandomQuestions(body);
+    if (result.ok) {
+      questions.value.push(...result.value);
     }
+    return result;
   }
 
   function resetQuestions(): void {

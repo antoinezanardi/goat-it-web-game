@@ -9,6 +9,7 @@ import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
+import { useAsyncActionMock } from "~~/tests/unit/setup/nuxt/composables/use-async-action.nuxt.unit-setup";
 
 import { GameQuestionsFiltersThemeFilter } from "#components";
 import type { GameSettingsFilterMultiSelect, UIcon } from "#components";
@@ -75,7 +76,7 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
 
   it("should render the unavailable translation key in the status when the catalog is unavailable.", async() => {
     setCatalog([]);
-    mockStore(useQuestionThemesStore).fetchStatus = "error";
+    useAsyncActionMock.instance.fetchStatus.value = "error";
     await nextTick();
 
     expect(wrapper.get("[data-testid='game-questions-filters-theme-filter-status']").text()).toBe("game.questionsFilters.themes.unavailable");
@@ -83,7 +84,7 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
 
   it("should render the unavailable translation key in the status when a successful fetch leaves no active theme.", async() => {
     setCatalog([createFakeQuestionTheme({ status: "archived" })]);
-    mockStore(useQuestionThemesStore).fetchStatus = "success";
+    useAsyncActionMock.instance.fetchStatus.value = "success";
     await nextTick();
 
     expect(wrapper.get("[data-testid='game-questions-filters-theme-filter-status']").text()).toBe("game.questionsFilters.themes.unavailable");
@@ -100,7 +101,7 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
   });
 
   it("should render the alert status icon when the catalog is unavailable.", async() => {
-    mockStore(useQuestionThemesStore).fetchStatus = "error";
+    useAsyncActionMock.instance.fetchStatus.value = "error";
     await nextTick();
     const statusIcon = wrapper.findComponent<typeof UIcon>("[data-testid='game-questions-filters-theme-filter-status-icon']");
 
@@ -108,7 +109,7 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
   });
 
   it("should not spin the status icon when the catalog is unavailable.", async() => {
-    mockStore(useQuestionThemesStore).fetchStatus = "error";
+    useAsyncActionMock.instance.fetchStatus.value = "error";
     await nextTick();
 
     expect(getStatusIcon()?.classList.contains("animate-spin")).toBe(false);
@@ -248,7 +249,7 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
   it("should render the refresh failure status when the catalog is stale.", async() => {
     setCatalog(activeThemes);
     await nextTick();
-    mockStore(useQuestionThemesStore).fetchStatus = "error";
+    useAsyncActionMock.instance.fetchStatus.value = "error";
     await nextTick();
 
     expect(wrapper.find("[data-testid='game-questions-filters-theme-filter-refresh-error']").exists()).toBe(true);
@@ -257,7 +258,7 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
   it("should render the refresh failure translation key when the catalog is stale.", async() => {
     setCatalog(activeThemes);
     await nextTick();
-    mockStore(useQuestionThemesStore).fetchStatus = "error";
+    useAsyncActionMock.instance.fetchStatus.value = "error";
     await nextTick();
     const refreshError = wrapper.get("[data-testid='game-questions-filters-theme-filter-refresh-error']");
 

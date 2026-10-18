@@ -1,6 +1,8 @@
 import type { FindQuestionThemesQueryDto } from "@goat-it/schemas/question-theme";
 import { DEFAULT_QUESTION_THEME_STATUS } from "@goat-it/schemas/question-theme";
 
+import type { AsyncDataRequestStatus } from "#app";
+import type { UseAsyncActionResult } from "@/composables/core/useAsyncAction/use-async-action.types";
 import type { QuestionThemeCatalogStatus } from "@/stores/domain/question-theme/question-themes.types";
 
 export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, () => {
@@ -10,20 +12,17 @@ export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, ()
   const isThemesCatalogAvailable = computed<boolean>(() => activeQuestionThemes.value.length > 0);
 
   const repository = questionThemesRepository(useRequestFetch());
-  const { handleGoatItApiError } = useGoatItApiErrorToast();
-  const { t } = useI18n();
 
   const {
     execute: fetchQuestionThemes,
-    fetchStatus,
+    fetchStatus: questionThemesFetchStatus,
     isIdle,
     isPending,
     isSuccess,
     isError,
-  } = useAsyncAction(
-    repository.getAll,
-    (thrownError: unknown) => handleGoatItApiError(thrownError, t("questionThemes.cantFetch")),
-  );
+  } = useAsyncAction(repository.getAll);
+
+  const fetchStatus = computed<AsyncDataRequestStatus>(() => questionThemesFetchStatus.value);
 
   const catalogStatus = computed<QuestionThemeCatalogStatus>(() => {
     if (isThemesCatalogAvailable.value) {
@@ -35,11 +34,12 @@ export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, ()
     return isPending.value || isIdle.value ? "loading" : "unavailable";
   });
 
-  async function fetchAndStoreQuestionThemes(query?: FindQuestionThemesQueryDto): Promise<void> {
-    const fetchedQuestionThemes = await fetchQuestionThemes(query);
-    if (fetchedQuestionThemes) {
-      questionThemes.value = fetchedQuestionThemes;
+  async function fetchAndStoreQuestionThemes(query?: FindQuestionThemesQueryDto): Promise<UseAsyncActionResult<QuestionTheme[]>> {
+    const result = await fetchQuestionThemes(query);
+    if (result.ok) {
+      questionThemes.value = result.value;
     }
+    return result;
   }
   return {
     questionThemes,

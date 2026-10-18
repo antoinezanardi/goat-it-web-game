@@ -3,12 +3,20 @@ import { APP_TOAST_CONFIG, APP_TOOLTIP_CONFIG } from "@/app.constants";
 
 const questionThemesStore = useQuestionThemesStore();
 const { fetchAndStoreQuestionThemes } = questionThemesStore;
-const { locale } = useI18n();
+const { handleGoatItApiError } = useGoatItApiErrorToast();
+const { locale, t } = useI18n();
 
-await callOnce(fetchAndStoreQuestionThemes);
+async function fetchQuestionThemes(): Promise<void> {
+  const result = await fetchAndStoreQuestionThemes();
+  if (!result.ok) {
+    handleGoatItApiError(result.error, t("questionThemes.cantFetch"));
+  }
+}
+
+await callOnce(fetchQuestionThemes);
 
 watch(locale, () => {
-  void fetchAndStoreQuestionThemes();
+  void fetchQuestionThemes();
 });
 
 useHead({

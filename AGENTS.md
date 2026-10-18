@@ -93,6 +93,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
   - Nuxt 4 file-based routing, composables, auto-imports. Prefer idiomatic Nuxt patterns.
   - Vue 3 `script setup` in all SFCs. Keep `<script>` before `<template>` in every `.vue`.
   - Pinia for global state; stores named `use<Entity>Store`, store ID from `StoreNames` enum.
+  - Never assign store state directly outside the store (`store.items = ...` is forbidden); mutate through actions and read through getters/refs. Transient state (fetch statuses, loading flags) is exposed as read-only computed getters.
   - Composables use `use*` prefix; repositories use `*Repository` suffix.
   - Prefer `@nuxt/ui` components and `@vueuse/core` composables where applicable.
   - i18n via `@nuxtjs/i18n`; use `$t()` / `useI18n()` — no hardcoded user-visible strings.
