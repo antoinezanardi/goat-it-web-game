@@ -51,11 +51,12 @@ You are the final reviewer. You review the whole implementation holistically —
 ## Process
 
 1. **Query MemPalace** for cross-task decision history — check if past decisions in this session are relevant to the current review
-2. **Read the spec** section by section
-3. **Read the plan** task by task
-4. **Inspect the diff** between BASE_SHA and HEAD_SHA. If the range contains no commits (agents never commit; the user commits at the end of the cycle), fall back to auditing the working tree: `git status` + `git diff HEAD` against the plan's task checkboxes
-5. **Check each file** in the diff against the criteria below
-6. **Return** structured report
+2. **Read `docs/architecture.md`** as the canonical placement and ownership reference
+3. **Read the spec** section by section
+4. **Read the plan** task by task
+5. **Inspect the diff** between BASE_SHA and HEAD_SHA. If the range contains no commits (agents never commit; the user commits at the end of the cycle), fall back to auditing the working tree: `git status` + `git diff HEAD` against the plan's task checkboxes
+6. **Check every created, edited, and moved file** in the diff against the architecture guide, the plan, and the criteria below. Include companion files, import paths, module mocks, framework-discovered paths and test-project selection—not only primary production files.
+7. **Return** structured report
 
 ## Nested subagents (read-only helpers)
 
@@ -105,15 +106,17 @@ No files are automatically ignored in the diff review.
 - Follows existing patterns from the codebase (check neighboring files for reference)
 
 ### 5. File structure audit
-- Components: PascalCase `.vue` in `app/components/<domain|shared|layouts>/`
+
+- Check every created, edited, and moved path against `docs/architecture.md`; report any owner, source/spec, types/constants, alias, dependency-direction, or framework-discovery mismatch.
+- Components: PascalCase `.vue` in `app/components/<group>/<ComponentName>/`, one component per owned directory
 - Composables: `use*.ts` in `app/composables/<core|domain|ui>/<name>/`
 - Stores: `<entity>.store.ts` in `app/stores/domain/<entity>/`
 - Repositories: `<resource>.repository.ts` in `app/repositories/goat-it-api/<resource>/`
 - Server handlers: `<resource>.<method>.handler.ts` in `server/api/.../handlers/`
-- Tests: `*.spec.ts` colocated with source (exceptions: layouts → `spec/`, i18n → `app/i18n/specs/`)
+- Tests: `*.spec.ts` owned with the production unit (exceptions: layouts → `spec/`, i18n → `app/i18n/specs/`, thin discovered route wrappers)
 - Faketories: `<entity>.<layer>.faketory.ts` in `tests/unit/utils/faketories/`
 - Mocks: `<composable|repository>.mock.ts` triplet
-- Types/constants/enums: colocated as `*.types.ts`, `*.constants.ts`, `*.enums.ts`; types shared between app and server live in `shared/types/`
+- Types/constants/enums: colocated with their narrowest production owner; shared app/server contracts live under `shared/`
 - Configs: changes to `configs/` files are appropriate and consistent
 
 ### 6. Cross-task consistency

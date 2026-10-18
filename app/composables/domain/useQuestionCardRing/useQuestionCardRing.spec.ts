@@ -6,9 +6,9 @@ import { defineComponent, nextTick, ref } from "vue";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-import type { UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.types";
-import { QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
-import type { useQuestionCardRing as UseQuestionCardRingType } from "~/composables/domain/useQuestionCardRing/useQuestionCardRing";
+import type { UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.types";
+import { QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
+import type { useQuestionCardRing as UseQuestionCardRingType } from "@/composables/domain/useQuestionCardRing/useQuestionCardRing";
 import type { Question } from "#shared/types/question.types";
 
 describe("useQuestionCardRing", () => {
@@ -62,7 +62,7 @@ describe("useQuestionCardRing", () => {
       return requestAnimationFrameCallbacks.length;
     });
     vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
-    ({ useQuestionCardRing } = await import("~/composables/domain/useQuestionCardRing/useQuestionCardRing"));
+    ({ useQuestionCardRing } = await import("@/composables/domain/useQuestionCardRing/useQuestionCardRing"));
   });
 
   function mountRingHarness(): VueWrapper {

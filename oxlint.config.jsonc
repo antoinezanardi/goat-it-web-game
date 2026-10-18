@@ -1319,7 +1319,7 @@
     // ---- Override for security headers helper file -----
     {
       "files": [
-        "**/server/utils/security/helpers/security-headers.helpers.ts"
+        "**/server/utils/security/helpers/security-headers/security-headers.helpers.ts"
       ],
       "rules": {
         "eslint/no-param-reassign": [

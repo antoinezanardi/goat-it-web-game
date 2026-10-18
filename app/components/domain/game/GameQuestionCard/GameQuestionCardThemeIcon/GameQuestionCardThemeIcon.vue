@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { GameQuestionCardThemeIconProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
-import { getThemeIcon, resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { getThemeIcon, resolveThemeColor } from "@/utils/ui/question-theme/helpers/display/question-theme-display.helpers";
 
 const props = withDefaults(defineProps<GameQuestionCardThemeIconProps>(), {
   size: "md",

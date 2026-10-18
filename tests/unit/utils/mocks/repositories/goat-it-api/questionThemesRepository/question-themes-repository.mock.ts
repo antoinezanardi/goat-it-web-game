@@ -2,7 +2,7 @@ import { vi } from "vitest";
 
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
-import type { QuestionThemesRepository } from "~/repositories/goat-it-api/question-themes/question-themes.repository";
+import type { QuestionThemesRepository } from "@/repositories/goat-it-api/question-themes/question-themes.repository";
 
 type QuestionThemesRepositoryMock = ToMock<ReturnType<QuestionThemesRepository>>;
 

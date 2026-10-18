@@ -7,6 +7,8 @@
 
 ## Behavior & rules
 
+Before creating or editing locale resources, read `docs/architecture.md` and follow its localization-resource and translation-spec placement rules.
+
 ### Source of truth
 
 - Read keys and values from each file in app/i18n/locales/fr/**. Use them as the canonical base for structure, keys, ordering, and message intent.

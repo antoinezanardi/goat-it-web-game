@@ -10,8 +10,9 @@ Write a complete, passing unit test for the file specified in the prompt (or inf
 
 Before writing anything:
 
-1. Load the `unit-testing` skill from `.agents/skills/unit-testing/SKILL.md`.
-2. Read `docs/unit-testing.md` in full.
+1. Read `docs/architecture.md` to identify the tested unit's owned directory and spec path.
+2. Load the `unit-testing` skill from `.agents/skills/unit-testing/SKILL.md`.
+3. Read `docs/unit-testing.md` in full.
 
 ### 2. Identify the source file
 

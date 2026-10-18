@@ -8,13 +8,13 @@ import type { UsePreferredReducedMotionMock } from "~~/tests/unit/utils/mocks/co
 import { createUseGSAPMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useGsap/useGsap.mock";
 import type { UseGSAPMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useGsap/useGsap.mock";
 
-import type { useQuestionCardHighlight as UseQuestionCardHighlightType } from "~/composables/domain/useQuestionCardHighlight/useQuestionCardHighlight";
+import type { useQuestionCardHighlight as UseQuestionCardHighlightType } from "@/composables/domain/useQuestionCardHighlight/useQuestionCardHighlight";
 import {
   QUESTION_CARD_HIGHLIGHT_DURATION_SECONDS,
   QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES,
   QUESTION_CARD_HIGHLIGHT_STAGGER_SECONDS,
-} from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.constants";
-import type { QuestionCardHighlightPlayable } from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
+} from "@/composables/domain/useQuestionCardHighlight/use-question-card-highlight.constants";
+import type { QuestionCardHighlightPlayable } from "@/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
 
 let useGSAPMock: UseGSAPMock;
 let usePreferredReducedMotionMock: UsePreferredReducedMotionMock;
@@ -28,7 +28,7 @@ describe("useQuestionCardHighlight", () => {
   beforeEach(async() => {
     useGSAPMock = createUseGSAPMock();
     usePreferredReducedMotionMock = createUsePreferredReducedMotionMock();
-    ({ useQuestionCardHighlight } = await import("~/composables/domain/useQuestionCardHighlight/useQuestionCardHighlight"));
+    ({ useQuestionCardHighlight } = await import("@/composables/domain/useQuestionCardHighlight/useQuestionCardHighlight"));
   });
 
   describe("animate", () => {

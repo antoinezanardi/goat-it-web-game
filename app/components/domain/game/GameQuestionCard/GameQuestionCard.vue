@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestionCard/game-question-card.types";
 import type { QuestionTheme } from "#shared/types/question-theme.types";
-import { getPrimaryTheme, hasContextAndTriviaSection } from "~/composables/domain/question/helpers/question.helpers";
-import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { hasContextAndTriviaSection } from "#shared/utils/helpers/question/context/question-context.helpers";
+import { getPrimaryTheme } from "#shared/utils/helpers/question/themes/question-themes.helpers";
+import { resolveThemeColor } from "@/utils/ui/question-theme/helpers/display/question-theme-display.helpers";
 
 const props = withDefaults(defineProps<GameQuestionCardProps>(), {
   isActive: true,

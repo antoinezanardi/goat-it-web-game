@@ -1,8 +1,8 @@
 import { storeToRefs } from "pinia";
 
 import type { Question } from "#shared/types/question.types";
-import { TRANSLATION_ID_LIMIT } from "~/composables/domain/useGameQuestionTranslation/use-game-question-translation.constants";
-import type { UseGameQuestionTranslation } from "~/composables/domain/useGameQuestionTranslation/use-game-question-translation.types";
+import { TRANSLATION_ID_LIMIT } from "@/composables/domain/useGameQuestionTranslation/use-game-question-translation.constants";
+import type { UseGameQuestionTranslation } from "@/composables/domain/useGameQuestionTranslation/use-game-question-translation.types";
 
 function useGameQuestionTranslation(questions: Ref<Question[]>, canTranslateQuestions: MaybeRefOrGetter<boolean>): UseGameQuestionTranslation {
   const store = useGameStore();

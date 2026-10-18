@@ -4,8 +4,8 @@ import {
   QUESTION_CARD_HIGHLIGHT_DURATION_SECONDS,
   QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES,
   QUESTION_CARD_HIGHLIGHT_STAGGER_SECONDS,
-} from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.constants";
-import type { QuestionCardHighlightPlayable, UseQuestionCardHighlightReturn } from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
+} from "@/composables/domain/useQuestionCardHighlight/use-question-card-highlight.constants";
+import type { QuestionCardHighlightPlayable, UseQuestionCardHighlightReturn } from "@/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
 
 async function playSequence(
   targets: (QuestionCardHighlightPlayable | undefined | null)[],

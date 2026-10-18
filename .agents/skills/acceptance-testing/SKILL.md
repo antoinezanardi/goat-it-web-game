@@ -12,7 +12,7 @@ Read it for complete examples. This skill contains the non-negotiable rules and 
 
 ## Step 0 — Before writing any acceptance test
 
-1. Read `docs/acceptance-testing.md` in full.
+1. Read `docs/architecture.md` for repository boundaries and file placement, then read `docs/acceptance-testing.md` in full for test mechanics.
 2. Ensure the Docker sandbox is running: `docker compose -f docker/goat-it-api-sandbox/docker-compose.yml up -d`
 3. Scan existing step definitions in `tests/acceptance/features/step-definitions/` for reusable steps.
 4. Identify the **domain** and **action** for the feature.

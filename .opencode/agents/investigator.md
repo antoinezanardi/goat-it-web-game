@@ -41,6 +41,8 @@ You are a parallel investigator. You handle ONE independent problem domain only.
 
 ## Your job
 
+Before applying a fix, read `docs/architecture.md` and follow its file placement, ownership, companion, alias, and dependency rules.
+
 1. Read the failing test / bug report / failing scenario
 2. Investigate root cause (no fix without understanding)
 3. Apply minimal fix

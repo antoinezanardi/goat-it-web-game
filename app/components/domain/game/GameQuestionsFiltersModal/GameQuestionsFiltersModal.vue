@@ -11,8 +11,8 @@ import type {
   GameQuestionsFiltersModalEmits,
   GameQuestionsFiltersModalProps,
 } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
-import { resolveSelectedThemeIds } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
-import { GAME_SETTINGS_DEFAULTS } from "~/stores/domain/game-settings/game-settings.constants";
+import { resolveSelectedThemeIds } from "#shared/utils/helpers/question-theme/selection/question-theme-selection.helpers";
+import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
 
 const props = defineProps<GameQuestionsFiltersModalProps>();
 const emit = defineEmits<GameQuestionsFiltersModalEmits>();

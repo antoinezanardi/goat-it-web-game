@@ -1,9 +1,10 @@
 import { isValidLocale } from "@goat-it/schemas/shared/locale";
 
 import { resolveSuggestedLocale } from "#shared/utils/helpers/locale/locale.helpers";
+import type { UseLocaleSuggestionReturn } from "@/composables/ui/useLocaleSuggestion/use-locale-suggestion.types";
 import type { Toast } from "#ui/composables";
 
-async function useLocaleSuggestion(): Promise<void> {
+async function useLocaleSuggestion(): UseLocaleSuggestionReturn {
   const { addInfoToast, removeToast } = useAppToast();
   const { $i18n } = useNuxtApp();
   const redirectedCookie = useLocaleCookie();

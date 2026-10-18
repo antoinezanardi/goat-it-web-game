@@ -7,9 +7,9 @@ import { GameQuestionCard } from "#components";
 
 import { CARD_TRANSITION_DURATION_SECONDS, CARD_TRANSITION_ROTATION_DEGREES, CARD_TRANSITION_SAFETY_TIMEOUT_MS, CARD_TRANSITION_SLIDE_PERCENT } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.constants";
 import type { GameQuestionCardSwitcherDirection, GameQuestionCardSwitcherEmits, GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
-import type { GsapContext } from "@/composables/core/gsap/gsap.types";
+import type { GsapContext } from "@/utils/ui/gsap/gsap.types";
 import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
-import { useQuestionCardRing } from "~/composables/domain/useQuestionCardRing/useQuestionCardRing";
+import { useQuestionCardRing } from "@/composables/domain/useQuestionCardRing/useQuestionCardRing";
 
 const props = defineProps<GameQuestionCardSwitcherProps>();
 const emit = defineEmits<GameQuestionCardSwitcherEmits>();

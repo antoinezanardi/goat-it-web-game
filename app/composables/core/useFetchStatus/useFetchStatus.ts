@@ -1,5 +1,5 @@
 import type { AsyncDataRequestStatus } from "#app";
-import type { UseFetchStatus } from "~/composables/core/useFetchStatus/use-fetch-status.types";
+import type { UseFetchStatus } from "@/composables/core/useFetchStatus/use-fetch-status.types";
 
 function useFetchStatus(): UseFetchStatus {
   const fetchStatus = ref<AsyncDataRequestStatus>("idle");

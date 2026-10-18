@@ -19,6 +19,8 @@ Every project goes through this process. A todo list, a single-function utility,
 
 ## Checklist
 
+Before designing or documenting any project file creation, edit, or move, read and follow `docs/architecture.md` as the canonical placement and dependency guide.
+
 You MUST create a task for each of these items and complete them in order:
 
 1. **Query the MemPalace MCP server** to give you better context based on the user's intent and the current project codebase

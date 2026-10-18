@@ -5,7 +5,8 @@ import { GameQuestionCardAdultContentBadge, GameQuestionCardHintBadge, GameQuest
 
 import { QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.constants";
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
-import { getCategoryIcon, getPrimaryTheme, getSecondaryThemes, hasSecondaryThemes, isPrimaryThemeHint } from "~/composables/domain/question/helpers/question.helpers";
+import { getPrimaryTheme, getSecondaryThemes, hasSecondaryThemes, isPrimaryThemeHint } from "#shared/utils/helpers/question/themes/question-themes.helpers";
+import { getCategoryIcon } from "@/utils/ui/question/helpers/category-display/question-category-display.helpers";
 
 const props = withDefaults(defineProps<GameQuestionCardThemeHeaderProps>(), {
   isActive: true,

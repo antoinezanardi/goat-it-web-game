@@ -28,7 +28,7 @@ The proxy answers per user (the `i18n_redirected` cookie changes the forwarded `
 
 ## Content Security Policy
 
-`server/utils/security/helpers/security-headers.helpers.ts` registers Nuxt's `render:html` hook through `registerCspNonceHook`. For every rendered page it:
+`server/utils/security/helpers/security-headers/security-headers.helpers.ts` registers Nuxt's `render:html` hook through `registerCspNonceHook`. For every rendered page it:
 
 1. generates a nonce with `crypto.randomUUID()`;
 2. stamps `nonce="…"` on every `<script>` tag lacking one in the head, body-prepend and body-append chunks (body-append only on the buffered render path; the app-rendered body HTML is deliberately left untouched so injected scripts never receive the nonce);

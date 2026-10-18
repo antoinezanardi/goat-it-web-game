@@ -33,7 +33,7 @@ Running a single test or file (`NODE_OPTIONS='--no-webstorage'` is required):
 
 - By filename:    `pnpm run test:unit index.spec.ts`
 - By test name:    `pnpm run test:unit -t "should render"`
-- Watch file: `pnpm run test:unit:watch app/pages/index.spec.ts`
+- Watch file: `pnpm run test:unit:watch app/pages/index/index.spec.ts`
 - Direct:     `pnpm exec cross-env NODE_OPTIONS='--no-webstorage' vitest --config configs/vitest/vitest.config.ts path/to/file.spec.ts`
 
 Running acceptance tests:
@@ -66,10 +66,12 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 
 ## Repository structure
 
+Every added or changed file MUST strictly follow the canonical conventions in [`docs/architecture.md`](docs/architecture.md). This applies to all file types and locations, including source, specs, types, constants, tests, configuration, documentation, agents, skills, and commands. Read the guide before planning or making file changes; if an existing pattern conflicts, follow the architecture guide.
+
 - `app/`              – Nuxt application source
-  - `pages/`, `assets/`
+  - `pages/`, `assets/`, `utils/{core,domain,ui}/`
   - `composables/`    – Organised as `core/`, `domain/`, `ui/`; each composable in its own sub-dir
-  - `repositories/`   – Client-side data access (`*.repository.ts`); factory functions, auto-imported by Nuxt
+  - `repositories/`   – Client-side internal API data access (`*.repository.ts`); factory functions, auto-imported by Nuxt
   - `stores/`         – Pinia stores under `domain/`; store names from `stores/store.enums.ts`
   - `i18n/`           – i18n resources, locale JSON files live in `locales/{de,en,es,fr,it,pt}/`
 - `server/`           – Nitro server routes and utilities (API handlers, mappers, helpers)
@@ -77,7 +79,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - `utils/goat-it-api/` – Helpers, mappers, types, constants for the external API
 - `shared/enums/`     – Enums shared between app and server (e.g. `CookieNames`)
 - `shared/types/`     – Types shared between app and server (e.g. `QuestionTheme`)
-- `shared/utils/`     – Helpers auto-imported in both app and server
+- `shared/utils/`     – Runtime-neutral app/server helpers; explicitly imported
 - `tests/unit/`       – Test utilities: `setup/nuxt/`, `utils/faketories/`, `utils/mocks/`
 - `tests/acceptance/` – Acceptance tests: Cucumber features, Playwright step definitions, hooks
 - `configs/`          – Vitest, Cucumber, ESLint, Oxlint, lint-staged configs
@@ -99,8 +101,8 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - `any` is forbidden. Use precise types; `unknown` + narrowing when truly needed.
   - No unsafe type assertions without an explicit ESLint disable comment explaining why.
   - Use `zod` for runtime validation of external data (API responses, request bodies, env vars).
-  - Types colocated: component props inline, shared in `shared/types/`, server-local in
-    `server/utils/**/*.types.ts`.
+  - Component props/emits/slots/exposed contracts live in a colocated `*.types.ts`; composables use a colocated named return type.
+  - Types shared across app and server live in `shared/types/`; server-domain types live under `server/utils/<domain>/`.
   - `type-fest` utilities (e.g. `TupleToUnion`, `ArrayValues`) preferred over manual mapped types.
 
 - Formatting / Editor settings (see `.editorconfig`):
@@ -111,7 +113,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - Imports and module layout (groups separated by blank lines, in order):
   1. Node builtins (`node:path`)
   2. External packages
-  3. Project aliases (`~~/`, `#server/`, `#components`, `@/`, `~/`)
+  3. Project aliases (`~~/`, `#server/`, `#shared/`, `#components`, `@/`, `~/`)
   4. Relative imports
 
   - Use `type` imports for type-only symbols (`import type { Foo } from '...'`).
@@ -119,7 +121,8 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - Barrel exports are forbidden (`export { foo } from '...'` or `export * from '...'`). Always import directly from the source module.
 
 - Import aliases:
-  - `@/` and `~/` → `app/`
+  - `@/` → `app/` code modules (canonical app code alias)
+  - `~/` → Nuxt resource/config paths (assets, CSS/resource references, discovery globs); not app code imports
   - `~~/` → repo root (use for `~~/tests/unit/...` in tests)
   - `#server/utils/...` → inside `server/` only
   - `#shared/` → `shared/`
@@ -152,7 +155,12 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - Repository pattern:
   - Factory function: `export const fooRepository: FooRepository = (fetch: $Fetch) => ({ ... })`.
   - Calls internal Nuxt server routes (`/api/goat-it-api/...`), never the external API directly.
-  - Auto-imported by Nuxt; instantiated in stores as `fooRepository($fetch)`.
+  - Auto-imported by Nuxt; instantiated in stores as `fooRepository(useRequestFetch())` for request-aware SSR behavior.
+
+- Architecture and file placement:
+  - Canonical rules: [`docs/architecture.md`](docs/architecture.md). Read and follow it before planning or creating, editing, or moving project files.
+  - Production units own source/spec directories; types/constants follow the narrowest production-consumer scope.
+  - File-changing agents, skills, and commands must consult the architecture guide. Plan-writers specify exact paths and companions; final reviewers check every changed path against it.
 
 - Error handling and logging:
   - Never swallow exceptions silently — re-throw with context, return typed failure, or log + show i18n UI message.
@@ -189,12 +197,13 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 ## Tests and test style
 
 - Framework: Vitest + `@nuxt/test-utils` + `@vue/test-utils` + `happy-dom`.
-- Vitest runs five projects (defined in `configs/vitest/vitest.config.ts`):
+- Vitest runs six projects (defined in `configs/vitest/vitest.config.ts`):
   - `nuxt`         – `app/**/*.spec.ts`, `server/**/*.spec.ts`, `shared/**/*.spec.ts` (excluding composables/stores/repositories/node)
   - `composables`  – `app/composables/**/*.spec.ts`
   - `stores`       – `app/**/*.store.spec.ts` (includes Pinia + composables + repository mock setup)
   - `repositories` – `app/**/*.repository.spec.ts` (plain Node env, no Nuxt)
   - `node`         – `*.mappers.spec.ts`, `*.helpers.spec.ts`, `*.translations.spec.ts` under app/, server/, shared/
+  - `dom`          – `*.dom.helpers.spec.ts` in the happy-dom environment
 - Coverage threshold: 100% (`thresholds: { 100: true }`).
   - Collected for `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`, `shared/**/*.ts`.
   - Excluded: `*.constants.ts`, `*.enums.ts`, `*.types.ts`, `*.d.ts`, `*.config.ts`,
@@ -246,7 +255,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 
 ## Agent skills (`.agents/skills/`)
 
-Each skill has a `SKILL.md` entry point. Load only the relevant skill for the task.
+Each skill has a `SKILL.md` entry point. Load only the relevant skill for the task. Any skill or command that can lead to project file changes must require consultation of [`docs/architecture.md`](docs/architecture.md).
 
 Available skills: `acceptance-testing`, `brainstorming`, `nuxt`, `nuxt-ui`, `receiving-code-review`,
 `systematic-debugging`, `unit-testing`, `vite`, `vitest`, `vue`, `vueuse`, `writing-plans`, `writing-skills`.
@@ -271,6 +280,7 @@ Slash commands available in OpenCode sessions:
 - `docs/unit-testing.md` – Full human-readable unit testing guide (patterns, examples, pitfalls).
 - `docs/acceptance-testing.md` – Full acceptance testing guide (Cucumber, Playwright, patterns, examples).
 - `docs/security.md` – Security hardening reference: security headers, CSP nonce, rate limiting, body guard, upstream fetch pipeline and error contract.
+- `docs/architecture.md` – Canonical architecture, file placement, naming, and dependency boundaries.
 
 ## MemPalace (persistent project memory)
 

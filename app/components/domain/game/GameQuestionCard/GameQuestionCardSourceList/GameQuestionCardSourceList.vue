@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { GameQuestionCardSourceListProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardSourceList/game-question-card-source-list.types";
 import { GAME_QUESTION_CARD_SOURCE_LINK_CLASSES } from "@/components/domain/game/GameQuestionCard/GameQuestionCardSourceList/game-question-card-source-list.constants";
-import { getSourceDomain } from "~/composables/domain/question/helpers/question.helpers";
+import { getSourceDomain } from "#shared/utils/helpers/question/source/question-source.helpers";
 
 defineProps<GameQuestionCardSourceListProps>();
 

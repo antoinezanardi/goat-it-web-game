@@ -12,6 +12,8 @@ Subagent (general-purpose):
   prompt: |
     You are a plan document reviewer. Verify this plan is complete and ready for implementation.
 
+    Read `docs/architecture.md`. Check that every file path, source/spec pairing, required or intentionally absent types/constants companion, helper ownership boundary, framework-discovered path, import/move impact, and Vitest project is explicit and matches the canonical architecture. Flag any placement decision left to the implementer.
+
     **Plan to review:** [PLAN_FILE_PATH]
     **Spec for reference:** [SPEC_FILE_PATH]
 

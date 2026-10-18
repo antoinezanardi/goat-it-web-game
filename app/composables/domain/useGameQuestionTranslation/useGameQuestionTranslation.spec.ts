@@ -6,7 +6,7 @@ import { nextTick } from "vue";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-import type { useGameQuestionTranslation as UseGameQuestionTranslationType } from "~/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation";
+import type { useGameQuestionTranslation as UseGameQuestionTranslationType } from "@/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation";
 import type { Question } from "#shared/types/question.types";
 import { useGameStore } from "@/stores/domain/game/game.store";
 
@@ -15,7 +15,7 @@ let useGameQuestionTranslation: typeof UseGameQuestionTranslationType;
 describe("useGameQuestionTranslation", () => {
   beforeEach(async() => {
     createTestingPinia();
-    ({ useGameQuestionTranslation } = await import("~/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation"));
+    ({ useGameQuestionTranslation } = await import("@/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation"));
   });
 
   describe("ID selection", () => {

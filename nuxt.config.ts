@@ -308,9 +308,6 @@ export default defineNuxtConfig({
   seo: { validateAppHead: false },
   sitemap: {
     zeroRuntime: true,
-    exclude: [
-      "/index.constants",
-      "/game.constants",
-    ],
+    exclude: ["/index.constants"],
   },
 });

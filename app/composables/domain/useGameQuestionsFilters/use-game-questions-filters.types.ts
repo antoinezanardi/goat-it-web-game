@@ -1,7 +1,7 @@
 import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 import type { ComputedRef } from "vue";
 
-import type { GameSettings } from "~/stores/domain/game-settings/game-settings.types";
+import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 
 type GameSettingsFetchFilters = Pick<FindRandomQuestionsBodyDto, "isAdultContent" | "cognitiveDifficulties" | "categories" | "themeIds">;
 

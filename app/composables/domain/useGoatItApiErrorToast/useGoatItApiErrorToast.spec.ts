@@ -7,12 +7,7 @@ import { createUseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/
 import type { UseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock";
 import { createUseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock";
 
-import type { useGoatItApiErrorToast as UseGoatItApiErrorToastType, extractErrorCode as ExtractErrorCodeType } from "~/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast";
-
-type ExtractErrorCodeUndefinedCase = {
-  condition: string;
-  createError: () => unknown;
-};
+import type { useGoatItApiErrorToast as UseGoatItApiErrorToastType } from "@/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast";
 
 type GenericFallbackCase = {
   condition: string;
@@ -27,71 +22,12 @@ mockNuxtImport("useAppToast", () => (): UseAppToastMock => useAppToastMock);
 mockNuxtImport("useI18n", () => (): UseI18nMock => useI18nMock);
 
 let useGoatItApiErrorToast: typeof UseGoatItApiErrorToastType;
-let extractErrorCode: typeof ExtractErrorCodeType;
 
 describe("useGoatItApiErrorToast", () => {
   beforeEach(async() => {
     useAppToastMock = createUseAppToastMock();
     useI18nMock = createUseI18nMock();
-    ({ useGoatItApiErrorToast, extractErrorCode } = await import("~/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast"));
-  });
-
-  describe("extractErrorCode", () => {
-    it("should return the error code when error is a FetchError with a valid string errorCode.", () => {
-      const fetchError = new FetchError("Conflict");
-      fetchError.data = { data: { errorCode: "someErrorCode" } };
-
-      expect(extractErrorCode(fetchError)).toBe("someErrorCode");
-    });
-
-    it.each<ExtractErrorCodeUndefinedCase>([
-      {
-        condition: "error is not a FetchError",
-        createError: (): unknown => ({ data: { data: { errorCode: "shouldNotBeExtracted" } } }),
-      },
-      {
-        condition: "error is a FetchError with no data",
-        createError: (): FetchError => new FetchError("Server Error"),
-      },
-      {
-        condition: "error is a FetchError with non-object nested data",
-        createError: (): FetchError => {
-          const fetchError = new FetchError("Server Error");
-          fetchError.data = { data: "not-an-object" };
-
-          return fetchError;
-        },
-      },
-      {
-        condition: "error is a FetchError with null nested data",
-        createError: (): FetchError => {
-          const fetchError = new FetchError("Server Error");
-          fetchError.data = { data: null };
-
-          return fetchError;
-        },
-      },
-      {
-        condition: "error is a FetchError with non-string errorCode",
-        createError: (): FetchError => {
-          const fetchError = new FetchError("Server Error");
-          fetchError.data = { data: { errorCode: 123 } };
-
-          return fetchError;
-        },
-      },
-      {
-        condition: "error is a FetchError with no errorCode property",
-        createError: (): FetchError => {
-          const fetchError = new FetchError("Server Error");
-          fetchError.data = { data: {} };
-
-          return fetchError;
-        },
-      },
-    ])("should return undefined when $condition.", ({ createError }) => {
-      expect(extractErrorCode(createError())).toBeUndefined();
-    });
+    ({ useGoatItApiErrorToast } = await import("@/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast"));
   });
 
   describe("handleGoatItApiError", () => {

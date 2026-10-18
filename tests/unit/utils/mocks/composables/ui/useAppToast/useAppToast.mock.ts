@@ -3,7 +3,7 @@ import { vi } from "vitest";
 import { createMockedToast } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
-import type { UseAppToast } from "~/composables/ui/useAppToast/use-app-toast.types";
+import type { UseAppToast } from "@/composables/ui/useAppToast/use-app-toast.types";
 
 type UseAppToastMock = ToMock<UseAppToast>;
 

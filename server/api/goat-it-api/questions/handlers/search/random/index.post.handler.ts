@@ -3,9 +3,10 @@ import type { H3Event } from "h3";
 
 import type { Question } from "#shared/types/question.types";
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
-import { parseAndMapGoatItApiResponse, validateGoatItApiBody } from "#server/utils/goat-it-api/helpers/goat-it-api-validation.helpers";
-import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error.helpers";
+import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers";
+import { createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api-fetch-options/goat-it-api-fetch-options.helpers";
+import { parseAndMapGoatItApiResponse, validateGoatItApiBody } from "#server/utils/goat-it-api/helpers/goat-it-api-validation/goat-it-api-validation.helpers";
+import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error/goat-it-api-error.helpers";
 import { GOAT_IT_API_SEARCH_RANDOM_SUFFIX } from "#server/utils/goat-it-api/goat-it-api.constants";
 import { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
 

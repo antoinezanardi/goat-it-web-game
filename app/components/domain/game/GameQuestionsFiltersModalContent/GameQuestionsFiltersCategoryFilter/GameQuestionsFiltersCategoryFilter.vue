@@ -6,7 +6,8 @@ import type {
   GameQuestionsFiltersCategoryFilterEmits,
   GameQuestionsFiltersCategoryFilterProps,
 } from "@/components/domain/game/GameQuestionsFiltersModalContent/GameQuestionsFiltersCategoryFilter/game-questions-filters-category-filter.types";
-import { getCategoryColor, getCategoryIcon, isQuestionCategory } from "~/composables/domain/question/helpers/question.helpers";
+import { isQuestionCategory } from "#shared/utils/helpers/question/categories/question-categories.helpers";
+import { getCategoryColor, getCategoryIcon } from "@/utils/ui/question/helpers/category-display/question-category-display.helpers";
 
 const props = defineProps<GameQuestionsFiltersCategoryFilterProps>();
 const emit = defineEmits<GameQuestionsFiltersCategoryFilterEmits>();

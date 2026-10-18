@@ -1,5 +1,5 @@
-import { GAME_QUESTIONS_FILTER_GROUP_ACTIVITY_CHECKS } from "~/composables/domain/useGameQuestionsFilters/use-game-questions-filters.constants";
-import type { UseGameQuestionsFilters } from "~/composables/domain/useGameQuestionsFilters/use-game-questions-filters.types";
+import { GAME_QUESTIONS_FILTER_GROUP_ACTIVITY_CHECKS } from "@/composables/domain/useGameQuestionsFilters/use-game-questions-filters.constants";
+import type { UseGameQuestionsFilters } from "@/composables/domain/useGameQuestionsFilters/use-game-questions-filters.types";
 
 function useGameQuestionsFilters(): UseGameQuestionsFilters {
   const gameSettingsStore = useGameSettingsStore();

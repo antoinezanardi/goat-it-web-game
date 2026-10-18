@@ -1,7 +1,7 @@
 import { defineNitroPlugin } from "nitropack/runtime";
 
 import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
-import { validateAppRuntimeConfig } from "#server/utils/env/helpers/env-validation.helpers";
+import { validateAppRuntimeConfig } from "#server/utils/env/helpers/env-validation/env-validation.helpers";
 
 export default defineNitroPlugin((): void => {
   if (import.meta.prerender === true) {

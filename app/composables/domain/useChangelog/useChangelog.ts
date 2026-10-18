@@ -1,7 +1,8 @@
-import { CHANGELOG_ICON, CHANGELOG_TOAST_DURATION_IN_MS } from "@/components/shared/core/changelog/changelog.constants";
+import { CHANGELOG_TOAST_DURATION_IN_MS } from "@/composables/domain/useChangelog/use-changelog.constants";
+import { CHANGELOG_ICON } from "@/utils/ui/changelog/changelog.constants";
 import { StateNames } from "#shared/enums/state.enums";
-import type { UseChangelog, UseChangelogOptions } from "~/composables/domain/useChangelog/use-changelog.types";
-import { useChangelogCookie } from "~/composables/domain/useChangelogCookie/useChangelogCookie";
+import type { UseChangelog, UseChangelogOptions } from "@/composables/domain/useChangelog/use-changelog.types";
+import { useChangelogCookie } from "@/composables/domain/useChangelogCookie/useChangelogCookie";
 
 function useChangelog(options: UseChangelogOptions): UseChangelog {
   const { addInfoToast } = useAppToast();

@@ -2,7 +2,7 @@ import { vi } from "vitest";
 
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
-import type { UseGoatItApiErrorToast } from "~/composables/domain/useGoatItApiErrorToast/use-goat-it-api-error-toast.types";
+import type { UseGoatItApiErrorToast } from "@/composables/domain/useGoatItApiErrorToast/use-goat-it-api-error-toast.types";
 
 type UseGoatItApiErrorToastMock = ToMock<UseGoatItApiErrorToast>;
 

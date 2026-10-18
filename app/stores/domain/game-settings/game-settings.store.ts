@@ -1,6 +1,6 @@
 import type { QuestionCategory, QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 
-import type { GameSettings } from "~/stores/domain/game-settings/game-settings.types";
+import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 
 export const useGameSettingsStore = defineStore(StoreNames.GAME_SETTINGS, () => {
   const gameSettingsCookie = useGameSettingsCookie();

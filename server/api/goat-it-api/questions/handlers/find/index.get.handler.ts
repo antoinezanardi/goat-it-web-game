@@ -4,10 +4,11 @@ import type { H3Event } from "h3";
 import type { Question } from "#shared/types/question.types";
 import { FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM } from "#shared/constants/goat-it-api.constants";
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
-import { clampFindQueryLimit } from "#server/utils/goat-it-api/helpers/find-query-limit.helpers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
-import { parseAndMapGoatItApiResponse, validateGoatItApiQuery } from "#server/utils/goat-it-api/helpers/goat-it-api-validation.helpers";
-import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error.helpers";
+import { clampFindQueryLimit } from "#server/utils/goat-it-api/helpers/goat-it-api-find-query-limit/goat-it-api-find-query-limit.helpers";
+import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers";
+import { createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api-fetch-options/goat-it-api-fetch-options.helpers";
+import { parseAndMapGoatItApiResponse, validateGoatItApiQuery } from "#server/utils/goat-it-api/helpers/goat-it-api-validation/goat-it-api-validation.helpers";
+import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error/goat-it-api-error.helpers";
 import { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
 
 async function findQuestionsHandler(event: H3Event): Promise<Question[]> {

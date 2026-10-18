@@ -2,6 +2,7 @@
 
 This document is the complete reference for writing unit tests in this repository.
 It covers the test infrastructure, every file type that needs tests, exact patterns to follow, and common pitfalls.
+For production source/spec ownership and canonical file placement, see [`docs/architecture.md`](architecture.md).
 
 ---
 
@@ -67,7 +68,7 @@ The `onConsoleLog` filter in Vitest config suppresses two known warnings:
 
 ## 2. Vitest projects
 
-There are **five Vitest projects**, each covering a different layer. The project is determined automatically by the spec file path.
+There are **six Vitest projects**, each covering a different layer. The project is determined automatically by the spec file path.
 
 | Project        | Spec file pattern                                                                                                                   | Setup files loaded                                                                  |
 |----------------|-------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
@@ -76,6 +77,7 @@ There are **five Vitest projects**, each covering a different layer. The project
 | `stores`       | `app/**/*.store.spec.ts`                                                                                                            | All nuxt setups + composable mocks + repository mocks + `stores.nuxt.unit-setup.ts` |
 | `repositories` | `app/**/*.repository.spec.ts`                                                                                                       | `dates.nuxt.unit-setup.ts` only (plain Node, no Nuxt environment)                   |
 | `node`         | `app/**/*.{mappers,helpers,translations}.spec.ts`, `server/**/*.{mappers,helpers}.spec.ts`, `shared/**/*.{mappers,helpers}.spec.ts` | `dates.nuxt.unit-setup.ts` + the two Node setups (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts` in `tests/unit/setup/node/`) |
+| `dom`           | `app/**/*.dom.helpers.spec.ts`, `server/**/*.dom.helpers.spec.ts`, `shared/**/*.dom.helpers.spec.ts`                                  | Happy DOM environment |
 
 The `repositories` and `node` projects use a plain Vitest environment (no Nuxt, no happy-dom).
 All other projects use `environment: "nuxt"` (happy-dom + Nuxt runtime).
@@ -382,7 +384,7 @@ it("should pass the status to the badge when mounted.", async () => {
 ### 6.2 Pages
 
 **Project:** `nuxt`
-**Spec file location:** Colocated with the page file.
+**Spec file location:** Sibling to the route's `index.vue` in its owned page directory; see [`docs/architecture.md`](architecture.md#46-pages-and-layouts).
 
 Pages follow the same structure as components with these differences:
 
@@ -390,7 +392,7 @@ Pages follow the same structure as components with these differences:
 2. **Import directly**, not from `#components`:
 
 ```ts
-import MyPage from "@/pages/my-page.vue";
+import MyPage from "@/pages/my-page/index.vue";
 ```
 
 3. **Use a string label** in the form `"<PageName> Page"`:
@@ -441,8 +443,8 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import type { PageHeader } from "#components";
 
-import { MY_PAGE_ICON, MY_PAGE_TITLE_KEY } from "@/pages/my-page.constants";
-import MyPage from "@/pages/my-page.vue";
+import { MY_PAGE_ICON, MY_PAGE_TITLE_KEY } from "@/utils/ui/my-page/my-page.constants";
+import MyPage from "@/pages/my-page/index.vue";
 
 describe("Entity Page", () => {
   let wrapper: VueWrapper;
@@ -871,12 +873,14 @@ import { ZodError } from "zod";
 import { createFakeItemDto } from "~~/tests/unit/utils/faketories/.../item.dto.faketory";
 
 import { createItemFromDto } from "#server/utils/goat-it-api/mappers/goat-it-api.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers";
+import { createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api-fetch-options/goat-it-api-fetch-options.helpers";
 import { getItemsHandler } from "#server/api/goat-it-api/items/handlers/get-all/index.get.handler";
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
 // Mock the helpers module — uses import() expression syntax
-vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
+vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers"));
+vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-fetch-options/goat-it-api-fetch-options.helpers"));
 
 // Two-level describe: outer string label, inner function reference
 describe("Server Goat It API Items Get Handler", () => {
@@ -993,7 +997,7 @@ it("should call createError with the correct status code when the item is not fo
 
 #### Key rules
 
-- Always mock the helpers module using `import()` expression syntax: `vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"))`.
+- Mock each focused helper module using `import()` expression syntax; endpoint and fetch-option builders are separate modules.
 - Use a **two-level `describe`** pattern: outer string label `"Server Goat It API <Resource> <Method> Handler"`, inner `describe(handlerFn, ...)` with the function reference.
 - Use `vi.mocked($fetch).mockResolvedValue(...)` — `$fetch` is already a global spy.
 - `createGoatItApiFetchOptions` receives the **event** and the HTTP method option: assert `toHaveBeenCalledExactlyOnceWith(event, { method: "GET" | "POST" })`. The injected runtime config values are `baseUrl: "https://api.goat-it.com"` and `gameKey: "test-game-key"`, carried to the API as the `goat-it-api-key` header.
@@ -1035,12 +1039,12 @@ await myHandler(mockedEvent).catch(() => null);
 These are pure function tests — no mocking of the unit under test or its collaborators, no DOM. Import with `#server/utils/...`. Two accepted exceptions:
 
 - **Time control:** `vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, and spying on global timers are allowed to test time-dependent helpers deterministically.
-- **Environment-coupled helpers:** specs for `server/utils/goat-it-api/helpers/goat-it-api.helpers.ts` may stub `useRuntimeConfig` and h3 globals — established exception, never flagged.
+- **Environment-coupled helpers:** the Goat It API fetch-options and locale helper specs may stub `useRuntimeConfig` and h3 globals where required by the function contract — established exception, never flagged.
 
 ```ts
 import { describe, it, expect } from "vitest";
 
-import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers";
 
 describe(createGoatItApiEndpoint, () => {
   it("should return the correct endpoint string when called with a resource name.", () => {
@@ -1082,7 +1086,7 @@ describe(createItemFromDto, () => {
 ```ts
 import { describe, it, expect } from "vitest";
 
-import { isNonEmptyString } from "#shared/utils/helpers/string.helpers";
+import { isNonEmptyString } from "#shared/utils/helpers/string/string.helpers";
 
 describe(isNonEmptyString, () => {
   it("should return true when input is a non-empty string.", () => {
@@ -1517,7 +1521,7 @@ import { vi } from "vitest";
 import { computed, ref } from "vue";
 import type { Ref } from "vue";
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
-import type { UseMyComposable } from "~/composables/.../useMyComposable";
+import type { UseMyComposable } from "@/composables/.../useMyComposable";
 
 type UseMyComposableMock = ToMock<UseMyComposable> & {
   fetchStatusRef: Ref<string>;
@@ -1555,7 +1559,7 @@ Repository mocks live in `tests/unit/utils/mocks/repositories/goat-it-api/<Repos
 ```ts
 import { vi } from "vitest";
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
-import type { MyRepository } from "~/repositories/goat-it-api/my-entity/my.repository";
+import type { MyRepository } from "@/repositories/goat-it-api/my-entity/my.repository";
 
 type MyRepositoryMock = ToMock<ReturnType<MyRepository>>;
 

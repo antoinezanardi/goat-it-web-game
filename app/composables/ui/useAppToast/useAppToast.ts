@@ -1,5 +1,5 @@
 import type { Toast } from "#ui/composables";
-import type { UseAppToast } from "~/composables/ui/useAppToast/use-app-toast.types";
+import type { UseAppToast } from "@/composables/ui/useAppToast/use-app-toast.types";
 
 function useAppToast(): UseAppToast {
   const toast = useToast();

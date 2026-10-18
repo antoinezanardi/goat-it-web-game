@@ -4,10 +4,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 
-import { GAME_SETTINGS_COOKIE_OPTIONS } from "~/composables/domain/useGameSettingsCookie/use-game-settings-cookie.constants";
-import type { useGameSettingsCookie as UseGameSettingsCookieType } from "~/composables/domain/useGameSettingsCookie/useGameSettingsCookie";
-import { GAME_SETTINGS_DEFAULTS } from "~/stores/domain/game-settings/game-settings.constants";
-import type { GameSettings } from "~/stores/domain/game-settings/game-settings.types";
+import { GAME_SETTINGS_COOKIE_OPTIONS } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.constants";
+import type { useGameSettingsCookie as UseGameSettingsCookieType } from "@/composables/domain/useGameSettingsCookie/useGameSettingsCookie";
+import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
+import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 import { CookieNames } from "#shared/enums/cookie.enums";
 
 const DEFAULTED_FILTERS = {
@@ -22,7 +22,7 @@ describe("useGameSettingsCookie", () => {
     useCookieMockState.capturedName.current = undefined;
     useCookieMockState.capturedOptions.current = undefined;
     useCookieMockState.cookieRef.value = null;
-    ({ useGameSettingsCookie } = await import("~/composables/domain/useGameSettingsCookie/useGameSettingsCookie"));
+    ({ useGameSettingsCookie } = await import("@/composables/domain/useGameSettingsCookie/useGameSettingsCookie"));
   });
 
   describe("cookie registration", () => {

@@ -6,6 +6,8 @@ license: MIT
 
 # Nuxt 4+ Development
 
+For this repository's file placement and dependency boundaries, read and follow `docs/architecture.md`; framework defaults do not override project-specific rules.
+
 Progressive guidance for Nuxt 4+ projects (v4.3+) with latest patterns and conventions.
 
 ## When to Use

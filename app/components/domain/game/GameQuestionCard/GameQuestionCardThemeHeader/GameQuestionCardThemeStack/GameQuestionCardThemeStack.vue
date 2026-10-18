@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { ComponentPublicInstance } from "vue";
 
-import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
+import type { GameQuestionCardThemeStackExposed, GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
 import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
 import type { QuestionThemeAssignment } from "#shared/types/question.types";
 import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
@@ -47,10 +47,12 @@ function resolveIconSize(assignment: QuestionThemeAssignment): GameQuestionCardT
   return assignment.isPrimary ? "md" : "sm";
 }
 
-defineExpose({
+const exposed: GameQuestionCardThemeStackExposed = {
   playHighlight,
   toggleOpen,
-});
+};
+
+defineExpose(exposed);
 </script>
 
 <template>

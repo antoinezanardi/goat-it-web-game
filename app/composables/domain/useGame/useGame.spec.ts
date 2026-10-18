@@ -13,15 +13,15 @@ import { createUseGameQuestionTranslationMock } from "~~/tests/unit/utils/mocks/
 import type { UseGameQuestionTranslationMock } from "~~/tests/unit/utils/mocks/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation.mock";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
-import type { useGame as UseGameType } from "~/composables/domain/useGame/useGame";
-import type { UseGameSettingsCookie } from "~/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
-import { GAME_SETTINGS_DEFAULTS } from "~/stores/domain/game-settings/game-settings.constants";
-import type { GameSettings } from "~/stores/domain/game-settings/game-settings.types";
+import type { useGame as UseGameType } from "@/composables/domain/useGame/useGame";
+import type { UseGameSettingsCookie } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
+import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
+import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 import type { Question } from "#shared/types/question.types";
 import { useGameStore } from "@/stores/domain/game/game.store";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
-import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM } from "~/pages/(game)/game.constants";
+import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM } from "@/utils/domain/game/game.constants";
 
 const GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY = {
   ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY,
@@ -60,7 +60,7 @@ describe("useGame", () => {
     capturedCanTranslateQuestions = undefined;
     translationCallCount = 0;
     createTestingPinia();
-    ({ useGame } = await import("~/composables/domain/useGame/useGame"));
+    ({ useGame } = await import("@/composables/domain/useGame/useGame"));
   });
 
   describe("currentQuestion", () => {

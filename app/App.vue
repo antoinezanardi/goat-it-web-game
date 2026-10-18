@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { APP_TOAST_CONFIG, APP_TOOLTIP_CONFIG } from "~/app.constants";
+import { APP_TOAST_CONFIG, APP_TOOLTIP_CONFIG } from "@/app.constants";
 
 const questionThemesStore = useQuestionThemesStore();
 const { fetchAndStoreQuestionThemes } = questionThemesStore;

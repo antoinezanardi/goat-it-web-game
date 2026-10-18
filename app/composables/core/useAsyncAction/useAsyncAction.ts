@@ -1,4 +1,4 @@
-import type { UseAsyncAction } from "~/composables/core/useAsyncAction/use-async-action.types";
+import type { UseAsyncAction } from "@/composables/core/useAsyncAction/use-async-action.types";
 
 function useAsyncAction<TResult, TArguments extends unknown[] = []>(
   action: (...arguments_: TArguments) => Promise<TResult>,
