@@ -6,6 +6,7 @@ import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
+import { useGoatItApiErrorToastMock } from "~~/tests/unit/setup/nuxt/composables/use-goat-it-api-error-toast.nuxt.unit-setup";
 
 import App from "@/App.vue";
 import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
@@ -20,7 +21,7 @@ describe("App Component", () => {
 
   beforeEach(async() => {
     wrapper = await mountAppComponent({ global: { plugins: [createTestingPinia()] } });
-    mockStore(useQuestionThemesStore);
+    mockStore(useQuestionThemesStore).fetchAndStoreQuestionThemes.mockResolvedValue({ ok: true, value: [] });
   });
 
   it("should render App when mounted.", () => {
@@ -84,10 +85,18 @@ describe("App Component", () => {
     expect(questionThemesStore.fetchAndStoreQuestionThemes).toHaveBeenCalledExactlyOnceWith();
   });
 
-  it("should call once the question themes fetch when mounted.", () => {
-    const questionThemesStore = mockStore(useQuestionThemesStore);
+  it("should show the API error toast when the question themes fetch fails.", async() => {
+    const fakeError = new Error("fetch failed");
+    mockStore(useQuestionThemesStore).fetchAndStoreQuestionThemes.mockResolvedValue({ ok: false, error: fakeError });
+    const { locale } = useI18n();
+    locale.value = "fr";
+    await nextTick();
 
-    expect(vi.mocked(callOnce)).toHaveBeenCalledExactlyOnceWith(questionThemesStore.fetchAndStoreQuestionThemes, expect.any(String));
+    expect(useGoatItApiErrorToastMock.instance.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fakeError, "questionThemes.cantFetch");
+  });
+
+  it("should call once the question themes fetch when mounted.", () => {
+    expect(vi.mocked(callOnce)).toHaveBeenCalledExactlyOnceWith(expect.any(Function), expect.any(String));
   });
 
   it("should render the ChangelogModal component when mounted.", () => {

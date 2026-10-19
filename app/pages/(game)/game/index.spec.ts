@@ -1,11 +1,9 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
-import { QUESTION_CATEGORIES } from "@goat-it/schemas/question";
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick } from "vue";
-import type { Component, VNode } from "vue";
+import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
@@ -19,13 +17,11 @@ import { useAppToastMock } from "~~/tests/unit/setup/nuxt/composables/use-app-to
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
 import { MOCKED_TOAST_ID } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
-import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 
 import type { GamePlaying } from "#components";
 
 import GamePage from "@/pages/(game)/game/index.vue";
 import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "@/utils/ui/question-theme/question-theme.constants";
-import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 
 let capturedLeaveGuard: (() => Promise<boolean>) | undefined;
 
@@ -56,27 +52,6 @@ describe("Game Page", () => {
 
   async function mountGamePage(options: MountSuspendedOptions<typeof GamePage> = {}): Promise<VueWrapper> {
     return mountSuspended(GamePage, { global: { plugins: [createTestingPinia()] }, shallow: true, ...options });
-  }
-
-  function createGameQuestionsFiltersButtonStub(playHighlight: () => Promise<void>): Component {
-    return defineComponent({
-      name: "GameQuestionsFiltersButton",
-      setup(_props, { expose }): () => VNode {
-        expose({ playHighlight });
-
-        return (): VNode => h("div");
-      },
-    });
-  }
-
-  async function mountGamePageWithFiltersButtonStub(playHighlight: () => Promise<void>): Promise<VueWrapper> {
-    return mountSuspended(GamePage, {
-      global: {
-        plugins: [createTestingPinia()],
-        stubs: { GameQuestionsFiltersButton: createGameQuestionsFiltersButtonStub(playHighlight) },
-      },
-      shallow: true,
-    });
   }
 
   beforeEach(async() => {
@@ -236,71 +211,6 @@ describe("Game Page", () => {
     expect(noMoreQuestions.exists()).toBeTruthy();
   });
 
-  it("should show confirmation when navigating away while gameState is playing.", () => {
-    useGameMock.instance.gameStateRef.value = "playing";
-    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
-
-    const guardPromise = getCapturedLeaveGuard()();
-
-    expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(
-      expect.any(Object),
-      expect.objectContaining({
-        props: {
-          disableShortcuts: true,
-          dismissible: false,
-          icon: "i-lucide-log-out",
-          iconClass: "text-warning",
-          title: "game.leaveConfirmTitle",
-          description: "game.leaveConfirmDescription",
-          primaryButtonLabel: "game.leave",
-        },
-      }),
-    );
-
-    getCreatedModalInstance().close(true);
-    void guardPromise;
-  });
-
-  it("should allow navigation when user confirms (Leave) the confirmation.", async() => {
-    useGameMock.instance.gameStateRef.value = "playing";
-    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
-
-    const guardPromise = getCapturedLeaveGuard()();
-    getCreatedModalInstance().close(true);
-
-    const isAllowed = await guardPromise;
-
-    expect(isAllowed).toBe(true);
-  });
-
-  it("should cancel navigation when user dismisses (Cancel) the confirmation.", async() => {
-    useGameMock.instance.gameStateRef.value = "playing";
-    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
-
-    const guardPromise = getCapturedLeaveGuard()();
-    getCreatedModalInstance().close(false);
-
-    const isAllowed = await guardPromise;
-
-    expect(isAllowed).toBe(false);
-  });
-
-  it("should allow navigation without confirmation when gameState is not playing.", async() => {
-    useGameMock.instance.gameStateRef.value = "game-over";
-
-    const isAllowed = await getCapturedLeaveGuard()();
-
-    expect(isAllowed).toBe(true);
-  });
-
-  it("should not show overlay when gameState is not playing.", async() => {
-    useGameMock.instance.gameStateRef.value = "loading";
-
-    await getCapturedLeaveGuard()();
-
-    expect(useOverlayMock.instance.create).not.toHaveBeenCalled();
-  });
-
   it("should open the sidebar when the toggle button emits click.", async() => {
     const toggleButton = wrapper.findComponent({ name: "GameSidebarToggleButton" });
     getWrapperVm(toggleButton).$emit("click");
@@ -388,102 +298,6 @@ describe("Game Page", () => {
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(false);
   });
 
-  it("should commit the applied adult content value to the game settings store when the filters modal emits applyFilters.", async() => {
-    const gameSettingsStore = mockStore(useGameSettingsStore);
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
-      isAdultContentEnabled: true,
-      cognitiveDifficulties: ["easy"],
-      categories: [...QUESTION_CATEGORIES],
-    });
-    await nextTick();
-
-    expect(gameSettingsStore.setAdultContentEnabled).toHaveBeenCalledExactlyOnceWith(true);
-  });
-
-  it("should commit the applied cognitive difficulties to the game settings store when the filters modal emits applyFilters.", async() => {
-    const gameSettingsStore = mockStore(useGameSettingsStore);
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
-      isAdultContentEnabled: true,
-      cognitiveDifficulties: ["easy"],
-      categories: [...QUESTION_CATEGORIES],
-    });
-    await nextTick();
-
-    expect(gameSettingsStore.setCognitiveDifficulties).toHaveBeenCalledExactlyOnceWith(["easy"]);
-  });
-
-  it("should commit the applied categories to the game settings store when the filters modal emits applyFilters.", async() => {
-    const gameSettingsStore = mockStore(useGameSettingsStore);
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
-      isAdultContentEnabled: false,
-      cognitiveDifficulties: ["easy", "medium", "hard"],
-      categories: ["trivia"],
-    });
-    await nextTick();
-
-    expect(gameSettingsStore.setCategories).toHaveBeenCalledExactlyOnceWith(["trivia"]);
-  });
-
-  it("should commit the applied theme ids to the game settings store when the filters modal emits applyFilters with theme ids.", async() => {
-    const gameSettingsStore = mockStore(useGameSettingsStore);
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
-      isAdultContentEnabled: false,
-      cognitiveDifficulties: ["easy", "medium", "hard"],
-      categories: [...QUESTION_CATEGORIES],
-      themeIds: ["theme-a"],
-    });
-    await nextTick();
-
-    expect(gameSettingsStore.setThemeIds).toHaveBeenCalledExactlyOnceWith(["theme-a"]);
-  });
-
-  it("should not commit theme ids when the filters modal emits applyFilters without theme ids.", async() => {
-    const gameSettingsStore = mockStore(useGameSettingsStore);
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
-      isAdultContentEnabled: false,
-      cognitiveDifficulties: ["easy", "medium", "hard"],
-      categories: [...QUESTION_CATEGORIES],
-    });
-    await nextTick();
-
-    expect(gameSettingsStore.setThemeIds).not.toHaveBeenCalled();
-  });
-
-  it("should start the question synchronization when the filters modal emits applyFilters.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
-      isAdultContentEnabled: true,
-      cognitiveDifficulties: ["easy"],
-      categories: [...QUESTION_CATEGORIES],
-    });
-    await nextTick();
-
-    expect(useGameMock.instance.syncQuestionsWithGameSettings).toHaveBeenCalledExactlyOnceWith();
-  });
-
-  it("should show the success toast when the filters modal emits applyFilters.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
-      isAdultContentEnabled: true,
-      cognitiveDifficulties: ["easy"],
-      categories: [...QUESTION_CATEGORIES],
-    });
-    await nextTick();
-
-    expect(useAppToastMock.instance.addSuccessToast).toHaveBeenCalledExactlyOnceWith({ description: "game.questionsFilters.successToast" });
-  });
-
-  it("should close the filters modal when the filters modal emits applyFilters.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
-    await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
-      isAdultContentEnabled: true,
-      cognitiveDifficulties: ["easy"],
-      categories: [...QUESTION_CATEGORIES],
-    });
-    await nextTick();
-
-    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(false);
-  });
-
   it("should pass the apply pending state as isApplyPending to the filters modal when a refresh is pending.", async() => {
     let resolveSynchronization: (() => void) | undefined;
     useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
@@ -492,7 +306,7 @@ describe("Game Page", () => {
     getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
       isAdultContentEnabled: true,
       cognitiveDifficulties: ["easy"],
-      categories: [...QUESTION_CATEGORIES],
+      categories: ["trivia"],
     });
     await nextTick();
 
@@ -500,43 +314,6 @@ describe("Game Page", () => {
 
     resolveSynchronization?.();
     await flushPromises();
-  });
-
-  it("should keep the filters modal reopenable when a refresh is pending.", async() => {
-    let resolveSynchronization: (() => void) | undefined;
-    useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
-      resolveSynchronization = resolve;
-    }));
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
-      isAdultContentEnabled: true,
-      cognitiveDifficulties: ["easy"],
-      categories: [...QUESTION_CATEGORIES],
-    });
-    await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
-    await nextTick();
-
-    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(true);
-
-    resolveSynchronization?.();
-    await flushPromises();
-  });
-
-  it("should clear the apply pending state when the refresh settles.", async() => {
-    let resolveSynchronization: (() => void) | undefined;
-    useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
-      resolveSynchronization = resolve;
-    }));
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
-      isAdultContentEnabled: true,
-      cognitiveDifficulties: ["easy"],
-      categories: [...QUESTION_CATEGORIES],
-    });
-    await nextTick();
-    resolveSynchronization?.();
-    await flushPromises();
-
-    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isApplyPending")).toBe(false);
   });
 
   it("should pass isFetchingQuestions as the isFetchingQuestions prop to GameSettingsModal when mounted.", async() => {
@@ -920,46 +697,6 @@ describe("Game Page", () => {
       await emitSidebarAfterLeave(wrapper);
 
       expect(isFiltersModalOpen(wrapper)).toBe(false);
-    });
-
-    it("should play the trigger highlight when the sidebar emits after:leave after a filters request.", async() => {
-      const playHighlight = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
-      const localWrapper = await mountGamePageWithFiltersButtonStub(playHighlight);
-      await requestFiltersFromSidebar(localWrapper);
-      await emitSidebarAfterLeave(localWrapper);
-
-      expect(playHighlight).toHaveBeenCalledExactlyOnceWith();
-    });
-
-    it("should keep the filters modal closed when the trigger highlight promise has not settled.", async() => {
-      let resolveHighlight: (() => void) | undefined;
-      const playHighlight = vi.fn<() => Promise<void>>().mockReturnValue(new Promise<void>(resolve => {
-        resolveHighlight = resolve;
-      }));
-      const localWrapper = await mountGamePageWithFiltersButtonStub(playHighlight);
-      await requestFiltersFromSidebar(localWrapper);
-      getWrapperVm(localWrapper.findComponent({ name: "GameSidebar" })).$emit("after:leave");
-      await nextTick();
-      const isOpenBeforeSettle = isFiltersModalOpen(localWrapper);
-      resolveHighlight?.();
-      await flushPromises();
-
-      expect(isOpenBeforeSettle).toBe(false);
-    });
-
-    it("should open the filters modal when the trigger highlight promise settles.", async() => {
-      let resolveHighlight: (() => void) | undefined;
-      const playHighlight = vi.fn<() => Promise<void>>().mockReturnValue(new Promise<void>(resolve => {
-        resolveHighlight = resolve;
-      }));
-      const localWrapper = await mountGamePageWithFiltersButtonStub(playHighlight);
-      await requestFiltersFromSidebar(localWrapper);
-      getWrapperVm(localWrapper.findComponent({ name: "GameSidebar" })).$emit("after:leave");
-      await nextTick();
-      resolveHighlight?.();
-      await flushPromises();
-
-      expect(isFiltersModalOpen(localWrapper)).toBe(true);
     });
   });
 });

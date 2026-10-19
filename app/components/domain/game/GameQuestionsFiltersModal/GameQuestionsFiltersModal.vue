@@ -7,10 +7,10 @@ import { ConfirmDialog } from "#components";
 
 import { GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS, GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
 import type {
-  GameQuestionsFiltersDraft,
   GameQuestionsFiltersModalEmits,
   GameQuestionsFiltersModalProps,
 } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
+import type { GameQuestionsFiltersDraft } from "@/utils/domain/game/game-questions-filters-draft.types";
 import { resolveSelectedThemeIds } from "#shared/utils/helpers/question-theme/selection/question-theme-selection.helpers";
 import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
 

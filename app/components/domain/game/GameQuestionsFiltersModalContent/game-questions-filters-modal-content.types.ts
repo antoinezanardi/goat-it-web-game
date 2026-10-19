@@ -1,6 +1,6 @@
 import type { QuestionCategory, QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 
-import type { GameQuestionsFiltersDraft } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.types";
+import type { GameQuestionsFiltersDraft } from "@/utils/domain/game/game-questions-filters-draft.types";
 
 type GameQuestionsFiltersModalContentProps = {
   draft: GameQuestionsFiltersDraft;

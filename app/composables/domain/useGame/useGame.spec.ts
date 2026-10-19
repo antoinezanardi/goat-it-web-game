@@ -1,38 +1,27 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { flushPromises, mount } from "@vue/test-utils";
-import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, nextTick, toValue } from "vue";
 import type { MaybeRefOrGetter, Ref } from "vue";
 
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
-import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 import { createUseGameQuestionTranslationMock } from "~~/tests/unit/utils/mocks/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation.mock";
 import type { UseGameQuestionTranslationMock } from "~~/tests/unit/utils/mocks/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation.mock";
-import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import type { useGame as UseGameType } from "@/composables/domain/useGame/useGame";
 import type { UseGameSettingsCookie } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
+import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY } from "@/composables/domain/useGameQuestionFeed/use-game-question-feed.constants";
 import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
 import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 import type { Question } from "#shared/types/question.types";
 import { useGameStore } from "@/stores/domain/game/game.store";
-import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
-import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
-import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM } from "@/composables/domain/useGame/use-game.constants";
 
 const GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY = {
   ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY,
   isAdultContent: false,
 } as const;
-
-const UNRESTRICTED_SETTINGS_FIELDS: Partial<GameSettings> = {
-  categories: [...QUESTION_CATEGORIES],
-  cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
-  themeIds: undefined,
-};
 
 let useGame: typeof UseGameType;
 let useGameQuestionTranslationMock: UseGameQuestionTranslationMock;
@@ -60,6 +49,7 @@ describe("useGame", () => {
     capturedCanTranslateQuestions = undefined;
     translationCallCount = 0;
     createTestingPinia();
+    mockStore(useGameStore).fetchAndAppendRandomQuestions.mockResolvedValue({ ok: true, value: [] });
     ({ useGame } = await import("@/composables/domain/useGame/useGame"));
   });
 
@@ -202,226 +192,6 @@ describe("useGame", () => {
     });
   });
 
-  describe("initialize", () => {
-    it("should trigger the initial fetch with the default query when invoked.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY);
-    });
-
-    it("should omit the adult content filter from the initial fetch body when adult content is enabled.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
-    });
-
-    it("should include only the selected cognitive difficulties in the initial fetch body when a partial selection is set.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "hard"] });
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        cognitiveDifficulties: ["easy", "hard"],
-      });
-    });
-
-    it("should omit the cognitive difficulties from the initial fetch body when every difficulty is selected.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({
-        ...UNRESTRICTED_SETTINGS_FIELDS,
-        isAdultContentEnabled: true,
-        cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
-      });
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
-    });
-
-    it("should include only the selected categories in the initial fetch body when a partial selection is set.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, categories: ["trivia", "riddle"] });
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        categories: ["trivia", "riddle"],
-      });
-    });
-
-    it("should omit the categories from the initial fetch body when every category is selected.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, categories: [...QUESTION_CATEGORIES] });
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
-    });
-
-    it("should send the saved theme ids as-is in the initial fetch body when no catalog is available.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a"] });
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        themeIds: ["theme-a"],
-      });
-    });
-
-    it("should include only the narrowed active theme ids in the initial fetch body when a catalog is available.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const questionThemesStore = mockStore(useQuestionThemesStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a"] });
-      questionThemesStore.questionThemes = [
-        createFakeQuestionTheme({ id: "theme-a", status: "active" }),
-        createFakeQuestionTheme({ id: "theme-b", status: "active" }),
-      ];
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        themeIds: ["theme-a"],
-      });
-    });
-
-    it("should omit the theme ids from the initial fetch body when every active theme is selected.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const questionThemesStore = mockStore(useQuestionThemesStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a", "theme-b"] });
-      questionThemesStore.questionThemes = [
-        createFakeQuestionTheme({ id: "theme-a", status: "active" }),
-        createFakeQuestionTheme({ id: "theme-b", status: "active" }),
-      ];
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
-    });
-
-    it("should omit the theme ids from the initial fetch body when every saved theme id is stale.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const questionThemesStore = mockStore(useQuestionThemesStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["stale-theme"] });
-      questionThemesStore.questionThemes = [createFakeQuestionTheme({ id: "theme-a", status: "active" })];
-
-      await game.initialize();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
-    });
-
-    it("should trigger the initial fetch when mounted.", async() => {
-      const wrapper = mount(defineComponent({
-        setup(): () => null {
-          useGame();
-
-          return (): null => null;
-        },
-      }));
-      const store = mockStore(useGameStore);
-      await flushPromises();
-      wrapper.unmount();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY);
-    });
-
-    it("should set gameState to 'game-over' when the initial fetch returns no questions.", async() => {
-      const game = useGame();
-
-      await game.initialize();
-
-      expect(game.gameState.value).toBe("game-over");
-    });
-
-    it("should reset the game questions when mounted.", async() => {
-      const wrapper = mount(defineComponent({
-        setup(): () => null {
-          useGame();
-
-          return (): null => null;
-        },
-      }));
-      const store = mockStore(useGameStore);
-      await flushPromises();
-      wrapper.unmount();
-
-      expect(store.resetQuestions).toHaveBeenCalledExactlyOnceWith();
-    });
-
-    it("should clear previously loaded questions before the initial fetch when mounted.", async() => {
-      const initialWrapper = mount(defineComponent({
-        setup(): () => null {
-          useGame();
-
-          return (): null => null;
-        },
-      }));
-      const store = mockStore(useGameStore);
-      await flushPromises();
-      initialWrapper.unmount();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      store.questions = [createFakeQuestion(), createFakeQuestion()];
-      store.resetQuestions.mockImplementation(() => {
-        store.questions = [];
-      });
-
-      const wrapper = mount(defineComponent({
-        setup(): () => null {
-          useGame();
-
-          return (): null => null;
-        },
-      }));
-      await flushPromises();
-      wrapper.unmount();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY);
-    });
-
-    it("should not set gameState to 'game-over' when the initial fetch returns questions.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const fetchedQuestions = [createFakeQuestion()];
-      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => new Promise<void>(resolve => {
-        store.questions = fetchedQuestions;
-        resolve();
-      }));
-
-      await game.initialize();
-
-      expect(game.gameState.value).toBe("playing");
-    });
-  });
-
   describe("advanceToNextQuestion", () => {
     it("should increment currentIndex when the game is not over.", async() => {
       const store = mockStore(useGameStore);
@@ -477,247 +247,6 @@ describe("useGame", () => {
       game.goToPreviousQuestion();
 
       expect(game.currentQuestion.value).toBeUndefined();
-    });
-  });
-
-  describe("prefetch", () => {
-    it("should trigger a prefetch with all loaded question ids excluded when currentIndex reaches the threshold.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
-      store.questions = fakeQuestions;
-      await nextTick();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      for (let index = 0; index < 20; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.toReversed().map(question => question.id),
-        isAdultContent: false,
-      });
-    });
-
-    it("should omit the adult content filter from the prefetch body when adult content is enabled.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
-      store.questions = fakeQuestions;
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
-      await nextTick();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      for (let index = 0; index < 20; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.toReversed().map(question => question.id),
-      });
-    });
-
-    it("should include only the selected cognitive difficulties in the prefetch body when a partial selection is set.", async() => {
-      const settingsStore = mockStore(useGameSettingsStore);
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
-      store.questions = fakeQuestions;
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, cognitiveDifficulties: ["hard"] });
-      await nextTick();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      for (let index = 0; index < 20; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.toReversed().map(question => question.id),
-        cognitiveDifficulties: ["hard"],
-      });
-    });
-
-    it("should not trigger a prefetch when currentIndex is below the threshold.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
-      store.questions = fakeQuestions;
-      await nextTick();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      for (let index = 0; index < 5; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-
-      expect(store.fetchAndAppendRandomQuestions).not.toHaveBeenCalled();
-    });
-
-    it("should not trigger a prefetch when a fetch is pending.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
-      store.questions = fakeQuestions;
-      store.isPending = true;
-      await nextTick();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      for (let index = 0; index < 20; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-
-      expect(store.fetchAndAppendRandomQuestions).not.toHaveBeenCalled();
-    });
-
-    it("should not trigger a prefetch when the game is exhausted.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
-      store.questions = fakeQuestions;
-      await nextTick();
-      for (let index = 0; index < 20; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      game.advanceToNextQuestion();
-      await nextTick();
-
-      expect(store.fetchAndAppendRandomQuestions).not.toHaveBeenCalled();
-    });
-
-    it("should not trigger a second prefetch when the first prefetch is still in flight.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
-      let resolvePendingFetch: (() => void) | undefined;
-      store.fetchAndAppendRandomQuestions.mockClear();
-      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => new Promise<void>(resolve => {
-        resolvePendingFetch = resolve;
-      }));
-      store.questions = fakeQuestions;
-      await nextTick();
-      for (let index = 0; index < 20; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-      store.questions = [...fakeQuestions, ...Array.from({ length: 25 }, () => createFakeQuestion())];
-      await nextTick();
-      for (let index = 20; index < 40; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-      resolvePendingFetch?.();
-      await flushPromises();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.toReversed().map(question => question.id),
-        isAdultContent: false,
-      });
-    });
-
-    it("should set gameState to 'game-over' when a prefetch returns no new questions.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      store.questions = [createFakeQuestion()];
-      await nextTick();
-      game.advanceToNextQuestion();
-      await nextTick();
-      await flushPromises();
-
-      expect(game.gameState.value).toBe("game-over");
-    });
-
-    it("should re-arm the prefetch when the pending fetch completes.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
-      let resolvePendingFetch: (() => void) | undefined;
-      store.fetchAndAppendRandomQuestions.mockClear();
-      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => new Promise<void>(resolve => {
-        resolvePendingFetch = resolve;
-      }));
-      store.questions = fakeQuestions;
-      await nextTick();
-      for (let index = 0; index < 20; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-      const allQuestions = [...fakeQuestions, ...Array.from({ length: 25 }, () => createFakeQuestion())];
-      store.questions = allQuestions;
-      await nextTick();
-      resolvePendingFetch?.();
-      await flushPromises();
-      store.isPending = true;
-      await nextTick();
-      store.isPending = false;
-      await nextTick();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      for (let index = 20; index < 41; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: allQuestions.toReversed().map(question => question.id),
-        isAdultContent: false,
-      });
-    });
-
-    it("should cap the excluded ids to the maximum when more than the maximum questions are loaded.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: GAME_EXCLUDED_IDS_MAXIMUM + 5 }, (_unused, index) => createFakeQuestion({ id: `question-${index}` }));
-      store.questions = fakeQuestions;
-      await nextTick();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      for (let index = 0; index < Math.ceil(fakeQuestions.length * 0.8); index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.slice(-GAME_EXCLUDED_IDS_MAXIMUM).toReversed().map(question => question.id),
-        isAdultContent: false,
-      });
-    });
-
-    it("should keep the most recent unique ids when the loaded questions contain duplicates.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-      const sharedQuestion = createFakeQuestion({ id: "shared-question" });
-      const lastQuestion = createFakeQuestion({ id: "last-question" });
-      store.questions = [sharedQuestion, sharedQuestion, lastQuestion];
-      await nextTick();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      for (let index = 0; index < 3; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      await flushPromises();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: ["last-question", "shared-question"],
-        isAdultContent: false,
-      });
     });
   });
 
@@ -798,284 +327,38 @@ describe("useGame", () => {
     });
   });
 
-  describe("syncQuestionsWithGameSettings", () => {
-    it("should not truncate the questions when the settings filters are unchanged.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
+  describe("mounted lifecycle", () => {
+    it("should trigger the initial fetch when mounted.", async() => {
+      const wrapper = mount(defineComponent({
+        setup(): () => null {
+          useGame();
 
-      await game.syncQuestionsWithGameSettings();
-
-      expect(store.truncateQuestions).not.toHaveBeenCalled();
-    });
-
-    it("should not refetch when the settings filters are unchanged.", async() => {
-      const store = mockStore(useGameStore);
-      const game = useGame();
-
-      await game.syncQuestionsWithGameSettings();
-
-      expect(store.fetchAndAppendRandomQuestions).not.toHaveBeenCalled();
-    });
-
-    it("should not refetch when the settings are toggled away and back to the applied filters.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
-      await game.syncQuestionsWithGameSettings();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
-      store.fetchAndAppendRandomQuestions.mockClear();
-
-      await game.syncQuestionsWithGameSettings();
-
-      expect(store.fetchAndAppendRandomQuestions).not.toHaveBeenCalled();
-    });
-
-    it("should refetch with the selected cognitive difficulties when they change.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 10 }, () => createFakeQuestion());
-      store.questions = fakeQuestions;
-      await nextTick();
-      for (let index = 0; index < 4; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      store.truncateQuestions.mockImplementation((length: number) => {
-        store.questions = store.questions.slice(0, length);
-      });
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
-      store.fetchAndAppendRandomQuestions.mockClear();
-
-      await game.syncQuestionsWithGameSettings();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.slice(0, 5).toReversed().map(question => question.id),
-        isAdultContent: false,
-        cognitiveDifficulties: ["easy"],
-      });
-    });
-
-    it("should not refetch when the cognitive difficulties are toggled away and back to the applied filters.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
-      await game.syncQuestionsWithGameSettings();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["hard"] });
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false, cognitiveDifficulties: ["easy"] });
-      store.fetchAndAppendRandomQuestions.mockClear();
-
-      await game.syncQuestionsWithGameSettings();
-
-      expect(store.fetchAndAppendRandomQuestions).not.toHaveBeenCalled();
-    });
-
-    it("should truncate the questions after the current one when the filters changed.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      store.questions = Array.from({ length: 10 }, () => createFakeQuestion());
-      await nextTick();
-      for (let index = 0; index < 4; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
-
-      await game.syncQuestionsWithGameSettings();
-
-      expect(store.truncateQuestions).toHaveBeenCalledExactlyOnceWith(5);
-    });
-
-    it("should refetch with the current filters and the kept question ids excluded when the filters changed.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 10 }, () => createFakeQuestion());
-      store.questions = fakeQuestions;
-      await nextTick();
-      for (let index = 0; index < 4; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      store.truncateQuestions.mockImplementation((length: number) => {
-        store.questions = store.questions.slice(0, length);
-      });
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
-      store.fetchAndAppendRandomQuestions.mockClear();
-
-      await game.syncQuestionsWithGameSettings();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        excludedIds: fakeQuestions.slice(0, 5).toReversed().map(question => question.id),
-      });
-    });
-
-    it("should reset the exhausted state when a settings change triggers a refetch.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      await game.initialize();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
-      let resolveFetch: (() => void) | undefined;
-      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => new Promise<void>(resolve => {
-        store.isPending = true;
-        resolveFetch = resolve;
+          return (): null => null;
+        },
       }));
-
-      const applyPromise = game.syncQuestionsWithGameSettings();
-      await flushPromises();
-
-      expect(game.gameState.value).toBe("loading");
-
-      resolveFetch?.();
-      await applyPromise;
-      await flushPromises();
-    });
-
-    it("should re-arm the prefetch when a settings change triggers a refetch.", async() => {
       const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      store.questions = Array.from({ length: 25 }, () => createFakeQuestion());
-      store.fetchAndAppendRandomQuestions.mockImplementation(async() => {
-        await Promise.resolve();
-        store.questions = [...store.questions, ...Array.from({ length: 25 }, () => createFakeQuestion())];
-      });
-      await nextTick();
-      for (let index = 0; index < 20; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
       await flushPromises();
-      store.truncateQuestions.mockImplementation((length: number) => {
-        store.questions = store.questions.slice(0, length);
-      });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
-      await game.syncQuestionsWithGameSettings();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      for (let index = 20; index < 36; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
+      wrapper.unmount();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY);
+    });
+
+    it("should reset the game questions when mounted.", async() => {
+      const wrapper = mount(defineComponent({
+        setup(): () => null {
+          useGame();
+
+          return (): null => null;
+        },
+      }));
+      const store = mockStore(useGameStore);
       await flushPromises();
+      wrapper.unmount();
 
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledOnce();
+      expect(store.resetQuestions).toHaveBeenCalledExactlyOnceWith();
     });
 
-    it("should not truncate the questions when a fetch is still pending.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      store.questions = [createFakeQuestion(), createFakeQuestion()];
-      await nextTick();
-      store.isPending = true;
-      await nextTick();
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
-
-      const applyPromise = game.syncQuestionsWithGameSettings();
-      await nextTick();
-
-      expect(store.truncateQuestions).not.toHaveBeenCalled();
-
-      store.isPending = false;
-      await applyPromise;
-      await flushPromises();
-    });
-
-    it("should mark the game exhausted when the settings refetch returns no new questions.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      store.questions = Array.from({ length: 10 }, () => createFakeQuestion());
-      await nextTick();
-      game.advanceToNextQuestion();
-      await nextTick();
-      store.truncateQuestions.mockImplementation((length: number) => {
-        store.questions = store.questions.slice(0, length);
-      });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
-      store.fetchAndAppendRandomQuestions.mockResolvedValue(undefined);
-      await game.syncQuestionsWithGameSettings();
-      game.advanceToNextQuestion();
-      await nextTick();
-
-      expect(game.gameState.value).toBe("game-over");
-    });
-
-    it("should not mark the game exhausted when the settings refetch fails.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      store.questions = Array.from({ length: 3 }, () => createFakeQuestion());
-      await nextTick();
-      game.advanceToNextQuestion();
-      await nextTick();
-      store.truncateQuestions.mockImplementation((length: number) => {
-        store.questions = store.questions.slice(0, length);
-      });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
-      store.fetchAndAppendRandomQuestions.mockResolvedValue(undefined);
-      store.isError = true;
-
-      await game.syncQuestionsWithGameSettings();
-
-      expect(game.gameState.value).toBe("playing");
-    });
-
-    it("should keep the kept questions when the settings refetch fails.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      const fakeQuestions = Array.from({ length: 10 }, () => createFakeQuestion());
-      store.questions = fakeQuestions;
-      await nextTick();
-      for (let index = 0; index < 4; index++) {
-        game.advanceToNextQuestion();
-      }
-      await nextTick();
-      store.truncateQuestions.mockImplementation((length: number) => {
-        store.questions = store.questions.slice(0, length);
-      });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
-      store.fetchAndAppendRandomQuestions.mockResolvedValue(undefined);
-      store.isError = true;
-
-      await game.syncQuestionsWithGameSettings();
-
-      expect(store.questions).toStrictEqual(fakeQuestions.slice(0, 5));
-    });
-
-    it("should retry the fetch on the next question when the settings refetch fails.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const game = useGame();
-      store.questions = Array.from({ length: 3 }, () => createFakeQuestion());
-      await nextTick();
-      game.advanceToNextQuestion();
-      await nextTick();
-      store.truncateQuestions.mockImplementation((length: number) => {
-        store.questions = store.questions.slice(0, length);
-      });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
-      store.fetchAndAppendRandomQuestions.mockResolvedValue(undefined);
-      store.isError = true;
-      await game.syncQuestionsWithGameSettings();
-      store.fetchAndAppendRandomQuestions.mockClear();
-
-      game.advanceToNextQuestion();
-      await nextTick();
-      await flushPromises();
-
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledOnce();
-    });
-
-    it("should synchronize the questions when the active theme catalog loads and the derived filters change.", async() => {
+    it("should clear previously loaded questions before the initial fetch when mounted.", async() => {
       const initialWrapper = mount(defineComponent({
         setup(): () => null {
           useGame();
@@ -1083,11 +366,15 @@ describe("useGame", () => {
           return (): null => null;
         },
       }));
-      initialWrapper.unmount();
-      const settingsStore = mockStore(useGameSettingsStore);
-      const questionThemesStore = mockStore(useQuestionThemesStore);
       const store = mockStore(useGameStore);
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a", "theme-b"] });
+      await flushPromises();
+      initialWrapper.unmount();
+      store.fetchAndAppendRandomQuestions.mockClear();
+      store.questions = [createFakeQuestion(), createFakeQuestion()];
+      store.resetQuestions.mockImplementation(() => {
+        store.questions = [];
+      });
+
       const wrapper = mount(defineComponent({
         setup(): () => null {
           useGame();
@@ -1096,16 +383,9 @@ describe("useGame", () => {
         },
       }));
       await flushPromises();
-      store.fetchAndAppendRandomQuestions.mockClear();
-      questionThemesStore.questionThemes = [
-        createFakeQuestionTheme({ id: "theme-a", status: "active" }),
-        createFakeQuestionTheme({ id: "theme-b", status: "active" }),
-      ];
-      await nextTick();
-      await flushPromises();
       wrapper.unmount();
 
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY);
     });
   });
 });
