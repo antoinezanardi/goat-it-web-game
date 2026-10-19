@@ -98,3 +98,9 @@ Feature: 🔍 Technical SEO
   Scenario: 📋 Schema.org JSON-LD WebPage and WebSite structured data is injected on game page
     Given the user is on game page
     Then the page should contain schema.org WebPage and WebSite structured data
+
+  Scenario: 🤖 Indexable environment exposes crawler permissions
+    Given the user is on home page
+    Then the home response should expose an indexable X-Robots-Tag
+    And the user is on robots.txt page
+    Then the robots.txt response should allow crawling

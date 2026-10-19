@@ -32,4 +32,11 @@ type GameTutorialStep = {
   target?: string;
 };
 
-export type { GameTutorialEmits, GameTutorialProps, GameTutorialSpotlightRect, GameTutorialStep, GameTutorialStepDirection, GameTutorialStepKey };
+type GameTutorialPopoverContentConfig = {
+  "side": "bottom" | "top";
+  "sideOffset": number;
+  "aria-label": string | undefined;
+  "onEscapeKeyDown": (event: KeyboardEvent) => void;
+};
+
+export type { GameTutorialEmits, GameTutorialPopoverContentConfig, GameTutorialProps, GameTutorialSpotlightRect, GameTutorialStep, GameTutorialStepDirection, GameTutorialStepKey };

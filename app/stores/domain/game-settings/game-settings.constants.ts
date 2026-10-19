@@ -26,10 +26,17 @@ const GAME_SETTINGS_SCHEMA = z.object({
     .catch(undefined),
 });
 
+const GAME_SETTINGS_STRICT_SCHEMA = z.object({
+  isAdultContentEnabled: GAME_SETTINGS_SCHEMA.shape.isAdultContentEnabled.unwrap().optional(),
+  cognitiveDifficulties: GAME_SETTINGS_SCHEMA.shape.cognitiveDifficulties.unwrap().optional(),
+  categories: GAME_SETTINGS_SCHEMA.shape.categories.unwrap().optional(),
+  themeIds: GAME_SETTINGS_SCHEMA.shape.themeIds.unwrap().optional(),
+});
+
 const GAME_SETTINGS_DEFAULTS: GameSettings = {
   isAdultContentEnabled: false,
   cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
   categories: [...QUESTION_CATEGORIES],
 };
 
-export { GAME_SETTINGS_DEFAULTS, GAME_SETTINGS_SCHEMA };
+export { GAME_SETTINGS_DEFAULTS, GAME_SETTINGS_SCHEMA, GAME_SETTINGS_STRICT_SCHEMA };

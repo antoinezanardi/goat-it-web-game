@@ -176,6 +176,80 @@ describe("useGameSettingsCookie", () => {
 
       expect(secondRead).toStrictEqual(expectedDefaults);
     });
+
+    it("should not report a reset when the cookie is missing.", () => {
+      const { readGameSettingsCookie, wasGameSettingsReset } = useGameSettingsCookie();
+
+      readGameSettingsCookie();
+
+      expect(wasGameSettingsReset.value).toBe(false);
+    });
+
+    it("should report a reset when an existing cookie cannot be parsed.", () => {
+      useCookieMockState.cookieRef.value = "not-a-valid-settings-payload";
+      const { readGameSettingsCookie, wasGameSettingsReset } = useGameSettingsCookie();
+
+      readGameSettingsCookie();
+
+      expect(wasGameSettingsReset.value).toBe(true);
+    });
+
+    it.each<{ description: string; cookieValue: Record<string, unknown> }>([
+      { description: "an empty categories array", cookieValue: { categories: [] } },
+      { description: "an unknown category", cookieValue: { categories: ["unknown"] } },
+      { description: "an invalid adult content flag", cookieValue: { isAdultContentEnabled: "enabled" } },
+      { description: "an invalid theme ids value", cookieValue: { themeIds: "theme-a" } },
+    ])("should report a reset when $description is stored in the cookie.", ({ cookieValue }) => {
+      useCookieMockState.cookieRef.value = cookieValue;
+      const { readGameSettingsCookie, wasGameSettingsReset } = useGameSettingsCookie();
+
+      readGameSettingsCookie();
+
+      expect(wasGameSettingsReset.value).toBe(true);
+    });
+
+    it("should not report a reset when the cookie holds a legacy object omitting the filter fields.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: true };
+      const { readGameSettingsCookie, wasGameSettingsReset } = useGameSettingsCookie();
+
+      readGameSettingsCookie();
+
+      expect(wasGameSettingsReset.value).toBe(false);
+    });
+
+    it.each<{ description: string; cookieValue: Record<string, unknown> }>([
+      { description: "duplicated categories", cookieValue: { categories: ["trivia", "trivia"] } },
+      { description: "duplicated cognitive difficulties", cookieValue: { cognitiveDifficulties: ["easy", "easy"] } },
+    ])("should not report a reset when $description is stored in the cookie.", ({ cookieValue }) => {
+      useCookieMockState.cookieRef.value = cookieValue;
+      const { readGameSettingsCookie, wasGameSettingsReset } = useGameSettingsCookie();
+
+      readGameSettingsCookie();
+
+      expect(wasGameSettingsReset.value).toBe(false);
+    });
+  });
+
+  describe("acknowledgeSettingsReset", () => {
+    it("should clear the reset flag when called.", () => {
+      useCookieMockState.cookieRef.value = "not-a-valid-settings-payload";
+      const { readGameSettingsCookie, acknowledgeSettingsReset, wasGameSettingsReset } = useGameSettingsCookie();
+      readGameSettingsCookie();
+
+      acknowledgeSettingsReset();
+
+      expect(wasGameSettingsReset.value).toBe(false);
+    });
+
+    it("should repair the cookie with the defaults when called.", () => {
+      useCookieMockState.cookieRef.value = "not-a-valid-settings-payload";
+      const { readGameSettingsCookie, acknowledgeSettingsReset } = useGameSettingsCookie();
+      readGameSettingsCookie();
+
+      acknowledgeSettingsReset();
+
+      expect(useCookieMockState.cookieRef.value).toStrictEqual(GAME_SETTINGS_DEFAULTS);
+    });
   });
 
   describe("writeGameSettingsCookie", () => {

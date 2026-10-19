@@ -385,6 +385,17 @@ Feature domains own scenarios/tags; step domains own reusable Gherkin steps; cro
 
 Do not add a new root folder simply because a concept is shared. Pick an established runtime boundary and domain first. If no existing category fits, propose the boundary and update this guide through an approved design.
 
+### 9.1 Environment indexability
+
+`site.env` in `nuxt.config.ts` controls whether `@nuxtjs/robots` treats the deployment as indexable, and the same value gates the sitemap. It resolves from `NUXT_SITE_ENV`, falling back to `production` only when `NODE_ENV` is `production`; every other value is treated as non-production.
+
+- Production builds must set `NUXT_SITE_ENV=production`.
+- Staging builds must set `NUXT_SITE_ENV=staging` **at build time** (the Docker build stage serializes the value into the generated site config) and carry the same value at runtime.
+- Local development uses `NUXT_SITE_ENV=development`.
+- Acceptance builds intentionally use `production` so the SEO scenarios assert the indexable contract.
+
+Non-production also disables the sitemap (`sitemap.enabled`), because `@nuxtjs/sitemap` does not filter URLs by site indexability. Do not set `site.indexable` directly: an explicit value overrides the environment-derived behavior and reopens the staging indexing bug.
+
 ## 10. Agent and workflow compliance
 
 This document is canonical. Do not copy its full contents into every prompt. Every agent, skill, or command that can plan or cause project files to be created, edited, or moved must require consulting `docs/architecture.md` before that work.

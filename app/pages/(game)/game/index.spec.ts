@@ -299,8 +299,8 @@ describe("Game Page", () => {
   });
 
   it("should pass the apply pending state as isApplyPending to the filters modal when a refresh is pending.", async() => {
-    let resolveSynchronization: (() => void) | undefined;
-    useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<void>(resolve => {
+    let resolveSynchronization: ((value: boolean) => void) | undefined;
+    useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<boolean>(resolve => {
       resolveSynchronization = resolve;
     }));
     getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
@@ -312,7 +312,7 @@ describe("Game Page", () => {
 
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isApplyPending")).toBe(true);
 
-    resolveSynchronization?.();
+    resolveSynchronization?.(true);
     await flushPromises();
   });
 
@@ -526,6 +526,82 @@ describe("Game Page", () => {
     wrapper.unmount();
 
     expect(useAppToastMock.instance.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+  });
+
+  it("should render GameFetchError when gameState is error.", async() => {
+    useGameMock.instance.gameStateRef.value = "error";
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameFetchError" }).exists()).toBe(true);
+  });
+
+  it("should call retry when GameFetchError emits retry.", async() => {
+    useGameMock.instance.gameStateRef.value = "error";
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameFetchError" })).$emit("retry");
+    await nextTick();
+
+    expect(useGameMock.instance.retry).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("should render GameEmptyFilters when gameState is empty-filters.", async() => {
+    useGameMock.instance.gameStateRef.value = "empty-filters";
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: "GameEmptyFilters" }).exists()).toBe(true);
+  });
+
+  it("should call resetFilters when GameEmptyFilters emits reset-filters.", async() => {
+    useGameMock.instance.gameStateRef.value = "empty-filters";
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameEmptyFilters" })).$emit("resetFilters");
+    await nextTick();
+
+    expect(useGameMock.instance.resetFilters).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("should render the inert page content wrapper when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-page-content']").exists()).toBe(true);
+  });
+
+  it("should not mark the page content inert when the tutorial is closed.", () => {
+    expect(wrapper.find("[data-testid='game-page-content']").attributes("inert")).toBeUndefined();
+  });
+
+  it("should mark the page content inert when the tutorial is requested.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid='game-page-content']").attributes("inert")).toBe("");
+  });
+
+  it("should remove inert from the page content when the tutorial ends.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    await flushPromises();
+    getWrapperVm(wrapper.findComponent({ name: "GameTutorial" })).$emit("tutorialEnd");
+    await nextTick();
+
+    expect(wrapper.find("[data-testid='game-page-content']").attributes("inert")).toBeUndefined();
+  });
+
+  it("should keep GameTutorial outside the inert page content wrapper when the tutorial is available.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    expect({
+      isRendered: wrapper.findComponent({ name: "GameTutorial" }).exists(),
+      isInsidePageContent: wrapper.find("[data-testid='game-page-content']").findComponent({ name: "GameTutorial" }).exists(),
+    }).toStrictEqual({
+      isRendered: true,
+      isInsidePageContent: false,
+    });
   });
 
   describe("areShortcutsDisabled state", () => {

@@ -18,13 +18,14 @@ function useGameSettingsSync(options: UseGameSettingsSyncOptions): UseGameSettin
     appliedFetchFilters.value = fetchFilters.value;
   }
 
-  async function syncQuestionsWithGameSettings(): Promise<void> {
+  async function syncQuestionsWithGameSettings(): Promise<boolean> {
     if (isEqual(fetchFilters.value, appliedFetchFilters.value)) {
-      return;
+      return true;
     }
     await until(isPending).toBe(false);
     markFetchFiltersApplied();
-    await options.restartFromCurrentIndex();
+
+    return options.restartFromCurrentIndex();
   }
 
   watch(() => questionThemesStore.activeQuestionThemeIds, async() => {

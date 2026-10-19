@@ -2,7 +2,7 @@ import { QUESTION_CATEGORIES } from "@goat-it/schemas/question";
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { nextTick } from "vue";
+import { nextTick, ref } from "vue";
 
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
@@ -34,6 +34,8 @@ let useGameQuestionsFilters: typeof UseGameQuestionsFiltersType;
 mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
   readGameSettingsCookie: (): GameSettings => GAME_SETTINGS_DEFAULTS,
   writeGameSettingsCookie: vi.fn<UseGameSettingsCookie["writeGameSettingsCookie"]>(),
+  wasGameSettingsReset: ref<boolean>(false),
+  acknowledgeSettingsReset: vi.fn<UseGameSettingsCookie["acknowledgeSettingsReset"]>(),
 }));
 
 describe("useGameQuestionsFilters", () => {

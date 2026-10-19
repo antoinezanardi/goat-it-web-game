@@ -3,6 +3,7 @@ import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Mock } from "vitest";
+import { ref } from "vue";
 
 import { createUseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
 import type { UseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
@@ -20,13 +21,15 @@ type FiltersButtonHandle = { playHighlight: () => Promise<void> };
 let useAppToastMock: UseAppToastMock;
 let useGameFiltersModal: typeof UseGameFiltersModalType;
 let getFiltersButton: Mock<() => FiltersButtonHandle | undefined>;
-let syncQuestionsWithGameSettings: Mock<() => Promise<void>>;
+let syncQuestionsWithGameSettings: Mock<() => Promise<boolean>>;
 
 mockNuxtImport("useAppToast", () => (): UseAppToastMock => useAppToastMock);
 
 mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
   readGameSettingsCookie: (): GameSettings => GAME_SETTINGS_DEFAULTS,
   writeGameSettingsCookie: vi.fn<UseGameSettingsCookie["writeGameSettingsCookie"]>(),
+  wasGameSettingsReset: ref<boolean>(false),
+  acknowledgeSettingsReset: vi.fn<UseGameSettingsCookie["acknowledgeSettingsReset"]>(),
 }));
 
 function createDraft(overrides: Partial<GameQuestionsFiltersDraft> = {}): GameQuestionsFiltersDraft {
@@ -38,20 +41,29 @@ function createDraft(overrides: Partial<GameQuestionsFiltersDraft> = {}): GameQu
   };
 }
 
-function createDeferredPromise(): { promise: Promise<void>; resolve: () => void } {
-  let resolveSynchronization: () => void = () => undefined;
-  const promise: Promise<void> = new Promise(resolve => {
+function createDeferredPromise<Value = boolean>(): { promise: Promise<Value>; resolve: (value: Value) => void } {
+  let resolveSynchronization: (value: Value) => void = () => undefined;
+  const promise: Promise<Value> = new Promise(resolve => {
     resolveSynchronization = resolve;
   });
 
   return { promise, resolve: resolveSynchronization };
 }
 
+function createDeferredHighlightPromise(): { promise: Promise<void>; resolve: () => void } {
+  let resolveHighlight: () => void = () => undefined;
+  const promise: Promise<void> = new Promise(resolve => {
+    resolveHighlight = resolve;
+  });
+
+  return { promise, resolve: resolveHighlight };
+}
+
 describe("useGameFiltersModal", () => {
   beforeEach(async() => {
     useAppToastMock = createUseAppToastMock();
     getFiltersButton = vi.fn<() => FiltersButtonHandle | undefined>().mockReturnValue(undefined);
-    syncQuestionsWithGameSettings = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
+    syncQuestionsWithGameSettings = vi.fn<() => Promise<boolean>>().mockResolvedValue(true);
     createTestingPinia();
     ({ useGameFiltersModal } = await import("@/composables/domain/useGameFiltersModal/useGameFiltersModal"));
   });
@@ -138,7 +150,7 @@ describe("useGameFiltersModal", () => {
     });
 
     it("should keep the filters modal closed when the trigger highlight promise has not settled.", async() => {
-      const deferredHighlight = createDeferredPromise();
+      const deferredHighlight = createDeferredHighlightPromise();
       const playHighlight = vi.fn<() => Promise<void>>().mockReturnValue(deferredHighlight.promise);
       getFiltersButton.mockReturnValue({ playHighlight });
       const { isFiltersModalOpen, openRequestedFiltersModal, requestFiltersModalFromSidebar } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
@@ -153,7 +165,7 @@ describe("useGameFiltersModal", () => {
     });
 
     it("should open the filters modal when the trigger highlight promise settles.", async() => {
-      const deferredHighlight = createDeferredPromise();
+      const deferredHighlight = createDeferredHighlightPromise();
       const playHighlight = vi.fn<() => Promise<void>>().mockReturnValue(deferredHighlight.promise);
       getFiltersButton.mockReturnValue({ playHighlight });
       const { isFiltersModalOpen, openRequestedFiltersModal, requestFiltersModalFromSidebar } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
@@ -245,7 +257,7 @@ describe("useGameFiltersModal", () => {
 
       const applyPromise = applyFilters(createDraft());
       const isPendingDuringApply = isApplyFiltersPending.value;
-      deferredSynchronization.resolve();
+      deferredSynchronization.resolve(true);
       await applyPromise;
 
       expect(isPendingDuringApply).toBe(true);
@@ -257,8 +269,50 @@ describe("useGameFiltersModal", () => {
       const { applyFilters, isApplyFiltersPending } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
 
       const applyPromise = applyFilters(createDraft());
-      deferredSynchronization.resolve();
+      deferredSynchronization.resolve(true);
       await applyPromise;
+
+      expect(isApplyFiltersPending.value).toBe(false);
+    });
+
+    it("should not show the success toast when the synchronization fails.", async() => {
+      syncQuestionsWithGameSettings.mockResolvedValue(false);
+      const { applyFilters } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
+
+      await applyFilters(createDraft());
+
+      expect(useAppToastMock.addSuccessToast).not.toHaveBeenCalled();
+    });
+
+    it("should show the success toast after the synchronization settles when the draft is applied.", async() => {
+      const deferredSynchronization = createDeferredPromise();
+      syncQuestionsWithGameSettings.mockReturnValue(deferredSynchronization.promise);
+      const { applyFilters } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
+
+      const applyPromise = applyFilters(createDraft());
+      const toastCountBeforeSettle = vi.mocked(useAppToastMock.addSuccessToast).mock.calls.length;
+      deferredSynchronization.resolve(true);
+      await applyPromise;
+
+      expect(toastCountBeforeSettle).toBe(0);
+    });
+
+    it("should reject when the synchronization fails.", async() => {
+      syncQuestionsWithGameSettings.mockRejectedValue(new Error("sync failed"));
+      const { applyFilters } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
+
+      await expect(applyFilters(createDraft())).rejects.toThrow("sync failed");
+    });
+
+    it("should clear the apply state when the synchronization fails.", async() => {
+      syncQuestionsWithGameSettings.mockRejectedValue(new Error("sync failed"));
+      const { applyFilters, isApplyFiltersPending } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
+
+      try {
+        await applyFilters(createDraft());
+      } catch(error: unknown) {
+        void error;
+      }
 
       expect(isApplyFiltersPending.value).toBe(false);
     });

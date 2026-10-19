@@ -5,7 +5,7 @@ type GameQuestionsFiltersButtonHandle = {
 };
 
 type UseGameFiltersModalOptions = {
-  syncQuestionsWithGameSettings: () => Promise<void>;
+  syncQuestionsWithGameSettings: () => Promise<boolean>;
   getFiltersButton: () => GameQuestionsFiltersButtonHandle | undefined;
 };
 

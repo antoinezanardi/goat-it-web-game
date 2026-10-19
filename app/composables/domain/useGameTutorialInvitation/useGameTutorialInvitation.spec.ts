@@ -397,6 +397,68 @@ describe("useGameTutorialInvitation", () => {
     });
   });
 
+  describe("error and empty filters terminal states", () => {
+    it("should remove the invitation toast when the game reaches error.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "error";
+      isTutorialAvailable.value = false;
+      await nextTick();
+
+      expect(useAppToastMock.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+    });
+
+    it("should not persist the decision cookie when the game reaches error.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "error";
+      isTutorialAvailable.value = false;
+      await nextTick();
+
+      expect(useCookieMockState.cookieRef.value).toBeNull();
+    });
+
+    it("should remove the invitation toast when the game reaches empty-filters.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "empty-filters";
+      isTutorialAvailable.value = false;
+      await nextTick();
+
+      expect(useAppToastMock.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+    });
+
+    it("should not persist the decision cookie when the game reaches empty-filters.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "empty-filters";
+      isTutorialAvailable.value = false;
+      await nextTick();
+
+      expect(useCookieMockState.cookieRef.value).toBeNull();
+    });
+
+    it("should not re-add the invitation toast when a playable state follows error.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "error";
+      isTutorialAvailable.value = false;
+      await nextTick();
+      gameState.value = "playing";
+      isTutorialAvailable.value = true;
+      await nextTick();
+
+      expect(useAppToastMock.addInfoToast).toHaveBeenCalledOnce();
+    });
+
+    it("should not re-add the invitation toast when a playable state follows empty-filters.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "empty-filters";
+      isTutorialAvailable.value = false;
+      await nextTick();
+      gameState.value = "playing";
+      isTutorialAvailable.value = true;
+      await nextTick();
+
+      expect(useAppToastMock.addInfoToast).toHaveBeenCalledOnce();
+    });
+  });
+
   describe("cleanup", () => {
     it("should remove the invitation toast when the component unmounts.", async() => {
       await reachFirstPlayableState();

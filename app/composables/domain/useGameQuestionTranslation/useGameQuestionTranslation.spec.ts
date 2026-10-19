@@ -183,7 +183,7 @@ describe("useGameQuestionTranslation", () => {
       locale.value = "fr";
       await flushPromises();
 
-      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, "questions.cantFetch");
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, "questions.cantFetch", "questions-translation");
     });
 
     it("should not replace the questions when the by ids fetch fails.", async() => {

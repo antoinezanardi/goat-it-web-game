@@ -25,6 +25,8 @@ const {
   currentQuestion,
   gameState,
   goToPreviousQuestion,
+  resetFilters,
+  retry,
   isFetchingQuestions,
   isTranslating,
   questions,
@@ -88,72 +90,88 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
     class="bg-app-bg flex flex-col game-theme-scope md:px-6 min-h-dvh overflow-hidden px-4"
     :style="{ '--game-theme-color': pageThemeColor }"
   >
-    <h1 class="sr-only">
-      {{ gamePageTitle }}
-    </h1>
+    <div
+      class="contents"
+      data-testid="game-page-content"
+      :inert="isTourRequested"
+    >
+      <h1 class="sr-only">
+        {{ gamePageTitle }}
+      </h1>
 
-    <GameSidebarToggleButton
-      class="absolute left-4 top-4 z-20"
-      @click="openSidebar"
-    />
-
-    <div class="absolute right-4 top-4 z-20">
-      <GameQuestionsFiltersButton
-        ref="filtersButton"
-        @click="openFiltersModal"
+      <GameSidebarToggleButton
+        class="absolute left-4 top-4 z-20"
+        @click="openSidebar"
       />
+
+      <div class="absolute right-4 top-4 z-20">
+        <GameQuestionsFiltersButton
+          ref="filtersButton"
+          @click="openFiltersModal"
+        />
+      </div>
+
+      <GameSidebar
+        :is-open="isSidebarOpen"
+        :is-tutorial-available="isTutorialAvailable"
+        @after:leave="openRequestedFiltersModal"
+        @open-filters="onOpenFiltersFromSidebar"
+        @open-settings="onOpenSettings"
+        @start-tutorial="startTutorialFromSidebar"
+        @update:is-open="setSidebarOpen"
+      />
+
+      <GameSettingsModal
+        :is-fetching-questions="isFetchingQuestions"
+        :is-open="isSettingsModalOpen"
+        @update:is-open="setSettingsModalOpen"
+      />
+
+      <GameQuestionsFiltersModal
+        :is-apply-pending="isApplyFiltersPending"
+        :is-open="isFiltersModalOpen"
+        @apply-filters="applyFilters"
+        @update:is-open="setFiltersModalOpen"
+      />
+
+      <Transition
+        mode="out-in"
+        name="fade-slide-up"
+      >
+        <GameLoading
+          v-if="isTranslating || gameState === 'loading'"
+          :is-translating="isTranslating"
+        />
+
+        <GamePlaying
+          v-else-if="gameState === 'playing' && currentQuestion"
+          :are-shortcuts-disabled="areShortcutsDisabled"
+          :can-go-to-previous-question="canGoToPreviousQuestion"
+          :current-index="currentIndex"
+          :current-question="currentQuestion"
+          :questions="questions"
+          @advance="advanceToNextQuestion"
+          @previous="goToPreviousQuestion"
+        />
+
+        <GameFetchError
+          v-else-if="gameState === 'error'"
+          @retry="retry"
+        />
+
+        <GameEmptyFilters
+          v-else-if="gameState === 'empty-filters'"
+          @reset-filters="resetFilters"
+        />
+
+        <GameNoMoreQuestions v-else/>
+      </Transition>
     </div>
-
-    <GameSidebar
-      :is-open="isSidebarOpen"
-      :is-tutorial-available="isTutorialAvailable"
-      @after:leave="openRequestedFiltersModal"
-      @open-filters="onOpenFiltersFromSidebar"
-      @open-settings="onOpenSettings"
-      @start-tutorial="startTutorialFromSidebar"
-      @update:is-open="setSidebarOpen"
-    />
-
-    <GameSettingsModal
-      :is-fetching-questions="isFetchingQuestions"
-      :is-open="isSettingsModalOpen"
-      @update:is-open="setSettingsModalOpen"
-    />
-
-    <GameQuestionsFiltersModal
-      :is-apply-pending="isApplyFiltersPending"
-      :is-open="isFiltersModalOpen"
-      @apply-filters="applyFilters"
-      @update:is-open="setFiltersModalOpen"
-    />
 
     <GameTutorial
       v-if="isTutorialAvailable"
       :is-active="isTourRequested"
       @tutorial-end="endTour"
     />
-
-    <Transition
-      mode="out-in"
-      name="fade-slide-up"
-    >
-      <GameLoading
-        v-if="isTranslating || gameState === 'loading'"
-        :is-translating="isTranslating"
-      />
-
-      <GamePlaying
-        v-else-if="gameState === 'playing' && currentQuestion"
-        :are-shortcuts-disabled="areShortcutsDisabled"
-        :can-go-to-previous-question="canGoToPreviousQuestion"
-        :current-index="currentIndex"
-        :current-question="currentQuestion"
-        :questions="questions"
-        @advance="advanceToNextQuestion"
-        @previous="goToPreviousQuestion"
-      />
-
-      <GameNoMoreQuestions v-else/>
-    </Transition>
   </div>
 </template>

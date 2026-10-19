@@ -23,9 +23,12 @@ const GAME_QUESTIONS_FILTER_GROUP_DEFINITIONS: readonly GameQuestionsFilterGroup
   },
   {
     buildFetchFilter: (settings, activeThemeIds) => {
+      if (activeThemeIds.length === 0) {
+        return {};
+      }
       const selectedThemeIds = resolveSelectedThemeIds(settings.themeIds, activeThemeIds);
 
-      return selectedThemeIds !== undefined && (activeThemeIds.length === 0 || selectedThemeIds.length < activeThemeIds.length) ? { themeIds: selectedThemeIds } : {};
+      return selectedThemeIds !== undefined && selectedThemeIds.length < activeThemeIds.length ? { themeIds: selectedThemeIds } : {};
     },
     isActiveInQuestionFiltersUi: (settings, activeThemeIds) => {
       const selectedThemeIds = resolveSelectedThemeIds(settings.themeIds, activeThemeIds);

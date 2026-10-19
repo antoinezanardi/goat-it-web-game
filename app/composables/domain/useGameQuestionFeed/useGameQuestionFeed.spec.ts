@@ -12,6 +12,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
+import type { Question } from "#shared/types/question.types";
 import type { useGameQuestionFeed as UseGameQuestionFeedType } from "@/composables/domain/useGameQuestionFeed/useGameQuestionFeed";
 import type { UseGameSettingsCookie } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM } from "@/composables/domain/useGameQuestionFeed/use-game-question-feed.constants";
@@ -40,6 +41,8 @@ mockNuxtImport("useGoatItApiErrorToast", () => (): UseGoatItApiErrorToastMock =>
 mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
   readGameSettingsCookie: (): GameSettings => GAME_SETTINGS_DEFAULTS,
   writeGameSettingsCookie: vi.fn<UseGameSettingsCookie["writeGameSettingsCookie"]>(),
+  wasGameSettingsReset: ref<boolean>(false),
+  acknowledgeSettingsReset: vi.fn<UseGameSettingsCookie["acknowledgeSettingsReset"]>(),
 }));
 
 describe("useGameQuestionFeed", () => {
@@ -125,7 +128,7 @@ describe("useGameQuestionFeed", () => {
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
     });
 
-    it("should send the saved theme ids as-is in the initial fetch body when no catalog is available.", async() => {
+    it("should omit the saved theme ids from the initial fetch body when no catalog is available.", async() => {
       const settingsStore = mockStore(useGameSettingsStore);
       const store = mockStore(useGameStore);
       const feed = useGameQuestionFeed({ currentIndex: ref(0) });
@@ -133,10 +136,7 @@ describe("useGameQuestionFeed", () => {
 
       await feed.initialize();
 
-      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
-        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-        themeIds: ["theme-a"],
-      });
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY);
     });
 
     it("should include only the narrowed active theme ids in the initial fetch body when a catalog is available.", async() => {
@@ -215,7 +215,7 @@ describe("useGameQuestionFeed", () => {
 
       await feed.initialize();
 
-      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, "questions.cantFetch");
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, "questions.cantFetch", "questions");
     });
 
     it("should not append questions when a fetch fails.", async() => {
@@ -228,6 +228,86 @@ describe("useGameQuestionFeed", () => {
       await feed.initialize();
 
       expect(feed.questions.value).toStrictEqual(existingQuestions);
+    });
+
+    it("should expose a fetch error and not exhaustion when the initial fetch fails.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
+
+      await feed.initialize();
+
+      expect({ hasFetchError: feed.hasFetchError.value, isExhausted: feed.isExhausted.value }).toStrictEqual({ hasFetchError: true, isExhausted: false });
+    });
+
+    it("should clear the fetch error when a later initialize succeeds.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      store.fetchAndAppendRandomQuestions.mockResolvedValueOnce({ ok: false, error: new Error("fetch failed") });
+      await feed.initialize();
+      store.fetchAndAppendRandomQuestions.mockResolvedValueOnce({ ok: true, value: [createFakeQuestion()] });
+
+      await feed.initialize();
+
+      expect(feed.hasFetchError.value).toBe(false);
+    });
+
+    it("should not flag an empty-filter state when a successful empty fetch has no narrowing filters.", async() => {
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+
+      await feed.initialize();
+
+      expect(feed.isEmptyWithFilters.value).toBe(false);
+    });
+
+    it("should flag an empty-filter state and not exhaustion when a successful empty fetch narrows categories.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, categories: ["trivia"] });
+
+      await feed.initialize();
+
+      expect({ isEmptyWithFilters: feed.isEmptyWithFilters.value, isExhausted: feed.isExhausted.value }).toStrictEqual({ isEmptyWithFilters: true, isExhausted: false });
+    });
+
+    it("should flag an empty-filter state when a successful empty fetch narrows cognitive difficulties.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, cognitiveDifficulties: ["easy"] });
+
+      await feed.initialize();
+
+      expect(feed.isEmptyWithFilters.value).toBe(true);
+    });
+
+    it("should flag an empty-filter state when a successful empty fetch narrows themes.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const questionThemesStore = mockStore(useQuestionThemesStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a"] });
+      questionThemesStore.questionThemes = [
+        createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+        createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+      ];
+
+      await feed.initialize();
+
+      expect(feed.isEmptyWithFilters.value).toBe(true);
+    });
+
+    it("should clear the empty-filter state when a later fetch returns questions.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, categories: ["trivia"] });
+      await feed.initialize();
+      const fetchedQuestion = createFakeQuestion();
+      store.questions = [fetchedQuestion];
+      store.fetchAndAppendRandomQuestions.mockResolvedValueOnce({ ok: true, value: [fetchedQuestion] });
+
+      await feed.retry();
+
+      expect(feed.isEmptyWithFilters.value).toBe(false);
     });
   });
 
@@ -342,17 +422,19 @@ describe("useGameQuestionFeed", () => {
       const currentIndex = ref<number>(0);
       useGameQuestionFeed({ currentIndex });
       const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
+      const appendedQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
+      const allQuestions = [...fakeQuestions, ...appendedQuestions];
       let resolvePendingFetch: (() => void) | undefined;
       store.fetchAndAppendRandomQuestions.mockClear();
-      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => new Promise<{ ok: true; value: [] }>(resolve => {
-        resolvePendingFetch = (): void => resolve({ ok: true, value: [] });
+      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => new Promise<{ ok: true; value: Question[] }>(resolve => {
+        resolvePendingFetch = (): void => resolve({ ok: true, value: appendedQuestions });
       }));
       store.questions = fakeQuestions;
       await nextTick();
       currentIndex.value = 20;
       await nextTick();
       await flushPromises();
-      store.questions = [...fakeQuestions, ...Array.from({ length: 25 }, () => createFakeQuestion())];
+      store.questions = allQuestions;
       await nextTick();
       currentIndex.value = 40;
       await nextTick();
@@ -385,17 +467,18 @@ describe("useGameQuestionFeed", () => {
       const currentIndex = ref<number>(0);
       useGameQuestionFeed({ currentIndex });
       const fakeQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
+      const appendedQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
+      const allQuestions = [...fakeQuestions, ...appendedQuestions];
       let resolvePendingFetch: (() => void) | undefined;
       store.fetchAndAppendRandomQuestions.mockClear();
-      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => new Promise<{ ok: true; value: [] }>(resolve => {
-        resolvePendingFetch = (): void => resolve({ ok: true, value: [] });
+      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => new Promise<{ ok: true; value: Question[] }>(resolve => {
+        resolvePendingFetch = (): void => resolve({ ok: true, value: appendedQuestions });
       }));
       store.questions = fakeQuestions;
       await nextTick();
       currentIndex.value = 20;
       await nextTick();
       await flushPromises();
-      const allQuestions = [...fakeQuestions, ...Array.from({ length: 25 }, () => createFakeQuestion())];
       store.questions = allQuestions;
       await nextTick();
       resolvePendingFetch?.();
@@ -454,6 +537,42 @@ describe("useGameQuestionFeed", () => {
         isAdultContent: false,
       });
     });
+
+    it("should not mark the game exhausted when a prefetch fails.", async() => {
+      const store = mockStore(useGameStore);
+      const currentIndex = ref<number>(0);
+      const feed = useGameQuestionFeed({ currentIndex });
+      store.questions = [createFakeQuestion()];
+      await nextTick();
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
+
+      currentIndex.value = 1;
+      await nextTick();
+      await flushPromises();
+
+      expect({ hasFetchError: feed.hasFetchError.value, isExhausted: feed.isExhausted.value }).toStrictEqual({ hasFetchError: true, isExhausted: false });
+    });
+
+    it("should fetch again when retry is called after a prefetch failure.", async() => {
+      const store = mockStore(useGameStore);
+      const currentIndex = ref<number>(0);
+      const feed = useGameQuestionFeed({ currentIndex });
+      store.questions = [createFakeQuestion()];
+      await nextTick();
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
+      currentIndex.value = 1;
+      await nextTick();
+      await flushPromises();
+      store.fetchAndAppendRandomQuestions.mockClear();
+
+      await feed.retry();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
+        limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
+        excludedIds: store.questions.toReversed().map(question => question.id),
+        isAdultContent: false,
+      });
+    });
   });
 
   describe("restartFromCurrentIndex", () => {
@@ -498,7 +617,7 @@ describe("useGameQuestionFeed", () => {
       store.truncateQuestions.mockImplementation((length: number) => {
         store.questions = store.questions.slice(0, length);
       });
-      settingsStore.settings = createFakeGameSettings({ isAdultContentEnabled: true });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
 
       await feed.restartFromCurrentIndex();
 
@@ -610,6 +729,45 @@ describe("useGameQuestionFeed", () => {
       await flushPromises();
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledOnce();
+    });
+
+    it("should return true when the refetch succeeds.", async() => {
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+
+      await expect(feed.restartFromCurrentIndex()).resolves.toBe(true);
+    });
+
+    it("should return false when the refetch fails.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
+
+      await expect(feed.restartFromCurrentIndex()).resolves.toBe(false);
+    });
+
+    it("should expose the empty-filter state when the refetch succeeds with narrowed filters and no questions.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, categories: ["trivia"] });
+
+      await feed.restartFromCurrentIndex();
+
+      expect(feed.isEmptyWithFilters.value).toBe(true);
+    });
+
+    it("should clear the empty-filter state when the refetch succeeds with questions.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, categories: ["trivia"] });
+      await feed.restartFromCurrentIndex();
+      const fetchedQuestion = createFakeQuestion();
+      store.questions = [fetchedQuestion];
+      store.fetchAndAppendRandomQuestions.mockResolvedValueOnce({ ok: true, value: [fetchedQuestion] });
+
+      await feed.restartFromCurrentIndex();
+
+      expect(feed.isEmptyWithFilters.value).toBe(false);
     });
   });
 });

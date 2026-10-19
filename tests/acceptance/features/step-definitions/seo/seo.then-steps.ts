@@ -43,6 +43,26 @@ Then(
 );
 
 Then(
+  /^the home response should expose an indexable X-Robots-Tag$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const response = await this.page.request.get(new URL(this.page.url()).origin);
+    const robotsHeader = response.headers()["x-robots-tag"];
+
+    expect(robotsHeader).toMatch(/(?:^|,\s*)index(?:,|$)/u);
+    expect(robotsHeader).not.toContain("noindex");
+  },
+);
+
+Then(
+  /^the robots.txt response should allow crawling$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const content = await this.page.locator("body").textContent();
+
+    expect(content).toContain("# START nuxt-robots (indexable)");
+  },
+);
+
+Then(
   /^the sitemap.xml should contain the route "(?<route>[^"]*)"$/u,
   async function(this: GoatItWorld, route: string): Promise<void> {
     const content = await fetchSitemapXml(this.page);

@@ -74,7 +74,7 @@ describe(buildGameSettingsFetchFilters, () => {
       case: "theme ids are saved with no active theme catalog",
       settings: { themeIds: ["theme-a"] },
       activeThemeIds: [],
-      expected: { themeIds: ["theme-a"] },
+      expected: {},
     },
     {
       case: "no theme ids are saved with no active theme catalog",
@@ -166,13 +166,13 @@ describe(buildGameSettingsFetchFilters, () => {
     });
   });
 
-  it("should narrow the fetch by saved theme ids while the UI stays inactive when no active theme catalog is available.", () => {
+  it("should not narrow the fetch by saved theme ids when no active theme catalog is available.", () => {
     const themeIdsDefinition = getFilterGroupDefinition(3);
     const settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, themeIds: ["theme-a"] });
 
     expect({
       fetchFilters: themeIdsDefinition.buildFetchFilter(settings, []),
       isActiveInQuestionFiltersUi: themeIdsDefinition.isActiveInQuestionFiltersUi(settings, []),
-    }).toStrictEqual({ fetchFilters: { themeIds: ["theme-a"] }, isActiveInQuestionFiltersUi: false });
+    }).toStrictEqual({ fetchFilters: {}, isActiveInQuestionFiltersUi: false });
   });
 });

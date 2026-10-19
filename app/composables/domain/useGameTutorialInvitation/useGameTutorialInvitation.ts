@@ -10,6 +10,8 @@ import type {
   UseGameTutorialInvitation,
 } from "@/composables/domain/useGameTutorialInvitation/use-game-tutorial-invitation.types";
 
+const TERMINAL_GAME_STATES: Set<GamePageState> = new Set(["game-over", "error", "empty-filters"]);
+
 function preventDismissal(event: Event): void {
   event.preventDefault();
 }
@@ -83,7 +85,7 @@ function useGameTutorialInvitation(options: GameTutorialInvitationOptions): UseG
   }
 
   function observeInvitation(isTutorialAvailable: boolean, gameState: GamePageState): void {
-    if (gameState === "game-over") {
+    if (TERMINAL_GAME_STATES.has(gameState)) {
       removeInvitation();
 
       return;

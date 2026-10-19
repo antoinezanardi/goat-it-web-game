@@ -2,7 +2,7 @@ import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/s
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { nextTick } from "vue";
+import { nextTick, ref } from "vue";
 
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
@@ -26,6 +26,8 @@ let useGameFetchFilters: typeof UseGameFetchFiltersType;
 mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
   readGameSettingsCookie: (): GameSettings => GAME_SETTINGS_DEFAULTS,
   writeGameSettingsCookie: vi.fn<UseGameSettingsCookie["writeGameSettingsCookie"]>(),
+  wasGameSettingsReset: ref<boolean>(false),
+  acknowledgeSettingsReset: vi.fn<UseGameSettingsCookie["acknowledgeSettingsReset"]>(),
 }));
 
 describe("useGameFetchFilters", () => {
@@ -65,9 +67,12 @@ describe("useGameFetchFilters", () => {
 
     const { fetchFilters } = useGameFetchFilters();
     const initialFetchFilters = fetchFilters.value;
-    questionThemesStore.questionThemes = [createFakeQuestionTheme({ id: "theme-a", status: "active" })];
+    questionThemesStore.questionThemes = [
+      createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+      createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+    ];
     await nextTick();
 
-    expect([initialFetchFilters, fetchFilters.value]).toStrictEqual([{ themeIds: ["theme-a"] }, {}]);
+    expect([initialFetchFilters, fetchFilters.value]).toStrictEqual([{}, { themeIds: ["theme-a"] }]);
   });
 });

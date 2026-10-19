@@ -126,4 +126,51 @@ describe("useGameSettingsStore", () => {
       expect(useCookieMockState.cookieRef.value).toStrictEqual({ ...settings, themeIds: ["theme-a"] });
     });
   });
+
+  describe("resetSettings", () => {
+    it("should restore the default settings when called.", () => {
+      const store = useGameSettingsStore();
+      store.settings = createFakeGameSettings({ isAdultContentEnabled: true, categories: ["trivia"] });
+
+      store.resetSettings();
+
+      expect(store.settings).toStrictEqual(GAME_SETTINGS_DEFAULTS);
+    });
+
+    it("should write the default settings to the cookie when called.", () => {
+      const store = useGameSettingsStore();
+      store.settings = createFakeGameSettings({ isAdultContentEnabled: true, categories: ["trivia"] });
+
+      store.resetSettings();
+
+      expect(useCookieMockState.cookieRef.value).toStrictEqual(GAME_SETTINGS_DEFAULTS);
+    });
+  });
+
+  describe("wasGameSettingsReset", () => {
+    it("should be true when an existing settings cookie was corrupt.", () => {
+      useCookieMockState.cookieRef.value = "not-a-valid-settings-payload";
+      const store = useGameSettingsStore();
+
+      expect(store.wasGameSettingsReset).toBe(true);
+    });
+
+    it("should be false when the settings cookie is valid.", () => {
+      useCookieMockState.cookieRef.value = createFakeGameSettings();
+      const store = useGameSettingsStore();
+
+      expect(store.wasGameSettingsReset).toBe(false);
+    });
+  });
+
+  describe("acknowledgeSettingsReset", () => {
+    it("should clear the reset flag when called.", () => {
+      useCookieMockState.cookieRef.value = "not-a-valid-settings-payload";
+      const store = useGameSettingsStore();
+
+      store.acknowledgeSettingsReset();
+
+      expect(store.wasGameSettingsReset).toBe(false);
+    });
+  });
 });

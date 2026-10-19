@@ -4,7 +4,7 @@ import { createTestingPinia } from "@pinia/testing";
 import { flushPromises } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Mock } from "vitest";
-import { nextTick } from "vue";
+import { nextTick, ref } from "vue";
 
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
@@ -25,16 +25,18 @@ const UNRESTRICTED_SETTINGS_FIELDS: Partial<GameSettings> = {
 };
 
 let useGameSettingsSync: typeof UseGameSettingsSyncType;
-let restartFromCurrentIndex: Mock<() => Promise<void>>;
+let restartFromCurrentIndex: Mock<() => Promise<boolean>>;
 
 mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
   readGameSettingsCookie: (): GameSettings => GAME_SETTINGS_DEFAULTS,
   writeGameSettingsCookie: vi.fn<UseGameSettingsCookie["writeGameSettingsCookie"]>(),
+  wasGameSettingsReset: ref<boolean>(false),
+  acknowledgeSettingsReset: vi.fn<UseGameSettingsCookie["acknowledgeSettingsReset"]>(),
 }));
 
 describe("useGameSettingsSync", () => {
   beforeEach(async() => {
-    restartFromCurrentIndex = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
+    restartFromCurrentIndex = vi.fn<() => Promise<boolean>>().mockResolvedValue(true);
     createTestingPinia();
     ({ useGameSettingsSync } = await import("@/composables/domain/useGameSettingsSync/useGameSettingsSync"));
   });
@@ -128,6 +130,47 @@ describe("useGameSettingsSync", () => {
       await flushPromises();
 
       expect(restartFromCurrentIndex).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it("should restart the feed when the saved theme filters become applied after the active theme catalog arrives.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const questionThemesStore = mockStore(useQuestionThemesStore);
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true, themeIds: ["theme-a"] });
+      useGameSettingsSync({ restartFromCurrentIndex });
+      await nextTick();
+      await flushPromises();
+
+      questionThemesStore.questionThemes = [
+        createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+        createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+      ];
+      await nextTick();
+      await flushPromises();
+
+      expect(restartFromCurrentIndex).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it("should return true when the filters are unchanged.", async() => {
+      const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
+
+      await expect(syncQuestionsWithGameSettings()).resolves.toBe(true);
+    });
+
+    it("should return true when the refetch succeeds.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
+
+      await expect(syncQuestionsWithGameSettings()).resolves.toBe(true);
+    });
+
+    it("should return false when the refetch fails.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      restartFromCurrentIndex.mockResolvedValue(false);
+      const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
+
+      await expect(syncQuestionsWithGameSettings()).resolves.toBe(false);
     });
   });
 });

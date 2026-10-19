@@ -3,6 +3,7 @@
     "success": "Éxito",
     "error": "Error",
     "info": "Información",
+    "warning": "Advertencia",
     "close": "Cerrar",
     "confirm": "Confirmar",
     "cancel": "Cancelar",

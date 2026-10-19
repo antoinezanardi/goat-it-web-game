@@ -3,6 +3,7 @@ import { storeToRefs } from "pinia";
 
 import { useGameFetchFilters } from "@/composables/domain/useGameFetchFilters/useGameFetchFilters";
 import { buildExcludedQuestionIds } from "@/composables/domain/useGameQuestionFeed/helpers/game-excluded-ids/game-excluded-ids.helpers";
+import { hasNarrowingQuestionFilters } from "@/composables/domain/useGameQuestionFeed/helpers/narrowing-question-filters/narrowing-question-filters.helpers";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM, GAME_PREFETCH_THRESHOLD } from "@/composables/domain/useGameQuestionFeed/use-game-question-feed.constants";
 import type { UseGameQuestionFeed, UseGameQuestionFeedOptions } from "@/composables/domain/useGameQuestionFeed/use-game-question-feed.types";
 
@@ -14,6 +15,8 @@ function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuesti
   const { t } = useI18n();
 
   const isExhausted = ref<boolean>(false);
+  const isEmptyWithFilters = ref<boolean>(false);
+  const hasFetchError = ref<boolean>(false);
   const hasTriggeredPrefetch = ref<boolean>(false);
   const prefetchThreshold = computed<number>(() => Math.floor(questions.value.length * GAME_PREFETCH_THRESHOLD));
 
@@ -32,31 +35,49 @@ function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuesti
   }
 
   async function fetchNextBatch(): Promise<boolean> {
-    const result = await store.fetchAndAppendRandomQuestions(buildRandomQuestionsRequestBody());
+    const requestBody = buildRandomQuestionsRequestBody();
+    const result = await store.fetchAndAppendRandomQuestions(requestBody);
     if (!result.ok) {
-      handleGoatItApiError(result.error, t("questions.cantFetch"));
+      hasFetchError.value = true;
+      handleGoatItApiError(result.error, t("questions.cantFetch"), "questions");
 
       return false;
     }
+    hasFetchError.value = false;
+    const hasNewQuestions = result.value.length > 0;
+    if (hasNewQuestions) {
+      isExhausted.value = false;
+      isEmptyWithFilters.value = false;
+
+      return true;
+    }
+    const isEmpty = hasNarrowingQuestionFilters(requestBody);
+
+    isExhausted.value = !isEmpty;
+    isEmptyWithFilters.value = isEmpty;
+
     return true;
   }
 
   async function initialize(): Promise<void> {
+    isExhausted.value = false;
+    isEmptyWithFilters.value = false;
     await fetchNextBatch();
-    if (questions.value.length === 0) {
-      isExhausted.value = true;
-    }
   }
 
-  async function restartFromCurrentIndex(): Promise<void> {
+  async function restartFromCurrentIndex(): Promise<boolean> {
     store.truncateQuestions(options.currentIndex.value + 1);
     isExhausted.value = false;
+    isEmptyWithFilters.value = false;
     hasTriggeredPrefetch.value = false;
-    const lengthBefore = questions.value.length;
-    const isFetchSuccessful = await fetchNextBatch();
-    if (isFetchSuccessful && questions.value.length === lengthBefore) {
-      isExhausted.value = true;
-    }
+
+    return fetchNextBatch();
+  }
+
+  async function retry(): Promise<void> {
+    isExhausted.value = false;
+    isEmptyWithFilters.value = false;
+    await fetchNextBatch();
   }
 
   watch(options.currentIndex, async index => {
@@ -65,11 +86,7 @@ function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuesti
     }
 
     hasTriggeredPrefetch.value = true;
-    const lengthBefore = questions.value.length;
     await fetchNextBatch();
-    if (questions.value.length === lengthBefore) {
-      isExhausted.value = true;
-    }
   });
 
   watch(isPending, pending => {
@@ -81,8 +98,11 @@ function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuesti
   return {
     questions,
     isExhausted,
+    isEmptyWithFilters,
+    hasFetchError,
     initialize,
     restartFromCurrentIndex,
+    retry,
   };
 }
 

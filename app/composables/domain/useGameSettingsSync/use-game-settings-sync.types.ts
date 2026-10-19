@@ -1,10 +1,10 @@
 type UseGameSettingsSyncOptions = {
-  restartFromCurrentIndex: () => Promise<void>;
+  restartFromCurrentIndex: () => Promise<boolean>;
 };
 
 type UseGameSettingsSync = {
   markFetchFiltersApplied: () => void;
-  syncQuestionsWithGameSettings: () => Promise<void>;
+  syncQuestionsWithGameSettings: () => Promise<boolean>;
 };
 
 export type { UseGameSettingsSync, UseGameSettingsSyncOptions };
