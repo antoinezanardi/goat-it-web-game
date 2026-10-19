@@ -100,14 +100,14 @@ describe("GameQuestionCardSourceList Component", () => {
 
   it("should render only safe source links when source urls include unsafe protocols.", async() => {
     const sourceWrapper = await mountSourceList({
-      props: { sourceUrls: ["https://en.wikipedia.org/wiki/Goat", ["javascript", ":alert(1)"].join(""), "data:text/html,x", "http://insecure.test"] },
+      props: { sourceUrls: ["https://en.wikipedia.org/wiki/Goat", "javascript:alert(1)", "data:text/html,x", "http://insecure.test"] },
     });
 
     expect(sourceWrapper.findAll("a")).toHaveLength(1);
   });
 
   it("should hide the source navigation when no safe source URLs are provided.", async() => {
-    const sourceWrapper = await mountSourceList({ props: { sourceUrls: [["javascript", ":alert(1)"].join("")] } });
+    const sourceWrapper = await mountSourceList({ props: { sourceUrls: ["javascript:alert(1)"] } });
 
     expect(sourceWrapper.find("[data-testid='game-question-source-links']").attributes("style")).toContain("display: none");
   });

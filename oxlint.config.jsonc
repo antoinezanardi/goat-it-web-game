@@ -1121,6 +1121,7 @@
       "rules": {
         "eslint/max-lines-per-function": "off",
         "eslint/no-magic-numbers": "off",
+        "eslint/no-script-url": "off",
         "import/max-dependencies": [
           "error",
           {

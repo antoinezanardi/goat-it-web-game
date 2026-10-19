@@ -223,4 +223,16 @@ describe("useLocaleSuggestion", () => {
 
     expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({ title: "common.error", description: "errors.unknown" });
   });
+
+  it("should clear the i18n_redirected cookie when applying the suggested locale fails.", async() => {
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
+    vi.mocked(i18nMock.setLocale).mockRejectedValue(new Error("locale switch failed"));
+    vi.spyOn(console, "error").mockReturnValue(undefined);
+    await useLocaleSuggestion();
+
+    callOnClick(getAddedToastArguments()?.actions?.[0]?.onClick);
+    await flushPromises();
+
+    expect(useCookieMockState.cookieRef.value).toBeUndefined();
+  });
 });

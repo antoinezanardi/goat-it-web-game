@@ -11,10 +11,10 @@ import type { Toast } from "#ui/composables";
 async function useLocaleSuggestion(): UseLocaleSuggestionReturn {
   const { addErrorToast, addInfoToast, removeToast } = useAppToast();
   const { $i18n } = useNuxtApp();
-  const redirectedCookie = useCookie<string | null>(CookieNames.I18N_REDIRECTED, I18N_REDIRECTED_COOKIE_OPTIONS);
+  const redirectedCookie = useCookie<string | undefined>(CookieNames.I18N_REDIRECTED, I18N_REDIRECTED_COOKIE_OPTIONS);
   const preferredLanguages = usePreferredLanguages();
 
-  if (redirectedCookie.value !== null && isValidLocale(redirectedCookie.value)) {
+  if (redirectedCookie.value !== undefined && isValidLocale(redirectedCookie.value)) {
     return;
   }
 
@@ -48,6 +48,7 @@ async function useLocaleSuggestion(): UseLocaleSuggestionReturn {
     try {
       await $i18n.setLocale(locale);
     } catch(error: unknown) {
+      redirectedCookie.value = undefined;
       console.error("Failed to apply the suggested locale", error);
       addErrorToast({ title: $i18n.t("common.error"), description: $i18n.t("errors.unknown") });
     }

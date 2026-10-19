@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { filterSafeSourceUrls, getSourceDomain } from "#shared/utils/helpers/question/source/question-source.helpers";
 
-const JAVASCRIPT_SOURCE_URL = ["javascript", ":alert(1)"].join("");
+const JAVASCRIPT_SOURCE_URL = "javascript:alert(1)";
 
 describe(getSourceDomain, () => {
   it("should extract the hostname when a full HTTPS URL is provided.", () => {
@@ -21,6 +21,8 @@ describe(getSourceDomain, () => {
 describe(filterSafeSourceUrls, () => {
   it.each<{ url: string; expected: string[]; description: string }>([
     { url: "https://en.wikipedia.org/wiki/Goat", expected: ["https://en.wikipedia.org/wiki/Goat"], description: "an https URL" },
+    { url: "https:en.wikipedia.org/wiki/Goat", expected: [], description: "an https URL without slashes" },
+    { url: "https:/en.wikipedia.org/wiki/Goat", expected: [], description: "an https URL with a single slash" },
     { url: "http://en.wikipedia.org/wiki/Goat", expected: [], description: "an http URL" },
     { url: JAVASCRIPT_SOURCE_URL, expected: [], description: "a javascript URL" },
     { url: "data:text/html,<script>alert(1)</script>", expected: [], description: "a data URL" },
