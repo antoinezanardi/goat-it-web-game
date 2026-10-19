@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import type { GameQuestionCardSourceListProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardSourceList/game-question-card-source-list.types";
 import { GAME_QUESTION_CARD_SOURCE_LINK_CLASSES } from "@/components/domain/game/GameQuestionCard/GameQuestionCardSourceList/game-question-card-source-list.constants";
-import { getSourceDomain } from "#shared/utils/helpers/question/source/question-source.helpers";
+import { filterSafeSourceUrls, getSourceDomain } from "#shared/utils/helpers/question/source/question-source.helpers";
 
-defineProps<GameQuestionCardSourceListProps>();
+const props = defineProps<GameQuestionCardSourceListProps>();
 
 const { t } = useI18n();
+
+const safeSourceUrls = computed<string[]>(() => filterSafeSourceUrls(props.sourceUrls));
 
 function getSourceLinkLabel(url: string): string {
   return t("questions.sourceTooltip", { url });
@@ -14,6 +16,7 @@ function getSourceLinkLabel(url: string): string {
 
 <template>
   <nav
+    v-show="safeSourceUrls.length > 0"
     :aria-label="$t('questions.sourcesAriaLabel')"
     class="flex flex-wrap gap-x-3 gap-y-2"
     data-testid="game-question-source-links"
@@ -22,19 +25,19 @@ function getSourceLinkLabel(url: string): string {
       class="font-medium shrink-0 text-fg-secondary text-xs"
       data-testid="game-question-source-label"
     >
-      {{ $t("questions.sourceLabel", { "count": sourceUrls.length }) }}:
+      {{ $t("questions.sourceLabel", { "count": safeSourceUrls.length }) }}:
     </span>
 
     <UTooltip
-      v-for="url in sourceUrls"
-      :key="url"
-      :data-testid="`source-tooltip-${url}`"
+      v-for="(url, index) in safeSourceUrls"
+      :key="`${index}-${url}`"
+      :data-testid="`source-tooltip-${index}`"
       :text="getSourceLinkLabel(url)"
     >
       <ULink
         :aria-label="getSourceLinkLabel(url)"
         :class="GAME_QUESTION_CARD_SOURCE_LINK_CLASSES"
-        :data-testid="`source-link-${url}`"
+        :data-testid="`source-link-${index}`"
         rel="noopener noreferrer"
         target="_blank"
         :to="url"

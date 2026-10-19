@@ -149,6 +149,7 @@ To see the current full list, scan `tests/unit/setup/nuxt/composables/` — ever
 | `use-overlay.nuxt.unit-setup.ts`           | `useOverlay`              | `createUseOverlayMock()`               | `useOverlayMock`                  |
 | `use-window-scroll.nuxt.unit-setup.ts`     | `useWindowScroll`         | `createUseWindowScrollMock()`          | `useWindowScrollMock`             |
 | `use-preferred-reduced-motion.nuxt.unit-setup.ts` | `usePreferredReducedMotion` | `createUsePreferredReducedMotionMock()` | `usePreferredReducedMotionMock` |
+| `use-preferred-languages.nuxt.unit-setup.ts` | `usePreferredLanguages` | `createUsePreferredLanguagesMock()` | `usePreferredLanguagesMock` |
 
 Every setup file follows the `MockHolder<T>` pattern:
 
@@ -1500,6 +1501,7 @@ Each non-trivial composable has a mock triplet in `tests/unit/utils/mocks/compos
 |------------|----------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
 | `core/`    | `useAsyncAction/`          | `createUseAsyncActionMock()`                          | `execute`, `fetchStatus`, `isIdle`, `isPending`, `isSuccess`, `isError`                                                                     |
 | `core/`    | `useFetchStatus/`          | `createUseFetchStatusMock()`                          | `fetchStatus`, `isIdle`, `isPending`, `isSuccess`, `isError`, `setFetchStatusToPending`, `setFetchStatusToSuccess`, `setFetchStatusToError` |
+| `core/`    | `usePreferredLanguages/`   | `createUsePreferredLanguagesMock()`                   | `preferredLanguagesRef`                                                                                                                     |
 | `core/`    | `usePreferredReducedMotion/` | `createUsePreferredReducedMotionMock()`             | `preferredReducedMotionRef`                                                                                                                 |
 | `core/`    | `useWindowScroll/`         | `createUseWindowScrollMock()`                         | `x`, `y`, `capturedOptions`                                                                                                                 |
 | `domain/`  | `useGame/`                 | `createUseGameMock()`                                 | `canGoToPreviousQuestion`, `currentIndex`, `currentQuestion`, `questions`, `advanceToNextQuestion`, `goToPreviousQuestion`, `initialize`, `gameState`, `gameStateRef`, `questionsRef` |

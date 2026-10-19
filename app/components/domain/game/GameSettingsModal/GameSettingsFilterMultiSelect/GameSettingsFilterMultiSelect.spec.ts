@@ -132,6 +132,12 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe("All difficulties");
   });
 
+  it("should not render the all selected label when no options are provided.", async() => {
+    await wrapper.setProps({ modelValue: [], options: [] });
+
+    expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe("");
+  });
+
   it("should render the selected labels joined with the list conjunction when a subset of options is selected.", async() => {
     await wrapper.setProps({ modelValue: ["easy", "hard"] });
 

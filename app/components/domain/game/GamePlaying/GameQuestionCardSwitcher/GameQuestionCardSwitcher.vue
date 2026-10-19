@@ -17,7 +17,7 @@ const emit = defineEmits<GameQuestionCardSwitcherEmits>();
 const gsap = useGSAP();
 const reducedMotion = usePreferredReducedMotion();
 
-const cardContainerReferences = shallowRef<HTMLElement[]>([]);
+const cardContainerReferences = shallowRef<(HTMLElement | undefined)[]>([]);
 const gsapContext = shallowRef<GsapContext>();
 const timeline = shallowRef<ReturnType<typeof gsap.timeline>>();
 const isSlideSettled = ref<boolean>(true);
@@ -25,14 +25,20 @@ const isSlideSettled = ref<boolean>(true);
 // oxlint-disable-next-line typescript/init-declarations
 let safetyTimeout: ReturnType<typeof setTimeout> | undefined;
 
+function resetSlot(slotIndex: number): void {
+  const element = cardContainerReferences.value[slotIndex];
+
+  if (element === undefined) {
+    return;
+  }
+  gsap.set(element, { opacity: 0, rotation: 0, xPercent: 0, zIndex: 0 });
+}
+
 const { complete: completeRing, currentSlotIndex, getSlotIndexForOffset, slots: ringSlots } = useQuestionCardRing({
   currentIndex: toRef(props, "currentIndex"),
   pendingDirection: toRef(props, "pendingDirection"),
   questions: toRef(props, "questions"),
-  onResetSlot: slotIndex => {
-    const element = cardContainerReferences.value[slotIndex] as HTMLElement;
-    gsap.set(element, { opacity: 0, rotation: 0, xPercent: 0, zIndex: 0 });
-  },
+  onResetSlot: resetSlot,
   onStaged: () => {
     emit("staged");
   },
@@ -51,8 +57,10 @@ function setCardContainerReference(element: Element | ComponentPublicInstance | 
 
 function applyRestingState(): void {
   for (const [index, element] of cardContainerReferences.value.entries()) {
-    const isActive = index === currentSlotIndex.value;
-    gsap.set(element as HTMLElement, { opacity: isActive ? 1 : 0, rotation: 0, xPercent: 0, zIndex: isActive ? 1 : 0 });
+    if (element !== undefined) {
+      const isActive = index === currentSlotIndex.value;
+      gsap.set(element, { opacity: isActive ? 1 : 0, rotation: 0, xPercent: 0, zIndex: isActive ? 1 : 0 });
+    }
   }
 }
 
@@ -60,8 +68,12 @@ function startSlide(direction: GameQuestionCardSwitcherDirection): void {
   const isForward = direction === "forward";
   const leavingIndex = currentSlotIndex.value;
   const enteringIndex = getSlotIndexForOffset(isForward ? 1 : -1);
-  const leavingElement = cardContainerReferences.value[leavingIndex] as HTMLElement;
-  const enteringElement = cardContainerReferences.value[enteringIndex] as HTMLElement;
+  const leavingElement = cardContainerReferences.value[leavingIndex];
+  const enteringElement = cardContainerReferences.value[enteringIndex];
+
+  if (leavingElement === undefined || enteringElement === undefined) {
+    return;
+  }
 
   const duration = reducedMotion.value === "reduce" ? 0 : CARD_TRANSITION_DURATION_SECONDS;
   const enterXPercent = isForward ? CARD_TRANSITION_SLIDE_PERCENT : -CARD_TRANSITION_SLIDE_PERCENT;

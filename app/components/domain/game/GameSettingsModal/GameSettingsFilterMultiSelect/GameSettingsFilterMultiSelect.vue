@@ -30,7 +30,7 @@ const items = computed<GameSettingsFilterMultiSelectItem[]>(() => props.options.
 const searchInputProps = computed(() => ({ autofocus: false, placeholder: t("game.settings.filters.searchPlaceholder") }));
 
 const summaryLabel = computed<string>(() => {
-  if (selectedValues.value.length === props.options.length) {
+  if (props.options.length > 0 && selectedValues.value.length === props.options.length) {
     return props.allSelectedLabel;
   }
   if (props.summaryMode === "count") {

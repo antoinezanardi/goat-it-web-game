@@ -5,12 +5,14 @@ import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
-import { DEFAULT_MOCKED_LOCALE, MOCKED_LOCALE_CODES } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock.constants";
+import { DEFAULT_MOCKED_LOCALE, MOCKED_LOCALE_CODES, MOCKED_LOCALES } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock.constants";
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
 
 import type { ULocaleSelect } from "#components";
 import { LocaleSelect } from "#components";
 
+import { CookieNames } from "#shared/enums/cookie.enums";
+import { I18N_REDIRECTED_COOKIE_OPTIONS } from "@/app.constants";
 import { LOCALE_SELECT_UI } from "@/components/shared/core/localization/LocaleSelect/locale-select.constants";
 import type { LocaleSelectProps } from "@/components/shared/core/localization/LocaleSelect/locale-select.types";
 
@@ -36,6 +38,15 @@ describe("LocaleSelect Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
+  describe("Locale cookie", () => {
+    it("should read the i18n_redirected cookie with the locale cookie options when mounted.", () => {
+      expect({ name: useCookieMockState.capturedName.current, options: useCookieMockState.capturedOptions.current }).toStrictEqual({
+        name: CookieNames.I18N_REDIRECTED,
+        options: I18N_REDIRECTED_COOKIE_OPTIONS,
+      });
+    });
+  });
+
   it("should render the locale select test id when mounted.", () => {
     expect(wrapper.find("[data-testid='locale-select']").exists()).toBe(true);
   });
@@ -56,11 +67,25 @@ describe("LocaleSelect Component", () => {
       expect(nuxtUILocaleSelect.props("modelValue")).toBe(MOCKED_LOCALE_CODES[0]);
     });
 
-    it("should pass the supported locales as locales prop to ULocaleSelect when mounted.", () => {
+    it("should pass the normalized supported locales as the locales prop to ULocaleSelect when mounted.", () => {
+      const nuxtUILocaleSelect = wrapper.findComponent<typeof ULocaleSelect>({ name: "ULocaleSelect" });
+      const expectedLocales = MOCKED_LOCALES.map(locale => ({
+        code: locale.code,
+        dir: locale.dir,
+        messages: undefined,
+        name: locale.name,
+      }));
+
+      expect(nuxtUILocaleSelect.props("locales")).toStrictEqual(expectedLocales);
+    });
+
+    it("should normalize locale direction and fall back to the locale code when the supported locales omit them.", async() => {
       const { locales } = useI18n();
+      locales.value.splice(0, locales.value.length, { code: "fr", dir: "rtl" });
+      await nextTick();
       const nuxtUILocaleSelect = wrapper.findComponent<typeof ULocaleSelect>({ name: "ULocaleSelect" });
 
-      expect(nuxtUILocaleSelect.props("locales")).toStrictEqual(locales.value);
+      expect(nuxtUILocaleSelect.props("locales")).toStrictEqual([{ code: "fr", dir: "rtl", messages: undefined, name: "fr" }]);
     });
 
     it("should pass the ui prop to ULocaleSelect when mounted.", () => {

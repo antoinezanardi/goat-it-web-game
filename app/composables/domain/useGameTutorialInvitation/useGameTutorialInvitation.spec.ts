@@ -94,8 +94,8 @@ describe("useGameTutorialInvitation", () => {
       expect(useCookieMockState.capturedName.current).toBe(CookieNames.GAME_TUTORIAL_INVITATION_DECIDED);
     });
 
-    it("should read the tutorial decision cookie with a 400-day lifetime when mounted.", () => {
-      expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 34_560_000, sameSite: "lax" });
+    it("should read the tutorial decision cookie with a 396-day lifetime when mounted.", () => {
+      expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 34_214_400, sameSite: "lax", secure: false });
     });
   });
 

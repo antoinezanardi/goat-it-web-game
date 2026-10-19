@@ -4,14 +4,23 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { useGsapMock } from "~~/tests/unit/setup/nuxt/composables/use-gsap.nuxt.unit-setup";
 import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup";
 
 import type { GameQuestionCard } from "#components";
 import { GameQuestionCardSwitcher } from "#components";
 
-import type { GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
+import type { GameQuestionCardSwitcherDirection, GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
+
+type GameQuestionCardSwitcherVm = ComponentVm & {
+  applyRestingState: () => void;
+  cardContainerReferences: (HTMLElement | undefined)[];
+  resetSlot: (slotIndex: number) => void;
+  startSlide: (direction: GameQuestionCardSwitcherDirection) => void;
+};
 
 describe("GameQuestionCardSwitcher Component", () => {
   const firstQuestion = createFakeQuestion();
@@ -390,6 +399,46 @@ describe("GameQuestionCardSwitcher Component", () => {
     wrapper.unmount();
 
     expect(useGsapMock.instance.revert).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it("should skip the resting state update when a card container is missing.", () => {
+    const vm = getWrapperVm<GameQuestionCardSwitcherVm>(wrapper);
+    useGsapMock.instance.set.mockClear();
+    vm.cardContainerReferences = [undefined, document.createElement("div")];
+
+    vm.applyRestingState();
+
+    expect(useGsapMock.instance.set).toHaveBeenCalledOnce();
+  });
+
+  it("should skip the slide when the leaving card container is missing.", () => {
+    const vm = getWrapperVm<GameQuestionCardSwitcherVm>(wrapper);
+    useGsapMock.instance.timelineTo.mockClear();
+    vm.cardContainerReferences = [undefined, document.createElement("div"), document.createElement("div")];
+
+    vm.startSlide("forward");
+
+    expect(useGsapMock.instance.timelineTo).not.toHaveBeenCalled();
+  });
+
+  it("should skip the slide when the entering card container is missing.", () => {
+    const vm = getWrapperVm<GameQuestionCardSwitcherVm>(wrapper);
+    useGsapMock.instance.timelineTo.mockClear();
+    vm.cardContainerReferences = [document.createElement("div"), undefined, document.createElement("div")];
+
+    vm.startSlide("forward");
+
+    expect(useGsapMock.instance.timelineTo).not.toHaveBeenCalled();
+  });
+
+  it("should skip resetting a card container when it is missing.", () => {
+    const vm = getWrapperVm<GameQuestionCardSwitcherVm>(wrapper);
+    useGsapMock.instance.set.mockClear();
+    vm.cardContainerReferences = [];
+
+    vm.resetSlot(0);
+
+    expect(useGsapMock.instance.set).not.toHaveBeenCalled();
   });
 
   describe("safety timeout", () => {

@@ -11,7 +11,7 @@ function useGameSettingsCookie(): UseGameSettingsCookie {
     const result = GAME_SETTINGS_SCHEMA.safeParse(cookie.value);
 
     if (!result.success) {
-      return { ...GAME_SETTINGS_DEFAULTS };
+      return structuredClone(GAME_SETTINGS_DEFAULTS);
     }
     return result.data;
   }

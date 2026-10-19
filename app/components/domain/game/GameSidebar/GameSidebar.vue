@@ -103,6 +103,7 @@ function onAfterLeave(): void {
         <ULink
           class="flex gap-1.5 items-center"
           data-testid="game-sidebar-rules-link"
+          rel="noopener noreferrer"
           target="_blank"
           to="/rules"
         >
