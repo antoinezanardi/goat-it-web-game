@@ -129,6 +129,7 @@ app/components/domain/game/GameSidebar/
 - One component per owned directory. Child/reusable components own separate directories; do not put a second primary `.vue` in the parent component directory.
 - If a component declares props, emits, slots, or exposed instance members, it must have a colocated `*.types.ts` defining the full contract, including `defineExpose` members.
 - Component-private constants stay beside the component. Promote only when multiple production units share them.
+- Components read store state through getters/refs and props. They must never assign store state or mutate store-owned values in place (`store.items.push(...)`, `store.settings.field = ...`, `$patch`); every state change goes through a store action. Props are read-only: emit an event instead of mutating them.
 - Keep small private logic in `<script setup>`; extract meaningful complexity only under the helper rules above.
 - SFC order is `<script lang="ts" setup>`, `<template>`, `<style>`.
 - Nuxt Content components also own a directory beneath `app/components/content/`. Preserve the component name used by MDC Markdown and verify rendering after moves. Nuxt's `pathPrefix: false` names components from their filename; the exact nested Content registration is verified by this project, not assumed.
@@ -152,9 +153,10 @@ app/composables/domain/useGameQuestionFeed/
 - Every composable owns its source/spec and a required named return type in a colocated kebab-case `.types.ts`. Keep the explicit function return annotation required by lint and reference the named type. This project convention is stricter than lint, which also permits inline return annotations.
 - Options/return contracts and composable-private constants stay with the composable. Helper-private types/constants stay with the helper.
 - Behavior-bearing module-scope functions should be extracted into a private helper unit; extract complex inline logic when it obscures the composable's public flow. Keep simple reactivity and state/lifecycle closures inline unless a clear explicit-input boundary exists.
+- Composables follow the same store boundary as components: `storeToRefs` and getters are read-only views. Never write store state or mutate store-owned arrays/objects; call the owning store's actions instead. When an action returns a result, the calling composable owns the presentation feedback (toast, translated message).
 - Directories beneath `app/composables/` must contain actual composables. General domain/UI utilities belong in `app/utils/` or root `shared/` by runtime boundary.
 
-`core` is framework/browser/infrastructure behavior; `domain` is app-only business logic without presentation dependencies; `ui` is presentation behavior and tokens. These are responsibility categories, not merely filename labels.
+`core` is framework/browser/infrastructure behavior; `domain` is app-only business logic without presentation ownership (markup, styling, layout); `ui` is presentation behavior and tokens. Domain composables may surface user feedback through UI composables (`useAppToast`, `useI18n`) but must not own markup or presentation state. These are responsibility categories, not merely filename labels.
 
 ### 4.3 Stores
 
@@ -169,6 +171,10 @@ app/stores/domain/game-settings/
 ```
 
 Stores own domain state and state-changing actions. Use `StoreNames`; follow the established async-action pattern. Colocate private constants. Add `.types.ts` when there is a standalone public state/action contract. Do not create an empty types file. Repositories own data access; the direct page/component store access policy is deferred.
+
+- Stores own the only actions allowed to change their state. Consumers must not assign store state or mutate store-owned values; every change goes through an action. Transient state (fetch status, loading flags) is exposed as read-only computed getters.
+- Stores are presentation-agnostic. They must not import or call toast, i18n, overlay, router, component, or DOM APIs. Async actions return the discriminated `UseAsyncActionResult` so the caller decides how to surface errors.
+- Serialized state must stay writable refs for SSR hydration and devtools; do not wrap returned state in `readonly()`. Enforce the mutation boundary by convention and review, not by hiding state.
 
 ### 4.4 Repositories
 

@@ -16,7 +16,7 @@ function createUseAsyncActionMock(): UseAsyncActionMock {
   const fetchStatus = ref<AsyncDataRequestStatus>("idle");
 
   return {
-    execute: vi.fn<UseAsyncAction<unknown, unknown[]>["execute"]>(),
+    execute: vi.fn<UseAsyncAction<unknown, unknown[]>["execute"]>().mockResolvedValue({ ok: true, value: undefined }),
     fetchStatus,
     isIdle: computed<boolean>(() => fetchStatus.value === "idle"),
     isPending: computed<boolean>(() => fetchStatus.value === "pending"),
