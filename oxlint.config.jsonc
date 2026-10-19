@@ -101,7 +101,6 @@
     "useHexColor": "readonly",
     "useI18n": "readonly",
     "useLazyModal": "readonly",
-    "useLocaleCookie": "readonly",
     "useLocaleSuggestion": "readonly",
     "useLocalizedValue": "readonly",
     "useNuxtApp": "readonly",

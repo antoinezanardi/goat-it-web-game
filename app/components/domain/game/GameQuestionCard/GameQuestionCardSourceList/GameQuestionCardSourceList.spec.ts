@@ -39,11 +39,11 @@ describe("GameQuestionCardSourceList Component", () => {
     expect(wrapper.findAllComponents({ name: "ULink" })).toHaveLength(2);
   });
 
-  it.each<{ url: string }>([
-    { url: "https://en.wikipedia.org/wiki/Goat" },
-    { url: "https://www.britannica.com/animal/goat" },
-  ])("should pass the source URL as the to prop of each ULink when sources are provided.", ({ url }) => {
-    const link = wrapper.findComponent<typeof ULink>(`[data-testid='source-link-${url}']`);
+  it.each<{ url: string; index: number }>([
+    { url: "https://en.wikipedia.org/wiki/Goat", index: 0 },
+    { url: "https://www.britannica.com/animal/goat", index: 1 },
+  ])("should pass the source URL as the to prop of each ULink when sources are provided.", ({ url, index }) => {
+    const link = wrapper.findComponent<typeof ULink>(`[data-testid='source-link-${index}']`);
 
     expect(link.props("to")).toBe(url);
   });
@@ -85,7 +85,7 @@ describe("GameQuestionCardSourceList Component", () => {
   });
 
   it("should include the UTooltip text with the sourceTooltip i18n key for the first link when sourceUrls are provided.", () => {
-    const firstTooltip = wrapper.findComponent<typeof UTooltip>("[data-testid='source-tooltip-https://en.wikipedia.org/wiki/Goat']");
+    const firstTooltip = wrapper.findComponent<typeof UTooltip>("[data-testid='source-tooltip-0']");
 
     expect(firstTooltip.props("text")).toBe("questions.sourceTooltip");
   });
@@ -96,5 +96,19 @@ describe("GameQuestionCardSourceList Component", () => {
     for (const icon of icons) {
       expect(icon.props("name")).toBe("i-lucide-external-link");
     }
+  });
+
+  it("should render only safe source links when source urls include unsafe protocols.", async() => {
+    const sourceWrapper = await mountSourceList({
+      props: { sourceUrls: ["https://en.wikipedia.org/wiki/Goat", ["javascript", ":alert(1)"].join(""), "data:text/html,x", "http://insecure.test"] },
+    });
+
+    expect(sourceWrapper.findAll("a")).toHaveLength(1);
+  });
+
+  it("should hide the source navigation when no safe source URLs are provided.", async() => {
+    const sourceWrapper = await mountSourceList({ props: { sourceUrls: [["javascript", ":alert(1)"].join("")] } });
+
+    expect(sourceWrapper.find("[data-testid='game-question-source-links']").attributes("style")).toContain("display: none");
   });
 });

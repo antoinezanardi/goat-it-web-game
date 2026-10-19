@@ -1,13 +1,21 @@
 <script setup lang="ts">
 import { isValidLocale } from "@goat-it/schemas/shared/locale";
 
+import { CookieNames } from "#shared/enums/cookie.enums";
 import type { Locale } from "#ui/types";
+import { I18N_REDIRECTED_COOKIE_OPTIONS } from "@/app.constants";
 import type { LocaleSelectProps } from "@/components/shared/core/localization/LocaleSelect/locale-select.types";
 import { LOCALE_SELECT_UI } from "@/components/shared/core/localization/LocaleSelect/locale-select.constants";
 
 const props = defineProps<LocaleSelectProps>();
 const { locale: currentLocale, setLocale, locales } = useI18n();
-const localeCookie = useLocaleCookie();
+const localeCookie = useCookie<string | null>(CookieNames.I18N_REDIRECTED, I18N_REDIRECTED_COOKIE_OPTIONS);
+const selectLocales = computed<Locale<undefined>[]>(() => locales.value.map(locale => ({
+  code: locale.code,
+  dir: locale.dir === "rtl" ? "rtl" : "ltr",
+  messages: undefined,
+  name: locale.name ?? locale.code,
+})));
 
 async function onLocaleChange(updatedLocale: string): Promise<void> {
   if (!isValidLocale(updatedLocale)) {
@@ -22,7 +30,7 @@ async function onLocaleChange(updatedLocale: string): Promise<void> {
   <ULocaleSelect
     data-testid="locale-select"
     :disabled="props.disabled"
-    :locales="locales as Locale<undefined>[]"
+    :locales="selectLocales"
     :model-value="currentLocale"
     :ui="LOCALE_SELECT_UI"
     @update:model-value="onLocaleChange"

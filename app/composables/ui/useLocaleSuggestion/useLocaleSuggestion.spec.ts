@@ -1,7 +1,9 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { flushPromises } from "@vue/test-utils";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
+import { usePreferredLanguagesMock } from "~~/tests/unit/setup/nuxt/composables/use-preferred-languages.nuxt.unit-setup";
 import { createUseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock";
 import type { UseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock";
 import { MOCKED_TOAST_ID } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
@@ -24,10 +26,6 @@ mockNuxtImport("useAppToast", () => (): UseAppToastMock => useAppToastMock);
 
 let useLocaleSuggestion: typeof UseLocaleSuggestionType;
 
-function stubNavigatorLanguages(languages: string[]): void {
-  vi.stubGlobal("navigator", { languages });
-}
-
 function getAddedToastArguments(): Partial<Toast> | undefined {
   return vi.mocked(useAppToastMock.addInfoToast).mock.calls[0]?.[0];
 }
@@ -42,16 +40,13 @@ function callOnClick(onClick: ((event: MouseEvent) => void) | ((event: MouseEven
 
 describe("useLocaleSuggestion", () => {
   beforeEach(async() => {
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["en"];
     i18nMock = createUseI18nMock();
     useAppToastMock = createUseAppToastMock();
     useCookieMockState.capturedName.current = undefined;
     useCookieMockState.capturedOptions.current = undefined;
     useCookieMockState.cookieRef.value = null;
     ({ useLocaleSuggestion } = await import("@/composables/ui/useLocaleSuggestion/useLocaleSuggestion"));
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
   });
 
   it("should read the i18n_redirected cookie by name when invoked.", async() => {
@@ -63,7 +58,7 @@ describe("useLocaleSuggestion", () => {
   it("should persist cookie options when reading the i18n_redirected cookie.", async() => {
     await useLocaleSuggestion();
 
-    expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 34_560_000, sameSite: "lax" });
+    expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 34_214_400, sameSite: "lax", secure: false });
   });
 
   it.each<{ cookieValue: string; description: string }>([
@@ -79,15 +74,15 @@ describe("useLocaleSuggestion", () => {
 
   it("should proceed to the suggestion flow when the i18n_redirected cookie holds an invalid locale.", async() => {
     useCookieMockState.cookieRef.value = "FR";
-    stubNavigatorLanguages(["fr-FR", "fr"]);
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
 
     await useLocaleSuggestion();
 
     expect(useAppToastMock.addInfoToast).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ title: "common.localeSuggestion.title" }));
   });
 
-  it("should add an info toast proposing the suggested locale when browser languages differ from the current locale.", async() => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
+  it("should add an info toast proposing the suggested locale when preferred languages differ from the current locale.", async() => {
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
 
     await useLocaleSuggestion();
 
@@ -111,8 +106,8 @@ describe("useLocaleSuggestion", () => {
     });
   });
 
-  it("should load the suggested locale messages before adding the toast when browser languages differ from the current locale.", async() => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
+  it("should load the suggested locale messages before adding the toast when preferred languages differ from the current locale.", async() => {
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
 
     await useLocaleSuggestion();
 
@@ -120,15 +115,15 @@ describe("useLocaleSuggestion", () => {
   });
 
   it("should render the toast title in the suggested locale when adding the suggestion toast.", async() => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
 
     await useLocaleSuggestion();
 
     expect(i18nMock.t).toHaveBeenNthCalledWith(1, "common.localeSuggestion.title", {}, { locale: "fr" });
   });
 
-  it("should not add a toast when no browser language matches a supported locale.", async() => {
-    stubNavigatorLanguages(["ja-JP", "ja"]);
+  it("should not add a toast when no preferred language matches a supported locale.", async() => {
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["ja-JP", "ja"];
 
     await useLocaleSuggestion();
 
@@ -136,7 +131,7 @@ describe("useLocaleSuggestion", () => {
   });
 
   it("should not add a toast when the suggested locale equals the current locale.", async() => {
-    stubNavigatorLanguages(["en-US"]);
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["en-US"];
 
     await useLocaleSuggestion();
 
@@ -144,7 +139,7 @@ describe("useLocaleSuggestion", () => {
   });
 
   it("should switch the locale to the suggested one when the accept action is clicked.", async() => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
     await useLocaleSuggestion();
 
     callOnClick(getAddedToastArguments()?.actions?.[0]?.onClick);
@@ -156,7 +151,7 @@ describe("useLocaleSuggestion", () => {
     { action: "accept", actionIndex: 0, expectedCookieValue: "fr", localeKind: "suggested" },
     { action: "decline", actionIndex: 1, expectedCookieValue: "en", localeKind: "current" },
   ])("should persist the $localeKind locale to the cookie when the $action action is clicked.", async({ actionIndex, expectedCookieValue }) => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
     await useLocaleSuggestion();
 
     callOnClick(getAddedToastArguments()?.actions?.[actionIndex]?.onClick);
@@ -168,7 +163,7 @@ describe("useLocaleSuggestion", () => {
     { action: "accept", actionIndex: 0 },
     { action: "decline", actionIndex: 1 },
   ])("should close the toast when the $action action is clicked.", async({ actionIndex }) => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
     await useLocaleSuggestion();
 
     callOnClick(getAddedToastArguments()?.actions?.[actionIndex]?.onClick);
@@ -180,7 +175,7 @@ describe("useLocaleSuggestion", () => {
     { action: "persist the current locale to the cookie", condition: "the toast is closed without answering", expectedCookieValue: "en", open: false },
     { action: "keep the cookie untouched", condition: "the toast open update emits while open", expectedCookieValue: null, open: true },
   ])("should $action when $condition.", async({ expectedCookieValue, open }) => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
     await useLocaleSuggestion();
 
     getAddedToastArguments()?.["onUpdate:open"]?.(open);
@@ -189,7 +184,7 @@ describe("useLocaleSuggestion", () => {
   });
 
   it("should not overwrite the cookie when the toast is closed after the accept action was clicked.", async() => {
-    stubNavigatorLanguages(["fr-FR", "fr"]);
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
     await useLocaleSuggestion();
     const toastArguments = getAddedToastArguments();
 
@@ -197,5 +192,35 @@ describe("useLocaleSuggestion", () => {
     toastArguments?.["onUpdate:open"]?.(false);
 
     expect(useCookieMockState.cookieRef.value).toBe("fr");
+  });
+
+  it("should not add a toast when no preferred languages are available.", async() => {
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = [];
+
+    await useLocaleSuggestion();
+
+    expect(useAppToastMock.addInfoToast).not.toHaveBeenCalled();
+  });
+
+  it("should not add a toast when loading the suggested locale messages fails.", async() => {
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
+    vi.mocked(i18nMock.loadLocaleMessages).mockRejectedValue(new Error("locale load failed"));
+    vi.spyOn(console, "error").mockReturnValue(undefined);
+
+    await useLocaleSuggestion();
+
+    expect(useAppToastMock.addInfoToast).not.toHaveBeenCalled();
+  });
+
+  it("should show an error toast when applying the suggested locale fails.", async() => {
+    usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
+    vi.mocked(i18nMock.setLocale).mockRejectedValue(new Error("locale switch failed"));
+    vi.spyOn(console, "error").mockReturnValue(undefined);
+    await useLocaleSuggestion();
+
+    callOnClick(getAddedToastArguments()?.actions?.[0]?.onClick);
+    await flushPromises();
+
+    expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({ title: "common.error", description: "errors.unknown" });
   });
 });

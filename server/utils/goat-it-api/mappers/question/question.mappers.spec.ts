@@ -35,4 +35,13 @@ describe(createQuestionFromQuestionDto, () => {
 
     expect(result).toStrictEqual(expected);
   });
+
+  it("should drop unsafe source urls when the dto contains them.", () => {
+    const dto = createFakeQuestionDto({
+      sourceUrls: ["https://example.com/source", ["javascript", ":alert(1)"].join(""), "http://insecure.example.com"],
+    });
+    const result = createQuestionFromQuestionDto(dto);
+
+    expect(result.sourceUrls).toStrictEqual(["https://example.com/source"]);
+  });
 });

@@ -1,6 +1,7 @@
 import type { QuestionDto } from "@goat-it/schemas/question";
 
 import type { Question } from "#shared/types/question.types";
+import { filterSafeSourceUrls } from "#shared/utils/helpers/question/source/question-source.helpers";
 import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";
 
 function createQuestionFromQuestionDto(dto: QuestionDto): Question {
@@ -18,7 +19,7 @@ function createQuestionFromQuestionDto(dto: QuestionDto): Question {
     author: dto.author,
     status: dto.status,
     rejection: dto.rejection,
-    sourceUrls: dto.sourceUrls,
+    sourceUrls: filterSafeSourceUrls(dto.sourceUrls),
     createdAt: new Date(dto.createdAt),
     updatedAt: new Date(dto.updatedAt),
   };

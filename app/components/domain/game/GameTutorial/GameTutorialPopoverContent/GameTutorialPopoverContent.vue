@@ -71,7 +71,7 @@ function onSkip(): void {
 
       <UButton
         v-if="props.hasPrev"
-        key="u-button-2"
+        key="game-tutorial-back"
         :aria-label="t('game.interactiveTutorial.controls.back')"
         color="neutral"
         data-testid="game-tutorial-back"
@@ -83,7 +83,7 @@ function onSkip(): void {
 
       <UButton
         v-if="props.hasNext"
-        key="u-button-2"
+        key="game-tutorial-next"
         data-testid="game-tutorial-next"
         :icon="GAME_TUTORIAL_CONTROL_ICONS.next"
         @click="onNext"
@@ -93,7 +93,7 @@ function onSkip(): void {
 
       <UButton
         v-else
-        key="u-button-3"
+        key="game-tutorial-finish"
         data-testid="game-tutorial-finish"
         :icon="GAME_TUTORIAL_CONTROL_ICONS.finish"
         @click="onFinish"

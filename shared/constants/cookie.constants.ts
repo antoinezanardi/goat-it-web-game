@@ -1,3 +1,9 @@
-const COOKIE_MAX_AGE_IN_SECONDS = 34_560_000;
+const COOKIE_MAX_AGE_IN_SECONDS = 34_214_400;
 
-export { COOKIE_MAX_AGE_IN_SECONDS };
+const DEFAULT_COOKIE_OPTIONS = {
+  path: "/",
+  maxAge: COOKIE_MAX_AGE_IN_SECONDS,
+  sameSite: "lax",
+} as const;
+
+export { COOKIE_MAX_AGE_IN_SECONDS, DEFAULT_COOKIE_OPTIONS };

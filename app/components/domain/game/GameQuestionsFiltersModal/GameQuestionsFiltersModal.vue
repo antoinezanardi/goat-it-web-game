@@ -94,21 +94,21 @@ async function confirmDiscard(): Promise<boolean> {
   return await modal.open();
 }
 
-let isConfirmingDiscard = false;
+const isConfirmingDiscard = ref<boolean>(false);
 
 async function requestClose(): Promise<void> {
-  if (isConfirmingDiscard) {
+  if (isConfirmingDiscard.value) {
     return;
   }
   if (isDraftModified.value) {
-    isConfirmingDiscard = true;
+    isConfirmingDiscard.value = true;
     try {
       const shouldDiscard = await confirmDiscard();
       if (!shouldDiscard) {
         return;
       }
     } finally {
-      isConfirmingDiscard = false;
+      isConfirmingDiscard.value = false;
     }
   }
   emit("update:isOpen", false);

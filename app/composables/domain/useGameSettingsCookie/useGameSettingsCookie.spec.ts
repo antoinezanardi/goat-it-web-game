@@ -166,6 +166,16 @@ describe("useGameSettingsCookie", () => {
 
       expect(readGameSettingsCookie().themeIds).toBeUndefined();
     });
+
+    it("should return independent defaults when the returned settings are mutated.", () => {
+      const expectedDefaults = structuredClone(GAME_SETTINGS_DEFAULTS);
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+      const firstRead = readGameSettingsCookie();
+      firstRead.cognitiveDifficulties.push("easy");
+      const secondRead = readGameSettingsCookie();
+
+      expect(secondRead).toStrictEqual(expectedDefaults);
+    });
   });
 
   describe("writeGameSettingsCookie", () => {
