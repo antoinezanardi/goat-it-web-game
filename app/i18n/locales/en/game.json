@@ -30,7 +30,7 @@
         "about": "About"
       },
       "languageLabel": "Language",
-      "resetNotice": "Your game settings could not be read and were reset to their defaults.",
+      "resetNotice": "Some of your game settings could not be read and have been reset.",
       "adultContent": {
         "label": "Adult content",
         "descriptionDisabled": "Only questions suitable for all audiences will appear.",

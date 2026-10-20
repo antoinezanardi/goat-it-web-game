@@ -9,6 +9,7 @@ import { createUseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/
 import type { UseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 
+import type { AsyncResult } from "#shared/types/async-result.types";
 import type { useGameFiltersModal as UseGameFiltersModalType } from "@/composables/domain/useGameFiltersModal/useGameFiltersModal";
 import type { UseGameSettingsCookie } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
 import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
@@ -21,7 +22,7 @@ type FiltersButtonHandle = { playHighlight: () => Promise<void> };
 let useAppToastMock: UseAppToastMock;
 let useGameFiltersModal: typeof UseGameFiltersModalType;
 let getFiltersButton: Mock<() => FiltersButtonHandle | undefined>;
-let syncQuestionsWithGameSettings: Mock<() => Promise<boolean>>;
+let syncQuestionsWithGameSettings: Mock<() => Promise<AsyncResult<void>>>;
 
 mockNuxtImport("useAppToast", () => (): UseAppToastMock => useAppToastMock);
 
@@ -63,7 +64,7 @@ describe("useGameFiltersModal", () => {
   beforeEach(async() => {
     useAppToastMock = createUseAppToastMock();
     getFiltersButton = vi.fn<() => FiltersButtonHandle | undefined>().mockReturnValue(undefined);
-    syncQuestionsWithGameSettings = vi.fn<() => Promise<boolean>>().mockResolvedValue(true);
+    syncQuestionsWithGameSettings = vi.fn<() => Promise<AsyncResult<void>>>().mockResolvedValue({ ok: true, value: undefined });
     createTestingPinia();
     ({ useGameFiltersModal } = await import("@/composables/domain/useGameFiltersModal/useGameFiltersModal"));
   });
@@ -251,32 +252,32 @@ describe("useGameFiltersModal", () => {
     });
 
     it("should expose the apply state as pending when the synchronization has not settled.", async() => {
-      const deferredSynchronization = createDeferredPromise();
+      const deferredSynchronization = createDeferredPromise<AsyncResult<void>>();
       syncQuestionsWithGameSettings.mockReturnValue(deferredSynchronization.promise);
       const { applyFilters, isApplyFiltersPending } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
 
       const applyPromise = applyFilters(createDraft());
       const isPendingDuringApply = isApplyFiltersPending.value;
-      deferredSynchronization.resolve(true);
+      deferredSynchronization.resolve({ ok: true, value: undefined });
       await applyPromise;
 
       expect(isPendingDuringApply).toBe(true);
     });
 
     it("should clear the apply state when the synchronization settles.", async() => {
-      const deferredSynchronization = createDeferredPromise();
+      const deferredSynchronization = createDeferredPromise<AsyncResult<void>>();
       syncQuestionsWithGameSettings.mockReturnValue(deferredSynchronization.promise);
       const { applyFilters, isApplyFiltersPending } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
 
       const applyPromise = applyFilters(createDraft());
-      deferredSynchronization.resolve(true);
+      deferredSynchronization.resolve({ ok: true, value: undefined });
       await applyPromise;
 
       expect(isApplyFiltersPending.value).toBe(false);
     });
 
     it("should not show the success toast when the synchronization fails.", async() => {
-      syncQuestionsWithGameSettings.mockResolvedValue(false);
+      syncQuestionsWithGameSettings.mockResolvedValue({ ok: false, error: new Error("sync failed") });
       const { applyFilters } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
 
       await applyFilters(createDraft());
@@ -285,13 +286,13 @@ describe("useGameFiltersModal", () => {
     });
 
     it("should show the success toast after the synchronization settles when the draft is applied.", async() => {
-      const deferredSynchronization = createDeferredPromise();
+      const deferredSynchronization = createDeferredPromise<AsyncResult<void>>();
       syncQuestionsWithGameSettings.mockReturnValue(deferredSynchronization.promise);
       const { applyFilters } = useGameFiltersModal({ syncQuestionsWithGameSettings, getFiltersButton });
 
       const applyPromise = applyFilters(createDraft());
       const toastCountBeforeSettle = vi.mocked(useAppToastMock.addSuccessToast).mock.calls.length;
-      deferredSynchronization.resolve(true);
+      deferredSynchronization.resolve({ ok: true, value: undefined });
       await applyPromise;
 
       expect(toastCountBeforeSettle).toBe(0);

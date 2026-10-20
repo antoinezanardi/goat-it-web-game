@@ -37,7 +37,7 @@ function createUseGameMock(): UseGameMock {
     goToPreviousQuestion: vi.fn<UseGame["goToPreviousQuestion"]>(),
     initialize: vi.fn<UseGame["initialize"]>(),
     resetFilters: vi.fn<UseGame["resetFilters"]>(),
-    retry: vi.fn<UseGame["retry"]>(),
+    retryQuestionFetch: vi.fn<UseGame["retryQuestionFetch"]>(),
     gameState: computed(() => gameStateReference.value),
     gameStateRef: gameStateReference,
     isFetchingQuestionsRef: isFetchingQuestionsReference,

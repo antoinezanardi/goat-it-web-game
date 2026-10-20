@@ -30,7 +30,7 @@
         "about": "Acerca de"
       },
       "languageLabel": "Idioma",
-      "resetNotice": "No se pudieron leer tus ajustes de juego y se restablecieron a sus valores predeterminados.",
+      "resetNotice": "Algunos de tus ajustes de juego no se pudieron leer y se han restablecido.",
       "adultContent": {
         "label": "Contenido para adultos",
         "descriptionDisabled": "Solo aparecerán preguntas aptas para todos los públicos.",

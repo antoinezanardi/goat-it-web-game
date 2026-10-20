@@ -1,6 +1,7 @@
+import type { AsyncResult } from "#shared/types/async-result.types";
 import type { Question } from "#shared/types/question.types";
 
-type GamePageState = "loading" | "playing" | "game-over" | "error" | "empty-filters";
+type GamePageState = "loading" | "playing" | "game-over" | "error" | "no-matching-filters-questions";
 
 type UseGame = {
   canGoToPreviousQuestion: ComputedRef<boolean>;
@@ -9,12 +10,12 @@ type UseGame = {
   isFetchingQuestions: ComputedRef<boolean>;
   isTranslating: ComputedRef<boolean>;
   questions: Ref<Question[]>;
-  syncQuestionsWithGameSettings: () => Promise<boolean>;
+  syncQuestionsWithGameSettings: () => Promise<AsyncResult<void>>;
   advanceToNextQuestion: () => void;
   goToPreviousQuestion: () => void;
   initialize: () => Promise<void>;
   resetFilters: () => Promise<void>;
-  retry: () => Promise<void>;
+  retryQuestionFetch: () => Promise<void>;
   gameState: ComputedRef<GamePageState>;
 };
 

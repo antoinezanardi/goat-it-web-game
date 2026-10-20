@@ -1,7 +1,7 @@
 import { CookieNames } from "#shared/enums/cookie.enums";
 import { GAME_SETTINGS_COOKIE_OPTIONS } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.constants";
 import type { UseGameSettingsCookie } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
-import { GAME_SETTINGS_DEFAULTS, GAME_SETTINGS_SCHEMA, GAME_SETTINGS_STRICT_SCHEMA } from "@/stores/domain/game-settings/game-settings.constants";
+import { GAME_SETTINGS_DEFAULTS, GAME_SETTINGS_SCHEMA, GAME_SETTINGS_STORED_SCHEMA } from "@/stores/domain/game-settings/game-settings.constants";
 import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 
 function useGameSettingsCookie(): UseGameSettingsCookie {
@@ -20,7 +20,7 @@ function useGameSettingsCookie(): UseGameSettingsCookie {
       return defaults;
     }
 
-    if (cookie.value !== null && cookie.value !== undefined && !GAME_SETTINGS_STRICT_SCHEMA.safeParse(cookie.value).success) {
+    if (cookie.value !== null && cookie.value !== undefined && !GAME_SETTINGS_STORED_SCHEMA.safeParse(cookie.value).success) {
       wasGameSettingsReset.value = true;
     }
     return result.data;
@@ -32,7 +32,6 @@ function useGameSettingsCookie(): UseGameSettingsCookie {
 
   function acknowledgeSettingsReset(): void {
     wasGameSettingsReset.value = false;
-    writeGameSettingsCookie(structuredClone(GAME_SETTINGS_DEFAULTS));
   }
   return {
     wasGameSettingsReset,

@@ -1,8 +1,8 @@
 import type { FindQuestionThemesQueryDto } from "@goat-it/schemas/question-theme";
 import { DEFAULT_QUESTION_THEME_STATUS } from "@goat-it/schemas/question-theme";
 
+import type { AsyncResult } from "#shared/types/async-result.types";
 import type { AsyncDataRequestStatus } from "#app";
-import type { UseAsyncActionResult } from "@/composables/core/useAsyncAction/use-async-action.types";
 import type { QuestionThemeCatalogStatus } from "@/stores/domain/question-theme/question-themes.types";
 
 export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, () => {
@@ -34,7 +34,7 @@ export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, ()
     return isPending.value || isIdle.value ? "loading" : "unavailable";
   });
 
-  async function fetchAndStoreQuestionThemes(query?: FindQuestionThemesQueryDto): Promise<UseAsyncActionResult<QuestionTheme[]>> {
+  async function fetchAndStoreQuestionThemes(query?: FindQuestionThemesQueryDto): Promise<AsyncResult<QuestionTheme[]>> {
     const result = await fetchQuestionThemes(query);
     if (result.ok) {
       questionThemes.value = result.value;

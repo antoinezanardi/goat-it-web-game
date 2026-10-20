@@ -4,7 +4,7 @@ import { nextTick } from "vue";
 
 import { GameTutorialPopoverContent } from "#components";
 
-import { isEditableKeyboardTarget } from "@/utils/core/element/element.dom.helpers";
+import { getFocusedHTMLElement, isEditableKeyboardTarget, isElementFocusable } from "@/utils/core/element/element.dom.helpers";
 import type {
   GameTutorialEmits,
   GameTutorialPopoverContentConfig,
@@ -32,29 +32,19 @@ const popoverSide = ref<"bottom" | "top">("bottom");
 const previouslyFocusedElement = ref<HTMLElement>();
 
 function captureFocusOrigin(): void {
-  const { activeElement } = document;
-
-  previouslyFocusedElement.value = activeElement instanceof HTMLElement && activeElement !== document.body ? activeElement : undefined;
-}
-
-function isElementFocusable(element: HTMLElement): boolean {
-  if (!element.isConnected || Boolean(element.closest("[role='dialog']"))) {
-    return false;
-  }
-  if (typeof element.checkVisibility === "function") {
-    return element.checkVisibility();
-  }
-  return Boolean(element.offsetParent);
+  previouslyFocusedElement.value = getFocusedHTMLElement();
 }
 
 function restoreFocus(): void {
   const origin = previouslyFocusedElement.value;
 
   previouslyFocusedElement.value = undefined;
-  if (origin !== undefined && isElementFocusable(origin)) {
+  if (origin !== undefined && !origin.closest("[role='dialog']") && isElementFocusable(origin)) {
     origin.focus();
 
-    return;
+    if (document.activeElement === origin) {
+      return;
+    }
   }
   document.querySelector<HTMLElement>("[data-testid='game-sidebar-toggle-button']")?.focus();
 }

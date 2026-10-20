@@ -1,11 +1,8 @@
 import type { AsyncDataRequestStatus } from "#app";
-
-type UseAsyncActionResult<TResult> =
-  | { ok: true; value: TResult } |
-  { ok: false; error: unknown };
+import type { AsyncResult } from "#shared/types/async-result.types";
 
 type UseAsyncAction<TResult, TArguments extends unknown[]> = {
-  execute: (...arguments_: TArguments) => Promise<UseAsyncActionResult<TResult>>;
+  execute: (...arguments_: TArguments) => Promise<AsyncResult<TResult>>;
   fetchStatus: Ref<AsyncDataRequestStatus>;
   isIdle: ComputedRef<boolean>;
   isPending: ComputedRef<boolean>;
@@ -13,4 +10,4 @@ type UseAsyncAction<TResult, TArguments extends unknown[]> = {
   isError: ComputedRef<boolean>;
 };
 
-export type { UseAsyncAction, UseAsyncActionResult };
+export type { UseAsyncAction };

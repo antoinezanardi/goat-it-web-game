@@ -10,6 +10,8 @@ import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
+import type { AsyncResult } from "#shared/types/async-result.types";
+import type { Question } from "#shared/types/question.types";
 import type { useGameSettingsSync as UseGameSettingsSyncType } from "@/composables/domain/useGameSettingsSync/useGameSettingsSync";
 import type { UseGameSettingsCookie } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
 import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
@@ -25,7 +27,7 @@ const UNRESTRICTED_SETTINGS_FIELDS: Partial<GameSettings> = {
 };
 
 let useGameSettingsSync: typeof UseGameSettingsSyncType;
-let restartFromCurrentIndex: Mock<() => Promise<boolean>>;
+let restartFromCurrentIndex: Mock<() => Promise<AsyncResult<Question[]>>>;
 
 mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
   readGameSettingsCookie: (): GameSettings => GAME_SETTINGS_DEFAULTS,
@@ -36,7 +38,7 @@ mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
 
 describe("useGameSettingsSync", () => {
   beforeEach(async() => {
-    restartFromCurrentIndex = vi.fn<() => Promise<boolean>>().mockResolvedValue(true);
+    restartFromCurrentIndex = vi.fn<() => Promise<AsyncResult<Question[]>>>().mockResolvedValue({ ok: true, value: [] });
     createTestingPinia();
     ({ useGameSettingsSync } = await import("@/composables/domain/useGameSettingsSync/useGameSettingsSync"));
   });
@@ -150,27 +152,28 @@ describe("useGameSettingsSync", () => {
       expect(restartFromCurrentIndex).toHaveBeenCalledExactlyOnceWith();
     });
 
-    it("should return true when the filters are unchanged.", async() => {
+    it("should return a successful result when the filters are unchanged.", async() => {
       const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
 
-      await expect(syncQuestionsWithGameSettings()).resolves.toBe(true);
+      await expect(syncQuestionsWithGameSettings()).resolves.toStrictEqual({ ok: true, value: undefined });
     });
 
-    it("should return true when the refetch succeeds.", async() => {
+    it("should return a successful result when the refetch succeeds.", async() => {
       const settingsStore = mockStore(useGameSettingsStore);
       const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
       settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
 
-      await expect(syncQuestionsWithGameSettings()).resolves.toBe(true);
+      await expect(syncQuestionsWithGameSettings()).resolves.toStrictEqual({ ok: true, value: undefined });
     });
 
-    it("should return false when the refetch fails.", async() => {
+    it("should return a failed result when the refetch fails.", async() => {
       const settingsStore = mockStore(useGameSettingsStore);
-      restartFromCurrentIndex.mockResolvedValue(false);
+      const error = new Error("fetch failed");
+      restartFromCurrentIndex.mockResolvedValue({ ok: false, error });
       const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
       settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
 
-      await expect(syncQuestionsWithGameSettings()).resolves.toBe(false);
+      await expect(syncQuestionsWithGameSettings()).resolves.toStrictEqual({ ok: false, error });
     });
   });
 });

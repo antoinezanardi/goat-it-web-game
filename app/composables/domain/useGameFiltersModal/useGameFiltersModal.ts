@@ -44,9 +44,9 @@ function useGameFiltersModal(options: UseGameFiltersModalOptions): UseGameFilter
     isFiltersModalOpen.value = false;
     isApplyFiltersPending.value = true;
     try {
-      const isSynchronized = await options.syncQuestionsWithGameSettings();
+      const result = await options.syncQuestionsWithGameSettings();
 
-      if (isSynchronized) {
+      if (result.ok) {
         addSuccessToast({ description: t("game.questionsFilters.successToast") });
       }
     } finally {

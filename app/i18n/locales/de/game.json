@@ -30,7 +30,7 @@
         "about": "Über"
       },
       "languageLabel": "Sprache",
-      "resetNotice": "Deine Spieleinstellungen konnten nicht gelesen werden und wurden auf die Standardwerte zurückgesetzt.",
+      "resetNotice": "Einige deiner Spieleinstellungen konnten nicht gelesen werden und wurden zurückgesetzt.",
       "adultContent": {
         "label": "Erwachseneninhalte",
         "descriptionDisabled": "Es werden nur Fragen angezeigt, die für alle Zielgruppen geeignet sind.",

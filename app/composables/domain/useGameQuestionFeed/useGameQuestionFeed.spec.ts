@@ -215,7 +215,7 @@ describe("useGameQuestionFeed", () => {
 
       await feed.initialize();
 
-      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, "questions.cantFetch", "questions");
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, { title: "questions.cantFetch", context: "questions" });
     });
 
     it("should not append questions when a fetch fails.", async() => {
@@ -257,7 +257,7 @@ describe("useGameQuestionFeed", () => {
 
       await feed.initialize();
 
-      expect(feed.isEmptyWithFilters.value).toBe(false);
+      expect(feed.hasNoMatchingFiltersQuestions.value).toBe(false);
     });
 
     it("should flag an empty-filter state and not exhaustion when a successful empty fetch narrows categories.", async() => {
@@ -267,7 +267,13 @@ describe("useGameQuestionFeed", () => {
 
       await feed.initialize();
 
-      expect({ isEmptyWithFilters: feed.isEmptyWithFilters.value, isExhausted: feed.isExhausted.value }).toStrictEqual({ isEmptyWithFilters: true, isExhausted: false });
+      expect({
+        hasNoMatchingFiltersQuestions: feed.hasNoMatchingFiltersQuestions.value,
+        isExhausted: feed.isExhausted.value,
+      }).toStrictEqual({
+        hasNoMatchingFiltersQuestions: true,
+        isExhausted: false,
+      });
     });
 
     it("should flag an empty-filter state when a successful empty fetch narrows cognitive difficulties.", async() => {
@@ -277,7 +283,7 @@ describe("useGameQuestionFeed", () => {
 
       await feed.initialize();
 
-      expect(feed.isEmptyWithFilters.value).toBe(true);
+      expect(feed.hasNoMatchingFiltersQuestions.value).toBe(true);
     });
 
     it("should flag an empty-filter state when a successful empty fetch narrows themes.", async() => {
@@ -292,7 +298,7 @@ describe("useGameQuestionFeed", () => {
 
       await feed.initialize();
 
-      expect(feed.isEmptyWithFilters.value).toBe(true);
+      expect(feed.hasNoMatchingFiltersQuestions.value).toBe(true);
     });
 
     it("should clear the empty-filter state when a later fetch returns questions.", async() => {
@@ -305,9 +311,9 @@ describe("useGameQuestionFeed", () => {
       store.questions = [fetchedQuestion];
       store.fetchAndAppendRandomQuestions.mockResolvedValueOnce({ ok: true, value: [fetchedQuestion] });
 
-      await feed.retry();
+      await feed.retryQuestionFetch();
 
-      expect(feed.isEmptyWithFilters.value).toBe(false);
+      expect(feed.hasNoMatchingFiltersQuestions.value).toBe(false);
     });
   });
 
@@ -565,7 +571,7 @@ describe("useGameQuestionFeed", () => {
       await flushPromises();
       store.fetchAndAppendRandomQuestions.mockClear();
 
-      await feed.retry();
+      await feed.retryQuestionFetch();
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith({
         limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
@@ -710,9 +716,10 @@ describe("useGameQuestionFeed", () => {
       store.questions = Array.from({ length: 25 }, () => createFakeQuestion());
       store.fetchAndAppendRandomQuestions.mockImplementation(async() => {
         await Promise.resolve();
-        store.questions = [...store.questions, ...Array.from({ length: 25 }, () => createFakeQuestion())];
+        const fetchedQuestions = Array.from({ length: 25 }, () => createFakeQuestion());
+        store.questions = [...store.questions, ...fetchedQuestions];
 
-        return { ok: true, value: [] };
+        return { ok: true, value: fetchedQuestions };
       });
       await nextTick();
       currentIndex.value = 20;
@@ -731,18 +738,19 @@ describe("useGameQuestionFeed", () => {
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledOnce();
     });
 
-    it("should return true when the refetch succeeds.", async() => {
+    it("should return a successful result when the refetch succeeds.", async() => {
       const feed = useGameQuestionFeed({ currentIndex: ref(0) });
 
-      await expect(feed.restartFromCurrentIndex()).resolves.toBe(true);
+      await expect(feed.restartFromCurrentIndex()).resolves.toStrictEqual({ ok: true, value: [] });
     });
 
-    it("should return false when the refetch fails.", async() => {
+    it("should return a failed result when the refetch fails.", async() => {
       const store = mockStore(useGameStore);
       const feed = useGameQuestionFeed({ currentIndex: ref(0) });
-      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
+      const error = new Error("fetch failed");
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error });
 
-      await expect(feed.restartFromCurrentIndex()).resolves.toBe(false);
+      await expect(feed.restartFromCurrentIndex()).resolves.toStrictEqual({ ok: false, error });
     });
 
     it("should expose the empty-filter state when the refetch succeeds with narrowed filters and no questions.", async() => {
@@ -752,7 +760,7 @@ describe("useGameQuestionFeed", () => {
 
       await feed.restartFromCurrentIndex();
 
-      expect(feed.isEmptyWithFilters.value).toBe(true);
+      expect(feed.hasNoMatchingFiltersQuestions.value).toBe(true);
     });
 
     it("should clear the empty-filter state when the refetch succeeds with questions.", async() => {
@@ -767,7 +775,7 @@ describe("useGameQuestionFeed", () => {
 
       await feed.restartFromCurrentIndex();
 
-      expect(feed.isEmptyWithFilters.value).toBe(false);
+      expect(feed.hasNoMatchingFiltersQuestions.value).toBe(false);
     });
   });
 });

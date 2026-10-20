@@ -11,6 +11,8 @@ import { SEO_META_TAG_ROW_SCHEMA } from "./datatables/seo.datatables.schemas.ts"
 
 const HTTP_STATUS_OK = 200;
 
+const HTTP_STATUS_NOT_FOUND = 404;
+
 Then(
   /^the following meta tags should be present:$/u,
   async function(this: GoatItWorld, dataTable: DataTable): Promise<void> {
@@ -33,32 +35,56 @@ Then(
 );
 
 Then(
-  /^the robots.txt response should reference the sitemap$/u,
+  /^the robots.txt response should not reference the sitemap$/u,
   async function(this: GoatItWorld): Promise<void> {
     const content = await this.page.locator("body").textContent();
     const sitemapUrl = `${new URL(ACCEPTANCE_TESTS_SITE_URL).origin}/sitemap.xml`;
 
-    expect(content).toContain(`Sitemap: ${sitemapUrl}`);
+    expect(content).not.toContain(`Sitemap: ${sitemapUrl}`);
   },
 );
 
 Then(
-  /^the home response should expose an indexable X-Robots-Tag$/u,
+  /^the home response should expose a non-indexable X-Robots-Tag$/u,
   async function(this: GoatItWorld): Promise<void> {
     const response = await this.page.request.get(new URL(this.page.url()).origin);
     const robotsHeader = response.headers()["x-robots-tag"];
 
-    expect(robotsHeader).toMatch(/(?:^|,\s*)index(?:,|$)/u);
-    expect(robotsHeader).not.toContain("noindex");
+    expect(robotsHeader).toContain("noindex");
+  },
+);
+
+Then(
+  /^the robots.txt response should disallow crawling$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const content = await this.page.locator("body").textContent() ?? "";
+    const wildcardGroup = content.split(/\n\s*\n/u).find(group => group.includes("User-agent: *"));
+
+    expect(wildcardGroup).toBeDefined();
+    expect(wildcardGroup).toContain("Disallow: /");
+    expect(wildcardGroup).not.toContain("Allow: /");
   },
 );
 
 Then(
   /^the robots.txt response should allow crawling$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const content = await this.page.locator("body").textContent();
+    const content = await this.page.locator("body").textContent() ?? "";
+    const wildcardGroup = content.split(/\n\s*\n/u).find(group => group.includes("User-agent: *"));
 
-    expect(content).toContain("# START nuxt-robots (indexable)");
+    expect(wildcardGroup).toBeDefined();
+    expect(wildcardGroup).toContain("Allow: /");
+    expect(wildcardGroup).not.toContain("Disallow: /");
+  },
+);
+
+Then(
+  /^the sitemap.xml should not be served$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const baseUrl = new URL(this.page.url()).origin;
+    const response = await this.page.request.get(`${baseUrl}/sitemap.xml`);
+
+    expect(response.status()).toBe(HTTP_STATUS_NOT_FOUND);
   },
 );
 

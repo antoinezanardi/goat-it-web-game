@@ -1,6 +1,6 @@
 import { extractErrorCode, resolveStatusErrorCode } from "@/composables/domain/useGoatItApiErrorToast/helpers/error-code/error-code.helpers";
 import type {
-  GoatItApiErrorContext,
+  HandleGoatItApiErrorOptions,
   UseGoatItApiErrorToast,
 } from "@/composables/domain/useGoatItApiErrorToast/use-goat-it-api-error-toast.types";
 
@@ -8,7 +8,8 @@ function useGoatItApiErrorToast(): UseGoatItApiErrorToast {
   const { addErrorToast } = useAppToast();
   const i18n = useI18n();
 
-  function handleGoatItApiError(error: unknown, title: string, context: GoatItApiErrorContext): void {
+  function handleGoatItApiError(error: unknown, options: HandleGoatItApiErrorOptions): void {
+    const { context, title } = options;
     const errorCodeValue = extractErrorCode(error);
 
     if (errorCodeValue !== undefined && errorCodeValue !== "") {

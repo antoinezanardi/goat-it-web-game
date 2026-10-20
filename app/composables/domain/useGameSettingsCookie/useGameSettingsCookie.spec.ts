@@ -241,14 +241,14 @@ describe("useGameSettingsCookie", () => {
       expect(wasGameSettingsReset.value).toBe(false);
     });
 
-    it("should repair the cookie with the defaults when called.", () => {
-      useCookieMockState.cookieRef.value = "not-a-valid-settings-payload";
+    it("should not write the cookie when called.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: true, categories: [] };
       const { readGameSettingsCookie, acknowledgeSettingsReset } = useGameSettingsCookie();
       readGameSettingsCookie();
 
       acknowledgeSettingsReset();
 
-      expect(useCookieMockState.cookieRef.value).toStrictEqual(GAME_SETTINGS_DEFAULTS);
+      expect(useCookieMockState.cookieRef.value).toStrictEqual({ isAdultContentEnabled: true, categories: [] });
     });
   });
 

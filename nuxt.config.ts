@@ -1,6 +1,7 @@
 import { DEFAULT_LOCALE_FALLBACK } from "#shared/constants/locale.constants.ts";
+import { resolveSiteEnvironment } from "#shared/utils/helpers/site/site-environment.helpers.ts";
 
-const siteEnvironment = (process.env.NUXT_SITE_ENV ?? "").trim() || (process.env.NODE_ENV === "production" ? "production" : "development");
+const siteEnvironment = resolveSiteEnvironment(process.env);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({

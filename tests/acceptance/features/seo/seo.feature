@@ -69,19 +69,13 @@ Feature: 🔍 Technical SEO
     Given the user is on rules page
     Then the page should contain schema.org WebPage and WebSite structured data
 
-  Scenario: 🤖 Robots.txt is served with sitemap reference
+  Scenario: 🤖 Robots.txt is served without a disabled sitemap reference
     Given the user is on robots.txt page
-    Then the robots.txt response should reference the sitemap
+    Then the robots.txt response should not reference the sitemap
 
-  Scenario: 🗺️ Sitemap.xml is served with all routes
+  Scenario: 🗺️ Sitemap.xml is not served in staging
     Given the user is on sitemap.xml page
-    Then the sitemap.xml should contain the route "/"
-    And the sitemap.xml should contain the route "/game"
-    And the sitemap.xml should contain the route "/rules"
-
-  Scenario: 🗺️ Sitemap.xml contains only expected routes
-    Given the user is on sitemap.xml page
-    Then the sitemap.xml should contain exactly the expected routes
+    Then the sitemap.xml should not be served
 
   Scenario: 🔗 Canonical link tag is present on home page
     Given the user is on home page
@@ -99,8 +93,8 @@ Feature: 🔍 Technical SEO
     Given the user is on game page
     Then the page should contain schema.org WebPage and WebSite structured data
 
-  Scenario: 🤖 Indexable environment exposes crawler permissions
+  Scenario: 🤖 Non-production environment disables crawler permissions
     Given the user is on home page
-    Then the home response should expose an indexable X-Robots-Tag
+    Then the home response should expose a non-indexable X-Robots-Tag
     And the user is on robots.txt page
-    Then the robots.txt response should allow crawling
+    Then the robots.txt response should disallow crawling

@@ -200,17 +200,17 @@ describe("useGame", () => {
       expect(game.gameState.value).toBe("playing");
     });
 
-    it("should be 'empty-filters' when a narrowed fetch succeeds with no questions.", async() => {
+    it("should be 'no-matching-filters-questions' when a narrowed fetch succeeds with no questions.", async() => {
       const settingsStore = mockStore(useGameSettingsStore);
       const game = useGame();
       settingsStore.settings = { ...GAME_SETTINGS_DEFAULTS, categories: ["trivia"] };
 
       await game.initialize();
 
-      expect(game.gameState.value).toBe("empty-filters");
+      expect(game.gameState.value).toBe("no-matching-filters-questions");
     });
 
-    it("should be 'playing' rather than 'empty-filters' when a playable question remains.", async() => {
+    it("should be 'playing' rather than 'no-matching-filters-questions' when a playable question remains.", async() => {
       const store = mockStore(useGameStore);
       const settingsStore = mockStore(useGameSettingsStore);
       const game = useGame();
@@ -398,7 +398,7 @@ describe("useGame", () => {
     });
   });
 
-  describe("retry", () => {
+  describe("retryQuestionFetch", () => {
     it("should refetch and return to playing when the retry succeeds.", async() => {
       const store = mockStore(useGameStore);
       store.fetchAndAppendRandomQuestions.mockResolvedValueOnce({ ok: false, error: new Error("fetch failed") });
@@ -411,7 +411,7 @@ describe("useGame", () => {
         return { ok: true, value: store.questions };
       });
 
-      await game.retry();
+      await game.retryQuestionFetch();
 
       expect(game.gameState.value).toBe("playing");
     });
@@ -422,7 +422,7 @@ describe("useGame", () => {
       const game = useGame();
       await game.initialize();
 
-      await game.retry();
+      await game.retryQuestionFetch();
 
       expect(game.gameState.value).toBe("error");
     });

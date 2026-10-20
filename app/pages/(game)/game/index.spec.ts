@@ -20,6 +20,7 @@ import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/comp
 
 import type { GamePlaying } from "#components";
 
+import type { AsyncResult } from "#shared/types/async-result.types";
 import GamePage from "@/pages/(game)/game/index.vue";
 import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "@/utils/ui/question-theme/question-theme.constants";
 
@@ -299,8 +300,8 @@ describe("Game Page", () => {
   });
 
   it("should pass the apply pending state as isApplyPending to the filters modal when a refresh is pending.", async() => {
-    let resolveSynchronization: ((value: boolean) => void) | undefined;
-    useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<boolean>(resolve => {
+    let resolveSynchronization: ((value: AsyncResult<void>) => void) | undefined;
+    useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<AsyncResult<void>>(resolve => {
       resolveSynchronization = resolve;
     }));
     getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("applyFilters", {
@@ -312,7 +313,7 @@ describe("Game Page", () => {
 
     expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isApplyPending")).toBe(true);
 
-    resolveSynchronization?.(true);
+    resolveSynchronization?.({ ok: true, value: undefined });
     await flushPromises();
   });
 
@@ -541,18 +542,18 @@ describe("Game Page", () => {
     getWrapperVm(wrapper.findComponent({ name: "GameFetchError" })).$emit("retry");
     await nextTick();
 
-    expect(useGameMock.instance.retry).toHaveBeenCalledExactlyOnceWith();
+    expect(useGameMock.instance.retryQuestionFetch).toHaveBeenCalledExactlyOnceWith();
   });
 
-  it("should render GameEmptyFilters when gameState is empty-filters.", async() => {
-    useGameMock.instance.gameStateRef.value = "empty-filters";
+  it("should render GameEmptyFilters when gameState is no-matching-filters-questions.", async() => {
+    useGameMock.instance.gameStateRef.value = "no-matching-filters-questions";
     await nextTick();
 
     expect(wrapper.findComponent({ name: "GameEmptyFilters" }).exists()).toBe(true);
   });
 
   it("should call resetFilters when GameEmptyFilters emits reset-filters.", async() => {
-    useGameMock.instance.gameStateRef.value = "empty-filters";
+    useGameMock.instance.gameStateRef.value = "no-matching-filters-questions";
     await nextTick();
     getWrapperVm(wrapper.findComponent({ name: "GameEmptyFilters" })).$emit("resetFilters");
     await nextTick();

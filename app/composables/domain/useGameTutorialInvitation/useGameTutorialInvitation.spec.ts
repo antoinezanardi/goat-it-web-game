@@ -416,18 +416,18 @@ describe("useGameTutorialInvitation", () => {
       expect(useCookieMockState.cookieRef.value).toBeNull();
     });
 
-    it("should remove the invitation toast when the game reaches empty-filters.", async() => {
+    it("should remove the invitation toast when the game reaches no-matching-filters-questions.", async() => {
       await reachFirstPlayableState();
-      gameState.value = "empty-filters";
+      gameState.value = "no-matching-filters-questions";
       isTutorialAvailable.value = false;
       await nextTick();
 
       expect(useAppToastMock.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
     });
 
-    it("should not persist the decision cookie when the game reaches empty-filters.", async() => {
+    it("should not persist the decision cookie when the game reaches no-matching-filters-questions.", async() => {
       await reachFirstPlayableState();
-      gameState.value = "empty-filters";
+      gameState.value = "no-matching-filters-questions";
       isTutorialAvailable.value = false;
       await nextTick();
 
@@ -446,9 +446,9 @@ describe("useGameTutorialInvitation", () => {
       expect(useAppToastMock.addInfoToast).toHaveBeenCalledOnce();
     });
 
-    it("should not re-add the invitation toast when a playable state follows empty-filters.", async() => {
+    it("should not re-add the invitation toast when a playable state follows no-matching-filters-questions.", async() => {
       await reachFirstPlayableState();
-      gameState.value = "empty-filters";
+      gameState.value = "no-matching-filters-questions";
       isTutorialAvailable.value = false;
       await nextTick();
       gameState.value = "playing";

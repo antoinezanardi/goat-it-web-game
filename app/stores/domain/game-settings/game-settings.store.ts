@@ -35,6 +35,7 @@ export const useGameSettingsStore = defineStore(StoreNames.GAME_SETTINGS, () => 
 
   function acknowledgeSettingsReset(): void {
     gameSettingsCookie.acknowledgeSettingsReset();
+    gameSettingsCookie.writeGameSettingsCookie(settings.value);
   }
   return {
     wasGameSettingsReset,

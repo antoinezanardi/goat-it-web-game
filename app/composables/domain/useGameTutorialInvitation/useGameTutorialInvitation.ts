@@ -9,8 +9,7 @@ import type {
   GameTutorialInvitationOptions,
   UseGameTutorialInvitation,
 } from "@/composables/domain/useGameTutorialInvitation/use-game-tutorial-invitation.types";
-
-const TERMINAL_GAME_STATES: Set<GamePageState> = new Set(["game-over", "error", "empty-filters"]);
+import { isGameInTerminalState } from "@/utils/domain/game/helpers/game-state/game-state.helpers";
 
 function preventDismissal(event: Event): void {
   event.preventDefault();
@@ -85,7 +84,7 @@ function useGameTutorialInvitation(options: GameTutorialInvitationOptions): UseG
   }
 
   function observeInvitation(isTutorialAvailable: boolean, gameState: GamePageState): void {
-    if (TERMINAL_GAME_STATES.has(gameState)) {
+    if (isGameInTerminalState(gameState)) {
       removeInvitation();
 
       return;

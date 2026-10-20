@@ -58,7 +58,7 @@ Then(
   async function(this: GoatItWorld): Promise<void> {
     const tooltip = getGameTourTooltip(this.page);
 
-    expect(await tooltip.evaluate(element => element.contains(document.activeElement))).toBe(true);
+    await expect(tooltip.locator(":focus")).toHaveCount(1);
   },
 );
 

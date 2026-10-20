@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 
-import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
+import { GAME_SETTINGS_DEFAULTS, GAME_SETTINGS_SCHEMA, GAME_SETTINGS_STORED_SCHEMA } from "@/stores/domain/game-settings/game-settings.constants";
 import type { useGameSettingsStore as UseGameSettingsStoreType } from "@/stores/domain/game-settings/game-settings.store";
 
 let useGameSettingsStore: typeof UseGameSettingsStoreType;
@@ -171,6 +171,21 @@ describe("useGameSettingsStore", () => {
       store.acknowledgeSettingsReset();
 
       expect(store.wasGameSettingsReset).toBe(false);
+    });
+
+    it("should persist the repaired settings to the cookie when called.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: true, categories: [] };
+      const store = useGameSettingsStore();
+
+      store.acknowledgeSettingsReset();
+
+      expect(useCookieMockState.cookieRef.value).toStrictEqual(store.settings);
+    });
+  });
+
+  describe("settings schemas", () => {
+    it("should validate the same settings fields when comparing the repairing and stored schemas.", () => {
+      expect(Object.keys(GAME_SETTINGS_STORED_SCHEMA.shape)).toStrictEqual(Object.keys(GAME_SETTINGS_SCHEMA.shape));
     });
   });
 });

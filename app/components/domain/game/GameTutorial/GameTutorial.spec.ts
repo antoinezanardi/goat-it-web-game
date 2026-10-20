@@ -450,11 +450,10 @@ describe("GameTutorial Component", () => {
     await clickGameTutorialButton("game-tutorial-next");
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({
+    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toMatchObject({
       "side": "top",
       "sideOffset": 12,
       "aria-label": "game.interactiveTutorial.steps.question.title",
-      "onEscapeKeyDown": expect.any(Function) as (event: KeyboardEvent) => void,
     });
   });
 
@@ -538,11 +537,10 @@ describe("GameTutorial Component", () => {
     globalThis.dispatchEvent(new globalThis.Event("resize"));
     await flushPromises();
 
-    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({
+    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toMatchObject({
       "side": "top",
       "sideOffset": 12,
       "aria-label": "game.interactiveTutorial.steps.framework.title",
-      "onEscapeKeyDown": expect.any(Function) as (event: KeyboardEvent) => void,
     });
   });
 
@@ -725,6 +723,34 @@ describe("GameTutorial Component", () => {
     trigger.focus();
     const fallback = replaceSidebarToggleWithFocusableFallback();
     await startTour();
+
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(document.activeElement).toBe(fallback);
+  });
+
+  it("should focus the sidebar toggle when the previously focused element cannot receive focus.", async() => {
+    const trigger = document.createElement("button");
+    Object.defineProperty(trigger, "checkVisibility", { configurable: true, value: (): boolean => true });
+    document.body.append(trigger);
+    trigger.focus();
+    const fallback = replaceSidebarToggleWithFocusableFallback();
+    await startTour();
+    trigger.disabled = true;
+
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(document.activeElement).toBe(fallback);
+  });
+
+  it("should focus the sidebar toggle when focusing the previously focused element does not restore focus.", async() => {
+    const trigger = document.createElement("button");
+    Object.defineProperty(trigger, "checkVisibility", { configurable: true, value: (): boolean => true });
+    document.body.append(trigger);
+    trigger.focus();
+    const fallback = replaceSidebarToggleWithFocusableFallback();
+    await startTour();
+    Object.defineProperty(trigger, "focus", { configurable: true, value: vi.fn<() => void>() });
 
     await clickGameTutorialButton("game-tutorial-skip");
 

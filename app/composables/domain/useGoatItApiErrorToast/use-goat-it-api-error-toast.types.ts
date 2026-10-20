@@ -1,7 +1,12 @@
 type GoatItApiErrorContext = "questions" | "question-themes" | "questions-translation";
 
-type UseGoatItApiErrorToast = {
-  handleGoatItApiError: (error: unknown, title: string, context: GoatItApiErrorContext) => void;
+type HandleGoatItApiErrorOptions = {
+  title: string;
+  context: GoatItApiErrorContext;
 };
 
-export type { GoatItApiErrorContext, UseGoatItApiErrorToast };
+type UseGoatItApiErrorToast = {
+  handleGoatItApiError: (error: unknown, options: HandleGoatItApiErrorOptions) => void;
+};
+
+export type { GoatItApiErrorContext, HandleGoatItApiErrorOptions, UseGoatItApiErrorToast };

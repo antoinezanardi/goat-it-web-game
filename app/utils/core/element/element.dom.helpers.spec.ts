@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { ComponentPublicInstance } from "vue";
 
-import { isEditableKeyboardTarget, resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
+import { getFocusedHTMLElement, isEditableKeyboardTarget, isElementFocusable, resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 
 describe(resolveHTMLElement, () => {
   it("should return the input element when the reference is an HTML element.", () => {
@@ -23,6 +23,70 @@ describe(resolveHTMLElement, () => {
     { label: "a non-HTML element", input: document.createElementNS("http://www.w3.org/2000/svg", "svg") },
   ])("should return undefined when the reference is $label.", ({ input }) => {
     expect(resolveHTMLElement(input)).toBeUndefined();
+  });
+});
+
+describe(getFocusedHTMLElement, () => {
+  it("should return the focused HTML element when one owns the focus.", () => {
+    const element = document.createElement("button");
+    document.body.append(element);
+    element.focus();
+
+    expect(getFocusedHTMLElement()).toBe(element);
+  });
+
+  it("should return undefined when the body owns the focus.", () => {
+    document.body.focus();
+
+    expect(getFocusedHTMLElement()).toBeUndefined();
+  });
+
+  it("should return undefined when the focused element is not an HTML element.", () => {
+    const activeElementSpy = vi.spyOn(document, "activeElement", "get").mockReturnValue(document.createElementNS("http://www.w3.org/2000/svg", "svg"));
+
+    try {
+      expect(getFocusedHTMLElement()).toBeUndefined();
+    } finally {
+      activeElementSpy.mockRestore();
+    }
+  });
+});
+
+describe(isElementFocusable, () => {
+  it("should return false when the element is not connected.", () => {
+    expect(isElementFocusable(document.createElement("button"))).toBe(false);
+  });
+
+  it("should return false when the element is disabled.", () => {
+    const element = document.createElement("button");
+    element.disabled = true;
+    document.body.append(element);
+    Object.defineProperty(element, "checkVisibility", { configurable: true, value: (): boolean => true });
+
+    expect(isElementFocusable(element)).toBe(false);
+  });
+
+  it.each<{ expected: boolean; isVisible: boolean }>([
+    { expected: true, isVisible: true },
+    { expected: false, isVisible: false },
+  ])("should return $expected when checkVisibility returns $isVisible.", ({ expected, isVisible }) => {
+    const element = document.createElement("button");
+    document.body.append(element);
+    Object.defineProperty(element, "checkVisibility", { configurable: true, value: (): boolean => isVisible });
+
+    expect(isElementFocusable(element)).toBe(expected);
+  });
+
+  it.each<{ expected: boolean; offsetParent: Element | null }>([
+    { expected: true, offsetParent: document.body },
+    { expected: false, offsetParent: null },
+  ])("should return $expected when checkVisibility is unavailable and offsetParent is $offsetParent.", ({ expected, offsetParent }) => {
+    const element = document.createElement("button");
+    document.body.append(element);
+    Object.defineProperty(element, "checkVisibility", { configurable: true, value: undefined });
+    Object.defineProperty(element, "offsetParent", { configurable: true, value: offsetParent });
+
+    expect(isElementFocusable(element)).toBe(expected);
   });
 });
 

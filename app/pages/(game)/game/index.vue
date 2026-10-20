@@ -26,7 +26,7 @@ const {
   gameState,
   goToPreviousQuestion,
   resetFilters,
-  retry,
+  retryQuestionFetch,
   isFetchingQuestions,
   isTranslating,
   questions,
@@ -156,11 +156,11 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
 
         <GameFetchError
           v-else-if="gameState === 'error'"
-          @retry="retry"
+          @retry="retryQuestionFetch"
         />
 
         <GameEmptyFilters
-          v-else-if="gameState === 'empty-filters'"
+          v-else-if="gameState === 'no-matching-filters-questions'"
           @reset-filters="resetFilters"
         />
 

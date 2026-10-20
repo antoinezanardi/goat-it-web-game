@@ -18,22 +18,26 @@ function useGame(): UseGame {
 
   const feed = useGameQuestionFeed({ currentIndex });
   const settingsSync = useGameSettingsSync({ restartFromCurrentIndex: feed.restartFromCurrentIndex });
-  const { hasFetchError, isEmptyWithFilters, isExhausted } = feed;
+  const { hasFetchError, hasNoMatchingFiltersQuestions, isExhausted } = feed;
 
   const currentQuestion = computed<Question | undefined>(() => questions.value[currentIndex.value]);
   const hasPlayableQuestion = computed<boolean>(() => currentIndex.value < questions.value.length);
   const isFetchError = computed<boolean>(() => hasFetchError.value && !hasPlayableQuestion.value && !isPending.value);
-  const isEmptyFilters = computed<boolean>(() => isEmptyWithFilters.value && !hasPlayableQuestion.value && !isPending.value);
-  const isInitialLoading = computed<boolean>(() => questions.value.length === 0 && !isExhausted.value && !isFetchError.value && !isEmptyFilters.value);
-  const isOutOfQuestionsLoading = computed<boolean>(() => !hasPlayableQuestion.value && isPending.value && !isExhausted.value && !isFetchError.value && !isEmptyFilters.value);
+  const isNoMatchingFiltersQuestions = computed<boolean>(() => hasNoMatchingFiltersQuestions.value && !hasPlayableQuestion.value && !isPending.value);
+  const isInitialLoading = computed<boolean>(() => questions.value.length === 0 && !isExhausted.value && !isFetchError.value && !isNoMatchingFiltersQuestions.value);
+  const isOutOfQuestionsLoading = computed<boolean>(() => !hasPlayableQuestion.value &&
+    isPending.value &&
+    !isExhausted.value &&
+    !isFetchError.value &&
+    !isNoMatchingFiltersQuestions.value);
   const isGameOver = computed<boolean>(() => isExhausted.value && !hasPlayableQuestion.value);
 
   const gameState = computed<GamePageState>(() => {
     if (isFetchError.value) {
       return "error";
     }
-    if (isEmptyFilters.value) {
-      return "empty-filters";
+    if (isNoMatchingFiltersQuestions.value) {
+      return "no-matching-filters-questions";
     }
     if (isInitialLoading.value || isOutOfQuestionsLoading.value) {
       return "loading";
@@ -53,8 +57,8 @@ function useGame(): UseGame {
     await feed.initialize();
   }
 
-  async function retry(): Promise<void> {
-    await feed.retry();
+  async function retryQuestionFetch(): Promise<void> {
+    await feed.retryQuestionFetch();
   }
 
   async function resetFilters(): Promise<void> {
@@ -99,7 +103,7 @@ function useGame(): UseGame {
     goToPreviousQuestion,
     initialize,
     resetFilters,
-    retry,
+    retryQuestionFetch,
     gameState,
   };
 }
