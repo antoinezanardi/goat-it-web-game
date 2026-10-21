@@ -3,7 +3,6 @@ import { Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import { validateDataTableAndGetRows } from "#acceptance/features/support/helpers/datatable.helpers.ts";
-import { ACCEPTANCE_TESTS_SITE_URL } from "#acceptance/features/support/constants/hooks.constants.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { fetchSitemapXml } from "#acceptance/features/step-definitions/seo/helpers/seo.then-steps.helpers.ts";
 
@@ -37,10 +36,9 @@ Then(
 Then(
   /^the robots.txt response should not reference the sitemap$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const content = await this.page.locator("body").textContent();
-    const sitemapUrl = `${new URL(ACCEPTANCE_TESTS_SITE_URL).origin}/sitemap.xml`;
+    const content = await this.page.locator("body").textContent() ?? "";
 
-    expect(content).not.toContain(`Sitemap: ${sitemapUrl}`);
+    expect(content).not.toMatch(/^\s*Sitemap:/imu);
   },
 );
 
@@ -59,10 +57,11 @@ Then(
   async function(this: GoatItWorld): Promise<void> {
     const content = await this.page.locator("body").textContent() ?? "";
     const wildcardGroup = content.split(/\n\s*\n/u).find(group => group.includes("User-agent: *"));
+    const wildcardDirectives = wildcardGroup?.split("\n").map(line => line.trim()) ?? [];
 
     expect(wildcardGroup).toBeDefined();
-    expect(wildcardGroup).toContain("Disallow: /");
-    expect(wildcardGroup).not.toContain("Allow: /");
+    expect(wildcardDirectives).toContain("Disallow: /");
+    expect(wildcardDirectives).not.toContain("Allow: /");
   },
 );
 
@@ -71,10 +70,11 @@ Then(
   async function(this: GoatItWorld): Promise<void> {
     const content = await this.page.locator("body").textContent() ?? "";
     const wildcardGroup = content.split(/\n\s*\n/u).find(group => group.includes("User-agent: *"));
+    const wildcardDirectives = wildcardGroup?.split("\n").map(line => line.trim()) ?? [];
 
     expect(wildcardGroup).toBeDefined();
-    expect(wildcardGroup).toContain("Allow: /");
-    expect(wildcardGroup).not.toContain("Disallow: /");
+    expect(wildcardDirectives).toContain("Allow: /");
+    expect(wildcardDirectives).not.toContain("Disallow: /");
   },
 );
 

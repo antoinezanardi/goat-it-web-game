@@ -175,7 +175,7 @@ app/stores/domain/game-settings/
 Stores own domain state and state-changing actions. Use `StoreNames`; follow the established async-action pattern. Colocate private constants. Add `.types.ts` when there is a standalone public state/action contract. Do not create an empty types file. Repositories own data access; the direct page/component store access policy is deferred.
 
 - Stores own the only actions allowed to change their state. Consumers must not assign store state or mutate store-owned values; every change goes through an action. Transient state (fetch status, loading flags) is exposed as read-only computed getters.
-- Stores are presentation-agnostic. They must not import or call toast, i18n, overlay, router, component, or DOM APIs. Async actions return the discriminated `UseAsyncActionResult` so the caller decides how to surface errors.
+- Stores are presentation-agnostic. They must not import or call toast, i18n, overlay, router, component, or DOM APIs. Async actions return the discriminated `AsyncResult` from `shared/types/async-result.types.ts` so the caller decides how to surface errors.
 - Serialized state must stay writable refs for SSR hydration and devtools; do not wrap returned state in `readonly()`. Enforce the mutation boundary by convention and review, not by hiding state.
 
 ### 4.4 Repositories
