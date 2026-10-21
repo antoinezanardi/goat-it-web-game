@@ -94,6 +94,17 @@ Location: `configs/cucumber/cucumber.json`
 - **`parallel: 4`** — Tests run in 4 parallel workers (IDs 0–3), each targeting its own API sandbox on ports 9090–9093 (calculated as 9090 + worker ID)
 - **`format`** — Summary to stdout + JSON and JUnit report files
 
+#### Step timeouts
+
+Cucumber's own default is 5 000 ms, which is too tight for browser-driven steps on a loaded machine (starting a page, opening a modal, or awaiting a question transition can exceed it while still being healthy). The default is raised to 15 s in support code, not in `cucumber.json`: Cucumber.js `IConfiguration` has no `timeout` key (unknown keys are silently ignored), so `tests/acceptance/features/support/hooks.ts` calls `setDefaultTimeout(DEFAULT_STEP_TIMEOUT)` once at module load. Any step or hook without an explicit timeout then gets 15 s.
+
+Explicit timeouts always take precedence over the default:
+
+- Hooks: `BeforeAll` 360 s, `Before` 60 s, and `AfterAll` 60 s (`tests/acceptance/features/support/constants/hooks.constants.ts`). `After` has no override, so it inherits the 15 s default.
+- Steps: the next/previous question steps use 90 s, the skip-questions step uses 300 s (`tests/acceptance/features/step-definitions/game/game.when-steps.ts`), and the accessibility steps use 10 s (`tests/acceptance/features/step-definitions/accessibility/accessibility.then-steps.ts`).
+
+Only override the timeout for operations that are inherently long. Do not add long step timeouts to mask flakiness, and do not confuse these with Playwright's own assertion timeouts (for example `expect(...).toBeVisible({ timeout: 10_000 })`), which are independent of Cucumber's step timeout.
+
 ### Import alias
 
 The `#acceptance/` import alias maps to `tests/acceptance/`. Use it in all acceptance test TypeScript files:
@@ -162,15 +173,17 @@ pnpm run test:acceptance:skip-build --tags "@question-themes and @accessibility"
 
 The hooks in `tests/acceptance/features/support/hooks.ts` manage the full test lifecycle:
 
-| Hook        | Timeout | What it does                                                                                        |
-|-------------|---------|-----------------------------------------------------------------------------------------------------|
-| `BeforeAll` | 360s    | Cleans screenshot directory (worker 0 only), waits for API sandbox health check, starts Nuxt server |
-| `Before`    | 60s     | Resets MongoDB sandbox data, creates a new Playwright page and browser context                      |
-| `After`     | —       | Takes screenshot on failure (attached to report), closes browser context                            |
-| `AfterAll`  | —       | Tears down Nuxt server                                                                              |
+| Hook        | Timeout       | What it does                                                                                        |
+|-------------|---------------|-----------------------------------------------------------------------------------------------------|
+| `BeforeAll` | 360s          | Cleans screenshot directory (worker 0 only), waits for API sandbox health check, starts Nuxt server |
+| `Before`    | 60s           | Resets MongoDB sandbox data, creates a new Playwright page and browser context                      |
+| `After`     | default (15s) | Takes screenshot on failure (attached to report), closes browser context                            |
+| `AfterAll`  | 60s           | Tears down Nuxt server                                                                              |
 
 ```ts
 // hooks.ts — simplified structure
+setDefaultTimeout(DEFAULT_STEP_TIMEOUT);
+
 const rootDirectory = fileURLToPath(new URL("../../../..", import.meta.url));
 const workerId = getWorkerId();
 const sandboxBaseUrl = getSandboxBaseUrl();
@@ -264,6 +277,7 @@ Given(/^the user is on (?<page>.+) page$/u, async function (this: GoatItWorld, p
 |-----------------------------------|------------------------------------|------------------------------------------------------------------|
 | `BEFORE_ALL_TIMEOUT`              | `360_000` (360s)                   | `tests/acceptance/features/support/constants/hooks.constants.ts` |
 | `BEFORE_TIMEOUT`                  | `60_000` (60s)                     | `tests/acceptance/features/support/constants/hooks.constants.ts` |
+| `DEFAULT_STEP_TIMEOUT`            | `15_000` (15s)                     | `tests/acceptance/features/support/constants/hooks.constants.ts` |
 | `ACCEPTANCE_TESTS_DEFAULT_LOCALE` | `"en"`                             | `tests/acceptance/features/support/constants/hooks.constants.ts` |
 | `SANDBOX_BASE_PORT`               | `9090`                             | `tests/acceptance/features/support/constants/hooks.constants.ts` |
 | `SANDBOX_ADMIN_KEY`               | `"test_admin_api_key_for_testing"` | `tests/acceptance/features/support/constants/hooks.constants.ts` |
