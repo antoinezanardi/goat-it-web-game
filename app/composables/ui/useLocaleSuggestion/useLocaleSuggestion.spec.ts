@@ -49,13 +49,13 @@ describe("useLocaleSuggestion", () => {
     ({ useLocaleSuggestion } = await import("@/composables/ui/useLocaleSuggestion/useLocaleSuggestion"));
   });
 
-  it("should read the i18n_redirected cookie by name when invoked.", async() => {
+  it("should read the goat_it_locale cookie by name when invoked.", async() => {
     await useLocaleSuggestion();
 
-    expect(useCookieMockState.capturedName.current).toBe("i18n_redirected");
+    expect(useCookieMockState.capturedName.current).toBe("goat_it_locale");
   });
 
-  it("should persist cookie options when reading the i18n_redirected cookie.", async() => {
+  it("should persist cookie options when reading the goat_it_locale cookie.", async() => {
     await useLocaleSuggestion();
 
     expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 34_214_400, sameSite: "lax", secure: false });
@@ -64,7 +64,7 @@ describe("useLocaleSuggestion", () => {
   it.each<{ cookieValue: string; description: string }>([
     { cookieValue: "fr", description: "a valid locale" },
     { cookieValue: "en", description: "the current locale" },
-  ])("should not add a toast when the i18n_redirected cookie holds $description.", async({ cookieValue }) => {
+  ])("should not add a toast when the goat_it_locale cookie holds $description.", async({ cookieValue }) => {
     useCookieMockState.cookieRef.value = cookieValue;
 
     await useLocaleSuggestion();
@@ -72,7 +72,7 @@ describe("useLocaleSuggestion", () => {
     expect(useAppToastMock.addInfoToast).not.toHaveBeenCalled();
   });
 
-  it("should proceed to the suggestion flow when the i18n_redirected cookie holds an invalid locale.", async() => {
+  it("should proceed to the suggestion flow when the goat_it_locale cookie holds an invalid locale.", async() => {
     useCookieMockState.cookieRef.value = "FR";
     usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
 
@@ -224,7 +224,7 @@ describe("useLocaleSuggestion", () => {
     expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({ title: "common.error", description: "errors.unknown" });
   });
 
-  it("should clear the i18n_redirected cookie when applying the suggested locale fails.", async() => {
+  it("should clear the goat_it_locale cookie when applying the suggested locale fails.", async() => {
     usePreferredLanguagesMock.instance.preferredLanguagesRef.value = ["fr-FR", "fr"];
     vi.mocked(i18nMock.setLocale).mockRejectedValue(new Error("locale switch failed"));
     vi.spyOn(console, "error").mockReturnValue(undefined);

@@ -12,7 +12,7 @@ describe(extractLocaleFromEvent, () => {
     vi.mocked(getCookie).mockReturnValue(undefined);
   });
 
-  it("should return cookie locale when i18n_redirected cookie is valid.", () => {
+  it("should return cookie locale when goat_it_locale cookie is valid.", () => {
     vi.mocked(getCookie).mockReturnValue("fr");
 
     const locale = extractLocaleFromEvent(mockedEvent, "en");
@@ -25,7 +25,7 @@ describe(extractLocaleFromEvent, () => {
     { cookieValue: "FR", description: "an uppercase locale code" },
     { cookieValue: "ja", description: "an unsupported locale" },
     { cookieValue: "garbage", description: "a garbage value" },
-  ])("should fall back to default locale when i18n_redirected cookie is $description.", ({ cookieValue }) => {
+  ])("should fall back to default locale when goat_it_locale cookie is $description.", ({ cookieValue }) => {
     vi.mocked(getCookie).mockReturnValue(cookieValue);
 
     const locale = extractLocaleFromEvent(mockedEvent, "en");
@@ -39,6 +39,12 @@ describe(extractLocaleFromEvent, () => {
     expect(locale).toBe("en");
   });
 
+  it("should read the goat_it_locale cookie when resolving the locale from the event.", () => {
+    extractLocaleFromEvent(mockedEvent, "en");
+
+    expect(getCookie).toHaveBeenCalledExactlyOnceWith(mockedEvent, "goat_it_locale");
+  });
+
   it("should fall back to the provided default locale when cookie is missing and the default locale is fr.", () => {
     const locale = extractLocaleFromEvent(mockedEvent, "fr");
 
@@ -50,7 +56,7 @@ describe(extractLocaleFromEvent, () => {
     { cookieValue: "FR", description: "an uppercase locale code" },
     { cookieValue: "ja", description: "an unsupported locale" },
     { cookieValue: "garbage", description: "a garbage value" },
-  ])("should fall back to the provided fr default locale when i18n_redirected cookie is $description.", ({ cookieValue }) => {
+  ])("should fall back to the provided fr default locale when goat_it_locale cookie is $description.", ({ cookieValue }) => {
     vi.mocked(getCookie).mockReturnValue(cookieValue);
 
     const locale = extractLocaleFromEvent(mockedEvent, "fr");

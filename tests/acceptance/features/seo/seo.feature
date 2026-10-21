@@ -4,18 +4,22 @@ Feature: 🔍 Technical SEO
   Scenario: 🔍 Home page has SEO meta tags
     Given the user is on home page
     Then the following meta tags should be present:
-      | type     | key             | content                                                                       |
-      | name     | description     | Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer. |
-      | property | og:title        | Goat It – The game where the answer is guessed                                |
-      | property | og:description  | Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer. |
+      | type     | key               | content                                                                                                                   |
+      | name     | description       | Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer. |
+      | property | og:title          | Goat It – The game where the answer is guessed                                                                            |
+      | property | og:description    | Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, investigate, and find the answer. |
+      | property | og:image:alt      | Goat It logo on a dark background, with the tagline: The game where the answer is guessed.                                |
+      | name     | twitter:image:alt | Goat It logo on a dark background, with the tagline: The game where the answer is guessed.                                |
 
   Scenario: 🔍 Game page has SEO meta tags
     Given the user is on game page
     Then the following meta tags should be present:
-      | type     | key             | content                                                                       |
-      | name     | description     | Ask the Game Master your questions, cross-reference the clues, and find the answer. An unusual fact lies behind every game. |
-      | property | og:title        | Goat It – Play                                                                |
-      | property | og:description  | Ask the Game Master your questions, cross-reference the clues, and find the answer. An unusual fact lies behind every game. |
+      | type     | key               | content                                                                                                                     |
+      | name     | description       | Ask the Game Master your questions, cross-reference the clues, and find the answer. An unusual fact lies behind every game. |
+      | property | og:title          | Goat It – Play                                                                                                              |
+      | property | og:description    | Ask the Game Master your questions, cross-reference the clues, and find the answer. An unusual fact lies behind every game. |
+      | property | og:image:alt      | Goat It logo on a dark background, with the tagline: The game where the answer is guessed.                                  |
+      | name     | twitter:image:alt | Goat It logo on a dark background, with the tagline: The game where the answer is guessed.                                  |
 
   Scenario: 🖼️ Home page has og:image meta tag
     Given the user is on home page
@@ -44,10 +48,12 @@ Feature: 🔍 Technical SEO
   Scenario: 🔍 Rules page has SEO meta tags
     Given the user is on rules page
     Then the following meta tags should be present:
-      | type     | key             | content                                                                         |
-      | name     | description     | Learn how to play Goat It: the concept, the Game Master's role, how to investigate, and all our tips. |
-      | property | og:title        | Goat It – How to play ?                                                         |
-      | property | og:description  | Learn how to play Goat It: the concept, the Game Master's role, how to investigate, and all our tips. |
+      | type     | key               | content                                                                                               |
+      | name     | description       | Learn how to play Goat It: the concept, the Game Master's role, how to investigate, and all our tips. |
+      | property | og:title          | Goat It – How to play ?                                                                               |
+      | property | og:description    | Learn how to play Goat It: the concept, the Game Master's role, how to investigate, and all our tips. |
+      | property | og:image:alt      | Goat It logo on a dark background, with the tagline: The game where the answer is guessed.            |
+      | name     | twitter:image:alt | Goat It logo on a dark background, with the tagline: The game where the answer is guessed.            |
 
   Scenario: 🖼️ Rules page has og:image meta tag
     Given the user is on rules page
@@ -92,6 +98,11 @@ Feature: 🔍 Technical SEO
   Scenario: 📋 Schema.org JSON-LD WebPage and WebSite structured data is injected on game page
     Given the user is on game page
     Then the page should contain schema.org WebPage and WebSite structured data
+
+  Scenario: 🏢 Schema.org Organization identity is injected on home page
+    Given the user is on home page
+    Then the page should contain the schema.org Organization identity
+    And the schema.org graph should contain a logo image pointing to the PWA icon
 
   Scenario: 🤖 Non-production environment disables crawler permissions
     Given the user is on home page

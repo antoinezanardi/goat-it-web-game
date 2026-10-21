@@ -246,6 +246,8 @@ Layouts remain at `app/layouts/<Layout>/` with stable filenames/path-derived key
 - `app/assets/`: bundled/imported styles and assets. Root `public/` is for files served unchanged.
 - Locale dictionaries: `app/i18n/locales/<locale>/<namespace>.json`.
 - Translation parity specs: `app/i18n/specs/<namespace>.translations.spec.ts`. This is an explicit exception because one test compares a namespace across all locale resources.
+- Locale cookie: `goat_it_locale` (`CookieNames.LOCALE`) with `LOCALE_COOKIE_OPTIONS`. Only `LocaleSelect` and `useLocaleSuggestion` write it; the server reads it for `Accept-Language` forwarding (`extractLocaleFromEvent`) and locale detection (`server/plugins/locale-detector`). It was hard-renamed from `i18n_redirected` with no legacy fallback.
+- Do not set `detectBrowserLanguage.cookieKey`: any object value re-enables browser-language detection and may redirect `/`.
 
 ## 5. Shared architecture
 
@@ -400,6 +402,8 @@ Do not add a new root folder simply because a concept is shared. Pick an establi
 - Acceptance builds use `staging` (`.env.test`) so the SEO scenarios assert the non-indexable contract. Production indexability and sitemap generation are tracked as a follow-up test task (#537).
 
 Non-production also disables the sitemap (`sitemap.enabled`), because `@nuxtjs/sitemap` does not filter URLs by site indexability. Do not set `site.indexable` directly: an explicit value overrides the environment-derived behavior and reopens the staging indexing bug.
+
+URL/locale strategy (`no_prefix`), social image alt policy, structured-data identity, JSON-LD reactivity and the production-only sitemap are recorded in [SEO](seo.md); locale cookie behavior is documented in §4.7.
 
 ## 10. Agent and workflow compliance
 

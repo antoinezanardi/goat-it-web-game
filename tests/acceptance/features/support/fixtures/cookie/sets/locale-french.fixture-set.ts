@@ -1,6 +1,6 @@
 const LOCALE_FRENCH_COOKIE_FIXTURE_SET = [
   {
-    name: "i18n_redirected",
+    name: "goat_it_locale",
     value: "fr",
   },
 ] as const;

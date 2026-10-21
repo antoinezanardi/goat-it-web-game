@@ -10,7 +10,7 @@ const APP_TOAST_CONFIG = {
   duration: 4000,
 } as const satisfies ToasterProps;
 
-const I18N_REDIRECTED_COOKIE_OPTIONS = {
+const LOCALE_COOKIE_OPTIONS = {
   ...DEFAULT_COOKIE_OPTIONS,
   secure: import.meta.env.PROD,
 } as const;
@@ -18,5 +18,5 @@ const I18N_REDIRECTED_COOKIE_OPTIONS = {
 export {
   APP_TOOLTIP_CONFIG,
   APP_TOAST_CONFIG,
-  I18N_REDIRECTED_COOKIE_OPTIONS,
+  LOCALE_COOKIE_OPTIONS,
 };
