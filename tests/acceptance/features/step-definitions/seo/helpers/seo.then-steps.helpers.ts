@@ -25,8 +25,15 @@ async function collectSchemaOrgGraphNodes(page: Page): Promise<SchemaOrgGraphNod
   return graphNodes;
 }
 
-function collectSchemaOrgGraphTypes(graphNodes: SchemaOrgGraphNode[]): string[] {
-  return graphNodes.flatMap(graphNode => graphNode["@type"] ?? []);
+function hasSchemaOrgGraphType(graphNode: SchemaOrgGraphNode, graphType: string): boolean {
+  const rawGraphTypes = graphNode["@type"] ?? [];
+  const graphTypes = Array.isArray(rawGraphTypes) ? rawGraphTypes : [rawGraphTypes];
+
+  return graphTypes.includes(graphType);
+}
+
+function findSchemaOrgGraphNodeByType(graphNodes: SchemaOrgGraphNode[], graphType: string): SchemaOrgGraphNode | undefined {
+  return graphNodes.find(graphNode => hasSchemaOrgGraphType(graphNode, graphType));
 }
 
 async function fetchSitemapXml(page: Page): Promise<string> {
@@ -38,6 +45,7 @@ async function fetchSitemapXml(page: Page): Promise<string> {
 
 export {
   collectSchemaOrgGraphNodes,
-  collectSchemaOrgGraphTypes,
   fetchSitemapXml,
+  findSchemaOrgGraphNodeByType,
+  hasSchemaOrgGraphType,
 };

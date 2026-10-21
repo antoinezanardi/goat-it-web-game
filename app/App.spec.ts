@@ -95,6 +95,60 @@ describe("App Component", () => {
     });
   });
 
+  describe("useSchemaOrg", () => {
+    type AppSchemaOrgImageObject = {
+      "@type": string;
+      "height": number;
+      "url": string;
+      "width": number;
+    };
+
+    type AppSchemaOrgNode = {
+      description?: () => string;
+      inLanguage?: () => string;
+      name?: string;
+      primaryImageOfPage?: AppSchemaOrgImageObject;
+      slogan?: () => string;
+    };
+
+    function getAppSchemaOrgNodes(): AppSchemaOrgNode[] {
+      return (vi.mocked(useSchemaOrg).mock.calls[0]?.[0] ?? []) as AppSchemaOrgNode[];
+    }
+
+    it("should define the Organization identity with the site name when mounted.", () => {
+      expect(getAppSchemaOrgNodes()[0]?.name).toBe("Goat It");
+    });
+
+    it("should define the Organization identity with the localized description when mounted.", () => {
+      expect(getAppSchemaOrgNodes()[0]?.description?.()).toBe("seo.home.description");
+    });
+
+    it("should define the Organization identity with the localized slogan when mounted.", () => {
+      expect(getAppSchemaOrgNodes()[0]?.slogan?.()).toBe("home.tagline");
+    });
+
+    it("should define the WebSite with the site name when mounted.", () => {
+      expect(getAppSchemaOrgNodes()[1]?.name).toBe("Goat It");
+    });
+
+    it("should define the WebSite with the localized description when mounted.", () => {
+      expect(getAppSchemaOrgNodes()[1]?.description?.()).toBe("seo.home.description");
+    });
+
+    it("should define the WebPage with the current locale when mounted.", () => {
+      expect(getAppSchemaOrgNodes()[2]?.inLanguage?.()).toBe("en");
+    });
+
+    it("should define the WebPage with the social image when mounted.", () => {
+      expect(getAppSchemaOrgNodes()[2]?.primaryImageOfPage).toStrictEqual({
+        "@type": "ImageObject",
+        "height": 600,
+        "url": "/og-image.png",
+        "width": 1200,
+      });
+    });
+  });
+
   it("should refetch the question themes when the locale changes.", async() => {
     const questionThemesStore = mockStore(useQuestionThemesStore);
     const { locale } = useI18n();

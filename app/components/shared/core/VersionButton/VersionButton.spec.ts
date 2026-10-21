@@ -2,12 +2,14 @@ import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { SITE_GITHUB_URL } from "#shared/constants/site.constants.ts";
+
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import { VersionButton } from "#components";
 
 import { version } from "~~/package.json";
-import { GITHUB_REPO_URL, VERSION_BUTTON_UI } from "@/components/shared/core/VersionButton/version-button.constants";
+import { VERSION_BUTTON_UI } from "@/components/shared/core/VersionButton/version-button.constants";
 
 describe("VersionButton Component", () => {
   let wrapper: VueWrapper;
@@ -37,7 +39,7 @@ describe("VersionButton Component", () => {
   it("should render a UButton linking to the GitHub repository URL when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("href")).toBe(GITHUB_REPO_URL);
+    expect(button.props("href")).toBe(SITE_GITHUB_URL);
   });
 
   it("should set the UButton ui prop to VERSION_BUTTON_UI when mounted.", () => {

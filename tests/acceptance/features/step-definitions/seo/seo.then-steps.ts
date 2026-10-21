@@ -6,8 +6,9 @@ import { validateDataTableAndGetRows } from "#acceptance/features/support/helper
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import {
   collectSchemaOrgGraphNodes,
-  collectSchemaOrgGraphTypes,
   fetchSitemapXml,
+  findSchemaOrgGraphNodeByType,
+  hasSchemaOrgGraphType,
 } from "#acceptance/features/step-definitions/seo/helpers/seo.then-steps.helpers.ts";
 
 import { SEO_META_TAG_ROW_SCHEMA } from "./datatables/seo.datatables.schemas.ts";
@@ -15,6 +16,10 @@ import { SEO_META_TAG_ROW_SCHEMA } from "./datatables/seo.datatables.schemas.ts"
 const HTTP_STATUS_OK = 200;
 
 const HTTP_STATUS_NOT_FOUND = 404;
+
+const SOCIAL_IMAGE_HEIGHT = 600;
+
+const SOCIAL_IMAGE_WIDTH = 1200;
 
 Then(
   /^the following meta tags should be present:$/u,
@@ -148,19 +153,56 @@ Then(
 Then(
   /^the page should contain schema.org WebPage and WebSite structured data$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const graphTypes = collectSchemaOrgGraphTypes(await collectSchemaOrgGraphNodes(this.page));
+    const graphNodes = await collectSchemaOrgGraphNodes(this.page);
+    const webSiteNode = findSchemaOrgGraphNodeByType(graphNodes, "WebSite");
+    const webPageNode = findSchemaOrgGraphNodeByType(graphNodes, "WebPage");
 
-    expect(graphTypes).toContain("WebSite");
-    expect(graphTypes).toContain("WebPage");
+    if (webSiteNode === undefined || webPageNode === undefined) {
+      throw new Error("Expected the schema.org graph to contain WebSite and WebPage nodes.");
+    }
+
+    expect(webSiteNode.description).toBe("Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, " +
+      "investigate, and find the answer.");
+    expect(webSiteNode.inLanguage).toBe("en-US");
+    expect(webPageNode.inLanguage).toBe("en");
+    expect(webPageNode.primaryImageOfPage?.contentUrl).toMatch(/\/og-image\.png$/u);
+    expect(webPageNode.primaryImageOfPage?.width).toBe(SOCIAL_IMAGE_WIDTH);
+    expect(webPageNode.primaryImageOfPage?.height).toBe(SOCIAL_IMAGE_HEIGHT);
   },
 );
 
 Then(
   /^the page should contain the schema.org Organization identity$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const graphTypes = collectSchemaOrgGraphTypes(await collectSchemaOrgGraphNodes(this.page));
+    const graphNodes = await collectSchemaOrgGraphNodes(this.page);
+    const organizationNode = findSchemaOrgGraphNodeByType(graphNodes, "Organization");
 
-    expect(graphTypes).toContain("Organization");
+    if (organizationNode === undefined) {
+      throw new Error("Expected the schema.org graph to contain an Organization node.");
+    }
+
+    expect(organizationNode.name).toBe("Goat It");
+    expect(organizationNode.description).toBe("Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, " +
+      "investigate, and find the answer.");
+    expect(organizationNode.email).toBe("antoine.zanardi@epitech.eu");
+    expect(organizationNode.foundingDate).toBe("2025-10-11");
+    expect(organizationNode.slogan).toBe("The game where the answer is guessed");
+    expect(organizationNode.sameAs).toContain("https://github.com/antoinezanardi/goat-it-web-game");
+
+    const organizationLogoId = organizationNode.logo?.["@id"];
+
+    if (organizationLogoId === undefined) {
+      throw new Error("Expected the schema.org Organization node to reference a logo.");
+    }
+
+    const organizationLogoNode = graphNodes.find(graphNode => graphNode["@id"] === organizationLogoId);
+
+    if (organizationLogoNode === undefined) {
+      throw new Error("Expected the schema.org Organization logo to reference an existing graph node.");
+    }
+
+    expect(hasSchemaOrgGraphType(organizationLogoNode, "ImageObject")).toBe(true);
+    expect(organizationLogoNode.contentUrl?.endsWith("/pwa/pwa-512x512.png")).toBe(true);
   },
 );
 
@@ -168,12 +210,7 @@ Then(
   /^the schema.org graph should contain a logo image pointing to the PWA icon$/u,
   async function(this: GoatItWorld): Promise<void> {
     const graphNodes = await collectSchemaOrgGraphNodes(this.page);
-    const logoImageNode = graphNodes.find(graphNode => {
-      const rawGraphTypes = graphNode["@type"] ?? [];
-      const graphTypes = Array.isArray(rawGraphTypes) ? rawGraphTypes : [rawGraphTypes];
-
-      return graphTypes.includes("ImageObject") && graphNode.contentUrl?.endsWith("/pwa/pwa-512x512.png") === true;
-    });
+    const logoImageNode = graphNodes.find(graphNode => hasSchemaOrgGraphType(graphNode, "ImageObject") && graphNode.contentUrl?.endsWith("/pwa/pwa-512x512.png") === true);
 
     expect(logoImageNode).toBeDefined();
   },

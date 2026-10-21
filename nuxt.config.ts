@@ -1,4 +1,10 @@
 import { DEFAULT_LOCALE_FALLBACK } from "#shared/constants/locale.constants.ts";
+import {
+  SITE_CONTACT_EMAIL,
+  SITE_FOUNDING_DATE,
+  SITE_GITHUB_URL,
+  SITE_NAME,
+} from "#shared/constants/site.constants.ts";
 import { resolveSiteEnvironment } from "#shared/utils/helpers/site/site-environment.helpers.ts";
 
 const siteEnvironment = resolveSiteEnvironment(process.env);
@@ -61,7 +67,7 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
   site: {
     url: process.env.NUXT_PUBLIC_SITE_URL,
-    name: "Goat It",
+    name: SITE_NAME,
     env: siteEnvironment,
   },
   content: {
@@ -311,8 +317,16 @@ export default defineNuxtConfig({
   schemaOrg: {
     identity: {
       type: "Organization",
-      name: "Goat It",
-      logo: "/pwa/pwa-512x512.png",
+      name: SITE_NAME,
+      email: SITE_CONTACT_EMAIL,
+      foundingDate: SITE_FOUNDING_DATE,
+      sameAs: [SITE_GITHUB_URL],
+      logo: {
+        "@type": "ImageObject",
+        "url": "/pwa/pwa-512x512.png",
+        "width": 512,
+        "height": 512,
+      },
     },
   },
   seo: { validateAppHead: true },
