@@ -30,6 +30,11 @@ useHead({
     { name: "mobile-web-app-capable", content: "yes" },
   ],
 });
+
+useSeoMeta({
+  ogImageAlt: () => t("seo.imageAlt"),
+  twitterImageAlt: () => t("seo.imageAlt"),
+});
 </script>
 
 <template>

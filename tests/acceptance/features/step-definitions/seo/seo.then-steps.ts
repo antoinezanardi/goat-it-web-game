@@ -4,7 +4,11 @@ import { expect } from "@playwright/test";
 
 import { validateDataTableAndGetRows } from "#acceptance/features/support/helpers/datatable.helpers.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-import { fetchSitemapXml } from "#acceptance/features/step-definitions/seo/helpers/seo.then-steps.helpers.ts";
+import {
+  collectSchemaOrgGraphNodes,
+  collectSchemaOrgGraphTypes,
+  fetchSitemapXml,
+} from "#acceptance/features/step-definitions/seo/helpers/seo.then-steps.helpers.ts";
 
 import { SEO_META_TAG_ROW_SCHEMA } from "./datatables/seo.datatables.schemas.ts";
 
@@ -119,18 +123,6 @@ Then(
 );
 
 Then(
-  /^the sitemap.xml should contain hreflang alternates for all 6 locales$/u,
-  async function(this: GoatItWorld): Promise<void> {
-    const content = await fetchSitemapXml(this.page);
-    const localeCodes = ["fr", "en", "de", "es", "it", "pt"];
-
-    for (const locale of localeCodes) {
-      expect(content).toContain(`hreflang="${locale}"`);
-    }
-  },
-);
-
-Then(
   /^the canonical link should point to the current page$/u,
   async function(this: GoatItWorld): Promise<void> {
     const canonicalLocator = this.page.locator("head link[rel=\"canonical\"]");
@@ -156,31 +148,34 @@ Then(
 Then(
   /^the page should contain schema.org WebPage and WebSite structured data$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const scriptLocator = this.page.locator("script[type=\"application/ld+json\"]");
-    const scriptCount = await scriptLocator.count();
+    const graphTypes = collectSchemaOrgGraphTypes(await collectSchemaOrgGraphNodes(this.page));
 
-    const allGraphTypes: string[] = [];
+    expect(graphTypes).toContain("WebSite");
+    expect(graphTypes).toContain("WebPage");
+  },
+);
 
-    for (let index = 0; index < scriptCount; index++) {
-      // Acceptable as each JSON-LD script must be parsed and validated sequentially
-      // oxlint-disable-next-line eslint/no-await-in-loop
-      const jsonContent = await scriptLocator.nth(index).textContent();
+Then(
+  /^the page should contain the schema.org Organization identity$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const graphTypes = collectSchemaOrgGraphTypes(await collectSchemaOrgGraphNodes(this.page));
 
-      if (jsonContent === null) {
-        throw new Error(`Expected JSON-LD script at index ${index} to have text content.`);
-      }
+    expect(graphTypes).toContain("Organization");
+  },
+);
 
-      // Acceptable as JSON.parse returns any and the schema.org script shape is validated at runtime
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      const parsed = JSON.parse(jsonContent) as { "@graph"?: { "@type"?: string | string[] }[] };
+Then(
+  /^the schema.org graph should contain a logo image pointing to the PWA icon$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const graphNodes = await collectSchemaOrgGraphNodes(this.page);
+    const logoImageNode = graphNodes.find(graphNode => {
+      const rawGraphTypes = graphNode["@type"] ?? [];
+      const graphTypes = Array.isArray(rawGraphTypes) ? rawGraphTypes : [rawGraphTypes];
 
-      const graphTypes = (parsed["@graph"] ?? []).flatMap(node => node["@type"] ?? []);
+      return graphTypes.includes("ImageObject") && graphNode.contentUrl?.endsWith("/pwa/pwa-512x512.png") === true;
+    });
 
-      allGraphTypes.push(...graphTypes);
-    }
-
-    expect(allGraphTypes).toContain("WebSite");
-    expect(allGraphTypes).toContain("WebPage");
+    expect(logoImageNode).toBeDefined();
   },
 );
 

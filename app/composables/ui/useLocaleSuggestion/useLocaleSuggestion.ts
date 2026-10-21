@@ -4,17 +4,17 @@ import { usePreferredLanguages } from "@vueuse/core";
 
 import { CookieNames } from "#shared/enums/cookie.enums";
 import { resolveSuggestedLocale } from "#shared/utils/helpers/locale/locale.helpers";
-import { I18N_REDIRECTED_COOKIE_OPTIONS } from "@/app.constants";
+import { LOCALE_COOKIE_OPTIONS } from "@/app.constants";
 import type { UseLocaleSuggestionReturn } from "@/composables/ui/useLocaleSuggestion/use-locale-suggestion.types";
 import type { Toast } from "#ui/composables";
 
 async function useLocaleSuggestion(): UseLocaleSuggestionReturn {
   const { addErrorToast, addInfoToast, removeToast } = useAppToast();
   const { $i18n } = useNuxtApp();
-  const redirectedCookie = useCookie<string | undefined>(CookieNames.I18N_REDIRECTED, I18N_REDIRECTED_COOKIE_OPTIONS);
+  const localeCookie = useCookie<string | undefined>(CookieNames.LOCALE, LOCALE_COOKIE_OPTIONS);
   const preferredLanguages = usePreferredLanguages();
 
-  if (redirectedCookie.value !== undefined && isValidLocale(redirectedCookie.value)) {
+  if (localeCookie.value !== undefined && isValidLocale(localeCookie.value)) {
     return;
   }
 
@@ -39,7 +39,7 @@ async function useLocaleSuggestion(): UseLocaleSuggestionReturn {
 
   function handleAccept(): void {
     isHandled = true;
-    redirectedCookie.value = targetLocale;
+    localeCookie.value = targetLocale;
     removeToast(suggestionToast.id);
     void applySuggestedLocale(targetLocale);
   }
@@ -48,7 +48,7 @@ async function useLocaleSuggestion(): UseLocaleSuggestionReturn {
     try {
       await $i18n.setLocale(locale);
     } catch(error: unknown) {
-      redirectedCookie.value = undefined;
+      localeCookie.value = undefined;
       console.error("Failed to apply the suggested locale", error);
       addErrorToast({ title: $i18n.t("common.error"), description: $i18n.t("errors.unknown") });
     }
@@ -56,7 +56,7 @@ async function useLocaleSuggestion(): UseLocaleSuggestionReturn {
 
   function handleDecline(): void {
     isHandled = true;
-    redirectedCookie.value = currentLocale;
+    localeCookie.value = currentLocale;
     removeToast(suggestionToast.id);
   }
 
@@ -64,7 +64,7 @@ async function useLocaleSuggestion(): UseLocaleSuggestionReturn {
     if (open || isHandled) {
       return;
     }
-    redirectedCookie.value = currentLocale;
+    localeCookie.value = currentLocale;
   }
 
   function translateInSuggestedLocale(key: string): string {

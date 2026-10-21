@@ -24,7 +24,7 @@ Every path starting with `/api/` additionally gets:
 | `Cache-Control` | `private, no-store` |
 | `Vary`          | `Cookie`            |
 
-The proxy answers per user (the `i18n_redirected` cookie changes the forwarded `Accept-Language`), hence the private, uncacheable response.
+The proxy answers per user (the `goat_it_locale` cookie changes the forwarded `Accept-Language`), hence the private, uncacheable response.
 
 ## Content Security Policy
 

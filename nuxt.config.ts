@@ -308,6 +308,13 @@ export default defineNuxtConfig({
       navigateFallback: null,
     },
   },
+  schemaOrg: {
+    identity: {
+      type: "Organization",
+      name: "Goat It",
+      logo: "/pwa/pwa-512x512.png",
+    },
+  },
   seo: { validateAppHead: true },
   sitemap: {
     enabled: siteEnvironment === "production",

@@ -12,7 +12,7 @@ import type { ULocaleSelect } from "#components";
 import { LocaleSelect } from "#components";
 
 import { CookieNames } from "#shared/enums/cookie.enums";
-import { I18N_REDIRECTED_COOKIE_OPTIONS } from "@/app.constants";
+import { LOCALE_COOKIE_OPTIONS } from "@/app.constants";
 import { LOCALE_SELECT_UI } from "@/components/shared/core/localization/LocaleSelect/locale-select.constants";
 import type { LocaleSelectProps } from "@/components/shared/core/localization/LocaleSelect/locale-select.types";
 
@@ -39,10 +39,10 @@ describe("LocaleSelect Component", () => {
   });
 
   describe("Locale cookie", () => {
-    it("should read the i18n_redirected cookie with the locale cookie options when mounted.", () => {
+    it("should read the goat_it_locale cookie with the locale cookie options when mounted.", () => {
       expect({ name: useCookieMockState.capturedName.current, options: useCookieMockState.capturedOptions.current }).toStrictEqual({
-        name: CookieNames.I18N_REDIRECTED,
-        options: I18N_REDIRECTED_COOKIE_OPTIONS,
+        name: CookieNames.LOCALE,
+        options: LOCALE_COOKIE_OPTIONS,
       });
     });
   });

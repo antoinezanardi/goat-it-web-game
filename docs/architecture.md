@@ -401,6 +401,8 @@ Do not add a new root folder simply because a concept is shared. Pick an establi
 
 Non-production also disables the sitemap (`sitemap.enabled`), because `@nuxtjs/sitemap` does not filter URLs by site indexability. Do not set `site.indexable` directly: an explicit value overrides the environment-derived behavior and reopens the staging indexing bug.
 
+URL/locale strategy (`no_prefix`), locale cookie naming, social image alt policy, structured-data identity and the production-only sitemap are recorded in [SEO](seo.md).
+
 ## 10. Agent and workflow compliance
 
 This document is canonical. Do not copy its full contents into every prompt. Every agent, skill, or command that can plan or cause project files to be created, edited, or moved must require consulting `docs/architecture.md` before that work.

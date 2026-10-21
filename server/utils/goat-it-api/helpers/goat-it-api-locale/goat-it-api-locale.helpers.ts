@@ -6,7 +6,7 @@ import { CookieNames } from "#shared/enums/cookie.enums";
 import { resolveCookieLocale } from "#shared/utils/helpers/locale/locale.helpers";
 
 function extractLocaleFromEvent(event: H3Event, defaultLocale: Locale): Locale {
-  return resolveCookieLocale(getCookie(event, CookieNames.I18N_REDIRECTED), defaultLocale);
+  return resolveCookieLocale(getCookie(event, CookieNames.LOCALE), defaultLocale);
 }
 
 export { extractLocaleFromEvent };

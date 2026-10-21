@@ -76,6 +76,25 @@ describe("App Component", () => {
     });
   });
 
+  describe("useSeoMeta", () => {
+    type AppSeoMetaConfig = {
+      meta: { name?: string; property?: string; content: () => string }[];
+    };
+
+    function getAppSeoMetaConfig(): AppSeoMetaConfig | undefined {
+      return vi.mocked(useHead).mock.calls[1]?.[0] as AppSeoMetaConfig | undefined;
+    }
+
+    it.each<{ attribute: "name" | "property"; key: string }>([
+      { attribute: "property", key: "og:image:alt" },
+      { attribute: "name", key: "twitter:image:alt" },
+    ])("should set the $key social image alt meta tag with the localized alt when mounted.", ({ attribute, key }) => {
+      const metaEntry = getAppSeoMetaConfig()?.meta.find(entry => entry[attribute] === key);
+
+      expect(metaEntry?.content()).toBe("seo.imageAlt");
+    });
+  });
+
   it("should refetch the question themes when the locale changes.", async() => {
     const questionThemesStore = mockStore(useQuestionThemesStore);
     const { locale } = useI18n();
