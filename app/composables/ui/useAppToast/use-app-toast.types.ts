@@ -4,6 +4,7 @@ type UseAppToast = {
   addSuccessToast: (options: Partial<Toast>) => Toast;
   addErrorToast: (options: Partial<Toast>) => Toast;
   addInfoToast: (options: Partial<Toast>) => Toast;
+  addWarningToast: (options: Partial<Toast>) => Toast;
   updateToast: (id: string | number, options: Omit<Partial<Toast>, "id">) => void;
   removeToast: (id: string | number) => void;
 };

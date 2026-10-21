@@ -1,18 +1,22 @@
 import { extractErrorCode, resolveStatusErrorCode } from "@/composables/domain/useGoatItApiErrorToast/helpers/error-code/error-code.helpers";
-import type { UseGoatItApiErrorToast } from "@/composables/domain/useGoatItApiErrorToast/use-goat-it-api-error-toast.types";
+import type {
+  HandleGoatItApiErrorOptions,
+  UseGoatItApiErrorToast,
+} from "@/composables/domain/useGoatItApiErrorToast/use-goat-it-api-error-toast.types";
 
 function useGoatItApiErrorToast(): UseGoatItApiErrorToast {
   const { addErrorToast } = useAppToast();
   const i18n = useI18n();
 
-  function handleGoatItApiError(error: unknown, title: string): void {
+  function handleGoatItApiError(error: unknown, options: HandleGoatItApiErrorOptions): void {
+    const { context, title } = options;
     const errorCodeValue = extractErrorCode(error);
 
     if (errorCodeValue !== undefined && errorCodeValue !== "") {
       const errorCodeI18nKey = `errors.goatItApi.${errorCodeValue}`;
 
       if (i18n.te(errorCodeI18nKey)) {
-        addErrorToast({ title, description: i18n.t(errorCodeI18nKey), id: `api-error-${errorCodeValue}` });
+        addErrorToast({ title, description: i18n.t(errorCodeI18nKey), id: `${context}-api-error-${errorCodeValue}` });
 
         return;
       }
@@ -23,12 +27,12 @@ function useGoatItApiErrorToast(): UseGoatItApiErrorToast {
     const statusErrorCode = resolveStatusErrorCode(error);
 
     if (statusErrorCode !== undefined) {
-      addErrorToast({ title, description: i18n.t(`errors.goatItApi.${statusErrorCode}`), id: `api-error-${statusErrorCode}` });
+      addErrorToast({ title, description: i18n.t(`errors.goatItApi.${statusErrorCode}`), id: `${context}-api-error-${statusErrorCode}` });
 
       return;
     }
 
-    addErrorToast({ title, description: i18n.t("errors.unknown"), id: "api-error-unknown" });
+    addErrorToast({ title, description: i18n.t("errors.unknown"), id: `${context}-api-error-unknown` });
   }
   return { handleGoatItApiError };
 }

@@ -7,6 +7,16 @@
     "previousQuestionTooltip": "Revenir à la question précédente",
     "menuTooltip": "Ouvrir le menu",
     "noMoreQuestions": "Vous avez tout vu ! Revenez bientôt pour de nouvelles questions.",
+    "fetchError": {
+      "title": "Impossible de charger les questions",
+      "description": "La connexion au serveur de jeu a échoué. Vérifiez votre connexion puis réessayez.",
+      "retry": "Réessayer"
+    },
+    "emptyFilters": {
+      "title": "Aucune question ne correspond à ces filtres",
+      "description": "Vos filtres sont trop restrictifs pour les questions restantes. Réinitialisez-les pour continuer à jouer.",
+      "reset": "Réinitialiser les filtres"
+    },
     "rules": "Règles du jeu",
     "backToHome": "Retour à l'accueil",
     "leaveConfirmTitle": "Quitter la partie ?",
@@ -20,6 +30,7 @@
         "about": "À propos"
       },
       "languageLabel": "Langue",
+      "resetNotice": "Certains de vos paramètres de jeu n'ont pas pu être lus et ont été réinitialisés.",
       "adultContent": {
         "label": "Contenu adulte",
         "descriptionDisabled": "Seules les questions adaptées à tous les publics apparaîtront.",

@@ -1,3 +1,4 @@
+import type { AsyncResult } from "#shared/types/async-result.types";
 import type { GameQuestionsFiltersDraft } from "@/utils/domain/game/game-questions-filters-draft.types";
 
 type GameQuestionsFiltersButtonHandle = {
@@ -5,7 +6,7 @@ type GameQuestionsFiltersButtonHandle = {
 };
 
 type UseGameFiltersModalOptions = {
-  syncQuestionsWithGameSettings: () => Promise<void>;
+  syncQuestionsWithGameSettings: () => Promise<AsyncResult<void>>;
   getFiltersButton: () => GameQuestionsFiltersButtonHandle | undefined;
 };
 

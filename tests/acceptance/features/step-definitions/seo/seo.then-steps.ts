@@ -3,13 +3,14 @@ import { Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import { validateDataTableAndGetRows } from "#acceptance/features/support/helpers/datatable.helpers.ts";
-import { ACCEPTANCE_TESTS_SITE_URL } from "#acceptance/features/support/constants/hooks.constants.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { fetchSitemapXml } from "#acceptance/features/step-definitions/seo/helpers/seo.then-steps.helpers.ts";
 
 import { SEO_META_TAG_ROW_SCHEMA } from "./datatables/seo.datatables.schemas.ts";
 
 const HTTP_STATUS_OK = 200;
+
+const HTTP_STATUS_NOT_FOUND = 404;
 
 Then(
   /^the following meta tags should be present:$/u,
@@ -33,12 +34,57 @@ Then(
 );
 
 Then(
-  /^the robots.txt response should reference the sitemap$/u,
+  /^the robots.txt response should not reference the sitemap$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const content = await this.page.locator("body").textContent();
-    const sitemapUrl = `${new URL(ACCEPTANCE_TESTS_SITE_URL).origin}/sitemap.xml`;
+    const content = await this.page.locator("body").textContent() ?? "";
 
-    expect(content).toContain(`Sitemap: ${sitemapUrl}`);
+    expect(content).not.toMatch(/^\s*Sitemap:/imu);
+  },
+);
+
+Then(
+  /^the home response should expose a non-indexable X-Robots-Tag$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const response = await this.page.request.get(new URL(this.page.url()).origin);
+    const robotsHeader = response.headers()["x-robots-tag"];
+
+    expect(robotsHeader).toContain("noindex");
+  },
+);
+
+Then(
+  /^the robots.txt response should disallow crawling$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const content = await this.page.locator("body").textContent() ?? "";
+    const wildcardGroup = content.split(/\n\s*\n/u).find(group => group.includes("User-agent: *"));
+    const wildcardDirectives = wildcardGroup?.split("\n").map(line => line.trim()) ?? [];
+
+    expect(wildcardGroup).toBeDefined();
+    expect(wildcardDirectives).toContain("Disallow: /");
+    expect(wildcardDirectives).not.toContain("Allow: /");
+  },
+);
+
+Then(
+  /^the robots.txt response should allow crawling$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const content = await this.page.locator("body").textContent() ?? "";
+    const wildcardGroup = content.split(/\n\s*\n/u).find(group => group.includes("User-agent: *"));
+    const wildcardDirectives = wildcardGroup?.split("\n").map(line => line.trim()) ?? [];
+
+    expect(wildcardGroup).toBeDefined();
+    expect(wildcardDirectives).toContain("Allow: /");
+    expect(wildcardDirectives).not.toContain("Disallow: /");
+  },
+);
+
+Then(
+  /^the sitemap.xml should not be served$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const baseUrl = new URL(this.page.url()).origin;
+    const response = await this.page.request.get(`${baseUrl}/sitemap.xml`);
+
+    expect(response.status()).toBe(HTTP_STATUS_NOT_FOUND);
   },
 );
 

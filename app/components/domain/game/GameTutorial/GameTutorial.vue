@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import { useEventListener } from "@vueuse/core";
+import { nextTick } from "vue";
 
 import { GameTutorialPopoverContent } from "#components";
 
-import { isEditableKeyboardTarget } from "@/utils/core/element/element.dom.helpers";
+import { getFocusedHTMLElement, isEditableKeyboardTarget, isElementFocusable } from "@/utils/core/element/element.dom.helpers";
 import type {
   GameTutorialEmits,
+  GameTutorialPopoverContentConfig,
   GameTutorialProps,
   GameTutorialSpotlightRect,
   GameTutorialStepDirection,
@@ -27,6 +29,25 @@ const { t } = useI18n();
 
 const popoverMaxHeight = ref<string>("none");
 const popoverSide = ref<"bottom" | "top">("bottom");
+const previouslyFocusedElement = ref<HTMLElement>();
+
+function captureFocusOrigin(): void {
+  previouslyFocusedElement.value = getFocusedHTMLElement();
+}
+
+function restoreFocus(): void {
+  const origin = previouslyFocusedElement.value;
+
+  previouslyFocusedElement.value = undefined;
+  if (origin !== undefined && !origin.closest("[role='dialog']") && isElementFocusable(origin)) {
+    origin.focus();
+
+    if (document.activeElement === origin) {
+      return;
+    }
+  }
+  document.querySelector<HTMLElement>("[data-testid='game-sidebar-toggle-button']")?.focus();
+}
 
 const tourSteps = computed(() => GAME_TUTORIAL_STEPS.map(step => {
   const { target } = step;
@@ -53,11 +74,17 @@ const {
 } = useTour(tourSteps);
 
 const currentStepTitle = computed<string | undefined>(() => tourSteps.value[index.value]?.title);
-const popoverContent = computed(() => ({
+const popoverContent = computed<GameTutorialPopoverContentConfig>(() => ({
   "side": popoverSide.value,
   "sideOffset": GAME_TUTORIAL_POPOVER_OFFSET,
   "aria-label": currentStepTitle.value,
+  onEscapeKeyDown,
 }));
+
+function onEscapeKeyDown(event: KeyboardEvent): void {
+  event.preventDefault();
+  finish();
+}
 
 const highlightRect = ref<GameTutorialSpotlightRect>();
 
@@ -134,6 +161,7 @@ useEventListener("keydown", onTutorialShortcut, { capture: true, passive: false 
 
 watch(() => props.isActive, isActive => {
   if (isActive) {
+    captureFocusOrigin();
     start(0);
 
     return;
@@ -155,9 +183,11 @@ useEventListener("scroll", () => {
   }
 }, { capture: true });
 
-watch(open, isOpen => {
+watch(open, async isOpen => {
   if (!isOpen) {
     emit("tutorialEnd");
+    await nextTick();
+    restoreFocus();
   }
 });
 </script>
@@ -187,6 +217,7 @@ watch(open, isOpen => {
     <UPopover
       :content="popoverContent"
       :dismissible="false"
+      modal
       :open="open"
       :reference="reference"
       :ui="GAME_TUTORIAL_POPOVER_UI"

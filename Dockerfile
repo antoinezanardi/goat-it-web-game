@@ -28,8 +28,9 @@ COPY --chown=node:node pnpm-workspace.yaml ./
 COPY --chown=node:node tsconfig*.json ./
 COPY --chown=node:node scripts/post-install-prepare.sh ./scripts/post-install-prepare.sh
 COPY --chown=node:node app/i18n ./app/i18n
-# nuxt.config.ts imports shared/constants at config load — required before the postinstall "nuxt prepare" step runs.
+# nuxt.config.ts imports shared/constants and shared/utils/helpers/site at config load — required before the postinstall "nuxt prepare" step runs.
 COPY --chown=node:node shared/constants ./shared/constants
+COPY --chown=node:node shared/utils/helpers/site ./shared/utils/helpers/site
 
 RUN pnpm install --frozen-lockfile
 
@@ -49,6 +50,9 @@ ENV NUXT_PUBLIC_DEFAULT_LOCALE=${NUXT_PUBLIC_DEFAULT_LOCALE}
 
 ARG NUXT_PUBLIC_SITE_URL
 ENV NUXT_PUBLIC_SITE_URL=${NUXT_PUBLIC_SITE_URL}
+
+ARG NUXT_SITE_ENV
+ENV NUXT_SITE_ENV=${NUXT_SITE_ENV}
 
 USER node
 
@@ -80,6 +84,9 @@ FROM node:26.12.0-alpine AS production
 ENV NODE_ENV="production"
 ENV PORT=3002
 ENV HOST=0.0.0.0
+
+ARG NUXT_SITE_ENV
+ENV NUXT_SITE_ENV=${NUXT_SITE_ENV}
 
 USER node
 

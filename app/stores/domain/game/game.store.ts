@@ -1,7 +1,7 @@
 import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 
+import type { AsyncResult } from "#shared/types/async-result.types";
 import type { AsyncDataRequestStatus } from "#app";
-import type { UseAsyncActionResult } from "@/composables/core/useAsyncAction/use-async-action.types";
 
 export const useGameStore = defineStore(StoreNames.GAME, () => {
   const questions = ref<Question[]>([]);
@@ -25,7 +25,7 @@ export const useGameStore = defineStore(StoreNames.GAME, () => {
   const fetchStatus = computed<AsyncDataRequestStatus>(() => randomQuestionsFetchStatus.value);
   const fetchQuestionsByIdsStatus = computed<AsyncDataRequestStatus>(() => questionsByIdsFetchStatus.value);
 
-  async function fetchAndAppendRandomQuestions(body?: FindRandomQuestionsBodyDto): Promise<UseAsyncActionResult<Question[]>> {
+  async function fetchAndAppendRandomQuestions(body?: FindRandomQuestionsBodyDto): Promise<AsyncResult<Question[]>> {
     const result = await fetchRandomQuestions(body);
     if (result.ok) {
       questions.value.push(...result.value);

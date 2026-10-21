@@ -7,6 +7,16 @@
     "previousQuestionTooltip": "Go back to previous question",
     "menuTooltip": "Open menu",
     "noMoreQuestions": "You're all caught up! Check back soon for fresh questions.",
+    "fetchError": {
+      "title": "We couldn't load questions",
+      "description": "The connection to the game server failed. Check your connection and try again.",
+      "retry": "Try again"
+    },
+    "emptyFilters": {
+      "title": "No questions match these filters",
+      "description": "Your filters are too restrictive for the remaining questions. Reset them to keep playing.",
+      "reset": "Reset filters"
+    },
     "rules": "Rules",
     "backToHome": "Back to Home",
     "leaveConfirmTitle": "Leave Game?",
@@ -20,6 +30,7 @@
         "about": "About"
       },
       "languageLabel": "Language",
+      "resetNotice": "Some of your game settings could not be read and have been reset.",
       "adultContent": {
         "label": "Adult content",
         "descriptionDisabled": "Only questions suitable for all audiences will appear.",

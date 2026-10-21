@@ -1,4 +1,7 @@
 import { DEFAULT_LOCALE_FALLBACK } from "#shared/constants/locale.constants.ts";
+import { resolveSiteEnvironment } from "#shared/utils/helpers/site/site-environment.helpers.ts";
+
+const siteEnvironment = resolveSiteEnvironment(process.env);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -59,7 +62,7 @@ export default defineNuxtConfig({
   site: {
     url: process.env.NUXT_PUBLIC_SITE_URL,
     name: "Goat It",
-    indexable: true,
+    env: siteEnvironment,
   },
   content: {
     experimental: {
@@ -305,8 +308,9 @@ export default defineNuxtConfig({
       navigateFallback: null,
     },
   },
-  seo: { validateAppHead: false },
+  seo: { validateAppHead: true },
   sitemap: {
+    enabled: siteEnvironment === "production",
     zeroRuntime: true,
   },
 });

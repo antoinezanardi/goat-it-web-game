@@ -92,7 +92,7 @@ describe("App Component", () => {
     locale.value = "fr";
     await nextTick();
 
-    expect(useGoatItApiErrorToastMock.instance.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fakeError, "questionThemes.cantFetch");
+    expect(useGoatItApiErrorToastMock.instance.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fakeError, { title: "questionThemes.cantFetch", context: "question-themes" });
   });
 
   it("should call once the question themes fetch when mounted.", () => {

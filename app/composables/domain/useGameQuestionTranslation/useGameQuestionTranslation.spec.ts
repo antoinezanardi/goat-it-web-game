@@ -9,7 +9,7 @@ import type { UseGoatItApiErrorToastMock } from "~~/tests/unit/utils/mocks/compo
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-import type { UseAsyncActionResult } from "@/composables/core/useAsyncAction/use-async-action.types";
+import type { AsyncResult } from "#shared/types/async-result.types";
 import type { useGameQuestionTranslation as UseGameQuestionTranslationType } from "@/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation";
 import type { Question } from "#shared/types/question.types";
 import { useGameStore } from "@/stores/domain/game/game.store";
@@ -183,7 +183,7 @@ describe("useGameQuestionTranslation", () => {
       locale.value = "fr";
       await flushPromises();
 
-      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, "questions.cantFetch");
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, { title: "questions.cantFetch", context: "questions-translation" });
     });
 
     it("should not replace the questions when the by ids fetch fails.", async() => {
@@ -208,11 +208,11 @@ describe("useGameQuestionTranslation", () => {
       const fakeQuestions = [firstQuestion, secondQuestion];
       const questions = ref<Question[]>([...fakeQuestions]);
       let isTranslationInProgress = false;
-      let resolvePendingTranslation: ((value: UseAsyncActionResult<Question[]>) => void) | undefined;
+      let resolvePendingTranslation: ((value: AsyncResult<Question[]>) => void) | undefined;
       store.fetchQuestionsByIds.mockImplementationOnce(async() => {
         isTranslationInProgress = true;
 
-        return new Promise<UseAsyncActionResult<Question[]>>(resolve => {
+        return new Promise<AsyncResult<Question[]>>(resolve => {
           resolvePendingTranslation = resolve;
         });
       });

@@ -39,6 +39,16 @@ function useAppToast(): UseAppToast {
     });
   }
 
+  function addWarningToast(options: Partial<Toast>): Toast {
+    return toast.add({
+      icon: "i-lucide-triangle-alert",
+      color: "warning",
+      title: $i18n.t("common.warning"),
+      ...toastExtraData,
+      ...options,
+    });
+  }
+
   function updateToast(id: string | number, options: Omit<Partial<Toast>, "id">): void {
     toast.update(id, options);
   }
@@ -50,6 +60,7 @@ function useAppToast(): UseAppToast {
     addSuccessToast,
     addErrorToast,
     addInfoToast,
+    addWarningToast,
     updateToast,
     removeToast,
   };

@@ -40,7 +40,7 @@ describe("useGoatItApiErrorToast", () => {
       };
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't archive question theme");
+      handleGoatItApiError(fetchError, { title: "Can't archive question theme", context: "questions" });
 
       expect(useI18nMock.te).toHaveBeenCalledExactlyOnceWith("errors.goatItApi.questionThemeReferencedByLiveQuestions");
     });
@@ -54,12 +54,12 @@ describe("useGoatItApiErrorToast", () => {
       };
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't archive question theme");
+      handleGoatItApiError(fetchError, { title: "Can't archive question theme", context: "questions" });
 
       expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
         title: "Can't archive question theme",
         description: "translated:errors.goatItApi.questionThemeReferencedByLiveQuestions",
-        id: "api-error-questionThemeReferencedByLiveQuestions",
+        id: "questions-api-error-questionThemeReferencedByLiveQuestions",
       });
     });
 
@@ -73,7 +73,7 @@ describe("useGoatItApiErrorToast", () => {
       };
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't archive question theme");
+      handleGoatItApiError(fetchError, { title: "Can't archive question theme", context: "questions" });
 
       expect(consoleSpy).not.toHaveBeenCalled();
     });
@@ -141,12 +141,12 @@ describe("useGoatItApiErrorToast", () => {
       vi.spyOn(console, "error").mockReturnValue();
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(createError(), title);
+      handleGoatItApiError(createError(), { title, context: "questions" });
 
       expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
         title,
         description: "translated:errors.unknown",
-        id: "api-error-unknown",
+        id: "questions-api-error-unknown",
       });
     });
 
@@ -160,7 +160,7 @@ describe("useGoatItApiErrorToast", () => {
       };
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
 
       expect(consoleSpy).toHaveBeenCalledExactlyOnceWith("Unknown Goat It API error code: unknownErrorCode");
     });
@@ -214,7 +214,7 @@ describe("useGoatItApiErrorToast", () => {
       vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(createError(), title);
+      handleGoatItApiError(createError(), { title, context: "questions" });
 
       expect(useI18nMock.te).not.toHaveBeenCalled();
     });
@@ -232,12 +232,12 @@ describe("useGoatItApiErrorToast", () => {
       fetchError.statusCode = statusCode;
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
 
       expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
         title: "Can't fetch question themes",
         description: `translated:errors.goatItApi.${expectedErrorCode}`,
-        id: `api-error-${expectedErrorCode}`,
+        id: `questions-api-error-${expectedErrorCode}`,
       });
     });
 
@@ -250,12 +250,12 @@ describe("useGoatItApiErrorToast", () => {
       fetchError.statusCode = 429;
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
 
       expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
         title: "Can't fetch question themes",
         description: "translated:errors.goatItApi.rate-limited",
-        id: "api-error-rate-limited",
+        id: "questions-api-error-rate-limited",
       });
     });
 
@@ -265,12 +265,12 @@ describe("useGoatItApiErrorToast", () => {
       fetchError.statusCode = 404;
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
 
       expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
         title: "Can't fetch question themes",
         description: "translated:errors.unknown",
-        id: "api-error-unknown",
+        id: "questions-api-error-unknown",
       });
     });
 
@@ -280,7 +280,7 @@ describe("useGoatItApiErrorToast", () => {
       fetchError.statusCode = 429;
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
 
       expect(consoleSpy).not.toHaveBeenCalled();
     });

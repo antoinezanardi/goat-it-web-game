@@ -21,6 +21,7 @@ jobs:
       build-args: |
         NUXT_PUBLIC_DEFAULT_LOCALE=${{ vars.PRODUCTION_DEFAULT_LOCALE }}
         NUXT_PUBLIC_SITE_URL=${{ vars.PRODUCTION_SITE_URL }}
+        NUXT_SITE_ENV=production
     secrets:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}

@@ -2,9 +2,11 @@ import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, nextTick, toValue } from "vue";
+import type { Mock } from "vitest";
+import { defineComponent, nextTick, ref, toValue } from "vue";
 import type { MaybeRefOrGetter, Ref } from "vue";
 
+import { useAppToastMock } from "~~/tests/unit/setup/nuxt/composables/use-app-toast.nuxt.unit-setup";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { createUseGameQuestionTranslationMock } from "~~/tests/unit/utils/mocks/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation.mock";
@@ -17,6 +19,7 @@ import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-setti
 import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 import type { Question } from "#shared/types/question.types";
 import { useGameStore } from "@/stores/domain/game/game.store";
+import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 
 const GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY = {
   ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY,
@@ -28,6 +31,8 @@ let useGameQuestionTranslationMock: UseGameQuestionTranslationMock;
 let capturedQuestions: Ref<Question[]> | undefined;
 let capturedCanTranslateQuestions: MaybeRefOrGetter<boolean> | undefined;
 let translationCallCount: number;
+let wasGameSettingsResetReference!: Ref<boolean>;
+let acknowledgeSettingsReset!: Mock<() => void>;
 
 mockNuxtImport("useGameQuestionTranslation", () => (questions: Ref<Question[]>, canTranslateQuestions: MaybeRefOrGetter<boolean>): UseGameQuestionTranslationMock => {
   capturedQuestions = questions;
@@ -40,6 +45,8 @@ mockNuxtImport("useGameQuestionTranslation", () => (questions: Ref<Question[]>, 
 mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
   readGameSettingsCookie: (): GameSettings => GAME_SETTINGS_DEFAULTS,
   writeGameSettingsCookie: vi.fn<UseGameSettingsCookie["writeGameSettingsCookie"]>(),
+  wasGameSettingsReset: wasGameSettingsResetReference,
+  acknowledgeSettingsReset,
 }));
 
 describe("useGame", () => {
@@ -48,6 +55,8 @@ describe("useGame", () => {
     capturedQuestions = undefined;
     capturedCanTranslateQuestions = undefined;
     translationCallCount = 0;
+    wasGameSettingsResetReference = ref<boolean>(false);
+    acknowledgeSettingsReset = vi.fn<() => void>();
     createTestingPinia();
     mockStore(useGameStore).fetchAndAppendRandomQuestions.mockResolvedValue({ ok: true, value: [] });
     ({ useGame } = await import("@/composables/domain/useGame/useGame"));
@@ -190,6 +199,68 @@ describe("useGame", () => {
 
       expect(game.gameState.value).toBe("playing");
     });
+
+    it("should be 'no-matching-filters-questions' when a narrowed fetch succeeds with no questions.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      settingsStore.settings = { ...GAME_SETTINGS_DEFAULTS, categories: ["trivia"] };
+
+      await game.initialize();
+
+      expect(game.gameState.value).toBe("no-matching-filters-questions");
+    });
+
+    it("should be 'playing' rather than 'no-matching-filters-questions' when a playable question remains.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+      settingsStore.settings = { ...GAME_SETTINGS_DEFAULTS, categories: ["trivia"] };
+      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => {
+        store.questions = [createFakeQuestion()];
+        await nextTick();
+
+        return { ok: true, value: store.questions };
+      });
+
+      await game.initialize();
+
+      expect(game.gameState.value).toBe("playing");
+    });
+
+    it("should be 'error' when the initial fetch fails and there is no playable question.", async() => {
+      const store = mockStore(useGameStore);
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
+      const game = useGame();
+
+      await game.initialize();
+
+      expect(game.gameState.value).toBe("error");
+    });
+
+    it("should be 'error' when a prefetch fails at the end of the loaded questions.", async() => {
+      const store = mockStore(useGameStore);
+      const game = useGame();
+      store.questions = [createFakeQuestion()];
+      await nextTick();
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
+
+      game.advanceToNextQuestion();
+      await nextTick();
+      await flushPromises();
+
+      expect(game.gameState.value).toBe("error");
+    });
+
+    it("should be 'loading' when a retry is pending after a fetch error.", async() => {
+      const store = mockStore(useGameStore);
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
+      const game = useGame();
+      await game.initialize();
+      store.isPending = true;
+      await nextTick();
+
+      expect(game.gameState.value).toBe("loading");
+    });
   });
 
   describe("advanceToNextQuestion", () => {
@@ -327,6 +398,61 @@ describe("useGame", () => {
     });
   });
 
+  describe("retryQuestionFetch", () => {
+    it("should refetch and return to playing when the retry succeeds.", async() => {
+      const store = mockStore(useGameStore);
+      store.fetchAndAppendRandomQuestions.mockResolvedValueOnce({ ok: false, error: new Error("fetch failed") });
+      const game = useGame();
+      await game.initialize();
+      store.fetchAndAppendRandomQuestions.mockImplementationOnce(async() => {
+        store.questions = [createFakeQuestion()];
+        await nextTick();
+
+        return { ok: true, value: store.questions };
+      });
+
+      await game.retryQuestionFetch();
+
+      expect(game.gameState.value).toBe("playing");
+    });
+
+    it("should keep the error state when the retry fails.", async() => {
+      const store = mockStore(useGameStore);
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
+      const game = useGame();
+      await game.initialize();
+
+      await game.retryQuestionFetch();
+
+      expect(game.gameState.value).toBe("error");
+    });
+  });
+
+  describe("resetFilters", () => {
+    it("should reset the game settings when invoked.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const game = useGame();
+
+      await game.resetFilters();
+
+      expect(settingsStore.resetSettings).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it("should refetch with the default filters when invoked.", async() => {
+      const store = mockStore(useGameStore);
+      const settingsStore = mockStore(useGameSettingsStore);
+      settingsStore.settings = { ...GAME_SETTINGS_DEFAULTS, categories: ["trivia"] };
+      settingsStore.resetSettings.mockImplementation(() => {
+        settingsStore.settings = structuredClone(GAME_SETTINGS_DEFAULTS);
+      });
+      const game = useGame();
+
+      await game.resetFilters();
+
+      expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY);
+    });
+  });
+
   describe("mounted lifecycle", () => {
     it("should trigger the initial fetch when mounted.", async() => {
       const wrapper = mount(defineComponent({
@@ -386,6 +512,51 @@ describe("useGame", () => {
       wrapper.unmount();
 
       expect(store.fetchAndAppendRandomQuestions).toHaveBeenCalledExactlyOnceWith(GAME_DEFAULT_ADULT_CONTENT_FILTER_BODY);
+    });
+
+    it("should show a warning toast when the settings cookie was reset.", async() => {
+      wasGameSettingsResetReference.value = true;
+      const wrapper = mount(defineComponent({
+        setup(): () => null {
+          useGame();
+
+          return (): null => null;
+        },
+      }));
+      await flushPromises();
+      wrapper.unmount();
+
+      expect(useAppToastMock.instance.addWarningToast).toHaveBeenCalledExactlyOnceWith({ id: "game-settings-reset", description: "game.settings.resetNotice" });
+    });
+
+    it("should acknowledge the settings reset when the notice is shown.", async() => {
+      wasGameSettingsResetReference.value = true;
+      const settingsStore = mockStore(useGameSettingsStore);
+      const wrapper = mount(defineComponent({
+        setup(): () => null {
+          useGame();
+
+          return (): null => null;
+        },
+      }));
+      await flushPromises();
+      wrapper.unmount();
+
+      expect(settingsStore.acknowledgeSettingsReset).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it("should not show a warning toast when the settings cookie is valid.", async() => {
+      const wrapper = mount(defineComponent({
+        setup(): () => null {
+          useGame();
+
+          return (): null => null;
+        },
+      }));
+      await flushPromises();
+      wrapper.unmount();
+
+      expect(useAppToastMock.instance.addWarningToast).not.toHaveBeenCalled();
     });
   });
 });

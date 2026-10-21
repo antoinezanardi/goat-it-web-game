@@ -9,7 +9,7 @@ const { locale, t } = useI18n();
 async function fetchQuestionThemes(): Promise<void> {
   const result = await fetchAndStoreQuestionThemes();
   if (!result.ok) {
-    handleGoatItApiError(result.error, t("questionThemes.cantFetch"));
+    handleGoatItApiError(result.error, { title: t("questionThemes.cantFetch"), context: "question-themes" });
   }
 }
 

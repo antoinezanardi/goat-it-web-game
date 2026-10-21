@@ -31,6 +31,7 @@ runs:
         run: |
           docker buildx build \
             --platform ${{ inputs.platform }} \
+            --build-arg NUXT_SITE_ENV="$NUXT_SITE_ENV" \
             --build-arg NUXT_PUBLIC_SITE_URL="$NUXT_PUBLIC_SITE_URL" \
             --build-arg NUXT_PUBLIC_DEFAULT_LOCALE="$NUXT_PUBLIC_DEFAULT_LOCALE" \
             -t goat-it-web-game .

@@ -1,4 +1,5 @@
-import type { UseAsyncAction, UseAsyncActionResult } from "@/composables/core/useAsyncAction/use-async-action.types";
+import type { AsyncResult } from "#shared/types/async-result.types";
+import type { UseAsyncAction } from "@/composables/core/useAsyncAction/use-async-action.types";
 
 function useAsyncAction<TResult, TArguments extends unknown[] = []>(
   action: (...arguments_: TArguments) => Promise<TResult>,
@@ -15,7 +16,7 @@ function useAsyncAction<TResult, TArguments extends unknown[] = []>(
     setFetchStatusToError,
   } = useFetchStatus();
 
-  async function execute(...arguments_: TArguments): Promise<UseAsyncActionResult<TResult>> {
+  async function execute(...arguments_: TArguments): Promise<AsyncResult<TResult>> {
     setFetchStatusToPending();
     try {
       const value = await action(...arguments_);

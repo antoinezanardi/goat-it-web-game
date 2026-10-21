@@ -11,7 +11,7 @@ For detailed testing mechanics, see [Unit Testing](unit-testing.md) and [Accepta
 3. **Is it server-only?** Choose `server/api/`, `server/middleware/`, `server/plugins/`, or `server/utils/<domain>/` by responsibility.
 4. **Is it app-only?** Choose the app concern: `components/`, `composables/{core,domain,ui}/`, `stores/domain/`, `repositories/`, or `utils/{core,domain,ui}/`.
 5. **Is it independently tested production behavior?** Give it an owned directory containing the source and matching spec. Do not add a redundant nesting level when its existing domain directory already represents one coherent unit.
-6. **Is it a type, constant, or helper?** Place it with the narrowest production owner. Promote to a domain root only when multiple production units in that domain consume it. Put it in `shared/` only when it is an intended app/server-neutral contract or behavior.
+6. **Is it a type, constant, or helper?** Place it with the narrowest production owner. Promote to a domain root only when multiple production units in that domain consume it. Put it in `shared/` when it is runtime-neutral (app/server-neutral), even if a single production unit consumes it; app-only behavior stays in `app/`.
 7. **Is it test infrastructure?** Keep shared setup, mocks, faketories, and support tools in their role-based `tests/` directories; do not scatter them through production source.
 
 ## 2. Framework boundaries and dependency direction
@@ -96,9 +96,9 @@ Domain directory names are always singular (`question-theme/`, `element/`), even
 Choose placement by **production ownership and dependencies**, not by where a test imports the symbol:
 
 1. Component/composable/store-private contract or constant → beside that owner.
-2. Helper-private contract or constant → beside that helper source/spec.
+2. Helper-private contract or constant → beside that helper source/spec in a colocated `.types.ts` or `.constants.ts` companion, not declared inside the `.helpers.ts` source.
 3. Reused by multiple production units in one domain → at the narrowest common domain root.
-4. Intended to be neutral/common across app and server → root `shared/`.
+4. Runtime-neutral (common to app and server, or a neutral domain helper with a single consumer) → root `shared/`.
 5. UI-only mapping/token (icons, presentation colors, labels, CSS/Tailwind classes) → app `utils/ui/` or its consuming component.
 
 A constant used by two components should not stay artificially private to one component. Conversely, a one-consumer constant does not become domain-wide merely because it sounds like a domain concept. If a mixed helper module contains both runtime-neutral domain behavior and UI mappings, split along that dependency boundary.
@@ -147,7 +147,9 @@ app/composables/domain/useGameQuestionFeed/
 └── helpers/
     └── game-excluded-ids/
         ├── game-excluded-ids.helpers.ts
-        └── game-excluded-ids.helpers.spec.ts
+        ├── game-excluded-ids.helpers.spec.ts
+        ├── game-excluded-ids.types.ts        # only when the helper owns a private contract
+        └── game-excluded-ids.constants.ts    # only when the helper owns a private constant
 ```
 
 - Every composable owns its source/spec and a required named return type in a colocated kebab-case `.types.ts`. Keep the explicit function return annotation required by lint and reference the named type. This project convention is stricter than lint, which also permits inline return annotations.
@@ -173,7 +175,7 @@ app/stores/domain/game-settings/
 Stores own domain state and state-changing actions. Use `StoreNames`; follow the established async-action pattern. Colocate private constants. Add `.types.ts` when there is a standalone public state/action contract. Do not create an empty types file. Repositories own data access; the direct page/component store access policy is deferred.
 
 - Stores own the only actions allowed to change their state. Consumers must not assign store state or mutate store-owned values; every change goes through an action. Transient state (fetch status, loading flags) is exposed as read-only computed getters.
-- Stores are presentation-agnostic. They must not import or call toast, i18n, overlay, router, component, or DOM APIs. Async actions return the discriminated `UseAsyncActionResult` so the caller decides how to surface errors.
+- Stores are presentation-agnostic. They must not import or call toast, i18n, overlay, router, component, or DOM APIs. Async actions return the discriminated `AsyncResult` from `shared/types/async-result.types.ts` so the caller decides how to surface errors.
 - Serialized state must stay writable refs for SSR hydration and devtools; do not wrap returned state in `readonly()`. Enforce the mutation boundary by convention and review, not by hiding state.
 
 ### 4.4 Repositories
@@ -260,6 +262,7 @@ shared/
 - Shared constants/types are contracts, not a fallback for app-local files.
 - Use explicit imports even where Nuxt supports shared utility auto-imports.
 - Existing single-unit utility domains (`locale`, `object`, `string`, `time`) keep source/spec at the domain directory level; do not add a second `helpers/` level.
+- A runtime-neutral helper may stay under its shared domain even when one production unit consumes it. Its private types/constants remain in the helper unit. Do not move app-only helpers or app-only contracts into `shared/`.
 - When a domain has multiple distinct helper responsibilities, give each responsibility a subdirectory under `shared/utils/helpers/<domain>/`, with source/spec together.
 - Question utilities are split by dependency: runtime-neutral context/theme/source/category/difficulty rules go under `shared/utils/helpers/question/<responsibility>/`; theme selection goes under `shared/utils/helpers/question-theme/selection/`. UI mappings/icons/colors/Tailwind classes stay under app UI utilities.
 - Do not add Vue, DOM, browser, Nuxt, or app UI dependencies to shared modules.
@@ -384,6 +387,19 @@ Feature domains own scenarios/tags; step domains own reusable Gherkin steps; cro
 | `.nuxt/`, `.output/`, coverage and acceptance reports       | Generated output only; never hand-edited as source                                              |
 
 Do not add a new root folder simply because a concept is shared. Pick an established runtime boundary and domain first. If no existing category fits, propose the boundary and update this guide through an approved design.
+
+### 9.1 Environment indexability
+
+`site.env` in `nuxt.config.ts` controls whether `@nuxtjs/robots` treats the deployment as indexable, and the same value gates the sitemap. It resolves from `NUXT_SITE_ENV`, falling back to `production` only when `NODE_ENV` is `production`; every other value is treated as non-production. The pure resolver lives in `../shared/utils/helpers/site/site-environment.helpers.ts` and is unit-tested.
+
+`NUXT_SITE_ENV` is read at build time (for `site.env`, `sitemap.enabled`, prerendered sitemap and static robots rules) and again by `nuxt-site-config` at runtime, where `NUXT_SITE_*` variables outrank build-time site config for SSR robots headers/meta and `/robots.txt`. Keep the same value at build and runtime. Runtime env cannot re-enable or regenerate a sitemap disabled at build time.
+
+- Production builds must set `NUXT_SITE_ENV=production`.
+- Staging builds must set `NUXT_SITE_ENV=staging` **at build time** (the Docker build stage serializes the value into the generated site config) and carry the same value at runtime.
+- Local development uses `NUXT_SITE_ENV=development`.
+- Acceptance builds use `staging` (`.env.test`) so the SEO scenarios assert the non-indexable contract. Production indexability and sitemap generation are tracked as a follow-up test task (#537).
+
+Non-production also disables the sitemap (`sitemap.enabled`), because `@nuxtjs/sitemap` does not filter URLs by site indexability. Do not set `site.indexable` directly: an explicit value overrides the environment-derived behavior and reopens the staging indexing bug.
 
 ## 10. Agent and workflow compliance
 

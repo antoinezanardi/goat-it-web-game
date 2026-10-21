@@ -1,8 +1,11 @@
 import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 import { storeToRefs } from "pinia";
 
+import type { AsyncResult } from "#shared/types/async-result.types";
+import type { Question } from "#shared/types/question.types";
 import { useGameFetchFilters } from "@/composables/domain/useGameFetchFilters/useGameFetchFilters";
 import { buildExcludedQuestionIds } from "@/composables/domain/useGameQuestionFeed/helpers/game-excluded-ids/game-excluded-ids.helpers";
+import { hasNarrowingQuestionFilters } from "@/composables/domain/useGameQuestionFeed/helpers/narrowing-question-filters/narrowing-question-filters.helpers";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM, GAME_PREFETCH_THRESHOLD } from "@/composables/domain/useGameQuestionFeed/use-game-question-feed.constants";
 import type { UseGameQuestionFeed, UseGameQuestionFeedOptions } from "@/composables/domain/useGameQuestionFeed/use-game-question-feed.types";
 
@@ -14,6 +17,8 @@ function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuesti
   const { t } = useI18n();
 
   const isExhausted = ref<boolean>(false);
+  const hasNoMatchingFiltersQuestions = ref<boolean>(false);
+  const hasFetchError = ref<boolean>(false);
   const hasTriggeredPrefetch = ref<boolean>(false);
   const prefetchThreshold = computed<number>(() => Math.floor(questions.value.length * GAME_PREFETCH_THRESHOLD));
 
@@ -31,45 +36,57 @@ function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuesti
     };
   }
 
-  async function fetchNextBatch(): Promise<boolean> {
-    const result = await store.fetchAndAppendRandomQuestions(buildRandomQuestionsRequestBody());
+  async function fetchNextBatch(): Promise<AsyncResult<Question[]>> {
+    const requestBody = buildRandomQuestionsRequestBody();
+    const result = await store.fetchAndAppendRandomQuestions(requestBody);
     if (!result.ok) {
-      handleGoatItApiError(result.error, t("questions.cantFetch"));
+      hasFetchError.value = true;
+      handleGoatItApiError(result.error, { title: t("questions.cantFetch"), context: "questions" });
 
-      return false;
+      return { ok: false, error: result.error };
     }
-    return true;
+    hasFetchError.value = false;
+    const hasNewQuestions = result.value.length > 0;
+    if (hasNewQuestions) {
+      isExhausted.value = false;
+      hasNoMatchingFiltersQuestions.value = false;
+
+      return { ok: true, value: result.value };
+    }
+    const isEmpty = hasNarrowingQuestionFilters(requestBody);
+
+    isExhausted.value = !isEmpty;
+    hasNoMatchingFiltersQuestions.value = isEmpty;
+
+    return { ok: true, value: result.value };
   }
 
   async function initialize(): Promise<void> {
-    await fetchNextBatch();
-    if (questions.value.length === 0) {
-      isExhausted.value = true;
-    }
+    await retryQuestionFetch();
   }
 
-  async function restartFromCurrentIndex(): Promise<void> {
+  async function restartFromCurrentIndex(): Promise<AsyncResult<Question[]>> {
     store.truncateQuestions(options.currentIndex.value + 1);
     isExhausted.value = false;
+    hasNoMatchingFiltersQuestions.value = false;
     hasTriggeredPrefetch.value = false;
-    const lengthBefore = questions.value.length;
-    const isFetchSuccessful = await fetchNextBatch();
-    if (isFetchSuccessful && questions.value.length === lengthBefore) {
-      isExhausted.value = true;
-    }
+
+    return fetchNextBatch();
+  }
+
+  async function retryQuestionFetch(): Promise<void> {
+    isExhausted.value = false;
+    hasNoMatchingFiltersQuestions.value = false;
+    await fetchNextBatch();
   }
 
   watch(options.currentIndex, async index => {
-    if (index < prefetchThreshold.value || isPending.value || isExhausted.value || hasTriggeredPrefetch.value) {
+    if (index < prefetchThreshold.value || isPending.value || isExhausted.value || hasNoMatchingFiltersQuestions.value || hasTriggeredPrefetch.value) {
       return;
     }
 
     hasTriggeredPrefetch.value = true;
-    const lengthBefore = questions.value.length;
     await fetchNextBatch();
-    if (questions.value.length === lengthBefore) {
-      isExhausted.value = true;
-    }
   });
 
   watch(isPending, pending => {
@@ -81,8 +98,11 @@ function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuesti
   return {
     questions,
     isExhausted,
+    hasNoMatchingFiltersQuestions,
+    hasFetchError,
     initialize,
     restartFromCurrentIndex,
+    retryQuestionFetch,
   };
 }
 

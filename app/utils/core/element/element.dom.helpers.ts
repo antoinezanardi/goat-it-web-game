@@ -20,7 +20,25 @@ function isEditableKeyboardTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement;
 }
 
+function getFocusedHTMLElement(): HTMLElement | undefined {
+  const { activeElement } = document;
+
+  return activeElement instanceof HTMLElement && activeElement !== document.body ? activeElement : undefined;
+}
+
+function isElementFocusable(element: HTMLElement): boolean {
+  if (!element.isConnected || element.matches(":disabled")) {
+    return false;
+  }
+  if (typeof element.checkVisibility === "function") {
+    return element.checkVisibility();
+  }
+  return Boolean(element.offsetParent);
+}
+
 export {
+  getFocusedHTMLElement,
   isEditableKeyboardTarget,
+  isElementFocusable,
   resolveHTMLElement,
 };
