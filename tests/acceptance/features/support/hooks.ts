@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-import { After, AfterAll, Before, BeforeAll, Status } from "@cucumber/cucumber";
+import { After, AfterAll, Before, BeforeAll, setDefaultTimeout, Status } from "@cucumber/cucumber";
 import { createPage, createTest } from "@nuxt/test-utils/e2e";
 import type { Db, MongoClient } from "mongodb";
 
@@ -11,6 +11,7 @@ import {
   AFTER_ALL_TIMEOUT,
   BEFORE_ALL_TIMEOUT,
   BEFORE_TIMEOUT,
+  DEFAULT_STEP_TIMEOUT,
   SANDBOX_GAME_KEY,
   SECURITY_CSP_MODE,
   SECURITY_RATE_LIMIT_MAXIMUM_REQUESTS,
@@ -30,6 +31,8 @@ import {
   waitForSandboxHealthCheck,
 } from "#acceptance/features/support/helpers/hooks.helpers.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
+
+setDefaultTimeout(DEFAULT_STEP_TIMEOUT);
 
 const rootDirectory = fileURLToPath(new URL("../../../..", import.meta.url));
 const workerId = getWorkerId();
