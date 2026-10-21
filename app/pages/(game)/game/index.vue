@@ -134,38 +134,19 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
         @update:is-open="setFiltersModalOpen"
       />
 
-      <Transition
-        mode="out-in"
-        name="fade-slide-up"
-      >
-        <GameLoading
-          v-if="isTranslating || gameState === 'loading'"
-          :is-translating="isTranslating"
-        />
-
-        <GamePlaying
-          v-else-if="gameState === 'playing' && currentQuestion"
-          :are-shortcuts-disabled="areShortcutsDisabled"
-          :can-go-to-previous-question="canGoToPreviousQuestion"
-          :current-index="currentIndex"
-          :current-question="currentQuestion"
-          :questions="questions"
-          @advance="advanceToNextQuestion"
-          @previous="goToPreviousQuestion"
-        />
-
-        <GameFetchError
-          v-else-if="gameState === 'error'"
-          @retry="retryQuestionFetch"
-        />
-
-        <GameEmptyFilters
-          v-else-if="gameState === 'no-matching-filters-questions'"
-          @reset-filters="resetFilters"
-        />
-
-        <GameNoMoreQuestions v-else/>
-      </Transition>
+      <GameStateRenderer
+        :are-shortcuts-disabled="areShortcutsDisabled"
+        :can-go-to-previous-question="canGoToPreviousQuestion"
+        :current-index="currentIndex"
+        :current-question="currentQuestion"
+        :game-state="gameState"
+        :is-translating="isTranslating"
+        :questions="questions"
+        @advance="advanceToNextQuestion"
+        @previous="goToPreviousQuestion"
+        @reset-filters="resetFilters"
+        @retry="retryQuestionFetch"
+      />
     </div>
 
     <GameTutorial

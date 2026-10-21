@@ -18,7 +18,7 @@ import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-coo
 import { MOCKED_TOAST_ID } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
-import type { GamePlaying } from "#components";
+import type { GameStateRenderer } from "#components";
 
 import type { AsyncResult } from "#shared/types/async-result.types";
 import GamePage from "@/pages/(game)/game/index.vue";
@@ -53,6 +53,10 @@ describe("Game Page", () => {
 
   async function mountGamePage(options: MountSuspendedOptions<typeof GamePage> = {}): Promise<VueWrapper> {
     return mountSuspended(GamePage, { global: { plugins: [createTestingPinia()] }, shallow: true, ...options });
+  }
+
+  function getGameStateRendererWrapper(): VueWrapper<InstanceType<typeof GameStateRenderer>> {
+    return wrapper.findComponent<typeof GameStateRenderer>({ name: "GameStateRenderer" });
   }
 
   beforeEach(async() => {
@@ -114,102 +118,86 @@ describe("Game Page", () => {
     expect(vm.pageThemeColor).toBe("#33A1FF");
   });
 
-  it("should render GameLoading when gameState is loading.", () => {
-    const gameLoading = wrapper.findComponent({ name: "GameLoading" });
-
-    expect(gameLoading.exists()).toBeTruthy();
+  it("should render GameStateRenderer when mounted.", () => {
+    expect(wrapper.findComponent({ name: "GameStateRenderer" }).exists()).toBeTruthy();
   });
 
-  it("should render GamePlaying when gameState is playing and a current question exists.", async() => {
+  it("should forward gameState to GameStateRenderer when the game state changes.", async() => {
+    useGameMock.instance.gameStateRef.value = "error";
+    await nextTick();
+
+    expect(getGameStateRendererWrapper().props("gameState")).toBe("error");
+  });
+
+  it("should forward isTranslating to GameStateRenderer when translating.", async() => {
+    useGameMock.instance.isTranslatingRef.value = true;
+    await nextTick();
+
+    expect(getGameStateRendererWrapper().props("isTranslating")).toBe(true);
+  });
+
+  it("should forward currentQuestion to GameStateRenderer when playing.", async() => {
     const fakeQuestion = createFakeQuestion();
     useGameMock.instance.questionsRef.value = [fakeQuestion];
     useGameMock.instance.gameStateRef.value = "playing";
     await nextTick();
 
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-
-    expect(gamePlaying.exists()).toBeTruthy();
+    expect(getGameStateRendererWrapper().props("currentQuestion")).toStrictEqual(fakeQuestion);
   });
 
-  it("should forward canGoToPreviousQuestion as true to GamePlaying when a previous question is available.", async() => {
+  it("should forward questions to GameStateRenderer when playing.", async() => {
     const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
     useGameMock.instance.questionsRef.value = fakeQuestions;
+    useGameMock.instance.gameStateRef.value = "playing";
+    await nextTick();
+
+    expect(getGameStateRendererWrapper().props("questions")).toStrictEqual(fakeQuestions);
+  });
+
+  it("should forward currentIndex to GameStateRenderer when playing.", async() => {
+    useGameMock.instance.questionsRef.value = [createFakeQuestion(), createFakeQuestion()];
     useGameMock.instance.currentIndex.value = 1;
     useGameMock.instance.gameStateRef.value = "playing";
     await nextTick();
 
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-
-    expect(gamePlaying.props("canGoToPreviousQuestion")).toBe(true);
+    expect(getGameStateRendererWrapper().props("currentIndex")).toBe(1);
   });
 
-  it("should forward currentIndex to GamePlaying when gameState is playing.", async() => {
-    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
-    useGameMock.instance.questionsRef.value = fakeQuestions;
+  it("should forward canGoToPreviousQuestion as true to GameStateRenderer when a previous question is available.", async() => {
+    useGameMock.instance.questionsRef.value = [createFakeQuestion(), createFakeQuestion()];
     useGameMock.instance.currentIndex.value = 1;
     useGameMock.instance.gameStateRef.value = "playing";
     await nextTick();
 
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-
-    expect(gamePlaying.props("currentIndex")).toBe(1);
+    expect(getGameStateRendererWrapper().props("canGoToPreviousQuestion")).toBe(true);
   });
 
-  it("should forward currentQuestion to GamePlaying when gameState is playing.", async() => {
-    const fakeQuestion = createFakeQuestion();
-    useGameMock.instance.questionsRef.value = [fakeQuestion];
-    useGameMock.instance.gameStateRef.value = "playing";
-    await nextTick();
-
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-
-    expect(gamePlaying.props("currentQuestion")).toStrictEqual(fakeQuestion);
-  });
-
-  it("should forward questions to GamePlaying when gameState is playing.", async() => {
-    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
-    useGameMock.instance.questionsRef.value = fakeQuestions;
-    useGameMock.instance.gameStateRef.value = "playing";
-    await nextTick();
-
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-
-    expect(gamePlaying.props("questions")).toStrictEqual(fakeQuestions);
-  });
-
-  it("should call advanceToNextQuestion when GamePlaying emits advance.", async() => {
-    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
-    useGameMock.instance.gameStateRef.value = "playing";
-    await nextTick();
-
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-    getWrapperVm(gamePlaying).$emit("advance");
+  it("should call advanceToNextQuestion when GameStateRenderer emits advance.", async() => {
+    getWrapperVm(getGameStateRendererWrapper()).$emit("advance");
     await nextTick();
 
     expect(useGameMock.instance.advanceToNextQuestion).toHaveBeenCalledExactlyOnceWith();
   });
 
-  it("should call goToPreviousQuestion when GamePlaying emits previous.", async() => {
-    const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
-    useGameMock.instance.questionsRef.value = fakeQuestions;
-    useGameMock.instance.currentIndex.value = 1;
-    useGameMock.instance.gameStateRef.value = "playing";
-    await nextTick();
-
-    const gamePlaying = wrapper.findComponent({ name: "GamePlaying" });
-    getWrapperVm(gamePlaying).$emit("previous");
+  it("should call goToPreviousQuestion when GameStateRenderer emits previous.", async() => {
+    getWrapperVm(getGameStateRendererWrapper()).$emit("previous");
     await nextTick();
 
     expect(useGameMock.instance.goToPreviousQuestion).toHaveBeenCalledExactlyOnceWith();
   });
 
-  it("should render GameNoMoreQuestions when gameState is game-over.", async() => {
-    useGameMock.instance.gameStateRef.value = "game-over";
+  it("should call retryQuestionFetch when GameStateRenderer emits retry.", async() => {
+    getWrapperVm(getGameStateRendererWrapper()).$emit("retry");
     await nextTick();
 
-    const noMoreQuestions = wrapper.findComponent({ name: "GameNoMoreQuestions" });
+    expect(useGameMock.instance.retryQuestionFetch).toHaveBeenCalledExactlyOnceWith();
+  });
 
-    expect(noMoreQuestions.exists()).toBeTruthy();
+  it("should call resetFilters when GameStateRenderer emits resetFilters.", async() => {
+    getWrapperVm(getGameStateRendererWrapper()).$emit("resetFilters");
+    await nextTick();
+
+    expect(useGameMock.instance.resetFilters).toHaveBeenCalledExactlyOnceWith();
   });
 
   it("should open the sidebar when the toggle button emits click.", async() => {
@@ -444,28 +432,6 @@ describe("Game Page", () => {
     expect(useGameMock.instance.currentIndex.value).toBe(1);
   });
 
-  it("should render GameLoading when isTranslating is true even if gameState is playing.", async() => {
-    useGameMock.instance.isTranslatingRef.value = true;
-    useGameMock.instance.gameStateRef.value = "playing";
-    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
-    await nextTick();
-
-    const gameLoading = wrapper.findComponent({ name: "GameLoading" });
-
-    expect(gameLoading.exists()).toBeTruthy();
-  });
-
-  it("should pass isTranslating as the isTranslating prop to GameLoading when isTranslating is true.", async() => {
-    useGameMock.instance.isTranslatingRef.value = true;
-    useGameMock.instance.gameStateRef.value = "playing";
-    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
-    await nextTick();
-
-    const gameLoading = wrapper.findComponent({ name: "GameLoading" });
-
-    expect(gameLoading.props("isTranslating")).toBe(true);
-  });
-
   it("should present the tutorial invitation when a question becomes playable.", async() => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
@@ -529,38 +495,6 @@ describe("Game Page", () => {
     expect(useAppToastMock.instance.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
   });
 
-  it("should render GameFetchError when gameState is error.", async() => {
-    useGameMock.instance.gameStateRef.value = "error";
-    await nextTick();
-
-    expect(wrapper.findComponent({ name: "GameFetchError" }).exists()).toBe(true);
-  });
-
-  it("should call retry when GameFetchError emits retry.", async() => {
-    useGameMock.instance.gameStateRef.value = "error";
-    await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameFetchError" })).$emit("retry");
-    await nextTick();
-
-    expect(useGameMock.instance.retryQuestionFetch).toHaveBeenCalledExactlyOnceWith();
-  });
-
-  it("should render GameEmptyFilters when gameState is no-matching-filters-questions.", async() => {
-    useGameMock.instance.gameStateRef.value = "no-matching-filters-questions";
-    await nextTick();
-
-    expect(wrapper.findComponent({ name: "GameEmptyFilters" }).exists()).toBe(true);
-  });
-
-  it("should call resetFilters when GameEmptyFilters emits reset-filters.", async() => {
-    useGameMock.instance.gameStateRef.value = "no-matching-filters-questions";
-    await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameEmptyFilters" })).$emit("resetFilters");
-    await nextTick();
-
-    expect(useGameMock.instance.resetFilters).toHaveBeenCalledExactlyOnceWith();
-  });
-
   it("should render the inert page content wrapper when mounted.", () => {
     expect(wrapper.find("[data-testid='game-page-content']").exists()).toBe(true);
   });
@@ -612,117 +546,113 @@ describe("Game Page", () => {
       await nextTick();
     }
 
-    function getGamePlayingWrapper(): VueWrapper<InstanceType<typeof GamePlaying>> {
-      return wrapper.findComponent<typeof GamePlaying>({ name: "GamePlaying" });
-    }
-
-    it("should forward areShortcutsDisabled as false to GamePlaying when no blocking state is active.", async() => {
+    it("should forward areShortcutsDisabled as false to GameStateRenderer when no blocking state is active.", async() => {
       await reachPlayingState();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
     });
 
-    it("should forward areShortcutsDisabled as true to GamePlaying when the sidebar is open.", async() => {
+    it("should forward areShortcutsDisabled as true to GameStateRenderer when the sidebar is open.", async() => {
       await reachPlayingState();
       getWrapperVm(wrapper.findComponent({ name: "GameSidebarToggleButton" })).$emit("click");
       await nextTick();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(true);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(true);
     });
 
-    it("should forward areShortcutsDisabled as false to GamePlaying when the sidebar closes.", async() => {
+    it("should forward areShortcutsDisabled as false to GameStateRenderer when the sidebar closes.", async() => {
       await reachPlayingState();
       getWrapperVm(wrapper.findComponent({ name: "GameSidebarToggleButton" })).$emit("click");
       await nextTick();
       getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("update:isOpen", false);
       await nextTick();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
     });
 
-    it("should forward areShortcutsDisabled as true to GamePlaying when the settings modal is open.", async() => {
+    it("should forward areShortcutsDisabled as true to GameStateRenderer when the settings modal is open.", async() => {
       await reachPlayingState();
       getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
       await flushPromises();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(true);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(true);
     });
 
-    it("should forward areShortcutsDisabled as false to GamePlaying when the settings modal closes.", async() => {
+    it("should forward areShortcutsDisabled as false to GameStateRenderer when the settings modal closes.", async() => {
       await reachPlayingState();
       getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
       await flushPromises();
       getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", false);
       await nextTick();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
     });
 
-    it("should forward areShortcutsDisabled as true to GamePlaying when the filters modal is open.", async() => {
+    it("should forward areShortcutsDisabled as true to GameStateRenderer when the filters modal is open.", async() => {
       await reachPlayingState();
       getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
       await nextTick();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(true);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(true);
     });
 
-    it("should forward areShortcutsDisabled as false to GamePlaying when the filters modal closes.", async() => {
+    it("should forward areShortcutsDisabled as false to GameStateRenderer when the filters modal closes.", async() => {
       await reachPlayingState();
       getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
       await nextTick();
       getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("update:isOpen", false);
       await nextTick();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
     });
 
-    it("should forward areShortcutsDisabled as true to GamePlaying when the interactive tutorial is requested.", async() => {
+    it("should forward areShortcutsDisabled as true to GameStateRenderer when the interactive tutorial is requested.", async() => {
       await reachPlayingState();
       getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
       await flushPromises();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(true);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(true);
     });
 
-    it("should forward areShortcutsDisabled as false to GamePlaying when the interactive tutorial ends.", async() => {
+    it("should forward areShortcutsDisabled as false to GameStateRenderer when the interactive tutorial ends.", async() => {
       await reachPlayingState();
       getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
       await flushPromises();
       getWrapperVm(wrapper.findComponent({ name: "GameTutorial" })).$emit("tutorialEnd");
       await nextTick();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
     });
 
-    it("should forward areShortcutsDisabled as true to GamePlaying when the leave confirmation awaits a result.", async() => {
+    it("should forward areShortcutsDisabled as true to GameStateRenderer when the leave confirmation awaits a result.", async() => {
       await reachPlayingState();
       const guardPromise = getCapturedLeaveGuard()();
       await nextTick();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(true);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(true);
 
       getCreatedModalInstance().close(false);
       void guardPromise;
     });
 
-    it("should forward areShortcutsDisabled as false to GamePlaying when the leave confirmation is cancelled.", async() => {
+    it("should forward areShortcutsDisabled as false to GameStateRenderer when the leave confirmation is cancelled.", async() => {
       await reachPlayingState();
       const guardPromise = getCapturedLeaveGuard()();
       getCreatedModalInstance().close(false);
       await guardPromise;
       await nextTick();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
     });
 
-    it("should forward areShortcutsDisabled as false to GamePlaying when the leave confirmation is accepted.", async() => {
+    it("should forward areShortcutsDisabled as false to GameStateRenderer when the leave confirmation is accepted.", async() => {
       await reachPlayingState();
       const guardPromise = getCapturedLeaveGuard()();
       getCreatedModalInstance().close(true);
       await guardPromise;
       await nextTick();
 
-      expect(getGamePlayingWrapper().props("areShortcutsDisabled")).toBe(false);
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
     });
   });
 
