@@ -7,21 +7,28 @@
 # from the Docker build stage and the CI Build workflow.
 #
 # Monitored variables are environment variables named NUXT_* (except
-# NUXT_PUBLIC_*) or containing SECRET, TOKEN, PASSWORD or PRIVATE_KEY, whose
-# value is at least 8 characters long.
+# NUXT_PUBLIC_* and the non-secret variables listed in non_secret_variables)
+# or containing SECRET, TOKEN, PASSWORD or PRIVATE_KEY.
 #
 # The script exits non-zero when a monitored value is found in the output or
 # when the scan itself fails, and prints a confirmation message otherwise.
 #
 # Known limitation: environment values are read line by line, so a multiline
 # value is only searched through its first line, and is ignored entirely when
-# that first line is shorter than 8 characters.
+# that first line is empty.
 set -eu
 
 output_directory="${1:-.output}"
-minimum_secret_length=8
+
+# Whitelist of variables whose value is intentionally serialized into the
+# built output and must not be treated as a secret.
+non_secret_variables="NUXT_SITE_ENV"
 
 env | while IFS="=" read -r variable_name variable_value; do
+  case " $non_secret_variables " in
+    *" $variable_name "*) continue ;;
+  esac
+
   case "$variable_name" in
     NUXT_PUBLIC_*) continue ;;
     NUXT_*) ;;
@@ -29,7 +36,7 @@ env | while IFS="=" read -r variable_name variable_value; do
     *) continue ;;
   esac
 
-  if [ "${#variable_value}" -lt "$minimum_secret_length" ]; then
+  if [ -z "$variable_value" ]; then
     continue
   fi
 
