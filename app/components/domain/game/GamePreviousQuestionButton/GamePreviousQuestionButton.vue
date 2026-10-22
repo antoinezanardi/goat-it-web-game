@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { GamePreviousQuestionButtonEmits, GamePreviousQuestionButtonProps } from "@/components/domain/game/GamePreviousQuestionButton/game-previous-question-button.types";
-import { GAME_PREVIOUS_QUESTION_BUTTON_UI } from "@/components/domain/game/GamePreviousQuestionButton/game-previous-question-button.constants";
+import { GAME_INTERACTIVE_BUTTON_UI } from "@/utils/ui/game/game-buttons.constants";
 
 const props = defineProps<GamePreviousQuestionButtonProps>();
 const emit = defineEmits<GamePreviousQuestionButtonEmits>();
@@ -23,7 +23,7 @@ function onClick(): void {
       :disabled="props.disabled"
       icon="i-lucide-arrow-left"
       size="lg"
-      :ui="GAME_PREVIOUS_QUESTION_BUTTON_UI"
+      :ui="GAME_INTERACTIVE_BUTTON_UI"
       variant="outline"
       @click="onClick"
     />

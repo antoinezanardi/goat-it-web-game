@@ -6,7 +6,7 @@ import type {
   GameSettingsFilterMultiSelectItem,
   GameSettingsFilterMultiSelectProps,
 } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.types";
-import { GAME_SETTINGS_FILTER_MULTI_SELECT_UI } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.constants";
+import { GAME_SETTINGS_FILTER_MULTI_SELECT_ICONS, GAME_SETTINGS_FILTER_MULTI_SELECT_UI } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.constants";
 
 const props = withDefaults(defineProps<GameSettingsFilterMultiSelectProps>(), {
   selectTestId: "game-settings-filter-multi-select-input",
@@ -23,7 +23,7 @@ const items = computed<GameSettingsFilterMultiSelectItem[]>(() => props.options.
   ...option.color === undefined ? {} : { color: option.color },
   icon: option.icon,
   label: option.label,
-  trailingIcon: selectedValues.value.includes(option.value) ? "i-lucide-square-check" : "i-lucide-square",
+  trailingIcon: selectedValues.value.includes(option.value) ? GAME_SETTINGS_FILTER_MULTI_SELECT_ICONS.selected : GAME_SETTINGS_FILTER_MULTI_SELECT_ICONS.unselected,
   value: option.value,
 })));
 
@@ -63,9 +63,9 @@ async function confirmRestoreAllOptions(): Promise<void> {
       description: t("game.settings.filters.confirmRestoreDescription"),
       disableShortcuts: true,
       dismissible: false,
-      icon: "i-lucide-list-checks",
+      icon: GAME_SETTINGS_FILTER_MULTI_SELECT_ICONS.confirmRestore,
       iconClass: "text-warning",
-      primaryButtonIcon: "i-lucide-list-restart",
+      primaryButtonIcon: GAME_SETTINGS_FILTER_MULTI_SELECT_ICONS.confirmRestoreAction,
       primaryButtonLabel: t("game.settings.filters.confirmRestoreAction"),
       title: t("game.settings.filters.confirmRestoreTitle"),
     },

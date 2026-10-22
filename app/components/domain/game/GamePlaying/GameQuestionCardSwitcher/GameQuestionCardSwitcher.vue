@@ -6,7 +6,8 @@ import type { ComponentPublicInstance } from "vue";
 import { GameQuestionCard } from "#components";
 
 import { CARD_TRANSITION_DURATION_SECONDS, CARD_TRANSITION_ROTATION_DEGREES, CARD_TRANSITION_SAFETY_TIMEOUT_MS, CARD_TRANSITION_SLIDE_PERCENT } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.constants";
-import type { GameQuestionCardSwitcherDirection, GameQuestionCardSwitcherEmits, GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
+import type { GameQuestionCardSwitcherEmits, GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 import type { GsapContext } from "@/utils/ui/gsap/gsap.types";
 import { resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 import { useQuestionCardRing } from "@/composables/domain/useQuestionCardRing/useQuestionCardRing";
@@ -64,7 +65,7 @@ function applyRestingState(): void {
   }
 }
 
-function startSlide(direction: GameQuestionCardSwitcherDirection): void {
+function startSlide(direction: GameNavigationDirection): void {
   const isForward = direction === "forward";
   const leavingIndex = currentSlotIndex.value;
   const enteringIndex = getSlotIndexForOffset(isForward ? 1 : -1);
@@ -99,7 +100,7 @@ function startSlide(direction: GameQuestionCardSwitcherDirection): void {
   }, CARD_TRANSITION_SAFETY_TIMEOUT_MS);
 }
 
-function onSlideComplete(direction: GameQuestionCardSwitcherDirection): void {
+function onSlideComplete(direction: GameNavigationDirection): void {
   if (isSlideSettled.value) {
     return;
   }

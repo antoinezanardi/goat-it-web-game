@@ -1,4 +1,4 @@
-# 🫶 Contributing to Goat It Web Admin
+# 🫶 Contributing to Goat It Web Game
 
 Thank you for your interest in contributing — we appreciate your time and help! This document explains how to prepare, test, and submit changes so they integrate smoothly with the project workflow.
 
@@ -12,6 +12,7 @@ Thank you for your interest in contributing — we appreciate your time and help
 - ✍️ [Commit messages & PR titles (Conventional Commits)](#-commit-messages--pr-titles-conventional-commits)
 - 🚦 [CI & merging](#-ci--merging)
 - 🔒 [Security](#-security)
+- 🤝 [Code of Conduct](#-code-of-conduct)
 - 🐕 [Husky & git hooks](#-husky--git-hooks)
 - 🧰 [Additional tips](#-additional-tips)
 - 📞 [Contact / Questions](#-contact--questions)
@@ -23,6 +24,7 @@ Thank you for your interest in contributing — we appreciate your time and help
 - The integration branch is `develop`. All contributions must be based on `develop` and opened as PRs targeting `develop`.
 - Every PR must pass the full CI pipeline before it can be merged (linting, type checks, unit tests, acceptance tests).
 - Branch names and commit messages must follow the defined conventions (see below).
+- File placement, naming, and dependency boundaries must follow the canonical rules in [`docs/architecture.md`](../docs/architecture.md).
 
 > [!IMPORTANT]
 > Please always target `develop` for PRs. `main` is protected and reserved for releases; PRs to `main` will be rejected.
@@ -131,8 +133,11 @@ pnpm run validate:branch-name
 ### Pattern (regex)
 
 ```regex
-^(feat|fix|docs|style|refactor|test|perf|build|ci|chore|revert)/.+$
+^(feat|fix|docs|style|refactor|test|perf|build|ci|chore|revert|copilot|renovate)/.+$
 ```
+
+> [!NOTE]
+> `copilot/` and `renovate/` are typically used by automated tooling.
 
 ### Examples
 
@@ -231,9 +236,16 @@ npx --no-install @commitlint/cli --config configs/commitlint/.commitlintrc.json 
 ## 🔒 Security
 
 - Never commit secrets or credentials. Use environment variables and CI secret storage.
+- The project's security hardening decisions (headers, CSP, rate limiting, body guard, upstream fetch pipeline) are documented in [`docs/security.md`](../docs/security.md). Read it before changing anything that touches these areas.
 
 > [!CAUTION]
 > Committing secrets (API keys, credentials, private keys) can expose systems and cause security incidents. If you accidentally commit a secret, rotate it immediately and notify maintainers.
+
+---
+
+## 🤝 Code of Conduct
+
+This project follows the [Contributor Covenant Code of Conduct](../CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [antoine.zanardi@epitech.eu](mailto:antoine.zanardi@epitech.eu).
 
 ---
 
@@ -259,6 +271,7 @@ This repository uses Husky hooks stored in the `.husky/` directory to enforce so
   ```bash
   <package-manager> run validate:branch-name
   <package-manager> run lint:staged:fix
+  <package-manager> run typecheck
   <package-manager> run test:unit:staged
   ```
 
@@ -286,6 +299,7 @@ git commit --no-verify -m "chore: temporary commit"
 - Prefer small, focused PRs for faster review.
 - Open a draft PR early for large work to gather feedback.
 - Document any new config or runtime env in the README.
+- SEO and social identity decisions (URL/locale strategy, social images, structured data, sitemap) are documented in [`docs/seo.md`](../docs/seo.md).
 - `CODEOWNERS` currently designates `@antoinezanardi` as the default owner for the repository — maintainers will be requested as reviewers automatically where applicable.
 
 ---

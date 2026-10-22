@@ -6,7 +6,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import { GameSidebarToggleButton } from "#components";
 
-import { GAME_SIDEBAR_TOGGLE_BUTTON_UI } from "@/components/domain/game/GameSidebarToggleButton/game-sidebar-toggle-button.constants";
+import { GAME_INTERACTIVE_BUTTON_UI } from "@/utils/ui/game/game-buttons.constants";
 
 describe("GameSidebarToggleButton Component", () => {
   let wrapper: VueWrapper;
@@ -33,10 +33,10 @@ describe("GameSidebarToggleButton Component", () => {
     expect(button.props("icon")).toBe("i-lucide-menu");
   });
 
-  it("should pass the GAME_SIDEBAR_TOGGLE_BUTTON_UI ui config to UButton when mounted.", () => {
+  it("should pass the GAME_INTERACTIVE_BUTTON_UI ui config to UButton when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("ui")).toStrictEqual(GAME_SIDEBAR_TOGGLE_BUTTON_UI);
+    expect(button.props("ui")).toStrictEqual(GAME_INTERACTIVE_BUTTON_UI);
   });
 
   it("should emit click when the button is clicked.", async() => {

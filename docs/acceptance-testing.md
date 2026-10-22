@@ -129,7 +129,7 @@ Reports are generated in `tests/acceptance/reports/`:
 # Full acceptance test run: builds Nuxt once + runs all workers (CI and first run)
 pnpm run test:acceptance
 
-# Skip build: re-run tests against existing build (fast local iteration)
+# Skip build: re-run against the existing build (fast iteration, see the rule below)
 pnpm run test:acceptance:skip-build
 
 # Build only: pre-build Nuxt for tests without running them
@@ -138,7 +138,7 @@ pnpm run test:acceptance:build
 # Install Playwright (run once after fresh checkout)
 pnpm run test:acceptance:prepare
 
-# Run a specific feature file (skip build for fast iteration)
+# Run a specific feature file (reuses the existing build)
 pnpm run test:acceptance:skip-build tests/acceptance/features/home/home.feature
 
 # Run a specific scenario by line number
@@ -159,6 +159,9 @@ pnpm run test:acceptance:skip-build --tags "not @accessibility"
 # Multiple tags (AND)
 pnpm run test:acceptance:skip-build --tags "@question-themes and @accessibility"
 ```
+
+> [!IMPORTANT]
+> Agents may use `pnpm run test:acceptance:skip-build` to save time, but **only when the existing `.nuxt/test/output` build is guaranteed up to date**. It is up to date only if `pnpm run test:acceptance:build` ran after the last change to any build input — i.e. anything outside `tests/acceptance/`: `app/`, `server/`, `shared/`, `public/`, `content/`, locale JSON files, `nuxt.config.ts`, `configs/`, `envs/.env.test`, `package.json`, `pnpm-lock.yaml`. Rebuild (`pnpm run test:acceptance` or `test:acceptance:build`) after a branch switch, a dependency install, an env change, or whenever you are unsure. Changes limited to `tests/acceptance/` (features, steps, helpers, constants) never require a rebuild.
 
 **Prerequisites:**
 

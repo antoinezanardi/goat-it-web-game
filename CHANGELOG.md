@@ -1,4 +1,4 @@
-# 🐐👑 Goat It Web Admin Versioning Changelog
+# 🐐👑 Goat It Web Game Versioning Changelog
 
 ## [1.10.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.9.0...v1.10.0) (2026-10-16)
 

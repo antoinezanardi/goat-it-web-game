@@ -6,8 +6,8 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import { GamePreviousQuestionButton } from "#components";
 
-import { GAME_PREVIOUS_QUESTION_BUTTON_UI } from "@/components/domain/game/GamePreviousQuestionButton/game-previous-question-button.constants";
 import type { GamePreviousQuestionButtonProps } from "@/components/domain/game/GamePreviousQuestionButton/game-previous-question-button.types";
+import { GAME_INTERACTIVE_BUTTON_UI } from "@/utils/ui/game/game-buttons.constants";
 
 describe("GamePreviousQuestionButton Component", () => {
   const defaultGamePreviousQuestionButtonProps: GamePreviousQuestionButtonProps = { disabled: false } as const;
@@ -60,9 +60,9 @@ describe("GamePreviousQuestionButton Component", () => {
     expect(wrapper.findComponent({ name: "UButton" }).props("icon")).toBe("i-lucide-arrow-left");
   });
 
-  it("should pass the GAME_PREVIOUS_QUESTION_BUTTON_UI ui config to the button when mounted.", () => {
+  it("should pass the GAME_INTERACTIVE_BUTTON_UI ui config to the button when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("ui")).toStrictEqual(GAME_PREVIOUS_QUESTION_BUTTON_UI);
+    expect(button.props("ui")).toStrictEqual(GAME_INTERACTIVE_BUTTON_UI);
   });
 });

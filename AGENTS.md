@@ -47,10 +47,9 @@ Running acceptance tests:
 - By tag (AND):             `pnpm run test:acceptance --tags "@question-themes and @accessibility"`
 
 > **Per-task agents** should scope acceptance tests to their changes with `--tags`:
-> `pnpm run test:acceptance --tags "@feature-tag"`
-> Always build fresh (do not use `test:acceptance:skip-build`).
+> `pnpm run test:acceptance:skip-build --tags "@feature-tag"` is allowed **only** if the existing `.nuxt/test/output` build was produced after the last change to any build input (anything outside `tests/acceptance/`). Otherwise run `pnpm run test:acceptance --tags "@feature-tag"` (fresh build). Rebuild after a branch switch, a dependency install, an env change, or whenever unsure.
 
-**Mandatory quality gates** — the orchestrator (via the gatekeeper agent) runs these four commands **in order** before considering any task complete. **Do NOT skip any gate**, even for "trivial" changes:
+**Mandatory quality gates** — the orchestrator (via the gatekeeper agent) runs these four commands **in order** before considering any task complete. **Do NOT skip any gate**, even for "trivial" changes. Gate 4 always builds fresh: `test:acceptance:skip-build` is never a substitute for it.
 
 1. `pnpm run lint:fix`
 2. `pnpm run typecheck`
@@ -119,7 +118,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
 
   - Use `type` imports for type-only symbols (`import type { Foo } from '...'`).
   - Prefer named exports; avoid default exports for utilities and composables.
-  - Barrel exports are forbidden (`export { foo } from '...'` or `export * from '...'`). Always import directly from the source module.
+  - Barrel exports are forbidden (`export { foo } from '...'` or `export * from '...'`). Files whose only purpose is to re-export or alias a symbol from another module are also forbidden — always import directly from the source module.
 
 - Import aliases:
   - `@/` → `app/` code modules (canonical app code alias)
@@ -205,10 +204,11 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
   - `repositories` – `app/**/*.repository.spec.ts` (plain Node env, no Nuxt)
   - `node`         – `*.mappers.spec.ts`, `*.helpers.spec.ts`, `*.translations.spec.ts` under app/, server/, shared/
   - `dom`          – `*.dom.helpers.spec.ts` in the happy-dom environment
-- Coverage threshold: 100% (`thresholds: { 100: true }`).
+- Coverage threshold: 100% aggregate across all projects (not per project), via `thresholds: { 100: true }`.
   - Collected for `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`, `shared/**/*.ts`.
   - Excluded: `*.constants.ts`, `*.enums.ts`, `*.types.ts`, `*.d.ts`, `*.config.ts`,
-    `*.spec.ts`, `server/api/**/*.{get,post,put,patch,delete}.ts`.
+    `*.spec.ts`, `app/plugins/**/*.ts`, `server/api/**/*.{get,post,put,patch,delete}.ts`,
+    `server/middleware/**/*.ts`, `server/plugins/**/*.ts`.
 
 - Mocks in `tests/unit/utils/mocks/` — `composables/` and `repositories/` sub-dirs.
   - Non-trivial mocks use a triplet: `.mock.ts` + optionally `.mock.constants.ts` + `.mock.types.ts`.

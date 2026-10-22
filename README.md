@@ -160,7 +160,7 @@ pnpm run docker:api-sandbox:update
 
 This project uses `Vitest` for unit tests, with coverage thresholds set to `100%` for all files included in coverage.
 
-All related test files are located in the **[app/](app/)** directory, alongside the code they test, suffixing the file name with `.spec.ts`.
+Test files live under `app/`, `server/`, and `shared/`, usually alongside the code they test, suffixing the file name with `.spec.ts`.
 
 ```bash
 # Run unit tests
