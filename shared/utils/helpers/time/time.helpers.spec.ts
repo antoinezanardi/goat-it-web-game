@@ -1,8 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { sleep } from "#shared/utils/helpers/time/time.helpers";
 
 describe(sleep, () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("should call setTimeout with the specified delay when called.", () => {
     const delayInMs = 500;
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");

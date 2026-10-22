@@ -41,10 +41,10 @@ Running acceptance tests:
 - Full run (build + test):  `pnpm run test:acceptance`
 - Build only:               `pnpm run test:acceptance:build`
 - By scenario name:         `pnpm run test:acceptance --name "should display"`
-- By tag:                   `pnpm run test:acceptance --tags "@question-themes"`
-- Multiple tags (OR):       `pnpm run test:acceptance --tags "@home or @questions"`
+- By tag:                   `pnpm run test:acceptance --tags "@game-settings"`
+- Multiple tags (OR):       `pnpm run test:acceptance --tags "@home or @game"`
 - Exclude tag:              `pnpm run test:acceptance --tags "not @accessibility"`
-- By tag (AND):             `pnpm run test:acceptance --tags "@question-themes and @accessibility"`
+- By tag (AND):             `pnpm run test:acceptance --tags "@game-settings and @accessibility"`
 
 > **Per-task agents** should scope acceptance tests to their changes with `--tags`:
 > `pnpm run test:acceptance:skip-build --tags "@feature-tag"` is allowed **only** if the existing `.nuxt/test/output` build was produced after the last change to any build input (anything outside `tests/acceptance/`). Otherwise run `pnpm run test:acceptance --tags "@feature-tag"` (fresh build). Rebuild after a branch switch, a dependency install, an env change, or whenever unsure.

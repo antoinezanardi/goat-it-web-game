@@ -1,4 +1,4 @@
-@game-questions-filters
+@game @game-questions-filters
 Feature: 🎛️ Game Questions Filters
 
   Background:

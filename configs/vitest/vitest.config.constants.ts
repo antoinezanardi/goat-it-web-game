@@ -27,6 +27,36 @@ const VITEST_FS_MODULE_CACHE_EXCLUSION_PLUGIN_CONFIG: Pick<TestProjectInlineConf
   ],
 };
 
+const GSAP_SCROLL_TRIGGER_SYNC_INTERVAL_STATEMENT = "_syncInterval = setInterval(_sync, 250);";
+
+const GSAP_SCROLL_TRIGGER_DISABLED_SYNC_INTERVAL_STATEMENT = "_syncInterval = 0;";
+
+const VITEST_GSAP_SCROLL_TRIGGER_SYNC_INTERVAL_PLUGIN_CONFIG: Pick<TestProjectInlineConfiguration, "plugins"> = {
+  plugins: [
+    {
+      name: "vitest-gsap-scroll-trigger-disable-sync-interval",
+      enforce: "pre",
+      transform(code: string, id: string): { code: string } | undefined {
+        if (!id.endsWith("gsap/ScrollTrigger.js")) {
+          return undefined;
+        }
+
+        if (!code.includes(GSAP_SCROLL_TRIGGER_SYNC_INTERVAL_STATEMENT)) {
+          throw new Error("Unable to disable the GSAP ScrollTrigger sync interval: the expected statement was not found in gsap/ScrollTrigger.js.");
+        }
+        return { code: code.replace(GSAP_SCROLL_TRIGGER_SYNC_INTERVAL_STATEMENT, GSAP_SCROLL_TRIGGER_DISABLED_SYNC_INTERVAL_STATEMENT) };
+      },
+    },
+  ],
+};
+
+const VITEST_NUXT_PROJECT_VITE_PLUGIN_CONFIG: Pick<TestProjectInlineConfiguration, "plugins"> = {
+  plugins: [
+    ...VITEST_FS_MODULE_CACHE_EXCLUSION_PLUGIN_CONFIG.plugins ?? [],
+    ...VITEST_GSAP_SCROLL_TRIGGER_SYNC_INTERVAL_PLUGIN_CONFIG.plugins ?? [],
+  ],
+};
+
 const VITEST_BASE_RESOLVE_ALIASES = [
   { find: /^~\//u, replacement: `${path.resolve(processCwd, "app")}/` },
   { find: /^@\//u, replacement: `${path.resolve(processCwd, "app")}/` },
@@ -59,6 +89,7 @@ const UNIT_TEST_NUXT_OVERRIDES: UnitTestNuxtOverrides = {
   },
   site: { indexable: false },
   sitemap: { enabled: false },
+  plugins: [path.resolve(processCwd, "tests/unit/setup/nuxt/gsap-scroll-trigger.nuxt-plugin.ts")],
   experimental: { viteEnvironmentApi: false },
 } as const;
 
@@ -69,6 +100,7 @@ const VITEST_PROJECT_COMMON_INLINE_CONFIG: InlineConfig = {
   restoreMocks: true,
   fsModuleCache: true,
   maxWorkers: "75%",
+  env: { TZ: "UTC" },
   experimental: { diagnostics: { transform: false } },
 } as const;
 
@@ -99,7 +131,6 @@ const VITEST_NUXT_PROJECT_SETUP_FILES = [
   path.resolve(processCwd, "tests/unit/setup/nuxt/reka-ui-dismissable-layer.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/main-landmark.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/vtu-config.nuxt.unit-setup.ts"),
-  path.resolve(processCwd, "tests/unit/setup/nuxt/dates.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/use-i18n.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/use-router.nuxt.unit-setup.ts"),
   path.resolve(processCwd, "tests/unit/setup/nuxt/fetch.nuxt.unit-setup.ts"),
@@ -187,7 +218,6 @@ const VITEST_REPOSITORIES_PROJECT_CONFIG: TestProjectInlineConfiguration = {
     name: VitestProjectNames.REPOSITORIES,
     fsModuleCachePath: createVitestFsModuleCachePath(VitestProjectNames.REPOSITORIES),
     include: [...VITEST_REPOSITORIES_PROJECT_INCLUDES],
-    setupFiles: [path.resolve(processCwd, "tests/unit/setup/nuxt/dates.nuxt.unit-setup.ts")],
     pool: "threads",
     isolate: false,
   },
@@ -204,7 +234,6 @@ const VITEST_NODE_PROJECT_CONFIG: TestProjectInlineConfiguration = {
     include: [...VITEST_NODE_PROJECT_INCLUDES],
     exclude: [...VITEST_DOM_PROJECT_INCLUDES],
     setupFiles: [
-      path.resolve(processCwd, "tests/unit/setup/nuxt/dates.nuxt.unit-setup.ts"),
       path.resolve(processCwd, "tests/unit/setup/node/nitro-auto-imports.node.unit-setup.ts"),
       path.resolve(processCwd, "tests/unit/setup/node/h3.node.unit-setup.ts"),
     ],
@@ -214,7 +243,7 @@ const VITEST_NODE_PROJECT_CONFIG: TestProjectInlineConfiguration = {
 } as const;
 
 const VITEST_NUXT_PROJECT_CONFIG: TestProjectInlineConfiguration = {
-  ...VITEST_FS_MODULE_CACHE_EXCLUSION_PLUGIN_CONFIG,
+  ...VITEST_NUXT_PROJECT_VITE_PLUGIN_CONFIG,
   test: {
     ...VITEST_PROJECT_COMMON_NUXT_INLINE_CONFIG,
     name: VitestProjectNames.NUXT,
@@ -240,7 +269,7 @@ const VITEST_NUXT_PROJECT_CONFIG: TestProjectInlineConfiguration = {
 } as const;
 
 const VITEST_COMPOSABLES_PROJECT_CONFIG: TestProjectInlineConfiguration = {
-  ...VITEST_FS_MODULE_CACHE_EXCLUSION_PLUGIN_CONFIG,
+  ...VITEST_NUXT_PROJECT_VITE_PLUGIN_CONFIG,
   test: {
     ...VITEST_PROJECT_COMMON_NUXT_INLINE_CONFIG,
     name: VitestProjectNames.COMPOSABLES,
@@ -256,7 +285,7 @@ const VITEST_COMPOSABLES_PROJECT_CONFIG: TestProjectInlineConfiguration = {
 } as const;
 
 const VITEST_STORES_PROJECT_CONFIG: TestProjectInlineConfiguration = {
-  ...VITEST_FS_MODULE_CACHE_EXCLUSION_PLUGIN_CONFIG,
+  ...VITEST_NUXT_PROJECT_VITE_PLUGIN_CONFIG,
   test: {
     ...VITEST_PROJECT_COMMON_NUXT_INLINE_CONFIG,
     name: VitestProjectNames.STORES,

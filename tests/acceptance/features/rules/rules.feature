@@ -1,4 +1,4 @@
-@rules-page
+@rules
 Feature: 📖 Rules Page
 
   Background:

@@ -1,4 +1,4 @@
-@game-page
+@game
 Feature: 🎮 Game Page
 
   Background:

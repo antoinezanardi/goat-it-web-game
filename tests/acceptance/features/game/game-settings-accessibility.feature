@@ -1,4 +1,4 @@
-@game-settings @accessibility
+@game @game-settings @accessibility
 Feature: ⚙️ Game Settings Accessibility
 
   Scenario Outline: ⚙️ Settings General tab should not contain accessibility issues in <view> mode

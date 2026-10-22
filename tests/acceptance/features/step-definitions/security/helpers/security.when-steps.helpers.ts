@@ -1,5 +1,5 @@
 import { url } from "@nuxt/test-utils/e2e";
-import type { APIResponse } from "playwright-core";
+import type { APIResponse } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import { waitForPageLoadStates } from "#acceptance/features/support/helpers/navigation.helpers.ts";

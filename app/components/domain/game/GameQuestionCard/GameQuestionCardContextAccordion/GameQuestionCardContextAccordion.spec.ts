@@ -50,6 +50,7 @@ describe("GameQuestionCardContextAccordion Component", () => {
   }
 
   beforeEach(async() => {
+    vi.useFakeTimers();
     scrollIntoViewSpy = vi.spyOn(Element.prototype, "scrollIntoView");
     wrapper = await mountGameQuestionCardContextAccordion();
   });
@@ -59,6 +60,7 @@ describe("GameQuestionCardContextAccordion Component", () => {
       wrapper.unmount();
     }
     vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it("should render GameQuestionCardContextAccordion when mounted.", () => {

@@ -41,15 +41,15 @@ The `repositories` and `node` projects have **no Nuxt environment**. No `mountSu
 
 ### Setup files loaded per project
 
-Counts reflect `configs/vitest/vitest.config.constants.ts` — scan it for the authoritative lists (they grow over time).
+Setup files reflect `configs/vitest/vitest.config.constants.ts` — scan it for the authoritative lists (they grow over time).
 
-| Project        | Environment | Setup files                                                                                              |
-|----------------|-------------|----------------------------------------------------------------------------------------------------------|
-| `nuxt`         | `nuxt`      | 15 base setups + 9 composable mocks + 2 repo mocks                                                       |
-| `composables`  | `nuxt`      | 15 base setups + 2 repo mocks (NO composable mocks — tests exercise real composables)                    |
-| `stores`       | `nuxt`      | 15 base setups + 9 composable mocks + 2 repo mocks + `stores.nuxt.unit-setup.ts`                         |
-| `repositories` | Node        | `dates.nuxt.unit-setup.ts` only                                                                          |
-| `node`         | Node        | `dates.nuxt.unit-setup.ts` + `tests/unit/setup/node/` (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts`) |
+| Project        | Environment | Setup files                                                                                     |
+|----------------|-------------|-------------------------------------------------------------------------------------------------|
+| `nuxt`         | `nuxt`      | Base setups + composable mocks + repository mocks                                               |
+| `composables`  | `nuxt`      | Base setups + repository mocks (NO composable mocks — tests exercise real composables)          |
+| `stores`       | `nuxt`      | Base setups + composable mocks + repository mocks + `stores.nuxt.unit-setup.ts`                  |
+| `repositories` | Node        | None (plain Node, no Nuxt environment)                                                          |
+| `node`         | Node        | The two Node setups (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts` under `tests/unit/setup/node/`) |
 
 ---
 
@@ -311,7 +311,8 @@ In `nuxt`, `composables`, and `stores` projects, available without any setup in 
 - `useToast()` → mock returning `{ add, remove, clear }`
 - `useSeoMeta`, `callOnce`, `defineOgImage`, `useHead` → `vi.fn()` spies
 - `getRouterParam` / `readBody` → global stubs; `createError` → mock
-- Fake timers pinned to `2026-04-14` UTC (`TZ=UTC`)
+- `TZ=UTC` is set globally via Vitest `test.env`; fake timers are opt-in per test/file (`vi.useFakeTimers()` + `vi.useRealTimers()` in `afterEach`)
+- GSAP ScrollTrigger's 250 ms sync interval is suppressed in Nuxt unit projects by a test-only Nuxt plugin + Vitest transform (see `docs/unit-testing.md`)
 - Element geometry mocked (`virtualizer` setup) and reka-ui `DismissableLayer` recursion patched
 - Repositories globally mocked via `vi.mock`: `questionThemesRepository`, `questionsRepository` (nuxt + composables + stores)
 - Runtime config injected: `{ goatItApi: { baseUrl: "https://api.goat-it.com", gameKey: "test-game-key" } }`

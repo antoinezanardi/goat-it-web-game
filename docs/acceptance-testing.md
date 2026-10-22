@@ -148,16 +148,16 @@ pnpm run test:acceptance:skip-build tests/acceptance/features/home/home.feature:
 pnpm run test:acceptance:skip-build --name "should display"
 
 # Run by tag
-pnpm run test:acceptance:skip-build --tags "@question-theme-creation"
+pnpm run test:acceptance:skip-build --tags "@game-settings"
 
 # Multiple tags (OR)
-pnpm run test:acceptance:skip-build --tags "@home or @questions"
+pnpm run test:acceptance:skip-build --tags "@home or @game"
 
 # Exclude tag
 pnpm run test:acceptance:skip-build --tags "not @accessibility"
 
 # Multiple tags (AND)
-pnpm run test:acceptance:skip-build --tags "@question-themes and @accessibility"
+pnpm run test:acceptance:skip-build --tags "@game-settings and @accessibility"
 ```
 
 > [!IMPORTANT]
@@ -234,8 +234,9 @@ BeforeAll({ timeout: BEFORE_ALL_TIMEOUT }, async () => {
 Before({ timeout: BEFORE_TIMEOUT }, async function (this: GoatItWorld) {
   await resetSandboxData(this.mongoDb);
   beforeEach();
-  this.page = await createPage();
-  this.context = this.page.context();
+  const browser = await getBrowser();
+  this.context = await browser.newContext();
+  this.page = await this.context.newPage();
 });
 
 After(async function (this: GoatItWorld, scenario) {
@@ -250,6 +251,8 @@ AfterAll(async () => {
   await afterAll();
 });
 ```
+
+Pages are created from an explicit `BrowserContext` via `getBrowser()` instead of `createPage()`. With `setLegacyMode()` removed, axe's default analysis opens a blank aggregation page through the context; a page created in Playwright's implicit context makes that call throw `Please use browser.newContext()`. The explicit context also isolates cookies and storage per scenario.
 
 ### World class
 
@@ -341,29 +344,43 @@ Tags are placed at the top of the feature file, before the `Feature:` keyword:
 **For page-level features** (no action subdirectory):
 
 ```gherkin
-@home-page
+@home
 Feature: 🏡 Home Page
 ```
 
 **For action-specific features** (within an action subdirectory):
 
 ```gherkin
-@question-themes @question-theme-creation
-Feature: 🎨 Question Theme Creation
+@game @game-settings
+Feature: ⚙️ Game Settings Modal
 ```
 
 **For sub-feature features** (nested action subdirectory):
 
 ```gherkin
-@questions @question-theme-assignment-modification
-Feature: 🏷️ Question Theme Assignment Modification
+@game @game-tutorial
+Feature: 🧑‍🏫 Game Tutorial
 ```
 
-- **Page-level**: Single tag (`@<domain>-page`, e.g., `@home-page`, `@questions-page`)
-- **Action-specific**: Domain tag + action tag (`@<domain>` + `@<domain>-<action>`, e.g., `@question-themes` + `@question-theme-creation`)
-- **Sub-feature**: Domain tag + sub-feature-action tag (e.g., `@questions` + `@question-theme-assignment-modification`)
+- **Page-level**: Single domain tag (`@<domain>`, e.g., `@home`, `@game`, `@rules`)
+- **Action-specific**: Domain tag + action tag (`@<domain>` + `@<domain>-<action>`, e.g., `@game` + `@game-settings`)
+- **Sub-feature**: Domain tag + sub-feature-action tag (e.g., `@game` + `@game-tutorial`)
+- **Accessibility companions**: Same domain/action tags + `@accessibility` (e.g., `@game @game-settings @accessibility`), so `--tags "@game-settings"` selects both functional and accessibility scenarios
 - Tags use `kebab-case`
-- Tags enable selective test runs: `--tags "@question-theme-creation"`
+- Tags enable selective test runs: `--tags "@game-settings"`
+
+The current tag families are:
+
+| Domain               | Functional features                  | Accessibility features                          |
+|----------------------|--------------------------------------|-------------------------------------------------|
+| Home                 | `@home`                              | `@home @accessibility`                          |
+| Game                 | `@game`, `@game-<action>`            | `@game`, `@game-<action>`, `@accessibility`     |
+| Rules                | `@rules`                             | `@rules @accessibility`                         |
+| Changelog            | `@changelog`                         | `@changelog @accessibility`                     |
+| SEO                  | `@seo`, `@seo @html-lang`            | —                                               |
+| Security             | `@security`                          | —                                               |
+| PWA                  | `@pwa`                               | —                                               |
+| Locale suggestion    | `@locale-suggestion`                 | —                                               |
 
 ### 5.3 Scenarios and Scenario Outlines
 
@@ -598,8 +615,8 @@ import type { DataTable } from "@cucumber/cucumber";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 
-// Simple navigation
-Given(/^the user is on (?<page>.+) page$/u, async function (this: GoatItWorld, page: string): Promise<void> {
+// Simple navigation — restrict the page name to the pages that actually exist
+Given(/^the user is on (?<page>home|game|rules|robots\.txt|sitemap\.xml) page$/u, async function (this: GoatItWorld, page: string): Promise<void> {
   const pageName = page === "home" ? "" : page;
   await goOnPage(this, pageName);
 });
@@ -968,14 +985,27 @@ Accessibility tests use `AxeBuilder` from `@axe-core/playwright`:
 ```ts
 import { AxeBuilder } from "@axe-core/playwright";
 
-const results = await new AxeBuilder({ page: this.page })
-  .setLegacyMode()
+await page.waitForLoadState("networkidle");
+await page.waitForFunction((): boolean => document.getAnimations().every(animation => {
+  const iterations = animation.effect?.getTiming().iterations;
+  const isInfinite = !Number.isFinite(iterations ?? 1);
+
+  return isInfinite || animation.playState !== "running";
+}));
+
+const results = await new AxeBuilder({ page })
   .withTags([...AXE_TAGS])
   .exclude("input[data-hidden]")
   .analyze();
 
 expect(results.violations).toHaveLength(0);
 ```
+
+The scan never uses a fixed sleep: it waits for the page to reach `networkidle` and for every finite CSS animation/transition to settle, ignoring infinite ambient animations. This keeps repeated runs deterministic.
+
+`AxeBuilder.setLegacyMode()` is intentionally **not** used. It falls back to pre-4.3 frame testing, disables cross-origin frame testing, and is marked as a last resort upstream (deprecated for v5). The app has no iframes, so the default mode keeps cross-origin frame testing enabled; the `frame-tested` rule reports any frame that axe could not test.
+
+Because the scan uses the default (non-legacy) path, acceptance pages must come from an explicit `browser.newContext()` (see §4). The `Before` hook creates one context per scenario.
 
 **Tags tested:** `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`, `best-practice`, `ACT`
 

@@ -1,4 +1,4 @@
-@home-page
+@home
 Feature: 🏡 Home Page
 
   Scenario: 🏡 Home Page is displayed with correct title
