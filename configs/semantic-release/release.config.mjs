@@ -128,7 +128,7 @@ export default {
       "@semantic-release/changelog",
       {
         changelogFile: "CHANGELOG.md",
-        changelogTitle: "# 🐐👑 Goat It Web Admin Versioning Changelog",
+        changelogTitle: "# 🐐👑 Goat It Web Game Versioning Changelog",
       },
     ],
     [

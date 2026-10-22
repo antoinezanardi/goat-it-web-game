@@ -1,4 +1,4 @@
-# 🫶 Contributing to Goat It Web Admin
+# 🫶 Contributing to Goat It Web Game
 
 Thank you for your interest in contributing — we appreciate your time and help! This document explains how to prepare, test, and submit changes so they integrate smoothly with the project workflow.
 
@@ -12,6 +12,7 @@ Thank you for your interest in contributing — we appreciate your time and help
 - ✍️ [Commit messages & PR titles (Conventional Commits)](#-commit-messages--pr-titles-conventional-commits)
 - 🚦 [CI & merging](#-ci--merging)
 - 🔒 [Security](#-security)
+- 🤝 [Code of Conduct](#-code-of-conduct)
 - 🐕 [Husky & git hooks](#-husky--git-hooks)
 - 🧰 [Additional tips](#-additional-tips)
 - 📞 [Contact / Questions](#-contact--questions)
@@ -131,8 +132,11 @@ pnpm run validate:branch-name
 ### Pattern (regex)
 
 ```regex
-^(feat|fix|docs|style|refactor|test|perf|build|ci|chore|revert)/.+$
+^(feat|fix|docs|style|refactor|test|perf|build|ci|chore|revert|copilot|renovate)/.+$
 ```
+
+> [!NOTE]
+> `copilot/` and `renovate/` are typically used by automated tooling.
 
 ### Examples
 
@@ -237,6 +241,12 @@ npx --no-install @commitlint/cli --config configs/commitlint/.commitlintrc.json 
 
 ---
 
+## 🤝 Code of Conduct
+
+This project follows the [Contributor Covenant Code of Conduct](../CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [antoine.zanardi@epitech.eu](mailto:antoine.zanardi@epitech.eu).
+
+---
+
 ## 🐕 Husky & git hooks
 
 This repository uses Husky hooks stored in the `.husky/` directory to enforce some checks before commits are accepted locally.
@@ -259,6 +269,7 @@ This repository uses Husky hooks stored in the `.husky/` directory to enforce so
   ```bash
   <package-manager> run validate:branch-name
   <package-manager> run lint:staged:fix
+  <package-manager> run typecheck
   <package-manager> run test:unit:staged
   ```
 

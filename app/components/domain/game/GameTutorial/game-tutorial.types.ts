@@ -24,8 +24,6 @@ type GameTutorialStepKey =
   "sources" |
   "welcome";
 
-type GameTutorialStepDirection = "forward" | "backward";
-
 type GameTutorialStep = {
   icon: string;
   key: GameTutorialStepKey;
@@ -39,4 +37,4 @@ type GameTutorialPopoverContentConfig = {
   "onEscapeKeyDown": (event: KeyboardEvent) => void;
 };
 
-export type { GameTutorialEmits, GameTutorialPopoverContentConfig, GameTutorialProps, GameTutorialSpotlightRect, GameTutorialStep, GameTutorialStepDirection, GameTutorialStepKey };
+export type { GameTutorialEmits, GameTutorialPopoverContentConfig, GameTutorialProps, GameTutorialSpotlightRect, GameTutorialStep, GameTutorialStepKey };

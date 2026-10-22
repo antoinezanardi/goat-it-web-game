@@ -205,10 +205,11 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
   - `repositories` – `app/**/*.repository.spec.ts` (plain Node env, no Nuxt)
   - `node`         – `*.mappers.spec.ts`, `*.helpers.spec.ts`, `*.translations.spec.ts` under app/, server/, shared/
   - `dom`          – `*.dom.helpers.spec.ts` in the happy-dom environment
-- Coverage threshold: 100% (`thresholds: { 100: true }`).
+- Coverage threshold: 100% aggregate across all projects (not per project), via `thresholds: { 100: true }`.
   - Collected for `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`, `shared/**/*.ts`.
   - Excluded: `*.constants.ts`, `*.enums.ts`, `*.types.ts`, `*.d.ts`, `*.config.ts`,
-    `*.spec.ts`, `server/api/**/*.{get,post,put,patch,delete}.ts`.
+    `*.spec.ts`, `app/plugins/**/*.ts`, `server/api/**/*.{get,post,put,patch,delete}.ts`,
+    `server/middleware/**/*.ts`, `server/plugins/**/*.ts`.
 
 - Mocks in `tests/unit/utils/mocks/` — `composables/` and `repositories/` sub-dirs.
   - Non-trivial mocks use a triplet: `.mock.ts` + optionally `.mock.constants.ts` + `.mock.types.ts`.

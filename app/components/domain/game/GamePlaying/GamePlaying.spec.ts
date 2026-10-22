@@ -10,6 +10,7 @@ import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { GamePlaying } from "#components";
 
 import type { GamePlayingProps } from "@/components/domain/game/GamePlaying/game-playing.types";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 import type { Question } from "#shared/types/question.types";
 
 describe("GamePlaying Component", () => {
@@ -185,7 +186,7 @@ describe("GamePlaying Component", () => {
       expect(getSwitcher().props("pendingDirection")).toBe("backward");
     });
 
-    it.each<{ direction: "forward" | "backward"; buttonName: "GameNextQuestionButton" | "GamePreviousQuestionButton"; expectedEvent: "advance" | "previous" }>([
+    it.each<{ direction: GameNavigationDirection; buttonName: "GameNextQuestionButton" | "GamePreviousQuestionButton"; expectedEvent: "advance" | "previous" }>([
       { direction: "forward", buttonName: "GameNextQuestionButton", expectedEvent: "advance" },
       { direction: "backward", buttonName: "GamePreviousQuestionButton", expectedEvent: "previous" },
     ])("should emit $expectedEvent when the transition completes in $direction direction.", async({ buttonName, expectedEvent }) => {
@@ -331,7 +332,7 @@ describe("GamePlaying Component", () => {
   });
 
   describe("keyboard shortcuts", () => {
-    it.each<{ key: "ArrowLeft" | "ArrowRight"; expectedDirection: "forward" | "backward" }>([
+    it.each<{ key: "ArrowLeft" | "ArrowRight"; expectedDirection: GameNavigationDirection }>([
       { key: "ArrowRight", expectedDirection: "forward" },
       { key: "ArrowLeft", expectedDirection: "backward" },
     ])("should start a $expectedDirection transition when the $key key is pressed and a previous question exists.", async({ key, expectedDirection }) => {
@@ -358,7 +359,7 @@ describe("GamePlaying Component", () => {
       expect(wrapper.emitted("previous")).toBeUndefined();
     });
 
-    it.each<{ firstKey: "ArrowLeft" | "ArrowRight"; secondKey: "ArrowLeft" | "ArrowRight"; expectedDirection: "forward" | "backward" }>([
+    it.each<{ firstKey: "ArrowLeft" | "ArrowRight"; secondKey: "ArrowLeft" | "ArrowRight"; expectedDirection: GameNavigationDirection }>([
       { firstKey: "ArrowRight", secondKey: "ArrowLeft", expectedDirection: "forward" },
       { firstKey: "ArrowLeft", secondKey: "ArrowRight", expectedDirection: "backward" },
     ])("should not navigate when the $secondKey key is pressed during an active $expectedDirection transition.", async({ firstKey, secondKey, expectedDirection }) => {

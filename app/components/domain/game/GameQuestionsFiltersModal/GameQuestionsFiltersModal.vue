@@ -5,7 +5,7 @@ import { isEqual } from "radashi";
 
 import { ConfirmDialog } from "#components";
 
-import { GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS, GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
+import { GAME_QUESTIONS_FILTERS_APPLY_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON, GAME_QUESTIONS_FILTERS_DISCARD_CONFIRM_ICON_CLASS, GAME_QUESTIONS_FILTERS_MODAL_UI } from "@/components/domain/game/GameQuestionsFiltersModal/game-questions-filters-modal.constants";
 import type {
   GameQuestionsFiltersModalEmits,
   GameQuestionsFiltersModalProps,
@@ -198,7 +198,7 @@ function onApply(): void {
           disable-shortcuts
           :is-primary-button-disabled="isApplyDisabled"
           :is-primary-button-loading="props.isApplyPending"
-          primary-button-icon="i-lucide-check"
+          :primary-button-icon="GAME_QUESTIONS_FILTERS_APPLY_ICON"
           :primary-button-label="t('game.questionsFilters.apply')"
           @close-modal="onCloseModal"
           @primary-button-click="onApply"

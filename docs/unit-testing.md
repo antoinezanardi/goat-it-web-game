@@ -59,10 +59,17 @@ For production source/spec ownership and canonical file placement, see [`docs/ar
 
 All tests use the standard **Vitest APIs** (`describe`, `it`, `expect`, `vi`, `beforeEach`, etc.). Vitest is configured with `globals: true`, but by convention you must still import these from `vitest` in every test file. No auto-imports.
 
-The `onConsoleLog` filter in Vitest config suppresses two known warnings:
+The `onConsoleLog` filter in Vitest config suppresses nine known warnings:
 
 - `"<Suspense> is an experimental feature"` — Vue Suspense experimental notice
 - `"[Vue warn]: App already provides property with key \"Symbol(pinia)\""` — duplicate Pinia provider when using `createTestingPinia`
+- `"[nuxt] error caught during app initialization Error: Context conflict"` — Nuxt context conflict during test setup
+- `"[Vue warn]: There is already an app instance mounted on the host container"` — duplicate app mount in shared DOM
+- `"[Vue Router warn]: No match found for location with path \""` — router warning for unmocked routes
+- `"[Vue warn]: onBeforeMount is called when there is no active component instance"` — lifecycle warning from unmounted tests
+- `"[Vue warn]: onMounted is called when there is no active component instance"` — lifecycle warning from unmounted tests
+- `"[Vue warn]: Unhandled error during execution of watcher callback"` — watcher error surfaced after test teardown
+- `"[NUXT_E1005]"` — Nuxt runtime error emitted during test isolation
 
 ---
 
@@ -89,7 +96,7 @@ All other projects use `environment: "nuxt"` (happy-dom + Nuxt runtime).
 ## 3. Coverage policy
 
 - **Provider:** V8
-- **Threshold:** 100% across all metrics (lines, branches, functions, statements)
+- **Threshold:** 100% aggregate across all projects (not per project) for all metrics (lines, branches, functions, statements)
 - **Collected for:** `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`, `shared/**/*.ts`
 - **Excluded from coverage:**
   - `**/*.constants.ts`
@@ -98,7 +105,10 @@ All other projects use `environment: "nuxt"` (happy-dom + Nuxt runtime).
   - `**/*.d.ts`
   - `**/*.config.ts`
   - `**/*.spec.ts`
+  - `app/plugins/**/*.ts`
   - `server/api/**/*.{get,post,put,patch,delete}.ts` (thin route wrappers)
+  - `server/middleware/**/*.ts`
+  - `server/plugins/**/*.ts`
 
 Every line of every non-excluded source file must be reachable by at least one test.
 
@@ -990,7 +1000,7 @@ it("should call createError with the correct status code when the item is not fo
   }
 
   expect(createError).toHaveBeenCalledExactlyOnceWith({
-    statusCode: HttpStatusCode.NotFound,
+    statusCode: HttpStatusCode.NOT_FOUND,
     message: "Item not found.",
   });
 });

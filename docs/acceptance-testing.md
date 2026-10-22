@@ -129,36 +129,36 @@ Reports are generated in `tests/acceptance/reports/`:
 # Full acceptance test run: builds Nuxt once + runs all workers (CI and first run)
 pnpm run test:acceptance
 
-# Skip build: re-run tests against existing build (fast local iteration)
-pnpm run test:acceptance:skip-build
-
 # Build only: pre-build Nuxt for tests without running them
 pnpm run test:acceptance:build
 
 # Install Playwright (run once after fresh checkout)
 pnpm run test:acceptance:prepare
 
-# Run a specific feature file (skip build for fast iteration)
-pnpm run test:acceptance:skip-build tests/acceptance/features/home/home.feature
+# Run a specific feature file
+pnpm run test:acceptance tests/acceptance/features/home/home.feature
 
 # Run a specific scenario by line number
-pnpm run test:acceptance:skip-build tests/acceptance/features/home/home.feature:8
+pnpm run test:acceptance tests/acceptance/features/home/home.feature:8
 
 # Run by scenario name
-pnpm run test:acceptance:skip-build --name "should display"
+pnpm run test:acceptance --name "should display"
 
 # Run by tag
-pnpm run test:acceptance:skip-build --tags "@question-theme-creation"
+pnpm run test:acceptance --tags "@question-theme-creation"
 
 # Multiple tags (OR)
-pnpm run test:acceptance:skip-build --tags "@home or @questions"
+pnpm run test:acceptance --tags "@home or @questions"
 
 # Exclude tag
-pnpm run test:acceptance:skip-build --tags "not @accessibility"
+pnpm run test:acceptance --tags "not @accessibility"
 
 # Multiple tags (AND)
-pnpm run test:acceptance:skip-build --tags "@question-themes and @accessibility"
+pnpm run test:acceptance --tags "@question-themes and @accessibility"
 ```
+
+> [!IMPORTANT]
+> Agents must always use `pnpm run test:acceptance` (fresh build). `pnpm run test:acceptance:skip-build` exists only for local human iteration against an existing build.
 
 **Prerequisites:**
 

@@ -4,6 +4,7 @@ import { useDocumentVisibility } from "@vueuse/core";
 import { QUESTION_CARD_RING_RADIUS, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS, QUESTION_CARD_RING_SIZE } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
 import type { QuestionCardRingSlot, UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.types";
 import type { Question } from "#shared/types/question.types";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 
 function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCardRingReturn {
   const { questions } = options;
@@ -19,7 +20,7 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
   const isTransitioning = ref<boolean>(false);
   const hasPendingRestage = ref<boolean>(false);
   const isRestaging = ref<boolean>(false);
-  const lastCompletedDirection = ref<"backward" | "forward">("forward");
+  const lastCompletedDirection = ref<GameNavigationDirection>("forward");
   // Acceptable as the timeout handle is only assigned inside scheduleRestage before it is ever cleared
   // oxlint-disable-next-line typescript/init-declarations
   let restageSafetyTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -151,7 +152,7 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
     stageSlots();
   });
 
-  function complete(direction: "backward" | "forward"): void {
+  function complete(direction: GameNavigationDirection): void {
     isSliding.value = false;
     lastCompletedDirection.value = direction;
     const delta = direction === "forward" ? 1 : -1;

@@ -13,13 +13,14 @@ import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composab
 import type { GameQuestionCard } from "#components";
 import { GameQuestionCardSwitcher } from "#components";
 
-import type { GameQuestionCardSwitcherDirection, GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
+import type { GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 
 type GameQuestionCardSwitcherVm = ComponentVm & {
   applyRestingState: () => void;
   cardContainerReferences: (HTMLElement | undefined)[];
   resetSlot: (slotIndex: number) => void;
-  startSlide: (direction: GameQuestionCardSwitcherDirection) => void;
+  startSlide: (direction: GameNavigationDirection) => void;
 };
 
 describe("GameQuestionCardSwitcher Component", () => {
@@ -208,7 +209,7 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(useGsapMock.instance.restart).toHaveBeenCalledWith();
   });
 
-  it.each<{ direction: "forward" | "backward"; side: "right" | "left"; stagedSlotIndex: number; rotation: number; xPercent: number }>([
+  it.each<{ direction: GameNavigationDirection; side: "right" | "left"; stagedSlotIndex: number; rotation: number; xPercent: number }>([
     { direction: "forward", side: "right", stagedSlotIndex: 1, rotation: 6, xPercent: 100 },
     { direction: "backward", side: "left", stagedSlotIndex: 2, rotation: -6, xPercent: -100 },
   ])("should position the entering card to the $side when pendingDirection is $direction.", async({ direction, stagedSlotIndex, rotation, xPercent }) => {

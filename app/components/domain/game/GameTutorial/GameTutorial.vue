@@ -10,8 +10,8 @@ import type {
   GameTutorialPopoverContentConfig,
   GameTutorialProps,
   GameTutorialSpotlightRect,
-  GameTutorialStepDirection,
 } from "@/components/domain/game/GameTutorial/game-tutorial.types";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 import {
   GAME_TUTORIAL_ARROW_KEY_DIRECTIONS,
   GAME_TUTORIAL_POPOVER_MARGIN,
@@ -130,11 +130,11 @@ function updateTourTarget(): void {
   updateTourLayout();
 }
 
-function canNavigateTutorialStep(direction: GameTutorialStepDirection): boolean {
+function canNavigateTutorialStep(direction: GameNavigationDirection): boolean {
   return direction === "forward" || hasPrev.value;
 }
 
-function navigateTutorialStep(direction: GameTutorialStepDirection): void {
+function navigateTutorialStep(direction: GameNavigationDirection): void {
   if (direction === "forward") {
     next();
 

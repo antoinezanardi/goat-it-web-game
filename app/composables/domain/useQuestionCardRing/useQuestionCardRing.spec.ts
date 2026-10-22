@@ -10,11 +10,12 @@ import type { UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "@/co
 import { QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
 import type { useQuestionCardRing as UseQuestionCardRingType } from "@/composables/domain/useQuestionCardRing/useQuestionCardRing";
 import type { Question } from "#shared/types/question.types";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 
 describe("useQuestionCardRing", () => {
   let questions: Ref<Question[]>;
   let currentIndex: Ref<number>;
-  let pendingDirection: Ref<"backward" | "forward" | undefined>;
+  let pendingDirection: Ref<GameNavigationDirection | undefined>;
   let onStaged: Mock<() => void>;
   let onResetSlot: Mock<(slotIndex: number) => void>;
   let requestAnimationFrameCallbacks: FrameRequestCallback[];
@@ -50,7 +51,7 @@ describe("useQuestionCardRing", () => {
     vi.resetAllMocks();
     questions = ref<Question[]>([createFakeQuestion(), createFakeQuestion(), createFakeQuestion()]);
     currentIndex = ref(1);
-    pendingDirection = ref<"backward" | "forward" | undefined>(undefined);
+    pendingDirection = ref<GameNavigationDirection | undefined>(undefined);
     onStaged = vi.fn<() => void>();
     onResetSlot = vi.fn<(slotIndex: number) => void>();
     requestAnimationFrameCallbacks = [];
@@ -100,7 +101,7 @@ describe("useQuestionCardRing", () => {
     expect(slots.value[slotIndex]?.question).toBeUndefined();
   });
 
-  it.each<{ direction: "backward" | "forward"; expectedActiveIndex: number }>([
+  it.each<{ direction: GameNavigationDirection; expectedActiveIndex: number }>([
     { direction: "forward", expectedActiveIndex: 1 },
     { direction: "backward", expectedActiveIndex: 2 },
   ])("should rotate the active slot to $expectedActiveIndex when completing $direction.", ({ direction, expectedActiveIndex }) => {

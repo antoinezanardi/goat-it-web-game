@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { GameSidebarEmits, GameSidebarProps } from "@/components/domain/game/GameSidebar/game-sidebar.types";
-import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
+import { GAME_SIDEBAR_ICONS, GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
 
 const props = defineProps<GameSidebarProps>();
 const emit = defineEmits<GameSidebarEmits>();
@@ -71,7 +71,7 @@ function onAfterLeave(): void {
         >
           <UIcon
             class="size-4"
-            name="i-lucide-compass"
+            :name="GAME_SIDEBAR_ICONS.tutorial"
           />
           {{ t("game.interactiveTutorial.label") }}
         </ULink>
@@ -83,7 +83,7 @@ function onAfterLeave(): void {
         >
           <UIcon
             class="size-4"
-            name="i-lucide-funnel"
+            :name="GAME_SIDEBAR_ICONS.filters"
           />
           {{ t("game.questionsFilters.sidebarLabel") }}
 
@@ -109,7 +109,7 @@ function onAfterLeave(): void {
         >
           <UIcon
             class="size-4"
-            name="i-lucide-book-open"
+            :name="GAME_SIDEBAR_ICONS.rules"
           />
           {{ t("game.rules") }}
         </ULink>
@@ -121,7 +121,7 @@ function onAfterLeave(): void {
         >
           <UIcon
             class="size-4"
-            name="i-lucide-house"
+            :name="GAME_SIDEBAR_ICONS.backToHome"
           />
           {{ t("game.backToHome") }}
         </ULink>
@@ -137,7 +137,7 @@ function onAfterLeave(): void {
           block
           color="secondary"
           data-testid="game-sidebar-settings-button"
-          icon="i-lucide-settings"
+          :icon="GAME_SIDEBAR_ICONS.settings"
           :label="t('game.settings.trigger')"
           variant="solid"
           @click="onOpenSettings"
