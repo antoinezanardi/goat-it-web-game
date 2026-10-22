@@ -47,10 +47,9 @@ Running acceptance tests:
 - By tag (AND):             `pnpm run test:acceptance --tags "@question-themes and @accessibility"`
 
 > **Per-task agents** should scope acceptance tests to their changes with `--tags`:
-> `pnpm run test:acceptance --tags "@feature-tag"`
-> Always build fresh (do not use `test:acceptance:skip-build`).
+> `pnpm run test:acceptance:skip-build --tags "@feature-tag"` is allowed **only** if the existing `.nuxt/test/output` build was produced after the last change to any build input (anything outside `tests/acceptance/`). Otherwise run `pnpm run test:acceptance --tags "@feature-tag"` (fresh build). Rebuild after a branch switch, a dependency install, an env change, or whenever unsure.
 
-**Mandatory quality gates** — the orchestrator (via the gatekeeper agent) runs these four commands **in order** before considering any task complete. **Do NOT skip any gate**, even for "trivial" changes:
+**Mandatory quality gates** — the orchestrator (via the gatekeeper agent) runs these four commands **in order** before considering any task complete. **Do NOT skip any gate**, even for "trivial" changes. Gate 4 always builds fresh: `test:acceptance:skip-build` is never a substitute for it.
 
 1. `pnpm run lint:fix`
 2. `pnpm run typecheck`
@@ -119,7 +118,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
 
   - Use `type` imports for type-only symbols (`import type { Foo } from '...'`).
   - Prefer named exports; avoid default exports for utilities and composables.
-  - Barrel exports are forbidden (`export { foo } from '...'` or `export * from '...'`). Always import directly from the source module.
+  - Barrel exports are forbidden (`export { foo } from '...'` or `export * from '...'`). Files whose only purpose is to re-export or alias a symbol from another module are also forbidden — always import directly from the source module.
 
 - Import aliases:
   - `@/` → `app/` code modules (canonical app code alias)

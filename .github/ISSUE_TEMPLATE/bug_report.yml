@@ -71,7 +71,6 @@ body:
     attributes:
       label: Relevant logs or screenshots
       description: Paste any relevant logs, stack traces, or screenshots.
-      render: shell
 
   - type: checkboxes
     id: checklist

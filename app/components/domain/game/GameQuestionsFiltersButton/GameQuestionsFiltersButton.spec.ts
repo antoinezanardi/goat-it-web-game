@@ -14,8 +14,8 @@ import { useQuestionCardHighlightMock } from "~~/tests/unit/setup/nuxt/composabl
 
 import { GameQuestionsFiltersButton } from "#components";
 
-import { GAME_QUESTIONS_FILTERS_BUTTON_UI } from "@/components/domain/game/GameQuestionsFiltersButton/game-questions-filters-button.constants";
 import type { GameQuestionsFiltersButtonExposed } from "@/components/domain/game/GameQuestionsFiltersButton/game-questions-filters-button.types";
+import { GAME_INTERACTIVE_BUTTON_UI } from "@/utils/ui/game/game-buttons.constants";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 
 describe("GameQuestionsFiltersButton Component", () => {
@@ -43,10 +43,10 @@ describe("GameQuestionsFiltersButton Component", () => {
     expect(button.props("icon")).toBe("i-lucide-funnel");
   });
 
-  it("should pass the GAME_QUESTIONS_FILTERS_BUTTON_UI ui config to UButton when mounted.", () => {
+  it("should pass the GAME_INTERACTIVE_BUTTON_UI ui config to UButton when mounted.", () => {
     const button = wrapper.findComponent({ name: "UButton" });
 
-    expect(button.props("ui")).toStrictEqual(GAME_QUESTIONS_FILTERS_BUTTON_UI);
+    expect(button.props("ui")).toStrictEqual(GAME_INTERACTIVE_BUTTON_UI);
   });
 
   it("should have the data-testid attribute when mounted.", () => {

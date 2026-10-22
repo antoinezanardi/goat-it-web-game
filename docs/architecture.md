@@ -87,7 +87,7 @@ Navigate by **runtime boundary → framework/project area → category/domain �
 
 An independently understood production unit owns a directory. If it has a unit spec, source and spec are siblings in that directory. Owner-private types/constants are optional sibling files. Do not add empty/ceremonial companions. A current domain folder may itself be the unit if it contains one coherent source/spec pair (for example, `shared/utils/helpers/object/`). Add a responsibility subdirectory only for genuinely distinct units or nested private helper units.
 
-No `misc` or catch-all buckets. Use type-only imports where appropriate, named exports for utilities, kebab-case filenames for auxiliary files, and the project-enforced symbol casing. Default exports are reserved for framework entrypoints/config where required. Barrel exports and relative imports are forbidden.
+No `misc` or catch-all buckets. Use type-only imports where appropriate, named exports for utilities, kebab-case filenames for auxiliary files, and the project-enforced symbol casing. Default exports are reserved for framework entrypoints/config where required. Barrel exports and relative imports are forbidden. A file whose only purpose is to re-export or alias a symbol from another module is forbidden too: import the source module directly.
 
 Domain directory names are always singular (`question-theme/`, `element/`), even when the files they contain name the entity in plural (`question-themes.store.ts`).
 

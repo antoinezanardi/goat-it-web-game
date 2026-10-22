@@ -2,7 +2,7 @@
 import { UButton } from "#components";
 
 import { resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
-import { GAME_QUESTIONS_FILTERS_BUTTON_UI } from "@/components/domain/game/GameQuestionsFiltersButton/game-questions-filters-button.constants";
+import { GAME_INTERACTIVE_BUTTON_UI } from "@/utils/ui/game/game-buttons.constants";
 import type { GameQuestionsFiltersButtonEmits, GameQuestionsFiltersButtonExposed } from "@/components/domain/game/GameQuestionsFiltersButton/game-questions-filters-button.types";
 
 const emit = defineEmits<GameQuestionsFiltersButtonEmits>();
@@ -49,7 +49,7 @@ defineExpose(exposed);
         data-testid="game-questions-filters-button"
         icon="i-lucide-funnel"
         size="lg"
-        :ui="GAME_QUESTIONS_FILTERS_BUTTON_UI"
+        :ui="GAME_INTERACTIVE_BUTTON_UI"
         variant="outline"
         @click="onClick"
       />
