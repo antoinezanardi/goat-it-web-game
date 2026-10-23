@@ -243,7 +243,7 @@ Paths under `~~/tests/unit/utils/mocks/composables/`. Scan directories for the c
 | `createUseAsyncActionMock()`              | `core/useAsyncAction/useAsyncAction.mock`           | Mock factory for `useAsyncAction`                                   |
 | `createUseAppToastMock()`                 | `ui/useAppToast/useAppToast.mock`                   | Mock factory for `useAppToast`                                      |
 | `createUseGoatItApiErrorToastMock()`      | `domain/useGoatItApiErrorToast/useGoatItApiErrorToast.mock` | Mock factory for `useGoatItApiErrorToast`                   |
-| `createUseGSAPMock()`                     | `nuxt/useGsap/useGsap.mock`                         | Mock factory for `useGSAP`                                          |
+| `createUseGsapMock()`                     | `core/useGsap/useGsap.mock`                         | Mock factory for `useGsap`                                          |
 | `createUseOverlayMock()`                  | `nuxt-ui/useOverlay/useOverlay.mock`                | Mock factory for `useOverlay`                                       |
 | `createUseWindowScrollMock()`             | `core/useWindowScroll/useWindowScroll.mock`         | Mock factory for `useWindowScroll`                                  |
 | `createUsePreferredReducedMotionMock()`   | `core/usePreferredReducedMotion/usePreferredReducedMotion.mock` | Mock factory for `usePreferredReducedMotion`            |
@@ -312,13 +312,13 @@ In `nuxt`, `composables`, and `stores` projects, available without any setup in 
 - `useSeoMeta`, `callOnce`, `defineOgImage`, `useHead` → `vi.fn()` spies
 - `getRouterParam` / `readBody` → global stubs; `createError` → mock
 - `TZ=UTC` is set globally via Vitest `test.env`; fake timers are opt-in per test/file (`vi.useFakeTimers()` + `vi.useRealTimers()` in `afterEach`)
-- GSAP ScrollTrigger's 250 ms sync interval is suppressed in Nuxt unit projects by a test-only Nuxt plugin + Vitest transform (see `docs/unit-testing.md`)
+- GSAP is only reachable through the globally mocked `useGsap` composable in the `nuxt` and `stores` projects — no GSAP code or timer runs in those unit tests (see `docs/unit-testing.md`)
 - Element geometry mocked (`virtualizer` setup) and reka-ui `DismissableLayer` recursion patched
 - Repositories globally mocked via `vi.mock`: `questionThemesRepository`, `questionsRepository` (nuxt + composables + stores)
 - Runtime config injected: `{ goatItApi: { baseUrl: "https://api.goat-it.com", gameKey: "test-game-key" } }`
 
 **Globally-mocked composables** (nuxt + stores projects only — the list grows; scan `tests/unit/setup/nuxt/composables/` for the authoritative set):
-`useFetchStatus`, `useAsyncAction`, `useAppToast`, `useGoatItApiErrorToast`, `useGSAP`, `useGame`, `useOverlay`, `useWindowScroll`, `usePreferredReducedMotion`
+`useFetchStatus`, `useAsyncAction`, `useAppToast`, `useGoatItApiErrorToast`, `useGsap`, `useGame`, `useOverlay`, `useWindowScroll`, `usePreferredReducedMotion`
 
 In the `stores` project additionally:
 

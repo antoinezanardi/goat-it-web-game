@@ -138,7 +138,7 @@ These setup files run automatically before tests in the relevant projects. You d
 
 > **Fake timers are opt-in.** No shared setup installs them. Call `vi.useFakeTimers()` in the test or in the file's `beforeEach` and always restore with `vi.useRealTimers()` in `afterEach`. When a spec also spies on `requestAnimationFrame`, install fake timers **before** creating the spy so the spy wraps the fake implementation.
 >
-> The real `v-gsap-nuxt` plugin leaves a 250 ms ScrollTrigger sync interval running, which can fire after happy-dom is torn down. Two test-only safeguards prevent it: the Nuxt test plugin `tests/unit/setup/nuxt/gsap-scroll-trigger.nuxt-plugin.ts` calls `ScrollTrigger.disable()`, and the Vitest config's `vitest-gsap-scroll-trigger-disable-sync-interval` transform neutralizes the interval assignment in `gsap/ScrollTrigger.js` for the `nuxt`, `composables`, and `stores` projects. The transform throws if the upstream statement disappears (e.g. a gsap upgrade), so only a change to the module path (e.g. `.mjs`) could bypass it.
+> GSAP is never imported for real in the `nuxt` and `stores` projects: the global `use-gsap.nuxt.unit-setup.ts` mock replaces the auto-imported `useGsap` composable, so its `loadGsap` resolves to an in-memory mock and no GSAP chunk, plugin or timer is ever loaded. The `useGsap` composable itself is tested with the real `gsap` core package in the `composables` project.
 
 ### Stores project only
 
@@ -157,7 +157,7 @@ To see the current full list, scan `tests/unit/setup/nuxt/composables/` — ever
 | `use-async-action.nuxt.unit-setup.ts`       | `useAsyncAction`          | `createUseAsyncActionMock()`           | `useAsyncActionMock`              |
 | `use-app-toast.nuxt.unit-setup.ts`          | `useAppToast`             | `createUseAppToastMock()`              | `useAppToastMock`                 |
 | `use-goat-it-api-error-toast.nuxt.unit-setup.ts` | `useGoatItApiErrorToast` | `createUseGoatItApiErrorToastMock()`   | `useGoatItApiErrorToastMock`      |
-| `use-gsap.nuxt.unit-setup.ts`              | `useGSAP`                 | `createUseGSAPMock()`                  | `useGsapMock`                     |
+| `use-gsap.nuxt.unit-setup.ts`              | `useGsap`                 | `createUseGsapMock()`                  | `useGsapMock`                     |
 | `use-game.nuxt.unit-setup.ts`              | `useGame`                 | `createUseGameMock()`                  | `useGameMock`                     |
 | `use-overlay.nuxt.unit-setup.ts`           | `useOverlay`              | `createUseOverlayMock()`               | `useOverlayMock`                  |
 | `use-window-scroll.nuxt.unit-setup.ts`     | `useWindowScroll`         | `createUseWindowScrollMock()`          | `useWindowScrollMock`             |
@@ -1514,6 +1514,7 @@ Each non-trivial composable has a mock triplet in `tests/unit/utils/mocks/compos
 |------------|----------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
 | `core/`    | `useAsyncAction/`          | `createUseAsyncActionMock()`                          | `execute`, `fetchStatus`, `isIdle`, `isPending`, `isSuccess`, `isError`                                                                     |
 | `core/`    | `useFetchStatus/`          | `createUseFetchStatusMock()`                          | `fetchStatus`, `isIdle`, `isPending`, `isSuccess`, `isError`, `setFetchStatusToPending`, `setFetchStatusToSuccess`, `setFetchStatusToError` |
+| `core/`    | `useGsap/`                 | `createUseGsapMock()`, `createGsapMock()`             | `loadGsap` plus GSAP timeline/context mocks                                                                                                 |
 | `core/`    | `usePreferredLanguages/`   | `createUsePreferredLanguagesMock()`                   | `preferredLanguagesRef`                                                                                                                     |
 | `core/`    | `usePreferredReducedMotion/` | `createUsePreferredReducedMotionMock()`             | `preferredReducedMotionRef`                                                                                                                 |
 | `core/`    | `useWindowScroll/`         | `createUseWindowScrollMock()`                         | `x`, `y`, `capturedOptions`                                                                                                                 |
@@ -1523,7 +1524,6 @@ Each non-trivial composable has a mock triplet in `tests/unit/utils/mocks/compos
 | `nuxt/`    | `createError/`             | `createCreateErrorMock()`                             | `Mock<typeof createError>`                                                                                                                  |
 | `nuxt/`    | `h3/`                      | `createGetRouterParamMock()`, `createReadBodyMock()`  | H3 utility mocks                                                                                                                            |
 | `nuxt/`    | `useFetch/`                | `createFetchMock()`                                   | `vi.fn<$Fetch>()` — used internally by fetch setup file                                                                                     |
-| `nuxt/`    | `useGsap/`                 | `createUseGSAPMock()`                                 | GSAP timeline/context mocks                                                                                                                 |
 | `nuxt/`    | `useI18n/`                 | `createUseI18nMock()`                                 | `t`, `locale`, `localeCodes`, `locales`, `setLocale` + constants + types                                                                    |
 | `nuxt/`    | `useRouter/`               | `createUseRouterMock()`                               | `getRoutes`, `currentRoute`, `push`, `afterEach`, `beforeResolve`, `beforeEach`, `onError` + constants + types                              |
 | `nuxt/`    | `useToast/`                | `createUseToastMock()`                                | `add`, `remove`, `clear`                                                                                                                    |

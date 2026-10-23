@@ -32,16 +32,24 @@ function readRestingScale(element: HTMLElement): number {
 }
 
 function useQuestionCardHighlight(): UseQuestionCardHighlightReturn {
-  const gsap = useGSAP();
+  const { loadGsap } = useGsap();
   const reducedMotion = usePreferredReducedMotion();
 
+  function isReducedMotionPreferred(): boolean {
+    return reducedMotion.value === "reduce";
+  }
+
   async function animate(elements: HTMLElement[]): Promise<void> {
-    if (reducedMotion.value === "reduce") {
+    if (isReducedMotionPreferred() || elements.length === 0) {
       return;
     }
     const restingScales = elements.map(readRestingScale);
     const [popKeyframe, settleKeyframe, restKeyframe] = QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES;
+    const gsap = await loadGsap();
 
+    if (isReducedMotionPreferred()) {
+      return;
+    }
     await gsap.set(elements, { filter: "brightness(1)" });
     await gsap.timeline().to(
       elements,

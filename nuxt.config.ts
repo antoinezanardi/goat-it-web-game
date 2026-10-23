@@ -24,7 +24,6 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxt/eslint",
     "@vite-pwa/nuxt",
-    "v-gsap-nuxt",
   ],
   $production: {
     sourcemap: false,
@@ -125,9 +124,11 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: [
-        "@goat-it/schemas/shared/constants",
         "@goat-it/schemas/question",
         "@goat-it/schemas/question-theme",
+        "@goat-it/schemas/shared/constants",
+        "@goat-it/schemas/shared/locale",
+        "gsap",
         "radashi",
         "zod",
       ],

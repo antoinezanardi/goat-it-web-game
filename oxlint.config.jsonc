@@ -86,7 +86,7 @@
     "useCookie": "readonly",
     "useFetch": "readonly",
     "useFetchStatus": "readonly",
-    "useGSAP": "readonly",
+    "useGsap": "readonly",
     "useGame": "readonly",
     "useGameFiltersModal": "readonly",
     "useGameLeaveConfirmation": "readonly",
@@ -973,7 +973,8 @@
       ],
       "rules": {
         "import/unambiguous": "off",
-        "node/no-top-level-await": "off"
+        "node/no-top-level-await": "off",
+        "typescript/init-declarations": "off"
       }
     },
     // ---- Override for pages files -----

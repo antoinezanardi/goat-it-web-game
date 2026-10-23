@@ -1,4 +1,5 @@
 import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
@@ -7,6 +8,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
+import type { GsapMock } from "~~/tests/unit/utils/mocks/composables/core/useGsap/useGsap.mock.types";
 import { useGsapMock } from "~~/tests/unit/setup/nuxt/composables/use-gsap.nuxt.unit-setup";
 import { usePreferredReducedMotionMock } from "~~/tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup";
 
@@ -64,6 +66,25 @@ describe("GameQuestionCardSwitcher Component", () => {
     return parent;
   }
 
+  function deferGsapLoad(): () => void {
+    const deferred: { resolve?: (gsap: GsapMock) => void } = {};
+    useGsapMock.instance.loadGsap.mockReturnValue(new Promise<GsapMock>(resolve => {
+      deferred.resolve = resolve;
+    }));
+
+    return (): void => {
+      deferred.resolve?.(useGsapMock.instance);
+    };
+  }
+
+  async function remountWithDeferredGsapLoad(): Promise<() => void> {
+    const resolveLoad = deferGsapLoad();
+    wrapper.unmount();
+    wrapper = await mountGameQuestionCardSwitcher();
+
+    return resolveLoad;
+  }
+
   beforeEach(async() => {
     vi.useFakeTimers();
     requestAnimationFrameCallbacks = [];
@@ -75,6 +96,7 @@ describe("GameQuestionCardSwitcher Component", () => {
       return requestAnimationFrameCallbacks.length;
     });
     wrapper = await mountGameQuestionCardSwitcher();
+    await flushPromises();
   });
 
   afterEach(() => {
@@ -164,8 +186,8 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(stagedContainers.filter(container => container.classList.contains("opacity-0"))).toHaveLength(2);
   });
 
-  it("should not apply the transition compositing class to the card containers when at rest.", () => {
-    expect(getCardContainers(wrapper).every(container => !container.classes("will-change-transform"))).toBe(true);
+  it("should apply the transition compositing class only to the active card container when at rest.", () => {
+    expect(getCardContainers(wrapper).map(container => container.classes("will-change-transform"))).toStrictEqual([true, false, false]);
   });
 
   it("should apply the transition compositing class to the card containers when a slide is in progress.", async() => {
@@ -176,13 +198,13 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(getCardContainers(wrapper).every(container => container.classes("will-change-transform"))).toBe(true);
   });
 
-  it("should remove the transition compositing class from the card containers when the slide completes.", async() => {
+  it("should apply the transition compositing class only to the newly active card container when the slide completes.", async() => {
     await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();
     useGsapMock.instance.capturedOnComplete.current?.();
     await nextTick();
 
-    expect(getCardContainers(wrapper).every(container => !container.classes("will-change-transform"))).toBe(true);
+    expect(getCardContainers(wrapper).map(container => container.classes("will-change-transform"))).toStrictEqual([false, true, false]);
   });
 
   it.each<{ description: string; getContainer: () => Element; expectedAttributes: { ariaHidden: string | null; inert: boolean } }>([
@@ -445,6 +467,68 @@ describe("GameQuestionCardSwitcher Component", () => {
     vm.resetSlot(0);
 
     expect(useGsapMock.instance.set).not.toHaveBeenCalled();
+  });
+
+  it("should start the pending slide once gsap finishes loading when a slide is requested before gsap loads.", async() => {
+    const resolveLoad = await remountWithDeferredGsapLoad();
+    const vm = getWrapperVm<GameQuestionCardSwitcherVm>(wrapper);
+
+    vm.startSlide("forward");
+    resolveLoad();
+    await flushPromises();
+
+    expect(useGsapMock.instance.timelineTo).toHaveBeenCalledTimes(2);
+  });
+
+  it("should complete the pending slide through the safety timeout when gsap never finishes loading.", async() => {
+    await remountWithDeferredGsapLoad();
+    const vm = getWrapperVm<GameQuestionCardSwitcherVm>(wrapper);
+
+    vm.startSlide("forward");
+    vi.advanceTimersByTime(600);
+
+    expect(wrapper.emitted("complete")).toStrictEqual([[]]);
+  });
+
+  it("should complete the pending slide immediately when reduced motion is preferred and gsap is not loaded.", async() => {
+    await remountWithDeferredGsapLoad();
+    usePreferredReducedMotionMock.instance.preferredReducedMotionRef.value = "reduce";
+    const vm = getWrapperVm<GameQuestionCardSwitcherVm>(wrapper);
+
+    vm.startSlide("forward");
+
+    expect(wrapper.emitted("complete")).toStrictEqual([[]]);
+  });
+
+  it("should skip resetting a card container when gsap is not loaded.", async() => {
+    await remountWithDeferredGsapLoad();
+    const vm = getWrapperVm<GameQuestionCardSwitcherVm>(wrapper);
+    useGsapMock.instance.set.mockClear();
+    vm.cardContainerReferences = [document.createElement("div")];
+
+    vm.resetSlot(0);
+
+    expect(useGsapMock.instance.set).not.toHaveBeenCalled();
+  });
+
+  it("should skip the resting state update when gsap is not loaded.", async() => {
+    await remountWithDeferredGsapLoad();
+    const vm = getWrapperVm<GameQuestionCardSwitcherVm>(wrapper);
+    useGsapMock.instance.set.mockClear();
+
+    vm.applyRestingState();
+
+    expect(useGsapMock.instance.set).not.toHaveBeenCalled();
+  });
+
+  it("should not create a gsap context when the component unmounts before gsap finishes loading.", async() => {
+    const resolveLoad = await remountWithDeferredGsapLoad();
+
+    wrapper.unmount();
+    resolveLoad();
+    await flushPromises();
+
+    expect(useGsapMock.instance.context).toHaveBeenCalledOnce();
   });
 
   describe("safety timeout", () => {

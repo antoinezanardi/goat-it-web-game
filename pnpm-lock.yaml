@@ -274,6 +274,9 @@ importers:
       eslint-plugin-unicorn:
         specifier: ^78.0.0
         version: 78.0.0(eslint@10.13.0(jiti@2.7.0)(supports-color@11.0.0))(supports-color@11.0.0)(typescript@6.0.3)
+      gsap:
+        specifier: ^3.15.0
+        version: 3.15.0
       happy-dom:
         specifier: ^21.0.3
         version: 21.0.3
@@ -343,9 +346,6 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
-      v-gsap-nuxt:
-        specifier: ^1.5.12
-        version: 1.5.12(magicast@0.5.5)
       validate-branch-name:
         specifier: ^1.3.2
         version: 1.3.2(typescript@6.0.3)
@@ -9897,9 +9897,6 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
-
-  v-gsap-nuxt@1.5.12:
-    resolution: {integrity: sha512-ojOnvUPZGvFpFfpHUO37EgQjtfHwLs7ASqBqIjkZB5p6JwI0FH9VaprDJy8s5ZQAC/tKeWHEn6YFoyjw/git2Q==}
 
   valibot@1.5.0:
     resolution: {integrity: sha512-nil6AkP2TChWL43Z5uJ6GTxX01CUA+g8LWUM+N/rB9NBbkUMaUsi9PUNzlUPgoKASgmx9f7eGOYpJ04/fSa6FQ==}
@@ -21832,14 +21829,6 @@ snapshots:
   util-arity@1.1.0: {}
 
   util-deprecate@1.0.2: {}
-
-  v-gsap-nuxt@1.5.12(magicast@0.5.5):
-    dependencies:
-      '@nuxt/kit': 3.21.11(magicast@0.5.5)
-      defu: 6.1.7
-      gsap: 3.15.0
-    transitivePeerDependencies:
-      - magicast
 
   valibot@1.5.0(typescript@6.0.3):
     optionalDependencies:
