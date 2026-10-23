@@ -315,6 +315,42 @@ describe("useGameQuestionFeed", () => {
 
       expect(feed.hasNoMatchingFiltersQuestions.value).toBe(false);
     });
+
+    it("should not show the API error toast when the fetch is superseded.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, superseded: true });
+
+      await feed.initialize();
+
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).not.toHaveBeenCalled();
+    });
+
+    it("should not flag a fetch error when the fetch is superseded.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, superseded: true });
+
+      await feed.initialize();
+
+      expect(feed.hasFetchError.value).toBe(false);
+    });
+
+    it("should leave the exhaustion and empty-filter flags unchanged when the fetch is superseded.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, superseded: true });
+
+      await feed.initialize();
+
+      expect({
+        isExhausted: feed.isExhausted.value,
+        hasNoMatchingFiltersQuestions: feed.hasNoMatchingFiltersQuestions.value,
+      }).toStrictEqual({
+        isExhausted: false,
+        hasNoMatchingFiltersQuestions: false,
+      });
+    });
   });
 
   describe("prefetch", () => {
@@ -579,6 +615,20 @@ describe("useGameQuestionFeed", () => {
         isAdultContent: false,
       });
     });
+
+    it("should not show the API error toast when the prefetch is superseded.", async() => {
+      const store = mockStore(useGameStore);
+      const currentIndex = ref<number>(0);
+      useGameQuestionFeed({ currentIndex });
+      store.questions = Array.from({ length: 25 }, () => createFakeQuestion());
+      await nextTick();
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, superseded: true });
+      currentIndex.value = 20;
+      await nextTick();
+      await flushPromises();
+
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).not.toHaveBeenCalled();
+    });
   });
 
   describe("restartFromCurrentIndex", () => {
@@ -776,6 +826,26 @@ describe("useGameQuestionFeed", () => {
       await feed.restartFromCurrentIndex();
 
       expect(feed.hasNoMatchingFiltersQuestions.value).toBe(false);
+    });
+
+    it("should return the superseded result when the refetch is superseded.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, superseded: true });
+
+      await expect(feed.restartFromCurrentIndex()).resolves.toStrictEqual({ ok: false, superseded: true });
+    });
+
+    it("should not show the API error toast when the refetch is superseded.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, superseded: true });
+
+      await feed.restartFromCurrentIndex();
+
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).not.toHaveBeenCalled();
     });
   });
 });

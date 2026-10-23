@@ -168,6 +168,15 @@ describe("App Component", () => {
     expect(useGoatItApiErrorToastMock.instance.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fakeError, { title: "questionThemes.cantFetch", context: "question-themes" });
   });
 
+  it("should not show the API error toast when the question themes fetch is superseded.", async() => {
+    mockStore(useQuestionThemesStore).fetchAndStoreQuestionThemes.mockResolvedValue({ ok: false, superseded: true });
+    const { locale } = useI18n();
+    locale.value = "fr";
+    await nextTick();
+
+    expect(useGoatItApiErrorToastMock.instance.handleGoatItApiError).not.toHaveBeenCalled();
+  });
+
   it("should call once the question themes fetch when mounted.", () => {
     expect(vi.mocked(callOnce)).toHaveBeenCalledExactlyOnceWith(expect.any(Function), expect.any(String));
   });

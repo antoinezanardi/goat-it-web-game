@@ -5,6 +5,7 @@ import { createFakeFindQuestionThemesQueryDto } from "@goat-it/schemas/testing/q
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import { questionThemesRepository } from "@/repositories/goat-it-api/question-themes/question-themes.repository";
+import type { GoatItApiRequestOptions } from "@/repositories/goat-it-api/goat-it-api.types";
 
 describe(questionThemesRepository, () => {
   let fetchMock: ReturnType<typeof vi.fn<$Fetch>>;
@@ -28,7 +29,7 @@ describe(questionThemesRepository, () => {
 
       await repository.getAll();
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/question-themes", { query: undefined, timeout: 15_000 });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/question-themes", { query: undefined });
     });
 
     it("should call fetch with the correct endpoint and query when called with query params.", async() => {
@@ -42,7 +43,7 @@ describe(questionThemesRepository, () => {
 
       await repository.getAll(query);
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/question-themes", { query, timeout: 15_000 });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/question-themes", { query });
     });
 
     it("should return question themes from fetch when called.", async() => {
@@ -56,6 +57,26 @@ describe(questionThemesRepository, () => {
       const result = await repository.getAll();
 
       expect(result).toStrictEqual(fakeQuestionThemes);
+    });
+
+    it("should forward the request options signal to fetch when called with options.", async() => {
+      const repository = questionThemesRepository(fetchMock as $Fetch);
+      fetchMock.mockResolvedValue([]);
+      const query = createFakeFindQuestionThemesQueryDto({ limit: 10 });
+      const options: GoatItApiRequestOptions = { signal: new AbortController().signal };
+
+      await repository.getAll(query, options);
+
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/question-themes", { ...options, query });
+    });
+
+    it("should not pass a signal to fetch when called without options.", async() => {
+      const repository = questionThemesRepository(fetchMock as $Fetch);
+      fetchMock.mockResolvedValue([]);
+
+      await repository.getAll();
+
+      expect(fetchMock.mock.calls[0]?.[1]).not.toHaveProperty("signal");
     });
   });
 });
