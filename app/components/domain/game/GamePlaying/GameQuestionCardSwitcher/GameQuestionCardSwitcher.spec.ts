@@ -186,8 +186,8 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(stagedContainers.filter(container => container.classList.contains("opacity-0"))).toHaveLength(2);
   });
 
-  it("should not apply the transition compositing class to the card containers when at rest.", () => {
-    expect(getCardContainers(wrapper).every(container => !container.classes("will-change-transform"))).toBe(true);
+  it("should apply the transition compositing class only to the active card container when at rest.", () => {
+    expect(getCardContainers(wrapper).map(container => container.classes("will-change-transform"))).toStrictEqual([true, false, false]);
   });
 
   it("should apply the transition compositing class to the card containers when a slide is in progress.", async() => {
@@ -198,13 +198,13 @@ describe("GameQuestionCardSwitcher Component", () => {
     expect(getCardContainers(wrapper).every(container => container.classes("will-change-transform"))).toBe(true);
   });
 
-  it("should remove the transition compositing class from the card containers when the slide completes.", async() => {
+  it("should apply the transition compositing class only to the newly active card container when the slide completes.", async() => {
     await wrapper.setProps({ pendingDirection: "forward" });
     await nextTick();
     useGsapMock.instance.capturedOnComplete.current?.();
     await nextTick();
 
-    expect(getCardContainers(wrapper).every(container => !container.classes("will-change-transform"))).toBe(true);
+    expect(getCardContainers(wrapper).map(container => container.classes("will-change-transform"))).toStrictEqual([false, true, false]);
   });
 
   it.each<{ description: string; getContainer: () => Element; expectedAttributes: { ariaHidden: string | null; inert: boolean } }>([
@@ -486,6 +486,16 @@ describe("GameQuestionCardSwitcher Component", () => {
 
     vm.startSlide("forward");
     vi.advanceTimersByTime(600);
+
+    expect(wrapper.emitted("complete")).toStrictEqual([[]]);
+  });
+
+  it("should complete the pending slide immediately when reduced motion is preferred and gsap is not loaded.", async() => {
+    await remountWithDeferredGsapLoad();
+    usePreferredReducedMotionMock.instance.preferredReducedMotionRef.value = "reduce";
+    const vm = getWrapperVm<GameQuestionCardSwitcherVm>(wrapper);
+
+    vm.startSlide("forward");
 
     expect(wrapper.emitted("complete")).toStrictEqual([[]]);
   });

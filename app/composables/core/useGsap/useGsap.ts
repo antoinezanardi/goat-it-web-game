@@ -12,9 +12,14 @@ async function importGsap(): Promise<GsapInstance> {
 }
 
 async function loadGsap(): Promise<GsapInstance> {
-  gsapPromise ??= importGsap();
+  try {
+    gsapPromise ??= importGsap();
 
-  return gsapPromise;
+    return await gsapPromise;
+  } catch(error) {
+    gsapPromise = undefined;
+    throw error;
+  }
 }
 
 function useGsap(): UseGsapReturn {

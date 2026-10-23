@@ -24,11 +24,7 @@ const gsapInstance = shallowRef<GsapInstance>();
 const timeline = shallowRef<GsapTimeline>();
 const isSlideSettled = ref<boolean>(true);
 let isUnmounted = false;
-// Acceptable as the pending direction is only assigned inside the watcher before it is read
-// oxlint-disable-next-line typescript/init-declarations
 let pendingSlideDirection: GameNavigationDirection | undefined;
-// Acceptable as the timeout handle is only assigned inside startSlide before it is ever read
-// oxlint-disable-next-line typescript/init-declarations
 let safetyTimeout: ReturnType<typeof setTimeout> | undefined;
 
 function resetSlot(slotIndex: number): void {
@@ -84,6 +80,12 @@ function armSafetyTimeout(direction: GameNavigationDirection): void {
 function queueSlideUntilGsapLoads(direction: GameNavigationDirection): void {
   pendingSlideDirection = direction;
   isSlideSettled.value = false;
+
+  if (reducedMotion.value === "reduce") {
+    onSlideComplete(direction);
+
+    return;
+  }
   armSafetyTimeout(direction);
 }
 
@@ -180,7 +182,7 @@ onUnmounted(() => {
       class="absolute inset-0"
       :class="[
         getCardContainerClass(slot.isActive),
-        { 'will-change-transform': !isSlideSettled }
+        { 'will-change-transform': slot.isActive || !isSlideSettled }
       ]"
       :data-testid="`game-question-slot-${index}`"
       :inert="slot.inert"

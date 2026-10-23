@@ -973,7 +973,8 @@
       ],
       "rules": {
         "import/unambiguous": "off",
-        "node/no-top-level-await": "off"
+        "node/no-top-level-await": "off",
+        "typescript/init-declarations": "off"
       }
     },
     // ---- Override for pages files -----

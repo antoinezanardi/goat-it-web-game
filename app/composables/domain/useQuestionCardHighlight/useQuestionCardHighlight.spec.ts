@@ -171,6 +171,22 @@ describe("useQuestionCardHighlight", () => {
 
       expect(useGsapMock.loadGsap).not.toHaveBeenCalled();
     });
+
+    it("should skip the animation when reduced motion becomes preferred while gsap is loading.", async() => {
+      const deferred: { resolve?: (gsap: UseGsapMock) => void } = {};
+      useGsapMock.loadGsap.mockReturnValue(new Promise<UseGsapMock>(resolve => {
+        deferred.resolve = resolve;
+      }));
+      const { animate } = useQuestionCardHighlight();
+      const element = document.createElement("div");
+
+      const animation = animate([element]);
+      usePreferredReducedMotionMock.preferredReducedMotionRef.value = "reduce";
+      deferred.resolve?.(useGsapMock);
+      await animation;
+
+      expect(useGsapMock.set).not.toHaveBeenCalled();
+    });
   });
 
   describe("playSequence", () => {

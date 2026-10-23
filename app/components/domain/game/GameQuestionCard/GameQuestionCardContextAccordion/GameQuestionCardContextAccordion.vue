@@ -18,8 +18,6 @@ const hasTrivia = computed<boolean>(() => filteredTrivia.value.length > 0);
 const rootElementReference = useTemplateRef<ComponentPublicInstance>("rootElementReference");
 const reducedMotion = usePreferredReducedMotion();
 const scrollBehavior = computed<ScrollBehavior>(() => (reducedMotion.value === "reduce" ? "auto" : "smooth"));
-// Acceptable as the timeout handle is only assigned before it is read
-// oxlint-disable-next-line typescript/init-declarations
 let scrollSafetyTimeout: ReturnType<typeof setTimeout> | undefined;
 
 function clearScrollSafetyTimeout(): void {

@@ -1,11 +1,28 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { useGsap as UseGsapType } from "@/composables/core/useGsap/useGsap";
+import type { GsapInstance } from "@/utils/ui/gsap/gsap.types";
+
+const gsapImportState = vi.hoisted(() => ({ shouldFail: false }));
+
+vi.mock(import("gsap"), async importOriginal => {
+  const actual = await importOriginal();
+
+  return {
+    get gsap(): GsapInstance {
+      if (gsapImportState.shouldFail) {
+        throw new Error("GSAP import failed.");
+      }
+      return actual.gsap;
+    },
+  };
+});
 
 let useGsap: typeof UseGsapType;
 
 describe("useGsap", () => {
   beforeEach(async() => {
+    gsapImportState.shouldFail = false;
     ({ useGsap } = await import("@/composables/core/useGsap/useGsap"));
   });
 
@@ -24,5 +41,19 @@ describe("useGsap", () => {
     const secondGsap = await useGsap().loadGsap();
 
     expect(secondGsap).toBe(firstGsap);
+  });
+
+  it("should retry loading gsap after a failed import when loading again.", async() => {
+    vi.resetModules();
+    gsapImportState.shouldFail = true;
+    const { useGsap: freshUseGsap } = await import("@/composables/core/useGsap/useGsap");
+
+    try {
+      await freshUseGsap().loadGsap();
+    } catch {
+      gsapImportState.shouldFail = false;
+    }
+
+    await expect(freshUseGsap().loadGsap()).resolves.toBeDefined();
   });
 });
