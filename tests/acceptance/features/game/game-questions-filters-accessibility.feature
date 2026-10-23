@@ -1,4 +1,4 @@
-@game-questions-filters @accessibility
+@game @game-questions-filters @accessibility
 Feature: 🎛️ Game Questions Filters Accessibility
 
   Scenario Outline: 🎛️ Question filters modal should not contain accessibility issues in <view> mode

@@ -1,6 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { QUESTION_THEME_STATUSES } from "@goat-it/schemas/question-theme";
 
+import type { QuestionTheme } from "#shared/types/question-theme.types";
+
 function createFakeQuestionTheme(questionTheme: Partial<QuestionTheme> = {}): QuestionTheme {
   return {
     id: faker.database.mongodbObjectId(),

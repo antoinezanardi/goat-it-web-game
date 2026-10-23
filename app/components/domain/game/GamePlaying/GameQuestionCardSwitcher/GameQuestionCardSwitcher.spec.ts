@@ -1,6 +1,6 @@
 import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
@@ -65,6 +65,7 @@ describe("GameQuestionCardSwitcher Component", () => {
   }
 
   beforeEach(async() => {
+    vi.useFakeTimers();
     requestAnimationFrameCallbacks = [];
     // Acceptable as requestAnimationFrame mock captures the callback synchronously for test control
     // oxlint-disable-next-line promise/prefer-await-to-callbacks
@@ -74,6 +75,10 @@ describe("GameQuestionCardSwitcher Component", () => {
       return requestAnimationFrameCallbacks.length;
     });
     wrapper = await mountGameQuestionCardSwitcher();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("should render GameQuestionCardSwitcher when mounted.", () => {

@@ -134,7 +134,7 @@ No files are automatically ignored in the diff review.
 
 ### 8. Config impact
 - If `nuxt.config.ts` changed — are the changes appropriate?
-- If `vitest.config.*` or `vitest.config.constants.ts` changed — do mock setup files need updating?
+- If any `vitest.config.*` module changed — do mock setup files need updating?
 - If `eslint.config.ts` or `oxlint` config changed — are rules consistent?
 - If `envs/` files changed — are all environment variables accounted for?
 
@@ -144,7 +144,7 @@ No files are automatically ignored in the diff review.
 
 ### 10. Unit-test convention audit (mandatory)
 
-- **Trigger:** the diff adds or modifies any `*.spec.ts`, faketory, mock file, or setup registration (`VITEST_COMPOSABLES_MOCK_SETUP_FILES` / `VITEST_REPOSITORIES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.constants.ts`).
+- **Trigger:** the diff adds or modifies any `*.spec.ts`, faketory, mock file, or setup registration (`VITEST_COMPOSABLES_MOCK_SETUP_FILES` / `VITEST_REPOSITORIES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.setup-files.constants.ts`).
 - Read `.opencode/commands/lint-unit-tests.md` section 4 IN FULL; classify each spec file with its §3 classification table (store, repository, i18n, node helper/mapper, layout, page, composable, server handler, component).
 - Apply the universal checks `[U1]`–`[U11]` plus the spec-type's block (`[C*]`, `[P*]`, `[L*]`, `[W*]`, `[CO*]`, `[S*]`, `[R*]`, `[H*]`, `[N*]`, `[T*]`) — **static analysis only**; never execute tests (quality gates belong to the gatekeeper).
 - New composable/repository mocks must be registered in the matching constants array.

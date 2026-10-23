@@ -1543,6 +1543,15 @@
         "unicorn/no-null": "off"
       }
     },
+    // ---- Override for Nuxt test plugins -----
+    {
+      "files": [
+        "**/tests/unit/setup/**/*-plugin.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
     // ---- Override for composable mock setup files -----
     {
       "files": [

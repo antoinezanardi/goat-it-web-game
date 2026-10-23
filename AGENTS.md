@@ -41,10 +41,10 @@ Running acceptance tests:
 - Full run (build + test):  `pnpm run test:acceptance`
 - Build only:               `pnpm run test:acceptance:build`
 - By scenario name:         `pnpm run test:acceptance --name "should display"`
-- By tag:                   `pnpm run test:acceptance --tags "@question-themes"`
-- Multiple tags (OR):       `pnpm run test:acceptance --tags "@home or @questions"`
+- By tag:                   `pnpm run test:acceptance --tags "@game-settings"`
+- Multiple tags (OR):       `pnpm run test:acceptance --tags "@home or @game"`
 - Exclude tag:              `pnpm run test:acceptance --tags "not @accessibility"`
-- By tag (AND):             `pnpm run test:acceptance --tags "@question-themes and @accessibility"`
+- By tag (AND):             `pnpm run test:acceptance --tags "@game-settings and @accessibility"`
 
 > **Per-task agents** should scope acceptance tests to their changes with `--tags`:
 > `pnpm run test:acceptance:skip-build --tags "@feature-tag"` is allowed **only** if the existing `.nuxt/test/output` build was produced after the last change to any build input (anything outside `tests/acceptance/`). Otherwise run `pnpm run test:acceptance --tags "@feature-tag"` (fresh build). Rebuild after a branch switch, a dependency install, an env change, or whenever unsure.
@@ -217,7 +217,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
   - New repository mocks: use `vi.mock(...)` (NOT `mockNuxtImport`).
   - New composable mocks: use `mockNuxtImport`.
   - Register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES` or `VITEST_REPOSITORIES_MOCK_SETUP_FILES`
-    in `configs/vitest/vitest.config.constants.ts`. Load in `nuxt`, `composables`, `stores`; NOT in `repositories` or `node`.
+    in `configs/vitest/vitest.config.setup-files.constants.ts`. Load in `nuxt`, `composables`, `stores`; NOT in `repositories` or `node`.
 
 - Infrastructure registration checklist:
   - New composable mock → register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES`
@@ -295,7 +295,7 @@ MemPalace stores project context as searchable embeddings. It runs as an MCP ser
 
 ## Useful paths
 
-- Vitest config:    `configs/vitest/vitest.config.ts` + `vitest.config.constants.ts`
+- Vitest config:    `configs/vitest/` (`vitest.config.ts` + split `vitest.config.*.constants.ts` modules)
 - ESLint config:    `eslint.config.ts` + `configs/eslint/flat-configs/`
 - Oxlint config:    `oxlint.config.jsonc`
 - Cucumber config:  `configs/cucumber/cucumber.json`

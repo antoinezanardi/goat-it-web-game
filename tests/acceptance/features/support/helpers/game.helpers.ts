@@ -1,6 +1,6 @@
 import type { Locator, Page } from "@playwright/test";
 
-function getVisibleGameQuestionCard(page: Page): Locator {
+function getActiveGameQuestionCard(page: Page): Locator {
   return page.getByTestId("game-question");
 }
 
@@ -46,5 +46,5 @@ export {
   getGameTourTooltip,
   getGameTutorialInvitationAction,
   getGameTutorialInvitationToast,
-  getVisibleGameQuestionCard,
+  getActiveGameQuestionCard,
 };

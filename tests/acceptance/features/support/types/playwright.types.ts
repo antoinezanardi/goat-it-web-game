@@ -1,4 +1,4 @@
-import type { Page } from "playwright-core";
+import type { Page } from "@playwright/test";
 
 type LocatorRole = Parameters<Page["getByRole"]>[0];
 

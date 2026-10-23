@@ -58,7 +58,7 @@ No inputs required.
 
 4. **Acceptance tests**: `pnpm run test:acceptance`
    - If fails: inspect failures, fix, re-run
-   - You can scope acceptance tests to a specific tag by adding `--tags "@question-themes"` at the end of the command.
+   - You can scope acceptance tests to a specific tag by adding `--tags "@game-settings"` at the end of the command.
    - Acceptance tests are **HEAVY**, so when re-running when trying to fix, you should always use the `--tags` option to avoid re-running tests that have already passed.
    - Always run full acceptance tests at the end to validate this step
 

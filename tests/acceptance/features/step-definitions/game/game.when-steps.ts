@@ -2,7 +2,7 @@ import { When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
+import { getActiveGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
 import { clickVisibleLocator } from "#acceptance/features/support/helpers/locator.helpers.ts";
 import { clickAndGetOpenedTab } from "#acceptance/features/support/helpers/tab.helpers.ts";
 import { waitForQuestionCardTransition } from "#acceptance/features/step-definitions/game/helpers/game.when-steps.helpers.ts";
@@ -68,7 +68,7 @@ When(
 When(
   /^the user expands the question context accordion$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     const trigger = question.getByTestId("game-question-context-accordion-trigger");
     await clickVisibleLocator(trigger);
   },
@@ -77,7 +77,7 @@ When(
 When(
   /^the user clicks on the question source link "(?<domain>[^"]*)"$/u,
   async function(this: GoatItWorld, domain: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     const sourceNav = question.getByTestId("game-question-source-links");
     const link = sourceNav.getByText(domain, { exact: true });
     this.openedTabPage = await clickAndGetOpenedTab(this.context, link);
@@ -87,7 +87,7 @@ When(
 When(
   /^the user clicks on the theme icon stack$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
 
     const themeStackTrigger = question.getByTestId("theme-stack-trigger");
     await clickVisibleLocator(themeStackTrigger);
@@ -97,7 +97,7 @@ When(
 When(
   /^the user clicks on the "\+(?<count>\d+) other themes?" text$/u,
   async function(this: GoatItWorld, count: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     const labelRegex = new RegExp(`\\+${count} other themes?`, "iu");
 
     const otherThemesText = question.getByText(labelRegex);

@@ -82,11 +82,11 @@ There are **six Vitest projects**, each covering a different layer. The project 
 | `nuxt`         | `app/**/*.spec.ts`, `server/**/*.spec.ts`, `shared/**/*.spec.ts` (excludes patterns claimed by other projects)                      | All nuxt setups + composable mocks + repository mocks                               |
 | `composables`  | `app/composables/**/*.spec.ts` (excludes helpers/mappers claimed by `node`)                                                         | All nuxt setups + repository mocks (NOT composable mocks — tests real composables)  |
 | `stores`       | `app/**/*.store.spec.ts`                                                                                                            | All nuxt setups + composable mocks + repository mocks + `stores.nuxt.unit-setup.ts` |
-| `repositories` | `app/**/*.repository.spec.ts`                                                                                                       | `dates.nuxt.unit-setup.ts` only (plain Node, no Nuxt environment)                   |
-| `node`         | `app/**/*.{mappers,helpers,translations}.spec.ts`, `server/**/*.{mappers,helpers}.spec.ts`, `shared/**/*.{mappers,helpers}.spec.ts` | `dates.nuxt.unit-setup.ts` + the two Node setups (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts` in `tests/unit/setup/node/`) |
+| `repositories` | `app/**/*.repository.spec.ts`                                                                                                       | None (plain Node, no Nuxt environment)                                              |
+| `node`         | `app/**/*.{mappers,helpers,translations}.spec.ts`, `server/**/*.{mappers,helpers}.spec.ts`, `shared/**/*.{mappers,helpers}.spec.ts` | The two Node setups (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts` in `tests/unit/setup/node/`) |
 | `dom`           | `app/**/*.dom.helpers.spec.ts`, `server/**/*.dom.helpers.spec.ts`, `shared/**/*.dom.helpers.spec.ts`                                  | Happy DOM environment |
 
-The `repositories` and `node` projects use a plain Vitest environment (no Nuxt, no happy-dom).
+The `repositories` and `node` projects use a plain Vitest environment (no Nuxt, no happy-dom). Every project runs with `TZ=UTC` via the shared `test.env` configuration.
 All other projects use `environment: "nuxt"` (happy-dom + Nuxt runtime).
 
 > **Note:** The `composables` project does NOT load composable mock setup files. That is intentional — composable tests exercise the real composable implementation; their dependencies are mocked individually inside the test file.
@@ -124,7 +124,6 @@ These setup files run automatically before tests in the relevant projects. You d
 |---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `reka-ui-dismissable-layer.nuxt.unit-setup.ts` | Patches `document.addEventListener` to drop `pointerdown`/`focusin` listeners — prevents infinite recursion between reka-ui's `DismissableLayer` and happy-dom's `EventTarget` |
 | `vtu-config.nuxt.unit-setup.ts`       | Sets `renderStubDefaultSlot: true`; stubs `u-tooltip: true`; adds `$t` and `$tc` global mocks (return the key as-is), re-applied in each `beforeEach`                                                          |
-| `dates.nuxt.unit-setup.ts`            | Sets `process.env.TZ = "UTC"`; enables fake timers pinned to `2026-04-14`                                                                                                                                      |
 | `define-page-meta.nuxt.unit-setup.ts` | Mocks `definePageMeta` via `vi.hoisted` + `mockNuxtImport`; exposes as global `definePageMeta` spy                                                                                                             |
 | `use-i18n.nuxt.unit-setup.ts`         | Mocks `useI18n` via `mockNuxtImport`; see [useI18n mock details](#usei18n-mock) below                                                                                                                          |
 | `use-router.nuxt.unit-setup.ts`       | Mocks `useRouter` via `mockNuxtImport`                                                                                                                                                                         |
@@ -136,6 +135,10 @@ These setup files run automatically before tests in the relevant projects. You d
 | `use-seo-meta.nuxt.unit-setup.ts`     | Mocks `useSeoMeta` via `vi.hoisted` + `mockNuxtImport`; exposes as a `vi.fn` spy                                                                                                                               |
 | `call-once.nuxt.unit-setup.ts`        | Mocks `callOnce` via `vi.hoisted` + `mockNuxtImport`; exposes as a `vi.fn` spy                                                                                                                                 |
 | `virtualizer.nuxt.unit-setup.ts`      | Mocks element geometry (`getBoundingClientRect`, `offset*`, `client*`, `scroll*` dimensions) so virtual-scroll logic is testable in happy-dom                                                                  |
+
+> **Fake timers are opt-in.** No shared setup installs them. Call `vi.useFakeTimers()` in the test or in the file's `beforeEach` and always restore with `vi.useRealTimers()` in `afterEach`. When a spec also spies on `requestAnimationFrame`, install fake timers **before** creating the spy so the spy wraps the fake implementation.
+>
+> The real `v-gsap-nuxt` plugin leaves a 250 ms ScrollTrigger sync interval running, which can fire after happy-dom is torn down. Two test-only safeguards prevent it: the Nuxt test plugin `tests/unit/setup/nuxt/gsap-scroll-trigger.nuxt-plugin.ts` calls `ScrollTrigger.disable()`, and the Vitest config's `vitest-gsap-scroll-trigger-disable-sync-interval` transform neutralizes the interval assignment in `gsap/ScrollTrigger.js` for the `nuxt`, `composables`, and `stores` projects. The transform throws if the upstream statement disappears (e.g. a gsap upgrade), so only a change to the module path (e.g. `.mjs`) could bypass it.
 
 ### Stores project only
 
@@ -1607,13 +1610,13 @@ export { createMyRepositoryMock };
    - In `beforeEach`, assign `xxxMock.instance = createUseXxxMock()`.
    - Export `{ xxxMock }`.
    - Disable `typescript/explicit-function-return-type` on the `mockNuxtImport` line with an oxlint comment.
-3. Add the setup file path to `VITEST_COMPOSABLES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.constants.ts`.
+3. Add the setup file path to `VITEST_COMPOSABLES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.setup-files.constants.ts`.
 
 #### New repository mock
 
 1. Create `tests/unit/utils/mocks/repositories/goat-it-api/<ResourceName>/xxx-repository.mock.ts`.
 2. Create a setup file `tests/unit/setup/nuxt/repositories/xxx-repository.nuxt.unit-setup.ts` using `vi.mock(...)` (**not** `mockNuxtImport`).
-3. Add the setup file path to `VITEST_REPOSITORIES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.constants.ts`.
+3. Add the setup file path to `VITEST_REPOSITORIES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.setup-files.constants.ts`.
 
 > Repository setup files use `vi.mock(...)` instead of `mockNuxtImport` because repositories are not Nuxt auto-imports.
 

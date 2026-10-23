@@ -1,5 +1,5 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Ref } from "vue";
 import type { ReducedMotionType } from "@vueuse/core";
 
@@ -26,9 +26,14 @@ let useQuestionCardHighlight: typeof UseQuestionCardHighlightType;
 
 describe("useQuestionCardHighlight", () => {
   beforeEach(async() => {
+    vi.useFakeTimers();
     useGSAPMock = createUseGSAPMock();
     usePreferredReducedMotionMock = createUsePreferredReducedMotionMock();
     ({ useQuestionCardHighlight } = await import("@/composables/domain/useQuestionCardHighlight/useQuestionCardHighlight"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe("animate", () => {
@@ -153,7 +158,6 @@ describe("useQuestionCardHighlight", () => {
 
   describe("playSequence", () => {
     it("should call each target's playHighlight in order when called.", async() => {
-      vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
       const calls: string[] = [];
       const firstTarget = {
@@ -172,13 +176,11 @@ describe("useQuestionCardHighlight", () => {
       const promise = playSequence([firstTarget, secondTarget]);
       await vi.advanceTimersByTimeAsync(0);
       await promise;
-      vi.useRealTimers();
 
       expect(calls).toStrictEqual(["first", "second"]);
     });
 
     it("should skip undefined and null targets without consuming a gap when called.", async() => {
-      vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
       const firstTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
       const secondTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
@@ -186,13 +188,11 @@ describe("useQuestionCardHighlight", () => {
       const promise = playSequence([firstTarget, undefined, null, secondTarget], { gapMs: 100 });
       await vi.advanceTimersByTimeAsync(100);
       await promise;
-      vi.useRealTimers();
 
       expect(secondTarget.playHighlight).toHaveBeenCalledExactlyOnceWith();
     });
 
     it("should use a default gapMs of 0 when called without options.", async() => {
-      vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
       const target = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
 
@@ -203,12 +203,9 @@ describe("useQuestionCardHighlight", () => {
       const elapsed = Date.now() - startTime;
 
       expect(elapsed).toBe(0);
-
-      vi.useRealTimers();
     });
 
     it("should apply gapMs only between targets, not after the last one, when called.", async() => {
-      vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
       const firstTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
       const secondTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
@@ -220,8 +217,6 @@ describe("useQuestionCardHighlight", () => {
       const elapsed = Date.now() - startTime;
 
       expect(elapsed).toBe(250);
-
-      vi.useRealTimers();
     });
   });
 });

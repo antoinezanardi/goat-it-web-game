@@ -172,8 +172,15 @@ describe(buildRateLimitKey, () => {
 });
 
 describe(getSharedRateLimiter, () => {
+  let getFreshSharedRateLimiter: typeof getSharedRateLimiter;
+
+  beforeEach(async() => {
+    vi.resetModules();
+    ({ getSharedRateLimiter: getFreshSharedRateLimiter } = await import("#server/utils/rate-limit/helpers/rate-limit/rate-limit.helpers"));
+  });
+
   it("should create the limiter with the configured budget when called for the first time.", () => {
-    const limiter = getSharedRateLimiter({ maximumRequests: 1, windowInMs: 1000, trustProxy: false });
+    const limiter = getFreshSharedRateLimiter({ maximumRequests: 1, windowInMs: 1000, trustProxy: false });
     limiter.check("first-client");
 
     const result = limiter.check("first-client");
@@ -182,9 +189,9 @@ describe(getSharedRateLimiter, () => {
   });
 
   it("should return the same limiter instance when called more than once.", () => {
-    const firstLimiter = getSharedRateLimiter({ maximumRequests: 60, windowInMs: 60_000, trustProxy: false });
+    const firstLimiter = getFreshSharedRateLimiter({ maximumRequests: 60, windowInMs: 60_000, trustProxy: false });
 
-    const secondLimiter = getSharedRateLimiter({ maximumRequests: 60, windowInMs: 60_000, trustProxy: false });
+    const secondLimiter = getFreshSharedRateLimiter({ maximumRequests: 60, windowInMs: 60_000, trustProxy: false });
 
     expect(secondLimiter).toBe(firstLimiter);
   });

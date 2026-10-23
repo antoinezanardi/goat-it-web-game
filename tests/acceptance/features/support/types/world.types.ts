@@ -1,6 +1,6 @@
 import { World } from "@cucumber/cucumber";
 import type { Db, MongoClient } from "mongodb";
-import type { APIResponse, BrowserContext, Page } from "playwright-core";
+import type { APIResponse, BrowserContext, Page } from "@playwright/test";
 
 class GoatItWorld extends World {
   public page!: Page;

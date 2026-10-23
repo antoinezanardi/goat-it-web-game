@@ -1,4 +1,4 @@
-@game-sidebar
+@game @game-sidebar
 Feature: 🧭 Game Page Sidebar
 
   Background:
