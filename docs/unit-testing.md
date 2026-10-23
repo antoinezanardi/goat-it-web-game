@@ -1610,13 +1610,13 @@ export { createMyRepositoryMock };
    - In `beforeEach`, assign `xxxMock.instance = createUseXxxMock()`.
    - Export `{ xxxMock }`.
    - Disable `typescript/explicit-function-return-type` on the `mockNuxtImport` line with an oxlint comment.
-3. Add the setup file path to `VITEST_COMPOSABLES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.constants.ts`.
+3. Add the setup file path to `VITEST_COMPOSABLES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.setup-files.constants.ts`.
 
 #### New repository mock
 
 1. Create `tests/unit/utils/mocks/repositories/goat-it-api/<ResourceName>/xxx-repository.mock.ts`.
 2. Create a setup file `tests/unit/setup/nuxt/repositories/xxx-repository.nuxt.unit-setup.ts` using `vi.mock(...)` (**not** `mockNuxtImport`).
-3. Add the setup file path to `VITEST_REPOSITORIES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.constants.ts`.
+3. Add the setup file path to `VITEST_REPOSITORIES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.setup-files.constants.ts`.
 
 > Repository setup files use `vi.mock(...)` instead of `mockNuxtImport` because repositories are not Nuxt auto-imports.
 

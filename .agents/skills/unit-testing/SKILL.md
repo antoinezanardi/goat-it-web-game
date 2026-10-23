@@ -41,7 +41,7 @@ The `repositories` and `node` projects have **no Nuxt environment**. No `mountSu
 
 ### Setup files loaded per project
 
-Setup files reflect `configs/vitest/vitest.config.constants.ts` — scan it for the authoritative lists (they grow over time).
+Setup files reflect `configs/vitest/vitest.config.setup-files.constants.ts` — scan it for the authoritative lists (they grow over time).
 
 | Project        | Environment | Setup files                                                                                     |
 |----------------|-------------|-------------------------------------------------------------------------------------------------|
@@ -266,7 +266,7 @@ Paths under `~~/tests/unit/utils/mocks/composables/`. Scan directories for the c
 
 1. Create mock file at `tests/unit/utils/mocks/composables/<category>/<ComposableName>/useXxx.mock.ts`
 2. Create setup file at `tests/unit/setup/nuxt/composables/use-xxx.nuxt.unit-setup.ts` — `mockNuxtImport` + exported `MockHolder`
-3. Register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES` (`configs/vitest/vitest.config.constants.ts`)
+3. Register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES` (`configs/vitest/vitest.config.setup-files.constants.ts`)
 
 ### Adding a new repository mock
 

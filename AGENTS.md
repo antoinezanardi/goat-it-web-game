@@ -217,7 +217,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
   - New repository mocks: use `vi.mock(...)` (NOT `mockNuxtImport`).
   - New composable mocks: use `mockNuxtImport`.
   - Register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES` or `VITEST_REPOSITORIES_MOCK_SETUP_FILES`
-    in `configs/vitest/vitest.config.constants.ts`. Load in `nuxt`, `composables`, `stores`; NOT in `repositories` or `node`.
+    in `configs/vitest/vitest.config.setup-files.constants.ts`. Load in `nuxt`, `composables`, `stores`; NOT in `repositories` or `node`.
 
 - Infrastructure registration checklist:
   - New composable mock → register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES`
@@ -295,7 +295,7 @@ MemPalace stores project context as searchable embeddings. It runs as an MCP ser
 
 ## Useful paths
 
-- Vitest config:    `configs/vitest/vitest.config.ts` + `vitest.config.constants.ts`
+- Vitest config:    `configs/vitest/` (`vitest.config.ts` + split `vitest.config.*.constants.ts` modules)
 - ESLint config:    `eslint.config.ts` + `configs/eslint/flat-configs/`
 - Oxlint config:    `oxlint.config.jsonc`
 - Cucumber config:  `configs/cucumber/cucumber.json`

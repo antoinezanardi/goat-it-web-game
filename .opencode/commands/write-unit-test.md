@@ -52,7 +52,7 @@ Follow these rules:
 
 If a required faketory or mock does not exist, create it following the patterns in `docs/unit-testing.md` sections 7 and 8 **before** writing the test.
 
-If you create a new composable or repository mock setup file, also register it in `configs/vitest/vitest.config.constants.ts`.
+If you create a new composable or repository mock setup file, also register it in `configs/vitest/vitest.config.setup-files.constants.ts`.
 
 ### 7. Verify
 

@@ -252,7 +252,7 @@ AfterAll(async () => {
 });
 ```
 
-Pages are created from an explicit `BrowserContext` via `getBrowser()` instead of `createPage()`. With `setLegacyMode()` removed, axe's default analysis opens a blank aggregation page through the context; a page created in Playwright's implicit context makes that call throw `Please use browser.newContext()`. The explicit context also isolates cookies and storage per scenario.
+Pages are created from an explicit `BrowserContext` via `getBrowser()` instead of `createPage()`: axe's default analysis opens a blank aggregation page through that context, and a page created in Playwright's implicit context makes that call throw `Please use browser.newContext()`. The explicit context also isolates cookies and storage per scenario.
 
 ### World class
 
@@ -1002,10 +1002,6 @@ expect(results.violations).toHaveLength(0);
 ```
 
 The scan never uses a fixed sleep: it waits for the page to reach `networkidle` and for every finite CSS animation/transition to settle, ignoring infinite ambient animations. This keeps repeated runs deterministic.
-
-`AxeBuilder.setLegacyMode()` is intentionally **not** used. It falls back to pre-4.3 frame testing, disables cross-origin frame testing, and is marked as a last resort upstream (deprecated for v5). The app has no iframes, so the default mode keeps cross-origin frame testing enabled; the `frame-tested` rule reports any frame that axe could not test.
-
-Because the scan uses the default (non-legacy) path, acceptance pages must come from an explicit `browser.newContext()` (see §4). The `Before` hook creates one context per scenario.
 
 **Tags tested:** `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`, `best-practice`, `ACT`
 
