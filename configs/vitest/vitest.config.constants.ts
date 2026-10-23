@@ -49,7 +49,6 @@ const UNIT_TEST_NUXT_OVERRIDES: UnitTestNuxtOverrides = {
   },
   site: { indexable: false },
   sitemap: { enabled: false },
-  plugins: [path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/gsap-scroll-trigger.nuxt-plugin.ts")],
   experimental: { viteEnvironmentApi: false },
 } as const;
 

@@ -1,23 +1,9 @@
 import type { Mock } from "vitest";
 import { vi } from "vitest";
 
-import type { GsapContextAddSignature, GsapContextSignature, GsapSetSignature, GsapTimelineInstance, GsapTimelineSignature, GsapTimelineToSignature } from "~~/tests/unit/utils/mocks/composables/nuxt/useGsap/useGsap.mock.types.ts";
+import type { GsapContextAddSignature, GsapContextSignature, GsapMock, GsapSetSignature, GsapTimelineInstance, GsapTimelineSignature, GsapTimelineToSignature, UseGsapMock } from "~~/tests/unit/utils/mocks/composables/core/useGsap/useGsap.mock.types";
 
-type UseGSAPMock = {
-  add: Mock<GsapContextAddSignature>;
-  capturedOnComplete: { current: (() => void) | undefined };
-  clear: Mock<() => void>;
-  context: Mock<GsapContextSignature>;
-  eventCallback: Mock<(type: string, callback?: (() => void) | null) => void>;
-  pause: Mock<() => void>;
-  restart: Mock<() => void>;
-  revert: Mock<() => void>;
-  set: Mock<GsapSetSignature>;
-  timeline: Mock<GsapTimelineSignature>;
-  timelineTo: Mock<GsapTimelineToSignature>;
-};
-
-function createTimelineMocks(): Pick<UseGSAPMock, "capturedOnComplete" | "clear" | "eventCallback" | "pause" | "restart" | "timeline" | "timelineTo"> {
+function createTimelineMocks(): Pick<GsapMock, "capturedOnComplete" | "clear" | "eventCallback" | "pause" | "restart" | "timeline" | "timelineTo"> {
   const capturedOnComplete: { current: (() => void) | undefined } = { current: undefined };
   const timelineTo: Mock<GsapTimelineToSignature> = vi.fn<GsapTimelineToSignature>(() => timelineInstance);
   const clear: Mock<() => void> = vi.fn<() => void>();
@@ -46,7 +32,7 @@ function createTimelineMocks(): Pick<UseGSAPMock, "capturedOnComplete" | "clear"
   return { capturedOnComplete, clear, eventCallback, pause, restart, timeline, timelineTo };
 }
 
-function createUseGSAPMock(): UseGSAPMock {
+function createGsapMock(): GsapMock {
   const { capturedOnComplete, clear, eventCallback, pause, restart, timeline, timelineTo } = createTimelineMocks();
   const set: Mock<GsapSetSignature> = vi.fn<GsapSetSignature>();
   const revert: Mock<() => void> = vi.fn<() => void>();
@@ -70,6 +56,10 @@ function createUseGSAPMock(): UseGSAPMock {
   return { add, capturedOnComplete, clear, context, eventCallback, pause, restart, revert, set, timeline, timelineTo };
 }
 
-export { createUseGSAPMock };
+function createUseGsapMock(): UseGsapMock {
+  const gsap = createGsapMock();
 
-export type { UseGSAPMock };
+  return { ...gsap, loadGsap: vi.fn<() => Promise<GsapMock>>().mockResolvedValue(gsap) };
+}
+
+export { createGsapMock, createUseGsapMock };

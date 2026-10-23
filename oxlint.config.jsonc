@@ -86,7 +86,7 @@
     "useCookie": "readonly",
     "useFetch": "readonly",
     "useFetchStatus": "readonly",
-    "useGSAP": "readonly",
+    "useGsap": "readonly",
     "useGame": "readonly",
     "useGameFiltersModal": "readonly",
     "useGameLeaveConfirmation": "readonly",

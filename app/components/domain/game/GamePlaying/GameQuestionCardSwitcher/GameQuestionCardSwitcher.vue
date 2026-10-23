@@ -8,28 +8,34 @@ import { GameQuestionCard } from "#components";
 import { CARD_TRANSITION_DURATION_SECONDS, CARD_TRANSITION_ROTATION_DEGREES, CARD_TRANSITION_SAFETY_TIMEOUT_MS, CARD_TRANSITION_SLIDE_PERCENT } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.constants";
 import type { GameQuestionCardSwitcherEmits, GameQuestionCardSwitcherProps } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
 import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
-import type { GsapContext } from "@/utils/ui/gsap/gsap.types";
+import type { GsapContext, GsapInstance, GsapTimeline } from "@/utils/ui/gsap/gsap.types";
 import { resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 import { useQuestionCardRing } from "@/composables/domain/useQuestionCardRing/useQuestionCardRing";
 
 const props = defineProps<GameQuestionCardSwitcherProps>();
 const emit = defineEmits<GameQuestionCardSwitcherEmits>();
 
-const gsap = useGSAP();
+const { loadGsap } = useGsap();
 const reducedMotion = usePreferredReducedMotion();
 
 const cardContainerReferences = shallowRef<(HTMLElement | undefined)[]>([]);
 const gsapContext = shallowRef<GsapContext>();
-const timeline = shallowRef<ReturnType<typeof gsap.timeline>>();
+const gsapInstance = shallowRef<GsapInstance>();
+const timeline = shallowRef<GsapTimeline>();
 const isSlideSettled = ref<boolean>(true);
+let isUnmounted = false;
+// Acceptable as the pending direction is only assigned inside the watcher before it is read
+// oxlint-disable-next-line typescript/init-declarations
+let pendingSlideDirection: GameNavigationDirection | undefined;
 // Acceptable as the timeout handle is only assigned inside startSlide before it is ever read
 // oxlint-disable-next-line typescript/init-declarations
 let safetyTimeout: ReturnType<typeof setTimeout> | undefined;
 
 function resetSlot(slotIndex: number): void {
   const element = cardContainerReferences.value[slotIndex];
+  const gsap = gsapInstance.value;
 
-  if (element === undefined) {
+  if (element === undefined || gsap === undefined) {
     return;
   }
   gsap.set(element, { opacity: 0, rotation: 0, xPercent: 0, zIndex: 0 });
@@ -57,6 +63,11 @@ function setCardContainerReference(element: Element | ComponentPublicInstance | 
 }
 
 function applyRestingState(): void {
+  const gsap = gsapInstance.value;
+
+  if (gsap === undefined) {
+    return;
+  }
   for (const [index, element] of cardContainerReferences.value.entries()) {
     if (element !== undefined) {
       const isActive = index === currentSlotIndex.value;
@@ -65,12 +76,28 @@ function applyRestingState(): void {
   }
 }
 
+function armSafetyTimeout(direction: GameNavigationDirection): void {
+  clearTimeout(safetyTimeout);
+  safetyTimeout = setTimeout(() => onSlideComplete(direction), CARD_TRANSITION_SAFETY_TIMEOUT_MS);
+}
+
+function queueSlideUntilGsapLoads(direction: GameNavigationDirection): void {
+  pendingSlideDirection = direction;
+  isSlideSettled.value = false;
+  armSafetyTimeout(direction);
+}
+
 function startSlide(direction: GameNavigationDirection): void {
+  const gsap = gsapInstance.value;
+
+  if (gsap === undefined) {
+    queueSlideUntilGsapLoads(direction);
+
+    return;
+  }
   const isForward = direction === "forward";
-  const leavingIndex = currentSlotIndex.value;
-  const enteringIndex = getSlotIndexForOffset(isForward ? 1 : -1);
-  const leavingElement = cardContainerReferences.value[leavingIndex];
-  const enteringElement = cardContainerReferences.value[enteringIndex];
+  const leavingElement = cardContainerReferences.value[currentSlotIndex.value];
+  const enteringElement = cardContainerReferences.value[getSlotIndexForOffset(isForward ? 1 : -1)];
 
   if (leavingElement === undefined || enteringElement === undefined) {
     return;
@@ -86,7 +113,6 @@ function startSlide(direction: GameNavigationDirection): void {
   gsap.set(leavingElement, { opacity: 1, rotation: 0, xPercent: 0, zIndex: 1 });
 
   isSlideSettled.value = false;
-  clearTimeout(safetyTimeout);
   timeline.value?.clear();
   timeline.value?.eventCallback("onComplete", () => {
     onSlideComplete(direction);
@@ -95,15 +121,14 @@ function startSlide(direction: GameNavigationDirection): void {
   timeline.value?.to(enteringElement, { duration, ease: "expo.out", opacity: 1, rotation: 0, xPercent: 0 }, 0);
   timeline.value?.restart();
 
-  safetyTimeout = setTimeout(() => {
-    onSlideComplete(direction);
-  }, CARD_TRANSITION_SAFETY_TIMEOUT_MS);
+  armSafetyTimeout(direction);
 }
 
 function onSlideComplete(direction: GameNavigationDirection): void {
   if (isSlideSettled.value) {
     return;
   }
+  pendingSlideDirection = undefined;
   isSlideSettled.value = true;
   clearTimeout(safetyTimeout);
   timeline.value?.pause();
@@ -119,14 +144,27 @@ watch(() => props.pendingDirection, async direction => {
   }
 });
 
-onMounted(() => {
+onMounted(async() => {
+  const gsap = await loadGsap();
+
+  if (isUnmounted) {
+    return;
+  }
+  gsapInstance.value = gsap;
   gsapContext.value = gsap.context(() => {
     timeline.value = gsap.timeline({ paused: true });
     applyRestingState();
   });
+
+  if (pendingSlideDirection !== undefined) {
+    const direction = pendingSlideDirection;
+    pendingSlideDirection = undefined;
+    startSlide(direction);
+  }
 });
 
 onUnmounted(() => {
+  isUnmounted = true;
   clearTimeout(safetyTimeout);
   gsapContext.value?.revert();
 });
