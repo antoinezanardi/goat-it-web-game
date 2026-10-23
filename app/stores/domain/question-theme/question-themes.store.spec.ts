@@ -1,28 +1,47 @@
+import type { FindQuestionThemesQueryDto } from "@goat-it/schemas/question-theme";
 import { createFakeFindQuestionThemesQueryDto } from "@goat-it/schemas/testing/question-theme";
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createUseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import type { UseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
+import { GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS } from "#shared/constants/goat-it-api.constants";
+import type { AsyncActionContext, UseAsyncAction, UseAsyncActionOptions } from "@/composables/core/useAsyncAction/use-async-action.types";
 import type { useQuestionThemesStore as UseQuestionThemesStoreType } from "@/stores/domain/question-theme/question-themes.store";
 
+type CapturedAction = (context: AsyncActionContext, query?: FindQuestionThemesQueryDto) => Promise<QuestionTheme[]>;
+
 let fetchAsyncActionMock: UseAsyncActionMock;
-let fetchActionArguments: unknown[] | undefined;
+let capturedAction: CapturedAction | undefined;
+let capturedOptions: UseAsyncActionOptions | undefined;
+let isUsingRealAsyncAction: boolean;
 
-mockNuxtImport("useAsyncAction", () => (...arguments_: unknown[]): UseAsyncActionMock => {
-  fetchActionArguments = arguments_;
-  fetchAsyncActionMock = createUseAsyncActionMock();
+mockNuxtImport("useFetchStatus", (original: typeof useFetchStatus) => original);
 
-  return fetchAsyncActionMock;
+mockNuxtImport("useAsyncAction", (original: typeof useAsyncAction) => {
+  const realUseAsyncAction = original as unknown as (...arguments_: unknown[]) => UseAsyncAction<unknown, unknown[]>;
+
+  return ((...arguments_: unknown[]): UseAsyncActionMock | UseAsyncAction<unknown, unknown[]> => {
+    if (isUsingRealAsyncAction) {
+      return realUseAsyncAction(...arguments_);
+    }
+    capturedAction = arguments_[0] as CapturedAction;
+    capturedOptions = arguments_[1] as UseAsyncActionOptions | undefined;
+    fetchAsyncActionMock = createUseAsyncActionMock();
+
+    return fetchAsyncActionMock;
+  }) as unknown as typeof useAsyncAction;
 });
 
 let useQuestionThemesStore: typeof UseQuestionThemesStoreType;
 
 describe("useQuestionThemesStore", () => {
   beforeEach(async() => {
-    fetchActionArguments = undefined;
+    isUsingRealAsyncAction = false;
+    capturedAction = undefined;
+    capturedOptions = undefined;
     ({ useQuestionThemesStore } = await import("@/stores/domain/question-theme/question-themes.store"));
   });
 
@@ -222,13 +241,113 @@ describe("useQuestionThemesStore", () => {
 
       expect(store.questionThemes).toStrictEqual([]);
     });
+
+    it("should return the superseded result unchanged when the fetch is superseded.", async() => {
+      const store = useQuestionThemesStore();
+      fetchAsyncActionMock.execute.mockResolvedValue({ ok: false, superseded: true });
+
+      const result = await store.fetchAndStoreQuestionThemes();
+
+      expect(result).toStrictEqual({ ok: false, superseded: true });
+    });
+
+    it("should not update questionThemes when the fetch is superseded.", async() => {
+      const existingThemes = [createFakeQuestionTheme()];
+      const store = useQuestionThemesStore();
+      store.questionThemes = existingThemes;
+      fetchAsyncActionMock.execute.mockResolvedValue({ ok: false, superseded: true });
+
+      await store.fetchAndStoreQuestionThemes();
+
+      expect(store.questionThemes).toStrictEqual(existingThemes);
+    });
   });
 
   describe("useAsyncAction setup", () => {
-    it("should pass the repository getAll function as action to useAsyncAction when created.", () => {
+    it("should forward the signal to the repository getAll when the captured action is invoked.", async() => {
+      useQuestionThemesStore();
+      const signal = new AbortController().signal;
+      const query = createFakeFindQuestionThemesQueryDto({ limit: 10 });
+
+      await capturedAction?.({ signal }, query);
+
+      expect(questionThemesRepository($fetch).getAll).toHaveBeenCalledExactlyOnceWith(query, { signal });
+    });
+
+    it("should pass the client timeout option to useAsyncAction when created.", () => {
       useQuestionThemesStore();
 
-      expect(fetchActionArguments).toStrictEqual([questionThemesRepository($fetch).getAll]);
+      expect(capturedOptions).toStrictEqual({ timeoutInMs: GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS });
+    });
+  });
+
+  describe("with the real useAsyncAction", () => {
+    beforeEach(() => {
+      isUsingRealAsyncAction = true;
+      vi.mocked(questionThemesRepository($fetch).getAll).mockResolvedValue([]);
+    });
+
+    it("should keep the latest catalog when the older response arrives last.", async() => {
+      const olderResponse = Promise.withResolvers<QuestionTheme[]>();
+      const newerResponse = Promise.withResolvers<QuestionTheme[]>();
+      const newerThemes = [createFakeQuestionTheme()];
+      vi.mocked(questionThemesRepository($fetch).getAll).mockReturnValueOnce(olderResponse.promise).mockReturnValueOnce(newerResponse.promise);
+      const store = useQuestionThemesStore();
+
+      const olderFetch = store.fetchAndStoreQuestionThemes();
+      const newerFetch = store.fetchAndStoreQuestionThemes();
+      newerResponse.resolve(newerThemes);
+      await newerFetch;
+      olderResponse.resolve([createFakeQuestionTheme()]);
+      await olderFetch;
+
+      expect(store.questionThemes).toStrictEqual(newerThemes);
+    });
+
+    it("should keep the latest catalog when the older response arrives first.", async() => {
+      const olderResponse = Promise.withResolvers<QuestionTheme[]>();
+      const newerResponse = Promise.withResolvers<QuestionTheme[]>();
+      const newerThemes = [createFakeQuestionTheme()];
+      vi.mocked(questionThemesRepository($fetch).getAll).mockReturnValueOnce(olderResponse.promise).mockReturnValueOnce(newerResponse.promise);
+      const store = useQuestionThemesStore();
+
+      const olderFetch = store.fetchAndStoreQuestionThemes();
+      const newerFetch = store.fetchAndStoreQuestionThemes();
+      olderResponse.resolve([createFakeQuestionTheme()]);
+      await olderFetch;
+      newerResponse.resolve(newerThemes);
+      await newerFetch;
+
+      expect(store.questionThemes).toStrictEqual(newerThemes);
+    });
+
+    it("should keep the catalog refreshing when the older request settles before the latest one.", async() => {
+      const olderResponse = Promise.withResolvers<QuestionTheme[]>();
+      const newerResponse = Promise.withResolvers<QuestionTheme[]>();
+      vi.mocked(questionThemesRepository($fetch).getAll).mockReturnValueOnce(olderResponse.promise).mockReturnValueOnce(newerResponse.promise);
+      const store = useQuestionThemesStore();
+      store.questionThemes = [createFakeQuestionTheme({ status: "active" })];
+
+      const olderFetch = store.fetchAndStoreQuestionThemes();
+      const newerFetch = store.fetchAndStoreQuestionThemes();
+      olderResponse.resolve([createFakeQuestionTheme()]);
+      await olderFetch;
+
+      expect(store.catalogStatus).toBe("refreshing");
+
+      newerResponse.resolve([createFakeQuestionTheme()]);
+      await newerFetch;
+    });
+
+    it("should keep the previous catalog and report it stale when the latest request fails.", async() => {
+      const existingThemes = [createFakeQuestionTheme({ status: "active" })];
+      const store = useQuestionThemesStore();
+      store.questionThemes = existingThemes;
+      vi.mocked(questionThemesRepository($fetch).getAll).mockRejectedValue(new Error("fetch failed"));
+
+      await store.fetchAndStoreQuestionThemes();
+
+      expect({ questionThemes: store.questionThemes, catalogStatus: store.catalogStatus }).toStrictEqual({ questionThemes: existingThemes, catalogStatus: "stale" });
     });
   });
 });

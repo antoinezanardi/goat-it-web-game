@@ -1,5 +1,3 @@
-import { until } from "@vueuse/core";
-import { storeToRefs } from "pinia";
 import { isEqual } from "radashi";
 
 import type { AsyncResult } from "#shared/types/async-result.types";
@@ -8,8 +6,6 @@ import type { GameSettingsFetchFilters } from "@/utils/domain/game/helpers/game-
 import type { UseGameSettingsSync, UseGameSettingsSyncOptions } from "@/composables/domain/useGameSettingsSync/use-game-settings-sync.types";
 
 function useGameSettingsSync(options: UseGameSettingsSyncOptions): UseGameSettingsSync {
-  const store = useGameStore();
-  const { isPending } = storeToRefs(store);
   const questionThemesStore = useQuestionThemesStore();
   const { fetchFilters } = useGameFetchFilters();
 
@@ -23,7 +19,6 @@ function useGameSettingsSync(options: UseGameSettingsSyncOptions): UseGameSettin
     if (isEqual(fetchFilters.value, appliedFetchFilters.value)) {
       return { ok: true, value: undefined };
     }
-    await until(isPending).toBe(false);
     markFetchFiltersApplied();
     const result = await options.restartFromCurrentIndex();
 

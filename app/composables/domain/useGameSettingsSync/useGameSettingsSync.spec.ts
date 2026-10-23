@@ -16,7 +16,6 @@ import type { useGameSettingsSync as UseGameSettingsSyncType } from "@/composabl
 import type { UseGameSettingsCookie } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
 import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
 import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
-import { useGameStore } from "@/stores/domain/game/game.store";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
 
@@ -90,6 +89,39 @@ describe("useGameSettingsSync", () => {
       expect(restartFromCurrentIndex).toHaveBeenCalledExactlyOnceWith();
     });
 
+    it("should restart the feed before yielding when the settings filters change.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
+
+      const syncPromise = syncQuestionsWithGameSettings();
+
+      expect(restartFromCurrentIndex).toHaveBeenCalledExactlyOnceWith();
+
+      await syncPromise;
+    });
+
+    it("should restart the feed once when two syncs run back to back.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
+
+      const firstSync = syncQuestionsWithGameSettings();
+      const secondSync = syncQuestionsWithGameSettings();
+      await Promise.all([firstSync, secondSync]);
+
+      expect(restartFromCurrentIndex).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it("should pass the superseded result through when the restart is superseded.", async() => {
+      const settingsStore = mockStore(useGameSettingsStore);
+      restartFromCurrentIndex.mockResolvedValue({ ok: false, superseded: true });
+      const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
+      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
+
+      await expect(syncQuestionsWithGameSettings()).resolves.toStrictEqual({ ok: false, superseded: true });
+    });
+
     it("should apply the changed fetch filters when the settings filters change.", async() => {
       const settingsStore = mockStore(useGameSettingsStore);
       const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
@@ -99,24 +131,6 @@ describe("useGameSettingsSync", () => {
       await syncQuestionsWithGameSettings();
 
       expect(restartFromCurrentIndex).toHaveBeenCalledOnce();
-    });
-
-    it("should not call restartFromCurrentIndex when a fetch is pending until it completes.", async() => {
-      const store = mockStore(useGameStore);
-      const settingsStore = mockStore(useGameSettingsStore);
-      const { syncQuestionsWithGameSettings } = useGameSettingsSync({ restartFromCurrentIndex });
-      store.isPending = true;
-      await nextTick();
-      settingsStore.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
-
-      const syncPromise = syncQuestionsWithGameSettings();
-      await nextTick();
-
-      expect(restartFromCurrentIndex).not.toHaveBeenCalled();
-
-      store.isPending = false;
-      await syncPromise;
-      await flushPromises();
     });
 
     it("should synchronize when the active theme catalog loads and the derived filters change.", async() => {

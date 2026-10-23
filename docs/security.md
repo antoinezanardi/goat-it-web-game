@@ -103,7 +103,7 @@ A real payload is at most ~1000 ids (~27 KB). Chunked uploads without `content-l
 - The request signal is `AbortSignal.any([disconnect, AbortSignal.timeout(10s)])`. ofetch ignores its own `timeout` option when a `signal` is present, so the timeout is composed here; the client disconnect aborts the upstream call only when the response has not already been sent.
 - `createGoatItApiEndpoint` percent-encodes every slash-separated path segment.
 - Responses tolerate additive upstream fields: when every response schema issue is `unrecognized_keys`, those keys are stripped from a structured clone and the payload is re-parsed. Contract drift of any other kind is a `502 upstream-error`.
-- Client repositories time out after 15 s (`GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS`), above the ~10 s server worst case.
+- The client-side 15 s timeout (`GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS`) is enforced by `useAsyncAction`, which aborts the request signal; it stays above the ~10 s server worst case.
 
 ### Known limitation
 
