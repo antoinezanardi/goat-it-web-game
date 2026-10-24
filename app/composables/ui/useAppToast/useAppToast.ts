@@ -1,6 +1,13 @@
 import type { Toast } from "#ui/composables";
 import type { UseAppToast } from "@/composables/ui/useAppToast/use-app-toast.types";
 
+/**
+ * Wraps Nuxt UI `useToast` with the app's localized defaults.
+ *
+ * Each add helper fills the default title, icon, and color from `common.*`
+ * translations and tags the toast with `data-nosnippet`, then applies caller
+ * overrides. The helpers return the toast handle so it can be updated or removed.
+ */
 function useAppToast(): UseAppToast {
   const toast = useToast();
   const { $i18n } = useNuxtApp();

@@ -144,6 +144,7 @@
   "plugins": [
     "eslint",
     "import",
+    "jsdoc",
     "oxc",
     "promise",
     "node",
@@ -490,6 +491,25 @@
     "import/no-webpack-loader-syntax": "error",
     "import/prefer-default-export": "off",
     "import/unambiguous": "error",
+    // ---- JSDoc rules ----
+    "jsdoc/check-access": "error",
+    "jsdoc/check-property-names": "error",
+    "jsdoc/check-tag-names": [
+      "error",
+      {
+        "definedTags": [
+          "remarks"
+        ]
+      }
+    ],
+    "jsdoc/empty-tags": "error",
+    "jsdoc/no-blank-blocks": "error",
+    "jsdoc/no-defaults": "error",
+    "jsdoc/require-param-description": "error",
+    "jsdoc/require-param-name": "error",
+    "jsdoc/require-returns-description": "error",
+    "jsdoc/require-throws-description": "error",
+    "jsdoc/require-yields-description": "error",
     // ---- Node Rules ----
     "node/callback-return": "error",
     "node/exports-style": [

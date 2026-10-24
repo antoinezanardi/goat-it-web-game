@@ -3,6 +3,14 @@ import type { H3Event } from "h3";
 import { CONTENT_LENGTH_PATTERN, JSON_CONTENT_TYPE_PATTERN, MAXIMUM_REQUEST_BODY_BYTES } from "#server/utils/security/helpers/request-body-guard/request-body-guard.constants";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 
+/**
+ * Decides from headers alone whether a POST body must be rejected before it is buffered.
+ *
+ * Returns 411 when `content-length` is missing or invalid, 413 when it exceeds the size cap, 415 when `content-type` is not JSON,
+ * and `undefined` when the body may be read.
+ *
+ * @see docs/security.md
+ */
 function resolveRequestBodyRejectionStatusCode(event: H3Event): HttpStatusCode | undefined {
   const contentLength = getRequestHeader(event, "content-length");
 

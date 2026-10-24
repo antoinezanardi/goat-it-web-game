@@ -8,6 +8,16 @@ import { LOCALE_COOKIE_OPTIONS } from "@/app.constants";
 import type { UseLocaleSuggestionReturn } from "@/composables/ui/useLocaleSuggestion/use-locale-suggestion.types";
 import type { Toast } from "#ui/composables";
 
+/**
+ * Proposes switching to the locale suggested by the browser's preferred languages.
+ *
+ * Performs its one-shot side effect during setup and returns `Promise<void>` when the flow is in place. It is a
+ * no-op when the locale cookie already holds a valid locale, or when no valid
+ * suggestion differs from the current locale. Otherwise it loads the suggested
+ * messages before showing a persistent toast: accept writes the locale cookie and
+ * applies the locale, while decline or close writes the current locale. If applying
+ * the locale fails, the cookie is cleared and an error toast is shown.
+ */
 async function useLocaleSuggestion(): UseLocaleSuggestionReturn {
   const { addErrorToast, addInfoToast, removeToast } = useAppToast();
   const { $i18n } = useNuxtApp();

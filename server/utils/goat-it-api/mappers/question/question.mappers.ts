@@ -4,6 +4,12 @@ import type { Question } from "#shared/types/question.types";
 import { filterSafeSourceUrls } from "#shared/utils/helpers/question/source/question-source.helpers";
 import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";
 
+/**
+ * Maps a question DTO from the upstream API to the domain `Question`.
+ *
+ * Date strings become `Date` instances, each theme assignment is mapped to a domain theme with its `isPrimary`/`isHint` flags,
+ * and `sourceUrls` is filtered down to safe schemes. `status` and `rejection` are passed through unchanged.
+ */
 function createQuestionFromQuestionDto(dto: QuestionDto): Question {
   return {
     id: dto.id,

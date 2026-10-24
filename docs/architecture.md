@@ -112,6 +112,13 @@ A constant used by two components should not stay artificially private to one co
 - An independently tested helper owns source and spec together. Component/composable-private helpers live beneath their owner in `helpers/<responsibility>/`; shared helpers live at the narrowest common domain.
 - `helpers/` is not a dump folder. The owner and unit names must communicate responsibility.
 
+### 3.3 Documentation comments
+
+Public logic APIs carry concise TSDoc as defined in [`jsdoc.md`](jsdoc.md): exported composables and their colocated option/return types, store actions, repository factories, server helpers/mappers/types, shared and app helpers, and shared types.
+JSDoc documents semantics that TypeScript cannot express (side effects, lifecycle, invariants, failure behavior, units, fallbacks); it never restates a name or type.
+Component contracts, server handlers, constants, and framework entrypoints are out of scope for the current pass.
+No other source comments are allowed; see the comment rules in `AGENTS.md`.
+
 ## 4. Application architecture
 
 ### 4.1 Components

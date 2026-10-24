@@ -18,6 +18,16 @@ function createGoatItApiAbortSignal(event: H3Event): AbortSignal {
   return AbortSignal.any([disconnectController.signal, AbortSignal.timeout(GOAT_IT_API_REQUEST_TIMEOUT_IN_MS)]);
 }
 
+/**
+ * Assembles the `$fetch` options for an upstream call: base URL, API key, forwarded locale, redirect refusal, retry policy, and abort signal.
+ *
+ * The `goat-it-api-key` header carries the game key, `Accept-Language` comes from the locale cookie, redirects are errors,
+ * and POST is never retried. The signal aborts when the client disconnects before the response is sent,
+ * or when the upstream call exceeds its timeout.
+ *
+ * @param event - Request event used for runtime config, the locale cookie, and the client-disconnect signal.
+ * @see docs/security.md
+ */
 function createGoatItApiFetchOptions(event: H3Event, options?: CreateGoatItApiFetchOptionsOverrides): Parameters<typeof $fetch>[1] {
   const config = getRuntimeConfig(event);
   const method = options?.method ?? "GET";

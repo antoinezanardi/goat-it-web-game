@@ -2,6 +2,11 @@ import { nextTick } from "vue";
 
 import type { UseGameTutorial, UseGameTutorialOptions } from "@/composables/domain/useGameTutorial/use-game-tutorial.types";
 
+/**
+ * Coordinates the interactive tutorial tour for the current question.
+ *
+ * A sidebar invitation is wired in so the tour can be started from either entry point.
+ */
 function useGameTutorial(options: UseGameTutorialOptions): UseGameTutorial {
   const isTutorialAvailable = computed<boolean>(() => options.gameState.value === "playing" &&
     options.currentQuestion.value !== undefined &&

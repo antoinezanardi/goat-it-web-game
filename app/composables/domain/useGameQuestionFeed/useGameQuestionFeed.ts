@@ -9,6 +9,20 @@ import { hasNarrowingQuestionFilters } from "@/composables/domain/useGameQuestio
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM, GAME_PREFETCH_THRESHOLD } from "@/composables/domain/useGameQuestionFeed/use-game-question-feed.constants";
 import type { UseGameQuestionFeed, UseGameQuestionFeedOptions } from "@/composables/domain/useGameQuestionFeed/use-game-question-feed.types";
 
+/**
+ * Buffers random questions for the game and keeps the buffer supplied as the player advances.
+ *
+ * The first request sends only the current filters; later requests add the newest ids as `excludedIds`,
+ * deduplicated and capped at `GAME_EXCLUDED_IDS_MAXIMUM`. An empty batch means exhaustion unless a narrowing
+ * filter is active, in which case it is reported as `hasNoMatchingFiltersQuestions`. A new batch is fetched once
+ * the current index reaches 80% of the buffer, and a restart truncates the buffer to `currentIndex + 1`.
+ *
+ * @example
+ * const currentIndex = ref(0);
+ * const feed = useGameQuestionFeed({ currentIndex });
+ * await feed.initialize();
+ * // `feed.questions` grows as the player advances
+ */
 function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuestionFeed {
   const store = useGameStore();
   const { questions, isPending } = storeToRefs(store);

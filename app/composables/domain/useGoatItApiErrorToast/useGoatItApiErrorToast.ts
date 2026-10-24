@@ -4,6 +4,13 @@ import type {
   UseGoatItApiErrorToast,
 } from "@/composables/domain/useGoatItApiErrorToast/use-goat-it-api-error-toast.types";
 
+/**
+ * Reports Goat It API failures as a single deduplicated error toast.
+ *
+ * The upstream `errorCode` is resolved first, then the mapped HTTP status, then `errors.unknown`.
+ * Unknown upstream codes are logged before falling back. Toast ids include the context and code, so repeated
+ * failures replace the same toast instead of stacking.
+ */
 function useGoatItApiErrorToast(): UseGoatItApiErrorToast {
   const { addErrorToast } = useAppToast();
   const i18n = useI18n();

@@ -48,6 +48,14 @@ function formatStrippedPaths(issues: UnrecognizedKeysIssue[]): string {
   return issues.map(issue => [...issue.path, ...issue.keys].map(String).join(".")).join(", ");
 }
 
+/**
+ * Validates an upstream array payload against a DTO schema and maps every item to its domain type.
+ *
+ * Additive upstream fields are tolerated: when every issue is `unrecognized_keys`, those keys are stripped from a structured clone,
+ * the payload is re-parsed, and the removed paths are logged. Any other contract drift is rethrown.
+ *
+ * @throws When the payload does not match the schema for any reason besides unknown keys.
+ */
 function parseAndMapGoatItApiResponse<Dto, Domain>(
   rawData: unknown,
   dtoSchema: z.ZodType<Dto>,
@@ -77,6 +85,13 @@ function isBadRequestError(error: unknown): boolean {
   return isRecord(error) && error.statusCode === HttpStatusCode.BAD_REQUEST;
 }
 
+/**
+ * Validates the incoming query string against a schema and returns the parsed value.
+ *
+ * Validation failures become a 400 proxy error carrying `errorCode: "invalid-request"`, so the client never sees Zod details.
+ *
+ * @throws When the query is invalid; also rethrows unrelated request-reading failures.
+ */
 async function validateGoatItApiQuery<Query>(event: H3Event, schema: z.ZodType<Query>): Promise<Query> {
   try {
     return await getValidatedQuery(event, rawQuery => schema.parse(rawQuery));
@@ -92,6 +107,13 @@ async function validateGoatItApiQuery<Query>(event: H3Event, schema: z.ZodType<Q
   }
 }
 
+/**
+ * Validates the incoming JSON body against a schema and returns the parsed value.
+ *
+ * Validation failures become a 400 proxy error carrying `errorCode: "invalid-request"`, so the client never sees Zod details.
+ *
+ * @throws When the body is invalid; also rethrows unrelated request-reading failures.
+ */
 async function validateGoatItApiBody<Body>(event: H3Event, schema: z.ZodType<Body>): Promise<Body> {
   try {
     return await readValidatedBody(event, rawBody => schema.parse(rawBody));
