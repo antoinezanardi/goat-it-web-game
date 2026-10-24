@@ -14,9 +14,9 @@ type UseChangelogOptions = {
 };
 
 type UseChangelog = {
-  isOpen: Ref<boolean>;
-  open: () => void;
-  close: () => void;
+  isChangelogOpen: Ref<boolean>;
+  openChangelog: () => void;
+  closeChangelog: () => void;
 };
 
 export type { ChangelogEntry, UseChangelog, UseChangelogOptions };

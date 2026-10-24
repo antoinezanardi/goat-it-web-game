@@ -1,5 +1,5 @@
 type ChangelogWhatsNewButtonContentProps = {
-  isUnread: boolean;
+  isChangelogUnread: boolean;
 };
 
 export type { ChangelogWhatsNewButtonContentProps };

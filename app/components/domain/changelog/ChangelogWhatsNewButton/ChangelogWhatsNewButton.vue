@@ -5,12 +5,12 @@ import type {
 } from "@/components/domain/changelog/ChangelogWhatsNewButton/changelog-whats-new-button.types";
 
 const props = withDefaults(defineProps<ChangelogWhatsNewButtonProps>(), {
-  variant: "button",
+  displayVariant: "button",
 });
 
 const emit = defineEmits<ChangelogWhatsNewButtonEmits>();
 
-const isButtonVariant = computed<boolean>(() => props.variant === "button");
+const isButtonVariant = computed<boolean>(() => props.displayVariant === "button");
 
 function onOpenChangelog(): void {
   emit("openChangelog");
@@ -25,7 +25,7 @@ function onOpenChangelog(): void {
     variant="soft"
     @click="onOpenChangelog"
   >
-    <ChangelogWhatsNewButtonContent :is-unread="props.isUnread"/>
+    <ChangelogWhatsNewButtonContent :is-changelog-unread="props.isChangelogUnread"/>
   </UButton>
 
   <ULink
@@ -33,6 +33,6 @@ function onOpenChangelog(): void {
     class="flex gap-1.5 items-center"
     @click="onOpenChangelog"
   >
-    <ChangelogWhatsNewButtonContent :is-unread="props.isUnread"/>
+    <ChangelogWhatsNewButtonContent :is-changelog-unread="props.isChangelogUnread"/>
   </ULink>
 </template>

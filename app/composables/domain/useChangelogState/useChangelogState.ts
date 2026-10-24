@@ -2,21 +2,21 @@ import type { UseChangelogState } from "@/composables/domain/useChangelogState/u
 import { StateNames } from "#shared/enums/state.enums";
 
 function useChangelogState(): UseChangelogState {
-  const isOpen = useState<boolean>(StateNames.CHANGELOG_IS_OPEN, () => false);
-  const isUnread = useState<boolean>(StateNames.CHANGELOG_IS_UNREAD, () => false);
+  const isChangelogOpen = useState<boolean>(StateNames.CHANGELOG_IS_OPEN, () => false);
+  const isChangelogUnread = useState<boolean>(StateNames.CHANGELOG_IS_UNREAD, () => false);
 
-  function open(): void {
-    isOpen.value = true;
+  function openChangelog(): void {
+    isChangelogOpen.value = true;
   }
 
-  function close(): void {
-    isOpen.value = false;
+  function closeChangelog(): void {
+    isChangelogOpen.value = false;
   }
   return {
-    isOpen,
-    isUnread,
-    open,
-    close,
+    isChangelogOpen,
+    isChangelogUnread,
+    openChangelog,
+    closeChangelog,
   };
 }
 

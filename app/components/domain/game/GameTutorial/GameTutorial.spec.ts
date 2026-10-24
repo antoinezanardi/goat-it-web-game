@@ -218,31 +218,31 @@ describe("GameTutorial Component", () => {
   it("should pass the first step title to the popover content when the tour starts.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("title")).toBe("game.interactiveTutorial.steps.welcome.title");
+    expect(getGameTutorialPopoverContent().props("stepTitle")).toBe("game.interactiveTutorial.steps.welcome.title");
   });
 
   it("should pass the first step description to the popover content when the tour starts.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("description")).toBe("game.interactiveTutorial.steps.welcome.description");
+    expect(getGameTutorialPopoverContent().props("stepDescription")).toBe("game.interactiveTutorial.steps.welcome.description");
   });
 
   it("should pass the first step icon to the popover content when the tour starts.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("icon")).toBe(GAME_TUTORIAL_STEPS[0]?.icon);
+    expect(getGameTutorialPopoverContent().props("stepIcon")).toBe(GAME_TUTORIAL_STEPS[0]?.icon);
   });
 
   it("should pass hasPrev as false to the popover content when the first step is active.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("hasPrev")).toBe(false);
+    expect(getGameTutorialPopoverContent().props("hasPreviousStep")).toBe(false);
   });
 
   it("should pass hasNext as true to the popover content when the first step is active.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("hasNext")).toBe(true);
+    expect(getGameTutorialPopoverContent().props("hasNextStep")).toBe(true);
   });
 
   it("should keep the popover closed when the tour has not started.", () => {
@@ -275,7 +275,7 @@ describe("GameTutorial Component", () => {
   it("should pass no maximum height to the popover content when the centered first step is active.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("maxHeight")).toBe("none");
+    expect(getGameTutorialPopoverContent().props("popoverMaxHeight")).toBe("none");
   });
 
   it("should pass the space above the target as maximum height to the popover content when the target is near the viewport bottom.", async() => {
@@ -293,7 +293,7 @@ describe("GameTutorial Component", () => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(getGameTutorialPopoverContent().props("maxHeight")).toBe("584px");
+    expect(getGameTutorialPopoverContent().props("popoverMaxHeight")).toBe("584px");
   });
 
   it("should render the first step title when the tour starts.", async() => {

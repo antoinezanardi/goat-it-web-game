@@ -29,7 +29,7 @@ function onCategoriesChange(value: QuestionCategory[]): void {
 }
 
 function onThemeIdsChange(value: string[]): void {
-  emit("update:themeIds", value);
+  emit("update:questionThemeIds", value);
 }
 </script>
 
@@ -39,32 +39,32 @@ function onThemeIdsChange(value: string[]): void {
     data-testid="game-questions-filters-modal"
   >
     <GameQuestionsFiltersThemeFilter
-      :active-theme-ids="props.activeThemeIds"
-      :active-themes="props.activeThemes"
-      :catalog-status="props.catalogStatus"
+      :active-question-theme-ids="props.activeQuestionThemeIds"
+      :active-question-themes="props.activeQuestionThemes"
       :is-themes-catalog-available="props.isThemesCatalogAvailable"
-      :model-value="props.draft.themeIds"
+      :model-value="props.filtersDraft.themeIds"
+      :themes-catalog-status="props.themesCatalogStatus"
       @update:model-value="onThemeIdsChange"
     />
 
     <USeparator/>
 
     <GameQuestionsFiltersCategoryFilter
-      :model-value="props.draft.categories"
+      :model-value="props.filtersDraft.categories"
       @update:model-value="onCategoriesChange"
     />
 
     <USeparator/>
 
     <GameSettingsCognitiveDifficultiesFilter
-      :model-value="props.draft.cognitiveDifficulties"
+      :model-value="props.filtersDraft.cognitiveDifficulties"
       @update:model-value="onCognitiveDifficultiesChange"
     />
 
     <USeparator/>
 
     <GameSettingsAdultContentSwitch
-      :is-adult-content-enabled="props.draft.isAdultContentEnabled"
+      :is-adult-content-enabled="props.filtersDraft.isAdultContentEnabled"
       @update:is-adult-content-enabled="onAdultContentChange"
     />
   </div>

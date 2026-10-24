@@ -11,11 +11,11 @@ const props = defineProps<GameQuestionsFiltersThemeFilterProps>();
 const emit = defineEmits<GameQuestionsFiltersThemeFilterEmits>();
 const { t } = useI18n();
 
-const isLoading = computed<boolean>(() => props.catalogStatus === "loading");
+const isLoading = computed<boolean>(() => props.themesCatalogStatus === "loading");
 const statusIconName = computed<string>(() => (isLoading.value ? "i-lucide-loader-circle" : "i-lucide-triangle-alert"));
-const selectedThemeIds = computed<string[]>(() => resolveSelectedThemeIds(props.modelValue, props.activeThemeIds) ?? []);
+const selectedThemeIds = computed<string[]>(() => resolveSelectedThemeIds(props.modelValue, props.activeQuestionThemeIds) ?? []);
 
-const options = computed<GameSettingsFilterOption[]>(() => props.activeThemes.map(theme => ({
+const options = computed<GameSettingsFilterOption[]>(() => props.activeQuestionThemes.map(theme => ({
   color: resolveThemeColor(theme.color),
   icon: getThemeIcon(theme.slug),
   label: theme.label,
@@ -27,7 +27,7 @@ const unavailableStatusLabel = computed<string>(() => (
 ));
 
 function onUpdateSelectedThemes(values: string[]): void {
-  emit("update:modelValue", props.activeThemeIds.filter(themeId => values.includes(themeId)));
+  emit("update:modelValue", props.activeQuestionThemeIds.filter(themeId => values.includes(themeId)));
 }
 </script>
 
@@ -65,7 +65,7 @@ function onUpdateSelectedThemes(values: string[]): void {
     </div>
 
     <span
-      v-if="props.isThemesCatalogAvailable && props.catalogStatus === 'stale'"
+      v-if="props.isThemesCatalogAvailable && props.themesCatalogStatus === 'stale'"
       class="text-error text-sm"
       data-testid="game-questions-filters-theme-filter-refresh-error"
     >

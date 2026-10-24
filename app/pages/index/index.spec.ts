@@ -90,11 +90,11 @@ describe("Home Page", () => {
       useState<boolean>(StateNames.CHANGELOG_IS_UNREAD).value = true;
       wrapper = await mountHomePage();
 
-      expect(getChangelogButton().props("isUnread")).toBe(true);
+      expect(getChangelogButton().props("isChangelogUnread")).toBe(true);
     });
 
     it("should pass the shared unread state as false to the changelog entry point when the changelog is read.", () => {
-      expect(getChangelogButton().props("isUnread")).toBe(false);
+      expect(getChangelogButton().props("isChangelogUnread")).toBe(false);
     });
 
     it("should open the shared changelog state when the changelog entry point emits openChangelog.", async() => {

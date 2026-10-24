@@ -50,6 +50,7 @@ const {
 });
 
 const { isLeaveConfirmationOpen } = useGameLeaveConfirmation({ gameState });
+const { isChangelogOpen } = useChangelogState();
 
 const {
   isTutorialAvailable,
@@ -81,7 +82,8 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
   isTourRequested.value ||
   isLeaveConfirmationOpen.value ||
   isSettingsModalOpen.value ||
-  isFiltersModalOpen.value);
+  isFiltersModalOpen.value ||
+  isChangelogOpen.value);
 </script>
 
 <template>
@@ -112,14 +114,14 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
       </div>
 
       <GameSidebar
-        :is-open="isSidebarOpen"
-        :is-tutorial-available="isTutorialAvailable"
+        :is-game-tutorial-available="isTutorialAvailable"
+        :is-sidebar-open="isSidebarOpen"
         @after:leave="openRequestedFiltersModal"
         @open-changelog="closeSidebar"
-        @open-filters="onOpenFiltersFromSidebar"
-        @open-settings="onOpenSettings"
-        @start-tutorial="startTutorialFromSidebar"
-        @update:is-open="setSidebarOpen"
+        @open-game-filters="onOpenFiltersFromSidebar"
+        @open-game-settings="onOpenSettings"
+        @start-game-tutorial="startTutorialFromSidebar"
+        @update:is-sidebar-open="setSidebarOpen"
       />
 
       <GameSettingsModal
@@ -129,10 +131,10 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
       />
 
       <GameQuestionsFiltersModal
-        :is-apply-pending="isApplyFiltersPending"
-        :is-open="isFiltersModalOpen"
+        :is-apply-filters-pending="isApplyFiltersPending"
+        :is-filters-modal-open="isFiltersModalOpen"
         @apply-filters="applyFilters"
-        @update:is-open="setFiltersModalOpen"
+        @update:is-filters-modal-open="setFiltersModalOpen"
       />
 
       <GameStateRenderer

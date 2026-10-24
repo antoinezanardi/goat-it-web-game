@@ -5,4 +5,9 @@ const GAME_TUTORIAL_CONTROL_ICONS = {
   skip: "i-lucide-x",
 } as const;
 
-export { GAME_TUTORIAL_CONTROL_ICONS };
+const GAME_TUTORIAL_SKIP_SHORTCUT = {
+  ariaKeyshortcuts: "Escape",
+  kbd: "escape",
+} as const;
+
+export { GAME_TUTORIAL_CONTROL_ICONS, GAME_TUTORIAL_SKIP_SHORTCUT };

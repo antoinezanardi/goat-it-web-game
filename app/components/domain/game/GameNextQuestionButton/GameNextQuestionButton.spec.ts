@@ -7,7 +7,6 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { GameNextQuestionButton } from "#components";
 
 import { GAME_NEXT_QUESTION_BUTTON_UI } from "@/components/domain/game/GameNextQuestionButton/game-next-question-button.constants";
-import { GAME_SHORTCUT_TOOLTIP_KBD_UI } from "@/utils/ui/game/game-shortcuts.constants";
 import type { GameNextQuestionButtonProps } from "@/components/domain/game/GameNextQuestionButton/game-next-question-button.types";
 
 describe("GameNextQuestionButton Component", () => {
@@ -43,16 +42,8 @@ describe("GameNextQuestionButton Component", () => {
     expect(wrapper.find("button").attributes("aria-keyshortcuts")).toBe("ArrowRight");
   });
 
-  it("should pass the next question label key as the tooltip text when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UTooltip" }).props("text")).toBe("game.nextQuestion");
-  });
-
-  it("should pass the arrowright kbd to the tooltip when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UTooltip" }).props("kbds")).toStrictEqual(["arrowright"]);
-  });
-
-  it("should pass the pointer-gated kbd ui config to the tooltip when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UTooltip" }).props("ui")).toStrictEqual(GAME_SHORTCUT_TOOLTIP_KBD_UI);
+  it("should not wrap the button in a tooltip when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UTooltip" }).exists()).toBe(false);
   });
 
   it("should emit click when the button is clicked.", async() => {

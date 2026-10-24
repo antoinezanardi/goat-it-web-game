@@ -1,13 +1,13 @@
 type GameSidebarProps = {
-  isTutorialAvailable: boolean;
-  isOpen: boolean;
+  isGameTutorialAvailable: boolean;
+  isSidebarOpen: boolean;
 };
 
 type GameSidebarEmits = {
-  "update:isOpen": [value: boolean];
-  "startTutorial": [];
-  "openSettings": [];
-  "openFilters": [];
+  "update:isSidebarOpen": [value: boolean];
+  "startGameTutorial": [];
+  "openGameSettings": [];
+  "openGameFilters": [];
   "after:leave": [];
   "openChangelog": [];
 };

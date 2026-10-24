@@ -5,10 +5,10 @@ import type { GameQuestionsFiltersDraft } from "@/utils/domain/game/game-questio
 import type { QuestionThemeCatalogStatus } from "@/stores/domain/question-theme/question-themes.types";
 
 type GameQuestionsFiltersModalContentProps = {
-  draft: GameQuestionsFiltersDraft;
-  activeThemeIds: string[];
-  activeThemes: QuestionTheme[];
-  catalogStatus: QuestionThemeCatalogStatus;
+  filtersDraft: GameQuestionsFiltersDraft;
+  activeQuestionThemeIds: string[];
+  activeQuestionThemes: QuestionTheme[];
+  themesCatalogStatus: QuestionThemeCatalogStatus;
   isThemesCatalogAvailable: boolean;
 };
 
@@ -16,7 +16,7 @@ type GameQuestionsFiltersModalContentEmits = {
   "update:isAdultContentEnabled": [value: boolean];
   "update:cognitiveDifficulties": [value: QuestionCognitiveDifficulty[]];
   "update:categories": [value: QuestionCategory[]];
-  "update:themeIds": [value: string[]];
+  "update:questionThemeIds": [value: string[]];
 };
 
 export type { GameQuestionsFiltersModalContentEmits, GameQuestionsFiltersModalContentProps };

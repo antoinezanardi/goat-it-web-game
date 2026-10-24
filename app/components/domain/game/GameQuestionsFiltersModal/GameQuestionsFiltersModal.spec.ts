@@ -32,8 +32,8 @@ describe("GameQuestionsFiltersModal Component", () => {
   let wrapper: VueWrapper;
 
   const defaultGameQuestionsFiltersModalProps: GameQuestionsFiltersModalProps = {
-    isApplyPending: false,
-    isOpen: false,
+    isApplyFiltersPending: false,
+    isFiltersModalOpen: false,
   } as const;
 
   const UNRESTRICTED_SETTINGS_FIELDS: Partial<GameSettings> = {
@@ -68,7 +68,7 @@ describe("GameQuestionsFiltersModal Component", () => {
   }
 
   async function openFiltersModal(): Promise<void> {
-    await wrapper.setProps({ isOpen: true });
+    await wrapper.setProps({ isFiltersModalOpen: true });
     await nextTick();
     await flushPromises();
     await vi.dynamicImportSettled();
@@ -102,7 +102,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     expect(document.body.querySelector("[data-testid='game-questions-filters-modal']")).not.toBeNull();
   });
 
-  it("should pass the isOpen prop to UModal when opened.", async() => {
+  it("should pass the isFiltersModalOpen prop to UModal when opened.", async() => {
     await openFiltersModal();
     const modal = wrapper.findComponent<typeof UModal>({ name: "UModal" });
 
@@ -142,7 +142,7 @@ describe("GameQuestionsFiltersModal Component", () => {
 
   it("should pass the apply pending state as loading to the footer when it is pending.", async() => {
     await openFiltersModal();
-    await wrapper.setProps({ isApplyPending: true });
+    await wrapper.setProps({ isApplyFiltersPending: true });
 
     expect(getFooter().props("isPrimaryButtonLoading")).toBe(true);
   });
@@ -181,7 +181,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: true });
     await openFiltersModal();
 
-    expect(getContent().props("draft")).toStrictEqual({
+    expect(getContent().props("filtersDraft")).toStrictEqual({
       isAdultContentEnabled: true,
       cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
       categories: [...QUESTION_CATEGORIES],
@@ -195,7 +195,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     emitAdultContentDraft(true);
     await nextTick();
 
-    expect(getContent().props("draft")).toStrictEqual({
+    expect(getContent().props("filtersDraft")).toStrictEqual({
       isAdultContentEnabled: true,
       cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
       categories: [...QUESTION_CATEGORIES],
@@ -209,7 +209,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     emitCognitiveDifficultiesDraft(["easy"]);
     await nextTick();
 
-    expect(getContent().props("draft")).toStrictEqual({
+    expect(getContent().props("filtersDraft")).toStrictEqual({
       isAdultContentEnabled: false,
       cognitiveDifficulties: ["easy"],
       categories: [...QUESTION_CATEGORIES],
@@ -260,7 +260,7 @@ describe("GameQuestionsFiltersModal Component", () => {
   it("should disable the apply action while a previous apply is pending even when the draft changed.", async() => {
     await openFiltersModal();
     emitAdultContentDraft(true);
-    await wrapper.setProps({ isApplyPending: true });
+    await wrapper.setProps({ isApplyFiltersPending: true });
 
     expect(getFooter().props("isPrimaryButtonDisabled")).toBe(true);
   });
@@ -268,8 +268,8 @@ describe("GameQuestionsFiltersModal Component", () => {
   it("should enable the apply action when the pending state clears while the draft still differs.", async() => {
     await openFiltersModal();
     emitAdultContentDraft(true);
-    await wrapper.setProps({ isApplyPending: true });
-    await wrapper.setProps({ isApplyPending: false });
+    await wrapper.setProps({ isApplyFiltersPending: true });
+    await wrapper.setProps({ isApplyFiltersPending: false });
 
     expect(getFooter().props("isPrimaryButtonDisabled")).toBe(false);
   });
@@ -308,7 +308,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     getWrapperVm(getHeader()).$emit("reset");
     await nextTick();
 
-    expect(getContent().props("draft")).toStrictEqual({
+    expect(getContent().props("filtersDraft")).toStrictEqual({
       isAdultContentEnabled: false,
       cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
       categories: [...QUESTION_CATEGORIES],
@@ -338,18 +338,18 @@ describe("GameQuestionsFiltersModal Component", () => {
   it.each<{ openValue: boolean; expectedEmitted: [[boolean]] }>([
     { openValue: false, expectedEmitted: [[false]] },
     { openValue: true, expectedEmitted: [[true]] },
-  ])("should emit update:isOpen as $openValue when UModal emits update:open as $openValue.", async({ openValue, expectedEmitted }) => {
+  ])("should emit update:isFiltersModalOpen as $openValue when UModal emits update:open as $openValue.", async({ openValue, expectedEmitted }) => {
     await openFiltersModal();
     getWrapperVm(wrapper.findComponent<typeof UModal>({ name: "UModal" })).$emit("update:open", openValue);
 
-    expect(wrapper.emitted("update:isOpen")).toStrictEqual(expectedEmitted);
+    expect(wrapper.emitted("update:isFiltersModalOpen")).toStrictEqual(expectedEmitted);
   });
 
-  it("should emit update:isOpen as false when the footer emits closeModal.", async() => {
+  it("should emit update:isFiltersModalOpen as false when the footer emits closeModal.", async() => {
     await openFiltersModal();
     getWrapperVm(getFooter()).$emit("closeModal");
 
-    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[false]]);
+    expect(wrapper.emitted("update:isFiltersModalOpen")).toStrictEqual([[false]]);
   });
 
   it("should reset the draft to the latest committed values when reopened.", async() => {
@@ -358,11 +358,11 @@ describe("GameQuestionsFiltersModal Component", () => {
     await openFiltersModal();
     emitAdultContentDraft(true);
     await nextTick();
-    await wrapper.setProps({ isOpen: false });
+    await wrapper.setProps({ isFiltersModalOpen: false });
     store.settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
     await openFiltersModal();
 
-    expect(getContent().props("draft")).toStrictEqual({
+    expect(getContent().props("filtersDraft")).toStrictEqual({
       isAdultContentEnabled: false,
       cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
       categories: [...QUESTION_CATEGORIES],
@@ -404,7 +404,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     getCreatedModalInstance().close(true);
     await flushPromises();
 
-    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[false]]);
+    expect(wrapper.emitted("update:isFiltersModalOpen")).toStrictEqual([[false]]);
   });
 
   it("should keep the filters modal open and preserve the draft when the discard confirmation is canceled.", async() => {
@@ -416,7 +416,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     getCreatedModalInstance().close(false);
     await flushPromises();
 
-    expect(wrapper.emitted("update:isOpen")).toBeUndefined();
+    expect(wrapper.emitted("update:isFiltersModalOpen")).toBeUndefined();
   });
 
   it("should not create another discard confirmation when a close is requested while one is already pending.", async() => {
@@ -490,7 +490,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     });
     await openFiltersModal();
 
-    expect(getContent().props("draft")).toStrictEqual({
+    expect(getContent().props("filtersDraft")).toStrictEqual({
       isAdultContentEnabled: false,
       cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
       categories: ["trivia", "riddle"],
@@ -505,15 +505,15 @@ describe("GameQuestionsFiltersModal Component", () => {
     ];
     await openFiltersModal();
 
-    expect(getContent().props("activeThemeIds")).toStrictEqual(["theme-a", "theme-b"]);
+    expect(getContent().props("activeQuestionThemeIds")).toStrictEqual(["theme-a", "theme-b"]);
   });
 
   it("should pass the active themes to the content when an active catalog is available.", async() => {
-    const activeThemes = [createFakeQuestionTheme({ id: "theme-a", status: "active" }), createFakeQuestionTheme({ id: "theme-b", status: "active" })];
-    mockStore(useQuestionThemesStore).questionThemes = activeThemes;
+    const activeQuestionThemes = [createFakeQuestionTheme({ id: "theme-a", status: "active" }), createFakeQuestionTheme({ id: "theme-b", status: "active" })];
+    mockStore(useQuestionThemesStore).questionThemes = activeQuestionThemes;
     await openFiltersModal();
 
-    expect(getContent().props("activeThemes")).toStrictEqual(activeThemes);
+    expect(getContent().props("activeQuestionThemes")).toStrictEqual(activeQuestionThemes);
   });
 
   it("should pass the themes catalog availability to the content when an active catalog is available.", async() => {
@@ -527,7 +527,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     mockStore(useQuestionThemesStore).questionThemes = [createFakeQuestionTheme({ id: "theme-a", status: "active" })];
     await openFiltersModal();
 
-    expect(getContent().props("catalogStatus")).toBe("ready");
+    expect(getContent().props("themesCatalogStatus")).toBe("ready");
   });
 
   it("should update the draft categories when the content emits update:categories.", async() => {
@@ -536,7 +536,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     getWrapperVm(getContent()).$emit("update:categories", ["trivia"]);
     await nextTick();
 
-    expect(getContent().props("draft")).toStrictEqual({
+    expect(getContent().props("filtersDraft")).toStrictEqual({
       isAdultContentEnabled: false,
       cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
       categories: ["trivia"],
@@ -544,13 +544,13 @@ describe("GameQuestionsFiltersModal Component", () => {
     });
   });
 
-  it("should update the draft theme ids when the content emits update:themeIds.", async() => {
+  it("should update the draft theme ids when the content emits update:questionThemeIds.", async() => {
     mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
     await openFiltersModal();
-    getWrapperVm(getContent()).$emit("update:themeIds", ["theme-a"]);
+    getWrapperVm(getContent()).$emit("update:questionThemeIds", ["theme-a"]);
     await nextTick();
 
-    expect(getContent().props("draft")).toStrictEqual({
+    expect(getContent().props("filtersDraft")).toStrictEqual({
       isAdultContentEnabled: false,
       cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
       categories: [...QUESTION_CATEGORIES],
@@ -599,7 +599,7 @@ describe("GameQuestionsFiltersModal Component", () => {
     getWrapperVm(getHeader()).$emit("reset");
     await nextTick();
 
-    expect(getContent().props("draft")).toStrictEqual({
+    expect(getContent().props("filtersDraft")).toStrictEqual({
       isAdultContentEnabled: false,
       cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
       categories: [...QUESTION_CATEGORIES],
@@ -639,7 +639,7 @@ describe("GameQuestionsFiltersModal Component", () => {
       createFakeQuestionTheme({ id: "theme-b", status: "active" }),
     ];
     await nextTick();
-    getWrapperVm(getContent()).$emit("update:themeIds", ["theme-a"]);
+    getWrapperVm(getContent()).$emit("update:questionThemeIds", ["theme-a"]);
     await nextTick();
 
     expect(getFooter().props("isPrimaryButtonDisabled")).toBe(false);

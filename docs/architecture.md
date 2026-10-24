@@ -128,6 +128,7 @@ app/components/domain/game/GameSidebar/
 
 - One component per owned directory. Child/reusable components own separate directories; do not put a second primary `.vue` in the parent component directory.
 - If a component declares props, emits, slots, or exposed instance members, it must have a colocated `*.types.ts` defining the full contract, including `defineExpose` members.
+- Prop and emit names are self-describing outside the component file: name the domain subject whose state or intent is carried (`isChangelogUnread`, `openChangelog`, `isSidebarOpen`), not a bare adjective or verb (`isUnread`, `open`). Exemptions are Vue/Nuxt UI-mandated names (`modelValue`, `update:modelValue`), framework passthrough events (`after:leave`), and native element adapter props/events (`disabled`, `loading`, `click`).
 - Component-private constants stay beside the component. Promote only when multiple production units share them.
 - Components read store state through getters/refs and props, subject to the ownership rule in §4.1. They must never assign store state or mutate store-owned values in place (`store.items.push(...)`, `store.settings.field = ...`, `$patch`); every state change goes through a store action. Props are read-only: emit an event instead of mutating them.
 - Keep small private logic in `<script setup>`; extract meaningful complexity only under the helper rules above.
@@ -145,22 +146,6 @@ A component's access to global state follows its responsibility, not its depth:
 - Store-owned mutations still go through store actions; props remain read-only and children emit intent rather than mutating props.
 
 This is a project convention layered on Vue's one-way-down props and emit-up contract; neither Vue nor Pinia specifies this component taxonomy.
-
-Current audit classification:
-
-| Component                                                    | Classification                                                    |
-|--------------------------------------------------------------|-------------------------------------------------------------------|
-| `GameQuestionsFiltersThemeFilter`                            | Presentation child — props/emits only                             |
-| `GameQuestionsFiltersButton`                                 | Feature UI deriving its feature-specific applied-filter count     |
-| `GameSidebar`                                                | Feature UI deriving its count; changelog feature host             |
-| `ChangelogWhatsNewButton`                                    | Presentation child — props/emits only                             |
-| `ChangelogWhatsNewButtonContent`                             | Presentation child — props only                                   |
-| `GameQuestionsFiltersModal`                                  | Feature coordinator owning draft/snapshot state                   |
-| `ChangelogModal` / `useChangelog`                            | Changelog side-effect and state owner                             |
-| `App.vue` bootstrap                                          | Application initialization                                        |
-| `LocaleSelect`                                               | Explicit locale-cookie exception (§4.7)                           |
-
-The audit is descriptive and reviewed against component responsibility; it is not enforced by a lint rule.
 
 ### 4.2 Composables
 

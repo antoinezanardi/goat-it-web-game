@@ -1,8 +1,8 @@
 type ChangelogWhatsNewButtonVariant = "button" | "menu";
 
 type ChangelogWhatsNewButtonProps = {
-  variant?: ChangelogWhatsNewButtonVariant;
-  isUnread: boolean;
+  displayVariant?: ChangelogWhatsNewButtonVariant;
+  isChangelogUnread: boolean;
 };
 
 type ChangelogWhatsNewButtonEmits = {

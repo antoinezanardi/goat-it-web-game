@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { ChangelogWhatsNewButtonContentProps } from "@/components/domain/changelog/ChangelogWhatsNewButtonContent/changelog-whats-new-button-content.types";
+import type { ChangelogWhatsNewButtonContentProps } from "@/components/domain/changelog/ChangelogWhatsNewButton/ChangelogWhatsNewButtonContent/changelog-whats-new-button-content.types";
 import { CHANGELOG_ICON } from "@/utils/ui/changelog/changelog.constants";
 
 const props = defineProps<ChangelogWhatsNewButtonContentProps>();
@@ -18,7 +18,7 @@ const { t } = useI18n();
 
     <ClientOnly>
       <span
-        v-if="props.isUnread"
+        v-if="props.isChangelogUnread"
         aria-hidden="true"
         class="bg-primary inline-block ml-1 rounded-full size-2"
         data-testid="changelog-unread-indicator"

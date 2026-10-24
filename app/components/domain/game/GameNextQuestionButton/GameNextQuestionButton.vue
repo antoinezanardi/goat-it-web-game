@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { GameNextQuestionButtonEmits, GameNextQuestionButtonProps } from "@/components/domain/game/GameNextQuestionButton/game-next-question-button.types";
 import { GAME_NEXT_QUESTION_BUTTON_UI } from "@/components/domain/game/GameNextQuestionButton/game-next-question-button.constants";
-import { GAME_ARROW_SHORTCUT_KBDS, GAME_ARROW_SHORTCUTS, GAME_SHORTCUT_TOOLTIP_KBD_UI } from "@/utils/ui/game/game-shortcuts.constants";
+import { GAME_ARROW_SHORTCUTS } from "@/utils/ui/game/game-shortcuts.constants";
 
 const props = defineProps<GameNextQuestionButtonProps>();
 const emit = defineEmits<GameNextQuestionButtonEmits>();
@@ -16,25 +16,19 @@ function onClick(): void {
 </script>
 
 <template>
-  <UTooltip
-    :kbds="GAME_ARROW_SHORTCUT_KBDS.forward"
-    :text="label"
-    :ui="GAME_SHORTCUT_TOOLTIP_KBD_UI"
-  >
-    <UButton
-      :aria-keyshortcuts="forwardShortcut.ariaKeyshortcuts"
-      class="font-semibold game-question-navigation-button--themed h-10 md:self-end md:w-auto rounded-lg text-fg-primary text-sm"
-      color="neutral"
-      data-testid="game-next-question-button"
-      :disabled="props.disabled"
-      :label="label"
-      :loading="props.loading"
-      size="lg"
-      trailing-icon="i-lucide-arrow-right"
-      type="button"
-      :ui="GAME_NEXT_QUESTION_BUTTON_UI"
-      variant="outline"
-      @click="onClick"
-    />
-  </UTooltip>
+  <UButton
+    :aria-keyshortcuts="forwardShortcut.ariaKeyshortcuts"
+    class="font-semibold game-question-navigation-button--themed h-10 md:self-end md:w-auto rounded-lg text-fg-primary text-sm"
+    color="neutral"
+    data-testid="game-next-question-button"
+    :disabled="props.disabled"
+    :label="label"
+    :loading="props.loading"
+    size="lg"
+    trailing-icon="i-lucide-arrow-right"
+    type="button"
+    :ui="GAME_NEXT_QUESTION_BUTTON_UI"
+    variant="outline"
+    @click="onClick"
+  />
 </template>

@@ -3,9 +3,9 @@ import type { QuestionThemeCatalogStatus } from "@/stores/domain/question-theme/
 
 type GameQuestionsFiltersThemeFilterProps = {
   modelValue?: string[];
-  activeThemeIds: string[];
-  activeThemes: QuestionTheme[];
-  catalogStatus: QuestionThemeCatalogStatus;
+  activeQuestionThemeIds: string[];
+  activeQuestionThemes: QuestionTheme[];
+  themesCatalogStatus: QuestionThemeCatalogStatus;
   isThemesCatalogAvailable: boolean;
 };
 

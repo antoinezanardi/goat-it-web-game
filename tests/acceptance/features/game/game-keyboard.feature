@@ -42,6 +42,17 @@ Feature: ⌨️ Game Page Keyboard Navigation
     Then the game sidebar should be visible
     And the previous question button should be hidden
 
+  Scenario: ⌨️ Question arrows are ignored while the changelog is open
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    And a game question should be displayed
+    When the user opens the game sidebar
+    And the user clicks on the button with name "What's new"
+    Then the element with testid "changelog-modal" should be visible
+    When the user presses the right arrow key
+    Then the element with testid "changelog-modal" should be visible
+    And the previous question button should be hidden
+
   Scenario: ⌨️ Question arrows are ignored while the leave confirmation modal is open
     Given the database is populated with the question fixture set "five-active-questions"
     And the user is on home page
@@ -105,23 +116,13 @@ Feature: ⌨️ Game Page Keyboard Navigation
     And the user presses the right arrow key
     Then the no more questions message should be displayed
 
-  Scenario: ⌨️ Arrow shortcut hints are displayed in game and tutorial control tooltips on a fine-pointer device
+  Scenario: ⌨️ Keyboard shortcut hints are displayed on fine-pointer controls
     Given the database is populated with the question fixture set "five-active-questions"
     And the user is on game page
     Then a game question should be displayed
     When the user presses the right arrow key
     Then hovering the previous question button should show the arrow left key hint
-    And hovering the next question button should show the arrow right key hint
     When the user opens the interactive tutorial from the game sidebar
-    Then hovering the tutorial next control should show the arrow right key hint
-    And the tutorial skip control should expose no shortcut hint
+    Then the tutorial skip control should show the escape key hint
     When the user presses the right arrow key
     Then hovering the tutorial back control should show the arrow left key hint
-    When the user presses the right arrow key
-    And the user presses the right arrow key
-    And the user presses the right arrow key
-    And the user presses the right arrow key
-    And the user presses the right arrow key
-    And the user presses the right arrow key
-    And the user presses the right arrow key
-    Then hovering the tutorial finish control should show the arrow right key hint

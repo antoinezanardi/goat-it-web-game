@@ -1,10 +1,10 @@
 import type { Ref } from "vue";
 
 type UseChangelogState = {
-  isOpen: Ref<boolean>;
-  isUnread: Ref<boolean>;
-  open: () => void;
-  close: () => void;
+  isChangelogOpen: Ref<boolean>;
+  isChangelogUnread: Ref<boolean>;
+  openChangelog: () => void;
+  closeChangelog: () => void;
 };
 
 export type { UseChangelogState };

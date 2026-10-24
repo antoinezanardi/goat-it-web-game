@@ -1,17 +1,17 @@
 type GameTutorialPopoverContentProps = {
-  description: string | undefined;
-  hasNext: boolean;
-  hasPrev: boolean;
-  icon: string | undefined;
-  maxHeight: string;
-  title: string | undefined;
+  hasNextStep: boolean;
+  hasPreviousStep: boolean;
+  popoverMaxHeight: string;
+  stepDescription: string | undefined;
+  stepIcon: string | undefined;
+  stepTitle: string | undefined;
 };
 
 type GameTutorialPopoverContentEmits = {
-  back: [];
-  finish: [];
-  next: [];
-  skip: [];
+  finishTutorial: [];
+  goToNextStep: [];
+  goToPreviousStep: [];
+  skipTutorial: [];
 };
 
 export type { GameTutorialPopoverContentEmits, GameTutorialPopoverContentProps };

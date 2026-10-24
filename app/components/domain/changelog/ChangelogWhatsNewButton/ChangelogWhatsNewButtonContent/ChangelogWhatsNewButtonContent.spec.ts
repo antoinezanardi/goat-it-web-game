@@ -6,10 +6,10 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import { ChangelogWhatsNewButtonContent } from "#components";
 
-import type { ChangelogWhatsNewButtonContentProps } from "@/components/domain/changelog/ChangelogWhatsNewButtonContent/changelog-whats-new-button-content.types";
+import type { ChangelogWhatsNewButtonContentProps } from "@/components/domain/changelog/ChangelogWhatsNewButton/ChangelogWhatsNewButtonContent/changelog-whats-new-button-content.types";
 
 describe("ChangelogWhatsNewButtonContent Component", () => {
-  const defaultChangelogWhatsNewButtonContentProps: ChangelogWhatsNewButtonContentProps = { isUnread: false } as const;
+  const defaultChangelogWhatsNewButtonContentProps: ChangelogWhatsNewButtonContentProps = { isChangelogUnread: false } as const;
 
   let wrapper: VueWrapper;
 
@@ -37,19 +37,19 @@ describe("ChangelogWhatsNewButtonContent Component", () => {
     expect(wrapper.findComponent({ name: "ClientOnly" }).exists()).toBe(true);
   });
 
-  it("should not render the unread indicator when the isUnread prop is false.", () => {
+  it("should not render the unread indicator when the isChangelogUnread prop is false.", () => {
     expect(wrapper.find("[data-testid='changelog-unread-indicator']").exists()).toBe(false);
   });
 
-  it("should render the unread indicator when the isUnread prop is true.", async() => {
-    await wrapper.setProps({ isUnread: true });
+  it("should render the unread indicator when the isChangelogUnread prop is true.", async() => {
+    await wrapper.setProps({ isChangelogUnread: true });
 
     expect(wrapper.find("[data-testid='changelog-unread-indicator']").exists()).toBe(true);
   });
 
-  it("should hide the unread indicator again when the isUnread prop becomes false.", async() => {
-    await wrapper.setProps({ isUnread: true });
-    await wrapper.setProps({ isUnread: false });
+  it("should hide the unread indicator again when the isChangelogUnread prop becomes false.", async() => {
+    await wrapper.setProps({ isChangelogUnread: true });
+    await wrapper.setProps({ isChangelogUnread: false });
 
     expect(wrapper.find("[data-testid='changelog-unread-indicator']").exists()).toBe(false);
   });
