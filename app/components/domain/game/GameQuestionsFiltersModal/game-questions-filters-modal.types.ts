@@ -1,12 +1,12 @@
 import type { GameQuestionsFiltersDraft } from "@/utils/domain/game/game-questions-filters-draft.types";
 
 type GameQuestionsFiltersModalProps = {
-  isOpen: boolean;
-  isApplyPending: boolean;
+  isFiltersModalOpen: boolean;
+  isApplyFiltersPending: boolean;
 };
 
 type GameQuestionsFiltersModalEmits = {
-  "update:isOpen": [value: boolean];
+  "update:isFiltersModalOpen": [value: boolean];
   "applyFilters": [draft: GameQuestionsFiltersDraft];
 };
 

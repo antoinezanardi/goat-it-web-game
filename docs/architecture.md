@@ -63,7 +63,7 @@ Normative boundaries:
 - `shared/` imports only runtime-neutral modules; it must not import `app/`, `server/`, or Nuxt build output. Keep Vue/browser/UI-only concepts out of this layer.
 - `scripts/` is standalone and must not import app/server/shared project aliases.
 - Server code validates external data with the shared Goat It schema package and converts DTOs to domain types in mapper units.
-- This guide does not settle whether pages/components may access stores directly. That boundary is explicitly deferred; stores must still use repositories for data access.
+- Component access to stores and shared-state composables follows the role-based ownership rule in §4.1; stores must still use repositories for data access.
 
 Framework discovery behavior takes precedence over project layout preference. Verify routes/component registrations after moving framework-discovered files. Official Nuxt references: [directory structure](https://nuxt.com/docs/4.x/directory-structure), [server directory](https://nuxt.com/docs/4.x/directory-structure/server), [app components](https://nuxt.com/docs/4.x/directory-structure/app/components), [app pages](https://nuxt.com/docs/4.x/directory-structure/app/pages).
 
@@ -128,11 +128,24 @@ app/components/domain/game/GameSidebar/
 
 - One component per owned directory. Child/reusable components own separate directories; do not put a second primary `.vue` in the parent component directory.
 - If a component declares props, emits, slots, or exposed instance members, it must have a colocated `*.types.ts` defining the full contract, including `defineExpose` members.
+- Prop and emit names are self-describing outside the component file: name the domain subject whose state or intent is carried (`isChangelogUnread`, `openChangelog`, `isSidebarOpen`), not a bare adjective or verb (`isUnread`, `open`). Exemptions are Vue/Nuxt UI-mandated names (`modelValue`, `update:modelValue`), framework passthrough events (`after:leave`), and native element adapter props/events (`disabled`, `loading`, `click`).
 - Component-private constants stay beside the component. Promote only when multiple production units share them.
-- Components read store state through getters/refs and props. They must never assign store state or mutate store-owned values in place (`store.items.push(...)`, `store.settings.field = ...`, `$patch`); every state change goes through a store action. Props are read-only: emit an event instead of mutating them.
+- Components read store state through getters/refs and props, subject to the ownership rule in §4.1. They must never assign store state or mutate store-owned values in place (`store.items.push(...)`, `store.settings.field = ...`, `$patch`); every state change goes through a store action. Props are read-only: emit an event instead of mutating them.
 - Keep small private logic in `<script setup>`; extract meaningful complexity only under the helper rules above.
 - SFC order is `<script lang="ts" setup>`, `<template>`, `<style>`.
 - Nuxt Content components also own a directory beneath `app/components/content/`. Preserve the component name used by MDC Markdown and verify rendering after moves. Nuxt's `pathPrefix: false` names components from their filename; the exact nested Content registration is verified by this project, not assumed.
+
+#### Component state ownership
+
+A component's access to global state follows its responsibility, not its depth:
+
+- A **feature-owning component** may read a store or shared-state domain composable when it coordinates that feature or derives feature-specific state needed by its UI.
+- A **presentation child** receives the data it displays through props and communicates user intent with emits; it does not reach into shared application state merely to render that data.
+- Component depth, reuse, and being located under a page do not by themselves determine ownership. Apply the rule according to the component's responsibility.
+- Keep state access at the nearest meaningful feature owner. Do not lift state or add pass-through props solely to conceal a store/composable read.
+- Store-owned mutations still go through store actions; props remain read-only and children emit intent rather than mutating props.
+
+This is a project convention layered on Vue's one-way-down props and emit-up contract; neither Vue nor Pinia specifies this component taxonomy.
 
 ### 4.2 Composables
 
@@ -172,11 +185,11 @@ app/stores/domain/game-settings/
 └── game-settings.types.ts
 ```
 
-Stores own domain state and state-changing actions. Use `StoreNames`; follow the established async-action pattern. Colocate private constants. Add `.types.ts` when there is a standalone public state/action contract. Do not create an empty types file. Repositories own data access; the direct page/component store access policy is deferred.
+Stores own domain state and state-changing actions. Use `StoreNames`; follow the established async-action pattern. Colocate private constants. Add `.types.ts` when there is a standalone public state/action contract. Do not create an empty types file. Repositories own data access; the direct page/component store access policy follows §4.1.
 
 - Stores own the only actions allowed to change their state. Consumers must not assign store state or mutate store-owned values; every change goes through an action. Transient state (fetch status, loading flags) is exposed as read-only computed getters.
 - Stores are presentation-agnostic. They must not import or call toast, i18n, overlay, router, component, or DOM APIs. Async actions return the discriminated `AsyncResult` from `shared/types/async-result.types.ts` so the caller decides how to surface errors.
-- Serialized state must stay writable refs for SSR hydration and devtools; do not wrap returned state in `readonly()`. Enforce the mutation boundary by convention and review, not by hiding state.
+- Serialized state must stay writable refs for SSR hydration and devtools; do not wrap returned state in `readonly()`. Enforce the mutation boundary by convention and review, not by hiding state. Which component may read a store is decided by §4.1.
 
 ### 4.4 Repositories
 

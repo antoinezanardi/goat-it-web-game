@@ -20,7 +20,7 @@ defineSlots<GameQuestionCardSectionSlots>();
     </p>
 
     <p
-      class="font-medium leading-normal md:text-xl text-fg-primary text-lg"
+      class="font-medium leading-normal md:text-xl text-fg-primary text-lg wrap-anywhere"
       :data-testid="props.dataTestid"
     >
       <slot/>

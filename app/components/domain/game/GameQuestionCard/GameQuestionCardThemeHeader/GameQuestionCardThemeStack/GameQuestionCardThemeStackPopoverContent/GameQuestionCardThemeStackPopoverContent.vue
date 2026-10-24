@@ -27,7 +27,7 @@ const { t } = useI18n();
       />
 
       <div class="min-w-0">
-        <span class="font-medium text-sm">
+        <span class="font-medium text-sm wrap-anywhere">
           {{ assignment.theme.label }}
         </span>
 

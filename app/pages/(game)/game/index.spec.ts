@@ -21,6 +21,7 @@ import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/comp
 import type { GameStateRenderer } from "#components";
 
 import type { AsyncResult } from "#shared/types/async-result.types";
+import { StateNames } from "#shared/enums/state.enums";
 import GamePage from "@/pages/(game)/game/index.vue";
 import { NEUTRAL_GREY_FALLBACK_THEME_COLOR } from "@/utils/ui/question-theme/question-theme.constants";
 
@@ -62,6 +63,7 @@ describe("Game Page", () => {
   beforeEach(async() => {
     capturedLeaveGuard = undefined;
     useCookieMockState.cookieRef.value = null;
+    clearNuxtState([StateNames.CHANGELOG_IS_OPEN]);
     wrapper = await mountGamePage();
   });
 
@@ -207,39 +209,39 @@ describe("Game Page", () => {
 
     const sidebar = wrapper.findComponent({ name: "GameSidebar" });
 
-    expect(sidebar.props("isOpen")).toBe(true);
+    expect(sidebar.props("isSidebarOpen")).toBe(true);
   });
 
-  it("should close the sidebar when GameSidebar emits update:isOpen with false.", async() => {
+  it("should close the sidebar when GameSidebar emits update:isSidebarOpen with false.", async() => {
     const toggleButton = wrapper.findComponent({ name: "GameSidebarToggleButton" });
     getWrapperVm(toggleButton).$emit("click");
     await nextTick();
 
     const sidebar = wrapper.findComponent({ name: "GameSidebar" });
-    getWrapperVm(sidebar).$emit("update:isOpen", false);
+    getWrapperVm(sidebar).$emit("update:isSidebarOpen", false);
     await nextTick();
 
-    expect(sidebar.props("isOpen")).toBe(false);
+    expect(sidebar.props("isSidebarOpen")).toBe(false);
   });
 
-  it("should close the sidebar when GameSidebar emits openSettings.", async() => {
+  it("should close the sidebar when GameSidebar emits openGameSettings.", async() => {
     getWrapperVm(wrapper.findComponent({ name: "GameSidebarToggleButton" })).$emit("click");
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openGameSettings");
     await flushPromises();
 
-    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isSidebarOpen")).toBe(false);
   });
 
-  it("should open the settings modal when GameSidebar emits openSettings.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+  it("should open the settings modal when GameSidebar emits openGameSettings.", async() => {
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openGameSettings");
     await flushPromises();
 
     expect(wrapper.findComponent({ name: "GameSettingsModal" }).props("isOpen")).toBe(true);
   });
 
   it("should close the settings modal when GameSettingsModal emits update:isOpen with false.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openGameSettings");
     await flushPromises();
     getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", false);
     await nextTick();
@@ -248,12 +250,12 @@ describe("Game Page", () => {
   });
 
   it("should keep the sidebar closed when the settings modal is dismissed.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openGameSettings");
     await flushPromises();
     getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", false);
     await nextTick();
 
-    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isSidebarOpen")).toBe(false);
   });
 
   it("should not synchronize the questions when the settings modal closes.", async() => {
@@ -275,19 +277,19 @@ describe("Game Page", () => {
     getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
     await nextTick();
 
-    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(true);
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isFiltersModalOpen")).toBe(true);
   });
 
-  it("should close the filters modal when the filters modal emits update:isOpen with false.", async() => {
+  it("should close the filters modal when the filters modal emits update:isFiltersModalOpen with false.", async() => {
     getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("update:isOpen", false);
+    getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("update:isFiltersModalOpen", false);
     await nextTick();
 
-    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isFiltersModalOpen")).toBe(false);
   });
 
-  it("should pass the apply pending state as isApplyPending to the filters modal when a refresh is pending.", async() => {
+  it("should pass the apply pending state as isApplyFiltersPending to the filters modal when a refresh is pending.", async() => {
     let resolveSynchronization: ((value: AsyncResult<void>) => void) | undefined;
     useGameMock.instance.syncQuestionsWithGameSettings.mockReturnValue(new Promise<AsyncResult<void>>(resolve => {
       resolveSynchronization = resolve;
@@ -299,7 +301,7 @@ describe("Game Page", () => {
     });
     await nextTick();
 
-    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isApplyPending")).toBe(true);
+    expect(wrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isApplyFiltersPending")).toBe(true);
 
     resolveSynchronization?.({ ok: true, value: undefined });
     await flushPromises();
@@ -317,7 +319,7 @@ describe("Game Page", () => {
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
 
-    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isTutorialAvailable")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isGameTutorialAvailable")).toBe(false);
   });
 
   it("should pass isTutorialAvailable as false to GameSidebar when playing with no current question.", async() => {
@@ -325,7 +327,7 @@ describe("Game Page", () => {
     useGameMock.instance.questionsRef.value = [];
     await nextTick();
 
-    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isTutorialAvailable")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isGameTutorialAvailable")).toBe(false);
   });
 
   it("should pass isTutorialAvailable as false to GameSidebar when isTranslating is true.", async() => {
@@ -334,7 +336,7 @@ describe("Game Page", () => {
     useGameMock.instance.isTranslatingRef.value = true;
     await nextTick();
 
-    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isTutorialAvailable")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isGameTutorialAvailable")).toBe(false);
   });
 
   it("should pass isTutorialAvailable as false to GameSidebar when isFetchingQuestions is true.", async() => {
@@ -343,7 +345,7 @@ describe("Game Page", () => {
     useGameMock.instance.isFetchingQuestionsRef.value = true;
     await nextTick();
 
-    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isTutorialAvailable")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isGameTutorialAvailable")).toBe(false);
   });
 
   it("should pass isTutorialAvailable as true to GameSidebar when playing with a current question and no loading state.", async() => {
@@ -351,7 +353,7 @@ describe("Game Page", () => {
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
 
-    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isTutorialAvailable")).toBe(true);
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isGameTutorialAvailable")).toBe(true);
   });
 
   it("should render GameTutorial when isTutorialAvailable is true.", async() => {
@@ -377,31 +379,31 @@ describe("Game Page", () => {
     expect(wrapper.findComponent({ name: "GameTutorial" }).props("isActive")).toBe(false);
   });
 
-  it("should pass isActive as true to GameTutorial when GameSidebar emits startTutorial.", async() => {
+  it("should pass isActive as true to GameTutorial when GameSidebar emits startGameTutorial.", async() => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
     await flushPromises();
 
     expect(wrapper.findComponent({ name: "GameTutorial" }).props("isActive")).toBe(true);
   });
 
-  it("should close the sidebar when GameSidebar emits startTutorial.", async() => {
+  it("should close the sidebar when GameSidebar emits startGameTutorial.", async() => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
     await flushPromises();
 
-    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
+    expect(wrapper.findComponent({ name: "GameSidebar" }).props("isSidebarOpen")).toBe(false);
   });
 
   it("should pass isActive as false to GameTutorial when GameTutorial emits tutorialEnd.", async() => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
     await flushPromises();
     getWrapperVm(wrapper.findComponent({ name: "GameTutorial" })).$emit("tutorialEnd");
     await nextTick();
@@ -413,7 +415,7 @@ describe("Game Page", () => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion(), createFakeQuestion()];
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
     await flushPromises();
     useGameMock.instance.currentIndex.value = 1;
     await nextTick();
@@ -426,7 +428,7 @@ describe("Game Page", () => {
     useGameMock.instance.questionsRef.value = [createFakeQuestion(), createFakeQuestion()];
     useGameMock.instance.currentIndex.value = 1;
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
     await flushPromises();
 
     expect(useGameMock.instance.currentIndex.value).toBe(1);
@@ -453,7 +455,7 @@ describe("Game Page", () => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
     await flushPromises();
 
     expect(useCookieMockState.cookieRef.value).toBe(true);
@@ -463,14 +465,14 @@ describe("Game Page", () => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
     await flushPromises();
 
     expect(useAppToastMock.instance.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
   });
 
   it("should not persist the tutorial decision when the sidebar requests the tutorial without an active invitation.", async() => {
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
     await flushPromises();
 
     expect(useCookieMockState.cookieRef.value).toBeNull();
@@ -507,7 +509,7 @@ describe("Game Page", () => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
     await flushPromises();
 
     expect(wrapper.find("[data-testid='game-page-content']").attributes("inert")).toBe("");
@@ -517,7 +519,7 @@ describe("Game Page", () => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];
     await nextTick();
-    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+    getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
     await flushPromises();
     getWrapperVm(wrapper.findComponent({ name: "GameTutorial" })).$emit("tutorialEnd");
     await nextTick();
@@ -564,7 +566,7 @@ describe("Game Page", () => {
       await reachPlayingState();
       getWrapperVm(wrapper.findComponent({ name: "GameSidebarToggleButton" })).$emit("click");
       await nextTick();
-      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("update:isOpen", false);
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("update:isSidebarOpen", false);
       await nextTick();
 
       expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
@@ -572,7 +574,7 @@ describe("Game Page", () => {
 
     it("should forward areShortcutsDisabled as true to GameStateRenderer when the settings modal is open.", async() => {
       await reachPlayingState();
-      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openGameSettings");
       await flushPromises();
 
       expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(true);
@@ -580,7 +582,7 @@ describe("Game Page", () => {
 
     it("should forward areShortcutsDisabled as false to GameStateRenderer when the settings modal closes.", async() => {
       await reachPlayingState();
-      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openSettings");
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openGameSettings");
       await flushPromises();
       getWrapperVm(wrapper.findComponent({ name: "GameSettingsModal" })).$emit("update:isOpen", false);
       await nextTick();
@@ -600,7 +602,7 @@ describe("Game Page", () => {
       await reachPlayingState();
       getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersButton" })).$emit("click");
       await nextTick();
-      getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("update:isOpen", false);
+      getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("update:isFiltersModalOpen", false);
       await nextTick();
 
       expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
@@ -608,7 +610,7 @@ describe("Game Page", () => {
 
     it("should forward areShortcutsDisabled as true to GameStateRenderer when the interactive tutorial is requested.", async() => {
       await reachPlayingState();
-      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
       await flushPromises();
 
       expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(true);
@@ -616,7 +618,7 @@ describe("Game Page", () => {
 
     it("should forward areShortcutsDisabled as false to GameStateRenderer when the interactive tutorial ends.", async() => {
       await reachPlayingState();
-      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startTutorial");
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("startGameTutorial");
       await flushPromises();
       getWrapperVm(wrapper.findComponent({ name: "GameTutorial" })).$emit("tutorialEnd");
       await nextTick();
@@ -654,11 +656,29 @@ describe("Game Page", () => {
 
       expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
     });
+
+    it("should forward areShortcutsDisabled as true to GameStateRenderer when the changelog is open.", async() => {
+      await reachPlayingState();
+      useState<boolean>(StateNames.CHANGELOG_IS_OPEN).value = true;
+      await nextTick();
+
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(true);
+    });
+
+    it("should forward areShortcutsDisabled as false to GameStateRenderer when the changelog closes.", async() => {
+      await reachPlayingState();
+      useState<boolean>(StateNames.CHANGELOG_IS_OPEN).value = true;
+      await nextTick();
+      useState<boolean>(StateNames.CHANGELOG_IS_OPEN).value = false;
+      await nextTick();
+
+      expect(getGameStateRendererWrapper().props("areShortcutsDisabled")).toBe(false);
+    });
   });
 
   describe("question filters discoverability", () => {
     async function requestFiltersFromSidebar(localWrapper: VueWrapper): Promise<void> {
-      getWrapperVm(localWrapper.findComponent({ name: "GameSidebar" })).$emit("openFilters");
+      getWrapperVm(localWrapper.findComponent({ name: "GameSidebar" })).$emit("openGameFilters");
       await nextTick();
     }
 
@@ -668,13 +688,22 @@ describe("Game Page", () => {
     }
 
     function isFiltersModalOpen(localWrapper: VueWrapper): unknown {
-      return localWrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isOpen");
+      return localWrapper.findComponent({ name: "GameQuestionsFiltersModal" }).props("isFiltersModalOpen");
     }
 
-    it("should close the sidebar when the sidebar emits openFilters.", async() => {
+    it("should close the sidebar when the sidebar emits openGameFilters.", async() => {
       await requestFiltersFromSidebar(wrapper);
 
-      expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
+      expect(wrapper.findComponent({ name: "GameSidebar" }).props("isSidebarOpen")).toBe(false);
+    });
+
+    it("should close the sidebar when GameSidebar emits openChangelog.", async() => {
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebarToggleButton" })).$emit("click");
+      await nextTick();
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openChangelog");
+      await nextTick();
+
+      expect(wrapper.findComponent({ name: "GameSidebar" }).props("isSidebarOpen")).toBe(false);
     });
 
     it("should not open the filters modal when the sidebar emits openFilters but has not left yet.", async() => {
@@ -699,7 +728,7 @@ describe("Game Page", () => {
     it("should consume the pending filters request when the sidebar leaves so a later after:leave does not reopen the modal.", async() => {
       await requestFiltersFromSidebar(wrapper);
       await emitSidebarAfterLeave(wrapper);
-      getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("update:isOpen", false);
+      getWrapperVm(wrapper.findComponent({ name: "GameQuestionsFiltersModal" })).$emit("update:isFiltersModalOpen", false);
       await nextTick();
       await emitSidebarAfterLeave(wrapper);
 

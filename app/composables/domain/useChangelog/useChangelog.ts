@@ -1,16 +1,15 @@
 import { CHANGELOG_TOAST_DURATION_IN_MS } from "@/composables/domain/useChangelog/use-changelog.constants";
 import { CHANGELOG_ICON } from "@/utils/ui/changelog/changelog.constants";
-import { StateNames } from "#shared/enums/state.enums";
 import type { UseChangelog, UseChangelogOptions } from "@/composables/domain/useChangelog/use-changelog.types";
 import { useChangelogCookie } from "@/composables/domain/useChangelogCookie/useChangelogCookie";
+import { useChangelogState } from "@/composables/domain/useChangelogState/useChangelogState";
 
 function useChangelog(options: UseChangelogOptions): UseChangelog {
   const { addInfoToast } = useAppToast();
   const { t } = useI18n();
   const { readChangelogState, writeChangelogState } = useChangelogCookie();
 
-  const isOpen = useState<boolean>(StateNames.CHANGELOG_IS_OPEN, () => false);
-  const isUnread = useState<boolean>(StateNames.CHANGELOG_IS_UNREAD, () => false);
+  const { isChangelogOpen, isChangelogUnread, openChangelog, closeChangelog } = useChangelogState();
 
   const latestVersion = computed<string | undefined>(() => toValue(options.latestVersion));
 
@@ -22,15 +21,7 @@ function useChangelog(options: UseChangelogOptions): UseChangelog {
   }
 
   function syncUnreadState(): void {
-    isUnread.value = latestVersion.value !== undefined && lastSeenVersion.value !== latestVersion.value;
-  }
-
-  function open(): void {
-    isOpen.value = true;
-  }
-
-  function close(): void {
-    isOpen.value = false;
+    isChangelogUnread.value = latestVersion.value !== undefined && lastSeenVersion.value !== latestVersion.value;
   }
 
   function showNewReleaseToast(): void {
@@ -44,7 +35,7 @@ function useChangelog(options: UseChangelogOptions): UseChangelog {
         {
           label: t("changelog.toast.action"),
           color: "primary",
-          onClick: open,
+          onClick: openChangelog,
         },
       ],
     });
@@ -54,7 +45,7 @@ function useChangelog(options: UseChangelogOptions): UseChangelog {
     const latestVersionValue = latestVersion.value;
 
     if (latestVersionValue === undefined) {
-      isUnread.value = false;
+      isChangelogUnread.value = false;
 
       return;
     }
@@ -97,16 +88,16 @@ function useChangelog(options: UseChangelogOptions): UseChangelog {
     watch(latestVersion, initializeFromStoredState);
   });
 
-  watch([isOpen, latestVersion], ([isOpenValue]) => {
-    if (isOpenValue) {
+  watch([isChangelogOpen, latestVersion], ([isChangelogOpenValue]) => {
+    if (isChangelogOpenValue) {
       markLatestReleaseAsSeen();
     }
   });
 
   return {
-    isOpen,
-    open,
-    close,
+    isChangelogOpen,
+    openChangelog,
+    closeChangelog,
   };
 }
 
