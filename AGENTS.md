@@ -77,6 +77,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
   - `api/**/handlers/` – Route handler files (`*.handler.ts`); thin wrappers in `api/**/index.*.ts`
   - `utils/goat-it-api/` – Helpers, mappers, types, constants for the external API
 - `shared/enums/`     – Enums shared between app and server (e.g. `CookieNames`)
+- `shared/schemas/`   – Zod domain schemas for JSON-transported domain shapes; explicitly imported
 - `shared/types/`     – Types shared between app and server (e.g. `QuestionTheme`)
 - `shared/utils/`     – Runtime-neutral app/server helpers; explicitly imported
 - `tests/unit/`       – Test utilities: `setup/nuxt/`, `utils/faketories/`, `utils/mocks/`
@@ -155,6 +156,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
 - Repository pattern:
   - Factory function: `export const fooRepository: FooRepository = (fetch: $Fetch) => ({ ... })`.
   - Calls internal Nuxt server routes (`/api/goat-it-api/...`), never the external API directly.
+  - Validates every response with the shared domain schema (`shared/schemas/<domain>/<entity>.schemas.ts`) via `.parse()`; never casts `$Fetch` results.
   - Auto-imported by Nuxt; instantiated in stores as `fooRepository(useRequestFetch())` for request-aware SSR behavior.
 
 - Architecture and file placement:

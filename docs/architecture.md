@@ -39,6 +39,7 @@ server/                      Nitro runtime
 shared/                      runtime-neutral app/server code
   constants/                 cross-runtime constants
   enums/                     cross-runtime enums
+  schemas/                   cross-runtime zod domain schemas
   types/                     cross-runtime types
   utils/helpers/<domain>/    cross-runtime helpers
 content/                     localized Nuxt Content documents
@@ -81,6 +82,7 @@ Navigate by **runtime boundary → framework/project area → category/domain �
 | Helper         | `<descriptive-name>.helpers.ts`         | named camelCase functions                |
 | Mapper         | `<entity>.mappers.ts`                   | `create<Entity>From<Dto>`                |
 | Constants      | `<descriptive-name>.constants.ts`       | exported `UPPER_SNAKE_CASE`              |
+| Schema         | `<entity>.schemas.ts`                   | exported `UPPER_SNAKE_CASE` schemas      |
 | Enums          | `<descriptive-name>.enums.ts`           | PascalCase enum; upper-snake members     |
 | Types          | `<descriptive-name>.types.ts`           | PascalCase type aliases                  |
 | Unit spec      | matching artifact basename + `.spec.ts` | focused subject-specific describe        |
@@ -208,7 +210,7 @@ app/repositories/goat-it-api/questions/
 └── questions.repository.spec.ts
 ```
 
-Repositories are typed factories accepting a `$Fetch`-compatible dependency and calling only internal `/api/goat-it-api/**` routes. Do not fetch the external API from app code, embed UI logic in repositories, or do DTO-to-domain mapping there. Stores construct repositories with `useRequestFetch()`; repository factories themselves must not call Nuxt composables. Nuxt documents that `useRequestFetch()` forwards request context during SSR and behaves like `$fetch` on the client ([docs](https://nuxt.com/docs/4.x/api/composables/use-request-fetch)). Add repository helpers/types/constants only for distinct justified behavior.
+Repositories are typed factories accepting a `$Fetch`-compatible dependency and calling only internal `/api/goat-it-api/**` routes. Do not fetch the external API from app code, embed UI logic in repositories, or do DTO-to-domain mapping there. Stores construct repositories with `useRequestFetch()`; repository factories themselves must not call Nuxt composables. Nuxt documents that `useRequestFetch()` forwards request context during SSR and behaves like `$fetch` on the client ([docs](https://nuxt.com/docs/4.x/api/composables/use-request-fetch)). Add repository helpers/types/constants only for distinct justified behavior. Every response is parsed against its shared domain schema (`shared/schemas/<domain>/<entity>.schemas.ts`) before being returned, so malformed payloads fail with a `ZodError` instead of propagating as type lies.
 
 ### 4.5 App utility areas
 
@@ -277,11 +279,13 @@ Root `shared/` is for runtime-neutral modules consumed across the app/server bou
 shared/
 ├── constants/<concern>.constants.ts
 ├── enums/<concern>.enums.ts
+├── schemas/<domain>/<entity>.schemas.ts
 ├── types/<concern>.types.ts
 └── utils/helpers/<domain>/<unit>.helpers.ts
 ```
 
 - Shared constants/types are contracts, not a fallback for app-local files.
+- Cross-runtime zod schemas live under `shared/schemas/<domain>/`. They describe JSON-transported domain shapes (real `Date` fields, embedded domain objects) produced by server mappers; server code keeps validating upstream DTOs before mapping.
 - Use explicit imports even where Nuxt supports shared utility auto-imports.
 - Existing single-unit utility domains (`locale`, `object`, `string`, `time`) keep source/spec at the domain directory level; do not add a second `helpers/` level.
 - A runtime-neutral helper may stay under its shared domain even when one production unit consumes it. Its private types/constants remain in the helper unit. Do not move app-only helpers or app-only contracts into `shared/`.

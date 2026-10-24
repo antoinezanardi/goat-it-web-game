@@ -1422,6 +1422,7 @@
     // ---- Override for shared files -----
     {
       "files": [
+        "**/shared/schemas/**/*.ts",
         "**/shared/types/**/*.ts",
         "**/shared/utils/**/*.ts"
       ],

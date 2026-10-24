@@ -1,8 +1,10 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import type { $Fetch } from "nitropack";
 import { createFakeFindQuestionThemesQueryDto } from "@goat-it/schemas/testing/question-theme";
+import { ZodError } from "zod";
 
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
+import { createFakeQuestionThemeTransport } from "~~/tests/unit/utils/faketories/question-theme/question-theme.transport.faketory";
 
 import { questionThemesRepository } from "@/repositories/goat-it-api/question-themes/question-themes.repository";
 
@@ -51,11 +53,18 @@ describe(questionThemesRepository, () => {
         createFakeQuestionTheme(),
       ];
       const repository = questionThemesRepository(fetchMock as $Fetch);
-      fetchMock.mockResolvedValue(fakeQuestionThemes);
+      fetchMock.mockResolvedValue(fakeQuestionThemes.map(createFakeQuestionThemeTransport));
 
       const result = await repository.getAll();
 
       expect(result).toStrictEqual(fakeQuestionThemes);
+    });
+
+    it("should throw a ZodError when fetch returns question themes with an invalid shape.", async() => {
+      const repository = questionThemesRepository(fetchMock as $Fetch);
+      fetchMock.mockResolvedValue([{}]);
+
+      await expect(repository.getAll()).rejects.toThrow(ZodError);
     });
   });
 });
