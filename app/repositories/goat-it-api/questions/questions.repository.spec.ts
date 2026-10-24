@@ -1,8 +1,10 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import type { $Fetch } from "nitropack";
 import { createFakeFindRandomQuestionsBodyDto } from "@goat-it/schemas/testing/question";
+import { ZodError } from "zod";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
+import { createFakeQuestionTransport } from "~~/tests/unit/utils/faketories/question/question.transport.faketory";
 
 import { questionsRepository } from "@/repositories/goat-it-api/questions/questions.repository";
 
@@ -39,11 +41,18 @@ describe(questionsRepository, () => {
         createFakeQuestion(),
       ];
       const repository = questionsRepository(fetchMock as $Fetch);
-      fetchMock.mockResolvedValue(fakeQuestions);
+      fetchMock.mockResolvedValue(fakeQuestions.map(createFakeQuestionTransport));
 
       const result = await repository.getByIds(["507f1f77bcf86cd799439011"]);
 
       expect(result).toStrictEqual(fakeQuestions);
+    });
+
+    it("should throw a ZodError when fetch returns questions with an invalid shape.", async() => {
+      const repository = questionsRepository(fetchMock as $Fetch);
+      fetchMock.mockResolvedValue([{}]);
+
+      await expect(repository.getByIds(["507f1f77bcf86cd799439011"])).rejects.toThrow(ZodError);
     });
   });
 
@@ -75,11 +84,18 @@ describe(questionsRepository, () => {
         createFakeQuestion(),
       ];
       const repository = questionsRepository(fetchMock as $Fetch);
-      fetchMock.mockResolvedValue(fakeQuestions);
+      fetchMock.mockResolvedValue(fakeQuestions.map(createFakeQuestionTransport));
 
       const result = await repository.getRandom();
 
       expect(result).toStrictEqual(fakeQuestions);
+    });
+
+    it("should throw a ZodError when fetch returns questions with an invalid shape.", async() => {
+      const repository = questionsRepository(fetchMock as $Fetch);
+      fetchMock.mockResolvedValue([{}]);
+
+      await expect(repository.getRandom()).rejects.toThrow(ZodError);
     });
   });
 });

@@ -4,9 +4,17 @@ import { QUESTION_AUTHOR_ROLES } from "@goat-it/schemas/question";
 import type { QuestionAuthor } from "#shared/types/question.types";
 
 function createFakeQuestionAuthor(questionAuthor: Partial<QuestionAuthor> = {}): QuestionAuthor {
-  return {
-    role: faker.helpers.arrayElement(QUESTION_AUTHOR_ROLES),
+  const role = questionAuthor.role ?? faker.helpers.arrayElement(QUESTION_AUTHOR_ROLES);
+  const fakeAuthor: QuestionAuthor = {
+    role,
     name: faker.person.fullName(),
+  };
+
+  if (role === "game") {
+    fakeAuthor.gameId = faker.database.mongodbObjectId();
+  }
+  return {
+    ...fakeAuthor,
     ...questionAuthor,
   };
 }
