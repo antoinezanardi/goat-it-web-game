@@ -10,23 +10,19 @@ import type { useGameStore as UseGameStoreType } from "@/stores/domain/game/game
 
 let randomAsyncActionMock: UseAsyncActionMock;
 let byIdsAsyncActionMock: UseAsyncActionMock;
-let capturedRandomAction: ((...arguments_: unknown[]) => Promise<unknown>) | undefined;
-let capturedByIdsAction: ((...arguments_: unknown[]) => Promise<unknown>) | undefined;
-let capturedRandomOnError: ((error: unknown) => void) | undefined;
-let capturedByIdsOnError: ((error: unknown) => void) | undefined;
+let randomActionArguments: unknown[] | undefined;
+let byIdsActionArguments: unknown[] | undefined;
 let useAsyncActionCallCount: number;
 
-mockNuxtImport("useAsyncAction", () => (action: unknown, onError: unknown): UseAsyncActionMock => {
+mockNuxtImport("useAsyncAction", () => (...arguments_: unknown[]): UseAsyncActionMock => {
   useAsyncActionCallCount++;
   if (useAsyncActionCallCount === 1) {
-    capturedRandomAction = action as (...arguments_: unknown[]) => Promise<unknown>;
-    capturedRandomOnError = onError as (error: unknown) => void;
+    randomActionArguments = arguments_;
     randomAsyncActionMock = createUseAsyncActionMock();
 
     return randomAsyncActionMock;
   }
-  capturedByIdsAction = action as (...arguments_: unknown[]) => Promise<unknown>;
-  capturedByIdsOnError = onError as (error: unknown) => void;
+  byIdsActionArguments = arguments_;
   byIdsAsyncActionMock = createUseAsyncActionMock();
 
   return byIdsAsyncActionMock;
@@ -37,10 +33,8 @@ let useGameStore: typeof UseGameStoreType;
 describe("useGameStore", () => {
   beforeEach(async() => {
     useAsyncActionCallCount = 0;
-    capturedRandomAction = undefined;
-    capturedRandomOnError = undefined;
-    capturedByIdsAction = undefined;
-    capturedByIdsOnError = undefined;
+    randomActionArguments = undefined;
+    byIdsActionArguments = undefined;
     ({ useGameStore } = await import("@/stores/domain/game/game.store"));
   });
 
@@ -144,6 +138,7 @@ describe("useGameStore", () => {
   describe("fetchAndAppendRandomQuestions", () => {
     it("should call fetchRandomQuestions without query when called without params.", async() => {
       const store = useGameStore();
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: [] });
 
       await store.fetchAndAppendRandomQuestions();
 
@@ -155,6 +150,7 @@ describe("useGameStore", () => {
       const body = createFakeFindRandomQuestionsBodyDto({
         limit: 20,
       });
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: [] });
 
       await store.fetchAndAppendRandomQuestions(body);
 
@@ -167,7 +163,7 @@ describe("useGameStore", () => {
         createFakeQuestion(),
       ];
       const store = useGameStore();
-      randomAsyncActionMock.execute.mockResolvedValue(fakeQuestions);
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: fakeQuestions });
 
       await store.fetchAndAppendRandomQuestions();
 
@@ -180,15 +176,36 @@ describe("useGameStore", () => {
       const expectedQuestions = [...initialQuestions, ...appendedQuestions];
       const store = useGameStore();
       store.questions = initialQuestions;
-      randomAsyncActionMock.execute.mockResolvedValue(appendedQuestions);
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: appendedQuestions });
 
       await store.fetchAndAppendRandomQuestions();
 
       expect(store.questions).toStrictEqual(expectedQuestions);
     });
 
-    it("should not mutate questions when fetchRandomQuestions resolves with undefined.", async() => {
+    it("should return the success result when fetchRandomQuestions resolves.", async() => {
+      const fakeQuestions = [createFakeQuestion()];
       const store = useGameStore();
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: fakeQuestions });
+
+      const result = await store.fetchAndAppendRandomQuestions();
+
+      expect(result).toStrictEqual({ ok: true, value: fakeQuestions });
+    });
+
+    it("should return the failure result when fetchRandomQuestions fails.", async() => {
+      const store = useGameStore();
+      const error = new Error("fetch failed");
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: false, error });
+
+      const result = await store.fetchAndAppendRandomQuestions();
+
+      expect(result).toStrictEqual({ ok: false, error });
+    });
+
+    it("should not append questions when fetchRandomQuestions fails.", async() => {
+      const store = useGameStore();
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
 
       await store.fetchAndAppendRandomQuestions();
 
@@ -252,31 +269,13 @@ describe("useGameStore", () => {
     it("should pass the repository getRandom function as action to the first useAsyncAction when created.", () => {
       useGameStore();
 
-      expect(capturedRandomAction).toBe(questionsRepository($fetch).getRandom);
+      expect(randomActionArguments).toStrictEqual([questionsRepository($fetch).getRandom]);
     });
 
     it("should pass the repository getByIds function as action to the second useAsyncAction when created.", () => {
       useGameStore();
 
-      expect(capturedByIdsAction).toBe(questionsRepository($fetch).getByIds);
-    });
-
-    it("should call handleGoatItApiError with the error and cantFetch translation key when the random fetch error callback is invoked.", () => {
-      useGameStore();
-      const fakeError = new Error("fetch failed");
-
-      capturedRandomOnError?.(fakeError);
-
-      expect(useGoatItApiErrorToast().handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fakeError, "questions.cantFetch");
-    });
-
-    it("should call handleGoatItApiError with the error and cantFetch translation key when the by ids fetch error callback is invoked.", () => {
-      useGameStore();
-      const fakeError = new Error("fetch failed");
-
-      capturedByIdsOnError?.(fakeError);
-
-      expect(useGoatItApiErrorToast().handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fakeError, "questions.cantFetch");
+      expect(byIdsActionArguments).toStrictEqual([questionsRepository($fetch).getByIds]);
     });
   });
 });

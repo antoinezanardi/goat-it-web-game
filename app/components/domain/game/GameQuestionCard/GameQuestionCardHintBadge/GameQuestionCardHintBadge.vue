@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { UBadge } from "#components";
 
-import { QUESTION_HINT_ICON } from "~/composables/domain/question/constants/question.constants";
-import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
+import type { GameQuestionCardHintBadgeExposed } from "@/components/domain/game/GameQuestionCard/GameQuestionCardHintBadge/game-question-card-hint-badge.types";
+import { QUESTION_HINT_ICON } from "@/utils/ui/question/question.constants";
+import { resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 
 const { t } = useI18n();
 
@@ -17,9 +18,11 @@ async function playHighlight(): Promise<void> {
   await highlight.animate([badgeElement]);
 }
 
-defineExpose({
+const exposed: GameQuestionCardHintBadgeExposed = {
   playHighlight,
-});
+};
+
+defineExpose(exposed);
 </script>
 
 <template>

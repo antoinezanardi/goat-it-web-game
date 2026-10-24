@@ -13,7 +13,7 @@ import type { UseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/u
 
 import type { useGameTutorialInvitation as UseGameTutorialInvitationType } from "@/composables/domain/useGameTutorialInvitation/useGameTutorialInvitation";
 import type { UseGameTutorialInvitation } from "@/composables/domain/useGameTutorialInvitation/use-game-tutorial-invitation.types";
-import type { GamePageState } from "@/composables/domain/useGame/useGame";
+import type { GamePageState } from "@/composables/domain/useGame/use-game.types";
 import type { Toast } from "#ui/composables";
 import { CookieNames } from "#shared/enums/cookie.enums";
 
@@ -94,8 +94,8 @@ describe("useGameTutorialInvitation", () => {
       expect(useCookieMockState.capturedName.current).toBe(CookieNames.GAME_TUTORIAL_INVITATION_DECIDED);
     });
 
-    it("should read the tutorial decision cookie with a 400-day lifetime when mounted.", () => {
-      expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 34_560_000, sameSite: "lax" });
+    it("should read the tutorial decision cookie with a 396-day lifetime when mounted.", () => {
+      expect(useCookieMockState.capturedOptions.current).toStrictEqual({ path: "/", maxAge: 34_214_400, sameSite: "lax", secure: false });
     });
   });
 
@@ -387,6 +387,68 @@ describe("useGameTutorialInvitation", () => {
     it("should not re-add the invitation toast when a playable state follows game-over.", async() => {
       await reachFirstPlayableState();
       gameState.value = "game-over";
+      isTutorialAvailable.value = false;
+      await nextTick();
+      gameState.value = "playing";
+      isTutorialAvailable.value = true;
+      await nextTick();
+
+      expect(useAppToastMock.addInfoToast).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe("error and empty filters terminal states", () => {
+    it("should remove the invitation toast when the game reaches error.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "error";
+      isTutorialAvailable.value = false;
+      await nextTick();
+
+      expect(useAppToastMock.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+    });
+
+    it("should not persist the decision cookie when the game reaches error.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "error";
+      isTutorialAvailable.value = false;
+      await nextTick();
+
+      expect(useCookieMockState.cookieRef.value).toBeNull();
+    });
+
+    it("should remove the invitation toast when the game reaches no-matching-filters-questions.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "no-matching-filters-questions";
+      isTutorialAvailable.value = false;
+      await nextTick();
+
+      expect(useAppToastMock.removeToast).toHaveBeenCalledExactlyOnceWith(MOCKED_TOAST_ID);
+    });
+
+    it("should not persist the decision cookie when the game reaches no-matching-filters-questions.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "no-matching-filters-questions";
+      isTutorialAvailable.value = false;
+      await nextTick();
+
+      expect(useCookieMockState.cookieRef.value).toBeNull();
+    });
+
+    it("should not re-add the invitation toast when a playable state follows error.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "error";
+      isTutorialAvailable.value = false;
+      await nextTick();
+      gameState.value = "playing";
+      isTutorialAvailable.value = true;
+      await nextTick();
+
+      expect(useAppToastMock.addInfoToast).toHaveBeenCalledOnce();
+    });
+
+    it("should not re-add the invitation toast when a playable state follows no-matching-filters-questions.", async() => {
+      await reachFirstPlayableState();
+      gameState.value = "no-matching-filters-questions";
       isTutorialAvailable.value = false;
       await nextTick();
       gameState.value = "playing";

@@ -3,7 +3,7 @@ import { vi } from "vitest";
 import { createMockedToast } from "~~/tests/unit/utils/mocks/composables/nuxt/useToast/useToast.mock";
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
-import type { UseAppToast } from "~/composables/ui/useAppToast/useAppToast";
+import type { UseAppToast } from "@/composables/ui/useAppToast/use-app-toast.types";
 
 type UseAppToastMock = ToMock<UseAppToast>;
 
@@ -16,6 +16,7 @@ function createUseAppToastMock(): UseAppToastMock {
     addSuccessToast: vi.fn<UseAppToast["addSuccessToast"]>(createMockedToast),
     addErrorToast: vi.fn<UseAppToast["addErrorToast"]>(createMockedToast),
     addInfoToast: vi.fn<UseAppToast["addInfoToast"]>(createMockedToast),
+    addWarningToast: vi.fn<UseAppToast["addWarningToast"]>(createMockedToast),
     updateToast: vi.fn<UseAppToast["updateToast"]>(),
     removeToast: vi.fn<UseAppToast["removeToast"]>(),
   };

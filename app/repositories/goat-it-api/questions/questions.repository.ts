@@ -1,19 +1,35 @@
 import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 import type { $Fetch } from "nitropack";
 
-import { FIND_QUERY_UNBOUNDED_LIMIT } from "#shared/constants/goat-it-api.constants";
+import { FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM, GOAT_IT_API_CLIENT_FETCH_OPTIONS, GOAT_IT_API_PROXY_PATH_PREFIX } from "#shared/constants/goat-it-api.constants";
 
 type QuestionsRepository = (fetch: $Fetch) => {
+  /** Fetches questions by id through `GET /api/goat-it-api/questions`, always requesting the maximum limit. */
   getByIds: (ids: string[]) => Promise<Question[]>;
+  /** Fetches random questions through `POST /api/goat-it-api/questions/search/random`. */
   getRandom: (body?: FindRandomQuestionsBodyDto) => Promise<Question[]>;
 };
 
+/**
+ * Creates the repository for the internal question proxy routes.
+ *
+ * Rejected requests propagate to the caller, which normalizes them through `useAsyncAction`.
+ *
+ * @param fetch - Request-aware fetch instance, usually `useRequestFetch()`.
+ */
 export const questionsRepository: QuestionsRepository = (fetch: $Fetch) => ({
   async getByIds(ids: string[]): Promise<Question[]> {
-    return fetch<Question[]>("/api/goat-it-api/questions", { query: { ids, limit: FIND_QUERY_UNBOUNDED_LIMIT } });
+    return fetch<Question[]>(`${GOAT_IT_API_PROXY_PATH_PREFIX}questions`, {
+      ...GOAT_IT_API_CLIENT_FETCH_OPTIONS,
+      query: { ids, limit: FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM },
+    });
   },
   async getRandom(body?: FindRandomQuestionsBodyDto): Promise<Question[]> {
-    return fetch<Question[]>("/api/goat-it-api/questions/search/random", { method: "POST", body });
+    return fetch<Question[]>(`${GOAT_IT_API_PROXY_PATH_PREFIX}questions/search/random`, {
+      ...GOAT_IT_API_CLIENT_FETCH_OPTIONS,
+      method: "POST",
+      body,
+    });
   },
 });
 

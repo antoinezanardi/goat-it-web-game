@@ -21,6 +21,7 @@ permission:
     "pnpm run test:acceptance*": "allow"
     "pnpm run lint*": "allow"
     "pnpm run typecheck": "allow"
+    "gh *": "allow"
   read: allow
   grep: allow
   glob: allow
@@ -39,6 +40,8 @@ You are a parallel investigator. You handle ONE independent problem domain only.
 - Don't add features
 
 ## Your job
+
+Before applying a fix, read `docs/architecture.md` and follow its file placement, ownership, companion, alias, and dependency rules.
 
 1. Read the failing test / bug report / failing scenario
 2. Investigate root cause (no fix without understanding)

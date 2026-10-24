@@ -1,16 +1,16 @@
 import { expect } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
-import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
+import { getActiveGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
 
 async function expectQuestionCardFieldText(page: Page, testId: string, value: string): Promise<void> {
-  const question = getVisibleGameQuestionCard(page);
+  const question = getActiveGameQuestionCard(page);
 
   await expect(question.getByTestId(testId)).toHaveText(value);
 }
 
 async function expectQuestionCardElementVisibility(page: Page, testId: string, isVisible: boolean): Promise<void> {
-  const question = getVisibleGameQuestionCard(page);
+  const question = getActiveGameQuestionCard(page);
 
   if (isVisible) {
     await expect(question.getByTestId(testId)).toBeVisible();

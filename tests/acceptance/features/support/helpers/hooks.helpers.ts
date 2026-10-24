@@ -6,6 +6,8 @@ import type { Db } from "mongodb";
 
 import { ACCEPTANCE_TESTS_REPORTS_SCREENSHOTS_PATH } from "#acceptance/features/support/constants/acceptance.constants.ts";
 import {
+  BROWSER_CLIENT_IP_MAXIMUM_OCTET,
+  BROWSER_CLIENT_IP_NETWORK_PREFIX,
   RESET_SANDBOX_DATA_TIMEOUT_IN_MS,
   SANDBOX_BASE_PORT,
   SANDBOX_HEALTH_CHECK_INTERVAL_IN_MS,
@@ -26,6 +28,14 @@ function getSandboxBaseUrl(): string {
 
 function getSandboxMongoUri(workerId: number): string {
   return `mongodb://localhost:${SANDBOX_MONGODB_PORT_BASE + workerId}`;
+}
+
+function buildBrowserClientIp(workerId: number, sequence: number): string {
+  const workerOctet = workerId % BROWSER_CLIENT_IP_MAXIMUM_OCTET + 1;
+  const sequenceHighOctet = Math.floor((sequence - 1) / BROWSER_CLIENT_IP_MAXIMUM_OCTET) + 1;
+  const sequenceLowOctet = (sequence - 1) % BROWSER_CLIENT_IP_MAXIMUM_OCTET + 1;
+
+  return `${BROWSER_CLIENT_IP_NETWORK_PREFIX}.${workerOctet}.${sequenceHighOctet}.${sequenceLowOctet}`;
 }
 
 function removeAcceptanceTestsReportsScreenshotsDirectory(): void {
@@ -111,6 +121,7 @@ async function waitForSandboxHealthCheck(): Promise<void> {
 }
 
 export {
+  buildBrowserClientIp,
   generateScreenshotOnScenarioFailure,
   getMongoClient,
   getMongoDatabase,

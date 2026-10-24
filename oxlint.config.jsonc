@@ -5,11 +5,13 @@
   },
   "globals": {
     "$fetch": "readonly",
+    "AbortController": "readonly",
     "AbortSignal": "readonly",
     "StoreNames": "readonly",
     "URL": "readonly",
     "callOnce": "readonly",
     "computed": "readonly",
+    "crypto": "readonly",
     "console": "readonly",
     "createError": "readonly",
     "defineAppConfig": "readonly",
@@ -20,11 +22,14 @@
     "defineNuxtConfig": "readonly",
     "defineNuxtPlugin": "readonly",
     "defineOptions": "readonly",
+    "defineOrganization": "readonly",
     "definePageMeta": "readonly",
     "defineShortcuts": "readonly",
     "defineProps": "readonly",
     "defineSlots": "readonly",
     "defineStore": "readonly",
+    "defineWebPage": "readonly",
+    "defineWebSite": "readonly",
     "document": "readonly",
     "Element": "readonly",
     "Event": "readonly",
@@ -39,7 +44,10 @@
     "window": "readonly",
     "fetch": "readonly",
     "getQuery": "readonly",
+    "getRequestHeader": "readonly",
+    "getRequestIP": "readonly",
     "getRouterParam": "readonly",
+    "getValidatedQuery": "readonly",
     "navigator": "readonly",
     "onBeforeMount": "readonly",
     "onBeforeRouteLeave": "readonly",
@@ -53,6 +61,10 @@
     "queryCollectionSearchSections": "readonly",
     "reactive": "readonly",
     "readBody": "readonly",
+    "readValidatedBody": "readonly",
+    "setResponseHeader": "readonly",
+    "setResponseHeaders": "readonly",
+    "structuredClone": "readonly",
     "ref": "readonly",
     "refDebounced": "readonly",
     "clearNuxtState": "readonly",
@@ -70,24 +82,29 @@
     "useAsyncAction": "readonly",
     "useAsyncData": "readonly",
     "useChangelog": "readonly",
+    "useChangelogState": "readonly",
     "useColorMode": "readonly",
     "useCookie": "readonly",
     "useFetch": "readonly",
     "useFetchStatus": "readonly",
-    "useGSAP": "readonly",
+    "useGsap": "readonly",
     "useGame": "readonly",
+    "useGameFiltersModal": "readonly",
+    "useGameLeaveConfirmation": "readonly",
     "useGameQuestionTranslation": "readonly",
     "useGameQuestionsFilters": "readonly",
     "useGameSettingsCookie": "readonly",
+    "useGameSettingsModal": "readonly",
     "useGameSettingsStore": "readonly",
+    "useGameSidebar": "readonly",
     "useGameStore": "readonly",
+    "useGameTutorial": "readonly",
     "useGameTutorialInvitation": "readonly",
     "useGoatItApiErrorToast": "readonly",
     "useHead": "readonly",
     "useHexColor": "readonly",
     "useI18n": "readonly",
     "useLazyModal": "readonly",
-    "useLocaleCookie": "readonly",
     "useLocaleSuggestion": "readonly",
     "useLocalizedValue": "readonly",
     "useNuxtApp": "readonly",
@@ -95,9 +112,11 @@
     "usePreferredReducedMotion": "readonly",
     "useQuestionCardHighlight": "readonly",
     "useQuestionThemesStore": "readonly",
+    "useRequestFetch": "readonly",
     "useRoute": "readonly",
     "useRouter": "readonly",
     "useRuntimeConfig": "readonly",
+    "useSchemaOrg": "readonly",
     "useSeoMeta": "readonly",
     "useState": "readonly",
     "useTableFilters": "readonly",
@@ -125,6 +144,7 @@
   "plugins": [
     "eslint",
     "import",
+    "jsdoc",
     "oxc",
     "promise",
     "node",
@@ -471,6 +491,25 @@
     "import/no-webpack-loader-syntax": "error",
     "import/prefer-default-export": "off",
     "import/unambiguous": "error",
+    // ---- JSDoc rules ----
+    "jsdoc/check-access": "error",
+    "jsdoc/check-property-names": "error",
+    "jsdoc/check-tag-names": [
+      "error",
+      {
+        "definedTags": [
+          "remarks"
+        ]
+      }
+    ],
+    "jsdoc/empty-tags": "error",
+    "jsdoc/no-blank-blocks": "error",
+    "jsdoc/no-defaults": "error",
+    "jsdoc/require-param-description": "error",
+    "jsdoc/require-param-name": "error",
+    "jsdoc/require-returns-description": "error",
+    "jsdoc/require-throws-description": "error",
+    "jsdoc/require-yields-description": "error",
     // ---- Node Rules ----
     "node/callback-return": "error",
     "node/exports-style": [
@@ -955,7 +994,8 @@
       ],
       "rules": {
         "import/unambiguous": "off",
-        "node/no-top-level-await": "off"
+        "node/no-top-level-await": "off",
+        "typescript/init-declarations": "off"
       }
     },
     // ---- Override for pages files -----
@@ -1107,6 +1147,7 @@
       "rules": {
         "eslint/max-lines-per-function": "off",
         "eslint/no-magic-numbers": "off",
+        "eslint/no-script-url": "off",
         "import/max-dependencies": [
           "error",
           {
@@ -1292,6 +1333,41 @@
     {
       "files": [
         "**/server/plugins/**/*.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off",
+        "eslint/no-param-reassign": [
+          "error",
+          {
+            "props": true,
+            "ignorePropertyModificationsFor": [
+              "htmlContext"
+            ]
+          }
+        ]
+      }
+    },
+    // ---- Override for security headers helper file -----
+    {
+      "files": [
+        "**/server/utils/security/helpers/security-headers/security-headers.helpers.ts"
+      ],
+      "rules": {
+        "eslint/no-param-reassign": [
+          "error",
+          {
+            "props": true,
+            "ignorePropertyModificationsFor": [
+              "htmlContext"
+            ]
+          }
+        ]
+      }
+    },
+    // ---- Override for server middleware files -----
+    {
+      "files": [
+        "**/server/middleware/**/*.ts"
       ],
       "rules": {
         "import/no-default-export": "off"
@@ -1487,6 +1563,15 @@
       "rules": {
         "node/no-process-env": "off",
         "unicorn/no-null": "off"
+      }
+    },
+    // ---- Override for Nuxt test plugins -----
+    {
+      "files": [
+        "**/tests/unit/setup/**/*-plugin.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off"
       }
     },
     // ---- Override for composable mock setup files -----

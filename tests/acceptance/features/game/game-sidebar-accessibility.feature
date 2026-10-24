@@ -1,4 +1,4 @@
-@game-sidebar @accessibility
+@game @game-sidebar @accessibility
 Feature: 🧭 Game Sidebar Accessibility
 
   Scenario Outline: 🧭 Open game sidebar should not contain accessibility issues in <view> mode

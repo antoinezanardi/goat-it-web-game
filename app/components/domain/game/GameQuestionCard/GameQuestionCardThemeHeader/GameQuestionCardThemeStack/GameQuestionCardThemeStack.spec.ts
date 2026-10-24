@@ -16,13 +16,11 @@ import { GameQuestionCardThemeStack } from "#components";
 import type { GameQuestionCardThemeIcon } from "#components";
 
 import type { QuestionTheme } from "#shared/types/question-theme.types";
-import type { GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
+import type { GameQuestionCardThemeStackExposed, GameQuestionCardThemeStackProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/game-question-card-theme-stack.types";
 import type { GameQuestionCardThemeIconSize } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeIcon/game-question-card-theme-icon.types";
 
-type GameQuestionCardThemeStackVm = ComponentVm & {
-  playHighlight: () => Promise<void>;
+type GameQuestionCardThemeStackVm = ComponentVm & GameQuestionCardThemeStackExposed & {
   setIconElementReference: (element: Element | ComponentPublicInstance | null, index: number) => void;
-  toggleOpen: () => void;
 };
 
 describe("GameQuestionCardThemeStack Component", () => {

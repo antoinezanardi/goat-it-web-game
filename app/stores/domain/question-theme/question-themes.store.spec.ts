@@ -9,12 +9,10 @@ import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question
 import type { useQuestionThemesStore as UseQuestionThemesStoreType } from "@/stores/domain/question-theme/question-themes.store";
 
 let fetchAsyncActionMock: UseAsyncActionMock;
-let capturedFetchAction: ((...arguments_: unknown[]) => Promise<unknown>) | undefined;
-let capturedFetchOnError: ((error: unknown) => void) | undefined;
+let fetchActionArguments: unknown[] | undefined;
 
-mockNuxtImport("useAsyncAction", () => (action: unknown, onError: unknown): UseAsyncActionMock => {
-  capturedFetchAction = action as (...arguments_: unknown[]) => Promise<unknown>;
-  capturedFetchOnError = onError as (error: unknown) => void;
+mockNuxtImport("useAsyncAction", () => (...arguments_: unknown[]): UseAsyncActionMock => {
+  fetchActionArguments = arguments_;
   fetchAsyncActionMock = createUseAsyncActionMock();
 
   return fetchAsyncActionMock;
@@ -24,8 +22,7 @@ let useQuestionThemesStore: typeof UseQuestionThemesStoreType;
 
 describe("useQuestionThemesStore", () => {
   beforeEach(async() => {
-    capturedFetchAction = undefined;
-    capturedFetchOnError = undefined;
+    fetchActionArguments = undefined;
     ({ useQuestionThemesStore } = await import("@/stores/domain/question-theme/question-themes.store"));
   });
 
@@ -190,15 +187,36 @@ describe("useQuestionThemesStore", () => {
         createFakeQuestionTheme(),
       ];
       const store = useQuestionThemesStore();
-      fetchAsyncActionMock.execute.mockResolvedValue(fakeQuestionThemes);
+      fetchAsyncActionMock.execute.mockResolvedValue({ ok: true, value: fakeQuestionThemes });
 
       await store.fetchAndStoreQuestionThemes();
 
       expect(store.questionThemes).toStrictEqual(fakeQuestionThemes);
     });
 
-    it("should not update questionThemes when fetchQuestionThemes resolves with undefined.", async() => {
+    it("should return the success result when fetchQuestionThemes resolves.", async() => {
+      const fakeQuestionThemes = [createFakeQuestionTheme()];
       const store = useQuestionThemesStore();
+      fetchAsyncActionMock.execute.mockResolvedValue({ ok: true, value: fakeQuestionThemes });
+
+      const result = await store.fetchAndStoreQuestionThemes();
+
+      expect(result).toStrictEqual({ ok: true, value: fakeQuestionThemes });
+    });
+
+    it("should return the failure result when fetchQuestionThemes fails.", async() => {
+      const store = useQuestionThemesStore();
+      const error = new Error("fetch failed");
+      fetchAsyncActionMock.execute.mockResolvedValue({ ok: false, error });
+
+      const result = await store.fetchAndStoreQuestionThemes();
+
+      expect(result).toStrictEqual({ ok: false, error });
+    });
+
+    it("should not update questionThemes when fetchQuestionThemes fails.", async() => {
+      const store = useQuestionThemesStore();
+      fetchAsyncActionMock.execute.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
 
       await store.fetchAndStoreQuestionThemes();
 
@@ -210,16 +228,7 @@ describe("useQuestionThemesStore", () => {
     it("should pass the repository getAll function as action to useAsyncAction when created.", () => {
       useQuestionThemesStore();
 
-      expect(capturedFetchAction).toBe(questionThemesRepository($fetch).getAll);
-    });
-
-    it("should call handleGoatItApiError with the error and cantFetch translation key when the fetch error callback is invoked.", () => {
-      useQuestionThemesStore();
-      const fakeError = new Error("fetch failed");
-
-      capturedFetchOnError?.(fakeError);
-
-      expect(useGoatItApiErrorToast().handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fakeError, "questionThemes.cantFetch");
+      expect(fetchActionArguments).toStrictEqual([questionThemesRepository($fetch).getAll]);
     });
   });
 });

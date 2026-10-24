@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { GameQuestionCardThemeStackPopoverContentProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/GameQuestionCardThemeStackPopoverContent/game-question-card-theme-stack-popover-content.types";
-import { QUESTION_HINT_ICON, QUESTION_PRIMARY_ICON } from "~/composables/domain/question/constants/question.constants";
+import { QUESTION_PRIMARY_ICON } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/GameQuestionCardThemeStack/GameQuestionCardThemeStackPopoverContent/game-question-card-theme-stack-popover-content.constants";
+import { QUESTION_HINT_ICON } from "@/utils/ui/question/question.constants";
 
 const props = defineProps<GameQuestionCardThemeStackPopoverContentProps>();
 
@@ -26,7 +27,7 @@ const { t } = useI18n();
       />
 
       <div class="min-w-0">
-        <span class="font-medium text-sm">
+        <span class="font-medium text-sm wrap-anywhere">
           {{ assignment.theme.label }}
         </span>
 

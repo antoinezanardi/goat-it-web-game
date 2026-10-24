@@ -6,7 +6,8 @@ import type {
   GameSettingsCognitiveDifficultiesFilterEmits,
   GameSettingsCognitiveDifficultiesFilterProps,
 } from "@/components/domain/game/GameSettingsModal/GameSettingsGeneralTab/GameSettingsCognitiveDifficultiesFilter/game-settings-cognitive-difficulties-filter.types";
-import { getDifficultyIcon, getDifficultyIconColor, isQuestionCognitiveDifficulty } from "~/composables/domain/question/helpers/question.helpers";
+import { isQuestionCognitiveDifficulty } from "#shared/utils/helpers/question/cognitive-difficulty/question-cognitive-difficulty.helpers";
+import { getDifficultyIcon, getDifficultyIconColor } from "@/utils/ui/question/helpers/cognitive-difficulty-display/question-cognitive-difficulty-display.helpers";
 
 const props = defineProps<GameSettingsCognitiveDifficultiesFilterProps>();
 const emit = defineEmits<GameSettingsCognitiveDifficultiesFilterEmits>();

@@ -1,20 +1,21 @@
 import { mount } from "@vue/test-utils";
 import type { VueWrapper } from "@vue/test-utils";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Mock } from "vitest";
 import { defineComponent, nextTick, ref } from "vue";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-import type { UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.types";
-import { QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
-import type { useQuestionCardRing as UseQuestionCardRingType } from "~/composables/domain/useQuestionCardRing/useQuestionCardRing";
+import type { UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.types";
+import { QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
+import type { useQuestionCardRing as UseQuestionCardRingType } from "@/composables/domain/useQuestionCardRing/useQuestionCardRing";
 import type { Question } from "#shared/types/question.types";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 
 describe("useQuestionCardRing", () => {
   let questions: Ref<Question[]>;
   let currentIndex: Ref<number>;
-  let pendingDirection: Ref<"backward" | "forward" | undefined>;
+  let pendingDirection: Ref<GameNavigationDirection | undefined>;
   let onStaged: Mock<() => void>;
   let onResetSlot: Mock<(slotIndex: number) => void>;
   let requestAnimationFrameCallbacks: FrameRequestCallback[];
@@ -47,10 +48,11 @@ describe("useQuestionCardRing", () => {
   }
 
   beforeEach(async() => {
+    vi.useFakeTimers();
     vi.resetAllMocks();
     questions = ref<Question[]>([createFakeQuestion(), createFakeQuestion(), createFakeQuestion()]);
     currentIndex = ref(1);
-    pendingDirection = ref<"backward" | "forward" | undefined>(undefined);
+    pendingDirection = ref<GameNavigationDirection | undefined>(undefined);
     onStaged = vi.fn<() => void>();
     onResetSlot = vi.fn<(slotIndex: number) => void>();
     requestAnimationFrameCallbacks = [];
@@ -62,7 +64,11 @@ describe("useQuestionCardRing", () => {
       return requestAnimationFrameCallbacks.length;
     });
     vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
-    ({ useQuestionCardRing } = await import("~/composables/domain/useQuestionCardRing/useQuestionCardRing"));
+    ({ useQuestionCardRing } = await import("@/composables/domain/useQuestionCardRing/useQuestionCardRing"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   function mountRingHarness(): VueWrapper {
@@ -100,7 +106,7 @@ describe("useQuestionCardRing", () => {
     expect(slots.value[slotIndex]?.question).toBeUndefined();
   });
 
-  it.each<{ direction: "backward" | "forward"; expectedActiveIndex: number }>([
+  it.each<{ direction: GameNavigationDirection; expectedActiveIndex: number }>([
     { direction: "forward", expectedActiveIndex: 1 },
     { direction: "backward", expectedActiveIndex: 2 },
   ])("should rotate the active slot to $expectedActiveIndex when completing $direction.", ({ direction, expectedActiveIndex }) => {
@@ -211,7 +217,6 @@ describe("useQuestionCardRing", () => {
   });
 
   it("should update the far slot question when the safety timeout fires without animation frames.", async() => {
-    vi.useFakeTimers();
     freezeAnimationFrames();
     const { complete, slots } = useQuestionCardRing(createOptions());
 
@@ -221,13 +226,11 @@ describe("useQuestionCardRing", () => {
     currentIndex.value = 2;
     await nextTick();
     vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
-    vi.useRealTimers();
 
     expect(slots.value[2]?.question).toBe(questions.value[3]);
   });
 
   it("should call onResetSlot for the far slot when the safety timeout fires without animation frames.", async() => {
-    vi.useFakeTimers();
     freezeAnimationFrames();
     const { complete } = useQuestionCardRing(createOptions());
 
@@ -237,13 +240,11 @@ describe("useQuestionCardRing", () => {
     currentIndex.value = 2;
     await nextTick();
     vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
-    vi.useRealTimers();
 
     expect(onResetSlot).toHaveBeenCalledExactlyOnceWith(2);
   });
 
   it("should call onStaged when the safety timeout fires without animation frames.", async() => {
-    vi.useFakeTimers();
     freezeAnimationFrames();
     const { complete } = useQuestionCardRing(createOptions());
 
@@ -253,13 +254,11 @@ describe("useQuestionCardRing", () => {
     currentIndex.value = 2;
     await nextTick();
     vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
-    vi.useRealTimers();
 
     expect(onStaged).toHaveBeenCalledExactlyOnceWith();
   });
 
   it("should not call onStaged twice when animation frames resume after the safety timeout restage.", async() => {
-    vi.useFakeTimers();
     freezeAnimationFrames();
     const { complete } = useQuestionCardRing(createOptions());
 
@@ -272,13 +271,45 @@ describe("useQuestionCardRing", () => {
     flushRestage();
     await nextTick();
     requestAnimationFrameCallbacks[0]?.(0);
-    vi.useRealTimers();
 
     expect(onStaged).toHaveBeenCalledExactlyOnceWith();
   });
 
+  it("should call onResetSlot only once when animation frames resume after the safety timeout restage.", async() => {
+    freezeAnimationFrames();
+    const { complete } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
+    flushRestage();
+    await nextTick();
+    requestAnimationFrameCallbacks[0]?.(0);
+
+    expect(onResetSlot).toHaveBeenCalledExactlyOnceWith(2);
+  });
+
+  it("should call onResetSlot only once when the safety timeout fires after the animation frames restaged.", async() => {
+    freezeAnimationFrames();
+    const { complete } = useQuestionCardRing(createOptions());
+
+    pendingDirection.value = "forward";
+    await nextTick();
+    complete("forward");
+    currentIndex.value = 2;
+    await nextTick();
+    flushRestage();
+    await nextTick();
+    vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
+    requestAnimationFrameCallbacks[0]?.(0);
+
+    expect(onResetSlot).toHaveBeenCalledExactlyOnceWith(2);
+  });
+
   it("should not restage when the component unmounts while the safety timeout is pending.", async() => {
-    vi.useFakeTimers();
     freezeAnimationFrames();
     const wrapper = mountRingHarness();
 
@@ -289,7 +320,6 @@ describe("useQuestionCardRing", () => {
     await nextTick();
     wrapper.unmount();
     vi.advanceTimersByTime(QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
-    vi.useRealTimers();
 
     expect(onStaged).not.toHaveBeenCalled();
   });

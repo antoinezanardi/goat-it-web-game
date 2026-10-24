@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
-import type { UseFetchStatus } from "~/composables/core/useFetchStatus/useFetchStatus";
+import type { UseFetchStatus } from "@/composables/core/useFetchStatus/use-fetch-status.types";
 import type { AsyncDataRequestStatus } from "#app";
 
 type UseFetchStatusMock = ToMock<UseFetchStatus>;

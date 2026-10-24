@@ -17,8 +17,9 @@ Report all violations once in-chat, then use the question tool to validate with 
 
 ### 1. Load context
 
-1. Load the `unit-testing` skill from `.agents/skills/unit-testing/SKILL.md`.
-2. Read `docs/unit-testing.md` in full.
+1. Read `docs/architecture.md` for source/spec ownership and placement.
+2. Load the `unit-testing` skill from `.agents/skills/unit-testing/SKILL.md`.
+3. Read `docs/unit-testing.md` in full.
 
 ### 2. Determine scope
 
@@ -165,11 +166,11 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 - **[H4] Zod path** — A test asserting `ZodError` is thrown for invalid API data.
 - **[H5] Throw side-effects** — try/catch with `void error` around the awaited handler call.
 - **[H6] Status codes** — Values from the `HttpStatusCode` enum (`#server/utils/http/http.enums`), not raw numbers.
-- **[H7] Param/body assertions** — Routes with params assert `getRouterParam(event, "id")`; routes with body assert `readBody(event)`.
+- **[H7] Param/body assertions** — Routes with params assert the input path the handler actually uses: Goat It API handlers wired through the shared validation wrappers assert `validateGoatItApiQuery` / `validateGoatItApiBody` with `(event, SCHEMA)`; handlers still reading raw h3 inputs assert `getRouterParam(event, "id")` / `readBody(event)`.
 
 #### Node helper/mapper checks
 
-- **[N1] Pure tests** — No mocking infrastructure of the unit under test or its collaborators. Exception: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, spying on global timers) are allowed to test time-dependent helpers deterministically. Environment-coupled server helpers (`server/utils/goat-it-api/helpers/goat-it-api.helpers.ts`) may stub `useRuntimeConfig` and h3 globals — established exception, never flagged.
+- **[N1] Pure tests** — No mocking infrastructure of the unit under test or its collaborators. Exception: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, spying on global timers) are allowed to test time-dependent helpers deterministically. Environment-coupled Goat It API fetch-options and locale helper specs may stub `useRuntimeConfig` and h3 globals where required by the function contract — established exception, never flagged.
 - **[N2] Aliases** — Server helper specs import via `#server/utils/...`; shared helper specs via `#shared/utils/...`; app-local helper/mapper specs (e.g. under `app/components/` or `app/composables/`) via `@/`.
 
 #### i18n translation checks
@@ -229,7 +230,7 @@ Emit exactly one report block:
 
 | Status | File                                 | Type       | Violations |
 |--------|--------------------------------------|------------|------------|
-| ❌     | app/pages/index.spec.ts              | page       | V1, V2     |
+| ❌     | app/pages/index/index.spec.ts        | page       | V1, V2     |
 | ⚠️     | app/composables/core/useGame.spec.ts | composable | —          |
 
 (✅ pass · ❌ violation · ⚠️ needs human judgment)
@@ -238,7 +239,7 @@ Emit exactly one report block:
 Table lists **only failing/warning files**, ordered by path — one row per file. Status precedence: a file with both violations and warnings shows ❌ (violations outrank warnings); list its violation IDs in the Violations column and mention the warnings in their entries below. Then list every violation, numbered sequentially:
 
 ```markdown
-**V1** `app/pages/index.spec.ts:38` — [P2] Missing `shallow: true` in mount helper
+**V1** `app/pages/index/index.spec.ts:38` — [P2] Missing `shallow: true` in mount helper
 **V2** `app/stores/domain/game/game.store.spec.ts:31,45` — [U5] `toHaveBeenCalledTimes(1)` + `toHaveBeenCalledWith` → use `toHaveBeenCalledExactlyOnceWith(...)`
 ```
 

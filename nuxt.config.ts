@@ -1,3 +1,14 @@
+import { DEFAULT_LOCALE_FALLBACK } from "#shared/constants/locale.constants.ts";
+import {
+  SITE_CONTACT_EMAIL,
+  SITE_FOUNDING_DATE,
+  SITE_GITHUB_URL,
+  SITE_NAME,
+} from "#shared/constants/site.constants.ts";
+import { resolveSiteEnvironment } from "#shared/utils/helpers/site/site-environment.helpers.ts";
+
+const siteEnvironment = resolveSiteEnvironment(process.env);
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
@@ -13,7 +24,6 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxt/eslint",
     "@vite-pwa/nuxt",
-    "v-gsap-nuxt",
   ],
   $production: {
     sourcemap: false,
@@ -49,15 +59,15 @@ export default defineNuxtConfig({
       mode: "out-in",
     },
     head: {
-      htmlAttrs: { lang: process.env.NUXT_PUBLIC_DEFAULT_LOCALE, class: "dark" },
+      htmlAttrs: { class: "dark" },
       titleTemplate: "%s",
     },
   },
   css: ["~/assets/css/main.css"],
   site: {
     url: process.env.NUXT_PUBLIC_SITE_URL,
-    name: "Goat It",
-    indexable: true,
+    name: SITE_NAME,
+    env: siteEnvironment,
   },
   content: {
     experimental: {
@@ -75,12 +85,19 @@ export default defineNuxtConfig({
     fonts: false,
   },
   runtimeConfig: {
-    appSecret: process.env.NUXT_APP_SECRET,
     goatItApi: {
       baseUrl: "",
       gameKey: "",
     },
-    public: { defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE },
+    rateLimit: {
+      maximumRequests: 60,
+      windowInMs: 60_000,
+      trustProxy: false,
+    },
+    security: {
+      cspMode: "enforce",
+    },
+    public: { defaultLocale: DEFAULT_LOCALE_FALLBACK },
   },
   ignore: [
     "configs/**/*.ts",
@@ -101,16 +118,17 @@ export default defineNuxtConfig({
   compatibilityDate: "2026-10-14",
   nitro: {
     ignore: ["api/**/handlers/**"],
-    imports: { dirs: ["shared/utils/helpers/*.helpers.ts"] },
+    imports: { dirs: ["shared/utils/helpers/**/*.helpers.ts"] },
     compressPublicAssets: { gzip: true, brotli: true },
   },
   vite: {
     optimizeDeps: {
       include: [
-        "@goat-it/schemas/shared/constants",
         "@goat-it/schemas/question",
         "@goat-it/schemas/question-theme",
-        "fuse.js",
+        "@goat-it/schemas/shared/constants",
+        "@goat-it/schemas/shared/locale",
+        "gsap",
         "radashi",
         "zod",
       ],
@@ -141,7 +159,7 @@ export default defineNuxtConfig({
     },
   },
   i18n: {
-    defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE,
+    defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE ?? DEFAULT_LOCALE_FALLBACK,
     locales: [
       {
         code: "fr",
@@ -254,7 +272,7 @@ export default defineNuxtConfig({
   icon: {
     clientBundle: {
       scan: {
-        globInclude: ["**/*.{vue,ts}"],
+        globInclude: ["app/**/*.{vue,ts}"],
       },
     },
   },
@@ -297,12 +315,24 @@ export default defineNuxtConfig({
       navigateFallback: null,
     },
   },
-  seo: { validateAppHead: false },
+  schemaOrg: {
+    identity: {
+      type: "Organization",
+      name: SITE_NAME,
+      email: SITE_CONTACT_EMAIL,
+      foundingDate: SITE_FOUNDING_DATE,
+      sameAs: [SITE_GITHUB_URL],
+      logo: {
+        "@type": "ImageObject",
+        "url": "/pwa/pwa-512x512.png",
+        "width": 512,
+        "height": 512,
+      },
+    },
+  },
+  seo: { validateAppHead: true },
   sitemap: {
+    enabled: siteEnvironment === "production",
     zeroRuntime: true,
-    exclude: [
-      "/index.constants",
-      "/game.constants",
-    ],
   },
 });

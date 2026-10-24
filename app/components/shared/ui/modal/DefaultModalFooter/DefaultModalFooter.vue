@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { DefaultModalFooterEmits, DefaultModalFooterProps } from "~/components/shared/ui/modal/DefaultModalFooter/default-modal-footer.types";
+import type { DefaultModalFooterEmits, DefaultModalFooterProps } from "@/components/shared/ui/modal/DefaultModalFooter/default-modal-footer.types";
 
 const props = withDefaults(defineProps<DefaultModalFooterProps>(), {
   disableShortcuts: false,
@@ -38,7 +38,6 @@ defineShortcuts({
         onClickFromPrimaryButton();
       }
     },
-    usingInput: true,
   },
 });
 </script>

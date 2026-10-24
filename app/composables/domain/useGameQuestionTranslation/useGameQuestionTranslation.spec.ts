@@ -1,21 +1,30 @@
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { flushPromises } from "@vue/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 
+import { createUseGoatItApiErrorToastMock } from "~~/tests/unit/utils/mocks/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast.mock";
+import type { UseGoatItApiErrorToastMock } from "~~/tests/unit/utils/mocks/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast.mock";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
-import type { useGameQuestionTranslation as UseGameQuestionTranslationType } from "~/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation";
+import type { AsyncResult } from "#shared/types/async-result.types";
+import type { useGameQuestionTranslation as UseGameQuestionTranslationType } from "@/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation";
 import type { Question } from "#shared/types/question.types";
 import { useGameStore } from "@/stores/domain/game/game.store";
+
+let useGoatItApiErrorToastMock: UseGoatItApiErrorToastMock;
+
+mockNuxtImport("useGoatItApiErrorToast", () => (): UseGoatItApiErrorToastMock => useGoatItApiErrorToastMock);
 
 let useGameQuestionTranslation: typeof UseGameQuestionTranslationType;
 
 describe("useGameQuestionTranslation", () => {
   beforeEach(async() => {
+    useGoatItApiErrorToastMock = createUseGoatItApiErrorToastMock();
     createTestingPinia();
-    ({ useGameQuestionTranslation } = await import("~/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation"));
+    ({ useGameQuestionTranslation } = await import("@/composables/domain/useGameQuestionTranslation/useGameQuestionTranslation"));
   });
 
   describe("ID selection", () => {
@@ -23,7 +32,7 @@ describe("useGameQuestionTranslation", () => {
       const store = mockStore(useGameStore);
       const fakeQuestions = Array.from({ length: 50 }, () => createFakeQuestion());
       const questions = ref<Question[]>(fakeQuestions);
-      store.fetchQuestionsByIds.mockResolvedValue([]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: true, value: [] });
       const { locale } = useI18n();
       useGameQuestionTranslation(questions, () => true);
 
@@ -37,7 +46,7 @@ describe("useGameQuestionTranslation", () => {
       const store = mockStore(useGameStore);
       const fakeQuestions = Array.from({ length: 150 }, () => createFakeQuestion());
       const questions = ref<Question[]>(fakeQuestions);
-      store.fetchQuestionsByIds.mockResolvedValue([]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: true, value: [] });
       const { locale } = useI18n();
       useGameQuestionTranslation(questions, () => true);
 
@@ -60,7 +69,7 @@ describe("useGameQuestionTranslation", () => {
       const translatedFirst = createFakeQuestion({ id: firstQuestion.id });
       const translatedSecond = createFakeQuestion({ id: secondQuestion.id });
       const translatedThird = createFakeQuestion({ id: thirdQuestion.id });
-      store.fetchQuestionsByIds.mockResolvedValue([translatedThird, translatedFirst, translatedSecond]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: true, value: [translatedThird, translatedFirst, translatedSecond] });
       const { locale } = useI18n();
       useGameQuestionTranslation(questions, () => true);
 
@@ -77,7 +86,7 @@ describe("useGameQuestionTranslation", () => {
       const thirdQuestion = createFakeQuestion();
       const questions = ref<Question[]>([firstQuestion, secondQuestion, thirdQuestion]);
       const translatedFirst = createFakeQuestion({ id: firstQuestion.id });
-      store.fetchQuestionsByIds.mockResolvedValue([translatedFirst]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: true, value: [translatedFirst] });
       const { locale } = useI18n();
       useGameQuestionTranslation(questions, () => true);
 
@@ -94,7 +103,7 @@ describe("useGameQuestionTranslation", () => {
       const questions = ref<Question[]>([firstQuestion, secondQuestion]);
       const translatedFirst = createFakeQuestion({ id: firstQuestion.id });
       const unexpectedQuestion = createFakeQuestion();
-      store.fetchQuestionsByIds.mockResolvedValue([translatedFirst, unexpectedQuestion]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: true, value: [translatedFirst, unexpectedQuestion] });
       const { locale } = useI18n();
       useGameQuestionTranslation(questions, () => true);
 
@@ -110,7 +119,7 @@ describe("useGameQuestionTranslation", () => {
       const questions = ref<Question[]>([firstQuestion]);
       const firstTranslated = createFakeQuestion({ id: firstQuestion.id });
       const secondTranslated = createFakeQuestion({ id: firstQuestion.id });
-      store.fetchQuestionsByIds.mockResolvedValue([firstTranslated, secondTranslated]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: true, value: [firstTranslated, secondTranslated] });
       const { locale } = useI18n();
       useGameQuestionTranslation(questions, () => true);
 
@@ -137,7 +146,7 @@ describe("useGameQuestionTranslation", () => {
     it("should call fetchQuestionsByIds when canTranslateQuestions is true on locale change.", async() => {
       const store = mockStore(useGameStore);
       const questions = ref<Question[]>([createFakeQuestion()]);
-      store.fetchQuestionsByIds.mockResolvedValue([]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: true, value: [] });
       const { locale } = useI18n();
       useGameQuestionTranslation(questions, () => true);
 
@@ -163,11 +172,24 @@ describe("useGameQuestionTranslation", () => {
   });
 
   describe("failure path", () => {
-    it("should leave questions unchanged when fetchQuestionsByIds resolves with undefined.", async() => {
+    it("should show the API error toast when the by ids fetch fails.", async() => {
       const store = mockStore(useGameStore);
-      const fakeQuestions = [createFakeQuestion(), createFakeQuestion()];
-      const questions = ref<Question[]>([...fakeQuestions]);
-      store.fetchQuestionsByIds.mockResolvedValue(undefined);
+      const questions = ref<Question[]>([createFakeQuestion()]);
+      const error = new Error("fetch failed");
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: false, error });
+      const { locale } = useI18n();
+      useGameQuestionTranslation(questions, () => true);
+
+      locale.value = "fr";
+      await flushPromises();
+
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, { title: "questions.cantFetch", context: "questions-translation" });
+    });
+
+    it("should not replace the questions when the by ids fetch fails.", async() => {
+      const store = mockStore(useGameStore);
+      const questions = ref<Question[]>([createFakeQuestion()]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
       const { locale } = useI18n();
       useGameQuestionTranslation(questions, () => true);
 
@@ -186,15 +208,15 @@ describe("useGameQuestionTranslation", () => {
       const fakeQuestions = [firstQuestion, secondQuestion];
       const questions = ref<Question[]>([...fakeQuestions]);
       let isTranslationInProgress = false;
-      let resolvePendingTranslation: ((value: Question[]) => void) | undefined;
+      let resolvePendingTranslation: ((value: AsyncResult<Question[]>) => void) | undefined;
       store.fetchQuestionsByIds.mockImplementationOnce(async() => {
         isTranslationInProgress = true;
 
-        return new Promise<Question[]>(resolve => {
+        return new Promise<AsyncResult<Question[]>>(resolve => {
           resolvePendingTranslation = resolve;
         });
       });
-      store.fetchQuestionsByIds.mockResolvedValue([]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: true, value: [] });
       const { locale } = useI18n();
       useGameQuestionTranslation(questions, () => !isTranslationInProgress);
 
@@ -202,7 +224,7 @@ describe("useGameQuestionTranslation", () => {
       await nextTick();
       locale.value = "de";
       await nextTick();
-      resolvePendingTranslation?.([createFakeQuestion({ id: firstQuestion.id }), createFakeQuestion({ id: secondQuestion.id })]);
+      resolvePendingTranslation?.({ ok: true, value: [createFakeQuestion({ id: firstQuestion.id }), createFakeQuestion({ id: secondQuestion.id })] });
       await flushPromises();
 
       expect(store.fetchQuestionsByIds).toHaveBeenCalledExactlyOnceWith(fakeQuestions.map(question => question.id));

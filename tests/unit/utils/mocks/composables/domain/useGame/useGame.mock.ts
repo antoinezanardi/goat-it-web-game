@@ -4,7 +4,7 @@ import type { Ref } from "vue";
 
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
-import type { UseGame, GamePageState } from "~/composables/domain/useGame/useGame";
+import type { UseGame, GamePageState } from "@/composables/domain/useGame/use-game.types";
 import type { Question } from "#shared/types/question.types";
 
 type UseGameMock = ToMock<UseGame> & {
@@ -36,6 +36,8 @@ function createUseGameMock(): UseGameMock {
     advanceToNextQuestion: vi.fn<UseGame["advanceToNextQuestion"]>(),
     goToPreviousQuestion: vi.fn<UseGame["goToPreviousQuestion"]>(),
     initialize: vi.fn<UseGame["initialize"]>(),
+    resetFilters: vi.fn<UseGame["resetFilters"]>(),
+    retryQuestionFetch: vi.fn<UseGame["retryQuestionFetch"]>(),
     gameState: computed(() => gameStateReference.value),
     gameStateRef: gameStateReference,
     isFetchingQuestionsRef: isFetchingQuestionsReference,

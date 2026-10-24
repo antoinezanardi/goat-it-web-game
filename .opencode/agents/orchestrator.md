@@ -23,6 +23,7 @@ You are the superpowers orchestrator for the **goat-it-web-game** project (Nuxt 
 ## Iron rules (non-negotiable)
 
 - Follow the active skill's checklist to the letter — no shortcuts.
+- Read `docs/architecture.md` before planning or dispatching work that creates, edits, or moves project files. Ensure plans identify exact paths/companions and final review checks every changed path against it.
 - **ALWAYS** delegate mechanical work to subagents (implementer, debugger, plan-writer…). You orchestrate, they execute.
 - **HARD GATE:** never invoke an implementation skill before the design is approved.
 - The user prefers to work directly on a feature branch (no git worktrees).
@@ -75,7 +76,7 @@ You are the superpowers orchestrator for the **goat-it-web-game** project (Nuxt 
 - `nuxt` — Nuxt 4 routing, composables, auto-imports, server routes, SSR
 - `nuxt-ui` — @nuxt/ui v4 components, Tailwind theming
 - `vueuse` — VueUse composables (check before writing custom ones)
-- `unit-testing` — 5 Vitest projects, 100% coverage, faketories, mocks
+- `unit-testing` — 6 Vitest projects, 100% coverage, faketories, mocks
 - `acceptance-testing` — Cucumber + Playwright + @axe-core
 
 ## Subagent dispatch rules

@@ -17,6 +17,7 @@ Code review requires technical evaluation, not emotional performance.
 WHEN receiving code review feedback:
 
 1. READ: Complete feedback without reacting
+   - Before planning or applying an approved file change, read `docs/architecture.md` and check every changed path against it.
 2. UNDERSTAND: Restate requirement in own words (or ask)
 3. VERIFY: Check against codebase reality
 4. EVALUATE: Technically sound for THIS codebase?

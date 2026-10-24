@@ -1,14 +1,24 @@
 <script lang="ts" setup>
-import { APP_TOAST_CONFIG, APP_TOOLTIP_CONFIG } from "~/app.constants";
+import { SITE_NAME } from "#shared/constants/site.constants.ts";
+
+import { APP_TOAST_CONFIG, APP_TOOLTIP_CONFIG } from "@/app.constants";
 
 const questionThemesStore = useQuestionThemesStore();
 const { fetchAndStoreQuestionThemes } = questionThemesStore;
-const { locale } = useI18n();
+const { handleGoatItApiError } = useGoatItApiErrorToast();
+const { locale, t } = useI18n();
 
-void callOnce(fetchAndStoreQuestionThemes);
+async function fetchQuestionThemes(): Promise<void> {
+  const result = await fetchAndStoreQuestionThemes();
+  if (!result.ok) {
+    handleGoatItApiError(result.error, { title: t("questionThemes.cantFetch"), context: "question-themes" });
+  }
+}
+
+await callOnce(fetchQuestionThemes);
 
 watch(locale, () => {
-  void fetchAndStoreQuestionThemes();
+  void fetchQuestionThemes();
 });
 
 useHead({
@@ -22,6 +32,32 @@ useHead({
     { name: "mobile-web-app-capable", content: "yes" },
   ],
 });
+
+useSeoMeta({
+  ogImageAlt: () => t("seo.imageAlt"),
+  twitterImageAlt: () => t("seo.imageAlt"),
+});
+
+useSchemaOrg([
+  defineOrganization({
+    name: SITE_NAME,
+    description: () => t("seo.home.description"),
+    slogan: () => t("home.tagline"),
+  }),
+  defineWebSite({
+    name: SITE_NAME,
+    description: () => t("seo.home.description"),
+  }),
+  defineWebPage({
+    inLanguage: () => locale.value,
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      "url": "/og-image.png",
+      "width": 1200,
+      "height": 600,
+    },
+  }),
+]);
 </script>
 
 <template>

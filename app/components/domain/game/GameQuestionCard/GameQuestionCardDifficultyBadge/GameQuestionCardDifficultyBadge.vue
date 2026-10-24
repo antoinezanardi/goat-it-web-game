@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { GameQuestionCardDifficultyBadgeProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardDifficultyBadge/game-question-card-difficulty-badge.types";
-import { getDifficultyColor, getDifficultyIcon, getDifficultyRingClass } from "~/composables/domain/question/helpers/question.helpers";
+import { getDifficultyColor, getDifficultyIcon, getDifficultyRingClass } from "@/utils/ui/question/helpers/cognitive-difficulty-display/question-cognitive-difficulty-display.helpers";
 
 const props = defineProps<GameQuestionCardDifficultyBadgeProps>();
 

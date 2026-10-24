@@ -5,8 +5,8 @@ import type { ComponentPublicInstance } from "vue";
 
 import type { GameQuestionCardContextAccordionProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.types";
 import { GAME_QUESTION_CARD_CONTEXT_ACCORDION_BUTTON_UI, GAME_QUESTION_CARD_CONTEXT_ACCORDION_COLLAPSIBLE_UI, GAME_QUESTION_CARD_CONTEXT_ACCORDION_EXPAND_SAFETY_TIMEOUT_MS } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.constants";
-import { getNonEmptyTrivia, hasNonEmptyContext } from "~/composables/domain/question/helpers/question.helpers";
-import { resolveHTMLElement } from "#shared/utils/helpers/element/element.dom.helpers";
+import { getNonEmptyTrivia, hasNonEmptyContext } from "#shared/utils/helpers/question/context/question-context.helpers";
+import { resolveHTMLElement } from "@/utils/core/element/element.dom.helpers";
 
 const props = defineProps<GameQuestionCardContextAccordionProps>();
 
@@ -18,8 +18,6 @@ const hasTrivia = computed<boolean>(() => filteredTrivia.value.length > 0);
 const rootElementReference = useTemplateRef<ComponentPublicInstance>("rootElementReference");
 const reducedMotion = usePreferredReducedMotion();
 const scrollBehavior = computed<ScrollBehavior>(() => (reducedMotion.value === "reduce" ? "auto" : "smooth"));
-// Acceptable as the timeout handle is only assigned before it is read
-// oxlint-disable-next-line typescript/init-declarations
 let scrollSafetyTimeout: ReturnType<typeof setTimeout> | undefined;
 
 function clearScrollSafetyTimeout(): void {
@@ -82,7 +80,7 @@ onUnmounted(clearScrollSafetyTimeout);
       <div class="bg-content border border-(--game-theme-border) game-question-accordion--themed mt-1 p-4 rounded-lg">
         <p
           v-if="hasContext"
-          class="leading-body text-fg-primary text-sm"
+          class="leading-body text-fg-primary text-sm wrap-anywhere"
           data-testid="game-question-context"
         >
           {{ props.context?.trim() }}

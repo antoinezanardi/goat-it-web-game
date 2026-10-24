@@ -1,6 +1,6 @@
 ---
 name: unit-testing
-description: Use when writing or modifying unit tests in this project. Load this skill before creating any *.spec.ts file. Covers all five Vitest projects, mock patterns, faketories, composable/store/repository test wiring, and coverage requirements.
+description: Use when writing or modifying unit tests in this project. Load this skill before creating any *.spec.ts file. Covers all six Vitest projects, mock patterns, faketories, composable/store/repository test wiring, and coverage requirements.
 ---
 
 # Unit Testing
@@ -15,7 +15,7 @@ are mirrored below so anything written per this skill passes that audit.
 
 ## Step 0 — Before writing any test
 
-1. Read `docs/unit-testing.md` in full.
+1. Read `docs/architecture.md` for source/spec ownership and placement, then read `docs/unit-testing.md` in full for test mechanics.
 2. Identify the **file type** of the source file under test (component, page, layout, composable, store, repository, server handler, server util/mapper/helper, shared helper, i18n translation).
 3. Determine the **Vitest project** from the table below.
 4. Follow the exact pattern for that file type — no shortcuts.
@@ -34,21 +34,22 @@ are mirrored below so anything written per this skill passes that audit.
 | `app/**/*.{mappers,helpers,translations}.ts`                                    | `.{mappers,helpers,translations}.spec.ts` | `node`         |
 | `server/**/*.{mappers,helpers}.ts`                                              | `.{mappers,helpers}.spec.ts`              | `node`         |
 | `shared/**/*.{mappers,helpers}.ts`                                              | `.{mappers,helpers}.spec.ts`              | `node`         |
+| `**/*.dom.helpers.ts`                                                           | `.dom.helpers.spec.ts`                    | `dom`          |
 | Everything else in `app/`, `server/`, `shared/` that does not match a row above | `.spec.ts`                                | `nuxt`         |
 
 The `repositories` and `node` projects have **no Nuxt environment**. No `mountSuspended`, no `mockNuxtImport`, no global `$fetch`.
 
 ### Setup files loaded per project
 
-Counts reflect `configs/vitest/vitest.config.constants.ts` — scan it for the authoritative lists (they grow over time).
+Setup files reflect `configs/vitest/vitest.config.setup-files.constants.ts` — scan it for the authoritative lists (they grow over time).
 
-| Project        | Environment | Setup files                                                                                              |
-|----------------|-------------|----------------------------------------------------------------------------------------------------------|
-| `nuxt`         | `nuxt`      | 15 base setups + 9 composable mocks + 2 repo mocks                                                       |
-| `composables`  | `nuxt`      | 15 base setups + 2 repo mocks (NO composable mocks — tests exercise real composables)                    |
-| `stores`       | `nuxt`      | 15 base setups + 9 composable mocks + 2 repo mocks + `stores.nuxt.unit-setup.ts`                         |
-| `repositories` | Node        | `dates.nuxt.unit-setup.ts` only                                                                          |
-| `node`         | Node        | `dates.nuxt.unit-setup.ts` + `tests/unit/setup/node/` (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts`) |
+| Project        | Environment | Setup files                                                                                     |
+|----------------|-------------|-------------------------------------------------------------------------------------------------|
+| `nuxt`         | `nuxt`      | Base setups + composable mocks + repository mocks                                               |
+| `composables`  | `nuxt`      | Base setups + repository mocks (NO composable mocks — tests exercise real composables)          |
+| `stores`       | `nuxt`      | Base setups + composable mocks + repository mocks + `stores.nuxt.unit-setup.ts`                  |
+| `repositories` | Node        | None (plain Node, no Nuxt environment)                                                          |
+| `node`         | Node        | The two Node setups (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts` under `tests/unit/setup/node/`) |
 
 ---
 
@@ -242,7 +243,7 @@ Paths under `~~/tests/unit/utils/mocks/composables/`. Scan directories for the c
 | `createUseAsyncActionMock()`              | `core/useAsyncAction/useAsyncAction.mock`           | Mock factory for `useAsyncAction`                                   |
 | `createUseAppToastMock()`                 | `ui/useAppToast/useAppToast.mock`                   | Mock factory for `useAppToast`                                      |
 | `createUseGoatItApiErrorToastMock()`      | `domain/useGoatItApiErrorToast/useGoatItApiErrorToast.mock` | Mock factory for `useGoatItApiErrorToast`                   |
-| `createUseGSAPMock()`                     | `nuxt/useGsap/useGsap.mock`                         | Mock factory for `useGSAP`                                          |
+| `createUseGsapMock()`                     | `core/useGsap/useGsap.mock`                         | Mock factory for `useGsap`                                          |
 | `createUseOverlayMock()`                  | `nuxt-ui/useOverlay/useOverlay.mock`                | Mock factory for `useOverlay`                                       |
 | `createUseWindowScrollMock()`             | `core/useWindowScroll/useWindowScroll.mock`         | Mock factory for `useWindowScroll`                                  |
 | `createUsePreferredReducedMotionMock()`   | `core/usePreferredReducedMotion/usePreferredReducedMotion.mock` | Mock factory for `usePreferredReducedMotion`            |
@@ -265,7 +266,7 @@ Paths under `~~/tests/unit/utils/mocks/composables/`. Scan directories for the c
 
 1. Create mock file at `tests/unit/utils/mocks/composables/<category>/<ComposableName>/useXxx.mock.ts`
 2. Create setup file at `tests/unit/setup/nuxt/composables/use-xxx.nuxt.unit-setup.ts` — `mockNuxtImport` + exported `MockHolder`
-3. Register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES` (`configs/vitest/vitest.config.constants.ts`)
+3. Register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES` (`configs/vitest/vitest.config.setup-files.constants.ts`)
 
 ### Adding a new repository mock
 
@@ -310,13 +311,14 @@ In `nuxt`, `composables`, and `stores` projects, available without any setup in 
 - `useToast()` → mock returning `{ add, remove, clear }`
 - `useSeoMeta`, `callOnce`, `defineOgImage`, `useHead` → `vi.fn()` spies
 - `getRouterParam` / `readBody` → global stubs; `createError` → mock
-- Fake timers pinned to `2026-04-14` UTC (`TZ=UTC`)
+- `TZ=UTC` is set globally via Vitest `test.env`; fake timers are opt-in per test/file (`vi.useFakeTimers()` + `vi.useRealTimers()` in `afterEach`)
+- GSAP is only reachable through the globally mocked `useGsap` composable in the `nuxt` and `stores` projects — no GSAP code or timer runs in those unit tests (see `docs/unit-testing.md`)
 - Element geometry mocked (`virtualizer` setup) and reka-ui `DismissableLayer` recursion patched
 - Repositories globally mocked via `vi.mock`: `questionThemesRepository`, `questionsRepository` (nuxt + composables + stores)
 - Runtime config injected: `{ goatItApi: { baseUrl: "https://api.goat-it.com", gameKey: "test-game-key" } }`
 
 **Globally-mocked composables** (nuxt + stores projects only — the list grows; scan `tests/unit/setup/nuxt/composables/` for the authoritative set):
-`useFetchStatus`, `useAsyncAction`, `useAppToast`, `useGoatItApiErrorToast`, `useGSAP`, `useGame`, `useOverlay`, `useWindowScroll`, `usePreferredReducedMotion`
+`useFetchStatus`, `useAsyncAction`, `useAppToast`, `useGoatItApiErrorToast`, `useGsap`, `useGame`, `useOverlay`, `useWindowScroll`, `usePreferredReducedMotion`
 
 In the `stores` project additionally:
 

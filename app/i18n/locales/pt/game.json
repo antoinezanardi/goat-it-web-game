@@ -7,6 +7,16 @@
     "previousQuestionTooltip": "Voltar à pergunta anterior",
     "menuTooltip": "Abrir menu",
     "noMoreQuestions": "Você já viu todas! Volte em breve para novas perguntas.",
+    "fetchError": {
+      "title": "Não foi possível carregar as perguntas",
+      "description": "A ligação ao servidor do jogo falhou. Verifique a sua ligação e tente novamente.",
+      "retry": "Tentar novamente"
+    },
+    "emptyFilters": {
+      "title": "Nenhuma pergunta corresponde a estes filtros",
+      "description": "Os seus filtros são demasiado restritivos para as perguntas restantes. Reponha-os para continuar a jogar.",
+      "reset": "Repor filtros"
+    },
     "rules": "Regras do jogo",
     "backToHome": "Voltar ao início",
     "leaveConfirmTitle": "Sair do jogo?",
@@ -20,6 +30,7 @@
         "about": "Sobre"
       },
       "languageLabel": "Idioma",
+      "resetNotice": "Algumas das suas configurações de jogo não puderam ser lidas e foram repostas.",
       "adultContent": {
         "label": "Conteúdo adulto",
         "descriptionDisabled": "Apenas aparecerão perguntas adequadas a todos os públicos.",

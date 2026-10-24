@@ -2,4 +2,8 @@ type GameQuestionsFiltersButtonEmits = {
   click: [];
 };
 
-export type { GameQuestionsFiltersButtonEmits };
+type GameQuestionsFiltersButtonExposed = {
+  playHighlight: () => Promise<void>;
+};
+
+export type { GameQuestionsFiltersButtonEmits, GameQuestionsFiltersButtonExposed };

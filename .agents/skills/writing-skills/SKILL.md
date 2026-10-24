@@ -5,6 +5,8 @@ description: Use when creating new skills, editing existing skills, or verifying
 
 # Writing Skills
 
+When creating or editing repository skill files, read and follow `docs/architecture.md` for workflow-document placement and cross-reference conventions.
+
 ## Overview
 
 **Writing skills IS Test-Driven Development applied to process documentation.**

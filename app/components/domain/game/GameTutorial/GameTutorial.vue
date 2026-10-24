@@ -1,15 +1,17 @@
 <script lang="ts" setup>
 import { useEventListener } from "@vueuse/core";
+import { nextTick } from "vue";
 
 import { GameTutorialPopoverContent } from "#components";
 
-import { isEditableKeyboardTarget } from "#shared/utils/helpers/element/element.dom.helpers";
+import { getFocusedHTMLElement, isEditableKeyboardTarget, isElementFocusable } from "@/utils/core/element/element.dom.helpers";
 import type {
   GameTutorialEmits,
+  GameTutorialPopoverContentConfig,
   GameTutorialProps,
   GameTutorialSpotlightRect,
-  GameTutorialStepDirection,
 } from "@/components/domain/game/GameTutorial/game-tutorial.types";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 import {
   GAME_TUTORIAL_ARROW_KEY_DIRECTIONS,
   GAME_TUTORIAL_POPOVER_MARGIN,
@@ -27,6 +29,25 @@ const { t } = useI18n();
 
 const popoverMaxHeight = ref<string>("none");
 const popoverSide = ref<"bottom" | "top">("bottom");
+const previouslyFocusedElement = ref<HTMLElement>();
+
+function captureFocusOrigin(): void {
+  previouslyFocusedElement.value = getFocusedHTMLElement();
+}
+
+function restoreFocus(): void {
+  const origin = previouslyFocusedElement.value;
+
+  previouslyFocusedElement.value = undefined;
+  if (origin !== undefined && !origin.closest("[role='dialog']") && isElementFocusable(origin)) {
+    origin.focus();
+
+    if (document.activeElement === origin) {
+      return;
+    }
+  }
+  document.querySelector<HTMLElement>("[data-testid='game-sidebar-toggle-button']")?.focus();
+}
 
 const tourSteps = computed(() => GAME_TUTORIAL_STEPS.map(step => {
   const { target } = step;
@@ -53,11 +74,17 @@ const {
 } = useTour(tourSteps);
 
 const currentStepTitle = computed<string | undefined>(() => tourSteps.value[index.value]?.title);
-const popoverContent = computed(() => ({
+const popoverContent = computed<GameTutorialPopoverContentConfig>(() => ({
   "side": popoverSide.value,
   "sideOffset": GAME_TUTORIAL_POPOVER_OFFSET,
   "aria-label": currentStepTitle.value,
+  onEscapeKeyDown,
 }));
+
+function onEscapeKeyDown(event: KeyboardEvent): void {
+  event.preventDefault();
+  finish();
+}
 
 const highlightRect = ref<GameTutorialSpotlightRect>();
 
@@ -103,11 +130,11 @@ function updateTourTarget(): void {
   updateTourLayout();
 }
 
-function canNavigateTutorialStep(direction: GameTutorialStepDirection): boolean {
+function canNavigateTutorialStep(direction: GameNavigationDirection): boolean {
   return direction === "forward" || hasPrev.value;
 }
 
-function navigateTutorialStep(direction: GameTutorialStepDirection): void {
+function navigateTutorialStep(direction: GameNavigationDirection): void {
   if (direction === "forward") {
     next();
 
@@ -134,6 +161,7 @@ useEventListener("keydown", onTutorialShortcut, { capture: true, passive: false 
 
 watch(() => props.isActive, isActive => {
   if (isActive) {
+    captureFocusOrigin();
     start(0);
 
     return;
@@ -155,9 +183,11 @@ useEventListener("scroll", () => {
   }
 }, { capture: true });
 
-watch(open, isOpen => {
+watch(open, async isOpen => {
   if (!isOpen) {
     emit("tutorialEnd");
+    await nextTick();
+    restoreFocus();
   }
 });
 </script>
@@ -187,6 +217,7 @@ watch(open, isOpen => {
     <UPopover
       :content="popoverContent"
       :dismissible="false"
+      modal
       :open="open"
       :reference="reference"
       :ui="GAME_TUTORIAL_POPOVER_UI"
@@ -195,16 +226,16 @@ watch(open, isOpen => {
         <GameTutorialPopoverContent
           :key="index"
           class="game-tutorial-step-in"
-          :description="current?.description"
-          :has-next="hasNext"
-          :has-prev="hasPrev"
-          :icon="current?.icon"
-          :max-height="popoverMaxHeight"
-          :title="current?.title"
-          @back="prev"
-          @finish="finish"
-          @next="next"
-          @skip="finish"
+          :has-next-step="hasNext"
+          :has-previous-step="hasPrev"
+          :popover-max-height="popoverMaxHeight"
+          :step-description="current?.description"
+          :step-icon="current?.icon"
+          :step-title="current?.title"
+          @finish-tutorial="finish"
+          @go-to-next-step="next"
+          @go-to-previous-step="prev"
+          @skip-tutorial="finish"
         />
       </template>
     </UPopover>

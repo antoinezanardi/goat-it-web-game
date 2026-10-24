@@ -1,17 +1,23 @@
-import type { AsyncDataRequestStatus } from "#app";
+import type { AsyncResult } from "#shared/types/async-result.types";
+import type { UseAsyncAction } from "@/composables/core/useAsyncAction/use-async-action.types";
 
-type UseAsyncAction<TResult, TArguments extends unknown[]> = {
-  execute: (...arguments_: TArguments) => Promise<TResult | undefined>;
-  fetchStatus: Ref<AsyncDataRequestStatus>;
-  isIdle: ComputedRef<boolean>;
-  isPending: ComputedRef<boolean>;
-  isSuccess: ComputedRef<boolean>;
-  isError: ComputedRef<boolean>;
-};
-
+/**
+ * Wraps an async action with a fetch-status lifecycle and a non-throwing result.
+ *
+ * `execute` never rejects: it always resolves to an `AsyncResult` discriminated
+ * union, drives the status flags, and forwards any failure to the optional
+ * `onError`. The status flags are read-only computed refs.
+ *
+ * @example
+ * const { execute } = useAsyncAction(loadQuestions);
+ * const result = await execute();
+ * if (!result.ok) {
+ *   // `result.error` has already been forwarded to `onError`.
+ * }
+ */
 function useAsyncAction<TResult, TArguments extends unknown[] = []>(
   action: (...arguments_: TArguments) => Promise<TResult>,
-  onError: (error: unknown) => void,
+  onError?: (error: unknown) => void,
 ): UseAsyncAction<TResult, TArguments> {
   const {
     fetchStatus,
@@ -24,18 +30,19 @@ function useAsyncAction<TResult, TArguments extends unknown[] = []>(
     setFetchStatusToError,
   } = useFetchStatus();
 
-  async function execute(...arguments_: TArguments): Promise<TResult | undefined> {
+  async function execute(...arguments_: TArguments): Promise<AsyncResult<TResult>> {
     setFetchStatusToPending();
     try {
-      const result = await action(...arguments_);
+      const value = await action(...arguments_);
       setFetchStatusToSuccess();
 
-      return result;
+      return { ok: true, value };
     } catch(error: unknown) {
       setFetchStatusToError();
-      onError(error);
+      onError?.(error);
+
+      return { ok: false, error };
     }
-    return undefined;
   }
   return {
     execute,
@@ -46,9 +53,5 @@ function useAsyncAction<TResult, TArguments extends unknown[] = []>(
     isError,
   };
 }
-
-export type {
-  UseAsyncAction,
-};
 
 export { useAsyncAction };

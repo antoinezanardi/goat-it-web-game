@@ -12,7 +12,7 @@ Read it for complete examples. This skill contains the non-negotiable rules and 
 
 ## Step 0 — Before writing any acceptance test
 
-1. Read `docs/acceptance-testing.md` in full.
+1. Read `docs/architecture.md` for repository boundaries and file placement, then read `docs/acceptance-testing.md` in full for test mechanics.
 2. Ensure the Docker sandbox is running: `docker compose -f docker/goat-it-api-sandbox/docker-compose.yml up -d`
 3. Scan existing step definitions in `tests/acceptance/features/step-definitions/` for reusable steps.
 4. Identify the **domain** and **action** for the feature.
@@ -23,7 +23,7 @@ Read it for complete examples. This skill contains the non-negotiable rules and 
 ## Feature file rules
 
 - **Location:** `tests/acceptance/features/<domain>[/<action>]/<feature-name>.feature`
-- **Tags:** `@domain-page` for page-level features, `@domain` + `@domain-action` for action-specific features
+- **Tags:** `@domain` for page-level features, `@domain` + `@domain-action` for action-specific features; accessibility companions reuse the same tags plus `@accessibility`
 - **Feature title:** Emoji prefix + description (e.g., `Feature: 🎨 Question Theme Creation`)
 - **Scenario title:** Same emoji prefix + description
 - **Scenario Outline:** Use for parameterized tests (accessibility viewport matrix)
@@ -172,7 +172,7 @@ export type { MyDomainFormRow };
 ## Adding a new domain (checklist)
 
 - [ ] Feature file created in `tests/acceptance/features/<domain>[/<action>]/` (action directory optional)
-- [ ] Tags added (`@domain-page` for page-level, `@domain` + `@domain-action` for actions)
+- [ ] Tags added (`@domain` for page-level, `@domain` + `@domain-action` for actions; accessibility companions add `@accessibility`)
 - [ ] Feature and Scenario titles use emoji prefix
 - [ ] Scenarios use existing generic steps where possible
 - [ ] Background blocks used where 3+ scenarios share identical initial steps

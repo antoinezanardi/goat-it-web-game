@@ -150,6 +150,49 @@ describe("useAppToast", () => {
     });
   });
 
+  describe("addWarningToast", () => {
+    it("should add toast with warning defaults when called with no extra options.", () => {
+      const { addWarningToast } = useAppToast();
+
+      addWarningToast({});
+
+      expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
+        "icon": "i-lucide-triangle-alert",
+        "color": "warning",
+        "title": "common.warning",
+        "data-nosnippet": "true",
+      });
+    });
+
+    it("should add toast with merged options when called with extra options.", () => {
+      const { addWarningToast } = useAppToast();
+
+      addWarningToast({ description: "Settings reset", duration: 5000 });
+
+      expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
+        "icon": "i-lucide-triangle-alert",
+        "color": "warning",
+        "title": "common.warning",
+        "data-nosnippet": "true",
+        "description": "Settings reset",
+        "duration": 5000,
+      });
+    });
+
+    it("should override the default title when a title is provided in options.", () => {
+      const { addWarningToast } = useAppToast();
+
+      addWarningToast({ title: "Custom warning title" });
+
+      expect(useToast().add).toHaveBeenCalledExactlyOnceWith({
+        "icon": "i-lucide-triangle-alert",
+        "color": "warning",
+        "title": "Custom warning title",
+        "data-nosnippet": "true",
+      });
+    });
+  });
+
   describe("removeToast", () => {
     it("should remove the toast matching the provided id when called.", () => {
       const { removeToast } = useAppToast();

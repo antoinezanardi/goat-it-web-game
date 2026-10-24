@@ -11,10 +11,10 @@ runs:
     using: composite
     steps:
       - name: Set up QEMU 🏗️
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
 
       - name: Set up Docker Buildx 🏗️
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
 
       - name: Validate platform input 🚢
         id: validate-platform
@@ -31,9 +31,7 @@ runs:
         run: |
           docker buildx build \
             --platform ${{ inputs.platform }} \
+            --build-arg NUXT_SITE_ENV="$NUXT_SITE_ENV" \
             --build-arg NUXT_PUBLIC_SITE_URL="$NUXT_PUBLIC_SITE_URL" \
             --build-arg NUXT_PUBLIC_DEFAULT_LOCALE="$NUXT_PUBLIC_DEFAULT_LOCALE" \
-            --secret id=goat_it_api_base_url,env=NUXT_GOAT_IT_API_BASE_URL \
-            --secret id=goat_it_api_game_key,env=NUXT_GOAT_IT_API_GAME_KEY \
-            --secret id=goat_it_app_secret,env=NUXT_APP_SECRET \
             -t goat-it-web-game .

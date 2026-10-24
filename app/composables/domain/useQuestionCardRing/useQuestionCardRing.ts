@@ -1,10 +1,18 @@
 import { computed, getCurrentScope, nextTick, onScopeDispose, ref, toValue, watch } from "vue";
 import { useDocumentVisibility } from "@vueuse/core";
 
-import { QUESTION_CARD_RING_RADIUS, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS, QUESTION_CARD_RING_SIZE } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
-import type { QuestionCardRingSlot, UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "~/composables/domain/useQuestionCardRing/use-question-card-ring.types";
+import { QUESTION_CARD_RING_RADIUS, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS, QUESTION_CARD_RING_SIZE } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
+import type { QuestionCardRingSlot, UseQuestionCardRingOptions, UseQuestionCardRingReturn } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.types";
 import type { Question } from "#shared/types/question.types";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 
+/**
+ * Maintains a three-slot window of questions centered on the current index for sliding card transitions.
+ *
+ * After a transition, the far slot swaps once on the next frame and staging completes after a nested
+ * `requestAnimationFrame`, or after a safety timeout when those frames never run. Pending timing handles are
+ * cancelled when the owning scope is disposed.
+ */
 function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCardRingReturn {
   const { questions } = options;
   const { currentIndex } = options;
@@ -19,12 +27,13 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
   const isTransitioning = ref<boolean>(false);
   const hasPendingRestage = ref<boolean>(false);
   const isRestaging = ref<boolean>(false);
-  const lastCompletedDirection = ref<"backward" | "forward">("forward");
+  const lastCompletedDirection = ref<GameNavigationDirection>("forward");
   // Acceptable as the timeout handle is only assigned inside scheduleRestage before it is ever cleared
   // oxlint-disable-next-line typescript/init-declarations
   let restageSafetyTimeout: ReturnType<typeof setTimeout> | undefined;
   let restageAnimationFrame = 0;
   let nestedRestageAnimationFrame = 0;
+  let hasSwappedFarSlot = false;
 
   function getSlotIndexForOffset(offset: number): number {
     return (currentSlotIndex.value + offset + QUESTION_CARD_RING_SIZE) % QUESTION_CARD_RING_SIZE;
@@ -54,6 +63,14 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
     options.onResetSlot?.(getSlotIndexForOffset(farOffset));
   }
 
+  function swapFarSlotOnce(): void {
+    if (hasSwappedFarSlot) {
+      return;
+    }
+    hasSwappedFarSlot = true;
+    swapFarSlot();
+  }
+
   function finishRestage(): void {
     if (!isRestaging.value) {
       return;
@@ -67,13 +84,16 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
 
   function scheduleRestage(): void {
     isRestaging.value = true;
+    hasSwappedFarSlot = false;
     clearTimeout(restageSafetyTimeout);
     restageSafetyTimeout = setTimeout(() => {
-      swapFarSlot();
+      swapFarSlotOnce();
+      cancelAnimationFrame(restageAnimationFrame);
+      cancelAnimationFrame(nestedRestageAnimationFrame);
       finishRestage();
     }, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS);
     restageAnimationFrame = requestAnimationFrame(() => {
-      swapFarSlot();
+      swapFarSlotOnce();
       void nextTick(() => {
         nestedRestageAnimationFrame = requestAnimationFrame(() => {
           clearTimeout(restageSafetyTimeout);
@@ -139,7 +159,7 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
     stageSlots();
   });
 
-  function complete(direction: "backward" | "forward"): void {
+  function complete(direction: GameNavigationDirection): void {
     isSliding.value = false;
     lastCompletedDirection.value = direction;
     const delta = direction === "forward" ? 1 : -1;

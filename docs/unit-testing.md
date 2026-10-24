@@ -2,6 +2,7 @@
 
 This document is the complete reference for writing unit tests in this repository.
 It covers the test infrastructure, every file type that needs tests, exact patterns to follow, and common pitfalls.
+For production source/spec ownership and canonical file placement, see [`docs/architecture.md`](architecture.md).
 
 ---
 
@@ -58,26 +59,34 @@ It covers the test infrastructure, every file type that needs tests, exact patte
 
 All tests use the standard **Vitest APIs** (`describe`, `it`, `expect`, `vi`, `beforeEach`, etc.). Vitest is configured with `globals: true`, but by convention you must still import these from `vitest` in every test file. No auto-imports.
 
-The `onConsoleLog` filter in Vitest config suppresses two known warnings:
+The `onConsoleLog` filter in Vitest config suppresses nine known warnings:
 
 - `"<Suspense> is an experimental feature"` — Vue Suspense experimental notice
 - `"[Vue warn]: App already provides property with key \"Symbol(pinia)\""` — duplicate Pinia provider when using `createTestingPinia`
+- `"[nuxt] error caught during app initialization Error: Context conflict"` — Nuxt context conflict during test setup
+- `"[Vue warn]: There is already an app instance mounted on the host container"` — duplicate app mount in shared DOM
+- `"[Vue Router warn]: No match found for location with path \""` — router warning for unmocked routes
+- `"[Vue warn]: onBeforeMount is called when there is no active component instance"` — lifecycle warning from unmounted tests
+- `"[Vue warn]: onMounted is called when there is no active component instance"` — lifecycle warning from unmounted tests
+- `"[Vue warn]: Unhandled error during execution of watcher callback"` — watcher error surfaced after test teardown
+- `"[NUXT_E1005]"` — Nuxt runtime error emitted during test isolation
 
 ---
 
 ## 2. Vitest projects
 
-There are **five Vitest projects**, each covering a different layer. The project is determined automatically by the spec file path.
+There are **six Vitest projects**, each covering a different layer. The project is determined automatically by the spec file path.
 
 | Project        | Spec file pattern                                                                                                                   | Setup files loaded                                                                  |
 |----------------|-------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
 | `nuxt`         | `app/**/*.spec.ts`, `server/**/*.spec.ts`, `shared/**/*.spec.ts` (excludes patterns claimed by other projects)                      | All nuxt setups + composable mocks + repository mocks                               |
 | `composables`  | `app/composables/**/*.spec.ts` (excludes helpers/mappers claimed by `node`)                                                         | All nuxt setups + repository mocks (NOT composable mocks — tests real composables)  |
 | `stores`       | `app/**/*.store.spec.ts`                                                                                                            | All nuxt setups + composable mocks + repository mocks + `stores.nuxt.unit-setup.ts` |
-| `repositories` | `app/**/*.repository.spec.ts`                                                                                                       | `dates.nuxt.unit-setup.ts` only (plain Node, no Nuxt environment)                   |
-| `node`         | `app/**/*.{mappers,helpers,translations}.spec.ts`, `server/**/*.{mappers,helpers}.spec.ts`, `shared/**/*.{mappers,helpers}.spec.ts` | `dates.nuxt.unit-setup.ts` + the two Node setups (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts` in `tests/unit/setup/node/`) |
+| `repositories` | `app/**/*.repository.spec.ts`                                                                                                       | None (plain Node, no Nuxt environment)                                              |
+| `node`         | `app/**/*.{mappers,helpers,translations}.spec.ts`, `server/**/*.{mappers,helpers}.spec.ts`, `shared/**/*.{mappers,helpers}.spec.ts` | The two Node setups (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts` in `tests/unit/setup/node/`) |
+| `dom`           | `app/**/*.dom.helpers.spec.ts`, `server/**/*.dom.helpers.spec.ts`, `shared/**/*.dom.helpers.spec.ts`                                  | Happy DOM environment |
 
-The `repositories` and `node` projects use a plain Vitest environment (no Nuxt, no happy-dom).
+The `repositories` and `node` projects use a plain Vitest environment (no Nuxt, no happy-dom). Every project runs with `TZ=UTC` via the shared `test.env` configuration.
 All other projects use `environment: "nuxt"` (happy-dom + Nuxt runtime).
 
 > **Note:** The `composables` project does NOT load composable mock setup files. That is intentional — composable tests exercise the real composable implementation; their dependencies are mocked individually inside the test file.
@@ -87,7 +96,7 @@ All other projects use `environment: "nuxt"` (happy-dom + Nuxt runtime).
 ## 3. Coverage policy
 
 - **Provider:** V8
-- **Threshold:** 100% across all metrics (lines, branches, functions, statements)
+- **Threshold:** 100% aggregate across all projects (not per project) for all metrics (lines, branches, functions, statements)
 - **Collected for:** `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`, `shared/**/*.ts`
 - **Excluded from coverage:**
   - `**/*.constants.ts`
@@ -96,7 +105,10 @@ All other projects use `environment: "nuxt"` (happy-dom + Nuxt runtime).
   - `**/*.d.ts`
   - `**/*.config.ts`
   - `**/*.spec.ts`
+  - `app/plugins/**/*.ts`
   - `server/api/**/*.{get,post,put,patch,delete}.ts` (thin route wrappers)
+  - `server/middleware/**/*.ts`
+  - `server/plugins/**/*.ts`
 
 Every line of every non-excluded source file must be reachable by at least one test.
 
@@ -112,7 +124,6 @@ These setup files run automatically before tests in the relevant projects. You d
 |---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `reka-ui-dismissable-layer.nuxt.unit-setup.ts` | Patches `document.addEventListener` to drop `pointerdown`/`focusin` listeners — prevents infinite recursion between reka-ui's `DismissableLayer` and happy-dom's `EventTarget` |
 | `vtu-config.nuxt.unit-setup.ts`       | Sets `renderStubDefaultSlot: true`; stubs `u-tooltip: true`; adds `$t` and `$tc` global mocks (return the key as-is), re-applied in each `beforeEach`                                                          |
-| `dates.nuxt.unit-setup.ts`            | Sets `process.env.TZ = "UTC"`; enables fake timers pinned to `2026-04-14`                                                                                                                                      |
 | `define-page-meta.nuxt.unit-setup.ts` | Mocks `definePageMeta` via `vi.hoisted` + `mockNuxtImport`; exposes as global `definePageMeta` spy                                                                                                             |
 | `use-i18n.nuxt.unit-setup.ts`         | Mocks `useI18n` via `mockNuxtImport`; see [useI18n mock details](#usei18n-mock) below                                                                                                                          |
 | `use-router.nuxt.unit-setup.ts`       | Mocks `useRouter` via `mockNuxtImport`                                                                                                                                                                         |
@@ -124,6 +135,10 @@ These setup files run automatically before tests in the relevant projects. You d
 | `use-seo-meta.nuxt.unit-setup.ts`     | Mocks `useSeoMeta` via `vi.hoisted` + `mockNuxtImport`; exposes as a `vi.fn` spy                                                                                                                               |
 | `call-once.nuxt.unit-setup.ts`        | Mocks `callOnce` via `vi.hoisted` + `mockNuxtImport`; exposes as a `vi.fn` spy                                                                                                                                 |
 | `virtualizer.nuxt.unit-setup.ts`      | Mocks element geometry (`getBoundingClientRect`, `offset*`, `client*`, `scroll*` dimensions) so virtual-scroll logic is testable in happy-dom                                                                  |
+
+> **Fake timers are opt-in.** No shared setup installs them. Call `vi.useFakeTimers()` in the test or in the file's `beforeEach` and always restore with `vi.useRealTimers()` in `afterEach`. When a spec also spies on `requestAnimationFrame`, install fake timers **before** creating the spy so the spy wraps the fake implementation.
+>
+> GSAP is never imported for real in the `nuxt` and `stores` projects: the global `use-gsap.nuxt.unit-setup.ts` mock replaces the auto-imported `useGsap` composable, so its `loadGsap` resolves to an in-memory mock and no GSAP chunk, plugin or timer is ever loaded. The `useGsap` composable itself is tested with the real `gsap` core package in the `composables` project.
 
 ### Stores project only
 
@@ -142,11 +157,12 @@ To see the current full list, scan `tests/unit/setup/nuxt/composables/` — ever
 | `use-async-action.nuxt.unit-setup.ts`       | `useAsyncAction`          | `createUseAsyncActionMock()`           | `useAsyncActionMock`              |
 | `use-app-toast.nuxt.unit-setup.ts`          | `useAppToast`             | `createUseAppToastMock()`              | `useAppToastMock`                 |
 | `use-goat-it-api-error-toast.nuxt.unit-setup.ts` | `useGoatItApiErrorToast` | `createUseGoatItApiErrorToastMock()`   | `useGoatItApiErrorToastMock`      |
-| `use-gsap.nuxt.unit-setup.ts`              | `useGSAP`                 | `createUseGSAPMock()`                  | `useGsapMock`                     |
+| `use-gsap.nuxt.unit-setup.ts`              | `useGsap`                 | `createUseGsapMock()`                  | `useGsapMock`                     |
 | `use-game.nuxt.unit-setup.ts`              | `useGame`                 | `createUseGameMock()`                  | `useGameMock`                     |
 | `use-overlay.nuxt.unit-setup.ts`           | `useOverlay`              | `createUseOverlayMock()`               | `useOverlayMock`                  |
 | `use-window-scroll.nuxt.unit-setup.ts`     | `useWindowScroll`         | `createUseWindowScrollMock()`          | `useWindowScrollMock`             |
 | `use-preferred-reduced-motion.nuxt.unit-setup.ts` | `usePreferredReducedMotion` | `createUsePreferredReducedMotionMock()` | `usePreferredReducedMotionMock` |
+| `use-preferred-languages.nuxt.unit-setup.ts` | `usePreferredLanguages` | `createUsePreferredLanguagesMock()` | `usePreferredLanguagesMock` |
 
 Every setup file follows the `MockHolder<T>` pattern:
 
@@ -382,7 +398,7 @@ it("should pass the status to the badge when mounted.", async () => {
 ### 6.2 Pages
 
 **Project:** `nuxt`
-**Spec file location:** Colocated with the page file.
+**Spec file location:** Sibling to the route's `index.vue` in its owned page directory; see [`docs/architecture.md`](architecture.md#46-pages-and-layouts).
 
 Pages follow the same structure as components with these differences:
 
@@ -390,7 +406,7 @@ Pages follow the same structure as components with these differences:
 2. **Import directly**, not from `#components`:
 
 ```ts
-import MyPage from "@/pages/my-page.vue";
+import MyPage from "@/pages/my-page/index.vue";
 ```
 
 3. **Use a string label** in the form `"<PageName> Page"`:
@@ -441,8 +457,8 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 
 import type { PageHeader } from "#components";
 
-import { MY_PAGE_ICON, MY_PAGE_TITLE_KEY } from "@/pages/my-page.constants";
-import MyPage from "@/pages/my-page.vue";
+import { MY_PAGE_ICON, MY_PAGE_TITLE_KEY } from "@/utils/ui/my-page/my-page.constants";
+import MyPage from "@/pages/my-page/index.vue";
 
 describe("Entity Page", () => {
   let wrapper: VueWrapper;
@@ -871,12 +887,14 @@ import { ZodError } from "zod";
 import { createFakeItemDto } from "~~/tests/unit/utils/faketories/.../item.dto.faketory";
 
 import { createItemFromDto } from "#server/utils/goat-it-api/mappers/goat-it-api.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers";
+import { createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api-fetch-options/goat-it-api-fetch-options.helpers";
 import { getItemsHandler } from "#server/api/goat-it-api/items/handlers/get-all/index.get.handler";
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
 // Mock the helpers module — uses import() expression syntax
-vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"));
+vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers"));
+vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-fetch-options/goat-it-api-fetch-options.helpers"));
 
 // Two-level describe: outer string label, inner function reference
 describe("Server Goat It API Items Get Handler", () => {
@@ -985,7 +1003,7 @@ it("should call createError with the correct status code when the item is not fo
   }
 
   expect(createError).toHaveBeenCalledExactlyOnceWith({
-    statusCode: HttpStatusCode.NotFound,
+    statusCode: HttpStatusCode.NOT_FOUND,
     message: "Item not found.",
   });
 });
@@ -993,14 +1011,14 @@ it("should call createError with the correct status code when the item is not fo
 
 #### Key rules
 
-- Always mock the helpers module using `import()` expression syntax: `vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api.helpers"))`.
+- Mock each focused helper module using `import()` expression syntax; endpoint and fetch-option builders are separate modules.
 - Use a **two-level `describe`** pattern: outer string label `"Server Goat It API <Resource> <Method> Handler"`, inner `describe(handlerFn, ...)` with the function reference.
 - Use `vi.mocked($fetch).mockResolvedValue(...)` — `$fetch` is already a global spy.
-- `createGoatItApiFetchOptions` receives the **event**: assert `toHaveBeenCalledExactlyOnceWith(event)`. The injected runtime config values are `baseUrl: "https://api.goat-it.com"` and `gameKey: "test-game-key"`, carried to the API as the `goat-it-api-key` header.
+- `createGoatItApiFetchOptions` receives the **event** and the HTTP method option: assert `toHaveBeenCalledExactlyOnceWith(event, { method: "GET" | "POST" })`. The injected runtime config values are `baseUrl: "https://api.goat-it.com"` and `gameKey: "test-game-key"`, carried to the API as the `goat-it-api-key` header.
 - Always test the Zod validation error path with invalid data.
 - Use `HttpStatusCode` enum from `#server/utils/http/http.enums` for status code assertions.
-- For routes with params: assert `getRouterParam` was called with `(event, "id")`.
-- For routes with body (POST/PATCH): assert `readBody` was called with `(event)`.
+- For routes with params: assert the input path the handler actually uses — Goat It API handlers wired through the shared validation wrappers assert `validateGoatItApiQuery(event, SCHEMA)`; handlers still reading raw params assert `getRouterParam` was called with `(event, "id")`.
+- For routes with body (POST/PATCH): assert the input path the handler actually uses — Goat It API handlers wired through the shared validation wrappers assert `validateGoatItApiBody(event, SCHEMA)`; handlers still reading the raw body assert `readBody` was called with `(event)`.
 
 #### Swallowing errors to assert side-effect calls
 
@@ -1035,12 +1053,12 @@ await myHandler(mockedEvent).catch(() => null);
 These are pure function tests — no mocking of the unit under test or its collaborators, no DOM. Import with `#server/utils/...`. Two accepted exceptions:
 
 - **Time control:** `vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, and spying on global timers are allowed to test time-dependent helpers deterministically.
-- **Environment-coupled helpers:** specs for `server/utils/goat-it-api/helpers/goat-it-api.helpers.ts` may stub `useRuntimeConfig` and h3 globals — established exception, never flagged.
+- **Environment-coupled helpers:** the Goat It API fetch-options and locale helper specs may stub `useRuntimeConfig` and h3 globals where required by the function contract — established exception, never flagged.
 
 ```ts
 import { describe, it, expect } from "vitest";
 
-import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers";
 
 describe(createGoatItApiEndpoint, () => {
   it("should return the correct endpoint string when called with a resource name.", () => {
@@ -1082,7 +1100,7 @@ describe(createItemFromDto, () => {
 ```ts
 import { describe, it, expect } from "vitest";
 
-import { isNonEmptyString } from "#shared/utils/helpers/string.helpers";
+import { isNonEmptyString } from "#shared/utils/helpers/string/string.helpers";
 
 describe(isNonEmptyString, () => {
   it("should return true when input is a non-empty string.", () => {
@@ -1496,6 +1514,8 @@ Each non-trivial composable has a mock triplet in `tests/unit/utils/mocks/compos
 |------------|----------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
 | `core/`    | `useAsyncAction/`          | `createUseAsyncActionMock()`                          | `execute`, `fetchStatus`, `isIdle`, `isPending`, `isSuccess`, `isError`                                                                     |
 | `core/`    | `useFetchStatus/`          | `createUseFetchStatusMock()`                          | `fetchStatus`, `isIdle`, `isPending`, `isSuccess`, `isError`, `setFetchStatusToPending`, `setFetchStatusToSuccess`, `setFetchStatusToError` |
+| `core/`    | `useGsap/`                 | `createUseGsapMock()`, `createGsapMock()`             | `loadGsap` plus GSAP timeline/context mocks                                                                                                 |
+| `core/`    | `usePreferredLanguages/`   | `createUsePreferredLanguagesMock()`                   | `preferredLanguagesRef`                                                                                                                     |
 | `core/`    | `usePreferredReducedMotion/` | `createUsePreferredReducedMotionMock()`             | `preferredReducedMotionRef`                                                                                                                 |
 | `core/`    | `useWindowScroll/`         | `createUseWindowScrollMock()`                         | `x`, `y`, `capturedOptions`                                                                                                                 |
 | `domain/`  | `useGame/`                 | `createUseGameMock()`                                 | `canGoToPreviousQuestion`, `currentIndex`, `currentQuestion`, `questions`, `advanceToNextQuestion`, `goToPreviousQuestion`, `initialize`, `gameState`, `gameStateRef`, `questionsRef` |
@@ -1504,7 +1524,6 @@ Each non-trivial composable has a mock triplet in `tests/unit/utils/mocks/compos
 | `nuxt/`    | `createError/`             | `createCreateErrorMock()`                             | `Mock<typeof createError>`                                                                                                                  |
 | `nuxt/`    | `h3/`                      | `createGetRouterParamMock()`, `createReadBodyMock()`  | H3 utility mocks                                                                                                                            |
 | `nuxt/`    | `useFetch/`                | `createFetchMock()`                                   | `vi.fn<$Fetch>()` — used internally by fetch setup file                                                                                     |
-| `nuxt/`    | `useGsap/`                 | `createUseGSAPMock()`                                 | GSAP timeline/context mocks                                                                                                                 |
 | `nuxt/`    | `useI18n/`                 | `createUseI18nMock()`                                 | `t`, `locale`, `localeCodes`, `locales`, `setLocale` + constants + types                                                                    |
 | `nuxt/`    | `useRouter/`               | `createUseRouterMock()`                               | `getRoutes`, `currentRoute`, `push`, `afterEach`, `beforeResolve`, `beforeEach`, `onError` + constants + types                              |
 | `nuxt/`    | `useToast/`                | `createUseToastMock()`                                | `add`, `remove`, `clear`                                                                                                                    |
@@ -1517,7 +1536,7 @@ import { vi } from "vitest";
 import { computed, ref } from "vue";
 import type { Ref } from "vue";
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
-import type { UseMyComposable } from "~/composables/.../useMyComposable";
+import type { UseMyComposable } from "@/composables/.../useMyComposable";
 
 type UseMyComposableMock = ToMock<UseMyComposable> & {
   fetchStatusRef: Ref<string>;
@@ -1555,7 +1574,7 @@ Repository mocks live in `tests/unit/utils/mocks/repositories/goat-it-api/<Repos
 ```ts
 import { vi } from "vitest";
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
-import type { MyRepository } from "~/repositories/goat-it-api/my-entity/my.repository";
+import type { MyRepository } from "@/repositories/goat-it-api/my-entity/my.repository";
 
 type MyRepositoryMock = ToMock<ReturnType<MyRepository>>;
 
@@ -1591,13 +1610,13 @@ export { createMyRepositoryMock };
    - In `beforeEach`, assign `xxxMock.instance = createUseXxxMock()`.
    - Export `{ xxxMock }`.
    - Disable `typescript/explicit-function-return-type` on the `mockNuxtImport` line with an oxlint comment.
-3. Add the setup file path to `VITEST_COMPOSABLES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.constants.ts`.
+3. Add the setup file path to `VITEST_COMPOSABLES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.setup-files.constants.ts`.
 
 #### New repository mock
 
 1. Create `tests/unit/utils/mocks/repositories/goat-it-api/<ResourceName>/xxx-repository.mock.ts`.
 2. Create a setup file `tests/unit/setup/nuxt/repositories/xxx-repository.nuxt.unit-setup.ts` using `vi.mock(...)` (**not** `mockNuxtImport`).
-3. Add the setup file path to `VITEST_REPOSITORIES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.constants.ts`.
+3. Add the setup file path to `VITEST_REPOSITORIES_MOCK_SETUP_FILES` in `configs/vitest/vitest.config.setup-files.constants.ts`.
 
 > Repository setup files use `vi.mock(...)` instead of `mockNuxtImport` because repositories are not Nuxt auto-imports.
 

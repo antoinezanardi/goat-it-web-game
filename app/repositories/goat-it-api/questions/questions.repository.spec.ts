@@ -30,7 +30,7 @@ describe(questionsRepository, () => {
 
       await repository.getByIds(ids);
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions", { query: { ids, limit: 0 } });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions", { query: { ids, limit: 100 }, timeout: 15_000 });
     });
 
     it("should return questions from fetch when called.", async() => {
@@ -54,7 +54,7 @@ describe(questionsRepository, () => {
 
       await repository.getRandom();
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions/search/random", { method: "POST", body: undefined });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions/search/random", { method: "POST", body: undefined, timeout: 15_000 });
     });
 
     it("should call fetch with the correct endpoint and body when called with body params.", async() => {
@@ -66,7 +66,7 @@ describe(questionsRepository, () => {
 
       await repository.getRandom(body);
 
-      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions/search/random", { method: "POST", body });
+      expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/goat-it-api/questions/search/random", { method: "POST", body, timeout: 15_000 });
     });
 
     it("should return questions from fetch when called.", async() => {

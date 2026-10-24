@@ -6,6 +6,8 @@ license: MIT
 
 # Vue 3 Development
 
+For this repository's component/composable locations, public contract types, and companion-file rules, read and follow `docs/architecture.md` before editing project files.
+
 Reference for Vue 3 Composition API patterns, component architecture, and testing practices.
 
 **Current stable:** Vue 3.5+ with enhanced reactivity performance (-56% memory, 10x faster array tracking), new SSR features, and improved developer experience.

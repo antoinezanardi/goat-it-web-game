@@ -46,13 +46,23 @@ describe("useAsyncAction", () => {
       expect(useFetchStatusMock.setFetchStatusToSuccess).toHaveBeenCalledExactlyOnceWith();
     });
 
-    it("should return the result when action resolves.", async() => {
+    it("should return a success result with the value when action resolves.", async() => {
       const action = vi.fn<() => Promise<string>>().mockResolvedValue("result");
       const { execute } = useAsyncAction(action, vi.fn<(error: unknown) => void>());
 
       const result = await execute();
 
-      expect(result).toBe("result");
+      expect(result).toStrictEqual({ ok: true, value: "result" });
+    });
+
+    it("should not call onError when action resolves.", async() => {
+      const action = vi.fn<() => Promise<void>>();
+      const onError = vi.fn<(error: unknown) => void>();
+      const { execute } = useAsyncAction(action, onError);
+
+      await execute();
+
+      expect(onError).not.toHaveBeenCalled();
     });
 
     it("should call setFetchStatusToError when action rejects.", async() => {
@@ -75,13 +85,24 @@ describe("useAsyncAction", () => {
       expect(onError).toHaveBeenCalledExactlyOnceWith(error);
     });
 
-    it("should return undefined when action rejects.", async() => {
-      const action = vi.fn<() => Promise<string>>().mockRejectedValue(new Error("fail"));
+    it("should return a failure result with the error when action rejects.", async() => {
+      const error = new Error("fail");
+      const action = vi.fn<() => Promise<string>>().mockRejectedValue(error);
       const { execute } = useAsyncAction(action, vi.fn<(error: unknown) => void>());
 
       const result = await execute();
 
-      expect(result).toBeUndefined();
+      expect(result).toStrictEqual({ ok: false, error });
+    });
+
+    it("should return a failure result when action rejects and onError is omitted.", async() => {
+      const error = new Error("fail");
+      const action = vi.fn<() => Promise<string>>().mockRejectedValue(error);
+      const { execute } = useAsyncAction(action);
+
+      const result = await execute();
+
+      expect(result).toStrictEqual({ ok: false, error });
     });
 
     it("should not call setFetchStatusToSuccess when action rejects.", async() => {

@@ -1,13 +1,16 @@
 <script lang="ts" setup>
 import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestionCard/game-question-card.types";
 import type { QuestionTheme } from "#shared/types/question-theme.types";
-import { getPrimaryTheme, hasContextAndTriviaSection } from "~/composables/domain/question/helpers/question.helpers";
-import { resolveThemeColor } from "~/composables/domain/question-theme/helpers/question-theme.helpers";
+import { hasContextAndTriviaSection } from "#shared/utils/helpers/question/context/question-context.helpers";
+import { getPrimaryTheme } from "#shared/utils/helpers/question/themes/question-themes.helpers";
+import { resolveThemeColor } from "@/utils/ui/question-theme/helpers/display/question-theme-display.helpers";
 
 const props = withDefaults(defineProps<GameQuestionCardProps>(), {
   isActive: true,
   isFrozen: false,
 });
+
+const { t } = useI18n();
 
 const primaryTheme = computed<QuestionTheme | undefined>(() => getPrimaryTheme(props.question));
 const themeColor = computed<string>(() => resolveThemeColor(primaryTheme.value?.color));
@@ -48,16 +51,24 @@ const dataTestid = computed<"game-question" | "game-question-staged">(() => (pro
         :question="props.question"
       />
 
-      <GameQuestionCardStatement
+      <GameQuestionCardSection
         class="mt-4"
-        :text="props.question.content.statement"
-      />
+        data-testid="game-question-statement"
+        icon="i-lucide-help-circle"
+        :label="t('questions.questionLabel')"
+      >
+        {{ props.question.content.statement }}
+      </GameQuestionCardSection>
 
       <GameQuestionCardThemeSeparator class="my-3"/>
 
-      <GameQuestionCardAnswer
-        :text="props.question.content.answer"
-      />
+      <GameQuestionCardSection
+        data-testid="game-question-answer"
+        icon="i-lucide-lightbulb"
+        :label="t('questions.answerLabel')"
+      >
+        {{ props.question.content.answer }}
+      </GameQuestionCardSection>
 
       <GameQuestionCardContextAccordion
         v-if="hasContextSection"

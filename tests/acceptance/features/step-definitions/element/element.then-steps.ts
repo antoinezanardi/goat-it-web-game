@@ -37,3 +37,10 @@ Then(
     await expect(this.page.getByRole("option", { name })).toBeVisible();
   },
 );
+
+Then(
+  /^the element with testid "(?<testId>[^"]*)" should be focused$/u,
+  async function(this: GoatItWorld, testId: string): Promise<void> {
+    await expect(this.page.getByTestId(testId)).toBeFocused();
+  },
+);

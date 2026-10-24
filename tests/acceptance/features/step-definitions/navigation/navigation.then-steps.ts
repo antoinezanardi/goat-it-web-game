@@ -11,11 +11,14 @@ Then(
   },
 );
 
-Then(/^the user should be on (?<page>.+) page$/u, async function(this: GoatItWorld, page: string): Promise<void> {
-  const pageName = page === "home" ? "" : page;
+Then(
+  /^the user should be on (?<page>home|game|rules|robots\.txt|sitemap\.xml) page$/u,
+  async function(this: GoatItWorld, page: string): Promise<void> {
+    const pageName = page === "home" ? "" : page;
 
-  await waitForPageUrl(this, `/${pageName}`);
-});
+    await waitForPageUrl(this, `/${pageName}`);
+  },
+);
 
 Then(
   /^a new tab should have been opened with URL "(?<expectedUrl>[^"]*)"$/u,

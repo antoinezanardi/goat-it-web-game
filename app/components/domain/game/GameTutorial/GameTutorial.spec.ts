@@ -73,6 +73,15 @@ describe("GameTutorial Component", () => {
     return document.body.querySelector(`[data-testid='${testId}']`);
   }
 
+  function replaceSidebarToggleWithFocusableFallback(): HTMLElement {
+    getGameTutorialElement("game-sidebar-toggle-button").remove();
+    const fallback = document.createElement("button");
+    fallback.dataset.testid = "game-sidebar-toggle-button";
+    document.body.append(fallback);
+
+    return fallback;
+  }
+
   function getGameTutorialElement(testId: string): HTMLElement {
     const element = document.body.querySelector<HTMLElement>(`[data-testid='${testId}']`);
 
@@ -209,31 +218,31 @@ describe("GameTutorial Component", () => {
   it("should pass the first step title to the popover content when the tour starts.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("title")).toBe("game.interactiveTutorial.steps.welcome.title");
+    expect(getGameTutorialPopoverContent().props("stepTitle")).toBe("game.interactiveTutorial.steps.welcome.title");
   });
 
   it("should pass the first step description to the popover content when the tour starts.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("description")).toBe("game.interactiveTutorial.steps.welcome.description");
+    expect(getGameTutorialPopoverContent().props("stepDescription")).toBe("game.interactiveTutorial.steps.welcome.description");
   });
 
   it("should pass the first step icon to the popover content when the tour starts.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("icon")).toBe(GAME_TUTORIAL_STEPS[0]?.icon);
+    expect(getGameTutorialPopoverContent().props("stepIcon")).toBe(GAME_TUTORIAL_STEPS[0]?.icon);
   });
 
   it("should pass hasPrev as false to the popover content when the first step is active.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("hasPrev")).toBe(false);
+    expect(getGameTutorialPopoverContent().props("hasPreviousStep")).toBe(false);
   });
 
   it("should pass hasNext as true to the popover content when the first step is active.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("hasNext")).toBe(true);
+    expect(getGameTutorialPopoverContent().props("hasNextStep")).toBe(true);
   });
 
   it("should keep the popover closed when the tour has not started.", () => {
@@ -266,7 +275,7 @@ describe("GameTutorial Component", () => {
   it("should pass no maximum height to the popover content when the centered first step is active.", async() => {
     await startTour();
 
-    expect(getGameTutorialPopoverContent().props("maxHeight")).toBe("none");
+    expect(getGameTutorialPopoverContent().props("popoverMaxHeight")).toBe("none");
   });
 
   it("should pass the space above the target as maximum height to the popover content when the target is near the viewport bottom.", async() => {
@@ -284,7 +293,7 @@ describe("GameTutorial Component", () => {
     await startTour();
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(getGameTutorialPopoverContent().props("maxHeight")).toBe("584px");
+    expect(getGameTutorialPopoverContent().props("popoverMaxHeight")).toBe("584px");
   });
 
   it("should render the first step title when the tour starts.", async() => {
@@ -441,7 +450,7 @@ describe("GameTutorial Component", () => {
     await clickGameTutorialButton("game-tutorial-next");
     await clickGameTutorialButton("game-tutorial-next");
 
-    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({
+    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toMatchObject({
       "side": "top",
       "sideOffset": 12,
       "aria-label": "game.interactiveTutorial.steps.question.title",
@@ -528,7 +537,7 @@ describe("GameTutorial Component", () => {
     globalThis.dispatchEvent(new globalThis.Event("resize"));
     await flushPromises();
 
-    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toStrictEqual({
+    expect(wrapper.findComponent({ name: "UPopover" }).props("content")).toMatchObject({
       "side": "top",
       "sideOffset": 12,
       "aria-label": "game.interactiveTutorial.steps.framework.title",
@@ -661,6 +670,114 @@ describe("GameTutorial Component", () => {
     await clickGameTutorialButton("game-tutorial-next");
 
     expect(wrapper.findComponent({ name: "UPopover" }).props("reference")).toBe(getGameTutorialElement("game-questions-filters-button"));
+  });
+
+  it("should open the popover in modal mode when the tour starts.", async() => {
+    await startTour();
+
+    expect(wrapper.findComponent({ name: "UPopover" }).props("modal")).toBe(true);
+  });
+
+  it("should hide the tutorial when Escape is pressed.", async() => {
+    await startTour();
+
+    pressTutorialKey("Escape");
+    await flushPromises();
+
+    expect(queryGameTutorialElement("game-tutorial")).toBeNull();
+  });
+
+  it("should restore focus to the previously focused element when the tour ends.", async() => {
+    const trigger = document.createElement("button");
+    Object.defineProperty(trigger, "checkVisibility", { configurable: true, value: (): boolean => true });
+    document.body.append(trigger);
+    trigger.focus();
+    await startTour();
+
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("should focus the sidebar toggle when the previously focused element is no longer available.", async() => {
+    const trigger = document.createElement("button");
+    Object.defineProperty(trigger, "checkVisibility", { configurable: true, value: (): boolean => true });
+    document.body.append(trigger);
+    trigger.focus();
+    const fallback = replaceSidebarToggleWithFocusableFallback();
+    await startTour();
+    trigger.remove();
+
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(document.activeElement).toBe(fallback);
+  });
+
+  it("should focus the sidebar toggle when the previous focus was inside a dialog.", async() => {
+    const dialog = document.createElement("div");
+    dialog.setAttribute("role", "dialog");
+    const trigger = document.createElement("button");
+    Object.defineProperty(trigger, "checkVisibility", { configurable: true, value: (): boolean => true });
+    dialog.append(trigger);
+    document.body.append(dialog);
+    trigger.focus();
+    const fallback = replaceSidebarToggleWithFocusableFallback();
+    await startTour();
+
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(document.activeElement).toBe(fallback);
+  });
+
+  it("should focus the sidebar toggle when the previously focused element cannot receive focus.", async() => {
+    const trigger = document.createElement("button");
+    Object.defineProperty(trigger, "checkVisibility", { configurable: true, value: (): boolean => true });
+    document.body.append(trigger);
+    trigger.focus();
+    const fallback = replaceSidebarToggleWithFocusableFallback();
+    await startTour();
+    trigger.disabled = true;
+
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(document.activeElement).toBe(fallback);
+  });
+
+  it("should focus the sidebar toggle when focusing the previously focused element does not restore focus.", async() => {
+    const trigger = document.createElement("button");
+    Object.defineProperty(trigger, "checkVisibility", { configurable: true, value: (): boolean => true });
+    document.body.append(trigger);
+    trigger.focus();
+    const fallback = replaceSidebarToggleWithFocusableFallback();
+    await startTour();
+    Object.defineProperty(trigger, "focus", { configurable: true, value: vi.fn<() => void>() });
+
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(document.activeElement).toBe(fallback);
+  });
+
+  it("should restore focus via offsetParent when checkVisibility is unavailable.", async() => {
+    const trigger = document.createElement("button");
+    Object.defineProperty(trigger, "checkVisibility", { configurable: true, value: undefined });
+    Object.defineProperty(trigger, "offsetParent", { configurable: true, value: document.body });
+    document.body.append(trigger);
+    trigger.focus();
+    await startTour();
+
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("should focus the sidebar toggle when no element was focused before the tour.", async() => {
+    document.body.focus();
+    const fallback = replaceSidebarToggleWithFocusableFallback();
+    await startTour();
+
+    await clickGameTutorialButton("game-tutorial-skip");
+
+    expect(document.activeElement).toBe(fallback);
   });
 
   describe("keyboard shortcuts", () => {
