@@ -498,6 +498,38 @@ describe("GameQuestionsFiltersModal Component", () => {
     });
   });
 
+  it("should pass the active theme ids to the content when an active catalog is available.", async() => {
+    mockStore(useQuestionThemesStore).questionThemes = [
+      createFakeQuestionTheme({ id: "theme-a", status: "active" }),
+      createFakeQuestionTheme({ id: "theme-b", status: "active" }),
+    ];
+    await openFiltersModal();
+
+    expect(getContent().props("activeThemeIds")).toStrictEqual(["theme-a", "theme-b"]);
+  });
+
+  it("should pass the active themes to the content when an active catalog is available.", async() => {
+    const activeThemes = [createFakeQuestionTheme({ id: "theme-a", status: "active" }), createFakeQuestionTheme({ id: "theme-b", status: "active" })];
+    mockStore(useQuestionThemesStore).questionThemes = activeThemes;
+    await openFiltersModal();
+
+    expect(getContent().props("activeThemes")).toStrictEqual(activeThemes);
+  });
+
+  it("should pass the themes catalog availability to the content when an active catalog is available.", async() => {
+    mockStore(useQuestionThemesStore).questionThemes = [createFakeQuestionTheme({ id: "theme-a", status: "active" })];
+    await openFiltersModal();
+
+    expect(getContent().props("isThemesCatalogAvailable")).toBe(true);
+  });
+
+  it("should pass the ready catalog status to the content when an active catalog is available.", async() => {
+    mockStore(useQuestionThemesStore).questionThemes = [createFakeQuestionTheme({ id: "theme-a", status: "active" })];
+    await openFiltersModal();
+
+    expect(getContent().props("catalogStatus")).toBe("ready");
+  });
+
   it("should update the draft categories when the content emits update:categories.", async() => {
     mockStore(useGameSettingsStore).settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, isAdultContentEnabled: false });
     await openFiltersModal();

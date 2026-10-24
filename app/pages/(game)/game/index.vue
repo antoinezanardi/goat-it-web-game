@@ -115,6 +115,7 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
         :is-open="isSidebarOpen"
         :is-tutorial-available="isTutorialAvailable"
         @after:leave="openRequestedFiltersModal"
+        @open-changelog="closeSidebar"
         @open-filters="onOpenFiltersFromSidebar"
         @open-settings="onOpenSettings"
         @start-tutorial="startTutorialFromSidebar"

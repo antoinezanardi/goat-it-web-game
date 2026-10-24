@@ -1,9 +1,14 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
+import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
+import type { ChangelogWhatsNewButton } from "#components";
+
+import { StateNames } from "#shared/enums/state.enums";
 import HomePage from "@/pages/index/index.vue";
 
 describe("Home Page", () => {
@@ -14,6 +19,7 @@ describe("Home Page", () => {
   }
 
   beforeEach(async() => {
+    clearNuxtState([StateNames.CHANGELOG_IS_OPEN, StateNames.CHANGELOG_IS_UNREAD]);
     wrapper = await mountHomePage();
   });
 
@@ -73,5 +79,29 @@ describe("Home Page", () => {
 
   it("should render the HomeFooter component when mounted.", () => {
     expect(wrapper.findComponent({ name: "HomeFooter" }).exists()).toBe(true);
+  });
+
+  describe("changelog host", () => {
+    function getChangelogButton(): VueWrapper<InstanceType<typeof ChangelogWhatsNewButton>> {
+      return wrapper.findComponent<typeof ChangelogWhatsNewButton>("[data-testid='home-changelog-button']");
+    }
+
+    it("should pass the shared unread state to the changelog entry point when the changelog is unread.", async() => {
+      useState<boolean>(StateNames.CHANGELOG_IS_UNREAD).value = true;
+      wrapper = await mountHomePage();
+
+      expect(getChangelogButton().props("isUnread")).toBe(true);
+    });
+
+    it("should pass the shared unread state as false to the changelog entry point when the changelog is read.", () => {
+      expect(getChangelogButton().props("isUnread")).toBe(false);
+    });
+
+    it("should open the shared changelog state when the changelog entry point emits openChangelog.", async() => {
+      getWrapperVm(getChangelogButton()).$emit("openChangelog");
+      await nextTick();
+
+      expect(useState<boolean>(StateNames.CHANGELOG_IS_OPEN).value).toBe(true);
+    });
   });
 });

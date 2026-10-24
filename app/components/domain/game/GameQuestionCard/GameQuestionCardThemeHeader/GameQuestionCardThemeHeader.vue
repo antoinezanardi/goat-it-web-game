@@ -76,7 +76,7 @@ watch(() => props.isActive, triggerHighlightIfActive);
           />
 
           <span
-            class="font-semibold md:text-lg text-(--game-theme-neon) text-base"
+            class="font-semibold md:text-lg text-(--game-theme-neon) text-base wrap-anywhere"
             data-testid="game-question-theme"
           >
             {{ primaryTheme?.label }}
@@ -85,7 +85,7 @@ watch(() => props.isActive, triggerHighlightIfActive);
 
         <UButton
           v-if="hasOtherThemes"
-          class="rounded-lg"
+          class="rounded-lg wrap-anywhere"
           color="neutral"
           data-testid="theme-other-themes-trigger"
           size="xs"
@@ -103,7 +103,7 @@ watch(() => props.isActive, triggerHighlightIfActive);
         />
 
         <span
-          class="font-medium text-(--game-theme-neon)"
+          class="font-medium text-(--game-theme-neon) wrap-anywhere"
           data-testid="game-question-category"
         >
           {{ $t(`questions.category.${category}`) }}

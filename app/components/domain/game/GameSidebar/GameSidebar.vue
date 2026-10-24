@@ -8,6 +8,8 @@ const { t } = useI18n();
 
 const { activeFiltersCount } = useGameQuestionsFilters();
 
+const { isUnread, open: openChangelog } = useChangelogState();
+
 function onUpdateOpen(value: boolean): void {
   emit("update:isOpen", value);
 }
@@ -22,6 +24,11 @@ function onOpenSettings(): void {
 
 function onOpenFilters(): void {
   emit("openFilters");
+}
+
+function onOpenChangelog(): void {
+  openChangelog();
+  emit("openChangelog");
 }
 
 function onAfterLeave(): void {
@@ -97,7 +104,9 @@ function onAfterLeave(): void {
 
         <ChangelogWhatsNewButton
           data-testid="game-sidebar-changelog-link"
+          :is-unread="isUnread"
           variant="menu"
+          @open-changelog="onOpenChangelog"
         />
 
         <ULink

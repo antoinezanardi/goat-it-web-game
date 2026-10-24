@@ -104,3 +104,24 @@ Feature: ⌨️ Game Page Keyboard Navigation
     And the themes popover should be visible
     And the user presses the right arrow key
     Then the no more questions message should be displayed
+
+  Scenario: ⌨️ Arrow shortcut hints are displayed in game and tutorial control tooltips on a fine-pointer device
+    Given the database is populated with the question fixture set "five-active-questions"
+    And the user is on game page
+    Then a game question should be displayed
+    When the user presses the right arrow key
+    Then hovering the previous question button should show the arrow left key hint
+    And hovering the next question button should show the arrow right key hint
+    When the user opens the interactive tutorial from the game sidebar
+    Then hovering the tutorial next control should show the arrow right key hint
+    And the tutorial skip control should expose no shortcut hint
+    When the user presses the right arrow key
+    Then hovering the tutorial back control should show the arrow left key hint
+    When the user presses the right arrow key
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    And the user presses the right arrow key
+    Then hovering the tutorial finish control should show the arrow right key hint

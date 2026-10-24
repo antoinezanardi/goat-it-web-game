@@ -15,6 +15,7 @@ const GAME_QUESTION_CARD_SOURCE_LINK_CLASSES = [
   "text-fg-secondary",
   "text-xs",
   "transition-colors",
+  "wrap-anywhere",
 ] as const;
 
 export {

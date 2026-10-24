@@ -1,0 +1,4 @@
+const ARROW_LEFT_KEY_HINT = "←";
+const ARROW_RIGHT_KEY_HINT = "→";
+
+export { ARROW_LEFT_KEY_HINT, ARROW_RIGHT_KEY_HINT };

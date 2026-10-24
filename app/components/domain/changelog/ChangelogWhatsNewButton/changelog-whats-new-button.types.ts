@@ -2,6 +2,11 @@ type ChangelogWhatsNewButtonVariant = "button" | "menu";
 
 type ChangelogWhatsNewButtonProps = {
   variant?: ChangelogWhatsNewButtonVariant;
+  isUnread: boolean;
 };
 
-export type { ChangelogWhatsNewButtonProps, ChangelogWhatsNewButtonVariant };
+type ChangelogWhatsNewButtonEmits = {
+  openChangelog: [];
+};
+
+export type { ChangelogWhatsNewButtonEmits, ChangelogWhatsNewButtonProps, ChangelogWhatsNewButtonVariant };

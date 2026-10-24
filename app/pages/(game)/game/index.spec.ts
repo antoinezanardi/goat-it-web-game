@@ -677,6 +677,15 @@ describe("Game Page", () => {
       expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
     });
 
+    it("should close the sidebar when GameSidebar emits openChangelog.", async() => {
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebarToggleButton" })).$emit("click");
+      await nextTick();
+      getWrapperVm(wrapper.findComponent({ name: "GameSidebar" })).$emit("openChangelog");
+      await nextTick();
+
+      expect(wrapper.findComponent({ name: "GameSidebar" }).props("isOpen")).toBe(false);
+    });
+
     it("should not open the filters modal when the sidebar emits openFilters but has not left yet.", async() => {
       await requestFiltersFromSidebar(wrapper);
 

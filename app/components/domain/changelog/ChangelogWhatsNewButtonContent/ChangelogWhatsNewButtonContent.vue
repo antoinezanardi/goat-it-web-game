@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+import type { ChangelogWhatsNewButtonContentProps } from "@/components/domain/changelog/ChangelogWhatsNewButtonContent/changelog-whats-new-button-content.types";
 import { CHANGELOG_ICON } from "@/utils/ui/changelog/changelog.constants";
-import { StateNames } from "#shared/enums/state.enums";
+
+const props = defineProps<ChangelogWhatsNewButtonContentProps>();
 
 const { t } = useI18n();
-const isUnread = useState<boolean>(StateNames.CHANGELOG_IS_UNREAD, () => false);
 </script>
 
 <template>
@@ -17,7 +18,7 @@ const isUnread = useState<boolean>(StateNames.CHANGELOG_IS_UNREAD, () => false);
 
     <ClientOnly>
       <span
-        v-if="isUnread"
+        v-if="props.isUnread"
         aria-hidden="true"
         class="bg-primary inline-block ml-1 rounded-full size-2"
         data-testid="changelog-unread-indicator"

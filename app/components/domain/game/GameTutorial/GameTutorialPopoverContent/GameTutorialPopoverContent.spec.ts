@@ -4,11 +4,12 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import type { UIcon } from "#components";
+import type { UIcon, UTooltip } from "#components";
 import { GameTutorialPopoverContent } from "#components";
 
 import type { GameTutorialPopoverContentProps } from "@/components/domain/game/GameTutorial/GameTutorialPopoverContent/game-tutorial-popover-content.types";
 import { GAME_TUTORIAL_CONTROL_ICONS } from "@/components/domain/game/GameTutorial/GameTutorialPopoverContent/game-tutorial-popover-content.constants";
+import { GAME_SHORTCUT_TOOLTIP_KBD_UI } from "@/utils/ui/game/game-shortcuts.constants";
 
 describe("GameTutorialPopoverContent Component", () => {
   const defaultGameTutorialPopoverContentProps: GameTutorialPopoverContentProps = {
@@ -36,6 +37,16 @@ describe("GameTutorialPopoverContent Component", () => {
   function getRenderedIconNames(): string[] {
     return wrapper.findAllComponents<typeof UIcon>({ name: "UIcon" })
       .map(icon => String(icon.props("name")));
+  }
+
+  function getControlTooltip(testId: string): VueWrapper<InstanceType<typeof UTooltip>> {
+    const tooltip = wrapper.findAllComponents<typeof UTooltip>({ name: "UTooltip" })
+      .find(candidate => candidate.find(`[data-testid='${testId}']`).exists());
+
+    if (!tooltip) {
+      throw new Error(`Tooltip for data-testid="${testId}" not found`);
+    }
+    return tooltip;
   }
 
   beforeEach(async() => {
@@ -118,6 +129,30 @@ describe("GameTutorialPopoverContent Component", () => {
     expect(wrapper.emitted("back")).toStrictEqual([[]]);
   });
 
+  it("should set the ArrowLeft aria-keyshortcuts attribute on the Back control when there is a previous step.", async() => {
+    wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasPrev: true } });
+
+    expect(getGameTutorialPopoverContentElement("game-tutorial-back").attributes("aria-keyshortcuts")).toBe("ArrowLeft");
+  });
+
+  it("should pass the arrowleft kbd to the Back control tooltip when there is a previous step.", async() => {
+    wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasPrev: true } });
+
+    expect(getControlTooltip("game-tutorial-back").props("kbds")).toStrictEqual(["arrowleft"]);
+  });
+
+  it("should pass the pointer-gated kbd ui config to the Back control tooltip when there is a previous step.", async() => {
+    wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasPrev: true } });
+
+    expect(getControlTooltip("game-tutorial-back").props("ui")).toStrictEqual(GAME_SHORTCUT_TOOLTIP_KBD_UI);
+  });
+
+  it("should pass the Back control label key as the tooltip text when there is a previous step.", async() => {
+    wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasPrev: true } });
+
+    expect(getControlTooltip("game-tutorial-back").props("text")).toBe("game.interactiveTutorial.controls.back");
+  });
+
   it("should render the Next control label when there is a next step.", () => {
     expect(getGameTutorialPopoverContentElement("game-tutorial-next").text()).toContain("game.interactiveTutorial.controls.next");
   });
@@ -126,6 +161,22 @@ describe("GameTutorialPopoverContent Component", () => {
     await getGameTutorialPopoverContentElement("game-tutorial-next").trigger("click");
 
     expect(wrapper.emitted("next")).toStrictEqual([[]]);
+  });
+
+  it("should set the ArrowRight aria-keyshortcuts attribute on the Next control when there is a next step.", () => {
+    expect(getGameTutorialPopoverContentElement("game-tutorial-next").attributes("aria-keyshortcuts")).toBe("ArrowRight");
+  });
+
+  it("should pass the arrowright kbd to the Next control tooltip when there is a next step.", () => {
+    expect(getControlTooltip("game-tutorial-next").props("kbds")).toStrictEqual(["arrowright"]);
+  });
+
+  it("should pass the pointer-gated kbd ui config to the Next control tooltip when there is a next step.", () => {
+    expect(getControlTooltip("game-tutorial-next").props("ui")).toStrictEqual(GAME_SHORTCUT_TOOLTIP_KBD_UI);
+  });
+
+  it("should pass the Next control label key as the tooltip text when there is a next step.", () => {
+    expect(getControlTooltip("game-tutorial-next").props("text")).toBe("game.interactiveTutorial.controls.next");
   });
 
   it("should not render the Finish control when there is a next step.", () => {
@@ -154,10 +205,38 @@ describe("GameTutorialPopoverContent Component", () => {
     expect(wrapper.emitted("finish")).toStrictEqual([[]]);
   });
 
+  it("should set the ArrowRight aria-keyshortcuts attribute on the Finish control when there is no next step.", async() => {
+    wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasNext: false } });
+
+    expect(getGameTutorialPopoverContentElement("game-tutorial-finish").attributes("aria-keyshortcuts")).toBe("ArrowRight");
+  });
+
+  it("should pass the arrowright kbd to the Finish control tooltip when there is no next step.", async() => {
+    wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasNext: false } });
+
+    expect(getControlTooltip("game-tutorial-finish").props("kbds")).toStrictEqual(["arrowright"]);
+  });
+
+  it("should pass the pointer-gated kbd ui config to the Finish control tooltip when there is no next step.", async() => {
+    wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasNext: false } });
+
+    expect(getControlTooltip("game-tutorial-finish").props("ui")).toStrictEqual(GAME_SHORTCUT_TOOLTIP_KBD_UI);
+  });
+
+  it("should pass the Finish control label key as the tooltip text when there is no next step.", async() => {
+    wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasNext: false } });
+
+    expect(getControlTooltip("game-tutorial-finish").props("text")).toBe("game.interactiveTutorial.controls.finish");
+  });
+
   it("should not render the Skip control when there is no next step.", async() => {
     wrapper = await mountGameTutorialPopoverContent({ props: { ...defaultGameTutorialPopoverContentProps, hasNext: false } });
 
     expect(getGameTutorialPopoverContentElement("game-tutorial-skip").exists()).toBeFalsy();
+  });
+
+  it("should not set aria-keyshortcuts on the Skip control when there is a next step.", () => {
+    expect(getGameTutorialPopoverContentElement("game-tutorial-skip").attributes("aria-keyshortcuts")).toBeUndefined();
   });
 
   it("should emit skip when the skip control is clicked.", async() => {

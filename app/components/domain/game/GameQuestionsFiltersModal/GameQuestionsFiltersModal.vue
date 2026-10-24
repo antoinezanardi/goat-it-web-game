@@ -184,7 +184,11 @@ function onApply(): void {
 
       <template #body>
         <LazyGameQuestionsFiltersModalContent
+          :active-theme-ids="questionThemesStore.activeQuestionThemeIds"
+          :active-themes="questionThemesStore.activeQuestionThemes"
+          :catalog-status="questionThemesStore.catalogStatus"
           :draft="draft"
+          :is-themes-catalog-available="questionThemesStore.isThemesCatalogAvailable"
           @update:categories="onCategoriesChange"
           @update:cognitive-difficulties="onCognitiveDifficultiesChange"
           @update:is-adult-content-enabled="onAdultContentChange"

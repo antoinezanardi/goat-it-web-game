@@ -82,6 +82,7 @@
     "useAsyncAction": "readonly",
     "useAsyncData": "readonly",
     "useChangelog": "readonly",
+    "useChangelogState": "readonly",
     "useColorMode": "readonly",
     "useCookie": "readonly",
     "useFetch": "readonly",

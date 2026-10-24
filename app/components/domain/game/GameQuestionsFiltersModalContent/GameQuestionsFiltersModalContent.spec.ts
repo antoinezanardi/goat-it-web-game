@@ -6,6 +6,7 @@ import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import { GameQuestionsFiltersModalContent } from "#components";
 import type {
@@ -20,8 +21,14 @@ import type { GameQuestionsFiltersModalContentProps } from "@/components/domain/
 describe("GameQuestionsFiltersModalContent Component", () => {
   let wrapper: VueWrapper;
 
+  const activeThemes = [createFakeQuestionTheme({ id: "theme-a", label: "Cinema", slug: "cinema-series", status: "active" })];
+
   const defaultGameQuestionsFiltersModalContentProps: GameQuestionsFiltersModalContentProps = {
     draft: { isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"], categories: ["trivia", "lexicon", "riddle", "explanation"], themeIds: [] },
+    activeThemeIds: ["theme-a"],
+    activeThemes,
+    catalogStatus: "ready",
+    isThemesCatalogAvailable: true,
   };
 
   async function mountGameQuestionsFiltersModalContent(options: MountSuspendedOptions<typeof GameQuestionsFiltersModalContent> = {}): Promise<VueWrapper> {
@@ -115,6 +122,28 @@ describe("GameQuestionsFiltersModalContent Component", () => {
     });
 
     expect(getThemeFilter().props("modelValue")).toStrictEqual(["theme-a"]);
+  });
+
+  it("should pass the active theme ids to the theme filter when mounted.", () => {
+    expect(getThemeFilter().props("activeThemeIds")).toStrictEqual(["theme-a"]);
+  });
+
+  it("should pass the active themes to the theme filter when mounted.", () => {
+    expect(getThemeFilter().props("activeThemes")).toStrictEqual(activeThemes);
+  });
+
+  it("should pass the catalog status to the theme filter when mounted.", () => {
+    expect(getThemeFilter().props("catalogStatus")).toBe("ready");
+  });
+
+  it("should pass the themes catalog availability to the theme filter when mounted.", () => {
+    expect(getThemeFilter().props("isThemesCatalogAvailable")).toBe(true);
+  });
+
+  it("should forward the themes catalog availability to the theme filter when it becomes unavailable.", async() => {
+    await wrapper.setProps({ isThemesCatalogAvailable: false });
+
+    expect(getThemeFilter().props("isThemesCatalogAvailable")).toBe(false);
   });
 
   it("should pass the draft categories to the category filter when mounted.", async() => {

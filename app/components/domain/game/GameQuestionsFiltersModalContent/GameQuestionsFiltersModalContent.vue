@@ -39,6 +39,10 @@ function onThemeIdsChange(value: string[]): void {
     data-testid="game-questions-filters-modal"
   >
     <GameQuestionsFiltersThemeFilter
+      :active-theme-ids="props.activeThemeIds"
+      :active-themes="props.activeThemes"
+      :catalog-status="props.catalogStatus"
+      :is-themes-catalog-available="props.isThemesCatalogAvailable"
       :model-value="props.draft.themeIds"
       @update:model-value="onThemeIdsChange"
     />

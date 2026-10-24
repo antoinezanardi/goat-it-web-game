@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 const { t } = useI18n();
 
+const { isUnread, open: openChangelog } = useChangelogState();
+
 useSeoMeta({
   title: () => t("seo.home.title"),
   description: () => t("seo.home.description"),
@@ -15,7 +17,11 @@ useSeoMeta({
     class="bg-app-bg flex flex-col min-h-dvh overflow-hidden relative"
   >
     <div class="absolute flex gap-2 right-4 top-4">
-      <ChangelogWhatsNewButton data-testid="home-changelog-button"/>
+      <ChangelogWhatsNewButton
+        data-testid="home-changelog-button"
+        :is-unread="isUnread"
+        @open-changelog="openChangelog"
+      />
 
       <VersionButton/>
     </div>

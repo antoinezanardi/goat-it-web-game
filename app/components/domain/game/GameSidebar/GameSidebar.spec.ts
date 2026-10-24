@@ -10,9 +10,10 @@ import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 
-import type { UButton, ULink } from "#components";
+import type { ChangelogWhatsNewButton, UButton, ULink } from "#components";
 import { GameSidebar } from "#components";
 
+import { StateNames } from "#shared/enums/state.enums";
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
 import type { GameSidebarProps } from "@/components/domain/game/GameSidebar/game-sidebar.types";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
@@ -40,6 +41,7 @@ describe("GameSidebar Component", () => {
   }
 
   beforeEach(async() => {
+    clearNuxtState([StateNames.CHANGELOG_IS_OPEN, StateNames.CHANGELOG_IS_UNREAD]);
     wrapper = await mountGameSidebar();
   });
 
@@ -259,6 +261,32 @@ describe("GameSidebar Component", () => {
       .map(element => element.dataset.testid);
 
     expect(sidebarLinks).toStrictEqual(["game-sidebar-filters-link", "game-sidebar-changelog-link", "game-sidebar-rules-link"]);
+  });
+
+  it("should pass the shared unread state to the changelog entry when the changelog is unread.", async() => {
+    wrapper.unmount();
+    useState<boolean>(StateNames.CHANGELOG_IS_UNREAD).value = true;
+    wrapper = await mountGameSidebar();
+
+    expect(wrapper.findComponent<typeof ChangelogWhatsNewButton>({ name: "ChangelogWhatsNewButton" }).props("isUnread")).toBe(true);
+  });
+
+  it("should pass the shared unread state as false to the changelog entry when the changelog is read.", () => {
+    expect(wrapper.findComponent<typeof ChangelogWhatsNewButton>({ name: "ChangelogWhatsNewButton" }).props("isUnread")).toBe(false);
+  });
+
+  it("should open the shared changelog state when the changelog entry emits openChangelog.", async() => {
+    getWrapperVm(wrapper.findComponent<typeof ChangelogWhatsNewButton>({ name: "ChangelogWhatsNewButton" })).$emit("openChangelog");
+    await nextTick();
+
+    expect(useState<boolean>(StateNames.CHANGELOG_IS_OPEN).value).toBe(true);
+  });
+
+  it("should emit openChangelog when the changelog entry emits openChangelog.", async() => {
+    getWrapperVm(wrapper.findComponent<typeof ChangelogWhatsNewButton>({ name: "ChangelogWhatsNewButton" })).$emit("openChangelog");
+    await nextTick();
+
+    expect(wrapper.emitted("openChangelog")).toStrictEqual([[]]);
   });
 
   it("should emit after:leave when the slideover emits after:leave.", () => {

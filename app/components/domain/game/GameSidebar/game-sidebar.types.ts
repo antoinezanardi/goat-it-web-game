@@ -9,6 +9,7 @@ type GameSidebarEmits = {
   "openSettings": [];
   "openFilters": [];
   "after:leave": [];
+  "openChangelog": [];
 };
 
 export type { GameSidebarEmits, GameSidebarProps };
