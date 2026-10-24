@@ -15,6 +15,15 @@ function preventDismissal(event: Event): void {
   event.preventDefault();
 }
 
+/**
+ * Presents a one-time toast invitation to start the interactive tutorial.
+ *
+ * The invitation honors the decision cookie and is removed on terminal game states and unmount; it is re-rendered
+ * when availability or locale changes. Start and Not now persist the decision and dismiss the toast.
+ *
+ * @example
+ * const { acceptFromSidebar } = useGameTutorialInvitation({ gameState, isTutorialAvailable, onStartTutorial });
+ */
 function useGameTutorialInvitation(options: GameTutorialInvitationOptions): UseGameTutorialInvitation {
   const { addInfoToast, removeToast, updateToast } = useAppToast();
   const { locale, t } = useI18n();

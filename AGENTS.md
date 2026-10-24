@@ -172,7 +172,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
 
 - No agent-generated comments in source code. Agents must never add comments to `.ts`, `.vue`, or other source files unless:
   1. **Lint disable comments** — following the two-line format below
-  2. **JSDoc-type documentation** — for public API surfaces, exported functions, and composables
+  2. **JSDoc-type documentation** — for the public logic API surfaces defined in [`docs/jsdoc.md`](docs/jsdoc.md): composables and their option/return types, store actions, repositories, server helpers/mappers/types, shared and app helpers, and shared types. Follow the concise-TSDoc rules there.
   - No explanatory comments, no `// TODO`, no `// FIXME`, no inline notes, no section markers.
 
 - Lint disable comments (last resort):

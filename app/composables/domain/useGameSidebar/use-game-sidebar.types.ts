@@ -1,3 +1,6 @@
+/**
+ * Sidebar open state and its mutation helpers.
+ */
 type UseGameSidebar = {
   isSidebarOpen: Ref<boolean>;
   openSidebar: () => void;

@@ -1,6 +1,13 @@
 import type { GameQuestionsFiltersDraft } from "@/utils/domain/game/game-questions-filters-draft.types";
 import type { UseGameFiltersModal, UseGameFiltersModalOptions } from "@/composables/domain/useGameFiltersModal/use-game-filters-modal.types";
 
+/**
+ * Coordinates the questions-filters modal and applies a submitted draft to the settings store.
+ *
+ * A sidebar request is queued until `openRequestedFiltersModal` runs, which replays the button highlight
+ * before opening. `applyFilters` restarts the feed and shows the success toast only when the restart
+ * succeeds; the pending flag always resets.
+ */
 function useGameFiltersModal(options: UseGameFiltersModalOptions): UseGameFiltersModal {
   const gameSettingsStore = useGameSettingsStore();
   const { addSuccessToast } = useAppToast();

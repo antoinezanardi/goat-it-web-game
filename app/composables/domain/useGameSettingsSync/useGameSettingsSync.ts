@@ -7,6 +7,12 @@ import { useGameFetchFilters } from "@/composables/domain/useGameFetchFilters/us
 import type { GameSettingsFetchFilters } from "@/utils/domain/game/helpers/game-questions-filters/game-questions-filters.types";
 import type { UseGameSettingsSync, UseGameSettingsSyncOptions } from "@/composables/domain/useGameSettingsSync/use-game-settings-sync.types";
 
+/**
+ * Restarts the feed when the settings-derived fetch filters differ from the last applied ones.
+ *
+ * Any in-flight fetch is awaited first, and the new filters are recorded as applied before the restart so a
+ * concurrent sync sees them as already applied. Changes to the active theme ids run the same sync.
+ */
 function useGameSettingsSync(options: UseGameSettingsSyncOptions): UseGameSettingsSync {
   const store = useGameStore();
   const { isPending } = storeToRefs(store);

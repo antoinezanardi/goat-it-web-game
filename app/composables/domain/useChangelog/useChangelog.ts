@@ -4,6 +4,12 @@ import type { UseChangelog, UseChangelogOptions } from "@/composables/domain/use
 import { useChangelogCookie } from "@/composables/domain/useChangelogCookie/useChangelogCookie";
 import { useChangelogState } from "@/composables/domain/useChangelogState/useChangelogState";
 
+/**
+ * Tracks which release the player has seen and announces a new version once.
+ *
+ * Compares the latest version with the changelog cookie, shows one toast for an unannounced version, and marks the
+ * release as seen when the modal opens.
+ */
 function useChangelog(options: UseChangelogOptions): UseChangelog {
   const { addInfoToast } = useAppToast();
   const { t } = useI18n();

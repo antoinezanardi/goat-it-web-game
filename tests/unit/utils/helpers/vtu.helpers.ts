@@ -8,8 +8,8 @@ import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
  * This is a TS workaround to resolve the issue https://github.com/vuejs/test-utils/issues/972
  * Only used in unit tests.
  *
- * @param {VueWrapper} wrapper - The Vue test wrapper from which the view model is extracted.
- * @return {ComponentVm} The extracted component's view model.
+ * @param wrapper - The Vue test wrapper from which the view model is extracted.
+ * @returns The extracted component's view model.
  */
 // Acceptable as generic type parameter T is required by callers for type narrowing, and VueWrapper typing requires any
 // oxlint-disable-next-line typescript/no-unnecessary-type-parameters, typescript/no-explicit-any

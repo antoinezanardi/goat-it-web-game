@@ -22,6 +22,13 @@ async function loadGsap(): Promise<GsapInstance> {
   }
 }
 
+/**
+ * Lazily loads the GSAP core instance so animation code stays out of the initial bundle.
+ *
+ * The first call dynamically imports `gsap` and caches the promise, so later calls
+ * share one import. A failed import clears the cache and rethrows, allowing a
+ * subsequent call to retry.
+ */
 function useGsap(): UseGsapReturn {
   return { loadGsap };
 }
