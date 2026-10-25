@@ -1,5 +1,3 @@
-import { ref, toValue, watch } from "vue";
-
 import type { UseLazyModal, UseLazyModalOptions } from "@/composables/ui/useLazyModal/use-lazy-modal.types";
 
 /**

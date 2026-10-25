@@ -1,5 +1,3 @@
-import { nextTick } from "vue";
-
 import type { UseGameSettingsModal } from "@/composables/domain/useGameSettingsModal/use-game-settings-modal.types";
 
 /**

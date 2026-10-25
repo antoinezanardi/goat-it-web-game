@@ -371,6 +371,17 @@ describe("Game Page", () => {
     expect(wrapper.findComponent({ name: "GameTutorial" }).exists()).toBe(false);
   });
 
+  it("should render the interactive tutorial inside a client-only boundary when it is available.", async() => {
+    useGameMock.instance.gameStateRef.value = "playing";
+    useGameMock.instance.questionsRef.value = [createFakeQuestion()];
+    await nextTick();
+
+    expect({
+      hasClientOnlyBoundary: wrapper.findComponent({ name: "ClientOnly" }).exists(),
+      isTutorialInsideBoundary: wrapper.findComponent({ name: "ClientOnly" }).findComponent({ name: "GameTutorial" }).exists(),
+    }).toStrictEqual({ hasClientOnlyBoundary: true, isTutorialInsideBoundary: true });
+  });
+
   it("should pass isActive as false to GameTutorial when mounted.", async() => {
     useGameMock.instance.gameStateRef.value = "playing";
     useGameMock.instance.questionsRef.value = [createFakeQuestion()];

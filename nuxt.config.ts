@@ -112,6 +112,9 @@ export default defineNuxtConfig({
     "/img/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
     "/pwa/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
   },
+  future: {
+    compatibilityVersion: 4,
+  },
   experimental: {
     viteEnvironmentApi: true,
   },

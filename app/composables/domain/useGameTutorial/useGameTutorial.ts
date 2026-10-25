@@ -1,5 +1,3 @@
-import { nextTick } from "vue";
-
 import type { UseGameTutorial, UseGameTutorialOptions } from "@/composables/domain/useGameTutorial/use-game-tutorial.types";
 
 /**

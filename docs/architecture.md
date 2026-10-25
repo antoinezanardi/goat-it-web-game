@@ -429,6 +429,10 @@ Non-production also disables the sitemap (`sitemap.enabled`), because `@nuxtjs/s
 
 URL/locale strategy (`no_prefix`), social image alt policy, structured-data identity, JSON-LD reactivity and the production-only sitemap are recorded in [SEO](seo.md); locale cookie behavior is documented in §4.7.
 
+### 9.2 Nuxt compatibility version
+
+`nuxt.config.ts` pins `future.compatibilityVersion` to `4`, the Nuxt 4 default. Nuxt 5 behavior changes — notably the `payloadExtraction` and `navigateToEarlyReturn` defaults — stay opt-in until a dedicated Nuxt 5 migration covers SSR, payload, and navigation regressions.
+
 ## 10. Agent and workflow compliance
 
 This document is canonical. Do not copy its full contents into every prompt. Every agent, skill, or command that can plan or cause project files to be created, edited, or moved must require consulting `docs/architecture.md` before that work.
