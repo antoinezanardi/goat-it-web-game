@@ -8,7 +8,7 @@ description: Use when writing or modifying unit tests in this project. Load this
 Full human-readable reference: `docs/unit-testing.md`
 Read it for complete examples. This skill contains the non-negotiable rules and decision trees.
 The command `.opencode/commands/lint-unit-tests.md` is the **final audit checklist** — its rule
-tags (`[U*]`, `[C*]`, `[P*]`, `[L*]`, `[W*]`, `[CO*]`, `[S*]`, `[R*]`, `[H*]`, `[N*]`, `[T*]`)
+tags (`[U*]`, `[C*]`, `[P*]`, `[L*]`, `[W*]`, `[CO*]`, `[S*]`, `[R*]`, `[H*]`, `[N*]`, `[SC*]`, `[T*]`)
 are mirrored below so anything written per this skill passes that audit.
 
 ---
@@ -16,7 +16,7 @@ are mirrored below so anything written per this skill passes that audit.
 ## Step 0 — Before writing any test
 
 1. Read `docs/architecture.md` for source/spec ownership and placement, then read `docs/unit-testing.md` in full for test mechanics.
-2. Identify the **file type** of the source file under test (component, page, layout, composable, store, repository, server handler, server util/mapper/helper, shared helper, i18n translation).
+2. Identify the **file type** of the source file under test (component, page, layout, composable, store, repository, server handler, server util/mapper/helper, shared helper, schema, i18n translation).
 3. Determine the **Vitest project** from the table below.
 4. Follow the exact pattern for that file type — no shortcuts.
 5. After writing the test, run it: `pnpm run test:unit file.spec.ts`
@@ -34,6 +34,7 @@ are mirrored below so anything written per this skill passes that audit.
 | `app/**/*.{mappers,helpers,translations}.ts`                                    | `.{mappers,helpers,translations}.spec.ts` | `node`         |
 | `server/**/*.{mappers,helpers}.ts`                                              | `.{mappers,helpers}.spec.ts`              | `node`         |
 | `shared/**/*.{mappers,helpers}.ts`                                              | `.{mappers,helpers}.spec.ts`              | `node`         |
+| `shared/schemas/**/*.schemas.ts`                                                | `.schemas.spec.ts`                        | `node`         |
 | `**/*.dom.helpers.ts`                                                           | `.dom.helpers.spec.ts`                    | `dom`          |
 | Everything else in `app/`, `server/`, `shared/` that does not match a row above | `.spec.ts`                                | `nuxt`         |
 
@@ -74,6 +75,7 @@ Setup files reflect `configs/vitest/vitest.config.setup-files.constants.ts` — 
 - **Pages:** string `"<Name> Page"` — e.g. `describe("Home Page", ...)`.
 - **Layouts:** string `"<Name> Layout"` — e.g. `describe("DefaultLayout Layout", ...)`.
 - **Server handlers:** two-level describe — outer string `"Server Goat It API <Resource> <Method> Handler"`, inner `describe(handlerFn, ...)` with the function reference.
+- **Schemas:** human-readable string `"<Name> schema"` — e.g. `describe("Question theme schema", ...)`, no suffix. The constant symbol is not a valid Vitest title, and the exact constant name is auto-rewritten to it by `vitest/prefer-describe-function-title`.
 - **Functions / composables / stores / repositories:** pass the symbol reference directly (`describe(myFn, ...)`); free-form string only when no single symbol represents the subject.
 - Never a direct component/page/layout reference; never a free-form grouping string wrapping symbol describes.
 
@@ -113,7 +115,7 @@ Setup files reflect `configs/vitest/vitest.config.setup-files.constants.ts` — 
 
 ### Test worthiness [W1–W6] (components, pages, layouts)
 
-A worthy test pins behaviour that can vary; an unworthy test pins markup constants. See `docs/unit-testing.md` §6.11.
+A worthy test pins behaviour that can vary; an unworthy test pins markup constants. See `docs/unit-testing.md` §6.12.
 
 - **Worthy:** branches (both sides of every `v-if`/`v-else-if`/`v-else`/`v-show`, ternaries and short-circuits in template expressions, function-driven rendering like `{{ formatX(...) }}`, loading/empty/populated/error states) · child-component presence (every child Vue component asserted present ≥once, even unconditionally rendered) · emits with payload · `:`-bound child props via `.props()` (`.attributes()` fallback acceptable when `.props()` is impossible) · every `$t()`/`$tc()` asserted by key (even static) · icons via icon prop (even static) · links via `to` prop (even static) · named slots · reactive updates with `await nextTick()`.
 - **Unworthy — asserting these is a violation:** static Tailwind classes never touched by a binding; unbound static props/attributes like `variant="subtle"` / `color="neutral"` (**exception:** the [W5]/[W6] static icon/link assertions stay mandatory despite being unbound); markup constants that cannot vary with props/watch/computed/emits.
@@ -217,6 +219,15 @@ Tags match `.opencode/commands/lint-unit-tests.md` §4.
 - [ ] [N1] Pure tests — no mocking of unit or collaborators. Exceptions: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`); environment-coupled server helper specs stubbing `useRuntimeConfig`/h3 globals (established)
 - [ ] [N2] Aliases: server helpers `#server/utils/...`; shared helpers `#shared/utils/...`; app-local helper/mapper specs `@/`
 
+### Schema ([SC1]–[SC6])
+
+- [ ] [SC1] Colocated `shared/schemas/<domain>/<entity>.schemas.spec.ts` running in the `node` project; no Nuxt, no mocks, no `mountSuspended`
+- [ ] [SC2] One top-level human-readable `describe("<Name> schema", ...)` per exported schema constant, no suffix (never the constant symbol or exact constant name)
+- [ ] [SC3] Valid path builds the payload with the serialized faketory (`<entity>.serialized.faketory.ts`) and asserts `toStrictEqual` on the domain entity (ISO strings → `Date`)
+- [ ] [SC4] Every schema constant has a malformed-payload test asserting `ZodError`; invalid variants grouped in a typed `it.each` with a `description` field and a `mutateSerialized` builder where needed
+- [ ] [SC5] Every date field has a `null` regression row (`z.coerce.date()` would silently accept `null` as the epoch)
+- [ ] [SC6] Exported list schemas (`QUESTIONS_SCHEMA`) get a valid-path test over a list of serialized entities
+
 ### i18n translation parity ([T1]–[T3])
 
 - [ ] [T1] Specs live in `app/i18n/specs/`, never colocated
@@ -292,9 +303,10 @@ function createFakeMyEntity(myEntity: Partial<MyEntity> = {}): MyEntity {
 ```
 
 - Location: `tests/unit/utils/faketories/<domain>/<entity>.entity.faketory.ts` (flat file per entity); shared project fakes under `tests/unit/utils/faketories/shared/` (e.g. `shared/h3/h3-event.faketory.ts`)
+- Serialized faketories: `tests/unit/utils/faketories/<domain>/<entity>.serialized.faketory.ts` — build `Jsonify<Entity>` from an entity faketory (dates as ISO strings); use them as repository/schema payloads while asserting on the domain entity
 - DTO faketories always come from `@goat-it/schemas/testing/{question,question-theme,shared}` — never local DTO faketories [U8]
 - Always accept `Partial<T> = {}` and spread it last
-- DTOs use ISO strings for dates; entities use `Date` objects
+- DTOs use ISO strings for dates; entities use `Date` objects; serialized faketories use ISO strings for dates
 
 ---
 

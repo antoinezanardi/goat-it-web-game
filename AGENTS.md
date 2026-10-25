@@ -77,6 +77,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
   - `api/**/handlers/` – Route handler files (`*.handler.ts`); thin wrappers in `api/**/index.*.ts`
   - `utils/goat-it-api/` – Helpers, mappers, types, constants for the external API
 - `shared/enums/`     – Enums shared between app and server (e.g. `CookieNames`)
+- `shared/schemas/`   – Zod domain schemas for JSON-transported domain shapes; explicitly imported
 - `shared/types/`     – Types shared between app and server (e.g. `QuestionTheme`)
 - `shared/utils/`     – Runtime-neutral app/server helpers; explicitly imported
 - `tests/unit/`       – Test utilities: `setup/nuxt/`, `utils/faketories/`, `utils/mocks/`
@@ -133,7 +134,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
   - Files: Components: `PascalCase.vue` | Composables: `use*.ts` | Stores: `<entity>.store.ts`
     Repositories: `<resource>.repository.ts` | Server handlers: `<resource>.<method>.handler.ts`
     Types: `*.types.ts` | Constants: `*.constants.ts` | Enums: `*.enums.ts`
-    Tests: `*.spec.ts` next to source | Entity faketories: `<entity>.<layer>.faketory.ts` (DTO faketories come from `@goat-it/schemas/testing/*`)
+    Tests: `*.spec.ts` next to source | Entity/serialized faketories: `<entity>.<layer>.faketory.ts` (DTO faketories come from `@goat-it/schemas/testing/*`)
     Mocks: `<composable>.mock.ts` (+ `.mock.constants.ts` + `.mock.types.ts` as needed)
   - Symbols: Types/Interfaces: `PascalCase` | Variables/functions: `camelCase`
     Exported constants: `UPPER_SNAKE_CASE`
@@ -155,6 +156,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
 - Repository pattern:
   - Factory function: `export const fooRepository: FooRepository = (fetch: $Fetch) => ({ ... })`.
   - Calls internal Nuxt server routes (`/api/goat-it-api/...`), never the external API directly.
+  - Validates every response with the shared domain schema (`shared/schemas/<domain>/<entity>.schemas.ts`) via `.parse()`; never casts `$Fetch` results.
   - Auto-imported by Nuxt; instantiated in stores as `fooRepository(useRequestFetch())` for request-aware SSR behavior.
 
 - Architecture and file placement:
@@ -202,7 +204,7 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
   - `composables`  – `app/composables/**/*.spec.ts`
   - `stores`       – `app/**/*.store.spec.ts` (includes Pinia + composables + repository mock setup)
   - `repositories` – `app/**/*.repository.spec.ts` (plain Node env, no Nuxt)
-  - `node`         – `*.mappers.spec.ts`, `*.helpers.spec.ts`, `*.translations.spec.ts` under app/, server/, shared/
+  - `node`         – `*.mappers.spec.ts`, `*.helpers.spec.ts`, `*.translations.spec.ts` under app/, server/, shared/, plus `shared/**/*.schemas.spec.ts`
   - `dom`          – `*.dom.helpers.spec.ts` in the happy-dom environment
 - Coverage threshold: 100% aggregate across all projects (not per project), via `thresholds: { 100: true }`.
   - Collected for `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`, `shared/**/*.ts`.
@@ -227,10 +229,12 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
 - Fake data: faketory functions (`@faker-js/faker`) in `tests/unit/utils/faketories/`.
   - Accept `Partial<T>`; named `createFake<Entity>` (e.g. `createFakeQuestionTheme`).
   - Entity faketories live locally (domain type). DTO faketories come from `@goat-it/schemas/testing/*` (raw API DTO).
+  - Serialized faketories (`.serialized.faketory.ts`, e.g. `createFakeQuestionSerialized`) build the JSON-transported
+    domain shape (`Jsonify<Entity>`, dates as ISO strings) from an entity faketory for repository and schema tests.
   - Do NOT create local DTO faketories — always import from the package.
 
 - Config per project: `mockReset: true`, `clearMocks: true`, `restoreMocks: true`.
-- `describe(functionName, ...)` — pass the function/composable/store reference as label. Exception for components, which are always `describe("<ComponentName> Component", ...)`
+- `describe(functionName, ...)` — pass the function/composable/store reference as label. Exceptions: components use `describe("<ComponentName> Component", ...)`; schemas use a human-readable `describe("<Name> schema", ...)` (Zod objects cannot be a title symbol, and the exact constant name is auto-rewritten to the symbol by ESLint).
 - Test names: `"should <action> when <condition>."` pattern.
 - Use `expect(...).toHaveBeenCalledExactlyOnceWith(...)` for single-call assertions.
 
