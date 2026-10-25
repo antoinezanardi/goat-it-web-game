@@ -68,7 +68,7 @@ describe("App Component", () => {
     it.each<{ selector: "link" | "meta"; index: number; entry: Record<string, unknown> }>([
       { selector: "link", index: 0, entry: { rel: "manifest", href: "/manifest.webmanifest" } },
       { selector: "link", index: 1, entry: { rel: "apple-touch-icon", href: "/pwa/apple-touch-icon.png" } },
-      { selector: "link", index: 2, entry: { rel: "preload", href: "/fonts/Geist/geist-latin.woff2", as: "font", type: "font/woff2", crossorigin: "" } },
+      { selector: "link", index: 2, entry: { rel: "preload", href: "/fonts/Geist/geist-latin.woff2", as: "font", type: "font/woff2", crossorigin: "anonymous" } },
       { selector: "meta", index: 0, entry: { name: "theme-color", content: "#09090b" } },
       { selector: "meta", index: 1, entry: { name: "mobile-web-app-capable", content: "yes" } },
     ])("should call useHead with the correct $selector entry at index $index when mounted.", ({ selector, index, entry }) => {

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { nextTick, onMounted, watch } from "vue";
-
 import { GameQuestionCardAdultContentBadge, GameQuestionCardHintBadge, GameQuestionCardThemeStack } from "#components";
 
 import { QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.constants";

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { computed } from "vue";
-
 import { DOCS_BACK_TO_TOP_THRESHOLD } from "@/components/docs/DocsBackToTop/docs-back-to-top.constants";
 
 const reducedMotion = usePreferredReducedMotion();

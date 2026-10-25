@@ -1,4 +1,3 @@
-import { computed, getCurrentScope, nextTick, onScopeDispose, ref, toValue, watch } from "vue";
 import { useDocumentVisibility } from "@vueuse/core";
 
 import { QUESTION_CARD_RING_RADIUS, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS, QUESTION_CARD_RING_SIZE } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.constants";

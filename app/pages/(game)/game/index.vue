@@ -152,10 +152,11 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
       />
     </div>
 
-    <GameTutorial
-      v-if="isTutorialAvailable"
-      :is-active="isTourRequested"
-      @tutorial-end="endTour"
-    />
+    <ClientOnly v-if="isTutorialAvailable">
+      <GameTutorial
+        :is-active="isTourRequested"
+        @tutorial-end="endTour"
+      />
+    </ClientOnly>
   </div>
 </template>

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useEventListener } from "@vueuse/core";
-import { nextTick } from "vue";
 
 import { GameTutorialPopoverContent } from "#components";
 

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useEventListener, usePreferredReducedMotion } from "@vueuse/core";
-import { nextTick } from "vue";
 import type { ComponentPublicInstance } from "vue";
 
 import type { GameQuestionCardContextAccordionProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.types";

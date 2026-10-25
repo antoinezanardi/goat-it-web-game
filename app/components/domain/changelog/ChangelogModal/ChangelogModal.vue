@@ -15,7 +15,7 @@ const { data: latestRelease } = useAsyncData(
     .order("date", "DESC")
     .limit(1)
     .first(),
-  { watch: [locale] },
+  { lazy: true, server: false, watch: [locale] },
 );
 
 const latestVersion = computed<string | undefined>(() => latestRelease.value?.version);
