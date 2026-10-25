@@ -28,8 +28,6 @@ Then(
 
     for (const row of rows) {
       const selector = `head meta[${row.type}="${row.key}"]`;
-      // Acceptable as each meta tag assertion must be awaited sequentially to verify its content
-      // oxlint-disable-next-line eslint/no-await-in-loop
       await expect(this.page.locator(selector)).toHaveAttribute("content", row.content);
     }
   },

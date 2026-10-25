@@ -32,6 +32,7 @@ For repository boundaries and file placement, see [`docs/architecture.md`](archi
   - [Locators and selectors](#72-locators-and-selectors)
   - [Assertions](#73-assertions)
   - [Accessibility scanning (axe-core)](#74-accessibility-scanning-axe-core)
+  - [Offline and service-worker emulation](#75-offline-and-service-worker-emulation)
 8. [Support utilities](#8-support-utilities)
   - [World class (GoatItWorld)](#81-world-class-goatitworld)
   - [Navigation helpers](#82-navigation-helpers)
@@ -379,7 +380,7 @@ The current tag families are:
 | Changelog            | `@changelog`                         | `@changelog @accessibility`                     |
 | SEO                  | `@seo`, `@seo @html-lang`            | —                                               |
 | Security             | `@security`                          | —                                               |
-| PWA                  | `@pwa`                               | —                                               |
+| PWA                  | `@pwa`                               | `@pwa @accessibility`                           |
 | Locale suggestion    | `@locale-suggestion`                 | —                                               |
 
 ### 5.3 Scenarios and Scenario Outlines
@@ -393,7 +394,7 @@ Scenario: 🎨 Question Theme is created and displayed in the list
 **Scenario Outline:** Used for parameterized tests (e.g., accessibility across viewports):
 
 ```gherkin
-Scenario Outline: 🎨 Question Theme Creation Form should not contain accessibility issues in light <View> mode
+Scenario Outline: 🎨 Question Theme Creation Form should not contain accessibility issues in <View> mode
 Given the user is on question-themes page
 When the user clicks on the button with name "Create a new theme"
 Then the page should not contain accessibility issues in <View> mode
@@ -495,31 +496,16 @@ DataTable columns that may be empty use `zCoerceOptionalString()` in their Zod s
 
 ### 5.6 Accessibility features
 
-Every page and modal with a UI gets an accessibility feature file testing the WCAG compliance matrix:
-
-- Light mode + desktop viewport
-- Light mode + mobile viewport
-- Dark mode + desktop viewport
-- Dark mode + mobile viewport
+Every page and modal with a UI gets an accessibility feature file testing the desktop and mobile viewports.
+The app is dark-only (`ui.colorMode: false` in `nuxt.config.ts`); there is no light/dark toggle.
 
 ```gherkin
 @question-themes @accessibility @question-theme-creation
 Feature: 🎨 Question Theme Creation Form Accessibility
 
-  Scenario Outline: 🎨 Question Theme Creation Form should not contain accessibility issues in light <View> mode
+  Scenario Outline: 🎨 Question Theme Creation Form should not contain accessibility issues in <View> mode
     Given the user is on question-themes page
     When the user clicks on the button with name "Create a new theme"
-    Then the page should not contain accessibility issues in <View> mode
-
-    Examples:
-      | View    |
-      | desktop |
-      | mobile  |
-
-  Scenario Outline: 🎨 Question Theme Creation Form should not contain accessibility issues in dark <View> mode
-    Given the user is on question-themes page
-    When the user switches to dark mode
-    And the user clicks on the button with name "Create a new theme"
     Then the page should not contain accessibility issues in <View> mode
 
     Examples:
@@ -541,8 +527,6 @@ step-definitions/
 ├── accessibility/          # Generic accessibility steps
 │   ├── accessibility.steps.constants.ts
 │   └── accessibility.then-steps.ts
-├── color-mode/             # Dark/light mode switching
-│   └── color-mode.when-steps.ts
 ├── element/                # Generic element interactions
 │   ├── element.steps.constants.ts
 │   ├── element.then-steps.ts
@@ -598,7 +582,7 @@ Steps are split into **generic** (reusable across all domains) and **domain-spec
 
 | Category        | Domains                                                                                                        |
 |-----------------|----------------------------------------------------------------------------------------------------------------|
-| Generic         | `accessibility`, `color-mode`, `element`, `form`, `keyboard`, `locale`, `modal`, `navigation`, `text`, `toast` |
+| Generic         | `accessibility`, `element`, `form`, `keyboard`, `locale`, `modal`, `navigation`, `text`, `toast`             |
 | Domain-specific | `question-theme`, `question`                                                                                   |
 
 **Sub-feature step grouping:** When a domain has a distinct sub-feature with its own unique steps (e.g., source URL tag interactions within questions), those steps are grouped in a subdirectory: `step-definitions/question/source-url-tag/`. The naming follows `<domain>-<sub-feature>.<step-type>-steps.ts`.
@@ -934,7 +918,6 @@ this.openedTabPage = openedTabPage;
    this.page.getByRole("table");
    this.page.getByRole("listbox");
    this.page.getByRole("option", { name: "English" });
-   this.page.getByRole("switch", { name: "Switch to dark mode" });
    this.page.getByRole("region", { name: "Notifications" });
    ```
 
@@ -1013,6 +996,26 @@ The scan never uses a fixed sleep: it waits for the page to reach `networkidle` 
 | Mobile  | 375   | 667    |
 
 The `input[data-hidden]` exclusion handles hidden file inputs that are implementation details and not user-facing.
+
+---
+
+### 7.5 Offline and service-worker emulation
+
+PWA scenarios live under `tests/acceptance/features/pwa/` with the `@pwa` tag. They run against the built
+app, so the service worker is real:
+
+- wait for installation and precache (`navigator.serviceWorker.ready`, an `/offline` cache entry, and a
+  non-null `navigator.serviceWorker.controller`) before switching the browser offline;
+- use `context.setOffline(true|false)` and poll `navigator.onLine` before asserting UI transitions;
+- direct offline navigations and reloads use a dedicated step that does **not** wait for Nuxt hydration (the
+  fallback page has no app instance);
+- failure-path toasts are provoked with `context.route(...).fulfill` (HTTP response) or
+  `context.route(...).abort("failed")` (no response);
+- generated-output assertions read `.nuxt/test/output/public/sw.js` and
+  `.nuxt/test/output/public/offline/index.html` directly from Node.
+
+Chromium is the only automated browser; installed-app cold launch on iOS Safari is not covered by the automated
+suite.
 
 ---
 
@@ -1149,12 +1152,11 @@ If the sandbox is not healthy after all retries, the test suite fails immediatel
    | `toast`         | Then: toast with text visible (scoped to Notifications region).                                         |
    | `modal`         | When: close modal (header button or footer button).                                                     |
    | `locale`        | When: switch locale. Then: locale completion status.                                                    |
-   | `color-mode`    | When: switch to dark mode.                                                                              |
    | `accessibility` | Then: page has no accessibility issues (desktop/mobile).                                                |
 
 3. **Write the feature file.** Create it in the correct directory with proper tags, emoji-prefixed Feature/Scenario titles, and DataTables. Consider using `Background:` if 3+ scenarios share identical initial steps.
 
-4. **Write the accessibility feature file.** Create a `*-accessibility.feature` with Scenario Outlines for the light/dark + desktop/mobile matrix.
+4. **Write the accessibility feature file.** Create a `*-accessibility.feature` with Scenario Outlines for the desktop/mobile viewport matrix (the app is dark-only).
 
 5. **Create domain-specific step definitions** (only for steps not covered by generic ones):
   - `<domain>.given-steps.ts` — Setup / preconditions

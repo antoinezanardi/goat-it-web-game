@@ -15,7 +15,6 @@ permissions:
 env:
   GH_TOKEN: ${{ github.token }}
   NUXT_PUBLIC_SITE_URL: ${{ github.base_ref == 'develop' && vars.PREPRODUCTION_SITE_URL || vars.PRODUCTION_SITE_URL }}
-  NUXT_PUBLIC_DEFAULT_LOCALE: ${{ github.base_ref == 'develop' && vars.PREPRODUCTION_DEFAULT_LOCALE || vars.PRODUCTION_DEFAULT_LOCALE }}
   NUXT_SITE_ENV: ${{ github.base_ref == 'develop' && 'staging' || 'production' }}
 
 jobs:
@@ -69,6 +68,8 @@ jobs:
     name: Docker Build 🐳
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      NUXT_PUBLIC_DEFAULT_LOCALE: ${{ github.base_ref == 'develop' && vars.PREPRODUCTION_DEFAULT_LOCALE || vars.PRODUCTION_DEFAULT_LOCALE }}
     strategy:
       fail-fast: false
       matrix:
@@ -88,6 +89,8 @@ jobs:
     timeout-minutes: 5
     needs:
       - install
+    env:
+      NUXT_PUBLIC_DEFAULT_LOCALE: ${{ github.base_ref == 'develop' && vars.PREPRODUCTION_DEFAULT_LOCALE || vars.PRODUCTION_DEFAULT_LOCALE }}
     steps:
       - name: Checkout GitHub repository 📡
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

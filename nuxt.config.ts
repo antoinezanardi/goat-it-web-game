@@ -107,6 +107,7 @@ export default defineNuxtConfig({
     "/": { appLayout: "default-layout" },
     "/game": { appLayout: "default-layout" },
     "/rules": { appLayout: "docs-layout" },
+    "/offline": { prerender: true, noScripts: true, robots: false },
     "/fonts/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
     "/_i18n/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
     "/img/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
@@ -171,6 +172,7 @@ export default defineNuxtConfig({
         files: [
           "fr/home.json",
           "fr/common.json",
+          "fr/offline.json",
           "fr/errors.json",
           "fr/question-themes.json",
           "fr/questions.json",
@@ -187,6 +189,7 @@ export default defineNuxtConfig({
         files: [
           "en/home.json",
           "en/common.json",
+          "en/offline.json",
           "en/errors.json",
           "en/question-themes.json",
           "en/questions.json",
@@ -203,6 +206,7 @@ export default defineNuxtConfig({
         files: [
           "de/home.json",
           "de/common.json",
+          "de/offline.json",
           "de/errors.json",
           "de/question-themes.json",
           "de/questions.json",
@@ -219,6 +223,7 @@ export default defineNuxtConfig({
         files: [
           "es/home.json",
           "es/common.json",
+          "es/offline.json",
           "es/errors.json",
           "es/question-themes.json",
           "es/questions.json",
@@ -235,6 +240,7 @@ export default defineNuxtConfig({
         files: [
           "it/home.json",
           "it/common.json",
+          "it/offline.json",
           "it/errors.json",
           "it/question-themes.json",
           "it/questions.json",
@@ -251,6 +257,7 @@ export default defineNuxtConfig({
         files: [
           "pt/home.json",
           "pt/common.json",
+          "pt/offline.json",
           "pt/errors.json",
           "pt/question-themes.json",
           "pt/questions.json",
@@ -314,8 +321,17 @@ export default defineNuxtConfig({
     },
     workbox: {
       globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,otf,avif}"],
-      globIgnores: ["**/pwa/screenshot-*"],
+      globIgnores: ["**/pwa/screenshot-*", "**/offline/_payload.json"],
       navigateFallback: null,
+      runtimeCaching: [
+        {
+          urlPattern: ({ request, sameOrigin }): boolean => sameOrigin && request.mode === "navigate",
+          handler: "NetworkOnly",
+          options: {
+            precacheFallback: { fallbackURL: "/offline" },
+          },
+        },
+      ],
     },
   },
   schemaOrg: {

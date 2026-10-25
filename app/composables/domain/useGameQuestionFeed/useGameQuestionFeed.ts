@@ -1,9 +1,11 @@
 import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
+import { useNetwork } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 
 import type { AsyncResult } from "#shared/types/async-result.types";
 import type { Question } from "#shared/types/question.types";
 import { useGameFetchFilters } from "@/composables/domain/useGameFetchFilters/useGameFetchFilters";
+import { isConfirmedOfflineFetchError } from "@/composables/domain/useGameQuestionFeed/helpers/confirmed-offline-fetch-error/confirmed-offline-fetch-error.helpers";
 import { buildExcludedQuestionIds } from "@/composables/domain/useGameQuestionFeed/helpers/game-excluded-ids/game-excluded-ids.helpers";
 import { hasNarrowingQuestionFilters } from "@/composables/domain/useGameQuestionFeed/helpers/narrowing-question-filters/narrowing-question-filters.helpers";
 import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_EXCLUDED_IDS_MAXIMUM, GAME_PREFETCH_THRESHOLD } from "@/composables/domain/useGameQuestionFeed/use-game-question-feed.constants";
@@ -29,6 +31,7 @@ function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuesti
   const { fetchFilters } = useGameFetchFilters();
   const { handleGoatItApiError } = useGoatItApiErrorToast();
   const { t } = useI18n();
+  const { isOnline } = useNetwork();
 
   const isExhausted = ref<boolean>(false);
   const hasNoMatchingFiltersQuestions = ref<boolean>(false);
@@ -55,8 +58,9 @@ function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuesti
     const result = await store.fetchAndAppendRandomQuestions(requestBody);
     if (!result.ok) {
       hasFetchError.value = true;
-      handleGoatItApiError(result.error, { title: t("questions.cantFetch"), context: "questions" });
-
+      if (!isConfirmedOfflineFetchError(result.error, isOnline.value)) {
+        handleGoatItApiError(result.error, { title: t("questions.cantFetch"), context: "questions" });
+      }
       return { ok: false, error: result.error };
     }
     hasFetchError.value = false;

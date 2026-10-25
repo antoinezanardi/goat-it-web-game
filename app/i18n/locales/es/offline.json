@@ -1,0 +1,7 @@
+{
+  "offline": {
+    "title": "Sin conexión",
+    "description": "Se necesita una conexión de red para cargar nuevas preguntas y contenido. Vuelve a conectarte e inténtalo de nuevo.",
+    "retry": "Reintentar"
+  }
+}
