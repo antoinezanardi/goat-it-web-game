@@ -7,6 +7,7 @@ import { nextTick } from "vue";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { useGoatItApiErrorToastMock } from "~~/tests/unit/setup/nuxt/composables/use-goat-it-api-error-toast.nuxt.unit-setup";
+import { getRouteRulesMock } from "~~/tests/unit/setup/nuxt/use-route-rules.nuxt.unit-setup";
 
 import App from "@/App.vue";
 import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
@@ -20,6 +21,7 @@ describe("App Component", () => {
   }
 
   beforeEach(async() => {
+    getRouteRulesMock.instance.mockReturnValue({});
     wrapper = await mountAppComponent({ global: { plugins: [createTestingPinia()] } });
     mockStore(useQuestionThemesStore).fetchAndStoreQuestionThemes.mockResolvedValue({ ok: true, value: [] });
   });
@@ -174,5 +176,17 @@ describe("App Component", () => {
 
   it("should render the ChangelogModal component when mounted.", () => {
     expect(wrapper.findComponent({ name: "ChangelogModal" }).exists()).toBe(true);
+  });
+
+  it("should skip the question themes bootstrap when the route rules disable scripts.", async() => {
+    getRouteRulesMock.instance.mockReturnValue({ noScripts: true });
+    vi.mocked(callOnce).mockClear();
+    wrapper = await mountAppComponent({ global: { plugins: [createTestingPinia()] } });
+
+    expect(vi.mocked(callOnce)).not.toHaveBeenCalled();
+  });
+
+  it("should render the OfflineStatusIndicator component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "OfflineStatusIndicator" }).exists()).toBe(true);
   });
 });

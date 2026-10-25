@@ -107,6 +107,7 @@ export default defineNuxtConfig({
     "/": { appLayout: "default-layout" },
     "/game": { appLayout: "default-layout" },
     "/rules": { appLayout: "docs-layout" },
+    "/offline": { prerender: true, noScripts: true, robots: false, sitemap: false },
     "/fonts/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
     "/_i18n/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
     "/img/**": { headers: { "Cache-Control": "public, max-age=31536000, immutable" } },
@@ -314,8 +315,17 @@ export default defineNuxtConfig({
     },
     workbox: {
       globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,otf,avif}"],
-      globIgnores: ["**/pwa/screenshot-*"],
+      globIgnores: ["**/pwa/screenshot-*", "**/offline/_payload.json"],
       navigateFallback: null,
+      runtimeCaching: [
+        {
+          urlPattern: ({ request, sameOrigin }): boolean => sameOrigin && request.mode === "navigate",
+          handler: "NetworkOnly",
+          options: {
+            precacheFallback: { fallbackURL: "/offline" },
+          },
+        },
+      ],
     },
   },
   schemaOrg: {

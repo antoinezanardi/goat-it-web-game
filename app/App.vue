@@ -7,6 +7,8 @@ const questionThemesStore = useQuestionThemesStore();
 const { fetchAndStoreQuestionThemes } = questionThemesStore;
 const { handleGoatItApiError } = useGoatItApiErrorToast();
 const { locale, t } = useI18n();
+const route = useRoute();
+const isScriptlessRoute = Boolean(getRouteRules({ path: route.path }).noScripts);
 
 async function fetchQuestionThemes(): Promise<void> {
   const result = await fetchAndStoreQuestionThemes();
@@ -15,11 +17,13 @@ async function fetchQuestionThemes(): Promise<void> {
   }
 }
 
-await callOnce(fetchQuestionThemes);
+if (!isScriptlessRoute) {
+  await callOnce(fetchQuestionThemes);
 
-watch(locale, () => {
-  void fetchQuestionThemes();
-});
+  watch(locale, () => {
+    void fetchQuestionThemes();
+  });
+}
 
 useHead({
   link: [
@@ -70,6 +74,8 @@ useSchemaOrg([
         <NuxtPage/>
       </NuxtLayout>
     </UMain>
+
+    <OfflineStatusIndicator/>
 
     <ChangelogModal/>
   </UApp>

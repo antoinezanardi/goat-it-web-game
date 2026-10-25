@@ -271,6 +271,17 @@ Layouts remain at `app/layouts/<Layout>/` with stable filenames/path-derived key
 - Locale cookie: `goat_it_locale` (`CookieNames.LOCALE`) with `LOCALE_COOKIE_OPTIONS`. Only `LocaleSelect` and `useLocaleSuggestion` write it; the server reads it for `Accept-Language` forwarding (`extractLocaleFromEvent`) and locale detection (`server/plugins/locale-detector`). It was hard-renamed from `i18n_redirected` with no legacy fallback.
 - Do not set `detectBrowserLanguage.cookieKey`: any object value re-enables browser-language detection and may redirect `/`.
 
+### 4.8 PWA and offline surface
+
+- Fallback page: `app/pages/offline/index.vue` with its colocated spec; prerendering, `noScripts`, and SEO
+  exclusion are route rules in `nuxt.config.ts`, never page-level config.
+- Build-time fallback copy: `app/utils/ui/offline/` (types, constants, and the `offline-page-copy` helper).
+- Connectivity UI: `app/composables/ui/useConnectivityStatus/` (transition/timer behavior) and
+  `app/components/shared/ui/OfflineStatusIndicator/` (presentation). The indicator is mounted once in
+  `app/App.vue`.
+- Workbox configuration lives in `nuxt.config.ts` under `pwa.workbox`; there is no hand-written service
+  worker source. Behavior, limitations, and verification are owned by [PWA](pwa.md).
+
 ## 5. Shared architecture
 
 Root `shared/` is for runtime-neutral modules consumed across the app/server boundary:

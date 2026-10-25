@@ -32,6 +32,7 @@ For repository boundaries and file placement, see [`docs/architecture.md`](archi
   - [Locators and selectors](#72-locators-and-selectors)
   - [Assertions](#73-assertions)
   - [Accessibility scanning (axe-core)](#74-accessibility-scanning-axe-core)
+  - [Offline and service-worker emulation](#75-offline-and-service-worker-emulation)
 8. [Support utilities](#8-support-utilities)
   - [World class (GoatItWorld)](#81-world-class-goatitworld)
   - [Navigation helpers](#82-navigation-helpers)
@@ -379,7 +380,7 @@ The current tag families are:
 | Changelog            | `@changelog`                         | `@changelog @accessibility`                     |
 | SEO                  | `@seo`, `@seo @html-lang`            | —                                               |
 | Security             | `@security`                          | —                                               |
-| PWA                  | `@pwa`                               | —                                               |
+| PWA                  | `@pwa`                               | `@pwa @accessibility`                           |
 | Locale suggestion    | `@locale-suggestion`                 | —                                               |
 
 ### 5.3 Scenarios and Scenario Outlines
@@ -1013,6 +1014,26 @@ The scan never uses a fixed sleep: it waits for the page to reach `networkidle` 
 | Mobile  | 375   | 667    |
 
 The `input[data-hidden]` exclusion handles hidden file inputs that are implementation details and not user-facing.
+
+---
+
+### 7.5 Offline and service-worker emulation
+
+PWA scenarios live under `tests/acceptance/features/pwa/` with the `@pwa` tag. They run against the built
+app, so the service worker is real:
+
+- wait for installation and precache (`navigator.serviceWorker.ready`, an `/offline` cache entry, and a
+  non-null `navigator.serviceWorker.controller`) before switching the browser offline;
+- use `context.setOffline(true|false)` and poll `navigator.onLine` before asserting UI transitions;
+- direct offline navigations and reloads use a dedicated step that does **not** wait for Nuxt hydration (the
+  fallback page has no app instance);
+- failure-path toasts are provoked with `context.route(...).fulfill` (HTTP response) or
+  `context.route(...).abort("failed")` (no response);
+- generated-output assertions read `.nuxt/test/output/public/sw.js` and
+  `.nuxt/test/output/public/offline/index.html` directly from Node.
+
+Chromium is the only automated browser; installed-app cold launch on iOS Safari stays a manual check documented
+in [PWA](pwa.md).
 
 ---
 

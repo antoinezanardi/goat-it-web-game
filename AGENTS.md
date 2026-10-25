@@ -285,6 +285,7 @@ Slash commands available in OpenCode sessions:
 - `docs/unit-testing.md` – Full human-readable unit testing guide (patterns, examples, pitfalls).
 - `docs/acceptance-testing.md` – Full acceptance testing guide (Cucumber, Playwright, patterns, examples).
 - `docs/security.md` – Security hardening reference: security headers, CSP nonce, rate limiting, body guard, upstream fetch pipeline and error contract.
+- `docs/pwa.md` – PWA behavior: manifest/update strategy, Workbox precache, offline fallback, connectivity indicator, API caching limits, and PWA testing.
 - `docs/architecture.md` – Canonical architecture, file placement, naming, and dependency boundaries.
 
 ## MemPalace (persistent project memory)
