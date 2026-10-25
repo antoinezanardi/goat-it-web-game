@@ -21,8 +21,8 @@ const QUESTION_SCHEMA = QUESTION_DTO.extend({
   sourceUrls: z.array(SAFE_SOURCE_URL_SCHEMA)
     .max(QUESTION_SOURCE_URLS_MAX_ITEMS)
     .refine(areSourceUrlsUnique),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+  createdAt: QUESTION_DTO.shape.createdAt.transform(value => new Date(value)),
+  updatedAt: QUESTION_DTO.shape.updatedAt.transform(value => new Date(value)),
 });
 const QUESTIONS_SCHEMA = z.array(QUESTION_SCHEMA);
 

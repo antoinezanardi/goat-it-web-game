@@ -4,7 +4,7 @@ import { createFakeFindRandomQuestionsBodyDto } from "@goat-it/schemas/testing/q
 import { ZodError } from "zod";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
-import { createFakeQuestionTransport } from "~~/tests/unit/utils/faketories/question/question.transport.faketory";
+import { createFakeQuestionSerialized } from "~~/tests/unit/utils/faketories/question/question.serialized.faketory";
 
 import { questionsRepository } from "@/repositories/goat-it-api/questions/questions.repository";
 
@@ -41,7 +41,7 @@ describe(questionsRepository, () => {
         createFakeQuestion(),
       ];
       const repository = questionsRepository(fetchMock as $Fetch);
-      fetchMock.mockResolvedValue(fakeQuestions.map(createFakeQuestionTransport));
+      fetchMock.mockResolvedValue(fakeQuestions.map(createFakeQuestionSerialized));
 
       const result = await repository.getByIds(["507f1f77bcf86cd799439011"]);
 
@@ -84,7 +84,7 @@ describe(questionsRepository, () => {
         createFakeQuestion(),
       ];
       const repository = questionsRepository(fetchMock as $Fetch);
-      fetchMock.mockResolvedValue(fakeQuestions.map(createFakeQuestionTransport));
+      fetchMock.mockResolvedValue(fakeQuestions.map(createFakeQuestionSerialized));
 
       const result = await repository.getRandom();
 

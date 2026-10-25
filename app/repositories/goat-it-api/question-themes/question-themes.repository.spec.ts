@@ -4,7 +4,7 @@ import { createFakeFindQuestionThemesQueryDto } from "@goat-it/schemas/testing/q
 import { ZodError } from "zod";
 
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
-import { createFakeQuestionThemeTransport } from "~~/tests/unit/utils/faketories/question-theme/question-theme.transport.faketory";
+import { createFakeQuestionThemeSerialized } from "~~/tests/unit/utils/faketories/question-theme/question-theme.serialized.faketory";
 
 import { questionThemesRepository } from "@/repositories/goat-it-api/question-themes/question-themes.repository";
 
@@ -53,7 +53,7 @@ describe(questionThemesRepository, () => {
         createFakeQuestionTheme(),
       ];
       const repository = questionThemesRepository(fetchMock as $Fetch);
-      fetchMock.mockResolvedValue(fakeQuestionThemes.map(createFakeQuestionThemeTransport));
+      fetchMock.mockResolvedValue(fakeQuestionThemes.map(createFakeQuestionThemeSerialized));
 
       const result = await repository.getAll();
 

@@ -23,8 +23,9 @@ For production source/spec ownership and canonical file placement, see [`docs/ar
    - [Server handlers](#67-server-handlers)
    - [Server utils / mappers / helpers](#68-server-utils--mappers--helpers)
    - [Shared helpers](#69-shared-helpers)
-   - [i18n translation parity](#610-i18n-translation-parity)
-   - [Test worthiness](#611-test-worthiness)
+   - [Schema validation](#610-schema-validation)
+   - [i18n translation parity](#611-i18n-translation-parity)
+   - [Test worthiness](#612-test-worthiness)
 7. [Component test utilities](#7-component-test-utilities)
    - [getWrapperVm and ComponentVm](#71-getwrappervmt-and-componentvm)
    - [wrapper.emitted()](#72-wrapperemitted)
@@ -83,7 +84,7 @@ There are **six Vitest projects**, each covering a different layer. The project 
 | `composables`  | `app/composables/**/*.spec.ts` (excludes helpers/mappers claimed by `node`)                                                         | All nuxt setups + repository mocks (NOT composable mocks — tests real composables)  |
 | `stores`       | `app/**/*.store.spec.ts`                                                                                                            | All nuxt setups + composable mocks + repository mocks + `stores.nuxt.unit-setup.ts` |
 | `repositories` | `app/**/*.repository.spec.ts`                                                                                                       | None (plain Node, no Nuxt environment)                                              |
-| `node`         | `app/**/*.{mappers,helpers,translations}.spec.ts`, `server/**/*.{mappers,helpers}.spec.ts`, `shared/**/*.{mappers,helpers}.spec.ts` | The two Node setups (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts` in `tests/unit/setup/node/`) |
+| `node`         | `app/**/*.{mappers,helpers,translations}.spec.ts`, `server/**/*.{mappers,helpers}.spec.ts`, `shared/**/*.{mappers,helpers,schemas}.spec.ts` | The two Node setups (`nitro-auto-imports.node.unit-setup.ts`, `h3.node.unit-setup.ts` in `tests/unit/setup/node/`) |
 | `dom`           | `app/**/*.dom.helpers.spec.ts`, `server/**/*.dom.helpers.spec.ts`, `shared/**/*.dom.helpers.spec.ts`                                  | Happy DOM environment |
 
 The `repositories` and `node` projects use a plain Vitest environment (no Nuxt, no happy-dom). Every project runs with `TZ=UTC` via the shared `test.env` configuration.
@@ -378,7 +379,7 @@ describe("MyComponent Component", () => {
 - Access component internals (exposed methods, computed values, template refs) only through `getWrapperVm<T>` with a local VM type extending `ComponentVm` — never by casting the wrapper to reach `setupState`. Note: the instance proxy unwraps refs, so type ref members as their inner value (`isTransitioning: boolean`, not `Ref<boolean>`) and assign through the proxy instead of mutating `.value`.
 - Check prop values with `component.props("propName")`.
 - Only test props that are **dynamically bound** (prefixed with `:` in the template, e.g. `:label="slug"`). Skip static string props without `:` (e.g. `variant="subtle"`, `color="neutral"`) — they are implementation constants, not behaviour to verify. **Exception:** static icon usages ([W5]) and static link targets ([W6]) are still asserted via their props despite being unbound.
-- Only assert **worthy** things — see [Section 6.11](#611-test-worthiness) for what deserves a test and what must never be asserted.
+- Only assert **worthy** things — see [Section 6.12](#612-test-worthiness) for what deserves a test and what must never be asserted.
 - Every named slot in the template must be exercised by at least one test to achieve 100% coverage.
 
 #### Example — finding child components and asserting props
@@ -868,6 +869,7 @@ describe(myRepository, () => {
 - Include a top-level test asserting the repository shape: `expect(repository).toStrictEqual({ getAll: expect.any(Function), ... })`.
 - Test each method: what endpoint it calls, what HTTP method/options it passes, and what it returns.
 - For methods with params (e.g. `getById(id)`, `patch(id, dto)`, `archive(id)`), test the interpolated URL.
+- Responses parsed against a shared domain schema: mock fetch with a serialized faketory payload (`createFake<Entity>Serialized`) so ISO date strings are validated and hydrated, and add a test asserting `ZodError` when fetch resolves a malformed payload (`[{}]`).
 - Use `toStrictEqual(value)` for return value assertions. If type can't be inferred, use `toStrictEqual<T>(value)` for example `toStrictEqual<QuestionTheme[]>([]);`
 
 ---
@@ -1121,7 +1123,64 @@ Use `#shared/utils/...` import alias for shared helpers and `#server/utils/...` 
 
 ---
 
-### 6.10 i18n translation parity
+### 6.10 Schema validation
+
+**Project:** `node`
+**Spec file location:** Colocated with the schema file (`shared/schemas/<domain>/<entity>.schemas.spec.ts`).
+
+Cross-runtime Zod schemas describe JSON-transported domain shapes: ISO date strings come in, real `Date` objects come out. They have no Nuxt or DOM dependency, so their specs stay pure Node tests — no mocks and no `mountSuspended`.
+
+```ts
+import { describe, it, expect } from "vitest";
+import type { Jsonify } from "type-fest";
+import { ZodError } from "zod";
+
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
+import { createFakeQuestionThemeSerialized } from "~~/tests/unit/utils/faketories/question-theme/question-theme.serialized.faketory";
+
+import { QUESTION_THEME_SCHEMA } from "#shared/schemas/question-theme/question-theme.schemas";
+import type { QuestionTheme } from "#shared/types/question-theme.types";
+
+type InvalidQuestionThemeSerializedCase = {
+  description: string;
+  mutateSerialized: (serializedQuestionTheme: Jsonify<QuestionTheme>) => unknown;
+};
+
+describe("Question theme schema", () => {
+  it("should return a question theme with date instances when given a JSON-transported question theme.", () => {
+    const questionTheme = createFakeQuestionTheme();
+
+    expect(QUESTION_THEME_SCHEMA.parse(createFakeQuestionThemeSerialized(questionTheme))).toStrictEqual(questionTheme);
+  });
+
+  it.each<InvalidQuestionThemeSerializedCase>([
+    {
+      description: "an unknown key",
+      mutateSerialized: (serializedQuestionTheme): unknown => ({ ...serializedQuestionTheme, unknownKey: "value" }),
+    },
+    {
+      description: "a null creation date",
+      mutateSerialized: (serializedQuestionTheme): unknown => ({ ...serializedQuestionTheme, createdAt: null }),
+    },
+  ])("should throw a ZodError when given a question theme with $description.", ({ mutateSerialized }) => {
+    const serializedQuestionTheme = createFakeQuestionThemeSerialized(createFakeQuestionTheme());
+
+    expect(() => QUESTION_THEME_SCHEMA.parse(mutateSerialized(serializedQuestionTheme))).toThrow(ZodError);
+  });
+});
+```
+
+#### Key rules
+
+- **Describe label** — one top-level string describe per exported schema constant, with a human-readable label and no suffix (`describe("Question theme schema", ...)`, not `describe("Question theme schema parsing", ...)`). Never pass the constant symbol — a Zod schema is an object, not a valid Vitest title — and never use the exact constant name as the string: `vitest/prefer-describe-function-title` auto-rewrites it to the invalid symbol form.
+- **Valid path** — build the payload with the serialized faketory (`<entity>.serialized.faketory.ts`) from an entity faketory and assert `toStrictEqual` against the domain entity. This proves ISO strings were hydrated into `Date` instances without data loss.
+- **Invalid paths** — every schema constant has at least one malformed-payload test asserting `ZodError`. Group input variants in a typed `it.each` table with a `description` field; use a `mutateSerialized` builder when the malformed value cannot be expressed through the entity faketory (unknown keys, `null` values).
+- **Null dates** — `z.coerce.date()` accepts `null`, numbers and booleans and silently produces an epoch date. Date fields must validate an ISO datetime string first (reuse the DTO field schema, e.g. `QUESTION_DTO.shape.createdAt.transform(value => new Date(value))`), and each date field keeps a `null` regression row.
+- **Array schemas** — when a list schema is exported (`QUESTIONS_SCHEMA`), cover it with a valid-path test mapping the serialized faketory over the list.
+
+---
+
+### 6.11 i18n translation parity
 
 **Project:** `node`
 **Spec file location:** `app/i18n/specs/<name>.translations.spec.ts` (NOT colocated — always in `app/i18n/specs/`)
@@ -1162,7 +1221,7 @@ describe("home.json translations", () => {
 
 ---
 
-### 6.11 Test worthiness
+### 6.12 Test worthiness
 
 Applies to **components, pages, and layouts**. A test is **worthy** when it pins behaviour that can vary; it is **unworthy** when it pins markup constants. Specs assert worthy surfaces only.
 
@@ -1628,15 +1687,17 @@ Faketories generate typed fake data for tests.
 
 ### Structure
 
-**Entity faketories** (domain types) live in `tests/unit/utils/faketories/`. **DTO faketories** and **shared locale helpers** are provided by the `@goat-it/schemas` package.
+**Entity faketories** (domain types) and **serialized faketories** (JSON-transported domain shapes) live in `tests/unit/utils/faketories/`. **DTO faketories** and **shared locale helpers** are provided by the `@goat-it/schemas` package.
 
 ```text
 tests/unit/utils/faketories/
   question-theme/
     question-theme.entity.faketory.ts        ← domain types (one flat file per entity)
+    question-theme.serialized.faketory.ts    ← JSON-transported domain shape (Jsonify, ISO dates)
     question-theme-assignment.entity.faketory.ts
   question/
     question.entity.faketory.ts
+    question.serialized.faketory.ts
     question-author.entity.faketory.ts
     question-content.entity.faketory.ts
     question-rejection.entity.faketory.ts
@@ -1648,6 +1709,28 @@ tests/unit/utils/faketories/
 # import { createFakeQuestionDto } from "@goat-it/schemas/testing/question"
 # import { createFakeQuestionThemeDto } from "@goat-it/schemas/testing/question-theme"
 # import { createFakeLocalizedText } from "@goat-it/schemas/testing/shared"
+```
+
+Serialized faketories convert an entity faketory to its JSON-transported shape: dates become ISO strings and nested entities are converted too. They are the inputs for repository and schema specs, while assertions stay on the domain entity.
+
+```ts
+import type { Jsonify } from "type-fest";
+
+import { createFakeMyEntity } from "~~/tests/unit/utils/faketories/my-entity/my-entity.entity.faketory";
+
+import type { MyEntity } from "#shared/types/my-entity.types";
+
+function createFakeMyEntitySerialized(myEntity: Partial<MyEntity> = {}): Jsonify<MyEntity> {
+  const fakeMyEntity = createFakeMyEntity(myEntity);
+
+  return {
+    ...fakeMyEntity,
+    createdAt: fakeMyEntity.createdAt.toISOString(),
+    updatedAt: fakeMyEntity.updatedAt.toISOString(),
+  };
+}
+
+export { createFakeMyEntitySerialized };
 ```
 
 DTO faketories are available under three sub-paths:
@@ -1694,7 +1777,7 @@ Import from `@goat-it/schemas/testing/shared` when building entities or DTOs tha
 - Use `faker.database.mongodbObjectId()` for IDs.
 - Use `faker.lorem.slug()` for slugs.
 - Use `faker.helpers.arrayElement(ENUM_VALUES)` for enum fields.
-- DTO faketories produce raw API shapes (dates as ISO strings via `.toISOString()`); entity faketories produce domain shapes (dates as `Date` objects via `faker.date.anytime()`).
+- DTO faketories produce raw API shapes (dates as ISO strings via `.toISOString()`); entity faketories produce domain shapes (dates as `Date` objects via `faker.date.anytime()`); serialized faketories produce JSON-transported domain shapes (`Jsonify<Entity>`, dates as ISO strings) built from an entity faketory.
 - Do NOT create local DTO faketories. Always import from `@goat-it/schemas/testing/*`.
 
 ---
@@ -1704,7 +1787,7 @@ Import from `@goat-it/schemas/testing/shared` when building entities or DTOs tha
 | Item               | Convention                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 |--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Spec files         | `SourceFile.spec.ts`, colocated with source (exceptions: layouts → `spec/`, i18n → `app/i18n/specs/`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `describe` label   | **Components:** string `"<ComponentName> Component"` (e.g. `"LocaleSelect Component"`). **Pages:** string `"<PageName> Page"` (e.g. `"Home Page"`). **Layouts:** string `"<LayoutName> Layout"` (e.g. `"DefaultLayout Layout"`). **Server handlers:** outer string `"Server Goat It API <Resource> <Method> Handler"`, inner `describe(handlerFn, ...)`. **Functions/composables/stores/repositories:** pass the exported symbol directly (`describe(myFn, ...)`) or use a free-form string when no single symbol represents the subject (e.g. `describe("useAppToast", ...)`, `describe("Goat It API Helpers", ...)`). |
+| `describe` label   | **Components:** string `"<ComponentName> Component"` (e.g. `"LocaleSelect Component"`). **Pages:** string `"<PageName> Page"` (e.g. `"Home Page"`). **Layouts:** string `"<LayoutName> Layout"` (e.g. `"DefaultLayout Layout"`). **Server handlers:** outer string `"Server Goat It API <Resource> <Method> Handler"`, inner `describe(handlerFn, ...)`. **Schemas:** human-readable string `"<Name> schema"` (e.g. `"Question theme schema"`); the constant symbol is not a valid Vitest title, and a title equal to the imported constant is auto-rewritten by `vitest/prefer-describe-function-title`. **Functions/composables/stores/repositories:** pass the exported symbol directly (`describe(myFn, ...)`) or use a free-form string when no single symbol represents the subject (e.g. `describe("useAppToast", ...)`, `describe("Goat It API Helpers", ...)`). |
 | Test names         | `"should <action> when <condition>."` — always end with a period                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Mount helpers      | `async function mountXxxComponent(options: MountSuspendedOptions<typeof Xxx> = {}): Promise<VueWrapper>`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | Faketory functions | `createFake<Entity>(partial: Partial<Entity> = {}): Entity`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -1732,6 +1815,7 @@ Never swallow errors with `.catch(() => null)` — in any spec type, not only se
 ### Parameterized tests (`it.each`)
 
 - Use `it.each` whenever multiple `it(...)` blocks repeat identical test logic over different inputs. Pure input duplicates must be merged.
+- Schema specs: invalid payloads are pure input variations of the same assertion — group them in a typed `it.each` with a `description` field (and a `mutateSerialized` builder when the malformed value cannot be expressed through the entity faketory).
 - Always type it: `it.each<{ shortcut: "meta" | "enter" }>([...])` or `it.each<[string, typeof frX]>([...])`.
 - Do **not** merge tests that describe semantically different conditions or edge cases (e.g. zero-delay immediate resolution vs delayed resolution) — those stay separate.
 
@@ -1749,7 +1833,7 @@ Never swallow errors with `.catch(() => null)` — in any spec type, not only se
 
 These recurring shapes are conventions; do not report them as violations when auditing or refactoring:
 
-- `.attributes()` fallbacks where `.props()` is impractical (e.g. a prop falling through to a stub), per the dynamically-bound-props exception in [Section 6.11](#611-test-worthiness).
+- `.attributes()` fallbacks where `.props()` is impractical (e.g. a prop falling through to a stub), per the dynamically-bound-props exception in [Section 6.12](#612-test-worthiness).
 - Count-only `findAllComponents({ name: "..." })` usage that never indexes positionally into siblings.
 - `getWrapperVm<T>` + local `ComponentVm` extension asserting derived computed values when the rendered output itself is not observable in happy-dom.
 - Environment-coupled server helper specs stubbing `useRuntimeConfig` / h3 globals ([Section 6.8](#68-server-utils--mappers--helpers)).

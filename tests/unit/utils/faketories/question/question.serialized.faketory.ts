@@ -4,7 +4,7 @@ import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/ques
 
 import type { Question } from "#shared/types/question.types";
 
-function createFakeQuestionTransport(question: Partial<Question> = {}): Jsonify<Question> {
+function createFakeQuestionSerialized(question: Partial<Question> = {}): Jsonify<Question> {
   const fakeQuestion = createFakeQuestion(question);
 
   return {
@@ -23,4 +23,4 @@ function createFakeQuestionTransport(question: Partial<Question> = {}): Jsonify<
   };
 }
 
-export { createFakeQuestionTransport };
+export { createFakeQuestionSerialized };

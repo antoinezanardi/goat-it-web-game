@@ -4,7 +4,7 @@ import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question
 
 import type { QuestionTheme } from "#shared/types/question-theme.types";
 
-function createFakeQuestionThemeTransport(questionTheme: Partial<QuestionTheme> = {}): Jsonify<QuestionTheme> {
+function createFakeQuestionThemeSerialized(questionTheme: Partial<QuestionTheme> = {}): Jsonify<QuestionTheme> {
   const fakeQuestionTheme = createFakeQuestionTheme(questionTheme);
 
   return {
@@ -14,4 +14,4 @@ function createFakeQuestionThemeTransport(questionTheme: Partial<QuestionTheme> 
   };
 }
 
-export { createFakeQuestionThemeTransport };
+export { createFakeQuestionThemeSerialized };

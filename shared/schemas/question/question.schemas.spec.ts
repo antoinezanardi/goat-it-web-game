@@ -1,70 +1,80 @@
 import { describe, it, expect } from "vitest";
+import type { Jsonify } from "type-fest";
 import { ZodError } from "zod";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
-import { createFakeQuestionTransport } from "~~/tests/unit/utils/faketories/question/question.transport.faketory";
-import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
+import { createFakeQuestionSerialized } from "~~/tests/unit/utils/faketories/question/question.serialized.faketory";
 
 import { QUESTION_SCHEMA, QUESTIONS_SCHEMA } from "#shared/schemas/question/question.schemas";
+import type { Question } from "#shared/types/question.types";
 
-describe("QUESTION_SCHEMA parsing", () => {
+type InvalidQuestionSerializedCase = {
+  description: string;
+  mutateSerialized: (serializedQuestion: Jsonify<Question>) => unknown;
+};
+
+describe("Question schema", () => {
   it("should return a question with date instances when given a JSON-transported question.", () => {
     const question = createFakeQuestion({ sourceUrls: ["https://example.com"] });
 
-    expect(QUESTION_SCHEMA.parse(createFakeQuestionTransport(question))).toStrictEqual(question);
+    expect(QUESTION_SCHEMA.parse(createFakeQuestionSerialized(question))).toStrictEqual(question);
   });
 
-  it("should throw a ZodError when given a question with an unsafe source URL.", () => {
-    const question = createFakeQuestion({ sourceUrls: ["http://insecure.example.com"] });
+  it.each<InvalidQuestionSerializedCase>([
+    {
+      description: "an unsafe source URL",
+      mutateSerialized: (serializedQuestion): unknown => ({ ...serializedQuestion, sourceUrls: ["http://insecure.example.com"] }),
+    },
+    {
+      description: "an unknown key",
+      mutateSerialized: (serializedQuestion): unknown => ({ ...serializedQuestion, unknownKey: "value" }),
+    },
+    {
+      description: "duplicate source URLs",
+      mutateSerialized: (serializedQuestion): unknown => ({ ...serializedQuestion, sourceUrls: ["https://example.com", "https://example.com"] }),
+    },
+    {
+      description: "no themes",
+      mutateSerialized: (serializedQuestion): unknown => ({ ...serializedQuestion, themes: [] }),
+    },
+    {
+      description: "too many themes",
+      mutateSerialized: (serializedQuestion): unknown => ({
+        ...serializedQuestion,
+        themes: [
+          ...serializedQuestion.themes,
+          ...serializedQuestion.themes,
+          ...serializedQuestion.themes,
+          ...serializedQuestion.themes,
+        ],
+      }),
+    },
+    {
+      description: "an invalid date",
+      mutateSerialized: (serializedQuestion): unknown => ({ ...serializedQuestion, createdAt: "not-a-date" }),
+    },
+    {
+      description: "a null creation date",
+      mutateSerialized: (serializedQuestion): unknown => ({ ...serializedQuestion, createdAt: null }),
+    },
+    {
+      description: "a null update date",
+      mutateSerialized: (serializedQuestion): unknown => ({ ...serializedQuestion, updatedAt: null }),
+    },
+  ])("should throw a ZodError when given a question with $description.", ({ mutateSerialized }) => {
+    const serializedQuestion = createFakeQuestionSerialized(createFakeQuestion());
 
-    expect(() => QUESTION_SCHEMA.parse(createFakeQuestionTransport(question))).toThrow(ZodError);
-  });
-
-  it("should throw a ZodError when given a question with an unknown key.", () => {
-    const questionTransport = createFakeQuestionTransport(createFakeQuestion());
-
-    expect(() => QUESTION_SCHEMA.parse({ ...questionTransport, unknownKey: "value" })).toThrow(ZodError);
-  });
-
-  it("should throw a ZodError when given a question with duplicate source URLs.", () => {
-    const question = createFakeQuestion({ sourceUrls: ["https://example.com", "https://example.com"] });
-
-    expect(() => QUESTION_SCHEMA.parse(createFakeQuestionTransport(question))).toThrow(ZodError);
-  });
-
-  it("should throw a ZodError when given a question without themes.", () => {
-    const question = createFakeQuestion({ themes: [] });
-
-    expect(() => QUESTION_SCHEMA.parse(createFakeQuestionTransport(question))).toThrow(ZodError);
-  });
-
-  it("should throw a ZodError when given a question with too many themes.", () => {
-    const question = createFakeQuestion({
-      themes: [
-        createFakeQuestionThemeAssignment(),
-        createFakeQuestionThemeAssignment(),
-        createFakeQuestionThemeAssignment(),
-        createFakeQuestionThemeAssignment(),
-      ],
-    });
-
-    expect(() => QUESTION_SCHEMA.parse(createFakeQuestionTransport(question))).toThrow(ZodError);
-  });
-
-  it("should throw a ZodError when given a question with an invalid date.", () => {
-    const questionTransport = createFakeQuestionTransport(createFakeQuestion());
-
-    expect(() => QUESTION_SCHEMA.parse({ ...questionTransport, createdAt: "not-a-date" })).toThrow(ZodError);
+    expect(() => QUESTION_SCHEMA.parse(mutateSerialized(serializedQuestion))).toThrow(ZodError);
   });
 });
 
-describe("QUESTIONS_SCHEMA parsing", () => {
+describe("Questions schema", () => {
   it("should return questions with date instances when given JSON-transported questions.", () => {
     const questions = [
       createFakeQuestion({ sourceUrls: ["https://example.com"] }),
       createFakeQuestion({ sourceUrls: ["https://example.org"] }),
     ];
 
-    expect(QUESTIONS_SCHEMA.parse(questions.map(createFakeQuestionTransport))).toStrictEqual(questions);
+    expect(QUESTIONS_SCHEMA.parse(questions.map(createFakeQuestionSerialized))).toStrictEqual(questions);
   });
 });
