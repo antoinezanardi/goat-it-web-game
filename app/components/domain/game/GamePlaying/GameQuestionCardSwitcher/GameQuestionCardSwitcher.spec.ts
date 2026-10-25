@@ -61,7 +61,7 @@ describe("GameQuestionCardSwitcher Component", () => {
     const parent = (element as HTMLElement).parentElement;
 
     if (!(parent instanceof HTMLElement)) {
-      throw new Error("Expected mounted card container to have an HTMLElement parent.");
+      throw new TypeError("Expected mounted card container to have an HTMLElement parent.");
     }
     return parent;
   }
