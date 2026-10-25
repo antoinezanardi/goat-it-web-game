@@ -11,8 +11,6 @@ async function loadFixtureDependencies(
   inProgress: Set<string>,
 ): Promise<void> {
   for (const [dependencyDomain, dependencyName] of dependencies) {
-    // Acceptable as dependencies must be loaded sequentially and in order
-    // oxlint-disable-next-line no-await-in-loop
     await loadFixture(world, dependencyDomain, dependencyName, inProgress);
   }
 }

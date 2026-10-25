@@ -1,0 +1,7 @@
+{
+  "offline": {
+    "title": "Du bist offline",
+    "description": "Zum Laden neuer Fragen und Inhalte ist eine Netzwerkverbindung erforderlich. Stelle die Verbindung wieder her und versuche es erneut.",
+    "retry": "Erneut versuchen"
+  }
+}

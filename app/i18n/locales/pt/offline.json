@@ -1,0 +1,7 @@
+{
+  "offline": {
+    "title": "Está offline",
+    "description": "É necessária uma ligação de rede para carregar novas perguntas e conteúdos. Volte a ligar-se e tente novamente.",
+    "retry": "Tentar novamente"
+  }
+}

@@ -28,7 +28,7 @@ Read it for complete examples. This skill contains the non-negotiable rules and 
 - **Scenario title:** Same emoji prefix + description
 - **Scenario Outline:** Use for parameterized tests (accessibility viewport matrix)
 - **Background:** Use when 3+ scenarios share identical initial Given steps (see below)
-- **Accessibility:** Separate `*-accessibility.feature` file with light/dark + desktop/mobile matrix
+- **Accessibility:** Separate `*-accessibility.feature` file with desktop/mobile viewport matrix (the app is dark-only)
 - **DataTables:** Use for form inputs, expected data, and validation errors
 
 ### Background blocks
@@ -155,7 +155,6 @@ export type { MyDomainFormRow };
 | `toast`         | —                | —                                            | Toast with text visible (scoped to notification region)  |
 | `modal`         | —                | Close modal (header or footer button)        | —                                                        |
 | `locale`        | —                | Switch locale                                | Locale completion status                                 |
-| `color-mode`    | —                | Switch to dark mode                          | —                                                        |
 | `accessibility` | —                | —                                            | Page has no a11y issues (desktop/mobile)                 |
 
 ---
@@ -176,7 +175,7 @@ export type { MyDomainFormRow };
 - [ ] Feature and Scenario titles use emoji prefix
 - [ ] Scenarios use existing generic steps where possible
 - [ ] Background blocks used where 3+ scenarios share identical initial steps
-- [ ] Accessibility feature file created with light/dark + desktop/mobile matrix
+- [ ] Accessibility feature file created with desktop/mobile viewport matrix (the app is dark-only)
 - [ ] New step definition files follow `<domain>.<type>-steps.ts` naming
 - [ ] Sub-feature steps grouped in subdirectory when applicable
 - [ ] `this: GoatItWorld` typed on every step function

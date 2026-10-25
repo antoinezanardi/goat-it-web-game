@@ -275,12 +275,12 @@ Layouts remain at `app/layouts/<Layout>/` with stable filenames/path-derived key
 
 - Fallback page: `app/pages/offline/index.vue` with its colocated spec; prerendering, `noScripts`, and SEO
   exclusion are route rules in `nuxt.config.ts`, never page-level config.
-- Build-time fallback copy: `app/utils/ui/offline/` (types, constants, and the `offline-page-copy` helper).
+- Offline copy: the `offline` namespace in `app/i18n/locales/<locale>/offline.json`, rendered during prerender.
 - Connectivity UI: `app/composables/ui/useConnectivityStatus/` (transition/timer behavior) and
   `app/components/shared/ui/OfflineStatusIndicator/` (presentation). The indicator is mounted once in
   `app/App.vue`.
 - Workbox configuration lives in `nuxt.config.ts` under `pwa.workbox`; there is no hand-written service
-  worker source. Behavior, limitations, and verification are owned by [PWA](pwa.md).
+  worker source. Behavior and limitations are owned by [PWA](pwa.md).
 
 ## 5. Shared architecture
 

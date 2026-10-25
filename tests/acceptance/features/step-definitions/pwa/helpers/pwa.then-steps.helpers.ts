@@ -16,10 +16,10 @@ function readBuildOutputFile(relativePath: string): string {
 }
 
 function hasExecutableScript(document: string): boolean {
-  return [...document.matchAll(/<script\b[^>]*>/gu)].some(([tag]) => {
-    const scriptType = (/\btype\s*=\s*["'](?<scriptType>[^"']+)["']/u).exec(tag)?.groups?.scriptType;
+  return [...document.matchAll(/<script\b[^>]*>/giu)].some(([tag]) => {
+    const scriptType = (/\btype\s*=\s*["'](?<scriptType>[^"']+)["']/iu).exec(tag)?.groups?.scriptType;
 
-    return scriptType === undefined || !PWA_NON_EXECUTABLE_SCRIPT_TYPES.has(scriptType);
+    return scriptType === undefined || !PWA_NON_EXECUTABLE_SCRIPT_TYPES.has(scriptType.toLowerCase());
   });
 }
 
@@ -30,7 +30,7 @@ function expectStaticOfflineFallback(): void {
     containsExecutableScript: hasExecutableScript(fallbackDocument),
     containsOfflineNotice: fallbackDocument.includes("data-testid=\"offline-page\""),
     containsNuxtPayload: fallbackDocument.includes("__NUXT_DATA__"),
-    containsModuleScript: (/<script[^>]*type="module"/u).test(fallbackDocument),
+    containsModuleScript: (/<script[^>]*type\s*=\s*["']module["']/iu).test(fallbackDocument),
   }).toStrictEqual({
     containsExecutableScript: false,
     containsOfflineNotice: true,

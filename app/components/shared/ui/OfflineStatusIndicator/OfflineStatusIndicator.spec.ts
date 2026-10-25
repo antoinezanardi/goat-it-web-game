@@ -68,6 +68,19 @@ describe("OfflineStatusIndicator Component", () => {
     expect(wrapper.get("[data-testid='connectivity-status-icon']").attributes("data-icon-name")).toBe("i-lucide-wifi-off");
   });
 
+  it("should render the icon with the error color when the browser goes offline.", async() => {
+    await setOnline(false);
+
+    expect(wrapper.findComponent({ name: "UIcon" }).classes()).toContain("text-error");
+  });
+
+  it("should render the icon with the success color when connectivity returns.", async() => {
+    await setOnline(false);
+    await setOnline(true);
+
+    expect(wrapper.findComponent({ name: "UIcon" }).classes()).toContain("text-success");
+  });
+
   it("should switch to the online label when connectivity returns.", async() => {
     await setOnline(false);
     await setOnline(true);

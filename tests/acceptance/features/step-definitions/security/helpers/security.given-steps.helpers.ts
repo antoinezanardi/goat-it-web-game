@@ -13,8 +13,6 @@ async function exhaustRateLimitForClient(world: GoatItWorld, clientIp: string): 
   let lastResponse: APIResponse | undefined;
 
   for (let attempt = 0; attempt <= SECURITY_RATE_LIMIT_MAXIMUM_REQUESTS; attempt++) {
-    // Acceptable as the rate limit budget must be exhausted with sequential requests
-    // oxlint-disable-next-line eslint/no-await-in-loop
     lastResponse = await world.context.request.get(url(SECURITY_API_PROXY_ROUTE), { headers: { "X-Forwarded-For": clientIp } });
   }
   return lastResponse;

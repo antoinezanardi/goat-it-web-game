@@ -5,9 +5,6 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import OfflinePage from "@/pages/offline/index.vue";
-import { OFFLINE_PAGE_COPY } from "@/utils/ui/offline/offline-page.constants";
-
-const BUILD_DEFAULT_LOCALE_COPY = OFFLINE_PAGE_COPY.en;
 
 describe("Offline Page", () => {
   let wrapper: VueWrapper;
@@ -28,16 +25,16 @@ describe("Offline Page", () => {
     expect(wrapper.find("[data-testid='offline-page']").exists()).toBeTruthy();
   });
 
-  it("should render the offline title in the build default locale when mounted.", () => {
-    expect(wrapper.find("[data-testid='offline-page-title']").text()).toBe(BUILD_DEFAULT_LOCALE_COPY.title);
+  it("should render the offline title translation key when mounted.", () => {
+    expect(wrapper.find("[data-testid='offline-page-title']").text()).toBe("offline.title");
   });
 
-  it("should render the offline description in the build default locale when mounted.", () => {
-    expect(wrapper.find("[data-testid='offline-page-description']").text()).toBe(BUILD_DEFAULT_LOCALE_COPY.description);
+  it("should render the offline description translation key when mounted.", () => {
+    expect(wrapper.find("[data-testid='offline-page-description']").text()).toBe("offline.description");
   });
 
-  it("should render the retry link with the build default locale label when mounted.", () => {
-    expect(wrapper.find("[data-testid='offline-retry-link']").text()).toBe(BUILD_DEFAULT_LOCALE_COPY.retry);
+  it("should render the retry link label translation key when mounted.", () => {
+    expect(wrapper.find("[data-testid='offline-retry-link']").text()).toBe("offline.retry");
   });
 
   it("should reload the current URL from the retry link when mounted.", () => {

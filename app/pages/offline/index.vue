@@ -1,8 +1,5 @@
 <script lang="ts" setup>
-import { resolveOfflinePageCopy } from "@/utils/ui/offline/helpers/offline-page-copy/offline-page-copy.helpers";
-
-const { public: runtimeConfig } = useRuntimeConfig();
-const copy = resolveOfflinePageCopy(runtimeConfig.defaultLocale);
+const { t } = useI18n();
 </script>
 
 <template>
@@ -21,22 +18,22 @@ const copy = resolveOfflinePageCopy(runtimeConfig.defaultLocale);
       class="font-bold text-3xl text-fg-primary"
       data-testid="offline-page-title"
     >
-      {{ copy.title }}
+      {{ t("offline.title") }}
     </h1>
 
     <p
       class="max-w-md text-fg-secondary"
       data-testid="offline-page-description"
     >
-      {{ copy.description }}
+      {{ t("offline.description") }}
     </p>
 
     <a
-      class="bg-primary font-medium px-5 py-2 rounded-lg text-app-bg"
+      class="bg-primary-800 border border-primary-300/45 font-medium px-5 py-2 rounded-lg shadow-[0_0_10px_rgba(30,64,175,0.45)] text-sm text-white"
       data-testid="offline-retry-link"
       href=""
     >
-      {{ copy.retry }}
+      {{ t("offline.retry") }}
     </a>
   </div>
 </template>

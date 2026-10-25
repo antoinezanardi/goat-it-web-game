@@ -62,7 +62,7 @@ These recurring shapes are accepted codebase conventions. Auditors must not repo
 - The accessibility scan helper waits deterministically for finite CSS animations/transitions to settle via `page.waitForFunction` over `document.getAnimations()` — fixed `waitForTimeout` sleeps are not allowed.
 - `GoatItWorld` typed as `this: GoatItWorld` on every step function.
 - Emoji prefixes on `Feature:` and `Scenario:` titles (🏡, 🎨, 📋, …) — project convention for visual scanning.
-- `Scenario Outline:` + `Examples:` tables for accessibility features — required by §5.6 of `docs/acceptance-testing.md` to express the light/dark × desktop/mobile matrix.
+- `Scenario Outline:` + `Examples:` tables for accessibility features — required by §5.6 of `docs/acceptance-testing.md` to express the desktop/mobile viewport matrix (the app is dark-only).
 - `Background:` blocks when 3 or more scenarios share identical Given/When steps at the start of a feature (see `docs/acceptance-testing.md` §5.4).
 - Locator preference order: `getByRole` > `getByTestId` > `getByText` > CSS — deviations are acceptable only when no ARIA role exists.
 - `validateDataTableAndGetFirstRow` / `validateDataTableAndGetRows` invoked from `#acceptance/features/support/helpers/datatable.helpers.ts`.
@@ -79,7 +79,7 @@ These recurring shapes are accepted codebase conventions. Auditors must not repo
 - **[FT7] Scenario assertion** — Each scenario must have at least one `Then` step (or an `And` after a `Then` that implies assertion).
 - **[FT8] Feature path** — Feature files must live under `tests/acceptance/features/<domain>/`. Sub-domain directories (`<action>/` such as `archive`, `creation`, `filter`, `modification`, `translation`) are permitted one level deep. Flags if path does not match these patterns.
 - **[FT9] Feature file naming** — Feature file names follow `<domain>-<action>.feature` for action-specific features, `<domain>.feature` for top-level page features, `<domain>-<action>-accessibility.feature` for accessibility companions. The `Feature:` title should mirror the file purpose with an emoji prefix.
-- **[FT10] Accessibility companion** — Every non-accessibility `*.feature` that exercises UI must have a matching `<domain>-<action>-accessibility.feature` (or `<domain>-accessibility.feature`) in the same directory, containing at least the light/dark × desktop/mobile matrix.
+- **[FT10] Accessibility companion** — Every non-accessibility `*.feature` that exercises UI must have a matching `<domain>-<action>-accessibility.feature` (or `<domain>-accessibility.feature`) in the same directory, containing at least the desktop/mobile viewport matrix (the app is dark-only).
 
 #### Step definition checks (`*-steps.ts`)
 
