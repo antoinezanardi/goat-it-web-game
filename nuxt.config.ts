@@ -2,12 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { DEFAULT_LOCALE_FALLBACK } from "#shared/constants/locale.constants.ts";
-import {
-  SITE_CONTACT_EMAIL,
-  SITE_FOUNDING_DATE,
-  SITE_GITHUB_URL,
-  SITE_NAME,
-} from "#shared/constants/site.constants.ts";
+import { SITE_CONTACT_EMAIL, SITE_FOUNDING_DATE, SITE_GITHUB_URL, SITE_NAME } from "#shared/constants/site.constants.ts";
 import { resolveDefaultLocale } from "#shared/utils/helpers/locale/locale.helpers.ts";
 import { buildPwaManifest } from "#shared/utils/helpers/pwa/manifest/build-pwa-manifest.helpers.ts";
 import { loadPwaManifestTranslations } from "#shared/utils/helpers/pwa/manifest/load-pwa-manifest-translations.helpers.ts";
@@ -17,9 +12,7 @@ const defaultLocale = resolveDefaultLocale(process.env.NUXT_PUBLIC_DEFAULT_LOCAL
 const localesDirectory = path.resolve(process.cwd(), "app/i18n/locales");
 
 function readLocaleJson(fileName: string): unknown {
-  const fileContent: unknown = JSON.parse(readFileSync(path.resolve(localesDirectory, defaultLocale, fileName), "utf8"));
-
-  return fileContent;
+  return JSON.parse(readFileSync(path.resolve(localesDirectory, defaultLocale, fileName), "utf8"));
 }
 
 const pwaManifest = buildPwaManifest({

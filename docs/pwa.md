@@ -23,7 +23,7 @@ screenshots, colors, display mode, and categories remain static. The update stra
 and the `Goat It` Apple title. `app.head.viewport` includes `viewport-fit=cover`, so the layout draws under
 the status bar and home indicator; edge-anchored controls add `env(safe-area-inset-*)` padding: home and game
 top controls, the home footer, the docs shell and back-to-top button, the game sidebar header/footer, and the
-game action bar. The offline indicator already uses the top inset.
+game action bar. The offline indicator uses the top inset.
 
 Verify on iOS Safari and on an installed standalone PWA (notched device or Simulator): home, rules, game,
 sidebar, footer, and action bar must stay clear of the notch and home indicator. Chromium cannot emulate
@@ -35,16 +35,15 @@ manifest, icons, and the static app background color.
 
 `pwa.workbox.globPatterns` precaches only the offline shell from `.output/public`
 (`.nuxt/test/output/public` for acceptance builds): `offline/index.html`, the Nuxt entry stylesheet
-(`_nuxt/entry.*.css`), and the self-hosted Geist fonts. `globIgnores` drops the unused
-`offline/_payload.json`; screenshots are no longer matched. `@vite-pwa/nuxt` also adds `**/_payload.json`
+(`_nuxt/entry.*.css`), and the self-hosted Geist fonts. `globIgnores` excludes the unused
+`offline/_payload.json`; screenshots are not part of the precache. `@vite-pwa/nuxt` also adds `**/_payload.json`
 and the small `_nuxt/builds/**/*.json` app-manifest files. `maximumFileSizeToCacheInBytes` is a deliberate
 512 KiB: a shell asset that grows past it is excluded from the precache with a Workbox warning, and the
 `@pwa` acceptance test then fails because the expected shell entry is missing.
 
-Before this change the precache held 150 entries / ~2.31 MiB, including every lazy app chunk; after it holds
-7 entries / ~0.21 MiB (the module also precaches the 1 KiB manifest). Lazy `_nuxt/*.js` chunks, `_i18n`
-bundles, icons, images, and screenshots are not precached. They are fetched on demand and left to the
-browser's immutable HTTP cache. The offline guarantee remains the fallback only; app routes are not
+The precache holds 7 entries / ~0.21 MiB (the module also precaches the 1 KiB manifest). Lazy `_nuxt/*.js`
+chunks, `_i18n` bundles, icons, images, and screenshots are not precached. They are fetched on demand and left
+to the browser's immutable HTTP cache. The offline guarantee remains the fallback only; app routes are not
 available offline.
 
 Vite-hashed assets under `_nuxt/` are cached with a `null` revision because their filename is already
