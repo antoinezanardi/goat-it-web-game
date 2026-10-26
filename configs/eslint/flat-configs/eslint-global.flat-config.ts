@@ -91,7 +91,20 @@ const ESLINT_GLOBAL_FLAT_CONFIG: Linter.Config = {
     "accessor-pairs": "error",
     "arrow-body-style": ["error", "as-needed"],
     "block-scoped-var": "error",
-    "camelcase": ["error", { allow: ["npm_package_version"] }],
+    "camelcase": [
+      "error",
+      {
+        allow: [
+          "npm_package_version",
+          "background_color",
+          "display_override",
+          "form_factor",
+          "short_name",
+          "start_url",
+          "theme_color",
+        ],
+      },
+    ],
     "capitalized-comments": [
       "error",
       "always",

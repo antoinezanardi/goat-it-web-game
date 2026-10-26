@@ -6,18 +6,48 @@ For file placement, see [Architecture](architecture.md); for the request/securit
 ## 1. What is installable
 
 `@vite-pwa/nuxt` generates the web manifest (`/manifest.webmanifest`) and the service worker (`/sw.js`).
-The manifest, icons, screenshots, and shortcuts live in `nuxt.config.ts` under `pwa.manifest`. The update
-strategy is `registerType: "autoUpdate"`: with the Nuxt client registration plugin the generated Workbox
-config sets `clientsClaim` and `skipWaiting`, so a new service worker takes control without a prompt.
+The manifest is built at build time by `shared/utils/helpers/pwa/manifest/build-pwa-manifest.helpers.ts`
+from the default locale's `home`/`seo` translations loaded by
+`shared/utils/helpers/pwa/manifest/load-pwa-manifest-translations.helpers.ts`; `nuxt.config.ts` only wires
+the locale file reader. It uses the build-time `NUXT_PUBLIC_DEFAULT_LOCALE` (falling back to
+`DEFAULT_LOCALE_FALLBACK`) for `name`, `description`, `lang`, and the play shortcut label, and adds
+`id: "/"`, `dir: "ltr"`, and `display_override: ["standalone", "minimal-ui"]`. Build and runtime default
+locales must match: switching locale in the app does not regenerate the installed manifest. Icons,
+screenshots, colors, display mode, and categories remain static. The update strategy is
+`registerType: "autoUpdate"`: with the Nuxt client registration plugin the generated Workbox config sets
+`clientsClaim` and `skipWaiting`, so a new service worker takes control without a prompt.
+
+### iOS standalone display
+
+`App.vue` emits `mobile-web-app-capable` and `apple-mobile-web-app-capable`, a `black-translucent` status bar,
+and the `Goat It` Apple title. `app.head.viewport` includes `viewport-fit=cover`, so the layout draws under
+the status bar and home indicator; edge-anchored controls add `env(safe-area-inset-*)` padding: home and game
+top controls, the home footer, the docs shell and back-to-top button, the game sidebar header/footer, and the
+game action bar. The offline indicator uses the top inset.
+
+Verify on iOS Safari and on an installed standalone PWA (notched device or Simulator): home, rules, game,
+sidebar, footer, and action bar must stay clear of the notch and home indicator. Chromium cannot emulate
+safe-area insets, so the automated suite only checks the meta tags and viewport content. Apple startup
+images (`apple-touch-startup-image`) are intentionally not generated; install metadata comes from the
+manifest, icons, and the static app background color.
 
 ## 2. Service-worker precache
 
-`pwa.workbox.globPatterns` precaches the build output (`js`, `css`, `html`, images, fonts) from
-`.output/public` (`.nuxt/test/output/public` for acceptance builds). `globIgnores` excludes the PWA
-screenshots. `@vite-pwa/nuxt` adds `**/_payload.json` to the glob patterns by default; the unused
-`offline/_payload.json` is excluded because the fallback is scriptless. Vite-hashed assets under `_nuxt/`
-are cached with a `null` revision because their filename is already versioned; other files get a content
-revision.
+`pwa.workbox.globPatterns` precaches only the offline shell from `.output/public`
+(`.nuxt/test/output/public` for acceptance builds): `offline/index.html`, the Nuxt entry stylesheet
+(`_nuxt/entry.*.css`), and the self-hosted Geist fonts. `globIgnores` excludes the unused
+`offline/_payload.json`; screenshots are not part of the precache. `@vite-pwa/nuxt` also adds `**/_payload.json`
+and the small `_nuxt/builds/**/*.json` app-manifest files. `maximumFileSizeToCacheInBytes` is a deliberate
+512 KiB: a shell asset that grows past it is excluded from the precache with a Workbox warning, and the
+`@pwa` acceptance test then fails because the expected shell entry is missing.
+
+The precache holds 7 entries / ~0.21 MiB (the module also precaches the 1 KiB manifest). Lazy `_nuxt/*.js`
+chunks, `_i18n` bundles, icons, images, and screenshots are not precached. They are fetched on demand and left
+to the browser's immutable HTTP cache. The offline guarantee remains the fallback only; app routes are not
+available offline.
+
+Vite-hashed assets under `_nuxt/` are cached with a `null` revision because their filename is already
+versioned; other files get a content revision.
 
 `workbox.navigateFallback` stays explicitly `null`. The module defaults it to the base URL when the key is
 absent, and a Workbox `NavigationRoute` would serve a configured document for every matching navigation,
@@ -50,8 +80,9 @@ runtimeCaching: [
 
 The callback is stringified into `sw.js`, so it must stay self-contained. `NetworkOnly` attempts the network;
 `PrecacheFallbackPlugin` only acts on `handlerDidError`, so online navigations are never replaced. The
-prerendered `offline/index.html` is globbed by `**/*.html` and rewritten by `@vite-pwa/nuxt` to the `offline`
-manifest URL, which Workbox resolves to `/offline` (the storage key adds `?__WB_REVISION__=<hash>`).
+prerendered `offline/index.html` is the precached HTML entry and is rewritten by `@vite-pwa/nuxt` to the
+`offline` manifest URL, which Workbox resolves to `/offline` (the storage key adds
+`?__WB_REVISION__=<hash>`).
 
 Prerequisite: the fallback only exists after the service worker has installed and precached it while online.
 A first-ever visit made offline has no fallback document.
@@ -106,3 +137,8 @@ manual Retry.
   `request.mode === "navigate"` only.
 - **Stale fallback copy:** the HTML entry is content-hashed by the precache manifest; a redeploy plus a fresh
   service-worker install refreshes it. No `additionalManifestEntries` entry pins it.
+- **Precache grew unexpectedly:** keep `globPatterns` limited to the offline shell; the `@pwa` scenario
+  `the built service worker should precache only the offline shell` fails when lazy chunks, locale bundles, or
+  screenshots return, or when the shell exceeds the 10-entry / 512 KiB budget.
+- **Manifest in the wrong language:** the manifest follows the build-time `NUXT_PUBLIC_DEFAULT_LOCALE`; make
+  the build and runtime values match, then rebuild. Switching locale in the app does not rebuild it.

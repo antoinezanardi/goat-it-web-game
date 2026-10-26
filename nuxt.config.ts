@@ -1,12 +1,24 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { DEFAULT_LOCALE_FALLBACK } from "#shared/constants/locale.constants.ts";
-import {
-  SITE_CONTACT_EMAIL,
-  SITE_FOUNDING_DATE,
-  SITE_GITHUB_URL,
-  SITE_NAME,
-} from "#shared/constants/site.constants.ts";
+import { SITE_CONTACT_EMAIL, SITE_FOUNDING_DATE, SITE_GITHUB_URL, SITE_NAME } from "#shared/constants/site.constants.ts";
+import { resolveDefaultLocale } from "#shared/utils/helpers/locale/locale.helpers.ts";
+import { buildPwaManifest } from "#shared/utils/helpers/pwa/manifest/build-pwa-manifest.helpers.ts";
+import { loadPwaManifestTranslations } from "#shared/utils/helpers/pwa/manifest/load-pwa-manifest-translations.helpers.ts";
 import { resolveSiteEnvironment } from "#shared/utils/helpers/site/site-environment.helpers.ts";
 
+const defaultLocale = resolveDefaultLocale(process.env.NUXT_PUBLIC_DEFAULT_LOCALE, DEFAULT_LOCALE_FALLBACK);
+const localesDirectory = path.resolve(process.cwd(), "app/i18n/locales");
+
+function readLocaleJson(fileName: string): unknown {
+  return JSON.parse(readFileSync(path.resolve(localesDirectory, defaultLocale, fileName), "utf8"));
+}
+
+const pwaManifest = buildPwaManifest({
+  locale: defaultLocale,
+  translations: loadPwaManifestTranslations(readLocaleJson),
+});
 const siteEnvironment = resolveSiteEnvironment(process.env);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -61,6 +73,7 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { class: "dark" },
       titleTemplate: "%s",
+      viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
     },
   },
   css: ["~/assets/css/main.css"],
@@ -97,7 +110,7 @@ export default defineNuxtConfig({
     security: {
       cspMode: "enforce",
     },
-    public: { defaultLocale: DEFAULT_LOCALE_FALLBACK },
+    public: { defaultLocale },
   },
   ignore: [
     "configs/**/*.ts",
@@ -163,7 +176,7 @@ export default defineNuxtConfig({
     },
   },
   i18n: {
-    defaultLocale: process.env.NUXT_PUBLIC_DEFAULT_LOCALE ?? DEFAULT_LOCALE_FALLBACK,
+    defaultLocale,
     locales: [
       {
         code: "fr",
@@ -289,39 +302,11 @@ export default defineNuxtConfig({
   pinia: { storesDirs: ["stores/**"] },
   pwa: {
     registerType: "autoUpdate",
-    manifest: {
-      name: "Goat It – Le jeu où la réponse se devine",
-      short_name: "Goat It",
-      description: "Goat It est un jeu de déduction basé sur des faits insolites. Posez vos questions au Maître du Jeu, menez l'enquête et trouvez la réponse.",
-      theme_color: "#09090b",
-      background_color: "#09090b",
-      display: "standalone",
-      orientation: "any",
-      scope: "/",
-      start_url: "/",
-      lang: "fr",
-      icons: [
-        { src: "/pwa/pwa-192x192.png", sizes: "192x192", type: "image/png" },
-        { src: "/pwa/pwa-512x512.png", sizes: "512x512", type: "image/png" },
-        { src: "/pwa/pwa-512x512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
-      ],
-      screenshots: [
-        { src: "/pwa/screenshot-home.png", sizes: "1280x720", type: "image/png", form_factor: "wide" },
-        { src: "/pwa/screenshot-game.png", sizes: "1280x720", type: "image/png", form_factor: "wide" },
-      ],
-      shortcuts: [
-        {
-          name: "Jouer",
-          short_name: "Jouer",
-          url: "/game",
-          icons: [{ src: "/pwa/pwa-192x192.png", sizes: "192x192" }],
-        },
-      ],
-      categories: ["games"],
-    },
+    manifest: pwaManifest,
     workbox: {
-      globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2,otf,avif}"],
-      globIgnores: ["**/pwa/screenshot-*", "**/offline/_payload.json"],
+      globPatterns: ["offline/index.html", "_nuxt/entry.*.css", "fonts/**/*.{woff2,otf}"],
+      globIgnores: ["**/offline/_payload.json"],
+      maximumFileSizeToCacheInBytes: 512 * 1024,
       navigateFallback: null,
       runtimeCaching: [
         {

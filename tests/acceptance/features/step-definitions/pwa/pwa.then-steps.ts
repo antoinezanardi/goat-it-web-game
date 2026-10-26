@@ -3,8 +3,12 @@ import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import {
+  expectHeadLinkHref,
+  expectHeadMetaContent,
   expectServiceWorkerPrecachesOfflineFallback,
+  expectSlimServiceWorkerPrecache,
   expectStaticOfflineFallback,
+  expectWebManifestIsLocalizedToDefaultLocale,
 } from "#acceptance/features/step-definitions/pwa/helpers/pwa.then-steps.helpers.ts";
 import {
   PWA_CONNECTIVITY_STATUS_TEST_ID,
@@ -15,28 +19,63 @@ import {
 Then(
   /^the manifest link should be present in the document head$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.locator("head link[rel=\"manifest\"]")).toHaveAttribute("href", "/manifest.webmanifest");
+    await expectHeadLinkHref(this.page, "manifest", "/manifest.webmanifest");
+  },
+);
+
+Then(
+  /^the web manifest should be localized to the default locale$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expectWebManifestIsLocalizedToDefaultLocale(this.page);
+  },
+);
+
+Then(
+  /^the viewport meta tag should allow full-screen safe areas$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expectHeadMetaContent(this.page, "viewport", /viewport-fit=cover/u);
   },
 );
 
 Then(
   /^the theme color meta tag should have content "(?<content>[^"]*)"$/u,
   async function(this: GoatItWorld, content: string): Promise<void> {
-    await expect(this.page.locator("head meta[name=\"theme-color\"]")).toHaveAttribute("content", content);
+    await expectHeadMetaContent(this.page, "theme-color", content);
   },
 );
 
 Then(
   /^the apple touch icon link should be present in the document head$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.locator("head link[rel=\"apple-touch-icon\"]")).toHaveAttribute("href", "/pwa/apple-touch-icon.png");
+    await expectHeadLinkHref(this.page, "apple-touch-icon", "/pwa/apple-touch-icon.png");
   },
 );
 
 Then(
   /^the mobile web app capable meta tag should be present$/u,
   async function(this: GoatItWorld): Promise<void> {
-    await expect(this.page.locator("head meta[name=\"mobile-web-app-capable\"]")).toHaveAttribute("content", "yes");
+    await expectHeadMetaContent(this.page, "mobile-web-app-capable", "yes");
+  },
+);
+
+Then(
+  /^the apple mobile web app capable meta tag should be present$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expectHeadMetaContent(this.page, "apple-mobile-web-app-capable", "yes");
+  },
+);
+
+Then(
+  /^the apple mobile web app status bar style meta tag should have content "(?<content>[^"]*)"$/u,
+  async function(this: GoatItWorld, content: string): Promise<void> {
+    await expectHeadMetaContent(this.page, "apple-mobile-web-app-status-bar-style", content);
+  },
+);
+
+Then(
+  /^the apple mobile web app title meta tag should have content "(?<content>[^"]*)"$/u,
+  async function(this: GoatItWorld, content: string): Promise<void> {
+    await expectHeadMetaContent(this.page, "apple-mobile-web-app-title", content);
   },
 );
 
@@ -111,5 +150,14 @@ Then(
   // oxlint-disable-next-line eslint/prefer-arrow-callback
   function(this: GoatItWorld): void {
     expectServiceWorkerPrecachesOfflineFallback();
+  },
+);
+
+Then(
+  /^the built service worker should precache only the offline shell$/u,
+  // Acceptable as the Cucumber Then callback declares the typed world even though the artifact assertions need no page access
+  // oxlint-disable-next-line eslint/prefer-arrow-callback
+  function(this: GoatItWorld): void {
+    expectSlimServiceWorkerPrecache();
   },
 );

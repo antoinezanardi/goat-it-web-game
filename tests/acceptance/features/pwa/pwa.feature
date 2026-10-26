@@ -5,6 +5,14 @@ Feature: 📱 Progressive Web App
     Given the user is on home page
     Then the manifest link should be present in the document head
 
+  Scenario: 📱 The web manifest is localized to the default locale
+    Given the user is on home page
+    Then the web manifest should be localized to the default locale
+
+  Scenario: 📱 The viewport supports full-screen safe areas
+    Given the user is on home page
+    Then the viewport meta tag should allow full-screen safe areas
+
   Scenario: 📱 The theme color meta tag is present with the correct value
     Given the user is on home page
     Then the theme color meta tag should have content "#09090b"
@@ -16,6 +24,12 @@ Feature: 📱 Progressive Web App
   Scenario: 📱 The mobile web app capable meta tag is present
     Given the user is on home page
     Then the mobile web app capable meta tag should be present
+
+  Scenario: 📱 The iOS standalone meta tags are present
+    Given the user is on home page
+    Then the apple mobile web app capable meta tag should be present
+    And the apple mobile web app status bar style meta tag should have content "black-translucent"
+    And the apple mobile web app title meta tag should have content "Goat It"
 
   Scenario: 📱 The service worker registers and becomes active after page load
     Given the user is on home page
@@ -96,6 +110,9 @@ Feature: 📱 Progressive Web App
   Scenario: 📱 The built fallback is static and precached
     Then the built offline fallback should be a static document
     And the built service worker should precache the offline fallback
+
+  Scenario: 📱 The built service worker precaches only the offline shell
+    Then the built service worker should precache only the offline shell
 
   Scenario: 📱 The offline fallback ignores the active locale
     Given the database is populated with the question fixture set "five-active-questions"

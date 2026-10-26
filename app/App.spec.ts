@@ -73,6 +73,9 @@ describe("App Component", () => {
       { selector: "link", index: 2, entry: { rel: "preload", href: "/fonts/Geist/geist-latin.woff2", as: "font", type: "font/woff2", crossorigin: "anonymous" } },
       { selector: "meta", index: 0, entry: { name: "theme-color", content: "#09090b" } },
       { selector: "meta", index: 1, entry: { name: "mobile-web-app-capable", content: "yes" } },
+      { selector: "meta", index: 2, entry: { name: "apple-mobile-web-app-capable", content: "yes" } },
+      { selector: "meta", index: 3, entry: { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" } },
+      { selector: "meta", index: 4, entry: { name: "apple-mobile-web-app-title", content: "Goat It" } },
     ])("should call useHead with the correct $selector entry at index $index when mounted.", ({ selector, index, entry }) => {
       expect(getAppHeadConfig()?.[selector][index]).toStrictEqual(entry);
     });
