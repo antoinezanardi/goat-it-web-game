@@ -102,11 +102,11 @@ const areShortcutsDisabled = computed<boolean>(() => isSidebarOpen.value ||
       </h1>
 
       <GameSidebarToggleButton
-        class="absolute left-4 top-4 z-20"
+        class="absolute left-[max(1rem,env(safe-area-inset-left))] top-[max(1rem,env(safe-area-inset-top))] z-20"
         @click="openSidebar"
       />
 
-      <div class="absolute right-4 top-4 z-20">
+      <div class="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] z-20">
         <GameQuestionsFiltersButton
           ref="filtersButton"
           @click="openFiltersModal"

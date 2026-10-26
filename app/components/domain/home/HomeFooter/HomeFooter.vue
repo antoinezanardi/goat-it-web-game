@@ -4,7 +4,7 @@ import { HOME_HOW_TO_PLAY_BUTTON_UI } from "@/components/domain/home/HomeFooter/
 
 <template>
   <footer
-    class="flex items-center justify-between px-6 py-4"
+    class="flex items-center justify-between pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(1.5rem,env(safe-area-inset-left))] pr-[max(1.5rem,env(safe-area-inset-right))] pt-4"
     data-testid="home-footer"
   >
     <UButton

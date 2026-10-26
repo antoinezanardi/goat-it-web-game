@@ -16,7 +16,7 @@ useSeoMeta({
     id="home-page"
     class="bg-app-bg flex flex-col min-h-dvh overflow-hidden relative"
   >
-    <div class="absolute flex gap-2 right-4 top-4">
+    <div class="absolute flex gap-2 right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))]">
       <ChangelogWhatsNewButton
         data-testid="home-changelog-button"
         :is-changelog-unread="isChangelogUnread"

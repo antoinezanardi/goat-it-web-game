@@ -30,7 +30,23 @@ function resolveSuggestedLocale(browserLanguages: readonly string[]): Locale | u
   return undefined;
 }
 
+/**
+ * Returns the configured default locale when it is supported, otherwise the fallback.
+ *
+ * @throws When a configured locale is present but unsupported.
+ */
+function resolveDefaultLocale(configuredLocale: string | undefined, fallbackLocale: Locale): Locale {
+  if (configuredLocale === undefined) {
+    return fallbackLocale;
+  }
+  if (!isValidLocale(configuredLocale)) {
+    throw new Error(`Unsupported default locale: "${configuredLocale}".`);
+  }
+  return configuredLocale;
+}
+
 export {
   resolveCookieLocale,
+  resolveDefaultLocale,
   resolveSuggestedLocale,
 };

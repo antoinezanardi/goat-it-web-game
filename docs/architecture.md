@@ -281,6 +281,9 @@ Layouts remain at `app/layouts/<Layout>/` with stable filenames/path-derived key
   `app/App.vue`.
 - Workbox configuration lives in `nuxt.config.ts` under `pwa.workbox`; there is no hand-written service
   worker source. Behavior and limitations are owned by [PWA](pwa.md).
+- Manifest generation: `shared/utils/helpers/pwa/manifest/` owns the pure localized-manifest builder and the
+  validated translation loader (unit-tested in the `node` project). `nuxt.config.ts` keeps only the locale
+  file I/O wiring, the default-locale resolution call, and the Workbox configuration.
 
 ## 5. Shared architecture
 

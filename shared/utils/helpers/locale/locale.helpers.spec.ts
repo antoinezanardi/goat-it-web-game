@@ -1,6 +1,7 @@
+import type { Locale } from "@goat-it/schemas/shared/locale";
 import { describe, it, expect } from "vitest";
 
-import { resolveCookieLocale, resolveSuggestedLocale } from "#shared/utils/helpers/locale/locale.helpers";
+import { resolveCookieLocale, resolveDefaultLocale, resolveSuggestedLocale } from "#shared/utils/helpers/locale/locale.helpers";
 
 describe(resolveCookieLocale, () => {
   it.each<{ cookieValue: string | undefined; expected: string; description: string }>([
@@ -25,5 +26,18 @@ describe(resolveSuggestedLocale, () => {
     { browserLanguages: [], expected: undefined, description: "an empty list" },
   ])("should return '$expected' when browser languages are $description.", ({ browserLanguages, expected }) => {
     expect(resolveSuggestedLocale(browserLanguages)).toBe(expected);
+  });
+});
+
+describe(resolveDefaultLocale, () => {
+  it.each<{ configuredLocale: string | undefined; expected: Locale; description: string }>([
+    { configuredLocale: "fr", expected: "fr", description: "a supported locale" },
+    { configuredLocale: undefined, expected: "en", description: "undefined" },
+  ])("should return '$expected' when the configured locale is $description.", ({ configuredLocale, expected }) => {
+    expect(resolveDefaultLocale(configuredLocale, "en")).toBe(expected);
+  });
+
+  it("should throw when the configured locale is unsupported.", () => {
+    expect(() => resolveDefaultLocale("ja", "en")).toThrow("Unsupported default locale: \"ja\".");
   });
 });
