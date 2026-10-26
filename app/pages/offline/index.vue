@@ -1,39 +1,31 @@
 <script lang="ts" setup>
 const { t } = useI18n();
+
+const OFFLINE_RETRY_LINK_CLASSES =
+  "bg-primary-800 border border-primary-300/45 focus-visible:outline-3 focus-visible:outline-primary-300/50 " +
+  "font-medium gap-2 hover:bg-primary-800/75 active:bg-primary-800/75 inline-flex items-center " +
+  "px-3 py-2 rounded-md shadow-[0_0_10px_rgba(30,64,175,0.45)] text-base text-white " +
+  "[text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors";
 </script>
 
 <template>
-  <div
+  <StatusScreen
     id="offline-page"
-    class="bg-app-bg flex flex-col gap-6 items-center justify-center min-h-dvh px-6 text-center"
-    data-testid="offline-page"
+    :description="t('offline.description')"
+    icon="i-lucide-wifi-off"
+    test-id="offline-page"
+    :title="t('offline.title')"
+    title-tag="h1"
+    variant="page"
   >
-    <UIcon
-      aria-hidden="true"
-      class="size-16 text-fg-secondary"
-      name="i-lucide-wifi-off"
-    />
-
-    <h1
-      class="font-bold text-3xl text-fg-primary"
-      data-testid="offline-page-title"
-    >
-      {{ t("offline.title") }}
-    </h1>
-
-    <p
-      class="max-w-md text-fg-secondary"
-      data-testid="offline-page-description"
-    >
-      {{ t("offline.description") }}
-    </p>
-
-    <a
-      class="bg-primary-800 border border-primary-300/45 font-medium px-5 py-2 rounded-lg shadow-[0_0_10px_rgba(30,64,175,0.45)] text-sm text-white"
-      data-testid="offline-retry-link"
-      href=""
-    >
-      {{ t("offline.retry") }}
-    </a>
-  </div>
+    <template #actions>
+      <a
+        :class="OFFLINE_RETRY_LINK_CLASSES"
+        data-testid="offline-retry-link"
+        href=""
+      >
+        {{ t("offline.retry") }}
+      </a>
+    </template>
+  </StatusScreen>
 </template>

@@ -8,6 +8,8 @@
     "confirm": "Confirmer",
     "cancel": "Annuler",
     "listConjunction": "et",
+    "retry": "Réessayer",
+    "backToHome": "Retour à l'accueil",
     "connectivity": {
       "offline": "Hors ligne",
       "online": "En ligne"

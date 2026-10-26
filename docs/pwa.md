@@ -63,8 +63,9 @@ including online ones. The fallback must be network-failure-only, so no navigati
 - copy comes from the `offline` namespace in `app/i18n/locales/<locale>/offline.json` and is rendered during
   prerender with the build-configured default locale (`i18n.defaultLocale`, driven by
   `NUXT_PUBLIC_DEFAULT_LOCALE` and falling back to `DEFAULT_LOCALE_FALLBACK`);
-- the Retry control is a native `<a href="">`, which reloads the current requested URL; it never calls the API
-  and never claims that game state was restored.
+- the page renders the shared `StatusScreen` (`app/components/shared/ui/StatusScreen/`, `page` variant); the Retry
+  control remains a native `<a href="">`, which reloads the current requested URL; it never calls the API and never
+  claims that game state was restored.
 
 The navigation fallback is a `generateSW` runtime route:
 
