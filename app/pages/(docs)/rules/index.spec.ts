@@ -1,10 +1,14 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Mock } from "vitest";
 import { ref } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { useAsyncDataMock } from "~~/tests/unit/setup/nuxt/composables/use-async-data.nuxt.unit-setup";
+
+import type { UButton } from "#components";
+import { StatusScreen } from "#components";
 
 import RulesPage from "@/pages/(docs)/rules/index.vue";
 
@@ -33,8 +37,8 @@ describe("Rules Page", () => {
       expect(wrapper.findComponent({ name: "LoadingSpinner" }).exists()).toBe(true);
     });
 
-    it("should not render error message when status is pending.", () => {
-      expect(wrapper.text()).not.toContain("errors.generic");
+    it("should not render StatusScreen when status is pending.", () => {
+      expect(wrapper.findComponent(StatusScreen).exists()).toBe(false);
     });
 
     it("should not render DocsPageShell when status is pending.", () => {
@@ -115,31 +119,106 @@ describe("Rules Page", () => {
       wrapper = await mountRulesPage();
     });
 
-    it("should render pageNotFound message when data is null and status is success.", () => {
-      expect(wrapper.text()).toContain("errors.pageNotFound");
+    it("should render StatusScreen when data is null and status is success.", () => {
+      expect(wrapper.findComponent(StatusScreen).exists()).toBe(true);
+    });
+
+    it("should pass the pageNotFound message key to StatusScreen when data is null and status is success.", () => {
+      expect(wrapper.findComponent(StatusScreen).props("title")).toBe("errors.pageNotFound");
+    });
+
+    it("should pass the file-question icon to StatusScreen when data is null and status is success.", () => {
+      expect(wrapper.findComponent(StatusScreen).props("icon")).toBe("i-lucide-file-question");
+    });
+
+    it("should render the rules-page-not-found test id when data is null and status is success.", async() => {
+      wrapper = await mountRulesPage({ shallow: false });
+
+      expect(wrapper.find("[data-testid='rules-page-not-found']").exists()).toBe(true);
     });
 
     it("should not render DocsPageShell when data is null.", () => {
       expect(wrapper.findComponent({ name: "DocsPageShell" }).exists()).toBe(false);
     });
+
+    it.each<{ description: string; prop: "icon" | "label" | "to"; value: string }>([
+      { description: "the root route", prop: "to", value: "/" },
+      { description: "the backToHome i18n key", prop: "label", value: "common.backToHome" },
+      { description: "the house icon", prop: "icon", value: "i-lucide-house" },
+    ])("should pass $description to the back home button when data is null and status is success.", async({ prop, value }) => {
+      wrapper = await mountRulesPage({ shallow: false });
+      const backHomeButton = wrapper.findComponent<typeof UButton>({ name: "UButton" });
+
+      expect(backHomeButton.props(prop)).toBe(value);
+    });
+
+    it("should render the back home button test id when data is null and status is success.", async() => {
+      wrapper = await mountRulesPage({ shallow: false });
+
+      expect(wrapper.find("[data-testid='rules-page-back-home']").exists()).toBe(true);
+    });
   });
 
   describe("when content fetch errors.", () => {
+    let executeMock: Mock<() => Promise<unknown>>;
+
     beforeEach(async() => {
+      executeMock = vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined);
       useAsyncDataMock.instance.mockReturnValue({
         data: ref<unknown>(null),
         status: ref("error"),
-        execute: vi.fn<() => Promise<unknown>>().mockResolvedValue(undefined),
+        execute: executeMock,
       });
       wrapper = await mountRulesPage();
     });
 
-    it("should render generic error message when status is error.", () => {
-      expect(wrapper.text()).toContain("errors.generic");
+    it("should render StatusScreen when status is error.", () => {
+      expect(wrapper.findComponent(StatusScreen).exists()).toBe(true);
+    });
+
+    it("should pass the generic error message key to StatusScreen when status is error.", () => {
+      expect(wrapper.findComponent(StatusScreen).props("title")).toBe("errors.generic");
+    });
+
+    it("should pass the triangle-alert icon to StatusScreen when status is error.", () => {
+      expect(wrapper.findComponent(StatusScreen).props("icon")).toBe("i-lucide-triangle-alert");
+    });
+
+    it("should render the rules-page-error test id when status is error.", async() => {
+      wrapper = await mountRulesPage({ shallow: false });
+
+      expect(wrapper.find("[data-testid='rules-page-error']").exists()).toBe(true);
     });
 
     it("should not render DocsPageShell when status is error.", () => {
       expect(wrapper.findComponent({ name: "DocsPageShell" }).exists()).toBe(false);
+    });
+
+    it("should pass the common.retry i18n key to the retry button when status is error.", async() => {
+      wrapper = await mountRulesPage({ shallow: false });
+      const retryButton = wrapper.findComponent<typeof UButton>("[data-testid='rules-page-retry']");
+
+      expect(retryButton.props("label")).toBe("common.retry");
+    });
+
+    it("should render the retry button test id when status is error.", async() => {
+      wrapper = await mountRulesPage({ shallow: false });
+
+      expect(wrapper.find("[data-testid='rules-page-retry']").exists()).toBe(true);
+    });
+
+    it("should render the refresh icon on the retry button when status is error.", async() => {
+      wrapper = await mountRulesPage({ shallow: false });
+      const retryButton = wrapper.findComponent<typeof UButton>("[data-testid='rules-page-retry']");
+
+      expect(retryButton.props("icon")).toBe("i-lucide-refresh-cw");
+    });
+
+    it("should execute the content fetch when the retry button is clicked.", async() => {
+      wrapper = await mountRulesPage({ shallow: false });
+      await wrapper.find("[data-testid='rules-page-retry']").trigger("click");
+
+      expect(executeMock).toHaveBeenCalledOnce();
     });
   });
 

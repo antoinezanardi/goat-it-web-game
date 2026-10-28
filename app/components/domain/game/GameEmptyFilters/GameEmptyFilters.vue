@@ -11,32 +11,20 @@ function onResetFilters(): void {
 </script>
 
 <template>
-  <div
-    class="flex flex-1 flex-col gap-6 items-center justify-center px-4 py-6"
-    data-testid="game-empty-filters"
+  <StatusScreen
+    :description="t('game.emptyFilters.description')"
+    :icon="GAME_EMPTY_FILTERS_ICON"
+    test-id="game-empty-filters"
+    :title="t('game.emptyFilters.title')"
   >
-    <UIcon
-      aria-hidden="true"
-      class="size-20"
-      :name="GAME_EMPTY_FILTERS_ICON"
-    />
-
-    <div class="flex flex-col gap-2 items-center max-w-md">
-      <p class="font-medium text-center text-fg-primary text-xl">
-        {{ t("game.emptyFilters.title") }}
-      </p>
-
-      <p class="text-center text-muted">
-        {{ t("game.emptyFilters.description") }}
-      </p>
-    </div>
-
-    <UButton
-      data-testid="game-empty-filters-reset"
-      :icon="GAME_EMPTY_FILTERS_RESET_ICON"
-      :label="t('game.emptyFilters.reset')"
-      size="xl"
-      @click="onResetFilters"
-    />
-  </div>
+    <template #actions>
+      <UButton
+        data-testid="game-empty-filters-reset"
+        :icon="GAME_EMPTY_FILTERS_RESET_ICON"
+        :label="t('game.emptyFilters.reset')"
+        size="xl"
+        @click="onResetFilters"
+      />
+    </template>
+  </StatusScreen>
 </template>
