@@ -210,7 +210,8 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
   - Collected for `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`, `shared/**/*.ts`.
   - Excluded: `*.constants.ts`, `*.enums.ts`, `*.types.ts`, `*.d.ts`, `*.config.ts`,
     `*.spec.ts`, `app/plugins/**/*.ts`, `server/api/**/*.{get,post,put,patch,delete}.ts`,
-    `server/middleware/**/*.ts`, `server/plugins/**/*.ts`.
+    `server/routes/**/*.{get,post,put,patch,delete}.ts`, `server/middleware/**/*.ts`,
+    `server/plugins/**/*.ts`.
 
 - Mocks in `tests/unit/utils/mocks/` — `composables/` and `repositories/` sub-dirs.
   - Non-trivial mocks use a triplet: `.mock.ts` + optionally `.mock.constants.ts` + `.mock.types.ts`.
@@ -286,6 +287,7 @@ Slash commands available in OpenCode sessions:
 - `docs/acceptance-testing.md` – Full acceptance testing guide (Cucumber, Playwright, patterns, examples).
 - `docs/security.md` – Security hardening reference: security headers, CSP nonce, rate limiting, body guard, upstream fetch pipeline and error contract.
 - `docs/pwa.md` – PWA behavior: manifest/update strategy, Workbox precache, offline fallback, connectivity indicator, and API caching limits.
+- `docs/operations.md` – Operations reference: health/readiness endpoints, container health check, graceful shutdown, and post-deploy verification.
 - `docs/architecture.md` – Canonical architecture, file placement, naming, and dependency boundaries.
 
 ## MemPalace (persistent project memory)

@@ -46,3 +46,8 @@ jobs:
           ssh-server-ip: ${{ secrets.PREPRODUCTION_SERVER_SSH_ADDRESS }}
           update-script-full-path: ${{ secrets.PREPRODUCTION_UPDATE_SCRIPT_FULL_PATH }}
           known-hosts: ${{ secrets.PREPRODUCTION_SERVER_KNOWN_HOSTS }}
+
+      - name: Health check deployed site 🩺
+        uses: ./.github/actions/health-check
+        with:
+          health-check-url: ${{ vars.PREPRODUCTION_SITE_URL }}/healthz

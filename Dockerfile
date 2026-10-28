@@ -100,6 +100,6 @@ COPY --from=build --chown=node:node /app/.output ./.output
 EXPOSE 3002
 
 HEALTHCHECK --interval=20s --timeout=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3002 || exit 1
+  CMD wget --no-verbose --tries=1 -O /dev/null http://localhost:3002/healthz || exit 1
 
 CMD ["node", ".output/server/index.mjs"]

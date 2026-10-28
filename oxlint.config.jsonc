@@ -1334,6 +1334,15 @@
         "import/no-default-export": "off"
       }
     },
+    // ---- Override for server root route endpoint files -----
+    {
+      "files": [
+        "**/server/routes/**/*.{get,post,put,patch,delete}.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
     // ---- Override for server plugin files -----
     {
       "files": [

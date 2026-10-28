@@ -45,3 +45,8 @@ jobs:
           ssh-server-ip: ${{ secrets.PRODUCTION_SERVER_SSH_ADDRESS }}
           update-script-full-path: ${{ secrets.PRODUCTION_UPDATE_SCRIPT_FULL_PATH }}
           known-hosts: ${{ secrets.PRODUCTION_SERVER_KNOWN_HOSTS }}
+
+      - name: Health check deployed site 🩺
+        uses: ./.github/actions/health-check
+        with:
+          health-check-url: ${{ vars.PRODUCTION_SITE_URL }}/healthz

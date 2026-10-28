@@ -34,6 +34,7 @@ export default defineConfig({
         "**/*.spec.ts",
         "app/plugins/**/*.ts",
         "server/api/**/*.{get,post,put,patch,delete}.ts",
+        "server/routes/**/*.{get,post,put,patch,delete}.ts",
         "server/middleware/**/*.ts",
         "server/plugins/**/*.ts",
       ],
