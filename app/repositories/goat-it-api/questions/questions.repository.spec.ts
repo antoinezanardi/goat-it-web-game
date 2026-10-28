@@ -1,8 +1,10 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import type { $Fetch } from "nitropack";
 import { createFakeFindRandomQuestionsBodyDto } from "@goat-it/schemas/testing/question";
+import { ZodError } from "zod";
 
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
+import { createFakeQuestionSerialized } from "~~/tests/unit/utils/faketories/question/question.serialized.faketory";
 
 import { questionsRepository } from "@/repositories/goat-it-api/questions/questions.repository";
 import type { GoatItApiRequestOptions } from "@/repositories/goat-it-api/goat-it-api.types";
@@ -40,7 +42,7 @@ describe(questionsRepository, () => {
         createFakeQuestion(),
       ];
       const repository = questionsRepository(fetchMock as $Fetch);
-      fetchMock.mockResolvedValue(fakeQuestions);
+      fetchMock.mockResolvedValue(fakeQuestions.map(createFakeQuestionSerialized));
 
       const result = await repository.getByIds(["507f1f77bcf86cd799439011"]);
 
@@ -65,6 +67,13 @@ describe(questionsRepository, () => {
       await repository.getByIds(["507f1f77bcf86cd799439011"]);
 
       expect(fetchMock.mock.calls[0]?.[1]).not.toHaveProperty("signal");
+    });
+
+    it("should throw a ZodError when fetch returns questions with an invalid shape.", async() => {
+      const repository = questionsRepository(fetchMock as $Fetch);
+      fetchMock.mockResolvedValue([{}]);
+
+      await expect(repository.getByIds(["507f1f77bcf86cd799439011"])).rejects.toThrow(ZodError);
     });
   });
 
@@ -96,7 +105,7 @@ describe(questionsRepository, () => {
         createFakeQuestion(),
       ];
       const repository = questionsRepository(fetchMock as $Fetch);
-      fetchMock.mockResolvedValue(fakeQuestions);
+      fetchMock.mockResolvedValue(fakeQuestions.map(createFakeQuestionSerialized));
 
       const result = await repository.getRandom();
 
@@ -121,6 +130,13 @@ describe(questionsRepository, () => {
       await repository.getRandom();
 
       expect(fetchMock.mock.calls[0]?.[1]).not.toHaveProperty("signal");
+    });
+
+    it("should throw a ZodError when fetch returns questions with an invalid shape.", async() => {
+      const repository = questionsRepository(fetchMock as $Fetch);
+      fetchMock.mockResolvedValue([{}]);
+
+      await expect(repository.getRandom()).rejects.toThrow(ZodError);
     });
   });
 });

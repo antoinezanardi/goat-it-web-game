@@ -35,12 +35,13 @@ Apply the rules **in order**, first match wins:
 | 1 | Suffix `.store.spec.ts`                                                  | Store              | `stores`       |
 | 2 | Suffix `.repository.spec.ts`                                             | Repository         | `repositories` |
 | 3 | Located in `app/i18n/specs/`                                             | i18n translations  | `node`         |
-| 4 | Suffix `.mappers.spec.ts`, `.helpers.spec.ts` or `.translations.spec.ts` | Node helper/mapper | `node`         |
-| 5 | Located under `app/layouts/**/spec/`                                     | Layout             | `nuxt`         |
-| 6 | Located under `app/pages/`                                               | Page               | `nuxt`         |
-| 7 | Located under `app/composables/`                                         | Composable         | `composables`  |
-| 8 | Under `server/api/**/handlers/` or suffix `.handler.spec.ts`             | Server handler     | `nuxt`         |
-| 9 | Anything else (e.g. `App.spec.ts`, `OgImage.takumi.spec.ts`)             | Component          | `nuxt`         |
+| 4 | Suffix `.schemas.spec.ts` or located under `shared/schemas/`             | Schema             | `node`         |
+| 5 | Suffix `.mappers.spec.ts`, `.helpers.spec.ts` or `.translations.spec.ts` | Node helper/mapper | `node`         |
+| 6 | Located under `app/layouts/**/spec/`                                     | Layout             | `nuxt`         |
+| 7 | Located under `app/pages/`                                               | Page               | `nuxt`         |
+| 8 | Located under `app/composables/`                                         | Composable         | `composables`  |
+| 9 | Under `server/api/**/handlers/` or suffix `.handler.spec.ts`             | Server handler     | `nuxt`         |
+| 10 | Anything else (e.g. `App.spec.ts`, `OgImage.takumi.spec.ts`)            | Component          | `nuxt`         |
 
 The type selects which per-type checklist applies alongside the universal checks.
 
@@ -52,7 +53,7 @@ Audit subagents apply this checklist verbatim. Violations are recorded with rule
 
 - **[U1] Location & naming** — Spec colocated with source as `SourceFile.spec.ts`. Exceptions: layouts → `spec/` subfolder; i18n → `app/i18n/specs/`.
 - **[U2] Explicit vitest imports** — `describe`, `it`, `expect`, `vi`, etc. imported from `"vitest"` in every test file. No reliance on globals.
-- **[U3] Describe label rule** — Components: string `"<Name> Component"`. Pages: string `"<Name> Page"`. Layouts: string `"<Name> Layout"`. Server handlers: outer string `"Server Goat It API <Resource> <Method> Handler"` + inner `describe(handlerFn, ...)`. Stores: string form `describe("useXxxStore", ...)` or symbol reference (docs §6.5 pattern). Functions/composables/repositories: symbol reference (`describe(myFn, ...)`); free-form string only when no single symbol applies. Never a direct component/page/layout reference, and never a free-form grouping string wrapping symbol describes.
+- **[U3] Describe label rule** — Components: string `"<Name> Component"`. Pages: string `"<Name> Page"`. Layouts: string `"<Name> Layout"`. Server handlers: outer string `"Server Goat It API <Resource> <Method> Handler"` + inner `describe(handlerFn, ...)`. Stores: string form `describe("useXxxStore", ...)` or symbol reference (docs §6.5 pattern). Schemas: human-readable string form `"<Name> schema"` (e.g. `describe("Question theme schema", ...)`), never the constant symbol; a Zod schema is an object, not a valid Vitest title, and a title equal to the imported constant is auto-rewritten by `vitest/prefer-describe-function-title`. Functions/composables/repositories: symbol reference (`describe(myFn, ...)`); free-form string only when no single symbol applies. Never a direct component/page/layout reference, and never a free-form grouping string wrapping symbol describes.
 - **[U4] Single-call assertions** — No `toHaveBeenCalledTimes(1)` combined with `toHaveBeenCalledWith(...)`. Use `toHaveBeenCalledExactlyOnceWith(...)`.
 - **[U5] Error swallowing** — No `.catch(() => null)`. Use try/catch with `void error` when asserting side effects of throwing code.
 - **[U6] Translation keys** — Assertions compare translation keys, never translated prose strings.
@@ -172,6 +173,15 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 
 - **[N1] Pure tests** — No mocking infrastructure of the unit under test or its collaborators. Exception: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, spying on global timers) are allowed to test time-dependent helpers deterministically. Environment-coupled Goat It API fetch-options and locale helper specs may stub `useRuntimeConfig` and h3 globals where required by the function contract — established exception, never flagged.
 - **[N2] Aliases** — Server helper specs import via `#server/utils/...`; shared helper specs via `#shared/utils/...`; app-local helper/mapper specs (e.g. under `app/components/` or `app/composables/`) via `@/`.
+
+#### Schema checks
+
+- **[SC1] Location & project** — Spec colocated as `shared/schemas/<domain>/<entity>.schemas.spec.ts`, running in the `node` project. No Nuxt environment, no mocks, no `mountSuspended`.
+- **[SC2] Describe label** — One top-level string describe per exported schema constant, using a human-readable label and no suffix: `describe("Question theme schema", ...)`. Never the constant symbol (`describe(QUESTION_THEME_SCHEMA, ...)`) — a Zod schema is an object, not a valid Vitest title — and never the exact constant name, which `vitest/prefer-describe-function-title` auto-rewrites into that invalid symbol form.
+- **[SC3] Valid path** — The valid-path test builds its payload with the serialized faketory (`<entity>.serialized.faketory.ts`) from an entity faketory and asserts `toStrictEqual` against the domain entity, proving ISO strings hydrate into `Date` instances without data loss.
+- **[SC4] Invalid paths** — Every exported schema constant has at least one malformed-payload test asserting `ZodError`. Input variants are grouped in a typed `it.each` table with a `description` field; malformed values that cannot go through the entity faketory (unknown keys, `null` dates) use a per-case `mutateSerialized` builder.
+- **[SC5] Null-date regressions** — Every date field has a `null` regression row (`z.coerce.date()` silently accepts `null` as the epoch); date fields must validate an ISO datetime string first.
+- **[SC6] Array schemas** — When a list schema is exported (`QUESTIONS_SCHEMA`), cover it with a valid-path test over a list of serialized entities.
 
 #### i18n translation checks
 

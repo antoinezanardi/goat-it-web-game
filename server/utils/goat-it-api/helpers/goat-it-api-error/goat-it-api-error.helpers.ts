@@ -102,6 +102,16 @@ function throwGoatItApiFetchError(error: FetchError): never {
   throwGoatItApiResponseError(error, response, response.status);
 }
 
+/**
+ * Converts any upstream failure into a sanitized proxy error with a client-safe status, `errorCode`, and `data`.
+ *
+ * `FetchError` responses keep forwarded 4xx statuses when their body parses, become 502 for upstream 401/403 without forwarding messages,
+ * and propagate `errorCode` plus `Retry-After` on 429. Upstream timeouts become 504. `ZodError` contract drift becomes 502.
+ * Unexpected failures are logged and become 500.
+ *
+ * @throws Always. The caller must not rely on a return value.
+ * @see docs/security.md
+ */
 function throwGoatItApiError(error: unknown): never {
   if (error instanceof FetchError) {
     throwGoatItApiFetchError(error);

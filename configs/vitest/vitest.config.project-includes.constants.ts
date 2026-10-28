@@ -12,6 +12,7 @@ const VITEST_NODE_PROJECT_INCLUDES = [
   "server/**/*.helpers.spec.ts",
   "shared/**/*.mappers.spec.ts",
   "shared/**/*.helpers.spec.ts",
+  "shared/**/*.schemas.spec.ts",
 ];
 
 const VITEST_DOM_PROJECT_INCLUDES = [

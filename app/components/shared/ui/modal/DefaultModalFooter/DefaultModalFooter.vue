@@ -38,7 +38,6 @@ defineShortcuts({
         onClickFromPrimaryButton();
       }
     },
-    usingInput: true,
   },
 });
 </script>

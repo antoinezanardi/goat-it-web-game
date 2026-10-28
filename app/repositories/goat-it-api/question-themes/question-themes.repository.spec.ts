@@ -1,8 +1,10 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import type { $Fetch } from "nitropack";
 import { createFakeFindQuestionThemesQueryDto } from "@goat-it/schemas/testing/question-theme";
+import { ZodError } from "zod";
 
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
+import { createFakeQuestionThemeSerialized } from "~~/tests/unit/utils/faketories/question-theme/question-theme.serialized.faketory";
 
 import { questionThemesRepository } from "@/repositories/goat-it-api/question-themes/question-themes.repository";
 import type { GoatItApiRequestOptions } from "@/repositories/goat-it-api/goat-it-api.types";
@@ -52,7 +54,7 @@ describe(questionThemesRepository, () => {
         createFakeQuestionTheme(),
       ];
       const repository = questionThemesRepository(fetchMock as $Fetch);
-      fetchMock.mockResolvedValue(fakeQuestionThemes);
+      fetchMock.mockResolvedValue(fakeQuestionThemes.map(createFakeQuestionThemeSerialized));
 
       const result = await repository.getAll();
 
@@ -77,6 +79,13 @@ describe(questionThemesRepository, () => {
       await repository.getAll();
 
       expect(fetchMock.mock.calls[0]?.[1]).not.toHaveProperty("signal");
+    });
+
+    it("should throw a ZodError when fetch returns question themes with an invalid shape.", async() => {
+      const repository = questionThemesRepository(fetchMock as $Fetch);
+      fetchMock.mockResolvedValue([{}]);
+
+      await expect(repository.getAll()).rejects.toThrow(ZodError);
     });
   });
 });

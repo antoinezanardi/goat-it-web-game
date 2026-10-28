@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { computed } from "vue";
-
 import { DOCS_TOC_UI } from "@/components/docs/DocsToc/docs-toc.constants";
 import { mapSectionsToTocLinks } from "@/components/docs/DocsToc/helpers/docs-toc/docs-toc.helpers";
 import type { DocsTocProps } from "@/components/docs/DocsToc/docs-toc.types";

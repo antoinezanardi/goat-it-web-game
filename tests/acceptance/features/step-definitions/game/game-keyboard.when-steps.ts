@@ -30,8 +30,6 @@ When(
   /^the user presses the Tab key (?<times>\d+) times$/u,
   async function(this: GoatItWorld, times: string): Promise<void> {
     for (let index = 0; index < Number(times); index++) {
-      // Acceptable as each Tab press must be sequential to exercise the focus trap
-      // oxlint-disable-next-line eslint/no-await-in-loop
       await this.page.keyboard.press("Tab");
     }
   },

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { computed } from "vue";
-
 import { DOCS_BACK_TO_TOP_THRESHOLD } from "@/components/docs/DocsBackToTop/docs-back-to-top.constants";
 
 const reducedMotion = usePreferredReducedMotion();
@@ -20,7 +18,7 @@ function scrollToTop(): void {
   <Transition name="fade">
     <div
       v-show="isVisible"
-      class="bottom-6 fixed right-6 z-10"
+      class="bottom-[max(1.5rem,env(safe-area-inset-bottom))] fixed right-[max(1.5rem,env(safe-area-inset-right))] z-10"
     >
       <UTooltip :text="$t('docs.backToTop')">
         <UButton

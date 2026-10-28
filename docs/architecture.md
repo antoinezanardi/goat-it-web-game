@@ -39,6 +39,7 @@ server/                      Nitro runtime
 shared/                      runtime-neutral app/server code
   constants/                 cross-runtime constants
   enums/                     cross-runtime enums
+  schemas/                   cross-runtime zod domain schemas
   types/                     cross-runtime types
   utils/helpers/<domain>/    cross-runtime helpers
 content/                     localized Nuxt Content documents
@@ -63,7 +64,7 @@ Normative boundaries:
 - `shared/` imports only runtime-neutral modules; it must not import `app/`, `server/`, or Nuxt build output. Keep Vue/browser/UI-only concepts out of this layer.
 - `scripts/` is standalone and must not import app/server/shared project aliases.
 - Server code validates external data with the shared Goat It schema package and converts DTOs to domain types in mapper units.
-- This guide does not settle whether pages/components may access stores directly. That boundary is explicitly deferred; stores must still use repositories for data access.
+- Component access to stores and shared-state composables follows the role-based ownership rule in §4.1; stores must still use repositories for data access.
 
 Framework discovery behavior takes precedence over project layout preference. Verify routes/component registrations after moving framework-discovered files. Official Nuxt references: [directory structure](https://nuxt.com/docs/4.x/directory-structure), [server directory](https://nuxt.com/docs/4.x/directory-structure/server), [app components](https://nuxt.com/docs/4.x/directory-structure/app/components), [app pages](https://nuxt.com/docs/4.x/directory-structure/app/pages).
 
@@ -81,6 +82,7 @@ Navigate by **runtime boundary → framework/project area → category/domain �
 | Helper         | `<descriptive-name>.helpers.ts`         | named camelCase functions                |
 | Mapper         | `<entity>.mappers.ts`                   | `create<Entity>From<Dto>`                |
 | Constants      | `<descriptive-name>.constants.ts`       | exported `UPPER_SNAKE_CASE`              |
+| Schema         | `<entity>.schemas.ts`                   | exported `UPPER_SNAKE_CASE` schemas      |
 | Enums          | `<descriptive-name>.enums.ts`           | PascalCase enum; upper-snake members     |
 | Types          | `<descriptive-name>.types.ts`           | PascalCase type aliases                  |
 | Unit spec      | matching artifact basename + `.spec.ts` | focused subject-specific describe        |
@@ -112,6 +114,13 @@ A constant used by two components should not stay artificially private to one co
 - An independently tested helper owns source and spec together. Component/composable-private helpers live beneath their owner in `helpers/<responsibility>/`; shared helpers live at the narrowest common domain.
 - `helpers/` is not a dump folder. The owner and unit names must communicate responsibility.
 
+### 3.3 Documentation comments
+
+Public logic APIs carry concise TSDoc as defined in [`jsdoc.md`](jsdoc.md): exported composables and their colocated option/return types, store actions, repository factories, server helpers/mappers/types, shared and app helpers, and shared types.
+JSDoc documents semantics that TypeScript cannot express (side effects, lifecycle, invariants, failure behavior, units, fallbacks); it never restates a name or type.
+Component contracts, server handlers, constants, and framework entrypoints are out of scope for the current pass.
+No other source comments are allowed; see the comment rules in `AGENTS.md`.
+
 ## 4. Application architecture
 
 ### 4.1 Components
@@ -128,11 +137,24 @@ app/components/domain/game/GameSidebar/
 
 - One component per owned directory. Child/reusable components own separate directories; do not put a second primary `.vue` in the parent component directory.
 - If a component declares props, emits, slots, or exposed instance members, it must have a colocated `*.types.ts` defining the full contract, including `defineExpose` members.
+- Prop and emit names are self-describing outside the component file: name the domain subject whose state or intent is carried (`isChangelogUnread`, `openChangelog`, `isSidebarOpen`), not a bare adjective or verb (`isUnread`, `open`). Exemptions are Vue/Nuxt UI-mandated names (`modelValue`, `update:modelValue`), framework passthrough events (`after:leave`), and native element adapter props/events (`disabled`, `loading`, `click`).
 - Component-private constants stay beside the component. Promote only when multiple production units share them.
-- Components read store state through getters/refs and props. They must never assign store state or mutate store-owned values in place (`store.items.push(...)`, `store.settings.field = ...`, `$patch`); every state change goes through a store action. Props are read-only: emit an event instead of mutating them.
+- Components read store state through getters/refs and props, subject to the ownership rule in §4.1. They must never assign store state or mutate store-owned values in place (`store.items.push(...)`, `store.settings.field = ...`, `$patch`); every state change goes through a store action. Props are read-only: emit an event instead of mutating them.
 - Keep small private logic in `<script setup>`; extract meaningful complexity only under the helper rules above.
 - SFC order is `<script lang="ts" setup>`, `<template>`, `<style>`.
 - Nuxt Content components also own a directory beneath `app/components/content/`. Preserve the component name used by MDC Markdown and verify rendering after moves. Nuxt's `pathPrefix: false` names components from their filename; the exact nested Content registration is verified by this project, not assumed.
+
+#### Component state ownership
+
+A component's access to global state follows its responsibility, not its depth:
+
+- A **feature-owning component** may read a store or shared-state domain composable when it coordinates that feature or derives feature-specific state needed by its UI.
+- A **presentation child** receives the data it displays through props and communicates user intent with emits; it does not reach into shared application state merely to render that data.
+- Component depth, reuse, and being located under a page do not by themselves determine ownership. Apply the rule according to the component's responsibility.
+- Keep state access at the nearest meaningful feature owner. Do not lift state or add pass-through props solely to conceal a store/composable read.
+- Store-owned mutations still go through store actions; props remain read-only and children emit intent rather than mutating props.
+
+This is a project convention layered on Vue's one-way-down props and emit-up contract; neither Vue nor Pinia specifies this component taxonomy.
 
 ### 4.2 Composables
 
@@ -173,12 +195,12 @@ app/stores/domain/game-settings/
 └── game-settings.types.ts
 ```
 
-Stores own domain state and state-changing actions. Use `StoreNames`; follow the established async-action pattern. Colocate private constants. Add `.types.ts` when there is a standalone public state/action contract. Do not create an empty types file. Repositories own data access; the direct page/component store access policy is deferred.
+Stores own domain state and state-changing actions. Use `StoreNames`; follow the established async-action pattern. Colocate private constants. Add `.types.ts` when there is a standalone public state/action contract. Do not create an empty types file. Repositories own data access; the direct page/component store access policy follows §4.1.
 
 - Stores own the only actions allowed to change their state. Consumers must not assign store state or mutate store-owned values; every change goes through an action. Transient state (fetch status, loading flags) is exposed as read-only computed getters.
 - Stores are presentation-agnostic. They must not import or call toast, i18n, overlay, router, component, or DOM APIs. Async actions return the discriminated `AsyncResult` from `shared/types/async-result.types.ts` so the caller decides how to surface errors.
   - Async actions are latest-wins per lane: `AsyncResult` has a `superseded` variant (`{ ok: false; superseded: true }`) with no `error` field. Narrow it with `result.superseded === true` (strict boolean expressions). Consumers treat it as a no-op (no toast, no flag write, no state write); stores apply only `ok` results. Request bookkeeping (request id, `AbortController`, timer) stays closure-private inside `useAsyncAction` and is never returned from a store.
-- Serialized state must stay writable refs for SSR hydration and devtools; do not wrap returned state in `readonly()`. Enforce the mutation boundary by convention and review, not by hiding state.
+- Serialized state must stay writable refs for SSR hydration and devtools; do not wrap returned state in `readonly()`. Enforce the mutation boundary by convention and review, not by hiding state. Which component may read a store is decided by §4.1.
 
 ### 4.4 Repositories
 
@@ -190,7 +212,7 @@ app/repositories/goat-it-api/questions/
 └── questions.repository.spec.ts
 ```
 
-Repositories are typed factories accepting a `$Fetch`-compatible dependency and calling only internal `/api/goat-it-api/**` routes. Do not fetch the external API from app code, embed UI logic in repositories, or do DTO-to-domain mapping there. Stores construct repositories with `useRequestFetch()`; repository factories themselves must not call Nuxt composables. Nuxt documents that `useRequestFetch()` forwards request context during SSR and behaves like `$fetch` on the client ([docs](https://nuxt.com/docs/4.x/api/composables/use-request-fetch)). Repository methods accept an optional `GoatItApiRequestOptions` (`{ signal?: AbortSignal }`) and forward it unchanged to `$fetch`; the client timeout is enforced by `useAsyncAction`, not by repository fetch options. Add repository helpers/types/constants only for distinct justified behavior.
+Repositories are typed factories accepting a `$Fetch`-compatible dependency and calling only internal `/api/goat-it-api/**` routes. Do not fetch the external API from app code, embed UI logic in repositories, or do DTO-to-domain mapping there. Stores construct repositories with `useRequestFetch()`; repository factories themselves must not call Nuxt composables. Nuxt documents that `useRequestFetch()` forwards request context during SSR and behaves like `$fetch` on the client ([docs](https://nuxt.com/docs/4.x/api/composables/use-request-fetch)). Repository methods accept an optional `GoatItApiRequestOptions` (`{ signal?: AbortSignal }`) and forward it unchanged to `$fetch`; the client timeout is enforced by `useAsyncAction`, not by repository fetch options. Every response is parsed against its shared domain schema (`shared/schemas/<domain>/<entity>.schemas.ts`) before being returned, so malformed payloads fail with a `ZodError` instead of propagating as type lies. Add repository helpers/types/constants only for distinct justified behavior.
 
 ### 4.5 App utility areas
 
@@ -251,6 +273,20 @@ Layouts remain at `app/layouts/<Layout>/` with stable filenames/path-derived key
 - Locale cookie: `goat_it_locale` (`CookieNames.LOCALE`) with `LOCALE_COOKIE_OPTIONS`. Only `LocaleSelect` and `useLocaleSuggestion` write it; the server reads it for `Accept-Language` forwarding (`extractLocaleFromEvent`) and locale detection (`server/plugins/locale-detector`). It was hard-renamed from `i18n_redirected` with no legacy fallback.
 - Do not set `detectBrowserLanguage.cookieKey`: any object value re-enables browser-language detection and may redirect `/`.
 
+### 4.8 PWA and offline surface
+
+- Fallback page: `app/pages/offline/index.vue` with its colocated spec; prerendering, `noScripts`, and SEO
+  exclusion are route rules in `nuxt.config.ts`, never page-level config.
+- Offline copy: the `offline` namespace in `app/i18n/locales/<locale>/offline.json`, rendered during prerender.
+- Connectivity UI: `app/composables/ui/useConnectivityStatus/` (transition/timer behavior) and
+  `app/components/shared/ui/OfflineStatusIndicator/` (presentation). The indicator is mounted once in
+  `app/App.vue`.
+- Workbox configuration lives in `nuxt.config.ts` under `pwa.workbox`; there is no hand-written service
+  worker source. Behavior and limitations are owned by [PWA](pwa.md).
+- Manifest generation: `shared/utils/helpers/pwa/manifest/` owns the pure localized-manifest builder and the
+  validated translation loader (unit-tested in the `node` project). `nuxt.config.ts` keeps only the locale
+  file I/O wiring, the default-locale resolution call, and the Workbox configuration.
+
 ## 5. Shared architecture
 
 Root `shared/` is for runtime-neutral modules consumed across the app/server boundary:
@@ -259,11 +295,13 @@ Root `shared/` is for runtime-neutral modules consumed across the app/server bou
 shared/
 ├── constants/<concern>.constants.ts
 ├── enums/<concern>.enums.ts
+├── schemas/<domain>/<entity>.schemas.ts
 ├── types/<concern>.types.ts
 └── utils/helpers/<domain>/<unit>.helpers.ts
 ```
 
 - Shared constants/types are contracts, not a fallback for app-local files.
+- Cross-runtime zod schemas live under `shared/schemas/<domain>/`. They describe JSON-transported domain shapes (real `Date` fields, embedded domain objects) produced by server mappers; server code keeps validating upstream DTOs before mapping.
 - Use explicit imports even where Nuxt supports shared utility auto-imports.
 - Existing single-unit utility domains (`locale`, `object`, `string`, `time`) keep source/spec at the domain directory level; do not add a second `helpers/` level.
 - A runtime-neutral helper may stay under its shared domain even when one production unit consumes it. Its private types/constants remain in the helper unit. Do not move app-only helpers or app-only contracts into `shared/`.
@@ -406,6 +444,10 @@ Do not add a new root folder simply because a concept is shared. Pick an establi
 Non-production also disables the sitemap (`sitemap.enabled`), because `@nuxtjs/sitemap` does not filter URLs by site indexability. Do not set `site.indexable` directly: an explicit value overrides the environment-derived behavior and reopens the staging indexing bug.
 
 URL/locale strategy (`no_prefix`), social image alt policy, structured-data identity, JSON-LD reactivity and the production-only sitemap are recorded in [SEO](seo.md); locale cookie behavior is documented in §4.7.
+
+### 9.2 Nuxt compatibility version
+
+`nuxt.config.ts` pins `future.compatibilityVersion` to `4`, the Nuxt 4 default. Nuxt 5 behavior changes — notably the `payloadExtraction` and `navigateToEarlyReturn` defaults — stay opt-in until a dedicated Nuxt 5 migration covers SSR, payload, and navigation regressions.
 
 ## 10. Agent and workflow compliance
 

@@ -13,6 +13,15 @@ function pruneExpiredWindows(windows: Map<string, RateLimitWindow>, now: () => n
   }
 }
 
+/**
+ * Creates an in-memory fixed-window limiter: each key gets a window that starts on its first request and lasts `windowInMs`.
+ *
+ * The first request in a window is always allowed. Later requests over `maximumRequests` are limited until the window expires,
+ * and `retryAfterInSeconds` reports the remaining time. Expired windows are pruned only once the map grows past a threshold,
+ * so idle keys linger briefly.
+ *
+ * @remarks State lives in this process only; scale-out deployments need a shared store instead.
+ */
 function createFixedWindowRateLimiter(options: CreateFixedWindowRateLimiterOptions): FixedWindowRateLimiter {
   const now = options.now ?? Date.now;
   const windows: Map<string, RateLimitWindow> = new Map();
@@ -46,6 +55,14 @@ function createFixedWindowRateLimiter(options: CreateFixedWindowRateLimiterOptio
   return { check };
 }
 
+/**
+ * Builds the limiter key for a request from its client IP.
+ *
+ * `x-forwarded-for` is trusted only when `trustProxy` is enabled; the caller's proxy must overwrite that header.
+ * Returns `undefined` when no IP can be resolved, which callers treat as "do not rate limit".
+ *
+ * @see docs/security.md
+ */
 function buildRateLimitKey(event: H3Event, trustProxy: boolean): string | undefined {
   const clientIp = trustProxy ? getRequestIP(event, { xForwardedFor: true }) : getRequestIP(event);
 
@@ -65,6 +82,11 @@ function buildRateLimitKey(event: H3Event, trustProxy: boolean): string | undefi
 
 let sharedRateLimiter: FixedWindowRateLimiter | undefined;
 
+/**
+ * Returns the process-wide limiter, creating it from the first runtime configuration seen.
+ *
+ * @remarks Later calls ignore their configuration, so a config change requires a process restart.
+ */
 function getSharedRateLimiter(rateLimitConfig: AppRuntimeConfig["rateLimit"]): FixedWindowRateLimiter {
   sharedRateLimiter ??= createFixedWindowRateLimiter({
     maximumRequests: rateLimitConfig.maximumRequests,

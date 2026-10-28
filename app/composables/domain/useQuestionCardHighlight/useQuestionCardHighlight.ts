@@ -31,6 +31,12 @@ function readRestingScale(element: HTMLElement): number {
   return Number.isNaN(scale) ? 1 : scale;
 }
 
+/**
+ * Plays a GSAP scale and brightness highlight on question cards.
+ *
+ * Honors the reduced-motion preference and clears the inline `transform` and `filter` properties once the sequence
+ * settles so resting styles are restored.
+ */
 function useQuestionCardHighlight(): UseQuestionCardHighlightReturn {
   const { loadGsap } = useGsap();
   const reducedMotion = usePreferredReducedMotion();

@@ -4,6 +4,13 @@ import type { Question } from "#shared/types/question.types";
 import { TRANSLATION_ID_LIMIT } from "@/composables/domain/useGameQuestionTranslation/use-game-question-translation.constants";
 import type { UseGameQuestionTranslation } from "@/composables/domain/useGameQuestionTranslation/use-game-question-translation.types";
 
+/**
+ * Re-fetches the buffered questions in the new locale whenever the user switches language.
+ *
+ * At most the latest 100 ids are translated. The first row returned per id wins, and only those ids replace their
+ * counterpart in the original snapshot, preserving order and untouched questions. The watcher skips the fetch while
+ * `canTranslateQuestions` is false; failures surface through the API-error toast.
+ */
 function useGameQuestionTranslation(questions: Ref<Question[]>, canTranslateQuestions: MaybeRefOrGetter<boolean>): UseGameQuestionTranslation {
   const store = useGameStore();
   const { isFetchingQuestionsByIds } = storeToRefs(store);

@@ -8,20 +8,27 @@ const { t } = useI18n();
 
 const { activeFiltersCount } = useGameQuestionsFilters();
 
+const { isChangelogUnread, openChangelog } = useChangelogState();
+
 function onUpdateOpen(value: boolean): void {
-  emit("update:isOpen", value);
+  emit("update:isSidebarOpen", value);
 }
 
 function onStartTutorial(): void {
-  emit("startTutorial");
+  emit("startGameTutorial");
 }
 
 function onOpenSettings(): void {
-  emit("openSettings");
+  emit("openGameSettings");
 }
 
 function onOpenFilters(): void {
-  emit("openFilters");
+  emit("openGameFilters");
+}
+
+function onOpenChangelog(): void {
+  openChangelog();
+  emit("openChangelog");
 }
 
 function onAfterLeave(): void {
@@ -32,7 +39,7 @@ function onAfterLeave(): void {
 <template>
   <USlideover
     :close="false"
-    :open="props.isOpen"
+    :open="props.isSidebarOpen"
     side="left"
     :title="t('home.brand')"
     :ui="GAME_SIDEBAR_UI"
@@ -64,7 +71,7 @@ function onAfterLeave(): void {
     <template #body>
       <div class="flex flex-col gap-3">
         <ULink
-          v-if="props.isTutorialAvailable"
+          v-if="props.isGameTutorialAvailable"
           class="flex gap-1.5 items-center"
           data-testid="game-sidebar-tutorial-link"
           @click="onStartTutorial"
@@ -97,7 +104,9 @@ function onAfterLeave(): void {
 
         <ChangelogWhatsNewButton
           data-testid="game-sidebar-changelog-link"
-          variant="menu"
+          display-variant="menu"
+          :is-changelog-unread="isChangelogUnread"
+          @open-changelog="onOpenChangelog"
         />
 
         <ULink

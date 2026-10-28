@@ -1,0 +1,7 @@
+{
+  "offline": {
+    "title": "Vous êtes hors ligne",
+    "description": "Une connexion réseau est nécessaire pour charger de nouvelles questions et du contenu. Reconnectez-vous, puis réessayez.",
+    "retry": "Réessayer"
+  }
+}

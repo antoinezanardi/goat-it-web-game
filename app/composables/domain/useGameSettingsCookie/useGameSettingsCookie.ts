@@ -4,6 +4,12 @@ import type { UseGameSettingsCookie } from "@/composables/domain/useGameSettings
 import { GAME_SETTINGS_DEFAULTS, GAME_SETTINGS_SCHEMA, GAME_SETTINGS_STORED_SCHEMA } from "@/stores/domain/game-settings/game-settings.constants";
 import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 
+/**
+ * Reads and writes the persisted `game_settings` cookie and reports when its value had to be repaired.
+ *
+ * Reading validates the cookie with the settings schema. A missing cookie silently yields the defaults, while an
+ * unreadable or outdated stored shape yields defaults or the salvageable value and sets `wasGameSettingsReset`.
+ */
 function useGameSettingsCookie(): UseGameSettingsCookie {
   const cookie = useCookie<unknown>(CookieNames.GAME_SETTINGS, GAME_SETTINGS_COOKIE_OPTIONS);
   const wasGameSettingsReset = ref<boolean>(false);

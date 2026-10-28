@@ -5,6 +5,11 @@ import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
 import { LOCAL_HOSTNAMES, RFC1918_IPV4_PATTERN, SUPPORTED_CSP_MODES } from "#server/utils/env/helpers/env-validation/env-validation.constants";
 import type { ValidateAppRuntimeConfigOptions } from "#server/utils/env/helpers/env-validation/env-validation.types";
 
+/**
+ * Tells whether a host is internal: loopback names, single-label names, and RFC1918 IPv4 addresses.
+ *
+ * Production HTTPS validation exempts these hosts so local and sidecar deployments keep working.
+ */
 function isInternalHostname(hostname: string): boolean {
   if (LOCAL_HOSTNAMES.includes(hostname)) {
     return true;
@@ -36,6 +41,15 @@ function validateSecurityConfig(security: AppRuntimeConfig["security"]): void {
   }
 }
 
+/**
+ * Fail-fast validation of the runtime environment, run before the Nitro server accepts traffic.
+ *
+ * Checks that the upstream base URL is a valid http(s) URL, that production uses HTTPS unless the host is
+ * internal, that the game key is non-empty, and that the default locale, rate-limit, and CSP settings are supported.
+ *
+ * @throws When any checked value is missing, malformed, or unsupported, which aborts the boot.
+ * @see docs/security.md
+ */
 function validateAppRuntimeConfig(config: AppRuntimeConfig, options: ValidateAppRuntimeConfigOptions): void {
   const baseUrlValidation = z.url().safeParse(config.goatItApi.baseUrl);
 

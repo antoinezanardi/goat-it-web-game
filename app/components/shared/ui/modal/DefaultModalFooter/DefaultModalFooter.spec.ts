@@ -1,5 +1,6 @@
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import type { VueWrapper } from "@vue/test-utils";
+import { nextTick } from "vue";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
@@ -261,6 +262,16 @@ describe("DefaultModalFooter Component", () => {
       await wrapper.setProps({ disableShortcuts: true });
 
       dispatchMetaEnterKeydown();
+
+      expect(wrapper.emitted("primaryButtonClick")).toBeUndefined();
+    });
+
+    it("should not emit primaryButtonClick when meta+enter is pressed while an input is focused.", async() => {
+      const input = document.createElement("input");
+      document.body.append(input);
+      input.focus();
+      await nextTick();
+      input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", ctrlKey: true, bubbles: true }));
 
       expect(wrapper.emitted("primaryButtonClick")).toBeUndefined();
     });

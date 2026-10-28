@@ -1,6 +1,9 @@
 import { isValidLocale } from "@goat-it/schemas/shared/locale";
 import type { Locale } from "@goat-it/schemas/shared/locale";
 
+/**
+ * Returns the locale stored in the cookie when it is supported, otherwise the default locale.
+ */
 function resolveCookieLocale(cookieValue: string | undefined, defaultLocale: Locale): Locale {
   if (cookieValue !== undefined && isValidLocale(cookieValue)) {
     return cookieValue;
@@ -8,6 +11,11 @@ function resolveCookieLocale(cookieValue: string | undefined, defaultLocale: Loc
   return defaultLocale;
 }
 
+/**
+ * Returns the first browser language that maps to a supported locale, falling back to its base language (`fr-CA` becomes `fr`).
+ *
+ * Returns `undefined` when no supported locale matches.
+ */
 function resolveSuggestedLocale(browserLanguages: readonly string[]): Locale | undefined {
   for (const browserLanguage of browserLanguages) {
     if (isValidLocale(browserLanguage)) {
@@ -22,7 +30,23 @@ function resolveSuggestedLocale(browserLanguages: readonly string[]): Locale | u
   return undefined;
 }
 
+/**
+ * Returns the configured default locale when it is supported, otherwise the fallback.
+ *
+ * @throws When a configured locale is present but unsupported.
+ */
+function resolveDefaultLocale(configuredLocale: string | undefined, fallbackLocale: Locale): Locale {
+  if (configuredLocale === undefined) {
+    return fallbackLocale;
+  }
+  if (!isValidLocale(configuredLocale)) {
+    throw new Error(`Unsupported default locale: "${configuredLocale}".`);
+  }
+  return configuredLocale;
+}
+
 export {
   resolveCookieLocale,
+  resolveDefaultLocale,
   resolveSuggestedLocale,
 };

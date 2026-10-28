@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { usePreferredReducedMotion } from "@vueuse/core";
-import { nextTick, ref, shallowRef, toRef, watch } from "vue";
 import type { ComponentPublicInstance } from "vue";
 
 import { GameQuestionCard } from "#components";

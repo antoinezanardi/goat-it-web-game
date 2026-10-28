@@ -8,6 +8,12 @@
     "confirm": "Bestätigen",
     "cancel": "Abbrechen",
     "listConjunction": "und",
+    "retry": "Erneut versuchen",
+    "backToHome": "Zurück zur Startseite",
+    "connectivity": {
+      "offline": "Offline",
+      "online": "Online"
+    },
     "localeSuggestion": {
       "title": "Möchtest du auf Deutsch spielen?",
       "description": "Dieses Spiel ist in deiner Sprache verfügbar.",

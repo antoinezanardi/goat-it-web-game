@@ -1,4 +1,3 @@
-import { computed, getCurrentScope, nextTick, onScopeDispose, ref, toValue, watch } from "vue";
 import { useDocumentVisibility } from "@vueuse/core";
 
 import { QUESTION_CARD_RING_RADIUS, QUESTION_CARD_RING_RESTAGE_SAFETY_TIMEOUT_MS, QUESTION_CARD_RING_SIZE } from "@/composables/domain/useQuestionCardRing/use-question-card-ring.constants";
@@ -6,6 +5,13 @@ import type { QuestionCardRingSlot, UseQuestionCardRingOptions, UseQuestionCardR
 import type { Question } from "#shared/types/question.types";
 import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 
+/**
+ * Maintains a three-slot window of questions centered on the current index for sliding card transitions.
+ *
+ * After a transition, the far slot swaps once on the next frame and staging completes after a nested
+ * `requestAnimationFrame`, or after a safety timeout when those frames never run. Pending timing handles are
+ * cancelled when the owning scope is disposed.
+ */
 function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCardRingReturn {
   const { questions } = options;
   const { currentIndex } = options;

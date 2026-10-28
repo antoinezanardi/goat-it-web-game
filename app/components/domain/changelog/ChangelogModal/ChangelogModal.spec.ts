@@ -240,6 +240,18 @@ describe("ChangelogModal Component", () => {
     expect(options?.watch).toStrictEqual([locale]);
   });
 
+  it("should fetch the latest release on the client only when mounted.", () => {
+    const options = useAsyncDataMock.instance.mock.calls[0]?.[2];
+
+    expect(options?.server).toBe(false);
+  });
+
+  it("should load the latest release without blocking navigation when mounted.", () => {
+    const options = useAsyncDataMock.instance.mock.calls[0]?.[2];
+
+    expect(options?.lazy).toBe(true);
+  });
+
   it("should not pass a default factory for the latest release query when mounted.", () => {
     const options = useAsyncDataMock.instance.mock.calls[0]?.[2];
 

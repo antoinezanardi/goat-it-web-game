@@ -3,6 +3,7 @@ import path from "node:path";
 import { PROCESS_CWD } from "./vitest.config.constants.ts";
 
 const VITEST_NUXT_PROJECT_SETUP_FILES = [
+  path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/use-route-rules.nuxt.unit-setup.ts"),
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/vtu-auto-unmount.nuxt.unit-setup.ts"),
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/reka-ui-dismissable-layer.nuxt.unit-setup.ts"),
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/main-landmark.nuxt.unit-setup.ts"),
@@ -34,6 +35,7 @@ const VITEST_COMPOSABLES_MOCK_SETUP_FILES: readonly string[] = [
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup.ts"),
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/composables/use-window-scroll.nuxt.unit-setup.ts"),
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/composables/use-preferred-reduced-motion.nuxt.unit-setup.ts"),
+  path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/composables/use-network.nuxt.unit-setup.ts"),
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/composables/use-preferred-languages.nuxt.unit-setup.ts"),
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/composables/use-document-visibility.nuxt.unit-setup.ts"),
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup.ts"),

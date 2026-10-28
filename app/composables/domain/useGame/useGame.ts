@@ -6,6 +6,13 @@ import type { GamePageState, UseGame } from "@/composables/domain/useGame/use-ga
 import { useGameQuestionFeed } from "@/composables/domain/useGameQuestionFeed/useGameQuestionFeed";
 import { useGameSettingsSync } from "@/composables/domain/useGameSettingsSync/useGameSettingsSync";
 
+/**
+ * Orchestrates the game page: clears the question store, initializes the feed on mount, and derives the page state.
+ *
+ * On mount, a pending settings-reset warning is shown once and acknowledged before the first fetch.
+ * Navigation is clamped: `advanceToNextQuestion` stops at game over and `goToPreviousQuestion` stops at index 0.
+ * `resetFilters` restores the default settings and restarts the feed from the current question.
+ */
 function useGame(): UseGame {
   const store = useGameStore();
   const gameSettingsStore = useGameSettingsStore();

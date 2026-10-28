@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import type { UButton, UIcon } from "#components";
-import { GameFetchError } from "#components";
+import { GameFetchError, StatusScreen } from "#components";
 
 import { GAME_FETCH_ERROR_ICON, GAME_FETCH_ERROR_RETRY_ICON } from "@/components/domain/game/GameFetchError/game-fetch-error.constants";
 
@@ -24,8 +24,32 @@ describe("GameFetchError Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
+  it("should render StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).exists()).toBeTruthy();
+  });
+
+  it("should pass the fetch error title key to StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).props("title")).toBe("game.fetchError.title");
+  });
+
+  it("should pass the fetch error description key to StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).props("description")).toBe("game.fetchError.description");
+  });
+
+  it("should pass the fetch error icon to StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).props("icon")).toBe(GAME_FETCH_ERROR_ICON);
+  });
+
   it("should render the fetch error test id when mounted.", () => {
     expect(wrapper.find("[data-testid='game-fetch-error']").exists()).toBeTruthy();
+  });
+
+  it("should render the fetch error title test id when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-fetch-error-title']").text()).toBe("game.fetchError.title");
+  });
+
+  it("should render the fetch error description test id when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-fetch-error-description']").text()).toBe("game.fetchError.description");
   });
 
   it("should render the fetch error icon when mounted.", () => {

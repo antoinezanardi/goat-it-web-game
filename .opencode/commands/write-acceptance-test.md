@@ -28,7 +28,7 @@ Determine:
 Before writing any new step definitions:
 
 - Read all files in `tests/acceptance/features/step-definitions/` to catalog available steps.
-- Prioritize reusing generic steps (`navigation`, `element`, `form`, `keyboard`, `text`, `toast`, `modal`, `locale`, `color-mode`, `accessibility`).
+- Prioritize reusing generic steps (`navigation`, `element`, `form`, `keyboard`, `text`, `toast`, `modal`, `locale`, `accessibility`).
 - Only create new domain-specific steps when existing ones cannot cover the need.
 
 ### 4. Write the feature file
@@ -47,10 +47,8 @@ Before writing any new step definitions:
 If the feature has a UI (page, modal, form):
 
 - Create `*-accessibility.feature` alongside the main feature
-- Include Scenario Outlines for the full matrix:
-  - Light mode: desktop + mobile
-  - Dark mode: desktop + mobile
-- Use the generic `accessibility` and `color-mode` steps
+- Include Scenario Outlines for the desktop and mobile viewports (the app is dark-only)
+- Use the generic `accessibility` step
 
 ### 6. Write new step definitions (only if needed)
 

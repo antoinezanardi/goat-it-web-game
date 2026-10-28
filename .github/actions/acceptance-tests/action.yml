@@ -19,13 +19,51 @@ runs:
     - name: Install project 📦
       uses: ./.github/actions/install-project
 
+    - name: Get Playwright version 🎭
+      id: playwright-version
+      shell: bash
+      run: echo "version=$(node -p "require('playwright-core/package.json').version")" >> "$GITHUB_OUTPUT"
+
+    - name: Restore Playwright browsers cache 🥡
+      id: playwright-cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
     - name: Install Playwright Chromium 🎭
       shell: bash
-      run: pnpm run test:acceptance:prepare
+      run: |
+        pnpm exec playwright install --only-shell chromium
+        if ! node -e "require('playwright-core').chromium.launch({ headless: true }).then(browser => browser.close()).catch(error => { console.error(error); process.exit(1); })"; then
+          echo "Chromium is missing system dependencies, installing them..."
+          timeout 300 pnpm exec playwright install-deps chromium
+          node -e "require('playwright-core').chromium.launch({ headless: true }).then(browser => browser.close())"
+        fi
 
-    - name: Start Goat It API Sandbox 🐐
+    - name: Save Playwright browsers cache 🥡
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+    - name: Prepare acceptance environment 🧰
       shell: bash
-      run: pnpm run docker:api-sandbox:start
+      run: |
+        pnpm run docker:api-sandbox:start &
+        SANDBOX_PID=$!
+        pnpm run test:acceptance:build &
+        BUILD_PID=$!
+
+        BUILD_STATUS=0
+        SANDBOX_STATUS=0
+        wait "$BUILD_PID" || BUILD_STATUS=$?
+        wait "$SANDBOX_PID" || SANDBOX_STATUS=$?
+        if (( BUILD_STATUS != 0 || SANDBOX_STATUS != 0 )); then
+          echo "Acceptance environment preparation failed (build=$BUILD_STATUS, sandbox=$SANDBOX_STATUS)." >&2
+          exit 1
+        fi
 
     - name: Acceptance tests ⚗️
       id: acceptance-tests
@@ -33,7 +71,7 @@ runs:
       shell: bash
       run: |
         set +e
-        pnpm run test:acceptance
+        pnpm run test:acceptance:skip-build
         ACCEPTANCE_EXIT_CODE=$?
         set -e
         ${{ github.workspace }}/scripts/transform-cucumber-report-as-env-variables.sh >> "$GITHUB_ENV"

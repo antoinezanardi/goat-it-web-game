@@ -9,6 +9,7 @@
     "AbortSignal": "readonly",
     "StoreNames": "readonly",
     "URL": "readonly",
+    "caches": "readonly",
     "callOnce": "readonly",
     "computed": "readonly",
     "crypto": "readonly",
@@ -35,6 +36,7 @@
     "Element": "readonly",
     "Event": "readonly",
     "getComputedStyle": "readonly",
+    "getCurrentScope": "readonly",
     "HTMLElement": "readonly",
     "HTMLInputElement": "readonly",
     "HTMLSelectElement": "readonly",
@@ -48,12 +50,15 @@
     "getRequestHeader": "readonly",
     "getRequestIP": "readonly",
     "getRouterParam": "readonly",
+    "getRouteRules": "readonly",
     "getValidatedQuery": "readonly",
     "navigator": "readonly",
+    "nextTick": "readonly",
     "onBeforeMount": "readonly",
     "onBeforeRouteLeave": "readonly",
     "onBeforeUnmount": "readonly",
     "onMounted": "readonly",
+    "onScopeDispose": "readonly",
     "onUnmounted": "readonly",
     "process": "readonly",
     "questionThemesRepository": "readonly",
@@ -83,6 +88,7 @@
     "useAsyncAction": "readonly",
     "useAsyncData": "readonly",
     "useChangelog": "readonly",
+    "useChangelogState": "readonly",
     "useColorMode": "readonly",
     "useCookie": "readonly",
     "useFetch": "readonly",
@@ -144,6 +150,7 @@
   "plugins": [
     "eslint",
     "import",
+    "jsdoc",
     "oxc",
     "promise",
     "node",
@@ -490,6 +497,25 @@
     "import/no-webpack-loader-syntax": "error",
     "import/prefer-default-export": "off",
     "import/unambiguous": "error",
+    // ---- JSDoc rules ----
+    "jsdoc/check-access": "error",
+    "jsdoc/check-property-names": "error",
+    "jsdoc/check-tag-names": [
+      "error",
+      {
+        "definedTags": [
+          "remarks"
+        ]
+      }
+    ],
+    "jsdoc/empty-tags": "error",
+    "jsdoc/no-blank-blocks": "error",
+    "jsdoc/no-defaults": "error",
+    "jsdoc/require-param-description": "error",
+    "jsdoc/require-param-name": "error",
+    "jsdoc/require-returns-description": "error",
+    "jsdoc/require-throws-description": "error",
+    "jsdoc/require-yields-description": "error",
     // ---- Node Rules ----
     "node/callback-return": "error",
     "node/exports-style": [
@@ -825,6 +851,7 @@
         "typescript/no-extraneous-class": "off",
         "typescript/no-floating-promises": "error",
         "typescript/no-for-in-array": "error",
+        "typescript/no-generated-empty-object-type": "error",
         "typescript/no-implied-eval": "error",
         "typescript/no-import-type-side-effects": "error",
         "typescript/no-inferrable-types": [
@@ -1400,6 +1427,7 @@
     // ---- Override for shared files -----
     {
       "files": [
+        "**/shared/schemas/**/*.ts",
         "**/shared/types/**/*.ts",
         "**/shared/utils/**/*.ts"
       ],

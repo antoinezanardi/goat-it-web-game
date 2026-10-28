@@ -7,6 +7,8 @@ const questionThemesStore = useQuestionThemesStore();
 const { fetchAndStoreQuestionThemes } = questionThemesStore;
 const { handleGoatItApiError } = useGoatItApiErrorToast();
 const { locale, t } = useI18n();
+const route = useRoute();
+const isScriptlessRoute = Boolean(getRouteRules({ path: route.path }).noScripts);
 
 async function fetchQuestionThemes(): Promise<void> {
   const result = await fetchAndStoreQuestionThemes();
@@ -15,21 +17,26 @@ async function fetchQuestionThemes(): Promise<void> {
   }
 }
 
-await callOnce(fetchQuestionThemes);
+if (!isScriptlessRoute) {
+  await callOnce(fetchQuestionThemes);
 
-watch(locale, () => {
-  void fetchQuestionThemes();
-});
+  watch(locale, () => {
+    void fetchQuestionThemes();
+  });
+}
 
 useHead({
   link: [
     { rel: "manifest", href: "/manifest.webmanifest" },
     { rel: "apple-touch-icon", href: "/pwa/apple-touch-icon.png" },
-    { rel: "preload", href: "/fonts/Geist/geist-latin.woff2", as: "font", type: "font/woff2", crossorigin: "" },
+    { rel: "preload", href: "/fonts/Geist/geist-latin.woff2", as: "font", type: "font/woff2", crossorigin: "anonymous" },
   ],
   meta: [
     { name: "theme-color", content: "#09090b" },
     { name: "mobile-web-app-capable", content: "yes" },
+    { name: "apple-mobile-web-app-capable", content: "yes" },
+    { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+    { name: "apple-mobile-web-app-title", content: SITE_NAME },
   ],
 });
 
@@ -70,6 +77,8 @@ useSchemaOrg([
         <NuxtPage/>
       </NuxtLayout>
     </UMain>
+
+    <OfflineStatusIndicator/>
 
     <ChangelogModal/>
   </UApp>

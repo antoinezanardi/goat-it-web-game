@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useEventListener } from "@vueuse/core";
-import { nextTick } from "vue";
 
 import { GameTutorialPopoverContent } from "#components";
 
@@ -226,16 +225,16 @@ watch(open, async isOpen => {
         <GameTutorialPopoverContent
           :key="index"
           class="game-tutorial-step-in"
-          :description="current?.description"
-          :has-next="hasNext"
-          :has-prev="hasPrev"
-          :icon="current?.icon"
-          :max-height="popoverMaxHeight"
-          :title="current?.title"
-          @back="prev"
-          @finish="finish"
-          @next="next"
-          @skip="finish"
+          :has-next-step="hasNext"
+          :has-previous-step="hasPrev"
+          :popover-max-height="popoverMaxHeight"
+          :step-description="current?.description"
+          :step-icon="current?.icon"
+          :step-title="current?.title"
+          @finish-tutorial="finish"
+          @go-to-next-step="next"
+          @go-to-previous-step="prev"
+          @skip-tutorial="finish"
         />
       </template>
     </UPopover>

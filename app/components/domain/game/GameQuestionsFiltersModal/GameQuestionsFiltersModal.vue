@@ -35,7 +35,7 @@ function readCommittedDraft(): GameQuestionsFiltersDraft {
 
 const snapshot = ref<GameQuestionsFiltersDraft>(readCommittedDraft());
 const draft = ref<GameQuestionsFiltersDraft>(readCommittedDraft());
-const { hasEverOpened } = useLazyModal({ isOpen: () => props.isOpen });
+const { hasEverOpened } = useLazyModal({ isOpen: () => props.isFiltersModalOpen });
 
 const normalizedDraft = computed<GameQuestionsFiltersDraft>(() => ({
   isAdultContentEnabled: draft.value.isAdultContentEnabled,
@@ -58,12 +58,12 @@ const defaultDraft = computed<GameQuestionsFiltersDraft>(() => ({
 
 const isDraftModified = computed<boolean>(() => !isEqual(normalizedDraft.value, normalizedSnapshot.value));
 
-const isApplyDisabled = computed<boolean>(() => props.isApplyPending || !isDraftModified.value);
+const isApplyDisabled = computed<boolean>(() => props.isApplyFiltersPending || !isDraftModified.value);
 
 const isDraftModifiedFromDefaults = computed<boolean>(() => !isEqual(normalizedDraft.value, defaultDraft.value));
 
-watch(() => props.isOpen, (isOpen: boolean) => {
-  if (!isOpen) {
+watch(() => props.isFiltersModalOpen, (isFiltersModalOpen: boolean) => {
+  if (!isFiltersModalOpen) {
     return;
   }
   const committedDraft = readCommittedDraft();
@@ -111,12 +111,12 @@ async function requestClose(): Promise<void> {
       isConfirmingDiscard.value = false;
     }
   }
-  emit("update:isOpen", false);
+  emit("update:isFiltersModalOpen", false);
 }
 
 function onUpdateOpen(value: boolean): void {
   if (value) {
-    emit("update:isOpen", true);
+    emit("update:isFiltersModalOpen", true);
 
     return;
   }
@@ -170,7 +170,7 @@ function onApply(): void {
   >
     <LazyUModal
       v-if="hasEverOpened"
-      :open="props.isOpen"
+      :open="props.isFiltersModalOpen"
       :ui="GAME_QUESTIONS_FILTERS_MODAL_UI"
       @update:open="onUpdateOpen"
     >
@@ -184,11 +184,15 @@ function onApply(): void {
 
       <template #body>
         <LazyGameQuestionsFiltersModalContent
-          :draft="draft"
+          :active-question-theme-ids="questionThemesStore.activeQuestionThemeIds"
+          :active-question-themes="questionThemesStore.activeQuestionThemes"
+          :filters-draft="draft"
+          :is-themes-catalog-available="questionThemesStore.isThemesCatalogAvailable"
+          :themes-catalog-status="questionThemesStore.catalogStatus"
           @update:categories="onCategoriesChange"
           @update:cognitive-difficulties="onCognitiveDifficultiesChange"
           @update:is-adult-content-enabled="onAdultContentChange"
-          @update:theme-ids="onThemeIdsChange"
+          @update:question-theme-ids="onThemeIdsChange"
         />
       </template>
 
@@ -197,7 +201,7 @@ function onApply(): void {
           data-testid="game-questions-filters-modal-footer"
           disable-shortcuts
           :is-primary-button-disabled="isApplyDisabled"
-          :is-primary-button-loading="props.isApplyPending"
+          :is-primary-button-loading="props.isApplyFiltersPending"
           :primary-button-icon="GAME_QUESTIONS_FILTERS_APPLY_ICON"
           :primary-button-label="t('game.questionsFilters.apply')"
           @close-modal="onCloseModal"

@@ -12,7 +12,7 @@ useSeoMeta({
 
 const collection = computed(() => `content_${locale.value}` as keyof Collections);
 
-const { data, status } = await useAsyncData(`rules-${locale.value}`, async() => {
+const { data, status, execute } = await useAsyncData(`rules-${locale.value}`, async() => {
   const page = await queryCollection(collection.value).path("/rules").first();
 
   if (!page && locale.value !== defaultLocale) {
@@ -35,6 +35,10 @@ const { data, status } = await useAsyncData(`rules-${locale.value}`, async() => 
 
 const page = computed(() => data.value?.[0]);
 const sections = computed(() => data.value?.[1] ?? []);
+
+function onRetry(): void {
+  void execute();
+}
 </script>
 
 <template>
@@ -42,11 +46,31 @@ const sections = computed(() => data.value?.[1] ?? []);
     id="rules-page"
     class="bg-app-bg flex flex-col min-h-dvh"
   >
-    <LoadingSpinner v-if="status === 'pending'"/>
-
-    <div v-else-if="status === 'error'">
-      {{ t('errors.generic') }}
+    <div
+      v-if="status === 'pending'"
+      class="flex flex-1 items-center justify-center"
+    >
+      <LoadingSpinner/>
     </div>
+
+    <StatusScreen
+      v-else-if="status === 'error'"
+      key="rules-page-error"
+      icon="i-lucide-triangle-alert"
+      test-id="rules-page-error"
+      :title="t('errors.generic')"
+      variant="page"
+    >
+      <template #actions>
+        <UButton
+          data-testid="rules-page-retry"
+          icon="i-lucide-refresh-cw"
+          :label="t('common.retry')"
+          size="xl"
+          @click="onRetry"
+        />
+      </template>
+    </StatusScreen>
 
     <DocsPageShell
       v-else-if="page"
@@ -68,8 +92,23 @@ const sections = computed(() => data.value?.[1] ?? []);
       </div>
     </DocsPageShell>
 
-    <div v-else>
-      {{ t('errors.pageNotFound') }}
-    </div>
+    <StatusScreen
+      v-else
+      key="rules-page-not-found"
+      icon="i-lucide-file-question"
+      test-id="rules-page-not-found"
+      :title="t('errors.pageNotFound')"
+      variant="page"
+    >
+      <template #actions>
+        <UButton
+          data-testid="rules-page-back-home"
+          icon="i-lucide-house"
+          :label="t('common.backToHome')"
+          size="xl"
+          to="/"
+        />
+      </template>
+    </StatusScreen>
   </div>
 </template>

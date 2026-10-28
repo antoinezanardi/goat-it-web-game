@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { useEventListener, usePreferredReducedMotion } from "@vueuse/core";
-import { nextTick } from "vue";
 import type { ComponentPublicInstance } from "vue";
 
 import type { GameQuestionCardContextAccordionProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardContextAccordion/game-question-card-context-accordion.types";
@@ -80,7 +79,7 @@ onUnmounted(clearScrollSafetyTimeout);
       <div class="bg-content border border-(--game-theme-border) game-question-accordion--themed mt-1 p-4 rounded-lg">
         <p
           v-if="hasContext"
-          class="leading-body text-fg-primary text-sm"
+          class="leading-body text-fg-primary text-sm wrap-anywhere"
           data-testid="game-question-context"
         >
           {{ props.context?.trim() }}

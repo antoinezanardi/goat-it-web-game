@@ -7,6 +7,7 @@ import { nextTick } from "vue";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { useGoatItApiErrorToastMock } from "~~/tests/unit/setup/nuxt/composables/use-goat-it-api-error-toast.nuxt.unit-setup";
+import { getRouteRulesMock } from "~~/tests/unit/setup/nuxt/use-route-rules.nuxt.unit-setup";
 
 import App from "@/App.vue";
 import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
@@ -20,6 +21,7 @@ describe("App Component", () => {
   }
 
   beforeEach(async() => {
+    getRouteRulesMock.instance.mockReturnValue({});
     wrapper = await mountAppComponent({ global: { plugins: [createTestingPinia()] } });
     mockStore(useQuestionThemesStore).fetchAndStoreQuestionThemes.mockResolvedValue({ ok: true, value: [] });
   });
@@ -68,9 +70,12 @@ describe("App Component", () => {
     it.each<{ selector: "link" | "meta"; index: number; entry: Record<string, unknown> }>([
       { selector: "link", index: 0, entry: { rel: "manifest", href: "/manifest.webmanifest" } },
       { selector: "link", index: 1, entry: { rel: "apple-touch-icon", href: "/pwa/apple-touch-icon.png" } },
-      { selector: "link", index: 2, entry: { rel: "preload", href: "/fonts/Geist/geist-latin.woff2", as: "font", type: "font/woff2", crossorigin: "" } },
+      { selector: "link", index: 2, entry: { rel: "preload", href: "/fonts/Geist/geist-latin.woff2", as: "font", type: "font/woff2", crossorigin: "anonymous" } },
       { selector: "meta", index: 0, entry: { name: "theme-color", content: "#09090b" } },
       { selector: "meta", index: 1, entry: { name: "mobile-web-app-capable", content: "yes" } },
+      { selector: "meta", index: 2, entry: { name: "apple-mobile-web-app-capable", content: "yes" } },
+      { selector: "meta", index: 3, entry: { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" } },
+      { selector: "meta", index: 4, entry: { name: "apple-mobile-web-app-title", content: "Goat It" } },
     ])("should call useHead with the correct $selector entry at index $index when mounted.", ({ selector, index, entry }) => {
       expect(getAppHeadConfig()?.[selector][index]).toStrictEqual(entry);
     });
@@ -183,5 +188,17 @@ describe("App Component", () => {
 
   it("should render the ChangelogModal component when mounted.", () => {
     expect(wrapper.findComponent({ name: "ChangelogModal" }).exists()).toBe(true);
+  });
+
+  it("should skip the question themes bootstrap when the route rules disable scripts.", async() => {
+    getRouteRulesMock.instance.mockReturnValue({ noScripts: true });
+    vi.mocked(callOnce).mockClear();
+    wrapper = await mountAppComponent({ global: { plugins: [createTestingPinia()] } });
+
+    expect(vi.mocked(callOnce)).not.toHaveBeenCalled();
+  });
+
+  it("should render the OfflineStatusIndicator component when mounted.", () => {
+    expect(wrapper.findComponent({ name: "OfflineStatusIndicator" }).exists()).toBe(true);
   });
 });

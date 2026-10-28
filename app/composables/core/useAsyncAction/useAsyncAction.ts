@@ -13,7 +13,7 @@ import type {
 } from "@/composables/core/useAsyncAction/use-async-action.types";
 
 /**
- * Creates a latest-wins async lane.
+ * Creates a latest-wins async lane that wraps an action with a fetch-status lifecycle and a non-throwing result.
  *
  * Every `execute` call supersedes the previous in-flight request of the same instance: the previous
  * signal is aborted with an `AbortError` reason and its timer is cleared. A call that is superseded
@@ -22,6 +22,17 @@ import type {
  * must forward it cooperatively (repositories pass it to `$fetch`); a non-cooperative action only
  * settles when it settles. When `timeoutInMs` is provided, the current request's signal is aborted
  * with a `TimeoutError` reason at that deadline and the timer never outlives its request.
+ *
+ * `execute` never rejects: it always resolves to an `AsyncResult` discriminated union, drives the
+ * status flags, and forwards any failure to the optional `onError`. The status flags are read-only
+ * computed refs.
+ *
+ * @example
+ * const { execute } = useAsyncAction(loadQuestions);
+ * const result = await execute();
+ * if (!result.ok) {
+ *   // Superseded results are no-ops; real errors have already been forwarded to `onError`.
+ * }
  */
 function useAsyncAction<TResult, TArguments extends unknown[] = []>(
   action: (context: AsyncActionContext, ...arguments_: TArguments) => Promise<TResult>,

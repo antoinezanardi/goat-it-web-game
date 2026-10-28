@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import type { UButton, UIcon } from "#components";
-import { GameEmptyFilters } from "#components";
+import { GameEmptyFilters, StatusScreen } from "#components";
 
 import { GAME_EMPTY_FILTERS_ICON, GAME_EMPTY_FILTERS_RESET_ICON } from "@/components/domain/game/GameEmptyFilters/game-empty-filters.constants";
 
@@ -24,8 +24,32 @@ describe("GameEmptyFilters Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
+  it("should render StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).exists()).toBeTruthy();
+  });
+
+  it("should pass the empty filters title key to StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).props("title")).toBe("game.emptyFilters.title");
+  });
+
+  it("should pass the empty filters description key to StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).props("description")).toBe("game.emptyFilters.description");
+  });
+
+  it("should pass the empty filters icon to StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).props("icon")).toBe(GAME_EMPTY_FILTERS_ICON);
+  });
+
   it("should render the empty filters test id when mounted.", () => {
     expect(wrapper.find("[data-testid='game-empty-filters']").exists()).toBeTruthy();
+  });
+
+  it("should render the empty filters title test id when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-empty-filters-title']").text()).toBe("game.emptyFilters.title");
+  });
+
+  it("should render the empty filters description test id when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-empty-filters-description']").text()).toBe("game.emptyFilters.description");
   });
 
   it("should render the empty filters icon when mounted.", () => {

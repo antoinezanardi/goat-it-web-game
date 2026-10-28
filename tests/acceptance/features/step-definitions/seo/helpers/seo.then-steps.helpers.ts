@@ -8,8 +8,6 @@ async function collectSchemaOrgGraphNodes(page: Page): Promise<SchemaOrgGraphNod
   const graphNodes: SchemaOrgGraphNode[] = [];
 
   for (let index = 0; index < scriptCount; index++) {
-    // Acceptable as each JSON-LD script must be parsed and validated sequentially
-    // oxlint-disable-next-line eslint/no-await-in-loop
     const jsonContent = await scriptLocator.nth(index).textContent();
 
     if (jsonContent === null) {

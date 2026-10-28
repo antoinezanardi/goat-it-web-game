@@ -1,12 +1,16 @@
+import { FetchError } from "ofetch";
 import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { flushPromises } from "@vue/test-utils";
+import type { UseNetworkReturn } from "@vueuse/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick, ref } from "vue";
 
 import { createUseGoatItApiErrorToastMock } from "~~/tests/unit/utils/mocks/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast.mock";
 import type { UseGoatItApiErrorToastMock } from "~~/tests/unit/utils/mocks/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast.mock";
+import { createUseNetworkMock, createUseNetworkReturn } from "~~/tests/unit/utils/mocks/composables/core/useNetwork/useNetwork.mock";
+import type { UseNetworkMock } from "~~/tests/unit/utils/mocks/composables/core/useNetwork/useNetwork.mock";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
@@ -33,10 +37,23 @@ const UNRESTRICTED_SETTINGS_FIELDS: Partial<GameSettings> = {
   themeIds: undefined,
 };
 
+function createFetchErrorWithoutResponse(): FetchError {
+  return new FetchError("fetch failed");
+}
+
+function createFetchErrorWithResponse(): FetchError {
+  const fetchError = new FetchError("fetch failed");
+  fetchError.response = { status: 500 } as unknown as FetchError["response"];
+
+  return fetchError;
+}
+
 let useGameQuestionFeed: typeof UseGameQuestionFeedType;
 let useGoatItApiErrorToastMock: UseGoatItApiErrorToastMock;
+let useNetworkMock: UseNetworkMock;
 
 mockNuxtImport("useGoatItApiErrorToast", () => (): UseGoatItApiErrorToastMock => useGoatItApiErrorToastMock);
+mockNuxtImport("useNetwork", () => (): UseNetworkReturn => createUseNetworkReturn(useNetworkMock));
 
 mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
   readGameSettingsCookie: (): GameSettings => GAME_SETTINGS_DEFAULTS,
@@ -48,6 +65,7 @@ mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
 describe("useGameQuestionFeed", () => {
   beforeEach(async() => {
     useGoatItApiErrorToastMock = createUseGoatItApiErrorToastMock();
+    useNetworkMock = createUseNetworkMock();
     createTestingPinia();
     mockStore(useGameStore).fetchAndAppendRandomQuestions.mockResolvedValue({ ok: true, value: [] });
     ({ useGameQuestionFeed } = await import("@/composables/domain/useGameQuestionFeed/useGameQuestionFeed"));
@@ -211,6 +229,51 @@ describe("useGameQuestionFeed", () => {
       const store = mockStore(useGameStore);
       const feed = useGameQuestionFeed({ currentIndex: ref(0) });
       const error = new Error("fetch failed");
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error });
+
+      await feed.initialize();
+
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, { title: "questions.cantFetch", context: "questions" });
+    });
+
+    it("should not show the API error toast when a fetch fails without a response while offline.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      useNetworkMock.isOnlineRef.value = false;
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: createFetchErrorWithoutResponse() });
+
+      await feed.initialize();
+
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).not.toHaveBeenCalled();
+    });
+
+    it("should record the fetch error when a fetch fails without a response while offline.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      useNetworkMock.isOnlineRef.value = false;
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error: createFetchErrorWithoutResponse() });
+
+      await feed.initialize();
+
+      expect(feed.hasFetchError.value).toBe(true);
+    });
+
+    it("should show the API error toast when a fetch fails with a response while offline.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      const error = createFetchErrorWithResponse();
+      useNetworkMock.isOnlineRef.value = false;
+      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error });
+
+      await feed.initialize();
+
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, { title: "questions.cantFetch", context: "questions" });
+    });
+
+    it("should show the API error toast when a fetch fails without a response while online.", async() => {
+      const store = mockStore(useGameStore);
+      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
+      const error = createFetchErrorWithoutResponse();
       store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error });
 
       await feed.initialize();

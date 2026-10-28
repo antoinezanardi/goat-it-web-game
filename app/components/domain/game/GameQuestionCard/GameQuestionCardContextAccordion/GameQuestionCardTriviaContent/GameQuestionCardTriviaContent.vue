@@ -19,7 +19,7 @@ const { t } = useI18n();
     </p>
 
     <ul
-      class="leading-body list-disc ps-5 space-y-1 text-fg-primary text-sm"
+      class="leading-body list-disc ps-5 space-y-1 text-fg-primary text-sm wrap-anywhere"
       data-testid="game-question-trivia"
     >
       <li

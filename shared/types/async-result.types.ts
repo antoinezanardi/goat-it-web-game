@@ -1,5 +1,5 @@
 /**
- * Result of an asynchronous action.
+ * Discriminated result of an asynchronous action that fails without throwing.
  *
  * - `{ ok: true; value }` — the current request succeeded.
  * - `{ ok: false; error }` — the current request failed.

@@ -7,8 +7,8 @@ defineSlots<DocsPageShellSlots>();
 </script>
 
 <template>
-  <UPage class="max-w-7xl mx-auto px-6 w-full">
-    <div class="max-w-3xl mx-auto py-8 w-full">
+  <UPage class="max-w-7xl mx-auto pe-[max(1.5rem,env(safe-area-inset-right))] ps-[max(1.5rem,env(safe-area-inset-left))] w-full">
+    <div class="max-w-3xl mx-auto pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))] w-full">
       <DocsBackLink/>
 
       <slot/>
