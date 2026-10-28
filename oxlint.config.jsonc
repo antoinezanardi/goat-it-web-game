@@ -32,6 +32,7 @@
     "defineWebPage": "readonly",
     "defineWebSite": "readonly",
     "document": "readonly",
+    "DOMException": "readonly",
     "Element": "readonly",
     "Event": "readonly",
     "getComputedStyle": "readonly",
@@ -819,7 +820,7 @@
         "typescript/explicit-function-return-type": "error",
         "typescript/explicit-member-accessibility": "error",
         "typescript/explicit-module-boundary-types": "error",
-        "typescript/init-declarations": "error",
+        "typescript/init-declarations": "off",
         "typescript/max-params": [
           "error",
           {
@@ -1000,8 +1001,7 @@
       ],
       "rules": {
         "import/unambiguous": "off",
-        "node/no-top-level-await": "off",
-        "typescript/init-declarations": "off"
+        "node/no-top-level-await": "off"
       }
     },
     // ---- Override for pages files -----
@@ -1163,7 +1163,6 @@
         ],
         "import/no-namespace": "off",
         "jest/valid-title": "off",
-        "typescript/init-declarations": "off",
         "typescript/no-magic-numbers": "off",
         "typescript/no-unsafe-type-assertion": "off",
         "unicorn/consistent-function-scoping": "off",
@@ -1603,8 +1602,7 @@
         "func-names": "off",
         "eslint/no-await-in-loop": "off",
         "eslint/no-console": "off",
-        "node/no-process-env": "off",
-        "typescript/init-declarations": "off"
+        "node/no-process-env": "off"
       }
     },
     // ---- Override for Nuxt config -----

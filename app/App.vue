@@ -12,7 +12,7 @@ const isScriptlessRoute = Boolean(getRouteRules({ path: route.path }).noScripts)
 
 async function fetchQuestionThemes(): Promise<void> {
   const result = await fetchAndStoreQuestionThemes();
-  if (!result.ok) {
+  if (!result.ok && result.superseded !== true) {
     handleGoatItApiError(result.error, { title: t("questionThemes.cantFetch"), context: "question-themes" });
   }
 }

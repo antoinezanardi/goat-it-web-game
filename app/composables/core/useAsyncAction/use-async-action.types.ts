@@ -1,6 +1,21 @@
 import type { AsyncDataRequestStatus } from "#app";
 import type { AsyncResult } from "#shared/types/async-result.types";
 
+type AsyncActionContext = {
+  signal: AbortSignal;
+};
+
+type ActiveAsyncActionRequest = {
+  requestId: number;
+  controller: AbortController;
+  timer: ReturnType<typeof setTimeout> | undefined;
+};
+
+type UseAsyncActionOptions = {
+  onError?: (error: unknown) => void;
+  timeoutInMs?: number;
+};
+
 /**
  * Contract returned by `useAsyncAction`: the executable and its read-only lifecycle flags.
  */
@@ -19,4 +34,4 @@ type UseAsyncAction<TResult, TArguments extends unknown[]> = {
   isError: ComputedRef<boolean>;
 };
 
-export type { UseAsyncAction };
+export type { ActiveAsyncActionRequest, AsyncActionContext, UseAsyncAction, UseAsyncActionOptions };

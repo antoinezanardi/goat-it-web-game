@@ -3,6 +3,7 @@ import { DEFAULT_QUESTION_THEME_STATUS } from "@goat-it/schemas/question-theme";
 
 import type { AsyncResult } from "#shared/types/async-result.types";
 import type { AsyncDataRequestStatus } from "#app";
+import { GOAT_IT_API_CLIENT_ASYNC_ACTION_OPTIONS } from "#shared/constants/goat-it-api.constants";
 import type { QuestionThemeCatalogStatus } from "@/stores/domain/question-theme/question-themes.types";
 
 /**
@@ -29,7 +30,7 @@ export const useQuestionThemesStore = defineStore(StoreNames.QUESTION_THEMES, ()
     isPending,
     isSuccess,
     isError,
-  } = useAsyncAction(repository.getAll);
+  } = useAsyncAction(async({ signal }, query?: FindQuestionThemesQueryDto) => repository.getAll(query, { signal }), GOAT_IT_API_CLIENT_ASYNC_ACTION_OPTIONS);
 
   /** Read-only view of the raw catalog fetch status. */
   const fetchStatus = computed<AsyncDataRequestStatus>(() => questionThemesFetchStatus.value);

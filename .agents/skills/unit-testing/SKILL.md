@@ -189,12 +189,12 @@ Tags match `.opencode/commands/lint-unit-tests.md` §4.
 
 ### Store ([S1]–[S5])
 
-- [ ] [S1] `capturedAction` / `capturedOnError` captured through `mockNuxtImport("useAsyncAction", ...)`
+- [ ] [S1] `capturedAction` / `capturedOptions` captured through `mockNuxtImport("useAsyncAction", ...)`; the captured wrapper is invoked with `{ signal }` and the repository assertion includes `{ signal }`
 - [ ] [S2] Captured vars reset to `undefined` at top of each `beforeEach`; multi-action stores reset call counter to `0`
 - [ ] [S3] Store dynamically imported inside `beforeEach`
 - [ ] [S4] No manual `setActivePinia(createPinia())` (runs automatically)
 - [ ] [S5] Multi-call stores use a counter returning distinct mock instances per invocation
-- [ ] Assert `capturedAction` with `toBe(repository($fetch).method)`; error callback triggers `useAppToast().addErrorToast` with i18n key; mutate `useAsyncActionMock.fetchStatus.value` for reactive getters
+- [ ] Invoke the captured action with `({ signal }, ...args)` and assert the repository method with `toHaveBeenCalledExactlyOnceWith(...args, { signal })`; assert `capturedOptions` equals `{ timeoutInMs: ... }`; mutate `useAsyncActionMock.fetchStatus.value` for reactive getters
 
 ### Repository ([R1]–[R5])
 

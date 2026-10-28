@@ -1,5 +1,3 @@
-import { until } from "@vueuse/core";
-import { storeToRefs } from "pinia";
 import { isEqual } from "radashi";
 
 import type { AsyncResult } from "#shared/types/async-result.types";
@@ -14,8 +12,6 @@ import type { UseGameSettingsSync, UseGameSettingsSyncOptions } from "@/composab
  * concurrent sync sees them as already applied. Changes to the active theme ids run the same sync.
  */
 function useGameSettingsSync(options: UseGameSettingsSyncOptions): UseGameSettingsSync {
-  const store = useGameStore();
-  const { isPending } = storeToRefs(store);
   const questionThemesStore = useQuestionThemesStore();
   const { fetchFilters } = useGameFetchFilters();
 
@@ -29,7 +25,6 @@ function useGameSettingsSync(options: UseGameSettingsSyncOptions): UseGameSettin
     if (isEqual(fetchFilters.value, appliedFetchFilters.value)) {
       return { ok: true, value: undefined };
     }
-    await until(isPending).toBe(false);
     markFetchFiltersApplied();
     const result = await options.restartFromCurrentIndex();
 

@@ -2,6 +2,7 @@ import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 
 import type { AsyncResult } from "#shared/types/async-result.types";
 import type { AsyncDataRequestStatus } from "#app";
+import { GOAT_IT_API_CLIENT_ASYNC_ACTION_OPTIONS } from "#shared/constants/goat-it-api.constants";
 
 /**
  * Owns the buffered questions of the current game and is the only allowed mutation path for them.
@@ -20,13 +21,13 @@ export const useGameStore = defineStore(StoreNames.GAME, () => {
     isPending,
     isSuccess,
     isError,
-  } = useAsyncAction(repository.getRandom);
+  } = useAsyncAction(async({ signal }, body?: FindRandomQuestionsBodyDto) => repository.getRandom(body, { signal }), GOAT_IT_API_CLIENT_ASYNC_ACTION_OPTIONS);
 
   const {
     execute: fetchQuestionsByIds,
     fetchStatus: questionsByIdsFetchStatus,
     isPending: isFetchingQuestionsByIds,
-  } = useAsyncAction(repository.getByIds);
+  } = useAsyncAction(async({ signal }, ids: string[]) => repository.getByIds(ids, { signal }), GOAT_IT_API_CLIENT_ASYNC_ACTION_OPTIONS);
 
   /** Read-only view of the random-questions fetch status. */
   const fetchStatus = computed<AsyncDataRequestStatus>(() => randomQuestionsFetchStatus.value);
@@ -40,10 +41,20 @@ export const useGameStore = defineStore(StoreNames.GAME, () => {
    */
   async function fetchAndAppendRandomQuestions(body?: FindRandomQuestionsBodyDto): Promise<AsyncResult<Question[]>> {
     const result = await fetchRandomQuestions(body);
-    if (result.ok) {
-      questions.value.push(...result.value);
+    if (!result.ok) {
+      return result;
     }
-    return result;
+    const appendedQuestions: Question[] = [];
+    const knownQuestionIds: Set<string> = new Set(questions.value.map(question => question.id));
+    for (const question of result.value) {
+      if (!knownQuestionIds.has(question.id)) {
+        knownQuestionIds.add(question.id);
+        appendedQuestions.push(question);
+      }
+    }
+    questions.value.push(...appendedQuestions);
+
+    return { ok: true, value: appendedQuestions };
   }
 
   /** Empties the buffer. */

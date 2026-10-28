@@ -18,7 +18,6 @@ const ESLINT_UNIT_TESTS_FLAT_CONFIG: Linter.Config = {
         ignoreTypeImports: true,
       },
     ],
-    "@typescript-eslint/init-declarations": "off",
     "@typescript-eslint/no-magic-numbers": "off",
     "@typescript-eslint/prefer-destructuring": "off",
     "vitest/consistent-each-for": [

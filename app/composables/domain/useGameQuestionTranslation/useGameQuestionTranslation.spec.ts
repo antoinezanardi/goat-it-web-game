@@ -198,6 +198,32 @@ describe("useGameQuestionTranslation", () => {
 
       expect(store.replaceQuestions).not.toHaveBeenCalled();
     });
+
+    it("should not show the API error toast when the by ids fetch is superseded.", async() => {
+      const store = mockStore(useGameStore);
+      const questions = ref<Question[]>([createFakeQuestion()]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: false, superseded: true });
+      const { locale } = useI18n();
+      useGameQuestionTranslation(questions, () => true);
+
+      locale.value = "fr";
+      await flushPromises();
+
+      expect(useGoatItApiErrorToastMock.handleGoatItApiError).not.toHaveBeenCalled();
+    });
+
+    it("should not replace the questions when the by ids fetch is superseded.", async() => {
+      const store = mockStore(useGameStore);
+      const questions = ref<Question[]>([createFakeQuestion()]);
+      store.fetchQuestionsByIds.mockResolvedValue({ ok: false, superseded: true });
+      const { locale } = useI18n();
+      useGameQuestionTranslation(questions, () => true);
+
+      locale.value = "fr";
+      await flushPromises();
+
+      expect(store.replaceQuestions).not.toHaveBeenCalled();
+    });
   });
 
   describe("concurrency", () => {

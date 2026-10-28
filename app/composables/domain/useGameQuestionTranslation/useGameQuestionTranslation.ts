@@ -25,6 +25,9 @@ function useGameQuestionTranslation(questions: Ref<Question[]>, canTranslateQues
     const selectedIds = snapshotIds.length <= TRANSLATION_ID_LIMIT ? snapshotIds : snapshotIds.slice(-TRANSLATION_ID_LIMIT);
     const result = await store.fetchQuestionsByIds(selectedIds);
     if (!result.ok) {
+      if (result.superseded === true) {
+        return;
+      }
       handleGoatItApiError(result.error, { title: t("questions.cantFetch"), context: "questions-translation" });
 
       return;

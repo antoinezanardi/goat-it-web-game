@@ -558,6 +558,7 @@ import { createUseFetchStatusMock } from "~~/tests/unit/utils/mocks/composables/
 import type { UseFetchStatusMock } from "~~/tests/unit/utils/mocks/composables/core/useFetchStatus/useFetchStatus.mock";
 
 // Import type only — the real module is loaded dynamically in beforeEach
+import type { AsyncActionContext } from "@/composables/core/useAsyncAction/use-async-action.types";
 import type { useAsyncAction as UseAsyncActionType } from "@/composables/core/useAsyncAction/useAsyncAction";
 
 // 1. Declare mock variable outside describe (module-level)
@@ -577,8 +578,8 @@ describe("useAsyncAction", () => {
   });
 
   it("should call setFetchStatusToPending when execute is called.", async () => {
-    const action = vi.fn<() => Promise<void>>();
-    const { execute } = useAsyncAction(action, vi.fn());
+    const action = vi.fn<(context: AsyncActionContext) => Promise<void>>();
+    const { execute } = useAsyncAction(action, { onError: vi.fn() });
 
     await execute();
 
@@ -656,18 +657,19 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createUseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import type { UseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import { createFakeItem } from "~~/tests/unit/utils/faketories/.../item.entity.faketory";
+import type { AsyncActionContext, UseAsyncActionOptions } from "@/composables/core/useAsyncAction/use-async-action.types";
 
 import type { useMyStore as UseMyStoreType } from "@/stores/domain/my-entity/my.store";
 
 // 1. Variables to capture what gets passed to useAsyncAction
 let useAsyncActionMock: UseAsyncActionMock;
-let capturedAction: (() => Promise<MyEntity[]>) | undefined;
-let capturedOnError: (() => void) | undefined;
+let capturedAction: ((context: AsyncActionContext, ...arguments_: unknown[]) => Promise<MyEntity[]>) | undefined;
+let capturedOptions: UseAsyncActionOptions | undefined;
 
 // 2. Mock useAsyncAction — capture arguments, return a fresh mock instance
-mockNuxtImport("useAsyncAction", () => (action: unknown, onError: unknown): UseAsyncActionMock => {
-  capturedAction = action as () => Promise<MyEntity[]>;
-  capturedOnError = onError as () => void;
+mockNuxtImport("useAsyncAction", () => (action: unknown, options: unknown): UseAsyncActionMock => {
+  capturedAction = action as (context: AsyncActionContext, ...arguments_: unknown[]) => Promise<MyEntity[]>;
+  capturedOptions = options as UseAsyncActionOptions | undefined;
   useAsyncActionMock = createUseAsyncActionMock();
   return useAsyncActionMock;
 });
@@ -677,7 +679,7 @@ let useMyStore: typeof UseMyStoreType;
 describe("useMyStore", () => {
   beforeEach(async () => {
     capturedAction = undefined;
-    capturedOnError = undefined;
+    capturedOptions = undefined;
     ({ useMyStore } = await import("@/stores/domain/my-entity/my.store"));
   });
 
@@ -702,17 +704,19 @@ describe("useMyStore", () => {
   });
 
   describe("useAsyncAction wiring", () => {
-    it("should pass the repository getAll as action to useAsyncAction.", () => {
+    it("should forward the signal to the repository getAll when the captured action is invoked.", async () => {
       useMyStore();
-      expect(capturedAction).toBe(myRepository($fetch).getAll);
+      const signal = new AbortController().signal;
+      const query = { limit: 10 };
+
+      await capturedAction?.({ signal }, query);
+
+      expect(myRepository($fetch).getAll).toHaveBeenCalledExactlyOnceWith(query, { signal });
     });
 
-    it("should call addErrorToast when the error callback is invoked.", () => {
+    it("should pass the client timeout option to useAsyncAction.", () => {
       useMyStore();
-      capturedOnError?.();
-      expect(useAppToast().addErrorToast).toHaveBeenCalledExactlyOnceWith({
-        description: "myEntity.cantFetch",
-      });
+      expect(capturedOptions).toStrictEqual({ timeoutInMs: GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS });
     });
   });
 });
@@ -725,24 +729,24 @@ When the store calls `useAsyncAction` multiple times (e.g. once for fetch, once 
 ```ts
 let fetchAsyncActionMock: UseAsyncActionMock;
 let createAsyncActionMock: UseAsyncActionMock;
-let capturedFetchAction: (() => Promise<MyEntity[]>) | undefined;
-let capturedFetchOnError: (() => void) | undefined;
-let capturedCreateAction: ((dto: unknown) => Promise<MyEntity>) | undefined;
-let capturedCreateOnError: (() => void) | undefined;
+let capturedFetchAction: ((context: AsyncActionContext, ...arguments_: unknown[]) => Promise<MyEntity[]>) | undefined;
+let capturedFetchOptions: UseAsyncActionOptions | undefined;
+let capturedCreateAction: ((context: AsyncActionContext, dto: unknown) => Promise<MyEntity>) | undefined;
+let capturedCreateOptions: UseAsyncActionOptions | undefined;
 
 let useAsyncActionCallCount: number;
 
-mockNuxtImport("useAsyncAction", () => (action: unknown, onError: unknown): UseAsyncActionMock => {
+mockNuxtImport("useAsyncAction", () => (action: unknown, options: unknown): UseAsyncActionMock => {
   useAsyncActionCallCount++;
   if (useAsyncActionCallCount === 1) {
-    capturedFetchAction = action as () => Promise<MyEntity[]>;
-    capturedFetchOnError = onError as () => void;
+    capturedFetchAction = action as (context: AsyncActionContext, ...arguments_: unknown[]) => Promise<MyEntity[]>;
+    capturedFetchOptions = options as UseAsyncActionOptions | undefined;
     fetchAsyncActionMock = createUseAsyncActionMock();
     return fetchAsyncActionMock;
   }
 
-  capturedCreateAction = action as (dto: unknown) => Promise<MyEntity>;
-  capturedCreateOnError = onError as () => void;
+  capturedCreateAction = action as (context: AsyncActionContext, dto: unknown) => Promise<MyEntity>;
+  capturedCreateOptions = options as UseAsyncActionOptions | undefined;
   createAsyncActionMock = createUseAsyncActionMock();
   return createAsyncActionMock;
 });
@@ -751,9 +755,9 @@ describe("useMyStore", () => {
   beforeEach(async () => {
     useAsyncActionCallCount = 0;   // reset counter each test
     capturedFetchAction = undefined;
-    capturedFetchOnError = undefined;
+    capturedFetchOptions = undefined;
     capturedCreateAction = undefined;
-    capturedCreateOnError = undefined;
+    capturedCreateOptions = undefined;
     ({ useMyStore } = await import("@/stores/domain/my-entity/my.store"));
   });
   // ...
@@ -769,11 +773,55 @@ Key rules:
 
 - `setActivePinia(createPinia())` runs automatically before each test — no need to call it manually.
 - Dynamic-import the store inside `beforeEach` — never a top-level static import (see [§6.4](#64-composables)).
-- Declare `capturedAction` and `capturedOnError` at module level so the `mockNuxtImport` factory can assign to them.
+- Declare `capturedAction` and `capturedOptions` at module level so the `mockNuxtImport` factory can assign to them.
 - Reset captured variables to `undefined` at the start of each `beforeEach`.
 - Mutate `useAsyncActionMock.fetchStatus.value` to drive reactive getter assertions (e.g. `isPending`, `isFetching`).
-- Assert the captured action with `toBe(repositoryInstance($fetch).methodName)` — the repository is globally mocked.
-- Assert `capturedOnError?.()` triggers `useAppToast().addErrorToast` with the correct i18n key.
+- Invoke `capturedAction?.({ signal }, ...arguments)` and assert the repository call with `toHaveBeenCalledExactlyOnceWith(...arguments, { signal })` — the repository is globally mocked.
+- Assert `capturedOptions` equals `{ timeoutInMs: GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS }` for stores that set a client timeout.
+
+#### Testing latest-wins and timeouts
+
+`useAsyncAction` is a latest-wins lane: every `execute` supersedes the previous in-flight request. Test it at the composable level with deferred promises and, for timeout behaviour, with fake timers.
+
+**Deferred promises.** Use `Promise.withResolvers<T>()`; there is no shared deferred helper:
+
+```ts
+const firstResponse = Promise.withResolvers<Question[]>();
+repository.getRandom.mockReturnValueOnce(firstResponse.promise);
+```
+
+**Timeout tests.** Fake timers are opt-in (`vi.useFakeTimers()` in a `beforeEach`, `vi.useRealTimers()` in an `afterEach`). They do **not** drive `AbortSignal.timeout`, so the timeout is implemented with `setTimeout` + `AbortController` and asserted with `advanceTimersByTimeAsync`. Pre-attach `rejects`-style assertions **before** advancing the timers; the `execute` promise itself never rejects, so it is safe to `advanceTimersByTimeAsync(...)` first and then `await expect(execution).resolves...`, because `advanceTimersByTimeAsync` is promise-aware:
+
+```ts
+const execution = execute();
+await vi.advanceTimersByTimeAsync(timeoutInMs);
+
+await expect(execution).resolves.toStrictEqual({ ok: false, error: abortError });
+```
+
+Assert the abort reason through `signal.reason.name` (`"AbortError"` / `"TimeoutError"`), never `instanceof DOMException`: the Nuxt environment mixes Node's `AbortController` with happy-dom's `DOMException`.
+
+**Store-level real-composable tests.** The `stores` project globally mocks `useAsyncAction` and `useFetchStatus`. To exercise the real lane in one block of a store spec, delegate to the `original` argument of `mockNuxtImport` behind a module-level flag (`isUsingRealAsyncAction` — both the game and question-themes store specs use that name) and restore the real status composable:
+
+```ts
+let isUsingRealAsyncAction = false;
+
+mockNuxtImport("useFetchStatus", (original: typeof useFetchStatus) => original);
+
+mockNuxtImport("useAsyncAction", (original: typeof useAsyncAction) => {
+  const realUseAsyncAction = original as unknown as (...arguments_: unknown[]) => UseAsyncAction<unknown, unknown[]>;
+
+  return (...arguments_: unknown[]) => (isUsingRealAsyncAction ? realUseAsyncAction(...arguments_) : createUseAsyncActionMock());
+});
+
+describe("with the real useAsyncAction", () => {
+  beforeEach(() => {
+    isUsingRealAsyncAction = true;
+  });
+});
+```
+
+`original` is the true implementation, not the setup-file mock. `unmockNuxtImport` is the file-scoped alternative; it is not used here because the capture wiring must stay active for the rest of the file.
 
 ---
 
@@ -1793,7 +1841,7 @@ Import from `@goat-it/schemas/testing/shared` when building entities or DTOs tha
 | Faketory functions | `createFake<Entity>(partial: Partial<Entity> = {}): Entity`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Mock type          | `UseXxxMock`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Mock factory       | `createUseXxxMock(): UseXxxMock`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Captured variables | `capturedAction`, `capturedOnError` (store tests); `capturedFetchAction`, `capturedCreateAction` etc. for multi-action stores                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Captured variables | `capturedAction`, `capturedOptions` (store tests); `capturedFetchAction`, `capturedCreateAction` etc. for multi-action stores                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ### Single-call assertion
 
@@ -1894,7 +1942,7 @@ Page and layout tests stub child components. Without `shallow: true`, the test w
 
 ### Forgetting to reset captured variables in store tests
 
-The `mockNuxtImport` factory runs once per module load (not per test). Reset `capturedAction = undefined`, `capturedOnError = undefined`, and `useAsyncActionCallCount = 0` (for multi-action stores) at the top of each `beforeEach` to avoid cross-test contamination.
+The `mockNuxtImport` factory runs once per module load (not per test). Reset `capturedAction = undefined`, `capturedOptions = undefined`, `useAsyncActionCallCount = 0` (for multi-action stores) and the `isUsingRealAsyncAction` flag at the top of each `beforeEach` to avoid cross-test contamination.
 
 ---
 

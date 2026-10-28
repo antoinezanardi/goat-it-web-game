@@ -56,6 +56,9 @@ function useGameQuestionFeed(options: UseGameQuestionFeedOptions): UseGameQuesti
   async function fetchNextBatch(): Promise<AsyncResult<Question[]>> {
     const requestBody = buildRandomQuestionsRequestBody();
     const result = await store.fetchAndAppendRandomQuestions(requestBody);
+    if (!result.ok && result.superseded === true) {
+      return result;
+    }
     if (!result.ok) {
       hasFetchError.value = true;
       if (!isConfirmedOfflineFetchError(result.error, isOnline.value)) {

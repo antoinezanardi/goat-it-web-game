@@ -80,8 +80,6 @@ function buildRateLimitKey(event: H3Event, trustProxy: boolean): string | undefi
   return forwardedClientIp === "" ? undefined : forwardedClientIp;
 }
 
-// Acceptable as the shared limiter is only assigned on first use before it is ever read
-// oxlint-disable-next-line typescript/init-declarations
 let sharedRateLimiter: FixedWindowRateLimiter | undefined;
 
 /**

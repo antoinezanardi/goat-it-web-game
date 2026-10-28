@@ -27,8 +27,6 @@ function useQuestionCardRing(options: UseQuestionCardRingOptions): UseQuestionCa
   const hasPendingRestage = ref<boolean>(false);
   const isRestaging = ref<boolean>(false);
   const lastCompletedDirection = ref<GameNavigationDirection>("forward");
-  // Acceptable as the timeout handle is only assigned inside scheduleRestage before it is ever cleared
-  // oxlint-disable-next-line typescript/init-declarations
   let restageSafetyTimeout: ReturnType<typeof setTimeout> | undefined;
   let restageAnimationFrame = 0;
   let nestedRestageAnimationFrame = 0;
