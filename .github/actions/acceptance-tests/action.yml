@@ -26,7 +26,24 @@ runs:
 
     - name: Restore Playwright browsers cache 🥡
       id: playwright-cache
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+    - name: Install Playwright Chromium 🎭
+      shell: bash
+      run: |
+        pnpm exec playwright install --only-shell chromium
+        if ! node -e "require('playwright-core').chromium.launch({ headless: true }).then(browser => browser.close()).catch(error => { console.error(error); process.exit(1); })"; then
+          echo "Chromium is missing system dependencies, installing them..."
+          timeout 300 pnpm exec playwright install-deps chromium
+          node -e "require('playwright-core').chromium.launch({ headless: true }).then(browser => browser.close())"
+        fi
+
+    - name: Save Playwright browsers cache 🥡
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
         path: ~/.cache/ms-playwright
         key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
@@ -38,13 +55,6 @@ runs:
         SANDBOX_PID=$!
         pnpm run test:acceptance:build &
         BUILD_PID=$!
-
-        pnpm exec playwright install --only-shell chromium
-        if ! node -e "require('playwright-core').chromium.launch({ headless: true }).then(browser => browser.close()).catch(error => { console.error(error); process.exit(1); })"; then
-          echo "Chromium is missing system dependencies, installing them..."
-          timeout 300 pnpm exec playwright install-deps chromium
-          node -e "require('playwright-core').chromium.launch({ headless: true }).then(browser => browser.close())"
-        fi
 
         BUILD_STATUS=0
         SANDBOX_STATUS=0
