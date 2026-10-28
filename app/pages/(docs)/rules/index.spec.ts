@@ -141,31 +141,21 @@ describe("Rules Page", () => {
       expect(wrapper.findComponent({ name: "DocsPageShell" }).exists()).toBe(false);
     });
 
-    it("should pass the root route to the back home button when data is null and status is success.", async() => {
+    it.each<{ description: string; prop: "icon" | "label" | "to"; value: string }>([
+      { description: "the root route", prop: "to", value: "/" },
+      { description: "the backToHome i18n key", prop: "label", value: "common.backToHome" },
+      { description: "the house icon", prop: "icon", value: "i-lucide-house" },
+    ])("should pass $description to the back home button when data is null and status is success.", async({ prop, value }) => {
       wrapper = await mountRulesPage({ shallow: false });
       const backHomeButton = wrapper.findComponent<typeof UButton>({ name: "UButton" });
 
-      expect(backHomeButton.props("to")).toBe("/");
-    });
-
-    it("should pass the backToHome i18n key to the back home button when data is null and status is success.", async() => {
-      wrapper = await mountRulesPage({ shallow: false });
-      const backHomeButton = wrapper.findComponent<typeof UButton>({ name: "UButton" });
-
-      expect(backHomeButton.props("label")).toBe("common.backToHome");
+      expect(backHomeButton.props(prop)).toBe(value);
     });
 
     it("should render the back home button test id when data is null and status is success.", async() => {
       wrapper = await mountRulesPage({ shallow: false });
 
       expect(wrapper.find("[data-testid='rules-page-back-home']").exists()).toBe(true);
-    });
-
-    it("should render the house icon on the back home button when data is null and status is success.", async() => {
-      wrapper = await mountRulesPage({ shallow: false });
-      const backHomeButton = wrapper.findComponent<typeof UButton>({ name: "UButton" });
-
-      expect(backHomeButton.props("icon")).toBe("i-lucide-house");
     });
   });
 

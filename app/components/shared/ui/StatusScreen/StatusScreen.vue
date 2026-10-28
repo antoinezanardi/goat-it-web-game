@@ -26,7 +26,6 @@ const descriptionTestId = computed<string | undefined>(() => (props.testId === u
             v-if="props.icon"
             aria-hidden="true"
             :class="[
-              variantClasses.icon,
               props.iconClass ?? variantClasses.iconColor
             ]"
             :name="props.icon"

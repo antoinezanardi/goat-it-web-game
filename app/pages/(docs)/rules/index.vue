@@ -59,7 +59,6 @@ function onRetry(): void {
       icon="i-lucide-triangle-alert"
       test-id="rules-page-error"
       :title="t('errors.generic')"
-      title-tag="h1"
       variant="page"
     >
       <template #actions>
@@ -99,7 +98,6 @@ function onRetry(): void {
       icon="i-lucide-file-question"
       test-id="rules-page-not-found"
       :title="t('errors.pageNotFound')"
-      title-tag="h1"
       variant="page"
     >
       <template #actions>

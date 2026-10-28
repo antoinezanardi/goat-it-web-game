@@ -275,8 +275,6 @@ Layouts remain at `app/layouts/<Layout>/` with stable filenames/path-derived key
 
 - Fallback page: `app/pages/offline/index.vue` with its colocated spec; prerendering, `noScripts`, and SEO
   exclusion are route rules in `nuxt.config.ts`, never page-level config.
-- The fallback page renders the shared `StatusScreen` component (`app/components/shared/ui/StatusScreen/`) with the
-  `page` variant; its Retry action remains a native `<a href="">` so it reloads the requested URL without JavaScript.
 - Offline copy: the `offline` namespace in `app/i18n/locales/<locale>/offline.json`, rendered during prerender.
 - Connectivity UI: `app/composables/ui/useConnectivityStatus/` (transition/timer behavior) and
   `app/components/shared/ui/OfflineStatusIndicator/` (presentation). The indicator is mounted once in

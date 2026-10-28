@@ -15,7 +15,6 @@ const OFFLINE_RETRY_LINK_CLASSES =
     icon="i-lucide-wifi-off"
     test-id="offline-page"
     :title="t('offline.title')"
-    title-tag="h1"
     variant="page"
   >
     <template #actions>

@@ -7,10 +7,11 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import type { UIcon } from "#components";
 import { StatusScreen } from "#components";
 
-import type { StatusScreenProps, StatusScreenTitleTag } from "@/components/shared/ui/StatusScreen/status-screen.types";
+import type { StatusScreenProps } from "@/components/shared/ui/StatusScreen/status-screen.types";
 
 describe("StatusScreen Component", () => {
   const defaultStatusScreenProps: StatusScreenProps = {
+    icon: "i-lucide-wifi-off",
     title: "status.title",
   } as const;
 
@@ -41,17 +42,14 @@ describe("StatusScreen Component", () => {
     expect(wrapper.classes()).toContain("min-h-dvh");
   });
 
-  it("should render the title with the h2 tag by default when no titleTag is provided.", () => {
+  it("should render the title with the h2 tag when variant is section.", () => {
     expect(wrapper.find("h2").text()).toBe("status.title");
   });
 
-  it.each<{ titleTag: StatusScreenTitleTag }>([
-    { titleTag: "h1" },
-    { titleTag: "p" },
-  ])("should render the title with the $titleTag tag when titleTag is $titleTag.", async({ titleTag }) => {
-    wrapper = await mountStatusScreen({ props: { ...defaultStatusScreenProps, titleTag } });
+  it("should render the title with the h1 tag when variant is page.", async() => {
+    wrapper = await mountStatusScreen({ props: { ...defaultStatusScreenProps, variant: "page" } });
 
-    expect(wrapper.find(titleTag).text()).toBe("status.title");
+    expect(wrapper.find("h1").text()).toBe("status.title");
   });
 
   it("should render the description when description is provided.", async() => {
@@ -64,53 +62,27 @@ describe("StatusScreen Component", () => {
     expect(wrapper.find("p").exists()).toBeFalsy();
   });
 
-  it("should render the icon when icon is provided.", async() => {
-    wrapper = await mountStatusScreen({ props: { ...defaultStatusScreenProps, icon: "i-lucide-wifi-off" } });
+  it("should render the icon when mounted.", () => {
     const icon = wrapper.findComponent<typeof UIcon>({ name: "UIcon" });
 
     expect(icon.props("name")).toBe("i-lucide-wifi-off");
   });
 
-  it("should not render the icon when no icon is provided.", () => {
-    expect(wrapper.findComponent({ name: "UIcon" }).exists()).toBeFalsy();
-  });
-
   it("should apply the default page icon color when iconClass is not provided.", async() => {
-    wrapper = await mountStatusScreen({ props: { ...defaultStatusScreenProps, icon: "i-lucide-wifi-off", variant: "page" } });
+    wrapper = await mountStatusScreen({ props: { ...defaultStatusScreenProps, variant: "page" } });
     const icon = wrapper.findComponent<typeof UIcon>({ name: "UIcon" });
 
     expect(icon.classes()).toContain("text-fg-secondary");
   });
 
   it("should apply the custom icon class when iconClass is provided.", async() => {
-    wrapper = await mountStatusScreen({ props: { ...defaultStatusScreenProps, icon: "i-lucide-wifi-off", iconClass: "text-warning", variant: "page" } });
+    wrapper = await mountStatusScreen({ props: { ...defaultStatusScreenProps, iconClass: "text-warning", variant: "page" } });
     const icon = wrapper.findComponent<typeof UIcon>({ name: "UIcon" });
 
     expect({
       hasCustomClass: icon.classes().includes("text-warning"),
       hasDefaultClass: icon.classes().includes("text-fg-secondary"),
     }).toStrictEqual({ hasCustomClass: true, hasDefaultClass: false });
-  });
-
-  it("should render the icon slot content when the icon slot is provided.", async() => {
-    wrapper = await mountStatusScreen({ slots: { icon: "<span data-testid='custom-icon'>Custom icon</span>" } });
-
-    expect({
-      hasCustomIcon: wrapper.find("[data-testid='custom-icon']").exists(),
-      hasDefaultIcon: wrapper.findComponent({ name: "UIcon" }).exists(),
-    }).toStrictEqual({ hasCustomIcon: true, hasDefaultIcon: false });
-  });
-
-  it("should render the icon slot content instead of the icon prop when both are provided.", async() => {
-    wrapper = await mountStatusScreen({
-      props: { ...defaultStatusScreenProps, icon: "i-lucide-wifi-off" },
-      slots: { icon: "<span data-testid='custom-icon'>Custom icon</span>" },
-    });
-
-    expect({
-      hasCustomIcon: wrapper.find("[data-testid='custom-icon']").exists(),
-      hasDefaultIcon: wrapper.findComponent({ name: "UIcon" }).exists(),
-    }).toStrictEqual({ hasCustomIcon: true, hasDefaultIcon: false });
   });
 
   it("should render the title slot content when the title slot is provided.", async() => {

@@ -1,3 +1,5 @@
+import type { StatusScreenTitleTag, StatusScreenVariant } from "@/components/shared/ui/StatusScreen/status-screen.types";
+
 const STATUS_SCREEN_VARIANT_CLASSES = {
   page: {
     actions: "flex flex-wrap gap-3 items-center justify-center",
@@ -21,4 +23,9 @@ const STATUS_SCREEN_VARIANT_CLASSES = {
   },
 } as const;
 
-export { STATUS_SCREEN_VARIANT_CLASSES };
+const STATUS_SCREEN_VARIANT_TITLE_TAGS = {
+  page: "h1",
+  section: "h2",
+} as const satisfies Record<StatusScreenVariant, StatusScreenTitleTag>;
+
+export { STATUS_SCREEN_VARIANT_CLASSES, STATUS_SCREEN_VARIANT_TITLE_TAGS };
