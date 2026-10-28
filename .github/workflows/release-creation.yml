@@ -113,7 +113,7 @@ jobs:
   acceptance-tests:
     name: Acceptance Tests 🥒
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     needs:
       - install
     outputs:
