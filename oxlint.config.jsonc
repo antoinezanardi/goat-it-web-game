@@ -1413,6 +1413,15 @@
         ]
       }
     },
+    // ---- Override for scripts -----
+    {
+      "files": [
+        "**/scripts/**/*.ts"
+      ],
+      "rules": {
+        "node/no-process-env": "off"
+      }
+    },
     // ---- Override for declaration files -----
     {
       "files": [
