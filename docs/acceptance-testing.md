@@ -42,7 +42,7 @@ For repository boundaries and file placement, see [`docs/architecture.md`](archi
 9. [Sandbox management](#9-sandbox-management)
   - [Docker compose setup](#91-docker-compose-setup)
   - [MongoDB reset](#92-mongodb-reset)
-  - [Health check](#93-health-check)
+  - [Sandbox health check](#93-sandbox-health-check)
 10. [Adding new features (step-by-step)](#10-adding-new-features-step-by-step)
 11. [Naming conventions](#11-naming-conventions)
 12. [Common pitfalls](#12-common-pitfalls)
@@ -382,6 +382,7 @@ The current tag families are:
 | Security             | `@security`                          | —                                               |
 | PWA                  | `@pwa`                               | `@pwa @accessibility`                           |
 | Locale suggestion    | `@locale-suggestion`                 | —                                               |
+| Health               | `@health`                            | —                                               |
 
 ### 5.3 Scenarios and Scenario Outlines
 
@@ -1122,7 +1123,7 @@ Before each scenario, the `Before` hook calls `resetSandboxData(this.mongoDb)`, 
 
 The MongoDB client is created with `RESET_SANDBOX_DATA_TIMEOUT_IN_MS` (10s) as its connect timeout.
 
-### 9.3 Health check
+### 9.3 Sandbox health check
 
 The `BeforeAll` hook calls `waitForSandboxHealthCheck()` which polls `http://localhost:<9090 + workerId>/health` with:
 
@@ -1153,6 +1154,7 @@ If the sandbox is not healthy after all retries, the test suite fails immediatel
    | `modal`         | When: close modal (header button or footer button).                                                     |
    | `locale`        | When: switch locale. Then: locale completion status.                                                    |
    | `accessibility` | Then: page has no accessibility issues (desktop/mobile).                                                |
+   | `security`      | When: request a route as a client IP. Then: response status.                                            |
 
 3. **Write the feature file.** Create it in the correct directory with proper tags, emoji-prefixed Feature/Scenario titles, and DataTables. Consider using `Background:` if 3+ scenarios share identical initial steps.
 

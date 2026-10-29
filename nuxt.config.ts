@@ -134,7 +134,7 @@ export default defineNuxtConfig({
   },
   compatibilityDate: "2026-10-14",
   nitro: {
-    ignore: ["api/**/handlers/**"],
+    ignore: ["api/**/handlers/**", "routes/**/handlers/**"],
     imports: { dirs: ["shared/utils/helpers/**/*.helpers.ts"] },
     compressPublicAssets: { gzip: true, brotli: true },
   },

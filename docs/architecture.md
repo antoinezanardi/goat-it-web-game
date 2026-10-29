@@ -6,9 +6,9 @@ For detailed testing mechanics, see [Unit Testing](unit-testing.md) and [Accepta
 
 ## 1. File-placement decision tree
 
-1. **Is the file required by a framework scanner?** Use Nuxt's discovered location and required naming: application pages/layouts/components under `app/`; Nitro API routes, middleware, and plugins under root `server/`. Keep framework entrypoints thin and put testable behavior in owned units.
+1. **Is the file required by a framework scanner?** Use Nuxt's discovered location and required naming: application pages/layouts/components under `app/`; Nitro routes, middleware, and plugins under root `server/`. Keep framework entrypoints thin and put testable behavior in owned units.
 2. **Is it intended for both Vue and Nitro?** If runtime-neutral, place it in root `shared/`.
-3. **Is it server-only?** Choose `server/api/`, `server/middleware/`, `server/plugins/`, or `server/utils/<domain>/` by responsibility.
+3. **Is it server-only?** Choose `server/api/`, `server/routes/`, `server/middleware/`, `server/plugins/`, or `server/utils/<domain>/` by responsibility.
 4. **Is it app-only?** Choose the app concern: `components/`, `composables/{core,domain,ui}/`, `stores/domain/`, `repositories/`, or `utils/{core,domain,ui}/`.
 5. **Is it independently tested production behavior?** Give it an owned directory containing the source and matching spec. Do not add a redundant nesting level when its existing domain directory already represents one coherent unit.
 6. **Is it a type, constant, or helper?** Place it with the narrowest production owner. Promote to a domain root only when multiple production units in that domain consume it. Put it in `shared/` when it is runtime-neutral (app/server-neutral), even if a single production unit consumes it; app-only behavior stays in `app/`.
@@ -33,6 +33,7 @@ app/                         Vue/Nuxt application
   utils/{core,domain,ui}/    app-only utility domains
 server/                      Nitro runtime
   api/                       HTTP route entrypoints and handlers
+  routes/                    Unprefixed root route entrypoints and handlers
   middleware/                Nitro middleware entrypoints
   plugins/                   Nitro plugin entrypoints
   utils/<domain>/            server-only domain utilities
@@ -99,9 +100,10 @@ Choose placement by **production ownership and dependencies**, not by where a te
 
 1. Component/composable/store-private contract or constant → beside that owner.
 2. Helper-private contract or constant → beside that helper source/spec in a colocated `.types.ts` or `.constants.ts` companion, not declared inside the `.helpers.ts` source.
-3. Reused by multiple production units in one domain → at the narrowest common domain root.
-4. Runtime-neutral (common to app and server, or a neutral domain helper with a single consumer) → root `shared/`.
-5. UI-only mapping/token (icons, presentation colors, labels, CSS/Tailwind classes) → app `utils/ui/` or its consuming component.
+3. Handler-private response/request contract → beside that handler in a colocated `.types.ts` companion, not declared inside the handler source.
+4. Reused by multiple production units in one domain → at the narrowest common domain root.
+5. Runtime-neutral (common to app and server, or a neutral domain helper with a single consumer) → root `shared/`.
+6. UI-only mapping/token (icons, presentation colors, labels, CSS/Tailwind classes) → app `utils/ui/` or its consuming component.
 
 A constant used by two components should not stay artificially private to one component. Conversely, a one-consumer constant does not become domain-wide merely because it sounds like a domain concept. If a mixed helper module contains both runtime-neutral domain behavior and UI mappings, split along that dependency boundary.
 
@@ -323,7 +325,19 @@ server/api/goat-it-api/questions/
     └── index.get.handler.spec.ts
 ```
 
-The route wrapper is an explicit framework-discovery exception; the handler owns behavior and its spec. Validate query/body/upstream response data with the established Zod validation helpers and `@goat-it/schemas`; map DTOs to domain values through dedicated mappers.
+The route wrapper is an explicit framework-discovery exception; the handler owns behavior and its spec. The handler's response contract lives in a sibling `<unit>.types.ts` companion (for example `check-liveness.types.ts`), not inside the handler source. Validate query/body/upstream response data with the established Zod validation helpers and `@goat-it/schemas`; map DTOs to domain values through dedicated mappers.
+
+Root, unprefixed endpoints follow the same split under `server/routes/`, which is served from `/` instead of `/api/`:
+
+```text
+server/routes/healthz/
+├── index.get.ts
+└── handlers/check-liveness/
+    ├── index.get.handler.ts
+    └── index.get.handler.spec.ts
+```
+
+The `index.<method>.ts` wrapper stays a two-line framework entrypoint and is excluded from coverage; the handler owns the response contract, its status codes, and its spec. `nuxt.config.ts` ignores `routes/**/handlers/**` so handler units are never registered as routes, and root-route registration is proven by the built-app acceptance suite rather than by a unit test of the wrapper.
 
 ### 6.2 Server utility domains
 

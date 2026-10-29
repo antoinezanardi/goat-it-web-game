@@ -53,7 +53,7 @@ Audit subagents apply this checklist verbatim. Violations are recorded with rule
 
 - **[U1] Location & naming** — Spec colocated with source as `SourceFile.spec.ts`. Exceptions: layouts → `spec/` subfolder; i18n → `app/i18n/specs/`.
 - **[U2] Explicit vitest imports** — `describe`, `it`, `expect`, `vi`, etc. imported from `"vitest"` in every test file. No reliance on globals.
-- **[U3] Describe label rule** — Components: string `"<Name> Component"`. Pages: string `"<Name> Page"`. Layouts: string `"<Name> Layout"`. Server handlers: outer string `"Server Goat It API <Resource> <Method> Handler"` + inner `describe(handlerFn, ...)`. Stores: string form `describe("useXxxStore", ...)` or symbol reference (docs §6.5 pattern). Schemas: human-readable string form `"<Name> schema"` (e.g. `describe("Question theme schema", ...)`), never the constant symbol; a Zod schema is an object, not a valid Vitest title, and a title equal to the imported constant is auto-rewritten by `vitest/prefer-describe-function-title`. Functions/composables/repositories: symbol reference (`describe(myFn, ...)`); free-form string only when no single symbol applies. Never a direct component/page/layout reference, and never a free-form grouping string wrapping symbol describes.
+- **[U3] Describe label rule** — Components: string `"<Name> Component"`. Pages: string `"<Name> Page"`. Layouts: string `"<Name> Layout"`. Server handlers: outer string `"Server <Domain> <Resource> <Method> Handler"` (e.g. `"Server Goat It API Question Themes Get Handler"`, `"Server Health Liveness Get Handler"`) + inner `describe(handlerFn, ...)`. Stores: string form `describe("useXxxStore", ...)` or symbol reference (docs §6.5 pattern). Schemas: human-readable string form `"<Name> schema"` (e.g. `describe("Question theme schema", ...)`), never the constant symbol; a Zod schema is an object, not a valid Vitest title, and a title equal to the imported constant is auto-rewritten by `vitest/prefer-describe-function-title`. Functions/composables/repositories: symbol reference (`describe(myFn, ...)`); free-form string only when no single symbol applies. Never a direct component/page/layout reference, and never a free-form grouping string wrapping symbol describes.
 - **[U4] Single-call assertions** — No `toHaveBeenCalledTimes(1)` combined with `toHaveBeenCalledWith(...)`. Use `toHaveBeenCalledExactlyOnceWith(...)`.
 - **[U5] Error swallowing** — No `.catch(() => null)`. Use try/catch with `void error` when asserting side effects of throwing code.
 - **[U6] Translation keys** — Assertions compare translation keys, never translated prose strings.
@@ -71,7 +71,7 @@ These recurring shapes are accepted codebase conventions. Auditors must not repo
 - Count-only `findAllComponents({ name: "..." })` usage that never indexes positionally into siblings.
 - Typed self-filtering lookups when a wrapper shares the component's root element — `findAllComponents<typeof C>({ name: "C" }).find(component => component.attributes("data-testid") === id)` is acceptable when a reka-ui `asChild` trigger (e.g. `UPopover`'s `HoverCardTrigger` wrapping a `UBadge`) renders the same DOM root, so `findComponent<typeof C>("[data-testid='…']")` resolves to the wrapper instead of the component; the lookup stays typed and non-positional.
 - `getWrapperVm<T>` + local `ComponentVm` extension asserting derived computed values when the rendered output itself is not observable in happy-dom (see [C8]).
-- Environment-coupled server helper specs stubbing `useRuntimeConfig` / h3 globals (see [N1] exception).
+- Environment-coupled server helper specs stubbing `useRuntimeConfig` / h3 globals (see [N1] exception). Global `fetch` stubbing in helpers whose only outbound seam is the global fetch is also accepted.
 
 #### Component checks
 
@@ -162,7 +162,7 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 #### Server handler checks
 
 - **[H1] Helpers mock syntax** — `vi.mock(import("#server/utils/..."))` using the `import()` expression form at module level.
-- **[H2] Two-level describe** — Outer string label `"Server Goat It API <Resource> <Method> Handler"`, inner `describe(handlerFn, ...)`.
+- **[H2] Two-level describe** — Outer string label `"Server <Domain> <Resource> <Method> Handler"` (e.g. `"Server Goat It API Question Themes Get Handler"`, `"Server Health Liveness Get Handler"`), inner `describe(handlerFn, ...)`.
 - **[H3] $fetch usage** — `vi.mocked($fetch).mockResolvedValue(...)` / `mockRejectedValue(...)`, never re-mocked from scratch.
 - **[H4] Zod path** — A test asserting `ZodError` is thrown for invalid API data.
 - **[H5] Throw side-effects** — try/catch with `void error` around the awaited handler call.
@@ -171,7 +171,7 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 
 #### Node helper/mapper checks
 
-- **[N1] Pure tests** — No mocking infrastructure of the unit under test or its collaborators. Exception: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, spying on global timers) are allowed to test time-dependent helpers deterministically. Environment-coupled Goat It API fetch-options and locale helper specs may stub `useRuntimeConfig` and h3 globals where required by the function contract — established exception, never flagged.
+- **[N1] Pure tests** — No mocking infrastructure of the unit under test or its collaborators. Exception: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, spying on global timers) are allowed to test time-dependent helpers deterministically. Environment-coupled Goat It API fetch-options and locale helper specs may stub `useRuntimeConfig` and h3 globals where required by the function contract, and a server helper whose only outbound seam is the global `fetch` may stub that global directly — established exceptions, never flagged.
 - **[N2] Aliases** — Server helper specs import via `#server/utils/...`; shared helper specs via `#shared/utils/...`; app-local helper/mapper specs (e.g. under `app/components/` or `app/composables/`) via `@/`.
 
 #### Schema checks

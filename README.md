@@ -123,6 +123,8 @@ docker run -p 3002:3002 \
   goat-it-web-game
 ```
 
+Health, readiness, container shutdown, and post-deploy verification are documented in the **[operations reference](docs/operations.md)**.
+
 ### 🐐💽 Goat It API sandbox
 
 For development or testing purposes, you can run the Goat It API sandbox with the following command :
