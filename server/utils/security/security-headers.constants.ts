@@ -17,13 +17,18 @@ const CSP_ENFORCE_HEADER_NAME = "Content-Security-Policy";
 const CSP_REPORT_ONLY_HEADER_NAME = "Content-Security-Policy-Report-Only";
 const CSP_NONCE_PLACEHOLDER = "%NONCE%";
 
+const CSP_CONNECT_SRC_DIRECTIVE = "connect-src 'self'";
+
+const SENTRY_INGEST_HOSTNAME_MARKER = ".ingest.";
+const SENTRY_SAAS_HOSTNAME_SUFFIX = ".sentry.io";
+
 const CSP_DIRECTIVES = [
   "default-src 'self'",
   `script-src 'self' 'wasm-unsafe-eval' 'nonce-${CSP_NONCE_PLACEHOLDER}'`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",
-  "connect-src 'self'",
+  CSP_CONNECT_SRC_DIRECTIVE,
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "frame-ancestors 'none'",
@@ -37,10 +42,13 @@ const SCRIPT_TAG_WITHOUT_NONCE_PATTERN = /<script(?![^>]*\snonce=)/giu;
 export {
   API_CACHE_HEADERS,
   API_ROUTE_PATH_PREFIX,
+  CSP_CONNECT_SRC_DIRECTIVE,
   CSP_DIRECTIVES,
   CSP_ENFORCE_HEADER_NAME,
   CSP_NONCE_PLACEHOLDER,
   CSP_REPORT_ONLY_HEADER_NAME,
   SCRIPT_TAG_WITHOUT_NONCE_PATTERN,
   SECURITY_HEADERS,
+  SENTRY_INGEST_HOSTNAME_MARKER,
+  SENTRY_SAAS_HOSTNAME_SUFFIX,
 };

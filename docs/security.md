@@ -44,6 +44,8 @@ font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self
 base-uri 'self'; form-action 'self'; object-src 'none'
 ```
 
+When Sentry is enabled, the server appends the ingest origin parsed from `NUXT_PUBLIC_SENTRY_DSN` (for example `https://o123.ingest.us.sentry.io`) to `connect-src`. The origin is derived at render time, is never widened to `*.sentry.io`, and no same-origin tunnel is added. With error tracking disabled, the policy keeps `connect-src 'self'`.
+
 `script-src` keeps `'wasm-unsafe-eval'` because Nuxt Content runs its client-side SQLite queries through a WebAssembly module; without it the browser refuses to instantiate the module and the lazy changelog query fails. It only authorises WebAssembly compilation — `eval` and `new Function` stay blocked.
 
 `style-src` keeps `'unsafe-inline'` because a style nonce would cancel it and break the @nuxt/ui runtime styles.
@@ -57,6 +59,22 @@ Modes are controlled by `NUXT_SECURITY_CSP_MODE`:
 | `off`               | no header, no stamping                                                                                                 |
 
 `envs/.env.development` uses `report-only` so dev-only inline scripts (devtools) do not break local development. Production and the acceptance build stay on `enforce`.
+
+## Error tracking (Sentry)
+
+The client and server Sentry entrypoints initialize only when `!import.meta.dev && !import.meta.test` and a non-empty `NUXT_PUBLIC_SENTRY_DSN` is present. Development and the `--envName test` acceptance build therefore run with error tracking disabled. Boot validation requires a valid HTTPS DSN whenever `isProduction && !isTest`, so a deployed production/staging build cannot boot without error tracking regardless of env-file mistakes. The environment label is derived from `NUXT_SITE_ENV` and forced to `test` by the `$test` config block; validation accepts only `production`, `staging`, `development`, or `test`. The release value must be a string.
+
+- The DSN is a public ingest identifier, not a secret. It is exposed to the browser through `runtimeConfig.public.sentry`.
+- No Sentry auth token is used. Docker builds and runtime configuration carry no Sentry credential.
+- Sentry source-map generation and upload are disabled in the build (`sentry.sourcemaps.disable`), so no source-map artifacts are produced for Sentry; client stack traces may be minified. Build-time telemetry is disabled (`sentry.telemetry: false`).
+- Sentry tracing, session replay, feedback, and log ingestion are not enabled.
+- Sentry v11 `dataCollection` disables user identity and bodies and denies identity-bearing headers, cookies, and query parameters. `beforeSend` additionally removes `request`, `user`, `extra`, `contexts`, `breadcrumbs`, top-level/logentry messages, exception messages and mechanism data, and stack-frame variables, and drops expected 4xx responses and health-check traffic. `beforeBreadcrumb` removes breadcrumb data and drops health-check fetch breadcrumbs.
+- Only exception type, stack, sanitized error code, environment, and optional release survive.
+- The Nitro SDK error hook captures unhandled server failures. No second Sentry capture hook is registered.
+- Errors deliberately converted into a graceful toast are reported once by the client error-handling boundary only when they are unexpected 5xx/network failures; expected 4xx outcomes are not reported.
+- `ignoreErrors` and `denyUrls` rely on the SDK's default `EventFilters` integration, which stays enabled.
+
+Sentry's free-plan quotas and terms change over time; confirm them in the account rather than treating this document as a contractual guarantee.
 
 ## Rate limiting
 
@@ -132,16 +150,31 @@ Every error the proxy emits carries `data.errorCode`:
 
 Forwarded upstream `4xx` keep their status and carry the upstream `errorCode` when the body provides one. The client resolves `errors.goatItApi.<code>` in the six locales and falls back on the HTTP status when no code is present.
 
+## Structured server logs
+
+`server/utils/logging/` owns a server-only Pino logger that writes newline-delimited JSON to stdout. It has no file output, worker transport, or remote sink.
+
+| Variable            | Default | Validated                                                    |
+|---------------------|---------|--------------------------------------------------------------|
+| `NUXT_LOGGER_LEVEL` | `info`  | `fatal`, `error`, `warn`, `info`, `debug`, `trace`, `silent` |
+
+Logged metadata is limited to an event name, HTTP status, method, query-free path, error class name, and error code. Request/response bodies, cookies, authorization headers, query strings, API/game keys, h3 error `data`, and source IPs are never logged. Redaction paths are defense in depth; the mapping layer already omits those fields.
+
+The Nitro error hook skips expected 4xx responses and proxy failures already logged by the Goat It API error path. It never calls Sentry and never throws.
+
 ## Environment variables
 
-| Variable                           | Required | Default   | Validated                                                 |
-|------------------------------------|----------|-----------|-----------------------------------------------------------|
-| `NUXT_GOAT_IT_API_BASE_URL`        | yes      | —         | valid URL; https in production (loopback/internal exempt) |
-| `NUXT_GOAT_IT_API_GAME_KEY`        | yes      | —         | non-empty                                                 |
-| `NUXT_PUBLIC_DEFAULT_LOCALE`       | yes      | `en`      | supported locale                                          |
-| `NUXT_RATE_LIMIT_MAXIMUM_REQUESTS` | no       | `60`      | integer ≥ 1                                               |
-| `NUXT_RATE_LIMIT_WINDOW_IN_MS`     | no       | `60000`   | integer ≥ 1                                               |
-| `NUXT_RATE_LIMIT_TRUST_PROXY`      | no       | `false`   | boolean                                                   |
-| `NUXT_SECURITY_CSP_MODE`           | no       | `enforce` | `enforce` \| `report-only` \| `off`                       |
+| Variable                           | Required        | Default   | Validated                                                 |
+|------------------------------------|-----------------|-----------|-----------------------------------------------------------|
+| `NUXT_GOAT_IT_API_BASE_URL`        | yes             | —         | valid URL; https in production (loopback/internal exempt) |
+| `NUXT_GOAT_IT_API_GAME_KEY`        | yes             | —         | non-empty                                                 |
+| `NUXT_PUBLIC_DEFAULT_LOCALE`       | yes             | `en`      | supported locale                                          |
+| `NUXT_RATE_LIMIT_MAXIMUM_REQUESTS` | no              | `60`      | integer ≥ 1                                               |
+| `NUXT_RATE_LIMIT_WINDOW_IN_MS`     | no              | `60000`   | integer ≥ 1                                               |
+| `NUXT_RATE_LIMIT_TRUST_PROXY`      | no              | `false`   | boolean                                                   |
+| `NUXT_SECURITY_CSP_MODE`           | no              | `enforce` | `enforce` \| `report-only` \| `off`                       |
+| `NUXT_PUBLIC_SENTRY_DSN`           | deployed builds | —         | valid HTTPS Sentry ingest URL                             |
+| `NUXT_PUBLIC_SENTRY_RELEASE`       | no              | —         | optional release label                                    |
+| `NUXT_LOGGER_LEVEL`                | no              | `info`    | supported Pino level                                      |
 
 Invalid values fail the Nitro boot (values are never logged).

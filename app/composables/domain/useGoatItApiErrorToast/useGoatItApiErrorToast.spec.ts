@@ -1,4 +1,5 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+import { captureException } from "@sentry/nuxt";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchError } from "ofetch";
 
@@ -8,6 +9,10 @@ import type { UseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/use
 import { createUseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock";
 
 import type { useGoatItApiErrorToast as UseGoatItApiErrorToastType } from "@/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast";
+
+vi.mock(import("@sentry/nuxt"), () => ({
+  captureException: vi.fn<(error: unknown) => string>(),
+}));
 
 type GenericFallbackCase = {
   condition: string;
@@ -283,6 +288,39 @@ describe("useGoatItApiErrorToast", () => {
       handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
 
       expect(consoleSpy).not.toHaveBeenCalled();
+    });
+
+    it("should report an unexpected api failure once when the failure is a server error.", () => {
+      vi.mocked(useI18nMock.te).mockReturnValue(true);
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const fetchError = new FetchError("Server Error");
+      fetchError.statusCode = 502;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(captureException).toHaveBeenCalledExactlyOnceWith(fetchError);
+    });
+
+    it("should not report an expected api failure when the failure is a client error.", () => {
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const fetchError = new FetchError("Not Found");
+      fetchError.statusCode = 404;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(captureException).not.toHaveBeenCalled();
+    });
+
+    it("should not report a cancelled api failure when the request is aborted.", () => {
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const abortError = Object.assign(new Error("aborted"), { name: "AbortError" });
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(abortError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(captureException).not.toHaveBeenCalled();
     });
   });
 });

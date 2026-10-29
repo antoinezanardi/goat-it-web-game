@@ -3,18 +3,42 @@ import type { NitroApp } from "nitropack/types";
 
 import { getRuntimeConfig } from "#server/utils/runtime-config/helpers/runtime-config/runtime-config.helpers";
 import {
+  CSP_CONNECT_SRC_DIRECTIVE,
   CSP_DIRECTIVES,
   CSP_ENFORCE_HEADER_NAME,
   CSP_NONCE_PLACEHOLDER,
   CSP_REPORT_ONLY_HEADER_NAME,
   SCRIPT_TAG_WITHOUT_NONCE_PATTERN,
+  SENTRY_INGEST_HOSTNAME_MARKER,
+  SENTRY_SAAS_HOSTNAME_SUFFIX,
 } from "#server/utils/security/security-headers.constants";
 
 /**
- * Joins the CSP directives and substitutes the nonce placeholder.
+ * Extracts the exact HTTPS Sentry ingest origin from a DSN.
+ *
+ * Returns `undefined` for an empty, malformed, non-HTTPS, or non-Sentry SaaS host, so the policy never widens.
  */
-function buildContentSecurityPolicy(nonce: string): string {
-  return CSP_DIRECTIVES.join("; ").replace(CSP_NONCE_PLACEHOLDER, nonce);
+function getSentryIngestOrigin(sentryDsn: string): string | undefined {
+  try {
+    const { protocol, hostname } = new URL(sentryDsn);
+
+    if (protocol !== "https:" || !hostname.includes(SENTRY_INGEST_HOSTNAME_MARKER) || !hostname.endsWith(SENTRY_SAAS_HOSTNAME_SUFFIX)) {
+      return undefined;
+    }
+    return `https://${hostname}`;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Joins the CSP directives, appends the Sentry ingest origin when configured, and substitutes the nonce placeholder.
+ */
+function buildContentSecurityPolicy(nonce: string, sentryDsn = ""): string {
+  const sentryIngestOrigin = getSentryIngestOrigin(sentryDsn);
+  const directives = sentryIngestOrigin === undefined ? CSP_DIRECTIVES : CSP_DIRECTIVES.map(directive => (directive === CSP_CONNECT_SRC_DIRECTIVE ? `${CSP_CONNECT_SRC_DIRECTIVE} ${sentryIngestOrigin}` : directive));
+
+  return directives.join("; ").replace(CSP_NONCE_PLACEHOLDER, nonce);
 }
 
 /**
@@ -41,7 +65,9 @@ function stampNonceOnInlineScripts(htmlChunks: string[], nonce: string): string[
  */
 function registerCspNonceHook(nitroApp: NitroApp): void {
   nitroApp.hooks.hook("render:html", (htmlContext, { event, streaming }) => {
-    const { cspMode } = getRuntimeConfig(event).security;
+    const runtimeConfig = getRuntimeConfig(event);
+    const { cspMode } = runtimeConfig.security;
+    const { dsn } = runtimeConfig.public.sentry;
 
     if (cspMode === "off") {
       return;
@@ -57,13 +83,14 @@ function registerCspNonceHook(nitroApp: NitroApp): void {
 
     const cspHeaderName = cspMode === "report-only" ? CSP_REPORT_ONLY_HEADER_NAME : CSP_ENFORCE_HEADER_NAME;
 
-    setResponseHeader(event, cspHeaderName, buildContentSecurityPolicy(nonce));
+    setResponseHeader(event, cspHeaderName, buildContentSecurityPolicy(nonce, dsn));
   });
 }
 
 export {
   buildContentSecurityPolicy,
   generateCspNonce,
+  getSentryIngestOrigin,
   registerCspNonceHook,
   stampNonceOnInlineScripts,
 };

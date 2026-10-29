@@ -6,6 +6,7 @@ import type { Mock } from "vitest";
 import {
   buildContentSecurityPolicy,
   generateCspNonce,
+  getSentryIngestOrigin,
   registerCspNonceHook,
   stampNonceOnInlineScripts,
 } from "#server/utils/security/helpers/security-headers/security-headers.helpers";
@@ -56,13 +57,16 @@ function createEventWithResponseHeaders(): { event: H3Event; setHeader: SetHeade
   return { event, setHeader };
 }
 
-function registerRenderHtmlHook(cspMode: CspMode): { hookMock: RenderHtmlHookMock; handler: RenderHtmlHandler } {
+function registerRenderHtmlHook(cspMode: CspMode, sentryDsn = ""): { hookMock: RenderHtmlHookMock; handler: RenderHtmlHandler } {
   const hookMock = vi.fn<(event: string, handler: RenderHtmlHandler) => void>();
   // Acceptable as only the hook registration surface is needed to capture the render handler
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   const nitroApp = { hooks: { hook: hookMock } } as unknown as NitroApp;
 
-  vi.mocked(useRuntimeConfig).mockReturnValue({ security: { cspMode } } as unknown as ReturnType<typeof useRuntimeConfig>);
+  vi.mocked(useRuntimeConfig).mockReturnValue({
+    security: { cspMode },
+    public: { sentry: { dsn: sentryDsn } },
+  } as unknown as ReturnType<typeof useRuntimeConfig>);
   registerCspNonceHook(nitroApp);
 
   const hookCall = hookMock.mock.calls[0];
@@ -72,6 +76,28 @@ function registerRenderHtmlHook(cspMode: CspMode): { hookMock: RenderHtmlHookMoc
   }
   return { hookMock, handler: hookCall[1] };
 }
+
+describe(getSentryIngestOrigin, () => {
+  it.each<{ description: string; dsn: string; expectedOrigin: string | undefined }>([
+    {
+      description: "a US ingest dsn",
+      dsn: "https://public@o123.ingest.us.sentry.io/456",
+      expectedOrigin: "https://o123.ingest.us.sentry.io",
+    },
+    {
+      description: "an EU ingest dsn",
+      dsn: "https://public@o123.ingest.de.sentry.io/456",
+      expectedOrigin: "https://o123.ingest.de.sentry.io",
+    },
+    { description: "an empty dsn", dsn: "", expectedOrigin: undefined },
+    { description: "a malformed dsn", dsn: "http://[", expectedOrigin: undefined },
+    { description: "a non https dsn", dsn: "http://o123.ingest.us.sentry.io/456", expectedOrigin: undefined },
+    { description: "a non ingest sentry host", dsn: "https://de.sentry.io/456", expectedOrigin: undefined },
+    { description: "an ingest host outside sentry", dsn: "https://o1.ingest.evil.com/456", expectedOrigin: undefined },
+  ])("should return the expected origin when the dsn is $description.", ({ dsn, expectedOrigin }) => {
+    expect(getSentryIngestOrigin(dsn)).toBe(expectedOrigin);
+  });
+});
 
 describe(buildContentSecurityPolicy, () => {
   it("should build the agreed content security policy when called with a nonce.", () => {
@@ -91,6 +117,12 @@ describe(buildContentSecurityPolicy, () => {
       "base-uri 'self'; " +
       "form-action 'self'; " +
       "object-src 'none'");
+  });
+
+  it("should append the sentry ingest origin to the connect src directive when a dsn is provided.", () => {
+    const policy = buildContentSecurityPolicy("nonce-value", "https://public@o123.ingest.us.sentry.io/456");
+
+    expect(policy).toContain("connect-src 'self' https://o123.ingest.us.sentry.io");
   });
 });
 
@@ -227,6 +259,18 @@ describe(registerCspNonceHook, () => {
     handler(createHtmlContext(), { event, streaming: false });
 
     expect(setHeader).toHaveBeenCalledExactlyOnceWith("Content-Security-Policy", expect.stringContaining("'nonce-"));
+  });
+
+  it("should append the sentry ingest origin to the policy when a sentry dsn is configured.", () => {
+    const { handler } = registerRenderHtmlHook("enforce", "https://public@o123.ingest.us.sentry.io/456");
+    const { event, setHeader } = createEventWithResponseHeaders();
+
+    handler(createHtmlContext(), { event, streaming: false });
+
+    expect(setHeader).toHaveBeenCalledExactlyOnceWith(
+      "Content-Security-Policy",
+      expect.stringContaining("connect-src 'self' https://o123.ingest.us.sentry.io"),
+    );
   });
 
   it("should set the report only policy header when the csp mode is report-only.", () => {

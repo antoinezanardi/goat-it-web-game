@@ -123,6 +123,8 @@ docker run -p 3002:3002 \
   goat-it-web-game
 ```
 
+Error tracking uses `NUXT_PUBLIC_SENTRY_DSN`, a public ingest identifier rather than a build secret; it is required in deployed builds and disabled automatically in development/test. Structured server logs use `NUXT_LOGGER_LEVEL`. Both are documented in the **[operations reference](docs/operations.md)** and the **[security reference](docs/security.md)**.
+
 Health, readiness, container shutdown, and post-deploy verification are documented in the **[operations reference](docs/operations.md)**.
 
 ### 🐐💽 Goat It API sandbox

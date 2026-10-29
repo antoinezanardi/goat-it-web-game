@@ -2,7 +2,13 @@ import { isValidLocale } from "@goat-it/schemas/shared/locale";
 import { z } from "zod";
 
 import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
-import { LOCAL_HOSTNAMES, RFC1918_IPV4_PATTERN, SUPPORTED_CSP_MODES } from "#server/utils/env/helpers/env-validation/env-validation.constants";
+import {
+  LOCAL_HOSTNAMES,
+  RFC1918_IPV4_PATTERN,
+  SUPPORTED_CSP_MODES,
+  SUPPORTED_LOG_LEVELS,
+  SUPPORTED_SENTRY_ENVIRONMENTS,
+} from "#server/utils/env/helpers/env-validation/env-validation.constants";
 import type { ValidateAppRuntimeConfigOptions } from "#server/utils/env/helpers/env-validation/env-validation.types";
 
 /**
@@ -41,11 +47,43 @@ function validateSecurityConfig(security: AppRuntimeConfig["security"]): void {
   }
 }
 
+function validateSentryConfig(
+  sentry: AppRuntimeConfig["public"]["sentry"],
+  options: ValidateAppRuntimeConfigOptions,
+): void {
+  if (!SUPPORTED_SENTRY_ENVIRONMENTS.includes(sentry.environment)) {
+    throw new Error("Invalid runtime environment: \"public.sentry.environment\" must be one of the supported environments.");
+  }
+
+  if (typeof sentry.release !== "string") {
+    throw new TypeError("Invalid runtime environment: \"public.sentry.release\" must be a string.");
+  }
+
+  if (!options.isProduction || options.isTest) {
+    return;
+  }
+
+  const dsnValidation = z.url().safeParse(sentry.dsn);
+
+  if (!dsnValidation.success || !dsnValidation.data.startsWith("https://")) {
+    throw new Error("Invalid runtime environment: \"public.sentry.dsn\" must be a valid https URL for a deployed build.");
+  }
+}
+
+function validateLoggerConfig(logger: AppRuntimeConfig["logger"]): void {
+  if (!SUPPORTED_LOG_LEVELS.includes(logger.level)) {
+    throw new Error("Invalid runtime environment: \"logger.level\" must be one of the supported levels.");
+  }
+}
+
 /**
  * Fail-fast validation of the runtime environment, run before the Nitro server accepts traffic.
  *
  * Checks that the upstream base URL is a valid http(s) URL, that production uses HTTPS unless the host is
- * internal, that the game key is non-empty, and that the default locale, rate-limit, and CSP settings are supported.
+ * internal, that the game key is non-empty, and that the default locale, rate-limit, CSP, Sentry, and logger
+ * settings are supported.
+ *
+ * A deployed build (`isProduction && !isTest`) must also provide a valid HTTPS Sentry DSN.
  *
  * @throws When any checked value is missing, malformed, or unsupported, which aborts the boot.
  * @see docs/security.md
@@ -76,6 +114,8 @@ function validateAppRuntimeConfig(config: AppRuntimeConfig, options: ValidateApp
 
   validateRateLimitConfig(config.rateLimit);
   validateSecurityConfig(config.security);
+  validateSentryConfig(config.public.sentry, options);
+  validateLoggerConfig(config.logger);
 }
 
 export {

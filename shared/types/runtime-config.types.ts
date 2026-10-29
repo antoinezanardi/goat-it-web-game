@@ -9,6 +9,16 @@ import type { RuntimeConfig } from "nuxt/schema";
 type CspMode = "enforce" | "report-only" | "off";
 
 /**
+ * Server log verbosity accepted by the structured logger.
+ */
+type LogLevel = "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent";
+
+/**
+ * Deployment environment label attached to error-tracking events.
+ */
+type SentryEnvironment = "production" | "staging" | "development" | "test";
+
+/**
  * Runtime configuration consumed by both the app and the server.
  *
  * Values are validated at boot; invalid values abort the server start.
@@ -32,13 +42,27 @@ type AppRuntimeConfig = RuntimeConfig & {
     /** CSP enforcement mode applied to every rendered page. */
     cspMode: CspMode;
   };
+  logger: {
+    /** Minimum level emitted by the server structured logger. */
+    level: LogLevel;
+  };
   public: {
     /** Locale used when no valid locale cookie is present. */
     defaultLocale: Locale;
+    sentry: {
+      /** Sentry ingest DSN; a public ingest identifier, never a secret. */
+      dsn: string;
+      /** Deployment label attached to captured events. */
+      environment: SentryEnvironment;
+      /** Optional release identifier; an empty value omits the field. */
+      release: string;
+    };
   };
 };
 
 export type {
   AppRuntimeConfig,
   CspMode,
+  LogLevel,
+  SentryEnvironment,
 };

@@ -36,14 +36,16 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxt/eslint",
     "@vite-pwa/nuxt",
+    "@sentry/nuxt/module",
   ],
   $production: {
     sourcemap: false,
   },
   $test: {
-    runtimeConfig: { public: { defaultLocale: "en" } },
+    runtimeConfig: { public: { defaultLocale: "en", sentry: { environment: "test" } } },
     buildDir: ".nuxt/test",
     nitro: { output: { dir: ".nuxt/test/output" } },
+    test: true,
     i18n: { defaultLocale: "en" },
   },
   ssr: true,
@@ -110,7 +112,17 @@ export default defineNuxtConfig({
     security: {
       cspMode: "enforce",
     },
-    public: { defaultLocale },
+    logger: {
+      level: "info",
+    },
+    public: {
+      defaultLocale,
+      sentry: {
+        dsn: "",
+        environment: siteEnvironment,
+        release: "",
+      },
+    },
   },
   ignore: [
     "configs/**/*.ts",
@@ -333,6 +345,10 @@ export default defineNuxtConfig({
         "height": 512,
       },
     },
+  },
+  sentry: {
+    sourcemaps: { disable: true },
+    telemetry: false,
   },
   seo: { validateAppHead: true },
   sitemap: {

@@ -2,17 +2,18 @@ import { FetchError } from "ofetch";
 import { API_RESPONSE_EXCEPTION_DTO } from "@goat-it/schemas/shared/error";
 import { z } from "zod";
 
-import { UPSTREAM_ERROR_LOG_PREFIX } from "#server/utils/goat-it-api/goat-it-api.constants";
 import type { ProxyErrorData } from "#server/utils/goat-it-api/goat-it-api.types";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { logServerWarning } from "#server/utils/logging/helpers/structured-logger/structured-logger.helpers";
+import { SERVER_LOG_EVENT_NAMES } from "#server/utils/logging/logging.constants";
 import { GOAT_IT_API_PROXY_ERROR_CODES } from "#shared/constants/goat-it-api.constants";
 
 function logGoatItApiError(reason: string): void {
-  console.error(`${UPSTREAM_ERROR_LOG_PREFIX} ${reason}`);
+  logServerWarning(SERVER_LOG_EVENT_NAMES.GOAT_IT_API_UPSTREAM_ERROR, { reason });
 }
 
-function throwProxyError(statusCode: number, data: ProxyErrorData): never {
-  throw createError({ statusCode, data });
+function throwProxyError(statusCode: number, data: ProxyErrorData, cause?: unknown): never {
+  throw createError({ statusCode, data, ...cause === undefined ? {} : { cause } });
 }
 
 function describeCause(cause: unknown): string {
@@ -81,7 +82,7 @@ function throwGoatItApiNetworkError(error: FetchError): never {
   }
 
   if (cause instanceof Error && cause.name === "AbortError") {
-    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.UPSTREAM_ERROR });
+    throwProxyError(HttpStatusCode.BAD_GATEWAY, { errorCode: GOAT_IT_API_PROXY_ERROR_CODES.UPSTREAM_ERROR }, cause);
   }
 
   if (cause instanceof Error && cause.message === "unexpected redirect") {

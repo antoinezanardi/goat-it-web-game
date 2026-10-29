@@ -2,10 +2,12 @@ import { FetchError } from "ofetch";
 import type { H3Error } from "h3";
 import { z } from "zod";
 import { createFakeApiResponseExceptionDto } from "@goat-it/schemas/testing/shared";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error/goat-it-api-error.helpers";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { getServerLogger } from "#server/utils/logging/helpers/structured-logger/structured-logger.helpers";
+import { SERVER_LOG_EVENT_NAMES } from "#server/utils/logging/logging.constants";
 
 const upstreamErrorCodeBody = createFakeApiResponseExceptionDto({ statusCode: 429, errorCode: "custom-upstream-code" });
 const upstreamBodyWithoutErrorCode = createFakeApiResponseExceptionDto({ statusCode: 404, errorCode: undefined });
@@ -15,6 +17,8 @@ const timeoutCause = Object.assign(new Error("[TimeoutError]: The operation was 
 const redirectCause = new Error("unexpected redirect");
 const abortCause = Object.assign(new Error("This operation was aborted"), { name: "AbortError" });
 const connectionCause = Object.assign(new Error("connect ECONNREFUSED"), { code: "ECONNREFUSED" });
+
+vi.stubGlobal("useRuntimeConfig", vi.fn());
 
 type FakeFetchResponse = {
   status: number;
@@ -60,6 +64,12 @@ function getThrowableError(function_: () => void): H3Error {
 }
 
 describe(throwGoatItApiError, () => {
+  beforeEach(() => {
+    vi.mocked(useRuntimeConfig).mockReturnValue({ logger: { level: "info" } } as unknown as ReturnType<typeof useRuntimeConfig>);
+    vi.spyOn(getServerLogger(), "warn").mockReturnValue(undefined);
+    vi.spyOn(getServerLogger(), "error").mockReturnValue(undefined);
+  });
+
   describe("when the error is a FetchError with an upstream response", () => {
     it.each<{ description: string; status: number; body: unknown; expectedStatusCode: number }>([
       { description: "a rate limited error", status: 429, body: upstreamErrorCodeBody, expectedStatusCode: HttpStatusCode.TOO_MANY_REQUESTS },
@@ -108,11 +118,14 @@ describe(throwGoatItApiError, () => {
     });
 
     it("should log the upstream failure without secrets when the upstream responds with an unauthorized error.", () => {
-      const consoleSpy = vi.spyOn(console, "error").mockReturnValue();
+      const warnSpy = vi.spyOn(getServerLogger(), "warn").mockReturnValue(undefined);
 
       getThrowableError(() => throwGoatItApiError(createFetchErrorWithResponse(401, unparseableBody)));
 
-      expect(consoleSpy).toHaveBeenCalledExactlyOnceWith(expect.stringContaining("Goat It API upstream error:"));
+      expect(warnSpy).toHaveBeenCalledExactlyOnceWith({
+        event: SERVER_LOG_EVENT_NAMES.GOAT_IT_API_UPSTREAM_ERROR,
+        reason: "upstream status 401",
+      });
     });
   });
 
@@ -139,20 +152,29 @@ describe(throwGoatItApiError, () => {
       expect(error.data).toStrictEqual(expectedData);
     });
 
+    it("should keep the abort cause when the client aborts the request.", () => {
+      const error = getThrowableError(() => throwGoatItApiError(createFetchErrorWithoutResponse(abortCause)));
+
+      expect(error.cause).toBe(abortCause);
+    });
+
     it("should not log when the client aborts the request.", () => {
-      const consoleSpy = vi.spyOn(console, "error").mockReturnValue();
+      const warnSpy = vi.spyOn(getServerLogger(), "warn").mockReturnValue(undefined);
 
       getThrowableError(() => throwGoatItApiError(createFetchErrorWithoutResponse(abortCause)));
 
-      expect(consoleSpy).not.toHaveBeenCalled();
+      expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it("should log the upstream failure when the upstream times out.", () => {
-      const consoleSpy = vi.spyOn(console, "error").mockReturnValue();
+      const warnSpy = vi.spyOn(getServerLogger(), "warn").mockReturnValue(undefined);
 
       getThrowableError(() => throwGoatItApiError(createFetchErrorWithoutResponse(timeoutCause)));
 
-      expect(consoleSpy).toHaveBeenCalledExactlyOnceWith(expect.stringContaining("Goat It API upstream error:"));
+      expect(warnSpy).toHaveBeenCalledExactlyOnceWith({
+        event: SERVER_LOG_EVENT_NAMES.GOAT_IT_API_UPSTREAM_ERROR,
+        reason: "upstream timeout",
+      });
     });
 
     it("should throw an H3Error with the bad gateway status when the upstream fails with a non-error cause.", () => {
@@ -189,11 +211,15 @@ describe(throwGoatItApiError, () => {
     });
 
     it("should log the drifted issue paths when the upstream payload drifts from the contract.", () => {
-      const consoleSpy = vi.spyOn(console, "error").mockReturnValue();
+      const warnSpy = vi.spyOn(getServerLogger(), "warn").mockReturnValue(undefined);
+      const expectedIssuePathFragment: unknown = expect.stringContaining("id");
 
       getThrowableError(() => throwGoatItApiError(createZodError()));
 
-      expect(consoleSpy).toHaveBeenCalledExactlyOnceWith(expect.stringContaining("id"));
+      expect(warnSpy).toHaveBeenCalledExactlyOnceWith({
+        event: SERVER_LOG_EVENT_NAMES.GOAT_IT_API_UPSTREAM_ERROR,
+        reason: expectedIssuePathFragment,
+      });
     });
   });
 
