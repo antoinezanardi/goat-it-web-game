@@ -1,5 +1,6 @@
 import type { H3Event } from "h3";
 
+import type { ReadinessCacheEntry } from "#server/utils/goat-it-api/helpers/goat-it-api-readiness/goat-it-api-readiness.types";
 import {
   GOAT_IT_API_READINESS_CACHE_TTL_IN_MS,
   GOAT_IT_API_READINESS_HEALTH_PATH,
@@ -7,11 +8,6 @@ import {
 } from "#server/utils/goat-it-api/helpers/goat-it-api-readiness/goat-it-api-readiness.constants";
 import { HttpStatusCode } from "#server/utils/http/http.enums";
 import { getRuntimeConfig } from "#server/utils/runtime-config/helpers/runtime-config/runtime-config.helpers";
-
-type ReadinessCacheEntry = {
-  readonly isReady: boolean;
-  readonly expiresAtInMs: number;
-};
 
 let readinessCacheEntry: ReadinessCacheEntry | undefined;
 

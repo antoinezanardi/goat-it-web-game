@@ -30,14 +30,15 @@ fi
 health_check_url=$(printf '%s' "$health_check_url" | sed -E 's#([^/:])//+#\1/#g')
 
 for (( attempt = 1; attempt <= max_attempts; attempt++ )); do
-  status_code=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time "$request_timeout_in_seconds" "$health_check_url" || true)
+  curl_exit_status=0
+  status_code=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time "$request_timeout_in_seconds" "$health_check_url") || curl_exit_status=$?
 
-  if [[ "$status_code" == "200" ]]; then
+  if [[ "$curl_exit_status" -eq 0 && "$status_code" == "200" ]]; then
     echo "Health check succeeded (attempt ${attempt}/${max_attempts}, HTTP 200): ${health_check_url}"
     exit 0
   fi
 
-  echo "Health check attempt ${attempt}/${max_attempts} failed (HTTP ${status_code:-none}): ${health_check_url}" >&2
+  echo "Health check attempt ${attempt}/${max_attempts} failed (HTTP ${status_code:-none}, curl exit ${curl_exit_status}): ${health_check_url}" >&2
 
   if (( attempt < max_attempts )); then
     sleep "$retry_delay_in_seconds"

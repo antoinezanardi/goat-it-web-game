@@ -100,9 +100,10 @@ Choose placement by **production ownership and dependencies**, not by where a te
 
 1. Component/composable/store-private contract or constant → beside that owner.
 2. Helper-private contract or constant → beside that helper source/spec in a colocated `.types.ts` or `.constants.ts` companion, not declared inside the `.helpers.ts` source.
-3. Reused by multiple production units in one domain → at the narrowest common domain root.
-4. Runtime-neutral (common to app and server, or a neutral domain helper with a single consumer) → root `shared/`.
-5. UI-only mapping/token (icons, presentation colors, labels, CSS/Tailwind classes) → app `utils/ui/` or its consuming component.
+3. Handler-private response/request contract → beside that handler in a colocated `.types.ts` companion, not declared inside the handler source.
+4. Reused by multiple production units in one domain → at the narrowest common domain root.
+5. Runtime-neutral (common to app and server, or a neutral domain helper with a single consumer) → root `shared/`.
+6. UI-only mapping/token (icons, presentation colors, labels, CSS/Tailwind classes) → app `utils/ui/` or its consuming component.
 
 A constant used by two components should not stay artificially private to one component. Conversely, a one-consumer constant does not become domain-wide merely because it sounds like a domain concept. If a mixed helper module contains both runtime-neutral domain behavior and UI mappings, split along that dependency boundary.
 
@@ -324,7 +325,7 @@ server/api/goat-it-api/questions/
     └── index.get.handler.spec.ts
 ```
 
-The route wrapper is an explicit framework-discovery exception; the handler owns behavior and its spec. Validate query/body/upstream response data with the established Zod validation helpers and `@goat-it/schemas`; map DTOs to domain values through dedicated mappers.
+The route wrapper is an explicit framework-discovery exception; the handler owns behavior and its spec. The handler's response contract lives in a sibling `<unit>.types.ts` companion (for example `check-liveness.types.ts`), not inside the handler source. Validate query/body/upstream response data with the established Zod validation helpers and `@goat-it/schemas`; map DTOs to domain values through dedicated mappers.
 
 Root, unprefixed endpoints follow the same split under `server/routes/`, which is served from `/` instead of `/api/`:
 
