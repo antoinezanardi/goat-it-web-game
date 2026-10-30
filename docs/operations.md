@@ -51,21 +51,11 @@ The gate proves the deployed web server answers. It does not prove that the Goat
 Sentry captures client and server failures for the production and staging deployments. One Sentry project is used; events are separated by the `production` and `staging` environment labels.
 
 - The DSN is provided through `NUXT_PUBLIC_SENTRY_DSN`. It is an ingest identifier, not a credential.
-- Sentry initializes automatically in deployed builds (`!import.meta.dev && !import.meta.test`) and is disabled automatically in local development and the `--envName test` acceptance build, so automated tests never contact Sentry.
-- A deployed production/staging build fails boot when the HTTPS DSN is missing or invalid; there is no env flag that can silently disable error tracking in a deployed build.
-- The environment label comes from `public.sentry.environment`: `NUXT_SITE_ENV` for deployments, forced to `test` by the `$test` config block.
+- Sentry initializes when `!import.meta.dev`, `public.sentry.disabled` is `false`, the environment label is `production` or `staging`, and the DSN is non-empty. Development never initializes; the `$test` build disables the Sentry module and sets `NUXT_PUBLIC_SENTRY_DISABLED=true`, so automated tests never contact Sentry.
+- A deployed production/staging build fails boot when error tracking is enabled (`disabled=false`) but the environment label or the HTTPS Sentry ingest DSN is missing or invalid. Setting `NUXT_PUBLIC_SENTRY_DISABLED=true` explicitly disables error tracking.
+- The environment label comes from `public.sentry.environment`, resolved from `NUXT_SITE_ENV` at build time for the client and from `NUXT_SITE_ENV` at runtime for the server. Only `production` and `staging` labels exist.
 - No Sentry auth token is used. Sentry source-map generation and upload are disabled in the build (`sentry.sourcemaps.disable`), so no source-map artifacts are produced for Sentry; client stack traces can therefore be minified and less readable. Build-time telemetry is also disabled (`sentry.telemetry: false`).
-- User identity, cookies, authorization headers, request/response bodies, query strings, and raw request data are scrubbed before transmission. Expected 4xx responses and health-check traffic are dropped.
-- Sentry's free Developer plan is limited (errors per month, retention, one uptime monitor). Confirm the current quota and terms when configuring the account; the plan is not treated as a contractual guarantee.
-
-### Verification
-
-1. Deploy a staging build with a staging `NUXT_PUBLIC_SENTRY_DSN` (the environment label comes from `NUXT_SITE_ENV=staging`).
-2. Trigger a controlled client error and a controlled server failure, then confirm both appear in the Sentry project with the `staging` environment label.
-3. Confirm no cookie, authorization header, request body, or query string appears in the event payload.
-4. Confirm the browser response CSP contains the configured ingest host in `connect-src` and no unrelated Sentry origin.
-5. Inspect the container stdout: every line parses as JSON and contains no request/response body, header, cookie, or query data.
-6. Repeat the environment-label check in production after the first production deployment.
+- Collection is disabled at the source for user identity, cookies, headers, query strings, bodies, and stack-frame variables. `beforeSend` removes `user` and `extra`, strips query strings from the transaction and request URL, and drops expected 4xx responses, health-check traffic, and aborted upstream requests.
 
 ## Structured server logs
 
@@ -74,17 +64,19 @@ Nitro writes newline-delimited JSON to stdout through Pino. No file, worker-thre
 - `NUXT_LOGGER_LEVEL` controls the minimum level (`fatal`, `error`, `warn`, `info`, `debug`, `trace`, or `silent`); the default is `info`.
 - Upstream API failures and additive schema drift are logged as warnings; unexpected 5xx failures that no specific path already logged are logged as errors.
 - Entries carry an `event` name plus safe metadata only: HTTP status, method, query-free path, error class name, and error code. Request bodies, response bodies, cookies, authorization headers, query strings, API/game keys, and source IPs are never logged.
-- A logging failure must never fail the request: the logger writes locally and the Nitro error hook never throws.
+- A logging failure must never fail the request: Pino writes locally, logger write errors are caught, and the Nitro error hook never throws. A caught logging failure falls back to `console.error`.
 
 Inspect a container's JSON logs with:
 
 ```bash
-docker logs <container> 2>&1 | jq -c 'select(.level >= 40)'
+docker logs <container> 2>&1 | jq -R 'fromjson? // empty | select(.level >= 40)'
 ```
+
+Nitro and consola also emit non-JSON lines (for example the listening banner); the `fromjson?` filter skips them.
 
 ## External uptime monitoring
 
-Create four UptimeRobot Free HTTP monitors manually in the provider account after each endpoint has been verified on the live host. The repository contains no API token, sync script, or automatic provisioning.
+Create four UptimeRobot Free HTTP monitors in the provider account. The repository contains no API token, sync script, or automatic provisioning.
 
 | Environment | Monitor   | Method       | URL                                  | Expected result                          | Cadence   |
 |-------------|-----------|--------------|--------------------------------------|------------------------------------------|-----------|
@@ -93,22 +85,7 @@ Create four UptimeRobot Free HTTP monitors manually in the provider account afte
 | Staging     | Liveness  | GET, keyword | `https://staging.goat-it.fr/healthz` | 2xx and body contains `"status":"ok"`    | 5 minutes |
 | Staging     | Readiness | GET, keyword | `https://staging.goat-it.fr/readyz`  | 2xx and body contains `"status":"ready"` | 5 minutes |
 
-Use UptimeRobot's free keyword monitor with GET, alert-on-keyword-present semantics, and a five-minute interval. Configure the email and/or mobile push notifications available on the free tier. Name the monitors with the environment and probe type so liveness and readiness incidents stay distinct.
-
-### Rollout order
-
-1. Deploy the release that serves `/healthz` and `/readyz`, then verify `GET https://goat-it.fr/healthz` returns 200 with `"status":"ok"` and `GET https://goat-it.fr/readyz` returns 200 with `"status":"ready"`. Production was previously observed returning 404 for both routes; that state blocks production monitors.
-2. Verify the staging endpoints the same way.
-3. Create the four monitors only after their target endpoint has answered successfully.
-4. Confirm each monitor reports a successful first check.
-
-### Failure triage
-
-- **Liveness failing:** the web process is not answering. Check the container status, recent stdout logs, and the deployment that produced the running image. Restart or roll back the container.
-- **Readiness failing while liveness is healthy:** the Goat It API health probe is failing, timing out, or answering non-2xx. Check the upstream service and network path; do not restart the web process for this symptom.
-- **Intermittent readiness alerts:** confirm the five-minute cadence and the upstream probe's 5-second cache. Review the Goat It API before changing application settings.
-
-Free-tier caveats: UptimeRobot's free plan supports up to 50 monitors at a five-minute cadence, limits notification channels, and excludes features such as maintenance windows. Confirm the current plan limits and commercial terms in the provider account; observed quotas are not contractual guarantees.
+Use UptimeRobot's free keyword monitor with GET, alert-on-keyword-present semantics, and a five-minute interval. Configure the email and/or mobile push notifications available on the free tier. Name the monitors with the environment and probe type so liveness and readiness incidents stay distinct. The free plan supports up to 50 monitors at a five-minute cadence, limits notification channels, and excludes features such as maintenance windows.
 
 ## Reliability targets
 

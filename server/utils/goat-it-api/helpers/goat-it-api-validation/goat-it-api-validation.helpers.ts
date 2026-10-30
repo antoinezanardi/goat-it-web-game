@@ -3,9 +3,9 @@ import { z } from "zod";
 import type { H3Event } from "h3";
 
 import type { UnrecognizedKeysIssue } from "#server/utils/goat-it-api/goat-it-api.types";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
-import { logServerWarning } from "#server/utils/logging/helpers/structured-logger/structured-logger.helpers";
-import { SERVER_LOG_EVENT_NAMES } from "#server/utils/logging/logging.constants";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
+import { logServerWarning } from "#server/utils/logging/helpers/server-logger/server-logger.helpers";
+import { ServerLogEventName } from "#server/utils/logging/server-log.enums";
 import { GOAT_IT_API_PROXY_ERROR_CODES } from "#shared/constants/goat-it-api.constants";
 import { isRecord } from "#shared/utils/helpers/object/object.helpers";
 
@@ -78,7 +78,7 @@ function parseAndMapGoatItApiResponse<Dto, Domain>(
 
   const mappedResult = responseSchema.parse(stripUnrecognizedKeys(rawData, unrecognizedKeysIssues)).map(mapper);
 
-  logServerWarning(SERVER_LOG_EVENT_NAMES.GOAT_IT_API_SCHEMA_DRIFT, { reason: formatStrippedPaths(unrecognizedKeysIssues) });
+  logServerWarning(ServerLogEventName.GOAT_IT_API_SCHEMA_DRIFT, { reason: formatStrippedPaths(unrecognizedKeysIssues) });
 
   return mappedResult;
 }

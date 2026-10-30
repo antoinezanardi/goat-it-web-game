@@ -1,123 +1,109 @@
+import type { Breadcrumb, ErrorEvent } from "@sentry/core";
 import { describe, expect, it } from "vitest";
 
 import { scrubSentryBreadcrumb, scrubSentryEvent } from "#shared/utils/helpers/sentry/scrubbing/scrub-sentry-data.helpers";
 
+function createErrorEvent(event: Partial<ErrorEvent> = {}): ErrorEvent {
+  return { type: undefined, ...event };
+}
+
 describe(scrubSentryEvent, () => {
-  it("should remove request user extra contexts breadcrumbs and raw messages when the event is unexpected.", () => {
-    const event = {
+  it("should keep useful error context while removing identity and extras when the event is unexpected.", () => {
+    const event = createErrorEvent({
       message: "GET https://goat-it.fr/api?secret=1",
       logentry: { message: "raw request content" },
       exception: {
         values: [
           {
             type: "TypeError",
-            value: "GET https://goat-it.fr/api?secret=1",
-            mechanism: { data: { gameKey: "secret" } },
-            stacktrace: { frames: [{ filename: "app.js", vars: { gameKey: "secret" } }] },
+            value: "Cannot read properties of undefined",
+            mechanism: { handled: false, type: "auto.function.nuxt.nitro" },
+            stacktrace: { frames: [{ filename: "app.js" }] },
           },
         ],
       },
-      request: {
-        url: "https://goat-it.fr/game?secret=1",
-        headers: { authorization: "secret" },
-        data: { answer: "42" },
-      },
+      request: { url: "https://goat-it.fr/game?secret=1" },
       user: { id: "user-1" },
       extra: { gameKey: "secret" },
-      contexts: { state: { answer: "42" } },
+      contexts: { nuxt: { method: "GET", path: "/game" } },
       breadcrumbs: [{ category: "fetch", data: { url: "https://goat-it.fr/api" } }],
       level: "error",
-    };
+    });
 
-    scrubSentryEvent(event);
+    const scrubbedEvent = scrubSentryEvent(event);
 
-    expect(event).toStrictEqual({
-      exception: { values: [{ type: "TypeError", stacktrace: { frames: [{ filename: "app.js" }] } }] },
+    expect(scrubbedEvent).toStrictEqual({
+      type: undefined,
+      message: "GET https://goat-it.fr/api?secret=1",
+      logentry: { message: "raw request content" },
+      exception: {
+        values: [
+          {
+            type: "TypeError",
+            value: "Cannot read properties of undefined",
+            mechanism: { handled: false, type: "auto.function.nuxt.nitro" },
+            stacktrace: { frames: [{ filename: "app.js" }] },
+          },
+        ],
+      },
+      request: { url: "https://goat-it.fr/game" },
+      contexts: { nuxt: { method: "GET", path: "/game" } },
+      breadcrumbs: [{ category: "fetch", data: { url: "https://goat-it.fr/api" } }],
       level: "error",
     });
   });
 
-  it.each<{ description: string; event: object; expectedEvent: object }>([
-    {
-      description: "an event without an exception",
-      event: { message: "raw", level: "error" },
-      expectedEvent: { level: "error" },
-    },
-    {
-      description: "an event with an empty exception",
-      event: { exception: {}, level: "error" },
-      expectedEvent: { exception: {}, level: "error" },
-    },
-    {
-      description: "an exception values list with a non record value",
-      event: { exception: { values: ["boom"] }, level: "error" },
-      expectedEvent: { exception: { values: ["boom"] }, level: "error" },
-    },
-    {
-      description: "an exception value without a stacktrace",
-      event: { exception: { values: [{ type: "Error", value: "boom" }] }, level: "error" },
-      expectedEvent: { exception: { values: [{ type: "Error" }] }, level: "error" },
-    },
-    {
-      description: "a stacktrace without a frames array",
-      event: { exception: { values: [{ type: "Error", stacktrace: { frames: "x" } }] }, level: "error" },
-      expectedEvent: { exception: { values: [{ type: "Error", stacktrace: { frames: "x" } }] }, level: "error" },
-    },
-    {
-      description: "a frames list with a non record frame",
-      event: { exception: { values: [{ type: "Error", stacktrace: { frames: ["x"] } }] }, level: "error" },
-      expectedEvent: { exception: { values: [{ type: "Error", stacktrace: { frames: ["x"] } }] }, level: "error" },
-    },
-    {
-      description: "an array event",
-      event: [],
-      expectedEvent: [],
-    },
-  ])("should scrub the exception data when the event is $description.", ({ event, expectedEvent }) => {
-    scrubSentryEvent(event);
+  it("should strip the query string from the transaction when the transaction contains one.", () => {
+    const scrubbedEvent = scrubSentryEvent(createErrorEvent({ transaction: "GET /game?secret=1" }));
 
-    expect(event).toStrictEqual(expectedEvent);
+    expect(scrubbedEvent?.transaction).toBe("GET /game");
   });
 
-  it.each<{ description: string; event: object; originalException: unknown; expectedEvent: object }>([
+  it("should keep the transaction when the transaction is not a string.", () => {
+    const scrubbedEvent = scrubSentryEvent(createErrorEvent());
+
+    expect(scrubbedEvent).not.toHaveProperty("transaction");
+  });
+
+  it.each<{ description: string; event: ErrorEvent; originalException: unknown; expectedTags: ErrorEvent["tags"] }>([
     {
       description: "an error with a code",
-      event: { tags: { existing: "x" }, level: "error" },
+      event: createErrorEvent({ tags: { existing: "x" } }),
       originalException: { code: "ECONNRESET" },
-      expectedEvent: { tags: { existing: "x", errorCode: "ECONNRESET" }, level: "error" },
+      expectedTags: { existing: "x", errorCode: "ECONNRESET" },
     },
     {
       description: "an error without a code",
-      event: { level: "error" },
+      event: createErrorEvent(),
       originalException: new Error("boom"),
-      expectedEvent: { level: "error" },
+      expectedTags: undefined,
     },
     {
-      description: "a non-record tags value",
-      event: { tags: "x", level: "error" },
-      originalException: { code: "E1" },
-      expectedEvent: { tags: { errorCode: "E1" }, level: "error" },
+      description: "an error with a non-string code",
+      event: createErrorEvent(),
+      originalException: { code: 42 },
+      expectedTags: undefined,
     },
     {
       description: "a non-record original exception",
-      event: { level: "error" },
+      event: createErrorEvent(),
       originalException: "boom",
-      expectedEvent: { level: "error" },
+      expectedTags: undefined,
     },
-  ])("should keep the safe error code when the original exception is $description.", ({ event, originalException, expectedEvent }) => {
-    scrubSentryEvent(event, originalException);
+  ])("should keep the safe error code when the original exception is $description.", ({ event, originalException, expectedTags }) => {
+    const scrubbedEvent = scrubSentryEvent(event, originalException);
 
-    expect(event).toStrictEqual(expectedEvent);
+    expect(scrubbedEvent?.tags).toStrictEqual(expectedTags);
   });
 
   it("should return null when the original exception is a client error.", () => {
-    expect(scrubSentryEvent({ level: "error" }, { statusCode: 404 })).toBeNull();
+    expect(scrubSentryEvent(createErrorEvent(), { statusCode: 404 })).toBeNull();
   });
 
   it("should return null when the original exception is an aborted upstream request.", () => {
     const originalException = { statusCode: 502, cause: Object.assign(new Error("aborted"), { name: "AbortError" }) };
 
-    expect(scrubSentryEvent({ level: "error" }, originalException)).toBeNull();
+    expect(scrubSentryEvent(createErrorEvent(), originalException)).toBeNull();
   });
 
   it.each<{ description: string; originalException: unknown }>([
@@ -125,53 +111,37 @@ describe(scrubSentryEvent, () => {
     { description: "a non-record cause", originalException: { statusCode: 502, cause: "aborted" } },
     { description: "a record without a cause", originalException: { statusCode: 502 } },
   ])("should keep the event when the original exception has $description.", ({ originalException }) => {
-    const event = { level: "error" };
-
-    scrubSentryEvent(event, originalException);
-
-    expect(event).toStrictEqual({ level: "error" });
+    expect(scrubSentryEvent(createErrorEvent(), originalException)).toStrictEqual(createErrorEvent());
   });
 
   it("should return null when the event targets a health check path.", () => {
-    expect(scrubSentryEvent({ request: { url: "https://goat-it.fr/readyz" } })).toBeNull();
+    expect(scrubSentryEvent(createErrorEvent({ request: { url: "https://goat-it.fr/readyz" } }))).toBeNull();
   });
 
   it("should keep the event when the request url is not parseable.", () => {
-    const event = { request: { url: "http://[" }, level: "error" };
-
-    scrubSentryEvent(event);
-
-    expect(event).toStrictEqual({ level: "error" });
+    expect(scrubSentryEvent(createErrorEvent({ request: { url: "http://[" } }))).toStrictEqual(createErrorEvent({ request: { url: "http://[" } }));
   });
 
   it("should keep the event when it has no request.", () => {
-    const event = { level: "error" };
-
-    scrubSentryEvent(event);
-
-    expect(event).toStrictEqual({ level: "error" });
-  });
-
-  it("should keep the event when the request url is not a string.", () => {
-    const event = { request: { url: 42 }, level: "error" };
-
-    scrubSentryEvent(event);
-
-    expect(event).toStrictEqual({ level: "error" });
+    expect(scrubSentryEvent(createErrorEvent())).toStrictEqual(createErrorEvent());
   });
 });
 
 describe(scrubSentryBreadcrumb, () => {
-  it("should remove the breadcrumb data when the breadcrumb is kept.", () => {
-    const breadcrumb = {
+  it("should strip the query string from the breadcrumb url when the breadcrumb is kept.", () => {
+    const breadcrumb: Breadcrumb = {
       category: "fetch",
       message: "GET",
-      data: { url: "https://goat-it.fr/api/questions?limit=10" },
+      data: { url: "https://goat-it.fr/api/questions?limit=10", status: 200 },
     };
 
-    scrubSentryBreadcrumb(breadcrumb);
+    const scrubbedBreadcrumb = scrubSentryBreadcrumb(breadcrumb);
 
-    expect(breadcrumb).toStrictEqual({ category: "fetch", message: "GET" });
+    expect(scrubbedBreadcrumb).toStrictEqual({
+      category: "fetch",
+      message: "GET",
+      data: { url: "https://goat-it.fr/api/questions", status: 200 },
+    });
   });
 
   it("should return null when the breadcrumb targets a health check path.", () => {
@@ -179,18 +149,10 @@ describe(scrubSentryBreadcrumb, () => {
   });
 
   it("should keep the breadcrumb when it has no data.", () => {
-    const breadcrumb = { category: "ui", message: "click" };
-
-    scrubSentryBreadcrumb(breadcrumb);
-
-    expect(breadcrumb).toStrictEqual({ category: "ui", message: "click" });
+    expect(scrubSentryBreadcrumb({ category: "ui", message: "click" })).toStrictEqual({ category: "ui", message: "click" });
   });
 
-  it("should keep the breadcrumb when it is not a record.", () => {
-    const breadcrumb: string[] = [];
-
-    scrubSentryBreadcrumb(breadcrumb);
-
-    expect(breadcrumb).toStrictEqual([]);
+  it("should keep the breadcrumb when its data has no url.", () => {
+    expect(scrubSentryBreadcrumb({ category: "ui", data: { status: 200 } })).toStrictEqual({ category: "ui", data: { status: 200 } });
   });
 });

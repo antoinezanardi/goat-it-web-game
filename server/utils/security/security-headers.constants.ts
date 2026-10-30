@@ -19,9 +19,6 @@ const CSP_NONCE_PLACEHOLDER = "%NONCE%";
 
 const CSP_CONNECT_SRC_DIRECTIVE = "connect-src 'self'";
 
-const SENTRY_INGEST_HOSTNAME_MARKER = ".ingest.";
-const SENTRY_SAAS_HOSTNAME_SUFFIX = ".sentry.io";
-
 const CSP_DIRECTIVES = [
   "default-src 'self'",
   `script-src 'self' 'wasm-unsafe-eval' 'nonce-${CSP_NONCE_PLACEHOLDER}'`,
@@ -49,6 +46,4 @@ export {
   CSP_REPORT_ONLY_HEADER_NAME,
   SCRIPT_TAG_WITHOUT_NONCE_PATTERN,
   SECURITY_HEADERS,
-  SENTRY_INGEST_HOSTNAME_MARKER,
-  SENTRY_SAAS_HOSTNAME_SUFFIX,
 };

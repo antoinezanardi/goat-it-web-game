@@ -52,6 +52,7 @@ permission:
     "gatekeeper": "allow"
     "docs-fetcher": "allow"
     "explore": "allow"
+    "implementer": "allow"
   webfetch: "allow"
 ---
 

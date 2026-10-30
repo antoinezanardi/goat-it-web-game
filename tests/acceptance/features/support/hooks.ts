@@ -50,6 +50,7 @@ const { beforeEach, afterEach, afterAll, beforeAll } = createTest({
     NUXT_RATE_LIMIT_WINDOW_IN_MS: String(SECURITY_RATE_LIMIT_WINDOW_IN_MS),
     NUXT_RATE_LIMIT_TRUST_PROXY: SECURITY_RATE_LIMIT_TRUST_PROXY,
     NUXT_SECURITY_CSP_MODE: SECURITY_CSP_MODE,
+    NUXT_PUBLIC_SENTRY_DISABLED: "true",
   },
   browserOptions: {
     type: "chromium",

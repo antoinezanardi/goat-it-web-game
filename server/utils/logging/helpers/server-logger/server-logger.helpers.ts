@@ -1,15 +1,15 @@
-import type { H3Event } from "h3";
 import { pino } from "pino";
 import type { DestinationStream, Logger } from "pino";
 
 import type { LogLevel } from "#shared/types/runtime-config.types";
-import { mapErrorToSafeLog } from "#server/utils/logging/helpers/error-log-mapping/error-log-mapping.helpers";
+import { mapServerErrorToSafeLog } from "#server/utils/logging/helpers/server-error-log-mapping/server-error-log-mapping.helpers";
 import {
   SERVER_LOGGER_NAME,
   SERVER_LOG_REDACTION_CENSOR,
   SERVER_LOG_REDACTION_PATHS,
-} from "#server/utils/logging/logging.constants";
-import type { SafeLogContext, ServerEventLevel, ServerLogEventName } from "#server/utils/logging/logging.types";
+} from "#server/utils/logging/helpers/server-logger/server-logger.constants";
+import type { SafeLogContext, ServerEventLevel } from "#server/utils/logging/helpers/server-logger/server-logger.types";
+import type { ServerLogEventName } from "#server/utils/logging/server-log.enums";
 import { getRuntimeConfig } from "#server/utils/runtime-config/helpers/runtime-config/runtime-config.helpers";
 
 let serverLogger: Logger | undefined;
@@ -35,21 +35,24 @@ function createServerLogger(level: LogLevel, destination?: DestinationStream): L
 /**
  * Returns the process-local logger, creating it from the validated runtime level on first use.
  */
-function getServerLogger(event?: H3Event): Logger {
-  serverLogger ??= createServerLogger(getRuntimeConfig(event).logger.level);
+function getServerLogger(): Logger {
+  serverLogger ??= createServerLogger(getRuntimeConfig().logger.level);
 
   return serverLogger;
 }
 
+/**
+ * Emits one structured record without letting a logging failure fail the request.
+ *
+ * Pino can throw when its destination is synchronous, so the write is guarded and a local console fallback keeps the
+ * process observable without exposing request data.
+ */
 function logServerEvent(level: ServerEventLevel, eventName: ServerLogEventName, context: SafeLogContext = {}): void {
-  const logger = getServerLogger();
-
-  if (level === "warn") {
-    logger.warn({ event: eventName, ...context });
-
-    return;
+  try {
+    getServerLogger()[level]({ event: eventName, ...context });
+  } catch(error) {
+    console.error("Structured logging failed.", error);
   }
-  logger.error({ event: eventName, ...context });
 }
 
 /**
@@ -65,7 +68,7 @@ function logServerWarning(eventName: ServerLogEventName, context: SafeLogContext
  * The raw error, its message, stack, and any payload are never forwarded.
  */
 function logServerError(error: unknown, eventName: ServerLogEventName, context: SafeLogContext = {}): void {
-  logServerEvent("error", eventName, { ...mapErrorToSafeLog(error), ...context });
+  logServerEvent("error", eventName, { ...mapServerErrorToSafeLog(error), ...context });
 }
 
 export { createServerLogger, getServerLogger, logServerError, logServerWarning };

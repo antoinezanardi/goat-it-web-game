@@ -1,9 +1,9 @@
 import type { H3Event } from "h3";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getServerLogger } from "#server/utils/logging/helpers/structured-logger/structured-logger.helpers";
+import { getServerLogger } from "#server/utils/logging/helpers/server-logger/server-logger.helpers";
 import { logNitroError } from "#server/utils/logging/helpers/nitro-error-logging/nitro-error-logging.helpers";
-import { SERVER_LOG_EVENT_NAMES } from "#server/utils/logging/logging.constants";
+import { ServerLogEventName } from "#server/utils/logging/server-log.enums";
 
 vi.stubGlobal("useRuntimeConfig", vi.fn());
 
@@ -26,7 +26,7 @@ describe(logNitroError, () => {
     logNitroError(error, { event });
 
     expect(errorSpy).toHaveBeenCalledExactlyOnceWith({
-      event: SERVER_LOG_EVENT_NAMES.SERVER_UNHANDLED_ERROR,
+      event: ServerLogEventName.SERVER_UNHANDLED_ERROR,
       errorName: "Error",
       statusCode: 500,
       method: "GET",
@@ -56,7 +56,7 @@ describe(logNitroError, () => {
     logNitroError({ statusCode: 500, data: {} });
 
     expect(errorSpy).toHaveBeenCalledExactlyOnceWith({
-      event: SERVER_LOG_EVENT_NAMES.SERVER_UNHANDLED_ERROR,
+      event: ServerLogEventName.SERVER_UNHANDLED_ERROR,
       errorName: "Error",
       statusCode: 500,
     });
@@ -68,7 +68,7 @@ describe(logNitroError, () => {
     logNitroError("boom");
 
     expect(errorSpy).toHaveBeenCalledExactlyOnceWith({
-      event: SERVER_LOG_EVENT_NAMES.SERVER_UNHANDLED_ERROR,
+      event: ServerLogEventName.SERVER_UNHANDLED_ERROR,
       errorName: "UnknownError",
     });
   });
@@ -79,7 +79,7 @@ describe(logNitroError, () => {
     logNitroError(Object.assign(new Error("boom"), { statusCode: 503 }));
 
     expect(errorSpy).toHaveBeenCalledExactlyOnceWith({
-      event: SERVER_LOG_EVENT_NAMES.SERVER_UNHANDLED_ERROR,
+      event: ServerLogEventName.SERVER_UNHANDLED_ERROR,
       errorName: "Error",
       statusCode: 503,
     });
@@ -92,7 +92,7 @@ describe(logNitroError, () => {
     logNitroError(new Error("boom"), { event });
 
     expect(errorSpy).toHaveBeenCalledExactlyOnceWith({
-      event: SERVER_LOG_EVENT_NAMES.SERVER_UNHANDLED_ERROR,
+      event: ServerLogEventName.SERVER_UNHANDLED_ERROR,
       errorName: "Error",
       method: "POST",
       path: "/api/boom",

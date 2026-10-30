@@ -1,10 +1,10 @@
 import { getErrorStatusCode, isClientErrorStatus } from "#shared/utils/helpers/error-status/error-status.helpers";
 import { isRecord } from "#shared/utils/helpers/object/object.helpers";
-import { logServerError } from "#server/utils/logging/helpers/structured-logger/structured-logger.helpers";
+import { logServerError } from "#server/utils/logging/helpers/server-logger/server-logger.helpers";
 import type { NitroErrorLoggingContext } from "#server/utils/logging/helpers/nitro-error-logging/nitro-error-logging.types";
-import { SERVER_LOG_EVENT_NAMES } from "#server/utils/logging/logging.constants";
+import { ServerLogEventName } from "#server/utils/logging/server-log.enums";
 
-function isAlreadyLoggedProxyError(error: unknown): boolean {
+function isHandledProxyError(error: unknown): boolean {
   return isRecord(error) && isRecord(error.data) && typeof error.data.errorCode === "string";
 }
 
@@ -20,14 +20,14 @@ function getSafeRequestPath(context: NitroErrorLoggingContext): string | undefin
 /**
  * Logs an unexpected Nitro failure through the structured logger.
  *
- * Skips expected 4xx responses and proxy failures that the Goat It API error path already logged, so the same error is
+ * Skips expected 4xx responses and proxy failures already handled by the Goat It API error path, so the same error is
  * never recorded twice. Only status, method, and query-free path are forwarded; the request body, headers, cookies,
  * query string, source IP, and h3 error data never reach the logger.
  */
 function logNitroError(error: unknown, context: NitroErrorLoggingContext = {}): void {
   const statusCode = getErrorStatusCode(error);
 
-  if (statusCode !== undefined && isClientErrorStatus(statusCode) || isAlreadyLoggedProxyError(error)) {
+  if (statusCode !== undefined && isClientErrorStatus(statusCode) || isHandledProxyError(error)) {
     return;
   }
 
@@ -35,7 +35,7 @@ function logNitroError(error: unknown, context: NitroErrorLoggingContext = {}): 
   const { event } = context;
   const method = typeof event?.method === "string" ? event.method : undefined;
 
-  logServerError(error, SERVER_LOG_EVENT_NAMES.SERVER_UNHANDLED_ERROR, {
+  logServerError(error, ServerLogEventName.SERVER_UNHANDLED_ERROR, {
     ...statusCode === undefined ? {} : { statusCode },
     ...method === undefined ? {} : { method },
     ...path === undefined ? {} : { path },

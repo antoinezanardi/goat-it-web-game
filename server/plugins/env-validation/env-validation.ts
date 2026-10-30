@@ -12,5 +12,5 @@ export default defineNitroPlugin((): void => {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   const config = useRuntimeConfig() as unknown as AppRuntimeConfig;
 
-  validateAppRuntimeConfig(config, { isProduction: !import.meta.dev, isTest: import.meta.test });
+  validateAppRuntimeConfig(config, { isProduction: !import.meta.dev });
 });

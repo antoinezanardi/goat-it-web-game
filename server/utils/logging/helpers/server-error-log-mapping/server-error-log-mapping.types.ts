@@ -1,7 +1,7 @@
 /**
  * Sanitized error fields allowed in a structured log entry.
  */
-type SafeErrorLog = {
+type SafeServerErrorLog = {
   /** Error class name; `UnknownError` when the thrown value is not an object. */
   errorName: string;
   /** Machine-readable error code when the error exposes one. */
@@ -10,4 +10,4 @@ type SafeErrorLog = {
   statusCode?: number;
 };
 
-export type { SafeErrorLog };
+export type { SafeServerErrorLog };

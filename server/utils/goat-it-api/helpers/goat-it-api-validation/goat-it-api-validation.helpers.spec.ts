@@ -13,9 +13,9 @@ import {
   validateGoatItApiBody,
   validateGoatItApiQuery,
 } from "#server/utils/goat-it-api/helpers/goat-it-api-validation/goat-it-api-validation.helpers";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
-import { getServerLogger } from "#server/utils/logging/helpers/structured-logger/structured-logger.helpers";
-import { SERVER_LOG_EVENT_NAMES } from "#server/utils/logging/logging.constants";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
+import { getServerLogger } from "#server/utils/logging/helpers/server-logger/server-logger.helpers";
+import { ServerLogEventName } from "#server/utils/logging/server-log.enums";
 
 const mockedEvent = createFakeH3Event();
 
@@ -71,7 +71,7 @@ describe(parseAndMapGoatItApiResponse, () => {
     parseAndMapGoatItApiResponse(rawData, QUESTION_DTO, createQuestionFromQuestionDto);
 
     expect(warnSpy).toHaveBeenCalledExactlyOnceWith({
-      event: SERVER_LOG_EVENT_NAMES.GOAT_IT_API_SCHEMA_DRIFT,
+      event: ServerLogEventName.GOAT_IT_API_SCHEMA_DRIFT,
       reason: "0.additiveField",
     });
   });

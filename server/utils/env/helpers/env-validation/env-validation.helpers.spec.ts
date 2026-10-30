@@ -22,8 +22,8 @@ function buildAppRuntimeConfig(overrides: RuntimeConfigOverrides = {}): AppRunti
       defaultLocale: overrides.defaultLocale ?? "en",
       sentry: {
         dsn: overrides.sentryDsn ?? "https://public@o123.ingest.us.sentry.io/456",
-        environment: overrides.sentryEnvironment ?? "production",
-        release: overrides.sentryRelease ?? "",
+        environment: "sentryEnvironment" in overrides ? overrides.sentryEnvironment : "production",
+        disabled: overrides.sentryDisabled ?? false,
       },
     },
   } as unknown as AppRuntimeConfig;
@@ -59,7 +59,7 @@ describe(isInternalHostname, () => {
 });
 
 describe(validateAppRuntimeConfig, () => {
-  it.each<{ description: string; config: AppRuntimeConfig; isProduction: boolean; isTest?: boolean }>([
+  it.each<{ description: string; config: AppRuntimeConfig; isProduction: boolean }>([
     { description: "a valid https base url in production", config: buildAppRuntimeConfig(), isProduction: true },
     { description: "a loopback http base url in production", config: buildAppRuntimeConfig({ baseUrl: "http://localhost:9090" }), isProduction: true },
     { description: "a loopback ip base url in production", config: buildAppRuntimeConfig({ baseUrl: "http://127.0.0.1:9090" }), isProduction: true },
@@ -72,15 +72,15 @@ describe(validateAppRuntimeConfig, () => {
     { description: "a trusted proxy flag", config: buildAppRuntimeConfig({ trustProxy: true }), isProduction: true },
     { description: "a deployed production config with an https dsn", config: buildAppRuntimeConfig(), isProduction: true },
     { description: "a deployed staging config with an https dsn", config: buildAppRuntimeConfig({ sentryEnvironment: "staging" }), isProduction: true },
-    { description: "a test config with a blank dsn", config: buildAppRuntimeConfig({ sentryDsn: "", sentryEnvironment: "test" }), isProduction: true, isTest: true },
-    { description: "a development config with a blank dsn", config: buildAppRuntimeConfig({ sentryDsn: "", sentryEnvironment: "development" }), isProduction: false },
-    { description: "a configured release", config: buildAppRuntimeConfig({ sentryRelease: "abc123" }), isProduction: true },
+    { description: "a disabled config with a blank dsn", config: buildAppRuntimeConfig({ sentryDsn: "", sentryDisabled: true }), isProduction: true },
+    { description: "a disabled config with a malformed dsn", config: buildAppRuntimeConfig({ sentryDsn: "not-a-url", sentryDisabled: true }), isProduction: true },
+    { description: "a development config with a blank dsn", config: buildAppRuntimeConfig({ sentryDsn: "", sentryEnvironment: undefined }), isProduction: false },
     { description: "a debug log level", config: buildAppRuntimeConfig({ logLevel: "debug" }), isProduction: true },
-  ])("should not throw when the config has $description.", ({ config, isProduction, isTest = false }) => {
-    expect(() => validateAppRuntimeConfig(config, { isProduction, isTest })).not.toThrow();
+  ])("should not throw when the config has $description.", ({ config, isProduction }) => {
+    expect(() => validateAppRuntimeConfig(config, { isProduction })).not.toThrow();
   });
 
-  it.each<{ description: string; config: AppRuntimeConfig; isProduction: boolean; isTest?: boolean; expectedMessage: string }>([
+  it.each<{ description: string; config: AppRuntimeConfig; isProduction: boolean; expectedMessage: string }>([
     {
       description: "an invalid base url in production",
       config: buildAppRuntimeConfig({ baseUrl: "not-a-url" }),
@@ -161,53 +161,75 @@ describe(validateAppRuntimeConfig, () => {
     },
     {
       description: "a non boolean trusted proxy flag",
-      config: buildAppRuntimeConfig({ trustProxy: "true" as unknown as boolean }),
+      config: buildAppRuntimeConfig({
+        trustProxy: "true" as unknown as boolean,
+      }),
       isProduction: true,
       expectedMessage: "Invalid runtime environment: \"rateLimit.trustProxy\" must be a boolean.",
     },
     {
       description: "an unsupported csp mode",
-      config: buildAppRuntimeConfig({ cspMode: "log-only" as unknown as CspMode }),
+      config: buildAppRuntimeConfig({
+        cspMode: "log-only" as unknown as CspMode,
+      }),
       isProduction: true,
       expectedMessage: "Invalid runtime environment: \"security.cspMode\" must be one of the supported modes.",
     },
     {
-      description: "an unsupported sentry environment",
-      config: buildAppRuntimeConfig({ sentryEnvironment: "preprod" as unknown as SentryEnvironment }),
+      description: "a non boolean disabled flag",
+      config: buildAppRuntimeConfig({
+        sentryDisabled: "true" as unknown as boolean,
+      }),
       isProduction: true,
-      expectedMessage: "Invalid runtime environment: \"public.sentry.environment\" must be one of the supported environments.",
+      expectedMessage: "Invalid runtime environment: \"public.sentry.disabled\" must be a boolean.",
     },
     {
-      description: "a non string sentry release",
-      config: buildAppRuntimeConfig({ sentryRelease: 42 as unknown as string }),
+      description: "a deployed config with a missing sentry environment",
+      config: buildAppRuntimeConfig({ sentryEnvironment: undefined }),
       isProduction: true,
-      expectedMessage: "Invalid runtime environment: \"public.sentry.release\" must be a string.",
+      expectedMessage: "Invalid runtime environment: \"public.sentry.environment\" must be production or staging for a deployed build.",
+    },
+    {
+      description: "a deployed config with an unsupported sentry environment",
+      config: buildAppRuntimeConfig({
+        sentryEnvironment: "preprod" as unknown as SentryEnvironment,
+      }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.environment\" must be production or staging for a deployed build.",
     },
     {
       description: "a deployed config with a blank dsn",
       config: buildAppRuntimeConfig({ sentryDsn: "" }),
       isProduction: true,
-      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https URL for a deployed build.",
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
     },
     {
       description: "a deployed config with a malformed dsn",
       config: buildAppRuntimeConfig({ sentryDsn: "not-a-url" }),
       isProduction: true,
-      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https URL for a deployed build.",
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
     },
     {
       description: "a deployed config with a non https dsn",
       config: buildAppRuntimeConfig({ sentryDsn: "http://public@o123.ingest.us.sentry.io/456" }),
       isProduction: true,
-      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https URL for a deployed build.",
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
+    },
+    {
+      description: "a deployed config with a non sentry dsn host",
+      config: buildAppRuntimeConfig({ sentryDsn: "https://public@example.com/456" }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
     },
     {
       description: "an unsupported log level",
-      config: buildAppRuntimeConfig({ logLevel: "verbose" as unknown as LogLevel }),
+      config: buildAppRuntimeConfig({
+        logLevel: "verbose" as unknown as LogLevel,
+      }),
       isProduction: true,
       expectedMessage: "Invalid runtime environment: \"logger.level\" must be one of the supported levels.",
     },
-  ])("should throw when the config has $description.", ({ config, isProduction, isTest = false, expectedMessage }) => {
-    expect(() => validateAppRuntimeConfig(config, { isProduction, isTest })).toThrow(expectedMessage);
+  ])("should throw when the config has $description.", ({ config, isProduction, expectedMessage }) => {
+    expect(() => validateAppRuntimeConfig(config, { isProduction })).toThrow(expectedMessage);
   });
 });

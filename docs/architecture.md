@@ -364,7 +364,7 @@ server/utils/<domain>/
 - Mappers are pure DTO-to-domain conversions; convert wire-specific representations there.
 - Prefer explicit `#server/` and `#shared/` imports over Nitro auto-imports for project utilities.
 
-The `server/utils/logging/` domain owns structured JSON logging: a lazily created Pino logger, safe error mapping, and the Nitro error-hook helper. It must not log request/response bodies, headers, cookies, query strings, keys, or source IPs.
+The `server/utils/logging/` domain owns structured JSON logging: `server-log.enums.ts` defines the shared `ServerLogEventName` values, the `server-logger` helper unit creates the lazily initialized Pino logger, and the `server-error-log-mapping` unit maps thrown values to safe fields. It must not log request/response bodies, headers, cookies, query strings, keys, or source IPs.
 
 ### 6.3 Middleware and Nitro plugins
 

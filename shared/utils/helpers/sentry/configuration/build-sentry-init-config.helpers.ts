@@ -1,18 +1,18 @@
 import {
   SENTRY_DENIED_URL_PATTERNS,
   SENTRY_IGNORED_ERROR_PATTERNS,
-  SENTRY_SENSITIVE_FIELD_DENY_LIST,
 } from "#shared/utils/helpers/sentry/sentry.constants";
 import type { SentryInitConfig, SentryRuntimeConfig } from "#shared/utils/helpers/sentry/sentry.types";
 
 /**
  * Builds the shared `Sentry.init` options, or `undefined` when error tracking must stay disabled.
  *
- * Disabled environments and a blank DSN skip initialization entirely, so automated tests never contact Sentry.
- * The DSN is trimmed; an empty release is omitted so the SDK does not send a meaningless label.
+ * Disabled environments, a missing environment label, and a blank DSN skip initialization entirely, so automated
+ * tests never contact Sentry. Collection is opt-out per category: identity, cookies, headers, query strings, bodies,
+ * and stack-frame variables are never collected. The DSN is trimmed.
  */
 function buildSentryInitConfig(config: SentryRuntimeConfig): SentryInitConfig | undefined {
-  if (!config.enabled) {
+  if (!config.enabled || config.environment === undefined) {
     return undefined;
   }
 
@@ -21,26 +21,20 @@ function buildSentryInitConfig(config: SentryRuntimeConfig): SentryInitConfig | 
   if (dsn.length === 0) {
     return undefined;
   }
-
-  const release = config.release.trim();
-  const sensitiveFieldDenyList = [...SENTRY_SENSITIVE_FIELD_DENY_LIST];
-
-  const sentryInitConfig: SentryInitConfig = {
+  return {
     dsn,
     environment: config.environment,
-    ...release.length > 0 ? { release } : {},
     dataCollection: {
       userInfo: false,
+      cookies: false,
+      httpHeaders: false,
+      urlQueryParams: false,
       httpBodies: [],
-      httpHeaders: { deny: [...sensitiveFieldDenyList] },
-      cookies: { deny: [...sensitiveFieldDenyList] },
-      urlQueryParams: { deny: [...sensitiveFieldDenyList] },
+      stackFrameVariables: false,
     },
     ignoreErrors: [...SENTRY_IGNORED_ERROR_PATTERNS],
     denyUrls: [...SENTRY_DENIED_URL_PATTERNS],
   };
-
-  return sentryInitConfig;
 }
 
 export { buildSentryInitConfig };

@@ -5,7 +5,7 @@ import type {
   HandleGoatItApiErrorOptions,
   UseGoatItApiErrorToast,
 } from "@/composables/domain/useGoatItApiErrorToast/use-goat-it-api-error-toast.types";
-import { reportUnexpectedClientError } from "@/utils/core/sentry/helpers/client-error-report/client-error-report.helpers";
+import { isUnexpectedClientError } from "@/utils/core/sentry/helpers/client-error-report/client-error-report.helpers";
 
 /**
  * Reports Goat It API failures as a single deduplicated error toast.
@@ -21,9 +21,11 @@ function useGoatItApiErrorToast(): UseGoatItApiErrorToast {
 
   function handleGoatItApiError(error: unknown, options: HandleGoatItApiErrorOptions): void {
     const { context, title } = options;
-    reportUnexpectedClientError(error, exception => {
-      captureException(exception);
-    });
+
+    if (import.meta.client && isUnexpectedClientError(error)) {
+      captureException(error);
+    }
+
     const errorCodeValue = extractErrorCode(error);
 
     if (errorCodeValue !== undefined && errorCodeValue !== "") {

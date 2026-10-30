@@ -6,6 +6,7 @@ import { SITE_CONTACT_EMAIL, SITE_FOUNDING_DATE, SITE_GITHUB_URL, SITE_NAME } fr
 import { resolveDefaultLocale } from "#shared/utils/helpers/locale/locale.helpers.ts";
 import { buildPwaManifest } from "#shared/utils/helpers/pwa/manifest/build-pwa-manifest.helpers.ts";
 import { loadPwaManifestTranslations } from "#shared/utils/helpers/pwa/manifest/load-pwa-manifest-translations.helpers.ts";
+import { resolveSentryEnvironment } from "#shared/utils/helpers/sentry/environment/sentry-environment.helpers.ts";
 import { resolveSiteEnvironment } from "#shared/utils/helpers/site/site-environment.helpers.ts";
 
 const defaultLocale = resolveDefaultLocale(process.env.NUXT_PUBLIC_DEFAULT_LOCALE, DEFAULT_LOCALE_FALLBACK);
@@ -42,11 +43,11 @@ export default defineNuxtConfig({
     sourcemap: false,
   },
   $test: {
-    runtimeConfig: { public: { defaultLocale: "en", sentry: { environment: "test" } } },
+    runtimeConfig: { public: { defaultLocale: "en" } },
     buildDir: ".nuxt/test",
     nitro: { output: { dir: ".nuxt/test/output" } },
-    test: true,
     i18n: { defaultLocale: "en" },
+    sentry: { enabled: false },
   },
   ssr: true,
   components: [
@@ -119,8 +120,8 @@ export default defineNuxtConfig({
       defaultLocale,
       sentry: {
         dsn: "",
-        environment: siteEnvironment,
-        release: "",
+        environment: resolveSentryEnvironment(siteEnvironment),
+        disabled: false,
       },
     },
   },

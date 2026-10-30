@@ -6,7 +6,6 @@ import type { Mock } from "vitest";
 import {
   buildContentSecurityPolicy,
   generateCspNonce,
-  getSentryIngestOrigin,
   registerCspNonceHook,
   stampNonceOnInlineScripts,
 } from "#server/utils/security/helpers/security-headers/security-headers.helpers";
@@ -57,6 +56,28 @@ function createEventWithResponseHeaders(): { event: H3Event; setHeader: SetHeade
   return { event, setHeader };
 }
 
+function extractStampedNonce(htmlChunk: string | undefined): string {
+  if (htmlChunk === undefined) {
+    throw new Error("The html chunk was not stamped.");
+  }
+
+  const match = (/nonce="(?<nonce>[^"]+)"/u).exec(htmlChunk);
+
+  if (match === null) {
+    throw new Error("The html chunk has no nonce.");
+  }
+  return match.groups?.nonce ?? "";
+}
+
+function getFirstHeaderValue(setHeader: SetHeaderMock): string {
+  const [firstCall] = setHeader.mock.calls;
+
+  if (firstCall === undefined) {
+    throw new Error("The policy header was not set.");
+  }
+  return firstCall[1];
+}
+
 function registerRenderHtmlHook(cspMode: CspMode, sentryDsn = ""): { hookMock: RenderHtmlHookMock; handler: RenderHtmlHandler } {
   const hookMock = vi.fn<(event: string, handler: RenderHtmlHandler) => void>();
   // Acceptable as only the hook registration surface is needed to capture the render handler
@@ -77,33 +98,11 @@ function registerRenderHtmlHook(cspMode: CspMode, sentryDsn = ""): { hookMock: R
   return { hookMock, handler: hookCall[1] };
 }
 
-describe(getSentryIngestOrigin, () => {
-  it.each<{ description: string; dsn: string; expectedOrigin: string | undefined }>([
-    {
-      description: "a US ingest dsn",
-      dsn: "https://public@o123.ingest.us.sentry.io/456",
-      expectedOrigin: "https://o123.ingest.us.sentry.io",
-    },
-    {
-      description: "an EU ingest dsn",
-      dsn: "https://public@o123.ingest.de.sentry.io/456",
-      expectedOrigin: "https://o123.ingest.de.sentry.io",
-    },
-    { description: "an empty dsn", dsn: "", expectedOrigin: undefined },
-    { description: "a malformed dsn", dsn: "http://[", expectedOrigin: undefined },
-    { description: "a non https dsn", dsn: "http://o123.ingest.us.sentry.io/456", expectedOrigin: undefined },
-    { description: "a non ingest sentry host", dsn: "https://de.sentry.io/456", expectedOrigin: undefined },
-    { description: "an ingest host outside sentry", dsn: "https://o1.ingest.evil.com/456", expectedOrigin: undefined },
-  ])("should return the expected origin when the dsn is $description.", ({ dsn, expectedOrigin }) => {
-    expect(getSentryIngestOrigin(dsn)).toBe(expectedOrigin);
-  });
-});
-
 describe(buildContentSecurityPolicy, () => {
   it("should build the agreed content security policy when called with a nonce.", () => {
     const nonce = "2f1c9a3e-0000-4000-8000-000000000001";
 
-    const policy = buildContentSecurityPolicy(nonce);
+    const policy = buildContentSecurityPolicy({ nonce });
 
     expect(policy).toBe("default-src 'self'; " +
       `script-src 'self' 'wasm-unsafe-eval' 'nonce-${nonce}'; ` +
@@ -120,7 +119,7 @@ describe(buildContentSecurityPolicy, () => {
   });
 
   it("should append the sentry ingest origin to the connect src directive when a dsn is provided.", () => {
-    const policy = buildContentSecurityPolicy("nonce-value", "https://public@o123.ingest.us.sentry.io/456");
+    const policy = buildContentSecurityPolicy({ nonce: "nonce-value", sentryDsn: "https://public@o123.ingest.us.sentry.io/456" });
 
     expect(policy).toContain("connect-src 'self' https://o123.ingest.us.sentry.io");
   });
@@ -259,6 +258,18 @@ describe(registerCspNonceHook, () => {
     handler(createHtmlContext(), { event, streaming: false });
 
     expect(setHeader).toHaveBeenCalledExactlyOnceWith("Content-Security-Policy", expect.stringContaining("'nonce-"));
+  });
+
+  it("should use the same nonce in the header and the stamped html when the csp mode is enforced.", () => {
+    const { handler } = registerRenderHtmlHook("enforce");
+    const htmlContext = createHtmlContext();
+    const { event, setHeader } = createEventWithResponseHeaders();
+
+    handler(htmlContext, { event, streaming: false });
+
+    const stampedNonce = extractStampedNonce(htmlContext.head[0]);
+
+    expect(getFirstHeaderValue(setHeader)).toContain(`'nonce-${stampedNonce}'`);
   });
 
   it("should append the sentry ingest origin to the policy when a sentry dsn is configured.", () => {

@@ -1,31 +1,17 @@
+import type { DataCollection } from "@sentry/core";
+
+import type { SentryEnvironment } from "#shared/types/runtime-config.types";
+
 /**
  * Runtime configuration consumed by both Sentry entrypoints.
  */
 type SentryRuntimeConfig = {
-  /** Whether error tracking must initialize. */
+  /** Whether error tracking may initialize. */
   enabled: boolean;
   /** Ingest DSN; a public identifier, never a secret. */
   dsn: string;
-  /** Deployment label attached to every event. */
-  environment: string;
-  /** Optional release identifier; an empty value omits the field. */
-  release: string;
-};
-
-/**
- * Sentry v11 privacy controls applied to every captured event.
- */
-type SentryDataCollection = {
-  /** Never collect user identity fields. */
-  userInfo: false;
-  /** Never collect request or response bodies. */
-  httpBodies: [];
-  /** Header collection is constrained by the deny list; `beforeSend` removes the request object entirely. */
-  httpHeaders: { deny: string[] };
-  /** Cookie collection is constrained by the deny list; `beforeSend` removes the request object entirely. */
-  cookies: { deny: string[] };
-  /** Query collection is constrained by the deny list; `beforeSend` removes the request object entirely. */
-  urlQueryParams: { deny: string[] };
+  /** Deployment label attached to every event; absent outside deployed builds. */
+  environment?: SentryEnvironment;
 };
 
 /**
@@ -33,11 +19,10 @@ type SentryDataCollection = {
  */
 type SentryInitConfig = {
   dsn: string;
-  environment: string;
-  release?: string;
-  dataCollection: SentryDataCollection;
+  environment: SentryEnvironment;
+  dataCollection: DataCollection;
   ignoreErrors: (string | RegExp)[];
   denyUrls: RegExp[];
 };
 
-export type { SentryDataCollection, SentryInitConfig, SentryRuntimeConfig };
+export type { SentryInitConfig, SentryRuntimeConfig };

@@ -14,9 +14,9 @@ type CspMode = "enforce" | "report-only" | "off";
 type LogLevel = "fatal" | "error" | "warn" | "info" | "debug" | "trace" | "silent";
 
 /**
- * Deployment environment label attached to error-tracking events.
+ * Deployment environment label attached to error-tracking events; error tracking never runs in dev or test.
  */
-type SentryEnvironment = "production" | "staging" | "development" | "test";
+type SentryEnvironment = "production" | "staging";
 
 /**
  * Runtime configuration consumed by both the app and the server.
@@ -52,10 +52,10 @@ type AppRuntimeConfig = RuntimeConfig & {
     sentry: {
       /** Sentry ingest DSN; a public ingest identifier, never a secret. */
       dsn: string;
-      /** Deployment label attached to captured events. */
-      environment: SentryEnvironment;
-      /** Optional release identifier; an empty value omits the field. */
-      release: string;
+      /** Deployment label attached to captured events; absent outside deployed environments. */
+      environment?: SentryEnvironment;
+      /** Forces error tracking off when true; the acceptance build sets it to keep tests offline. */
+      disabled: boolean;
     };
   };
 };

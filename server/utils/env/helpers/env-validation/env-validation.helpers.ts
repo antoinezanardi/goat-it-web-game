@@ -2,12 +2,12 @@ import { isValidLocale } from "@goat-it/schemas/shared/locale";
 import { z } from "zod";
 
 import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
+import { getSentryIngestOrigin } from "#shared/utils/helpers/sentry/ingest/sentry-ingest.helpers";
 import {
   LOCAL_HOSTNAMES,
   RFC1918_IPV4_PATTERN,
   SUPPORTED_CSP_MODES,
   SUPPORTED_LOG_LEVELS,
-  SUPPORTED_SENTRY_ENVIRONMENTS,
 } from "#server/utils/env/helpers/env-validation/env-validation.constants";
 import type { ValidateAppRuntimeConfigOptions } from "#server/utils/env/helpers/env-validation/env-validation.types";
 
@@ -51,22 +51,22 @@ function validateSentryConfig(
   sentry: AppRuntimeConfig["public"]["sentry"],
   options: ValidateAppRuntimeConfigOptions,
 ): void {
-  if (!SUPPORTED_SENTRY_ENVIRONMENTS.includes(sentry.environment)) {
-    throw new Error("Invalid runtime environment: \"public.sentry.environment\" must be one of the supported environments.");
+  if (typeof sentry.disabled !== "boolean") {
+    throw new TypeError("Invalid runtime environment: \"public.sentry.disabled\" must be a boolean.");
   }
 
-  if (typeof sentry.release !== "string") {
-    throw new TypeError("Invalid runtime environment: \"public.sentry.release\" must be a string.");
-  }
-
-  if (!options.isProduction || options.isTest) {
+  if (sentry.disabled || !options.isProduction) {
     return;
   }
 
-  const dsnValidation = z.url().safeParse(sentry.dsn);
+  const environment: string = sentry.environment;
 
-  if (!dsnValidation.success || !dsnValidation.data.startsWith("https://")) {
-    throw new Error("Invalid runtime environment: \"public.sentry.dsn\" must be a valid https URL for a deployed build.");
+  if (environment !== "production" && environment !== "staging") {
+    throw new Error("Invalid runtime environment: \"public.sentry.environment\" must be production or staging for a deployed build.");
+  }
+
+  if (getSentryIngestOrigin(sentry.dsn) === undefined) {
+    throw new Error("Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.");
   }
 }
 
@@ -83,7 +83,8 @@ function validateLoggerConfig(logger: AppRuntimeConfig["logger"]): void {
  * internal, that the game key is non-empty, and that the default locale, rate-limit, CSP, Sentry, and logger
  * settings are supported.
  *
- * A deployed build (`isProduction && !isTest`) must also provide a valid HTTPS Sentry DSN.
+ * A deployed build must also provide a production or staging Sentry environment and a valid HTTPS Sentry ingest
+ * DSN, unless error tracking is explicitly disabled.
  *
  * @throws When any checked value is missing, malformed, or unsupported, which aborts the boot.
  * @see docs/security.md

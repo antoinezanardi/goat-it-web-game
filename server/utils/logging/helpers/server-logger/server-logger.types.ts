@@ -1,10 +1,3 @@
-import type { SERVER_LOG_EVENT_NAMES } from "#server/utils/logging/logging.constants";
-
-/**
- * Structured event names emitted by the server logger.
- */
-type ServerLogEventName = (typeof SERVER_LOG_EVENT_NAMES)[keyof typeof SERVER_LOG_EVENT_NAMES];
-
 /**
  * Level used by structured events: warnings for recoverable anomalies, errors for unexpected failures.
  */
@@ -28,4 +21,4 @@ type SafeLogContext = {
   reason?: string;
 };
 
-export type { SafeLogContext, ServerEventLevel, ServerLogEventName };
+export type { SafeLogContext, ServerEventLevel };

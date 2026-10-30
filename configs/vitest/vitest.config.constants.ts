@@ -51,8 +51,8 @@ const UNIT_TEST_NUXT_OVERRIDES: UnitTestNuxtOverrides = {
       defaultLocale: "en",
       sentry: {
         dsn: "",
-        environment: "test",
-        release: "",
+        environment: "staging",
+        disabled: true,
       },
     },
   },

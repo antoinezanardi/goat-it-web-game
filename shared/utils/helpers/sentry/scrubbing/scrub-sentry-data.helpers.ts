@@ -1,25 +1,17 @@
+import type { Breadcrumb, ErrorEvent } from "@sentry/core";
+
 import { getErrorStatusCode, isClientErrorStatus } from "#shared/utils/helpers/error-status/error-status.helpers";
 import { isRecord } from "#shared/utils/helpers/object/object.helpers";
-import {
-  SCRUBBED_SENTRY_BREADCRUMB_PROPERTIES,
-  SCRUBBED_SENTRY_EVENT_PROPERTIES,
-  SCRUBBED_SENTRY_EXCEPTION_PROPERTIES,
-  SCRUBBED_SENTRY_FRAME_PROPERTIES,
-  SCRUBBED_SENTRY_MESSAGE_PROPERTIES,
-  SENTRY_HEALTH_CHECK_PATHS,
-} from "#shared/utils/helpers/sentry/sentry.constants";
+import { SENTRY_HEALTH_CHECK_PATHS } from "#shared/utils/helpers/sentry/sentry.constants";
 
-function getRequestUrl(event: object): string | undefined {
-  if (!isRecord(event)) {
-    return undefined;
-  }
+function getRequestUrl(event: ErrorEvent): string | undefined {
+  return typeof event.request?.url === "string" ? event.request.url : undefined;
+}
 
-  const { request } = event;
+function stripQueryString(url: string): string {
+  const queryStringIndex = url.indexOf("?");
 
-  if (!isRecord(request)) {
-    return undefined;
-  }
-  return typeof request.url === "string" ? request.url : undefined;
+  return queryStringIndex === -1 ? url : url.slice(0, queryStringIndex);
 }
 
 function isHealthCheckUrl(url: string | undefined): boolean {
@@ -47,7 +39,7 @@ function isAbortedUpstreamError(originalException: unknown): boolean {
 /**
  * Tells whether an event is an expected 4xx response, health-check traffic, or an aborted upstream request and must not be sent.
  */
-function isExpectedSentryEvent(event: object, originalException: unknown): boolean {
+function isExpectedSentryEvent(event: ErrorEvent, originalException: unknown): boolean {
   if (isAbortedUpstreamError(originalException)) {
     return true;
   }
@@ -60,112 +52,79 @@ function isExpectedSentryEvent(event: object, originalException: unknown): boole
   return isHealthCheckUrl(getRequestUrl(event));
 }
 
-function attachSafeErrorCode(event: object, originalException: unknown): void {
-  if (!isRecord(event) || !isRecord(originalException)) {
-    return;
+function getSafeErrorCodeTags(event: ErrorEvent, originalException: unknown): ErrorEvent["tags"] {
+  if (!isRecord(originalException)) {
+    return event.tags;
   }
 
   const { code } = originalException;
 
   if (typeof code !== "string") {
-    return;
+    return event.tags;
   }
-
-  const tags = isRecord(event.tags) ? event.tags : {};
-  Reflect.set(event, "tags", { ...tags, errorCode: code });
+  return { ...event.tags, errorCode: code };
 }
 
-function scrubFrame(frame: unknown): void {
-  if (!isRecord(frame)) {
-    return;
-  }
+function withQueryStringsStripped(event: ErrorEvent): ErrorEvent {
+  const requestUrl = event.request?.url;
 
-  for (const property of SCRUBBED_SENTRY_FRAME_PROPERTIES) {
-    Reflect.deleteProperty(frame, property);
-  }
-}
-
-function scrubStacktrace(stacktrace: unknown): void {
-  if (!isRecord(stacktrace) || !Array.isArray(stacktrace.frames)) {
-    return;
-  }
-
-  for (const frame of stacktrace.frames) {
-    scrubFrame(frame);
-  }
-}
-
-function scrubExceptionValue(exceptionValue: unknown): void {
-  if (!isRecord(exceptionValue)) {
-    return;
-  }
-
-  for (const property of SCRUBBED_SENTRY_EXCEPTION_PROPERTIES) {
-    Reflect.deleteProperty(exceptionValue, property);
-  }
-  scrubStacktrace(exceptionValue.stacktrace);
-}
-
-function scrubExceptionData(event: object): void {
-  if (!isRecord(event)) {
-    return;
-  }
-
-  for (const property of SCRUBBED_SENTRY_MESSAGE_PROPERTIES) {
-    Reflect.deleteProperty(event, property);
-  }
-
-  const { exception } = event;
-
-  if (!isRecord(exception) || !Array.isArray(exception.values)) {
-    return;
-  }
-
-  for (const exceptionValue of exception.values) {
-    scrubExceptionValue(exceptionValue);
-  }
+  return {
+    ...event,
+    ...typeof event.transaction === "string" ? { transaction: stripQueryString(event.transaction) } : {},
+    ...typeof requestUrl === "string" ? { request: { ...event.request, url: stripQueryString(requestUrl) } } : {},
+  };
 }
 
 /**
- * Removes request, identity, cookie, header, body, query, message, and stack-variable data from a Sentry event.
+ * Keeps useful error context and removes identity and arbitrary extras from a Sentry event.
  *
  * Returns `null` for expected 4xx responses, health-check traffic, and client-aborted upstream requests so the SDK drops them.
+ * Query strings are removed from the transaction and request URL; headers, cookies, and bodies are disabled at collection time.
  */
-function scrubSentryEvent<T extends object>(event: T, originalException?: unknown): T | null {
+function scrubSentryEvent(event: ErrorEvent, originalException?: unknown): ErrorEvent | null {
   if (isExpectedSentryEvent(event, originalException)) {
     // Acceptable as Sentry drops an event only when the beforeSend hook returns null
     // oxlint-disable-next-line unicorn/no-null
     return null;
   }
 
-  for (const property of SCRUBBED_SENTRY_EVENT_PROPERTIES) {
-    Reflect.deleteProperty(event, property);
-  }
-  attachSafeErrorCode(event, originalException);
-  scrubExceptionData(event);
+  const tags = getSafeErrorCodeTags(event, originalException);
+  const scrubbedEvent: ErrorEvent = {
+    ...withQueryStringsStripped(event),
+    ...tags === undefined ? {} : { tags },
+  };
 
-  return event;
+  delete scrubbedEvent.extra;
+  delete scrubbedEvent.user;
+
+  return scrubbedEvent;
+}
+
+function getBreadcrumbUrl(breadcrumb: Breadcrumb): string | undefined {
+  const { data } = breadcrumb;
+
+  return isRecord(data) && typeof data.url === "string" ? data.url : undefined;
+}
+
+function withBreadcrumbQueryStringStripped(breadcrumb: Breadcrumb): Breadcrumb {
+  const { data } = breadcrumb;
+
+  if (!isRecord(data) || typeof data.url !== "string") {
+    return { ...breadcrumb };
+  }
+  return { ...breadcrumb, data: { ...data, url: stripQueryString(data.url) } };
 }
 
 /**
- * Removes breadcrumb data that could carry request URLs, bodies, or query strings.
- *
- * Health-check fetch breadcrumbs are dropped entirely.
+ * Removes query strings from a breadcrumb URL and drops health-check fetch breadcrumbs entirely.
  */
-function scrubSentryBreadcrumb<T extends object>(breadcrumb: T): T | null {
-  const data = isRecord(breadcrumb) ? breadcrumb.data : undefined;
-  const breadcrumbUrl = isRecord(data) && typeof data.url === "string" ? data.url : undefined;
-
-  if (isHealthCheckUrl(breadcrumbUrl)) {
+function scrubSentryBreadcrumb(breadcrumb: Breadcrumb): Breadcrumb | null {
+  if (isHealthCheckUrl(getBreadcrumbUrl(breadcrumb))) {
     // Acceptable as Sentry drops a breadcrumb only when the beforeBreadcrumb hook returns null
     // oxlint-disable-next-line unicorn/no-null
     return null;
   }
-
-  for (const property of SCRUBBED_SENTRY_BREADCRUMB_PROPERTIES) {
-    Reflect.deleteProperty(breadcrumb, property);
-  }
-  return breadcrumb;
+  return withBreadcrumbQueryStringStripped(breadcrumb);
 }
 
 export { scrubSentryBreadcrumb, scrubSentryEvent };

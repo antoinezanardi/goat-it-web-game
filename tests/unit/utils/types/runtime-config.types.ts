@@ -11,7 +11,7 @@ type RuntimeConfigOverrides = {
   logLevel?: LogLevel;
   sentryDsn?: string;
   sentryEnvironment?: SentryEnvironment;
-  sentryRelease?: string;
+  sentryDisabled?: boolean;
 };
 
 export type { RuntimeConfigOverrides };

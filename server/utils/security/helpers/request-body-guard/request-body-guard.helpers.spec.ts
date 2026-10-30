@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
 import { resolveRequestBodyRejectionStatusCode } from "#server/utils/security/helpers/request-body-guard/request-body-guard.helpers";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
 
 vi.stubGlobal("getRequestHeader", vi.fn());
 

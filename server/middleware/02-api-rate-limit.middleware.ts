@@ -1,6 +1,6 @@
 import { getRuntimeConfig } from "#server/utils/runtime-config/helpers/runtime-config/runtime-config.helpers";
 import { buildRateLimitKey, getSharedRateLimiter } from "#server/utils/rate-limit/helpers/rate-limit/rate-limit.helpers";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
 import { GOAT_IT_API_PROXY_ERROR_CODES, GOAT_IT_API_PROXY_PATH_PREFIX } from "#shared/constants/goat-it-api.constants";
 
 export default defineEventHandler((event): void => {

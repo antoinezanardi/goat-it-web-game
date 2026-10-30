@@ -15,6 +15,9 @@ describe(getErrorStatusCode, () => {
     { description: "a non record value", error: "boom", expectedStatusCode: undefined },
     { description: "a non numeric status", error: { statusCode: "503" }, expectedStatusCode: undefined },
     { description: "an empty response object", error: { response: {} }, expectedStatusCode: undefined },
+    { description: "a zero status from a network failure", error: { response: { status: 0 } }, expectedStatusCode: undefined },
+    { description: "a status below the standard range", error: { statusCode: 99 }, expectedStatusCode: undefined },
+    { description: "a status above the standard range", error: { statusCode: 600 }, expectedStatusCode: undefined },
   ])("should return the expected status code when the error is $description.", ({ error, expectedStatusCode }) => {
     expect(getErrorStatusCode(error)).toBe(expectedStatusCode);
   });
@@ -35,8 +38,10 @@ describe(isServerErrorStatus, () => {
   it.each<{ description: string; statusCode: number; expected: boolean }>([
     { description: "an internal error", statusCode: 500, expected: true },
     { description: "a bad gateway", statusCode: 502, expected: true },
+    { description: "the highest standard status", statusCode: 599, expected: true },
     { description: "a client error", statusCode: 404, expected: false },
     { description: "an informational status", statusCode: 100, expected: false },
+    { description: "a status above the standard range", statusCode: 600, expected: false },
   ])("should return $expected when the status is $description.", ({ statusCode, expected }) => {
     expect(isServerErrorStatus(statusCode)).toBe(expected);
   });

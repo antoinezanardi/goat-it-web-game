@@ -3,13 +3,13 @@ import { API_RESPONSE_EXCEPTION_DTO } from "@goat-it/schemas/shared/error";
 import { z } from "zod";
 
 import type { ProxyErrorData } from "#server/utils/goat-it-api/goat-it-api.types";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
-import { logServerWarning } from "#server/utils/logging/helpers/structured-logger/structured-logger.helpers";
-import { SERVER_LOG_EVENT_NAMES } from "#server/utils/logging/logging.constants";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
+import { logServerWarning } from "#server/utils/logging/helpers/server-logger/server-logger.helpers";
+import { ServerLogEventName } from "#server/utils/logging/server-log.enums";
 import { GOAT_IT_API_PROXY_ERROR_CODES } from "#shared/constants/goat-it-api.constants";
 
 function logGoatItApiError(reason: string): void {
-  logServerWarning(SERVER_LOG_EVENT_NAMES.GOAT_IT_API_UPSTREAM_ERROR, { reason });
+  logServerWarning(ServerLogEventName.GOAT_IT_API_UPSTREAM_ERROR, { reason });
 }
 
 function throwProxyError(statusCode: number, data: ProxyErrorData, cause?: unknown): never {
@@ -23,13 +23,15 @@ function describeCause(cause: unknown): string {
   const causeCode = "code" in cause ? cause.code : undefined;
 
   if (typeof causeCode === "string" || typeof causeCode === "number") {
-    return `${cause.name}: ${cause.message} (${String(causeCode)})`;
+    return `${cause.name} (${String(causeCode)})`;
   }
-  return `${cause.name}: ${cause.message}`;
+  return cause.name;
 }
 
 function describeZodIssuePaths(issues: z.core.$ZodIssue[]): string {
-  return issues.map(issue => issue.path.map(String).join(".")).join(", ");
+  return issues
+    .map(issue => [...issue.path, ...issue.code === "unrecognized_keys" ? issue.keys : []].map(String).join("."))
+    .join(", ");
 }
 
 function getForwardedErrorCode(error: FetchError): string | undefined {

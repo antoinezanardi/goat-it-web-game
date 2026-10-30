@@ -1,6 +1,7 @@
 import { setResponseHeader } from "h3";
 import type { NitroApp } from "nitropack/types";
 
+import { getSentryIngestOrigin } from "#shared/utils/helpers/sentry/ingest/sentry-ingest.helpers";
 import { getRuntimeConfig } from "#server/utils/runtime-config/helpers/runtime-config/runtime-config.helpers";
 import {
   CSP_CONNECT_SRC_DIRECTIVE,
@@ -9,34 +10,30 @@ import {
   CSP_NONCE_PLACEHOLDER,
   CSP_REPORT_ONLY_HEADER_NAME,
   SCRIPT_TAG_WITHOUT_NONCE_PATTERN,
-  SENTRY_INGEST_HOSTNAME_MARKER,
-  SENTRY_SAAS_HOSTNAME_SUFFIX,
 } from "#server/utils/security/security-headers.constants";
 
 /**
- * Extracts the exact HTTPS Sentry ingest origin from a DSN.
- *
- * Returns `undefined` for an empty, malformed, non-HTTPS, or non-Sentry SaaS host, so the policy never widens.
+ * Options for building the Content-Security-Policy header of one rendered page.
  */
-function getSentryIngestOrigin(sentryDsn: string): string | undefined {
-  try {
-    const { protocol, hostname } = new URL(sentryDsn);
+type BuildContentSecurityPolicyOptions = {
+  /** Per-render nonce substituted into the script-src placeholder. */
+  nonce: string;
+  /** Sentry DSN whose exact ingest origin is appended to connect-src when valid. */
+  sentryDsn?: string;
+};
 
-    if (protocol !== "https:" || !hostname.includes(SENTRY_INGEST_HOSTNAME_MARKER) || !hostname.endsWith(SENTRY_SAAS_HOSTNAME_SUFFIX)) {
-      return undefined;
-    }
-    return `https://${hostname}`;
-  } catch {
-    return undefined;
+function appendConnectSourceOrigin(directives: readonly string[], sentryOrigin: string | undefined): string[] {
+  if (sentryOrigin === undefined) {
+    return [...directives];
   }
+  return directives.map(directive => (directive === CSP_CONNECT_SRC_DIRECTIVE ? `${CSP_CONNECT_SRC_DIRECTIVE} ${sentryOrigin}` : directive));
 }
 
 /**
  * Joins the CSP directives, appends the Sentry ingest origin when configured, and substitutes the nonce placeholder.
  */
-function buildContentSecurityPolicy(nonce: string, sentryDsn = ""): string {
-  const sentryIngestOrigin = getSentryIngestOrigin(sentryDsn);
-  const directives = sentryIngestOrigin === undefined ? CSP_DIRECTIVES : CSP_DIRECTIVES.map(directive => (directive === CSP_CONNECT_SRC_DIRECTIVE ? `${CSP_CONNECT_SRC_DIRECTIVE} ${sentryIngestOrigin}` : directive));
+function buildContentSecurityPolicy({ nonce, sentryDsn = "" }: BuildContentSecurityPolicyOptions): string {
+  const directives = appendConnectSourceOrigin(CSP_DIRECTIVES, getSentryIngestOrigin(sentryDsn));
 
   return directives.join("; ").replace(CSP_NONCE_PLACEHOLDER, nonce);
 }
@@ -83,14 +80,13 @@ function registerCspNonceHook(nitroApp: NitroApp): void {
 
     const cspHeaderName = cspMode === "report-only" ? CSP_REPORT_ONLY_HEADER_NAME : CSP_ENFORCE_HEADER_NAME;
 
-    setResponseHeader(event, cspHeaderName, buildContentSecurityPolicy(nonce, dsn));
+    setResponseHeader(event, cspHeaderName, buildContentSecurityPolicy({ nonce, sentryDsn: dsn }));
   });
 }
 
 export {
   buildContentSecurityPolicy,
   generateCspNonce,
-  getSentryIngestOrigin,
   registerCspNonceHook,
   stampNonceOnInlineScripts,
 };

@@ -5,9 +5,9 @@ import { createFakeApiResponseExceptionDto } from "@goat-it/schemas/testing/shar
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error/goat-it-api-error.helpers";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
-import { getServerLogger } from "#server/utils/logging/helpers/structured-logger/structured-logger.helpers";
-import { SERVER_LOG_EVENT_NAMES } from "#server/utils/logging/logging.constants";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
+import { getServerLogger } from "#server/utils/logging/helpers/server-logger/server-logger.helpers";
+import { ServerLogEventName } from "#server/utils/logging/server-log.enums";
 
 const upstreamErrorCodeBody = createFakeApiResponseExceptionDto({ statusCode: 429, errorCode: "custom-upstream-code" });
 const upstreamBodyWithoutErrorCode = createFakeApiResponseExceptionDto({ statusCode: 404, errorCode: undefined });
@@ -123,7 +123,7 @@ describe(throwGoatItApiError, () => {
       getThrowableError(() => throwGoatItApiError(createFetchErrorWithResponse(401, unparseableBody)));
 
       expect(warnSpy).toHaveBeenCalledExactlyOnceWith({
-        event: SERVER_LOG_EVENT_NAMES.GOAT_IT_API_UPSTREAM_ERROR,
+        event: ServerLogEventName.GOAT_IT_API_UPSTREAM_ERROR,
         reason: "upstream status 401",
       });
     });
@@ -172,7 +172,7 @@ describe(throwGoatItApiError, () => {
       getThrowableError(() => throwGoatItApiError(createFetchErrorWithoutResponse(timeoutCause)));
 
       expect(warnSpy).toHaveBeenCalledExactlyOnceWith({
-        event: SERVER_LOG_EVENT_NAMES.GOAT_IT_API_UPSTREAM_ERROR,
+        event: ServerLogEventName.GOAT_IT_API_UPSTREAM_ERROR,
         reason: "upstream timeout",
       });
     });
@@ -212,13 +212,12 @@ describe(throwGoatItApiError, () => {
 
     it("should log the drifted issue paths when the upstream payload drifts from the contract.", () => {
       const warnSpy = vi.spyOn(getServerLogger(), "warn").mockReturnValue(undefined);
-      const expectedIssuePathFragment: unknown = expect.stringContaining("id");
 
       getThrowableError(() => throwGoatItApiError(createZodError()));
 
       expect(warnSpy).toHaveBeenCalledExactlyOnceWith({
-        event: SERVER_LOG_EVENT_NAMES.GOAT_IT_API_UPSTREAM_ERROR,
-        reason: expectedIssuePathFragment,
+        event: ServerLogEventName.GOAT_IT_API_UPSTREAM_ERROR,
+        reason: "upstream payload contract drift on paths [id, name]",
       });
     });
   });
