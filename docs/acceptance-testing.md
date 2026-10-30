@@ -750,20 +750,7 @@ Location: `tests/acceptance/features/support/helpers/`
 
 Functions used across **multiple step types or domains** live in `support/helpers/`. These are never placed in domain-specific helper directories.
 
-```ts
-// support/helpers/navigation.helpers.ts
-import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-
-async function waitForPageLoadStates(world: GoatItWorld): Promise<void> {
-  await world.page.waitForLoadState("load");
-}
-
-async function waitForPageUrl(world: GoatItWorld, pageUrl: string): Promise<void> {
-  await world.page.waitForURL(currentUrl => new URL(currentUrl).pathname === pageUrl);
-}
-
-export { waitForPageLoadStates, waitForPageUrl };
-```
+`waitForPageLoadStates` waits for the browser `"load"` event and for Nuxt hydration to finish (`$nuxt.isHydrating === false`, i.e. `app:suspense:resolve`). Waiting for the Vue app container alone (`#__nuxt.__vue_app__`) is not enough: pages with an async `setup()` (for example `/rules`, which awaits `useAsyncData`) hydrate their subtree after the app mount, so clicks issued in between are lost. Non-Nuxt responses such as `/robots.txt` and `/sitemap.xml` have no `#__nuxt` container and resolve as soon as they load.
 
 These cross-step helpers are consumed by domain-specific helpers:
 
@@ -1048,10 +1035,10 @@ Location: `tests/acceptance/features/support/helpers/navigation.helpers.ts`
 
 These are **cross-step** helpers used by multiple step-definition domains:
 
-| Function                         | Purpose                                             |
-|----------------------------------|-----------------------------------------------------|
-| `waitForPageLoadStates(world)`   | Waits for the page `"load"` state                   |
-| `waitForPageUrl(world, pageUrl)` | Waits until the page pathname matches the given URL |
+| Function                         | Purpose                                                                 |
+|----------------------------------|-------------------------------------------------------------------------|
+| `waitForPageLoadStates(world)`   | Waits for the page `"load"` state and complete Nuxt hydration           |
+| `waitForPageUrl(world, pageUrl)` | Waits until the page pathname matches the given URL                     |
 
 ```ts
 import { waitForPageLoadStates, waitForPageUrl } from "#acceptance/features/support/helpers/navigation.helpers.ts";
@@ -1228,6 +1215,20 @@ await locator.click();
 // GOOD
 await expect(locator).toBeVisible();
 await locator.click();
+```
+
+### Interacting before Nuxt hydration completes
+
+`page.goto()` resolving and even the `#__nuxt` container exposing `__vue_app__` do not guarantee the page is interactive. Pages with an async `setup()` (for example `/rules`, which awaits `useAsyncData`) hydrate their subtree only when the page Suspense resolves, so clicks issued in between are silently dropped. Navigate through `waitForPageLoadStates(world)` (as `goOnPage` does) instead of calling `page.goto()` directly, and never replace it with a bare `__vue_app__` check.
+
+```ts
+// BAD — may click before the async page subtree is hydrated
+await world.page.goto(url("/rules"));
+await world.page.getByRole("button", { name: "Show a complete example of a round" }).click();
+
+// GOOD — waits for "load" and full Nuxt hydration
+await goOnPage(world, "rules");
+await world.page.getByRole("button", { name: "Show a complete example of a round" }).click();
 ```
 
 ### Using CSS selectors instead of role-based locators
