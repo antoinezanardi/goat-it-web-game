@@ -44,6 +44,8 @@ font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self
 base-uri 'self'; form-action 'self'; object-src 'none'
 ```
 
+When `NUXT_PUBLIC_SENTRY_DSN` parses as a valid Sentry ingest DSN, the server appends its origin (for example `https://o123.ingest.us.sentry.io`) to `connect-src`. The origin is derived at render time, is never widened to `*.sentry.io`, and no same-origin tunnel is added. With no valid DSN, the policy keeps `connect-src 'self'`.
+
 `script-src` keeps `'wasm-unsafe-eval'` because Nuxt Content runs its client-side SQLite queries through a WebAssembly module; without it the browser refuses to instantiate the module and the lazy changelog query fails. It only authorises WebAssembly compilation — `eval` and `new Function` stay blocked.
 
 `style-src` keeps `'unsafe-inline'` because a style nonce would cancel it and break the @nuxt/ui runtime styles.
@@ -57,6 +59,19 @@ Modes are controlled by `NUXT_SECURITY_CSP_MODE`:
 | `off`               | no header, no stamping                                                                                                 |
 
 `envs/.env.development` uses `report-only` so dev-only inline scripts (devtools) do not break local development. Production and the acceptance build stay on `enforce`.
+
+## Error tracking (Sentry)
+
+Error tracking is operated by [Operations](operations.md#error-tracking); this section owns what may leave the browser and server.
+
+- The DSN is a public ingest identifier, not a secret. It is exposed to the browser through `runtimeConfig.public.sentry`.
+- Sentry tracing, session replay, feedback, and log ingestion are not enabled.
+- Sentry v11 `dataCollection` disables `userInfo`, cookies, headers, query parameters, HTTP bodies, and stack-frame variables at the source.
+- Event scrubbing is a deny-list: `beforeSend` returns the event after deleting `user` and `extra`, stripping query strings from the transaction, request URL, message, `logentry.message`, and exception values, and attaching a sanitized `errorCode` tag. Fields not explicitly deleted can remain; do not treat the event as an allow-list.
+- `beforeSend` drops expected 4xx responses, health-check traffic, and aborted upstream requests. `beforeBreadcrumb` strips query strings from breadcrumb URLs and drops health-check fetch breadcrumbs.
+- The Nitro SDK error hook captures unhandled server failures. No second Sentry capture hook is registered.
+- Errors deliberately converted into a graceful toast are reported once by the client error-handling boundary only when they are client-only unexpected errors (for example a repository `ZodError` or a runtime error). `FetchError` values, any error carrying an HTTP status, and aborted/timed-out requests are never reported from the client because the server or the SDK already owns them.
+- `ignoreErrors` and `denyUrls` rely on the SDK's default `EventFilters` integration, which stays enabled.
 
 ## Rate limiting
 
@@ -132,16 +147,27 @@ Every error the proxy emits carries `data.errorCode`:
 
 Forwarded upstream `4xx` keep their status and carry the upstream `errorCode` when the body provides one. The client resolves `errors.goatItApi.<code>` in the six locales and falls back on the HTTP status when no code is present.
 
+## Structured server logs
+
+Logging behavior and inspection are owned by [Operations](operations.md#structured-server-logs); this section owns what may be logged.
+
+Logged metadata is limited to an event name, HTTP status, method, query-free path, a format-checked error class name, and a format-checked error code. Request/response bodies, cookies, authorization headers, query strings, API/game keys, h3 error `data`, and source IPs are never logged. Redaction paths are defense in depth; the mapping layer already omits those fields.
+
+The Nitro error hook skips expected 4xx responses and proxy failures already handled by the Goat It API error path. It never calls Sentry and never throws; a logger write failure is caught and falls back to `console.error`.
+
 ## Environment variables
 
-| Variable                           | Required | Default   | Validated                                                 |
-|------------------------------------|----------|-----------|-----------------------------------------------------------|
-| `NUXT_GOAT_IT_API_BASE_URL`        | yes      | —         | valid URL; https in production (loopback/internal exempt) |
-| `NUXT_GOAT_IT_API_GAME_KEY`        | yes      | —         | non-empty                                                 |
-| `NUXT_PUBLIC_DEFAULT_LOCALE`       | yes      | `en`      | supported locale                                          |
-| `NUXT_RATE_LIMIT_MAXIMUM_REQUESTS` | no       | `60`      | integer ≥ 1                                               |
-| `NUXT_RATE_LIMIT_WINDOW_IN_MS`     | no       | `60000`   | integer ≥ 1                                               |
-| `NUXT_RATE_LIMIT_TRUST_PROXY`      | no       | `false`   | boolean                                                   |
-| `NUXT_SECURITY_CSP_MODE`           | no       | `enforce` | `enforce` \| `report-only` \| `off`                       |
+| Variable                           | Required        | Default   | Validated                                                 |
+|------------------------------------|-----------------|-----------|-----------------------------------------------------------|
+| `NUXT_GOAT_IT_API_BASE_URL`        | yes             | —         | valid URL; https in production (loopback/internal exempt) |
+| `NUXT_GOAT_IT_API_GAME_KEY`        | yes             | —         | non-empty                                                 |
+| `NUXT_PUBLIC_DEFAULT_LOCALE`       | yes             | `en`      | supported locale                                          |
+| `NUXT_RATE_LIMIT_MAXIMUM_REQUESTS` | no              | `60`      | integer ≥ 1                                               |
+| `NUXT_RATE_LIMIT_WINDOW_IN_MS`     | no              | `60000`   | integer ≥ 1                                               |
+| `NUXT_RATE_LIMIT_TRUST_PROXY`      | no              | `false`   | boolean                                                   |
+| `NUXT_SECURITY_CSP_MODE`           | no              | `enforce` | `enforce` \| `report-only` \| `off`                       |
+| `NUXT_PUBLIC_SENTRY_DSN`           | deployed builds unless disabled | — | valid HTTPS Sentry ingest URL with public key and numeric project id |
+| `NUXT_PUBLIC_SENTRY_DISABLED`      | no              | `false`   | boolean; `true` explicitly disables tracking              |
+| `NUXT_LOGGER_LEVEL`                | no              | `info`    | supported Pino level                                      |
 
 Invalid values fail the Nitro boot (values are never logged).

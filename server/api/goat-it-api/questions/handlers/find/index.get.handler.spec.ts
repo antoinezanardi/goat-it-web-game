@@ -11,7 +11,7 @@ import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-
 import { createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api-fetch-options/goat-it-api-fetch-options.helpers";
 import { parseAndMapGoatItApiResponse, validateGoatItApiQuery } from "#server/utils/goat-it-api/helpers/goat-it-api-validation/goat-it-api-validation.helpers";
 import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error/goat-it-api-error.helpers";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
 import { findQuestionsHandler } from "#server/api/goat-it-api/questions/handlers/find/index.get.handler";
 
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers"));

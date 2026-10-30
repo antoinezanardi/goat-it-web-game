@@ -1038,7 +1038,7 @@ it("should call readBody to extract the request body when called.", async () => 
 When a handler throws via `createError`, test it by catching the thrown error and asserting the `createError` call:
 
 ```ts
-import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
 
 it("should call createError with the correct status code when the item is not found.", async () => {
   vi.mocked($fetch).mockResolvedValue(null);
@@ -1067,7 +1067,7 @@ it("should call createError with the correct status code when the item is not fo
 - Use `vi.mocked($fetch).mockResolvedValue(...)` — `$fetch` is already a global spy.
 - `createGoatItApiFetchOptions` receives the **event** and the HTTP method option: assert `toHaveBeenCalledExactlyOnceWith(event, { method: "GET" | "POST" })`. The injected runtime config values are `baseUrl: "https://api.goat-it.com"` and `gameKey: "test-game-key"`, carried to the API as the `goat-it-api-key` header.
 - Always test the Zod validation error path with invalid data.
-- Use `HttpStatusCode` enum from `#server/utils/http/http.enums` for status code assertions.
+- Use `HttpStatusCode` enum from `#shared/enums/http-status-code.enums` for status code assertions.
 - For routes with params: assert the input path the handler actually uses — Goat It API handlers wired through the shared validation wrappers assert `validateGoatItApiQuery(event, SCHEMA)`; handlers still reading raw params assert `getRouterParam` was called with `(event, "id")`.
 - For routes with body (POST/PATCH): assert the input path the handler actually uses — Goat It API handlers wired through the shared validation wrappers assert `validateGoatItApiBody(event, SCHEMA)`; handlers still reading the raw body assert `readBody` was called with `(event)`.
 

@@ -7,6 +7,8 @@ const ESLINT_CONFIG_FILES_FLAT_CONFIG: Linter.Config = {
     "app/app.config.ts",
     "eslint.config.ts",
     "content.config.ts",
+    "sentry.client.config.ts",
+    "sentry.server.config.ts",
     "configs/**/*.{js,mjs,ts}",
     "app/config/**/*",
   ],

@@ -6,7 +6,7 @@ import {
   GOAT_IT_API_READINESS_HEALTH_PATH,
   GOAT_IT_API_READINESS_PROBE_TIMEOUT_IN_MS,
 } from "#server/utils/goat-it-api/helpers/goat-it-api-readiness/goat-it-api-readiness.constants";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
 import { getRuntimeConfig } from "#server/utils/runtime-config/helpers/runtime-config/runtime-config.helpers";
 
 let readinessCacheEntry: ReadinessCacheEntry | undefined;

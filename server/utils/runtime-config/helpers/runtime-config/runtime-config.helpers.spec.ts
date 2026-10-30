@@ -20,6 +20,12 @@ describe(getRuntimeConfig, () => {
     expect(useRuntimeConfig).toHaveBeenCalledExactlyOnceWith(mockedEvent);
   });
 
+  it("should read the runtime config without an event when called without one.", () => {
+    getRuntimeConfig();
+
+    expect(useRuntimeConfig).toHaveBeenCalledExactlyOnceWith(undefined);
+  });
+
   it("should return the runtime config typed as an app runtime config when called.", () => {
     const runtimeConfigMock = { goatItApi: { baseUrl: "https://api.goat-it.com", gameKey: "test-game-key" } } as unknown as ReturnType<typeof useRuntimeConfig>;
     vi.mocked(useRuntimeConfig).mockReturnValue(runtimeConfigMock);

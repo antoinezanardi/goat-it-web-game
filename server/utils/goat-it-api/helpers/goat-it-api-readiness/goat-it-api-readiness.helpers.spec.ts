@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
 import { checkGoatItApiReadiness } from "#server/utils/goat-it-api/helpers/goat-it-api-readiness/goat-it-api-readiness.helpers";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
 
 vi.stubGlobal("useRuntimeConfig", vi.fn());
 vi.stubGlobal("fetch", vi.fn<typeof fetch>());

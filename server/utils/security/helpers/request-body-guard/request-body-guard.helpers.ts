@@ -1,7 +1,7 @@
 import type { H3Event } from "h3";
 
 import { CONTENT_LENGTH_PATTERN, JSON_CONTENT_TYPE_PATTERN, MAXIMUM_REQUEST_BODY_BYTES } from "#server/utils/security/helpers/request-body-guard/request-body-guard.constants";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
 
 /**
  * Decides from headers alone whether a POST body must be rejected before it is buffered.

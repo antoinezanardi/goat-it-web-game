@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 
 import type { RuntimeConfigOverrides } from "~~/tests/unit/utils/types/runtime-config.types";
 
-import type { AppRuntimeConfig, CspMode } from "#shared/types/runtime-config.types";
+import type { AppRuntimeConfig, CspMode, LogLevel, SentryEnvironment } from "#shared/types/runtime-config.types";
 import { isInternalHostname, validateAppRuntimeConfig } from "#server/utils/env/helpers/env-validation/env-validation.helpers";
 
 function buildAppRuntimeConfig(overrides: RuntimeConfigOverrides = {}): AppRuntimeConfig {
@@ -17,7 +17,15 @@ function buildAppRuntimeConfig(overrides: RuntimeConfigOverrides = {}): AppRunti
       trustProxy: overrides.trustProxy ?? false,
     },
     security: { cspMode: overrides.cspMode ?? "enforce" },
-    public: { defaultLocale: overrides.defaultLocale ?? "en" },
+    logger: { level: overrides.logLevel ?? "info" },
+    public: {
+      defaultLocale: overrides.defaultLocale ?? "en",
+      sentry: {
+        dsn: overrides.sentryDsn ?? "https://public@o123.ingest.us.sentry.io/456",
+        environment: "sentryEnvironment" in overrides ? overrides.sentryEnvironment : "production",
+        disabled: overrides.sentryDisabled ?? false,
+      },
+    },
   } as unknown as AppRuntimeConfig;
 }
 
@@ -62,6 +70,12 @@ describe(validateAppRuntimeConfig, () => {
     { description: "a report-only csp mode", config: buildAppRuntimeConfig({ cspMode: "report-only" }), isProduction: true },
     { description: "a disabled csp mode", config: buildAppRuntimeConfig({ cspMode: "off" }), isProduction: true },
     { description: "a trusted proxy flag", config: buildAppRuntimeConfig({ trustProxy: true }), isProduction: true },
+    { description: "a deployed production config with an https dsn", config: buildAppRuntimeConfig(), isProduction: true },
+    { description: "a deployed staging config with an https dsn", config: buildAppRuntimeConfig({ sentryEnvironment: "staging" }), isProduction: true },
+    { description: "a disabled config with a blank dsn", config: buildAppRuntimeConfig({ sentryDsn: "", sentryDisabled: true }), isProduction: true },
+    { description: "a disabled config with a malformed dsn", config: buildAppRuntimeConfig({ sentryDsn: "not-a-url", sentryDisabled: true }), isProduction: true },
+    { description: "a development config with a blank dsn", config: buildAppRuntimeConfig({ sentryDsn: "", sentryEnvironment: undefined }), isProduction: false },
+    { description: "a debug log level", config: buildAppRuntimeConfig({ logLevel: "debug" }), isProduction: true },
   ])("should not throw when the config has $description.", ({ config, isProduction }) => {
     expect(() => validateAppRuntimeConfig(config, { isProduction })).not.toThrow();
   });
@@ -147,15 +161,85 @@ describe(validateAppRuntimeConfig, () => {
     },
     {
       description: "a non boolean trusted proxy flag",
-      config: buildAppRuntimeConfig({ trustProxy: "true" as unknown as boolean }),
+      config: buildAppRuntimeConfig({
+        trustProxy: "true" as unknown as boolean,
+      }),
       isProduction: true,
       expectedMessage: "Invalid runtime environment: \"rateLimit.trustProxy\" must be a boolean.",
     },
     {
       description: "an unsupported csp mode",
-      config: buildAppRuntimeConfig({ cspMode: "log-only" as unknown as CspMode }),
+      config: buildAppRuntimeConfig({
+        cspMode: "log-only" as unknown as CspMode,
+      }),
       isProduction: true,
       expectedMessage: "Invalid runtime environment: \"security.cspMode\" must be one of the supported modes.",
+    },
+    {
+      description: "a non boolean disabled flag",
+      config: buildAppRuntimeConfig({
+        sentryDisabled: "true" as unknown as boolean,
+      }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.disabled\" must be a boolean.",
+    },
+    {
+      description: "a deployed config with a missing sentry environment",
+      config: buildAppRuntimeConfig({ sentryEnvironment: undefined }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.environment\" must be production or staging for a deployed build.",
+    },
+    {
+      description: "a deployed config with an unsupported sentry environment",
+      config: buildAppRuntimeConfig({
+        sentryEnvironment: "preprod" as unknown as SentryEnvironment,
+      }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.environment\" must be production or staging for a deployed build.",
+    },
+    {
+      description: "a deployed config with a blank dsn",
+      config: buildAppRuntimeConfig({ sentryDsn: "" }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
+    },
+    {
+      description: "a deployed config with a malformed dsn",
+      config: buildAppRuntimeConfig({ sentryDsn: "not-a-url" }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
+    },
+    {
+      description: "a deployed config with a non https dsn",
+      config: buildAppRuntimeConfig({ sentryDsn: "http://public@o123.ingest.us.sentry.io/456" }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
+    },
+    {
+      description: "a deployed config with a non sentry dsn host",
+      config: buildAppRuntimeConfig({ sentryDsn: "https://public@example.com/456" }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
+    },
+    {
+      description: "a deployed config with a dsn missing the public key",
+      config: buildAppRuntimeConfig({ sentryDsn: "https://o123.ingest.us.sentry.io/456" }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
+    },
+    {
+      description: "a deployed config with a dsn missing the project id",
+      config: buildAppRuntimeConfig({ sentryDsn: "https://public@o123.ingest.us.sentry.io" }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
+    },
+    {
+      description: "an unsupported log level",
+      config: buildAppRuntimeConfig({
+        logLevel: "verbose" as unknown as LogLevel,
+      }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"logger.level\" must be one of the supported levels.",
     },
   ])("should throw when the config has $description.", ({ config, isProduction, expectedMessage }) => {
     expect(() => validateAppRuntimeConfig(config, { isProduction })).toThrow(expectedMessage);

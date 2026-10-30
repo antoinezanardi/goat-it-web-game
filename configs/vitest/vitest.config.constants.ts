@@ -46,6 +46,15 @@ const UNIT_TEST_NUXT_OVERRIDES: UnitTestNuxtOverrides = {
     security: {
       cspMode: "enforce",
     },
+    logger: { level: "info" },
+    public: {
+      defaultLocale: "en",
+      sentry: {
+        dsn: "",
+        environment: "staging",
+        disabled: true,
+      },
+    },
   },
   site: { indexable: false },
   sitemap: { enabled: false },

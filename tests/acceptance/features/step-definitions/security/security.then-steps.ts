@@ -7,8 +7,8 @@ import {
   assertPrivateApiCacheHeaders,
   assertRetryAfterHeader,
   assertSecurityHeaders,
-  getApiResponse,
 } from "#acceptance/features/step-definitions/security/helpers/security.then-steps.helpers.ts";
+import { getApiResponse } from "#acceptance/features/support/helpers/api-response.helpers.ts";
 
 Then(
   /^the response status should be (?<status>\d+)$/u,

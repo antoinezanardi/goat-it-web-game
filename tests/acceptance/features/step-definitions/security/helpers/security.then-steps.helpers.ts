@@ -2,19 +2,12 @@ import { url } from "@nuxt/test-utils/e2e";
 import { expect } from "@playwright/test";
 import type { APIResponse } from "@playwright/test";
 
-import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 import {
   SECURITY_CSP_NONCE_PATTERN,
   SECURITY_EXPECTED_API_CACHE_HEADERS,
   SECURITY_EXPECTED_HEADERS,
 } from "#acceptance/features/step-definitions/security/security.steps.constants.ts";
-
-function getApiResponse(world: GoatItWorld): APIResponse {
-  if (world.lastApiResponse === undefined) {
-    throw new Error("No API response has been recorded for this scenario.");
-  }
-  return world.lastApiResponse;
-}
+import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 
 function assertSecurityHeaders(response: APIResponse): void {
   expect(response.headers()).toMatchObject(SECURITY_EXPECTED_HEADERS);
@@ -42,5 +35,4 @@ export {
   assertPrivateApiCacheHeaders,
   assertRetryAfterHeader,
   assertSecurityHeaders,
-  getApiResponse,
 };

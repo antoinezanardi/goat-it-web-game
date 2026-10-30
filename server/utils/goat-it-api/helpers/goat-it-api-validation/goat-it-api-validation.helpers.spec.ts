@@ -2,7 +2,7 @@ import { getValidatedQuery, readValidatedBody } from "h3";
 import { ZodError, z } from "zod";
 import { QUESTION_DTO } from "@goat-it/schemas/question";
 import { createFakeQuestionDto } from "@goat-it/schemas/testing/question";
-import { describe, it, expect, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createFakeH3Event } from "~~/tests/unit/utils/faketories/shared/h3/h3-event.faketory";
 
@@ -13,11 +13,20 @@ import {
   validateGoatItApiBody,
   validateGoatItApiQuery,
 } from "#server/utils/goat-it-api/helpers/goat-it-api-validation/goat-it-api-validation.helpers";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
+import { getServerLogger } from "#server/utils/logging/helpers/server-logger/server-logger.helpers";
+import { ServerLogEventName } from "#server/utils/logging/server-log.enums";
 
 const mockedEvent = createFakeH3Event();
 
+vi.stubGlobal("useRuntimeConfig", vi.fn());
+
 describe(parseAndMapGoatItApiResponse, () => {
+  beforeEach(() => {
+    vi.mocked(useRuntimeConfig).mockReturnValue({ logger: { level: "info" } } as unknown as ReturnType<typeof useRuntimeConfig>);
+    vi.spyOn(getServerLogger(), "warn").mockReturnValue(undefined);
+  });
+
   it("should return the mapped domain objects when the raw data matches the dto schema.", () => {
     const fakeQuestionDtos = [
       createFakeQuestionDto(),
@@ -56,12 +65,15 @@ describe(parseAndMapGoatItApiResponse, () => {
   });
 
   it("should log the stripped paths when an additive upstream field is present.", () => {
-    const consoleSpy = vi.spyOn(console, "error").mockReturnValue();
+    const warnSpy = vi.spyOn(getServerLogger(), "warn").mockReturnValue(undefined);
     const rawData = [{ ...createFakeQuestionDto(), additiveField: "value" }];
 
     parseAndMapGoatItApiResponse(rawData, QUESTION_DTO, createQuestionFromQuestionDto);
 
-    expect(consoleSpy).toHaveBeenCalledExactlyOnceWith(expect.stringContaining("additiveField"));
+    expect(warnSpy).toHaveBeenCalledExactlyOnceWith({
+      event: ServerLogEventName.GOAT_IT_API_SCHEMA_DRIFT,
+      reason: "0.additiveField",
+    });
   });
 
   it("should throw a zod error when an additive field is present alongside an invalid field.", () => {

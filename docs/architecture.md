@@ -309,6 +309,7 @@ shared/
 - A runtime-neutral helper may stay under its shared domain even when one production unit consumes it. Its private types/constants remain in the helper unit. Do not move app-only helpers or app-only contracts into `shared/`.
 - When a domain has multiple distinct helper responsibilities, give each responsibility a subdirectory under `shared/utils/helpers/<domain>/`, with source/spec together.
 - Question utilities are split by dependency: runtime-neutral context/theme/source/category/difficulty rules go under `shared/utils/helpers/question/<responsibility>/`; theme selection goes under `shared/utils/helpers/question-theme/selection/`. UI mappings/icons/colors/Tailwind classes stay under app UI utilities.
+- Sentry option building and event scrubbing live under `shared/utils/helpers/sentry/`; the root `sentry.client.config.ts` and `sentry.server.config.ts` entrypoints stay thin and delegate to those helpers.
 - Do not add Vue, DOM, browser, Nuxt, or app UI dependencies to shared modules.
 
 ## 6. Server architecture
@@ -361,10 +362,13 @@ server/utils/<domain>/
 - Mappers are pure DTO-to-domain conversions; convert wire-specific representations there.
 - Prefer explicit `#server/` and `#shared/` imports over Nitro auto-imports for project utilities.
 
+The `server/utils/logging/` domain owns structured server logging. `server-log.enums.ts` holds event names shared by several units; the `server-logger`, `server-error-log-mapping`, and `nitro-error-logging` helper units own their source, spec, and private companions. Logging privacy rules are owned by [Security](security.md).
+
 ### 6.3 Middleware and Nitro plugins
 
 - Middleware is named `NN-<name>.middleware.ts` when execution order matters. Keep request dispatch/path matching thin; extract independently testable behavior to helpers.
 - Nitro plugins live under `server/plugins/<name>/` as framework entrypoints. Keep registration/lifecycle glue thin and delegate behavior to covered helper units.
+- `server/plugins/error-logging/` registers the Nitro `error` hook and delegates to `server/utils/logging/helpers/nitro-error-logging/`.
 - See [Security](security.md) for headers, CSP, rate limiting, body guards, upstream fetch, and error contracts.
 
 ## 7. Aliases and imports
@@ -430,17 +434,17 @@ Feature domains own scenarios/tags; step domains own reusable Gherkin steps; cro
 
 ## 9. Other repository file classes
 
-| Location                                                    | Responsibility                                                                                  |
-|-------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| `configs/`                                                  | Test/lint/release/Node/tool config only; no runtime business logic                              |
-| `scripts/`                                                  | Standalone maintenance or validation tools; no app/server/shared imports                        |
-| `modules/`                                                  | Local Nuxt modules when an actual reusable Nuxt integration is introduced                       |
-| Root `nuxt.config.ts`, `content.config.ts`, `tsconfig.json` | Framework/build configuration                                                                   |
-| `content/<locale>/`                                         | Localized Markdown/content source; Markdown Vue components stay under `app/components/content/` |
-| `app/assets/`                                               | Imported/bundled assets; root `public/` for files served unchanged                              |
-| `docs/`                                                     | Maintained human-facing documentation                                                           |
-| `.opencode/`, `.agents/`                                    | Agent, skill and workflow instructions                                                          |
-| `.nuxt/`, `.output/`, coverage and acceptance reports       | Generated output only; never hand-edited as source                                              |
+| Location                                                                          | Responsibility                                                                                  |
+|-----------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| `configs/`                                                                        | Test/lint/release/Node/tool config only; no runtime business logic                              |
+| `scripts/`                                                                        | Standalone maintenance or validation tools; no app/server/shared imports                        |
+| `modules/`                                                                        | Local Nuxt modules when an actual reusable Nuxt integration is introduced                       |
+| Root `nuxt.config.ts`, `content.config.ts`, `tsconfig.json`, `sentry.*.config.ts` | Framework/build and error-tracking entrypoints                                                  |
+| `content/<locale>/`                                                               | Localized Markdown/content source; Markdown Vue components stay under `app/components/content/` |
+| `app/assets/`                                                                     | Imported/bundled assets; root `public/` for files served unchanged                              |
+| `docs/`                                                                           | Maintained human-facing documentation                                                           |
+| `.opencode/`, `.agents/`                                                          | Agent, skill and workflow instructions                                                          |
+| `.nuxt/`, `.output/`, coverage and acceptance reports                             | Generated output only; never hand-edited as source                                              |
 
 Do not add a new root folder simply because a concept is shared. Pick an established runtime boundary and domain first. If no existing category fits, propose the boundary and update this guide through an approved design.
 

@@ -1,8 +1,11 @@
 import { setResponseHeader } from "h3";
 import type { NitroApp } from "nitropack/types";
 
+import { getSentryIngestOrigin } from "#shared/utils/helpers/sentry/ingest/sentry-ingest.helpers";
 import { getRuntimeConfig } from "#server/utils/runtime-config/helpers/runtime-config/runtime-config.helpers";
+import type { BuildContentSecurityPolicyOptions } from "#server/utils/security/helpers/security-headers/security-headers.types";
 import {
+  CSP_CONNECT_SRC_DIRECTIVE,
   CSP_DIRECTIVES,
   CSP_ENFORCE_HEADER_NAME,
   CSP_NONCE_PLACEHOLDER,
@@ -10,11 +13,20 @@ import {
   SCRIPT_TAG_WITHOUT_NONCE_PATTERN,
 } from "#server/utils/security/security-headers.constants";
 
+function appendConnectSourceOrigin(directives: readonly string[], sentryOrigin: string | undefined): string[] {
+  if (sentryOrigin === undefined) {
+    return [...directives];
+  }
+  return directives.map(directive => (directive === CSP_CONNECT_SRC_DIRECTIVE ? `${CSP_CONNECT_SRC_DIRECTIVE} ${sentryOrigin}` : directive));
+}
+
 /**
- * Joins the CSP directives and substitutes the nonce placeholder.
+ * Joins the CSP directives, appends the Sentry ingest origin when configured, and substitutes the nonce placeholder.
  */
-function buildContentSecurityPolicy(nonce: string): string {
-  return CSP_DIRECTIVES.join("; ").replace(CSP_NONCE_PLACEHOLDER, nonce);
+function buildContentSecurityPolicy({ nonce, sentryDsn = "" }: BuildContentSecurityPolicyOptions): string {
+  const directives = appendConnectSourceOrigin(CSP_DIRECTIVES, getSentryIngestOrigin(sentryDsn));
+
+  return directives.join("; ").replace(CSP_NONCE_PLACEHOLDER, nonce);
 }
 
 /**
@@ -41,7 +53,9 @@ function stampNonceOnInlineScripts(htmlChunks: string[], nonce: string): string[
  */
 function registerCspNonceHook(nitroApp: NitroApp): void {
   nitroApp.hooks.hook("render:html", (htmlContext, { event, streaming }) => {
-    const { cspMode } = getRuntimeConfig(event).security;
+    const runtimeConfig = getRuntimeConfig(event);
+    const { cspMode } = runtimeConfig.security;
+    const { dsn } = runtimeConfig.public.sentry;
 
     if (cspMode === "off") {
       return;
@@ -57,7 +71,7 @@ function registerCspNonceHook(nitroApp: NitroApp): void {
 
     const cspHeaderName = cspMode === "report-only" ? CSP_REPORT_ONLY_HEADER_NAME : CSP_ENFORCE_HEADER_NAME;
 
-    setResponseHeader(event, cspHeaderName, buildContentSecurityPolicy(nonce));
+    setResponseHeader(event, cspHeaderName, buildContentSecurityPolicy({ nonce, sentryDsn: dsn }));
   });
 }
 

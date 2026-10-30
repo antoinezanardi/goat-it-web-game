@@ -20,6 +20,7 @@ const VITEST_NUXT_PROJECT_SETUP_FILES = [
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/call-once.nuxt.unit-setup.ts"),
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/define-page-meta.nuxt.unit-setup.ts"),
   path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/virtualizer.nuxt.unit-setup.ts"),
+  path.resolve(PROCESS_CWD, "tests/unit/setup/nuxt/sentry.nuxt.unit-setup.ts"),
 ] as const;
 
 const VITEST_COMPOSABLES_MOCK_SETUP_FILES: readonly string[] = [

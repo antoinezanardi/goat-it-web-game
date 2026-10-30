@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Mock } from "vitest";
 
 import { checkGoatItApiReadiness } from "#server/utils/goat-it-api/helpers/goat-it-api-readiness/goat-it-api-readiness.helpers";
-import { HttpStatusCode } from "#server/utils/http/http.enums";
+import { HttpStatusCode } from "#shared/enums/http-status-code.enums";
 import { checkReadinessHandler } from "#server/routes/readyz/handlers/check-readiness/index.get.handler";
 
 vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-readiness/goat-it-api-readiness.helpers"));

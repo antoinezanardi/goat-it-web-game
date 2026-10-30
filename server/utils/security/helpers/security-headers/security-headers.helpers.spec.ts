@@ -56,13 +56,38 @@ function createEventWithResponseHeaders(): { event: H3Event; setHeader: SetHeade
   return { event, setHeader };
 }
 
-function registerRenderHtmlHook(cspMode: CspMode): { hookMock: RenderHtmlHookMock; handler: RenderHtmlHandler } {
+function extractStampedNonce(htmlChunk: string | undefined): string {
+  if (htmlChunk === undefined) {
+    throw new Error("The html chunk was not stamped.");
+  }
+
+  const match = (/nonce="(?<nonce>[^"]+)"/u).exec(htmlChunk);
+
+  if (match === null) {
+    throw new Error("The html chunk has no nonce.");
+  }
+  return match.groups?.nonce ?? "";
+}
+
+function getFirstHeaderValue(setHeader: SetHeaderMock): string {
+  const [firstCall] = setHeader.mock.calls;
+
+  if (firstCall === undefined) {
+    throw new Error("The policy header was not set.");
+  }
+  return firstCall[1];
+}
+
+function registerRenderHtmlHook(cspMode: CspMode, sentryDsn = ""): { hookMock: RenderHtmlHookMock; handler: RenderHtmlHandler } {
   const hookMock = vi.fn<(event: string, handler: RenderHtmlHandler) => void>();
   // Acceptable as only the hook registration surface is needed to capture the render handler
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   const nitroApp = { hooks: { hook: hookMock } } as unknown as NitroApp;
 
-  vi.mocked(useRuntimeConfig).mockReturnValue({ security: { cspMode } } as unknown as ReturnType<typeof useRuntimeConfig>);
+  vi.mocked(useRuntimeConfig).mockReturnValue({
+    security: { cspMode },
+    public: { sentry: { dsn: sentryDsn } },
+  } as unknown as ReturnType<typeof useRuntimeConfig>);
   registerCspNonceHook(nitroApp);
 
   const hookCall = hookMock.mock.calls[0];
@@ -77,7 +102,7 @@ describe(buildContentSecurityPolicy, () => {
   it("should build the agreed content security policy when called with a nonce.", () => {
     const nonce = "2f1c9a3e-0000-4000-8000-000000000001";
 
-    const policy = buildContentSecurityPolicy(nonce);
+    const policy = buildContentSecurityPolicy({ nonce });
 
     expect(policy).toBe("default-src 'self'; " +
       `script-src 'self' 'wasm-unsafe-eval' 'nonce-${nonce}'; ` +
@@ -91,6 +116,12 @@ describe(buildContentSecurityPolicy, () => {
       "base-uri 'self'; " +
       "form-action 'self'; " +
       "object-src 'none'");
+  });
+
+  it("should append the sentry ingest origin to the connect src directive when a dsn is provided.", () => {
+    const policy = buildContentSecurityPolicy({ nonce: "nonce-value", sentryDsn: "https://public@o123.ingest.us.sentry.io/456" });
+
+    expect(policy).toContain("connect-src 'self' https://o123.ingest.us.sentry.io");
   });
 });
 
@@ -227,6 +258,30 @@ describe(registerCspNonceHook, () => {
     handler(createHtmlContext(), { event, streaming: false });
 
     expect(setHeader).toHaveBeenCalledExactlyOnceWith("Content-Security-Policy", expect.stringContaining("'nonce-"));
+  });
+
+  it("should use the same nonce in the header and the stamped html when the csp mode is enforced.", () => {
+    const { handler } = registerRenderHtmlHook("enforce");
+    const htmlContext = createHtmlContext();
+    const { event, setHeader } = createEventWithResponseHeaders();
+
+    handler(htmlContext, { event, streaming: false });
+
+    const stampedNonce = extractStampedNonce(htmlContext.head[0]);
+
+    expect(getFirstHeaderValue(setHeader)).toContain(`'nonce-${stampedNonce}'`);
+  });
+
+  it("should append the sentry ingest origin to the policy when a sentry dsn is configured.", () => {
+    const { handler } = registerRenderHtmlHook("enforce", "https://public@o123.ingest.us.sentry.io/456");
+    const { event, setHeader } = createEventWithResponseHeaders();
+
+    handler(createHtmlContext(), { event, streaming: false });
+
+    expect(setHeader).toHaveBeenCalledExactlyOnceWith(
+      "Content-Security-Policy",
+      expect.stringContaining("connect-src 'self' https://o123.ingest.us.sentry.io"),
+    );
   });
 
   it("should set the report only policy header when the csp mode is report-only.", () => {
