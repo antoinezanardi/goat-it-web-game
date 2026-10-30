@@ -43,6 +43,8 @@ COPY --chown=node:node server server/
 COPY --chown=node:node shared shared/
 COPY --chown=node:node content.config.ts ./
 COPY --chown=node:node content ./content
+# Sentry Nuxt module discovers these root entrypoints.
+COPY --chown=node:node sentry.client.config.ts sentry.server.config.ts ./
 
 CMD [ "pnpm", "run", "start:dev" ]
 
@@ -67,6 +69,8 @@ COPY --chown=node:node pnpm-lock.yaml ./
 COPY --chown=node:node pnpm-workspace.yaml ./
 COPY --chown=node:node nuxt.config.ts ./
 COPY --chown=node:node tsconfig.json ./
+# Sentry Nuxt module discovers these root entrypoints.
+COPY --chown=node:node sentry.client.config.ts sentry.server.config.ts ./
 
 COPY --chown=node:node app ./app
 COPY --chown=node:node server ./server
