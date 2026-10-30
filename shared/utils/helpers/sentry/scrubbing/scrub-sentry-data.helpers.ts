@@ -1,7 +1,8 @@
-import type { Breadcrumb, ErrorEvent } from "@sentry/core";
+import type { Breadcrumb, ErrorEvent, Exception } from "@sentry/core";
 
 import { getErrorStatusCode, isClientErrorStatus } from "#shared/utils/helpers/error-status/error-status.helpers";
 import { isRecord } from "#shared/utils/helpers/object/object.helpers";
+import { SENTRY_TEXT_URL_QUERY_STRING_PATTERN } from "#shared/utils/helpers/sentry/scrubbing/scrub-sentry-data.constants";
 import { SENTRY_HEALTH_CHECK_PATHS } from "#shared/utils/helpers/sentry/sentry.constants";
 
 function getRequestUrl(event: ErrorEvent): string | undefined {
@@ -12,6 +13,10 @@ function stripQueryString(url: string): string {
   const queryStringIndex = url.indexOf("?");
 
   return queryStringIndex === -1 ? url : url.slice(0, queryStringIndex);
+}
+
+function stripTextQueryStrings(text: string): string {
+  return text.replace(SENTRY_TEXT_URL_QUERY_STRING_PATTERN, "$<url>");
 }
 
 function isHealthCheckUrl(url: string | undefined): boolean {
@@ -75,11 +80,40 @@ function withQueryStringsStripped(event: ErrorEvent): ErrorEvent {
   };
 }
 
+function cloneSentryException(exception: Exception): Exception {
+  return { ...exception };
+}
+
+function withTextQueryStringsStripped(event: ErrorEvent): ErrorEvent {
+  const { exception, logentry } = event;
+  const scrubbedEvent: ErrorEvent = {
+    ...event,
+    ...typeof event.message === "string" ? { message: stripTextQueryStrings(event.message) } : {},
+  };
+
+  if (typeof logentry?.message === "string") {
+    scrubbedEvent.logentry = { ...logentry, message: stripTextQueryStrings(logentry.message) };
+  }
+
+  if (exception?.values !== undefined) {
+    const values = exception.values.map(cloneSentryException);
+
+    for (const value of values) {
+      if (typeof value.value === "string") {
+        value.value = stripTextQueryStrings(value.value);
+      }
+    }
+    scrubbedEvent.exception = { ...exception, values };
+  }
+  return scrubbedEvent;
+}
+
 /**
  * Keeps useful error context and removes identity and arbitrary extras from a Sentry event.
  *
  * Returns `null` for expected 4xx responses, health-check traffic, and client-aborted upstream requests so the SDK drops them.
- * Query strings are removed from the transaction and request URL; headers, cookies, and bodies are disabled at collection time.
+ * Query strings are removed from the transaction, request URL, message, logentry message, and exception values; headers,
+ * cookies, and bodies are disabled at collection time.
  */
 function scrubSentryEvent(event: ErrorEvent, originalException?: unknown): ErrorEvent | null {
   if (isExpectedSentryEvent(event, originalException)) {
@@ -90,7 +124,7 @@ function scrubSentryEvent(event: ErrorEvent, originalException?: unknown): Error
 
   const tags = getSafeErrorCodeTags(event, originalException);
   const scrubbedEvent: ErrorEvent = {
-    ...withQueryStringsStripped(event),
+    ...withTextQueryStringsStripped(withQueryStringsStripped(event)),
     ...tags === undefined ? {} : { tags },
   };
 

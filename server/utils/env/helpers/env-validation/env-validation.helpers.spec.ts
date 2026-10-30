@@ -222,6 +222,18 @@ describe(validateAppRuntimeConfig, () => {
       expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
     },
     {
+      description: "a deployed config with a dsn missing the public key",
+      config: buildAppRuntimeConfig({ sentryDsn: "https://o123.ingest.us.sentry.io/456" }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
+    },
+    {
+      description: "a deployed config with a dsn missing the project id",
+      config: buildAppRuntimeConfig({ sentryDsn: "https://public@o123.ingest.us.sentry.io" }),
+      isProduction: true,
+      expectedMessage: "Invalid runtime environment: \"public.sentry.dsn\" must be a valid https Sentry ingest URL for a deployed build.",
+    },
+    {
       description: "an unsupported log level",
       config: buildAppRuntimeConfig({
         logLevel: "verbose" as unknown as LogLevel,

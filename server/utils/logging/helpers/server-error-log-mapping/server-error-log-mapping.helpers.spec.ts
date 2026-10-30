@@ -31,6 +31,31 @@ describe(mapServerErrorToSafeLog, () => {
       expected: { errorName: "Error" },
     },
     {
+      description: "an error with a safe class name and code",
+      error: { name: "ZodError", code: "ERR_INVALID_ARG_TYPE" },
+      expected: { errorName: "ZodError", errorCode: "ERR_INVALID_ARG_TYPE" },
+    },
+    {
+      description: "an error whose name and code contain unsafe characters",
+      error: { name: "user@example.com", code: "secret code" },
+      expected: { errorName: "Error" },
+    },
+    {
+      description: "an error whose name starts with a digit",
+      error: { name: "123Error" },
+      expected: { errorName: "Error" },
+    },
+    {
+      description: "an error whose name exceeds the safe length",
+      error: { name: "A".repeat(65) },
+      expected: { errorName: "Error" },
+    },
+    {
+      description: "an error whose code exceeds the safe length",
+      error: { name: "Error", code: "E".repeat(65) },
+      expected: { errorName: "Error" },
+    },
+    {
       description: "a non-object value",
       error: "boom",
       expected: { errorName: "UnknownError" },

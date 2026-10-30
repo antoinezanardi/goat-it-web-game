@@ -1,7 +1,7 @@
 # Operations
 
 Operational contract for health checking, deployment verification, and shutdown of the Goat It Web Game container.
-Architecture and file placement are owned by [Architecture](architecture.md); request hardening is owned by [Security](security.md).
+Architecture and file placement are owned by [Architecture](architecture.md); request hardening and error-tracking data collection are owned by [Security](security.md).
 
 ## Health endpoints
 
@@ -48,22 +48,21 @@ The gate proves the deployed web server answers. It does not prove that the Goat
 
 ## Error tracking
 
-Sentry captures client and server failures for the production and staging deployments. One Sentry project is used; events are separated by the `production` and `staging` environment labels.
+Sentry captures client and server failures for the production and staging deployments. One Sentry project is used; events are separated by the `production` and `staging` environment labels. Collection, scrubbing, and drop rules are owned by [Security](security.md#error-tracking-sentry).
 
 - The DSN is provided through `NUXT_PUBLIC_SENTRY_DSN`. It is an ingest identifier, not a credential.
 - Sentry initializes when `!import.meta.dev`, `public.sentry.disabled` is `false`, the environment label is `production` or `staging`, and the DSN is non-empty. Development never initializes; the `$test` build disables the Sentry module and sets `NUXT_PUBLIC_SENTRY_DISABLED=true`, so automated tests never contact Sentry.
-- A deployed production/staging build fails boot when error tracking is enabled (`disabled=false`) but the environment label or the HTTPS Sentry ingest DSN is missing or invalid. Setting `NUXT_PUBLIC_SENTRY_DISABLED=true` explicitly disables error tracking.
-- The environment label comes from `public.sentry.environment`, resolved from `NUXT_SITE_ENV` at build time for the client and from `NUXT_SITE_ENV` at runtime for the server. Only `production` and `staging` labels exist.
+- A deployed production/staging build fails boot when error tracking is enabled (`disabled=false`) but the environment label or the HTTPS Sentry ingest DSN is missing or invalid. The DSN must include a public key and a numeric project id. Setting `NUXT_PUBLIC_SENTRY_DISABLED=true` explicitly disables error tracking.
+- The environment label comes from `public.sentry.environment`, resolved from `NUXT_SITE_ENV` at build time for the client and from `NUXT_SITE_ENV` at runtime for the server. Only `production` and `staging` labels exist; `NUXT_PUBLIC_SENTRY_ENVIRONMENT` is not used.
+- No release label is configured by the application; release-based regression tracking is not part of the current monitoring contract.
 - No Sentry auth token is used. Sentry source-map generation and upload are disabled in the build (`sentry.sourcemaps.disable`), so no source-map artifacts are produced for Sentry; client stack traces can therefore be minified and less readable. Build-time telemetry is also disabled (`sentry.telemetry: false`).
-- Collection is disabled at the source for user identity, cookies, headers, query strings, bodies, and stack-frame variables. `beforeSend` removes `user` and `extra`, strips query strings from the transaction and request URL, and drops expected 4xx responses, health-check traffic, and aborted upstream requests.
 
 ## Structured server logs
 
-Nitro writes newline-delimited JSON to stdout through Pino. No file, worker-thread transport, or remote log sink is configured; collect the container's stdout with the platform's existing logging driver.
+Nitro writes newline-delimited JSON to stdout through Pino. No file, worker-thread transport, or remote log sink is configured; collect the container's stdout with the platform's existing logging driver. Safe-field, redaction, and privacy rules are owned by [Security](security.md#structured-server-logs).
 
 - `NUXT_LOGGER_LEVEL` controls the minimum level (`fatal`, `error`, `warn`, `info`, `debug`, `trace`, or `silent`); the default is `info`.
 - Upstream API failures and additive schema drift are logged as warnings; unexpected 5xx failures that no specific path already logged are logged as errors.
-- Entries carry an `event` name plus safe metadata only: HTTP status, method, query-free path, error class name, and error code. Request bodies, response bodies, cookies, authorization headers, query strings, API/game keys, and source IPs are never logged.
 - A logging failure must never fail the request: Pino writes locally, logger write errors are caught, and the Nitro error hook never throws. A caught logging failure falls back to `console.error`.
 
 Inspect a container's JSON logs with:
@@ -76,7 +75,7 @@ Nitro and consola also emit non-JSON lines (for example the listening banner); t
 
 ## External uptime monitoring
 
-Create four UptimeRobot Free HTTP monitors in the provider account. The repository contains no API token, sync script, or automatic provisioning.
+Four UptimeRobot Free HTTP monitors are configured in the provider account. The repository contains no API token, sync script, or automatic provisioning.
 
 | Environment | Monitor   | Method       | URL                                  | Expected result                          | Cadence   |
 |-------------|-----------|--------------|--------------------------------------|------------------------------------------|-----------|
@@ -85,12 +84,12 @@ Create four UptimeRobot Free HTTP monitors in the provider account. The reposito
 | Staging     | Liveness  | GET, keyword | `https://staging.goat-it.fr/healthz` | 2xx and body contains `"status":"ok"`    | 5 minutes |
 | Staging     | Readiness | GET, keyword | `https://staging.goat-it.fr/readyz`  | 2xx and body contains `"status":"ready"` | 5 minutes |
 
-Use UptimeRobot's free keyword monitor with GET, alert-on-keyword-present semantics, and a five-minute interval. Configure the email and/or mobile push notifications available on the free tier. Name the monitors with the environment and probe type so liveness and readiness incidents stay distinct. The free plan supports up to 50 monitors at a five-minute cadence, limits notification channels, and excludes features such as maintenance windows.
+The monitors use UptimeRobot's free keyword monitor with GET, alert-on-keyword-present semantics, and a five-minute interval. Email and/or mobile push notifications available on the free tier are configured. Monitor names include the environment and probe type so liveness and readiness incidents stay distinct. The free plan supports up to 50 monitors at a five-minute cadence, limits notification channels, and excludes features such as maintenance windows.
 
 ## Reliability targets
 
-No numeric SLO is defined here. Liveness and readiness have different meanings and different owners. Review observed uptime after a monitoring baseline exists before setting availability targets.
+No numeric SLO is defined. Liveness and readiness have different meanings and different owners. Observed uptime is reviewed after a monitoring baseline exists before availability targets are set.
 
 ## Out of scope
 
-Source-map upload, Sentry auth tokens, remote log shipping, general access/request logging, numeric SLOs, automated UptimeRobot provisioning, and migration of browser-only diagnostic console calls to Pino are intentionally not implemented. Automatic rollback remains out of scope.
+Source-map upload, Sentry auth tokens, Sentry release tagging, remote log shipping, general access/request logging, numeric SLOs, automated UptimeRobot provisioning, and migration of browser-only diagnostic console calls to Pino are intentionally not implemented. Automatic rollback remains out of scope.

@@ -12,6 +12,7 @@ import {
   BEFORE_ALL_TIMEOUT,
   BEFORE_TIMEOUT,
   DEFAULT_STEP_TIMEOUT,
+  isSentryDisabledInAcceptanceTests,
   SANDBOX_GAME_KEY,
   SECURITY_CSP_MODE,
   SECURITY_RATE_LIMIT_MAXIMUM_REQUESTS,
@@ -50,7 +51,7 @@ const { beforeEach, afterEach, afterAll, beforeAll } = createTest({
     NUXT_RATE_LIMIT_WINDOW_IN_MS: String(SECURITY_RATE_LIMIT_WINDOW_IN_MS),
     NUXT_RATE_LIMIT_TRUST_PROXY: SECURITY_RATE_LIMIT_TRUST_PROXY,
     NUXT_SECURITY_CSP_MODE: SECURITY_CSP_MODE,
-    NUXT_PUBLIC_SENTRY_DISABLED: "true",
+    NUXT_PUBLIC_SENTRY_DISABLED: String(isSentryDisabledInAcceptanceTests),
   },
   browserOptions: {
     type: "chromium",

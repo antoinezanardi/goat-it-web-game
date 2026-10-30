@@ -34,7 +34,7 @@ describe(scrubSentryEvent, () => {
 
     expect(scrubbedEvent).toStrictEqual({
       type: undefined,
-      message: "GET https://goat-it.fr/api?secret=1",
+      message: "GET https://goat-it.fr/api",
       logentry: { message: "raw request content" },
       exception: {
         values: [
@@ -51,6 +51,48 @@ describe(scrubSentryEvent, () => {
       breadcrumbs: [{ category: "fetch", data: { url: "https://goat-it.fr/api" } }],
       level: "error",
     });
+  });
+
+  it("should strip query strings from the logentry and exception values when they contain urls.", () => {
+    const event = createErrorEvent({
+      logentry: { message: "Retry https://api.goat-it.fr/questions?limit=10" },
+      exception: {
+        values: [
+          { type: "FetchError", value: "[GET] \"https://api.goat-it.fr/questions?limit=10&token=secret\": 500" },
+          { type: "Error" },
+        ],
+      },
+    });
+
+    const scrubbedEvent = scrubSentryEvent(event);
+
+    expect(scrubbedEvent).toStrictEqual({
+      type: undefined,
+      logentry: { message: "Retry https://api.goat-it.fr/questions" },
+      exception: {
+        values: [
+          { type: "FetchError", value: "[GET] \"https://api.goat-it.fr/questions\": 500" },
+          { type: "Error" },
+        ],
+      },
+    });
+  });
+
+  it("should strip every url query string from a message when the message contains several urls.", () => {
+    const scrubbedEvent = scrubSentryEvent(createErrorEvent({ message: "GET https://a.example.com/x?a=1 then https://b.example.com/y?b=2" }));
+
+    expect(scrubbedEvent?.message).toBe("GET https://a.example.com/x then https://b.example.com/y");
+  });
+
+  it("should keep the transaction and text fields when they contain no query string.", () => {
+    const event = createErrorEvent({
+      transaction: "GET /game",
+      message: "GET https://goat-it.fr/api",
+      logentry: { message: "raw request content" },
+      exception: { values: [{ type: "TypeError", value: "Cannot read properties of undefined" }] },
+    });
+
+    expect(scrubSentryEvent(event)).toStrictEqual(event);
   });
 
   it("should strip the query string from the transaction when the transaction contains one.", () => {

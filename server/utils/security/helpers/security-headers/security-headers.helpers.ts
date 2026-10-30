@@ -3,6 +3,7 @@ import type { NitroApp } from "nitropack/types";
 
 import { getSentryIngestOrigin } from "#shared/utils/helpers/sentry/ingest/sentry-ingest.helpers";
 import { getRuntimeConfig } from "#server/utils/runtime-config/helpers/runtime-config/runtime-config.helpers";
+import type { BuildContentSecurityPolicyOptions } from "#server/utils/security/helpers/security-headers/security-headers.types";
 import {
   CSP_CONNECT_SRC_DIRECTIVE,
   CSP_DIRECTIVES,
@@ -11,16 +12,6 @@ import {
   CSP_REPORT_ONLY_HEADER_NAME,
   SCRIPT_TAG_WITHOUT_NONCE_PATTERN,
 } from "#server/utils/security/security-headers.constants";
-
-/**
- * Options for building the Content-Security-Policy header of one rendered page.
- */
-type BuildContentSecurityPolicyOptions = {
-  /** Per-render nonce substituted into the script-src placeholder. */
-  nonce: string;
-  /** Sentry DSN whose exact ingest origin is appended to connect-src when valid. */
-  sentryDsn?: string;
-};
 
 function appendConnectSourceOrigin(directives: readonly string[], sentryOrigin: string | undefined): string[] {
   if (sentryOrigin === undefined) {

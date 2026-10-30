@@ -44,7 +44,7 @@ font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self
 base-uri 'self'; form-action 'self'; object-src 'none'
 ```
 
-When a Sentry DSN is configured, the server appends the ingest origin parsed from `NUXT_PUBLIC_SENTRY_DSN` (for example `https://o123.ingest.us.sentry.io`) to `connect-src`. The origin is derived at render time, is never widened to `*.sentry.io`, and no same-origin tunnel is added. With no DSN, the policy keeps `connect-src 'self'`.
+When `NUXT_PUBLIC_SENTRY_DSN` parses as a valid Sentry ingest DSN, the server appends its origin (for example `https://o123.ingest.us.sentry.io`) to `connect-src`. The origin is derived at render time, is never widened to `*.sentry.io`, and no same-origin tunnel is added. With no valid DSN, the policy keeps `connect-src 'self'`.
 
 `script-src` keeps `'wasm-unsafe-eval'` because Nuxt Content runs its client-side SQLite queries through a WebAssembly module; without it the browser refuses to instantiate the module and the lazy changelog query fails. It only authorises WebAssembly compilation — `eval` and `new Function` stay blocked.
 
@@ -62,14 +62,13 @@ Modes are controlled by `NUXT_SECURITY_CSP_MODE`:
 
 ## Error tracking (Sentry)
 
-The client and server Sentry entrypoints initialize when `!import.meta.dev`, `public.sentry.disabled` is `false`, the environment label is `production` or `staging`, and a non-empty `NUXT_PUBLIC_SENTRY_DSN` is present. Development never initializes; the `--envName test` acceptance build disables the Sentry module and sets `NUXT_PUBLIC_SENTRY_DISABLED=true`. Boot validation requires a valid HTTPS Sentry ingest DSN and a `production` or `staging` label on a deployed build unless error tracking is explicitly disabled. The client reads `runtimeConfig.public.sentry`; the server config reads `process.env` because it is evaluated before Nuxt runtime config is available. The environment label is derived from `NUXT_SITE_ENV`; only `production` and `staging` labels are supported.
+Error tracking is operated by [Operations](operations.md#error-tracking); this section owns what may leave the browser and server.
 
 - The DSN is a public ingest identifier, not a secret. It is exposed to the browser through `runtimeConfig.public.sentry`.
-- No Sentry auth token is used. Docker builds and runtime configuration carry no Sentry credential.
-- Sentry source-map generation and upload are disabled in the build (`sentry.sourcemaps.disable`), so no source-map artifacts are produced for Sentry; client stack traces may be minified. Build-time telemetry is disabled (`sentry.telemetry: false`).
 - Sentry tracing, session replay, feedback, and log ingestion are not enabled.
-- Sentry v11 `dataCollection` disables `userInfo`, cookies, headers, query parameters, HTTP bodies, and stack-frame variables at the source. `beforeSend` removes `user` and `extra`, strips query strings from the transaction and request URL, attaches a sanitized `errorCode` tag, and drops expected 4xx responses, health-check traffic, and aborted upstream requests. `beforeBreadcrumb` strips query strings from breadcrumb URLs and drops health-check fetch breadcrumbs.
-- Exception type, value, mechanism, stack, contexts, breadcrumbs, messages, the query-free request URL, the sanitized `errorCode` tag, and the environment label are kept for diagnosis.
+- Sentry v11 `dataCollection` disables `userInfo`, cookies, headers, query parameters, HTTP bodies, and stack-frame variables at the source.
+- Event scrubbing is a deny-list: `beforeSend` returns the event after deleting `user` and `extra`, stripping query strings from the transaction, request URL, message, `logentry.message`, and exception values, and attaching a sanitized `errorCode` tag. Fields not explicitly deleted can remain; do not treat the event as an allow-list.
+- `beforeSend` drops expected 4xx responses, health-check traffic, and aborted upstream requests. `beforeBreadcrumb` strips query strings from breadcrumb URLs and drops health-check fetch breadcrumbs.
 - The Nitro SDK error hook captures unhandled server failures. No second Sentry capture hook is registered.
 - Errors deliberately converted into a graceful toast are reported once by the client error-handling boundary only when they are client-only unexpected errors (for example a repository `ZodError` or a runtime error). `FetchError` values, any error carrying an HTTP status, and aborted/timed-out requests are never reported from the client because the server or the SDK already owns them.
 - `ignoreErrors` and `denyUrls` rely on the SDK's default `EventFilters` integration, which stays enabled.
@@ -150,13 +149,9 @@ Forwarded upstream `4xx` keep their status and carry the upstream `errorCode` wh
 
 ## Structured server logs
 
-`server/utils/logging/` owns a server-only Pino logger that writes newline-delimited JSON to stdout. It has no file output, worker transport, or remote sink.
+Logging behavior and inspection are owned by [Operations](operations.md#structured-server-logs); this section owns what may be logged.
 
-| Variable            | Default | Validated                                                    |
-|---------------------|---------|--------------------------------------------------------------|
-| `NUXT_LOGGER_LEVEL` | `info`  | `fatal`, `error`, `warn`, `info`, `debug`, `trace`, `silent` |
-
-Logged metadata is limited to an event name, HTTP status, method, query-free path, error class name, and error code. Request/response bodies, cookies, authorization headers, query strings, API/game keys, h3 error `data`, and source IPs are never logged. Redaction paths are defense in depth; the mapping layer already omits those fields.
+Logged metadata is limited to an event name, HTTP status, method, query-free path, a format-checked error class name, and a format-checked error code. Request/response bodies, cookies, authorization headers, query strings, API/game keys, h3 error `data`, and source IPs are never logged. Redaction paths are defense in depth; the mapping layer already omits those fields.
 
 The Nitro error hook skips expected 4xx responses and proxy failures already handled by the Goat It API error path. It never calls Sentry and never throws; a logger write failure is caught and falls back to `console.error`.
 
@@ -171,7 +166,7 @@ The Nitro error hook skips expected 4xx responses and proxy failures already han
 | `NUXT_RATE_LIMIT_WINDOW_IN_MS`     | no              | `60000`   | integer ≥ 1                                               |
 | `NUXT_RATE_LIMIT_TRUST_PROXY`      | no              | `false`   | boolean                                                   |
 | `NUXT_SECURITY_CSP_MODE`           | no              | `enforce` | `enforce` \| `report-only` \| `off`                       |
-| `NUXT_PUBLIC_SENTRY_DSN`           | deployed builds unless disabled | — | valid HTTPS Sentry ingest URL                  |
+| `NUXT_PUBLIC_SENTRY_DSN`           | deployed builds unless disabled | — | valid HTTPS Sentry ingest URL with public key and numeric project id |
 | `NUXT_PUBLIC_SENTRY_DISABLED`      | no              | `false`   | boolean; `true` explicitly disables tracking              |
 | `NUXT_LOGGER_LEVEL`                | no              | `info`    | supported Pino level                                      |
 
