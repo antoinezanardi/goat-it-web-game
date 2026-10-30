@@ -53,6 +53,23 @@ describe(scrubSentryEvent, () => {
     });
   });
 
+  it("should strip the query string from the nuxt context path when it contains one.", () => {
+    const event = createErrorEvent({ contexts: { nuxt: { method: "GET", path: "/api/question-themes?secret=1" } } });
+
+    const scrubbedEvent = scrubSentryEvent(event);
+
+    expect(scrubbedEvent).toStrictEqual({
+      type: undefined,
+      contexts: { nuxt: { method: "GET", path: "/api/question-themes" } },
+    });
+  });
+
+  it("should keep the contexts when the nuxt context has no path.", () => {
+    const event = createErrorEvent({ contexts: { nuxt: { method: "GET" } } });
+
+    expect(scrubSentryEvent(event)).toStrictEqual(event);
+  });
+
   it("should strip query strings from the logentry and exception values when they contain urls.", () => {
     const event = createErrorEvent({
       logentry: { message: "Retry https://api.goat-it.fr/questions?limit=10" },
@@ -132,7 +149,43 @@ describe(scrubSentryEvent, () => {
       originalException: "boom",
       expectedTags: undefined,
     },
-  ])("should keep the safe error code when the original exception is $description.", ({ event, originalException, expectedTags }) => {
+    {
+      description: "an H3-shaped error with a status",
+      event: createErrorEvent(),
+      originalException: { statusCode: 502, data: { errorCode: "upstream-error" } },
+      expectedTags: { errorCode: "upstream-error", httpStatus: "502" },
+    },
+    {
+      description: "an error with a code and a status",
+      event: createErrorEvent(),
+      originalException: { code: "ECONNRESET", statusCode: 502 },
+      expectedTags: { errorCode: "ECONNRESET", httpStatus: "502" },
+    },
+    {
+      description: "an error with an unsafe code and a status",
+      event: createErrorEvent(),
+      originalException: { code: "user@example.com", statusCode: 502 },
+      expectedTags: { httpStatus: "502" },
+    },
+    {
+      description: "an error with an unsafe code and a safe data code",
+      event: createErrorEvent(),
+      originalException: { code: "user@example.com", statusCode: 502, data: { errorCode: "upstream-error" } },
+      expectedTags: { errorCode: "upstream-error", httpStatus: "502" },
+    },
+    {
+      description: "an error with a non-string data code",
+      event: createErrorEvent(),
+      originalException: { statusCode: 502, data: { errorCode: 42 } },
+      expectedTags: { httpStatus: "502" },
+    },
+    {
+      description: "an error with an out-of-range status",
+      event: createErrorEvent(),
+      originalException: { code: "ECONNRESET", statusCode: 42 },
+      expectedTags: { errorCode: "ECONNRESET" },
+    },
+  ])("should keep the safe tags when the original exception is $description.", ({ event, originalException, expectedTags }) => {
     const scrubbedEvent = scrubSentryEvent(event, originalException);
 
     expect(scrubbedEvent?.tags).toStrictEqual(expectedTags);
@@ -152,8 +205,8 @@ describe(scrubSentryEvent, () => {
     { description: "a non-abort cause", originalException: { statusCode: 502, cause: new Error("connection reset") } },
     { description: "a non-record cause", originalException: { statusCode: 502, cause: "aborted" } },
     { description: "a record without a cause", originalException: { statusCode: 502 } },
-  ])("should keep the event when the original exception has $description.", ({ originalException }) => {
-    expect(scrubSentryEvent(createErrorEvent(), originalException)).toStrictEqual(createErrorEvent());
+  ])("should keep the event with its http status tag when the original exception has $description.", ({ originalException }) => {
+    expect(scrubSentryEvent(createErrorEvent(), originalException)).toStrictEqual({ ...createErrorEvent(), tags: { httpStatus: "502" } });
   });
 
   it("should return null when the event targets a health check path.", () => {

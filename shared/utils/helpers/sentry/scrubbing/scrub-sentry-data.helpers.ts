@@ -2,7 +2,12 @@ import type { Breadcrumb, ErrorEvent, Exception } from "@sentry/core";
 
 import { getErrorStatusCode, isClientErrorStatus } from "#shared/utils/helpers/error-status/error-status.helpers";
 import { isRecord } from "#shared/utils/helpers/object/object.helpers";
-import { SENTRY_TEXT_URL_QUERY_STRING_PATTERN } from "#shared/utils/helpers/sentry/scrubbing/scrub-sentry-data.constants";
+import {
+  SENTRY_HTTP_STATUS_MAXIMUM,
+  SENTRY_HTTP_STATUS_MINIMUM,
+  SENTRY_SAFE_ERROR_CODE_PATTERN,
+  SENTRY_TEXT_URL_QUERY_STRING_PATTERN,
+} from "#shared/utils/helpers/sentry/scrubbing/scrub-sentry-data.constants";
 import { SENTRY_HEALTH_CHECK_PATHS } from "#shared/utils/helpers/sentry/sentry.constants";
 
 function getRequestUrl(event: ErrorEvent): string | undefined {
@@ -57,27 +62,46 @@ function isExpectedSentryEvent(event: ErrorEvent, originalException: unknown): b
   return isHealthCheckUrl(getRequestUrl(event));
 }
 
+function getSafeErrorCode(originalException: Record<string, unknown>): string | undefined {
+  const errorCodes = [originalException.code, isRecord(originalException.data) ? originalException.data.errorCode : undefined];
+
+  return errorCodes.find((errorCode): errorCode is string => typeof errorCode === "string" && SENTRY_SAFE_ERROR_CODE_PATTERN.test(errorCode));
+}
+
 function getSafeErrorCodeTags(event: ErrorEvent, originalException: unknown): ErrorEvent["tags"] {
   if (!isRecord(originalException)) {
     return event.tags;
   }
 
-  const { code } = originalException;
+  const errorCode = getSafeErrorCode(originalException);
+  const statusCode = getErrorStatusCode(originalException);
+  const tags: NonNullable<ErrorEvent["tags"]> = { ...event.tags };
 
-  if (typeof code !== "string") {
-    return event.tags;
+  if (errorCode !== undefined) {
+    tags.errorCode = errorCode;
   }
-  return { ...event.tags, errorCode: code };
+  if (statusCode !== undefined && statusCode >= SENTRY_HTTP_STATUS_MINIMUM && statusCode <= SENTRY_HTTP_STATUS_MAXIMUM) {
+    tags.httpStatus = String(statusCode);
+  }
+  return Object.keys(tags).length === 0 ? undefined : tags;
 }
 
 function withQueryStringsStripped(event: ErrorEvent): ErrorEvent {
   const requestUrl = event.request?.url;
-
-  return {
+  const nuxtContext = event.contexts?.nuxt;
+  const scrubbedEvent: ErrorEvent = {
     ...event,
     ...typeof event.transaction === "string" ? { transaction: stripQueryString(event.transaction) } : {},
     ...typeof requestUrl === "string" ? { request: { ...event.request, url: stripQueryString(requestUrl) } } : {},
   };
+
+  if (isRecord(nuxtContext) && typeof nuxtContext.path === "string") {
+    scrubbedEvent.contexts = {
+      ...event.contexts,
+      nuxt: { ...nuxtContext, path: stripQueryString(nuxtContext.path) },
+    };
+  }
+  return scrubbedEvent;
 }
 
 function cloneSentryException(exception: Exception): Exception {
@@ -112,8 +136,8 @@ function withTextQueryStringsStripped(event: ErrorEvent): ErrorEvent {
  * Keeps useful error context and removes identity and arbitrary extras from a Sentry event.
  *
  * Returns `null` for expected 4xx responses, health-check traffic, and client-aborted upstream requests so the SDK drops them.
- * Query strings are removed from the transaction, request URL, message, logentry message, and exception values; headers,
- * cookies, and bodies are disabled at collection time.
+ * Query strings are removed from the transaction, request URL, Nuxt context path, message, logentry message, and
+ * exception values; headers, cookies, and bodies are disabled at collection time.
  */
 function scrubSentryEvent(event: ErrorEvent, originalException?: unknown): ErrorEvent | null {
   if (isExpectedSentryEvent(event, originalException)) {
