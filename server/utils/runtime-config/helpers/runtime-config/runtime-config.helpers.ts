@@ -5,7 +5,8 @@ import type { AppRuntimeConfig } from "#shared/types/runtime-config.types";
 /**
  * Reads the Nitro runtime config for the given event as the app's typed configuration.
  *
- * Values are validated at boot by `validateAppRuntimeConfig`; this helper only narrows the Nitro shape.
+ * Values are validated at boot by `validateAppRuntimeConfig` against `APP_RUNTIME_CONFIG_SCHEMA`; this helper only
+ * narrows the Nitro shape.
  * The event is optional for background work that runs outside a request, such as structured logging.
  */
 function getRuntimeConfig(event?: H3Event): AppRuntimeConfig {

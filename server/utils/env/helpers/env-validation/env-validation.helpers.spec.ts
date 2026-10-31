@@ -1,9 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { RuntimeConfigOverrides } from "~~/tests/unit/utils/types/runtime-config.types";
 
 import type { AppRuntimeConfig, CspMode, LogLevel, SentryEnvironment } from "#shared/types/runtime-config.types";
-import { isInternalHostname, validateAppRuntimeConfig } from "#server/utils/env/helpers/env-validation/env-validation.helpers";
+import { validateAppRuntimeConfig } from "#server/utils/env/helpers/env-validation/env-validation.helpers";
+import { APP_RUNTIME_CONFIG_SCHEMA } from "#server/utils/env/helpers/env-validation/env-validation.schemas";
 
 function buildAppRuntimeConfig(overrides: RuntimeConfigOverrides = {}): AppRuntimeConfig {
   return {
@@ -29,32 +30,78 @@ function buildAppRuntimeConfig(overrides: RuntimeConfigOverrides = {}): AppRunti
   } as unknown as AppRuntimeConfig;
 }
 
-describe(isInternalHostname, () => {
-  it.each<{ hostname: string }>([
-    { hostname: "localhost" },
-    { hostname: "127.0.0.1" },
-    { hostname: "[::1]" },
-    { hostname: "goat-it-api-production" },
-    { hostname: "10.0.0.8" },
-    { hostname: "172.16.0.1" },
-    { hostname: "172.20.0.1" },
-    { hostname: "172.31.255.254" },
-    { hostname: "192.168.1.20" },
-  ])("should return true when the hostname \"$hostname\" is internal.", ({ hostname }) => {
-    expect(isInternalHostname(hostname)).toBe(true);
+function parseAppRuntimeConfigIssues(config: unknown): { path: string; message: string }[] {
+  const result = APP_RUNTIME_CONFIG_SCHEMA.safeParse(config);
+
+  if (result.success) {
+    return [];
+  }
+  return result.error.issues.map(issue => ({ path: issue.path.join("."), message: issue.message }));
+}
+
+describe("App runtime config schema", () => {
+  it("should report no issue when the config is valid.", () => {
+    expect(parseAppRuntimeConfigIssues(buildAppRuntimeConfig())).toStrictEqual([]);
   });
 
-  it.each<{ hostname: string }>([
-    { hostname: "api.goat-it.com" },
-    { hostname: "goat-it.fr" },
-    { hostname: "8.8.8.8" },
-    { hostname: "11.0.0.1" },
-    { hostname: "172.15.255.255" },
-    { hostname: "172.32.0.1" },
-    { hostname: "192.169.0.1" },
-    { hostname: "[2001:db8::1]" },
-  ])("should return false when the hostname \"$hostname\" is not internal.", ({ hostname }) => {
-    expect(isInternalHostname(hostname)).toBe(false);
+  it.each<{ description: string; config: unknown; expectedIssue: { path: string; message: string } }>([
+    {
+      description: "an invalid base url",
+      config: buildAppRuntimeConfig({ baseUrl: "not-a-url" }),
+      expectedIssue: { path: "goatItApi.baseUrl", message: "must be a valid URL." },
+    },
+    {
+      description: "a non http or https base url",
+      config: buildAppRuntimeConfig({ baseUrl: "ftp://api.goat-it.com" }),
+      expectedIssue: { path: "goatItApi.baseUrl", message: "must use the http or https protocol." },
+    },
+    {
+      description: "a blank game key",
+      config: buildAppRuntimeConfig({ gameKey: "   " }),
+      expectedIssue: { path: "goatItApi.gameKey", message: "must be set." },
+    },
+    {
+      description: "an unsupported default locale",
+      config: buildAppRuntimeConfig({ defaultLocale: "ja" }),
+      expectedIssue: { path: "public.defaultLocale", message: "must be one of the supported locales." },
+    },
+    {
+      description: "a zero maximum request count",
+      config: buildAppRuntimeConfig({ maximumRequests: 0 }),
+      expectedIssue: { path: "rateLimit.maximumRequests", message: "must be an integer greater than or equal to 1." },
+    },
+    {
+      description: "a fractional maximum request count",
+      config: buildAppRuntimeConfig({ maximumRequests: 2.5 }),
+      expectedIssue: { path: "rateLimit.maximumRequests", message: "must be an integer greater than or equal to 1." },
+    },
+    {
+      description: "a zero rate limit window",
+      config: buildAppRuntimeConfig({ windowInMs: 0 }),
+      expectedIssue: { path: "rateLimit.windowInMs", message: "must be an integer greater than or equal to 1." },
+    },
+    {
+      description: "a non boolean trusted proxy flag",
+      config: buildAppRuntimeConfig({ trustProxy: "true" as unknown as boolean }),
+      expectedIssue: { path: "rateLimit.trustProxy", message: "must be a boolean." },
+    },
+    {
+      description: "an unsupported csp mode",
+      config: buildAppRuntimeConfig({ cspMode: "log-only" as unknown as CspMode }),
+      expectedIssue: { path: "security.cspMode", message: "must be one of the supported modes." },
+    },
+    {
+      description: "a non boolean disabled flag",
+      config: buildAppRuntimeConfig({ sentryDisabled: "true" as unknown as boolean }),
+      expectedIssue: { path: "public.sentry.disabled", message: "must be a boolean." },
+    },
+    {
+      description: "an unsupported log level",
+      config: buildAppRuntimeConfig({ logLevel: "verbose" as unknown as LogLevel }),
+      expectedIssue: { path: "logger.level", message: "must be one of the supported levels." },
+    },
+  ])("should report the config path and reason when the config has $description.", ({ config, expectedIssue }) => {
+    expect(parseAppRuntimeConfigIssues(config)).toStrictEqual([expectedIssue]);
   });
 });
 
@@ -243,5 +290,21 @@ describe(validateAppRuntimeConfig, () => {
     },
   ])("should throw when the config has $description.", ({ config, isProduction, expectedMessage }) => {
     expect(() => validateAppRuntimeConfig(config, { isProduction })).toThrow(expectedMessage);
+  });
+
+  it("should return the parsed app runtime config when the config is valid.", () => {
+    const config = buildAppRuntimeConfig({ gameKey: "  test-game-key  " });
+
+    expect(validateAppRuntimeConfig(config, { isProduction: true }).goatItApi.gameKey).toBe("test-game-key");
+  });
+
+  it("should report every invalid setting when the config has several errors.", () => {
+    const config = buildAppRuntimeConfig({ baseUrl: "not-a-url", gameKey: "" });
+    const expectedMessage = [
+      "Invalid runtime environment: \"goatItApi.baseUrl\" must be a valid URL.",
+      "Invalid runtime environment: \"goatItApi.gameKey\" must be set.",
+    ].join("\n");
+
+    expect(() => validateAppRuntimeConfig(config, { isProduction: true })).toThrow(expectedMessage);
   });
 });
