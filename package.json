@@ -88,7 +88,7 @@
     "validate:branch-name": "(cd configs/validate-branch-name && validate-branch-name)"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.13.0",
+    "@axe-core/playwright": "^4.14.0",
     "@commitlint/config-conventional": "^21.2.4",
     "@cucumber/cucumber": "^13.3.0",
     "@eslint/config-inspector": "^3.5.0",
