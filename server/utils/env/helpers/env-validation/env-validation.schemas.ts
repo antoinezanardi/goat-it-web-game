@@ -1,15 +1,9 @@
 import { LOCALES } from "@goat-it/schemas/shared/locale";
 import { z } from "zod";
 
-import { CSP_MODES, LOG_LEVELS, SENTRY_ENVIRONMENTS } from "#shared/constants/runtime-config.constants";
+import { CSP_MODES, LOG_LEVELS } from "#shared/constants/runtime-config.constants";
 import type { AppRuntimeConfig, SentryEnvironment } from "#shared/types/runtime-config.types";
-import { getSentryIngestOrigin } from "#shared/utils/helpers/sentry/ingest/sentry-ingest.helpers";
-import type { ValidateAppRuntimeConfigOptions } from "#server/utils/env/helpers/env-validation/env-validation.types";
-import { isInternalHostname } from "#server/utils/env/helpers/internal-hostname/internal-hostname.helpers";
-
-const INVALID_URL_MESSAGE = "must be a valid URL.";
-const RATE_LIMIT_NUMBER_MESSAGE = "must be an integer greater than or equal to 1.";
-const BOOLEAN_MESSAGE = "must be a boolean.";
+import { BOOLEAN_MESSAGE, INVALID_URL_MESSAGE, RATE_LIMIT_NUMBER_MESSAGE } from "#server/utils/env/helpers/env-validation/env-validation.constants";
 
 const BASE_URL_SCHEMA = z.string({ error: INVALID_URL_MESSAGE }).superRefine((value, context) => {
   if (!z.url().safeParse(value).success) {
@@ -64,61 +58,4 @@ const APP_RUNTIME_CONFIG_SCHEMA: z.ZodType<AppRuntimeConfig> = z.object({
   public: PUBLIC_RUNTIME_CONFIG_SCHEMA,
 });
 
-function addProductionBaseUrlIssues(baseUrl: string, context: z.RefinementCtx): void {
-  if (!z.url().safeParse(baseUrl).success) {
-    return;
-  }
-
-  const { protocol, hostname } = new URL(baseUrl);
-  if (protocol !== "http:" && protocol !== "https:") {
-    return;
-  }
-
-  if (protocol !== "https:" && !isInternalHostname(hostname)) {
-    context.addIssue({ code: "custom", path: ["goatItApi", "baseUrl"], message: "must use https in production." });
-  }
-}
-
-function addProductionSentryIssues(sentry: AppRuntimeConfig["public"]["sentry"], context: z.RefinementCtx): void {
-  if (sentry.disabled) {
-    return;
-  }
-
-  if (sentry.environment === undefined || !SENTRY_ENVIRONMENTS.includes(sentry.environment)) {
-    context.addIssue({
-      code: "custom",
-      path: ["public", "sentry", "environment"],
-      message: "must be production or staging for a deployed build.",
-    });
-  }
-
-  if (getSentryIngestOrigin(sentry.dsn) === undefined) {
-    context.addIssue({
-      code: "custom",
-      path: ["public", "sentry", "dsn"],
-      message: "must be a valid https Sentry ingest URL for a deployed build.",
-    });
-  }
-}
-
-/**
- * Builds the boot-validation schema, adding the rules that only apply to deployed builds.
- *
- * Internal and loopback hosts keep working over HTTP in production, and Sentry requirements are skipped when error
- * tracking is disabled.
- */
-function createAppRuntimeConfigSchema({ isProduction }: ValidateAppRuntimeConfigOptions): z.ZodType<AppRuntimeConfig> {
-  return APP_RUNTIME_CONFIG_SCHEMA.superRefine((config, context) => {
-    if (!isProduction) {
-      return;
-    }
-
-    addProductionBaseUrlIssues(config.goatItApi.baseUrl, context);
-    addProductionSentryIssues(config.public.sentry, context);
-  });
-}
-
-export {
-  APP_RUNTIME_CONFIG_SCHEMA,
-  createAppRuntimeConfigSchema,
-};
+export { APP_RUNTIME_CONFIG_SCHEMA };
