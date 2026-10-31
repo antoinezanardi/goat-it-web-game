@@ -31,216 +31,188 @@ response time, memory growth during long game sessions, and web sustainability.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [23]
 - **[PERF-02] Field Core Web Vitals at p75** — Field data (RUM or CrUX) shows LCP ≤ 2500 ms, INP ≤ 200 ms and CLS ≤ 0.1 at the 75th percentile, reported separately for mobile and desktop; INP verdicts never come from lab runs.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1]
-- **[PERF-03] Field RUM collection** — A client plugin registers `web-vitals` (v5+) `onLCP`, `onINP`, `onCLS`, `onTTFB` and `onFCP` exactly once per page load (never per route change or component mount) and reports through `navigator.sendBeacon` or `fetch` with `keepalive`.
+- **[PERF-03] Field RUM collection** — A client plugin registers `web-vitals` (v5+) `onLCP`, `onINP`, `onCLS`, `onTTFB` and `onFCP` exactly once per page load (never per route change or component mount), reports through `navigator.sendBeacon` or `fetch` with `keepalive`, and tags every report with the navigation type (`navigate`, `reload`, `back-forward`, `prerender`) so bfcache restores are analysed apart from full loads.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/plugins/**`, `nuxt.config.ts` · Src: [25]
-- **[PERF-04] Field reports keyed by navigation type** — When RUM is collected, every report carries the navigation type (`navigate`, `reload`, `back-forward`, `prerender`) so bfcache restores are analysed apart from full loads.
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/plugins/**` · Src: [16], [25]
-- **[PERF-05] Lighthouse CI assertions** — CI runs Lighthouse on `/`, `/game` and `/rules` with assertions on LCP, TBT, CLS and a performance score ≥ 0.9 (the "good" band is 90–100).
+- **[PERF-04] Lighthouse CI assertions** — CI runs Lighthouse on `/`, `/game` and `/rules` with assertions on LCP, TBT, CLS and a performance score ≥ 0.9 (the "good" band is 90–100).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/**`, `.github/actions/**` · Src: [18], [23]
-- **[PERF-06] Bundle budgets cover JS and CSS** — The size-budget configuration sets an explicit byte limit for all client JS and all client CSS in the build output, and the bundle-size script runs that configuration.
+- **[PERF-05] Bundle budgets cover JS and CSS** — The size-budget configuration sets an explicit byte limit for all client JS and all client CSS in the build output, and the bundle-size script runs that configuration.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/size-limit/**`, `package.json` · Src: [18]
-- **[PERF-07] Per-page-type budget** — The initial JS of each page type (home `/`, game `/game`, docs `/rules`: entry chunk plus the page chunk and its static imports) has its own ceiling, separate from the aggregate `_nuxt/**/*.js` limit.
+- **[PERF-06] Per-page-type budget** — The initial JS of each page type (home `/`, game `/game`, docs `/rules`: entry chunk plus the page chunk and its static imports) has its own ceiling, separate from the aggregate `_nuxt/**/*.js` limit.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/size-limit/**` · Src: [18]
-- **[PERF-08] Regression detected against the base commit** — The bundle-size job measures both the PR build and the exact base commit and reports or fails on a size regression, not only on an absolute budget overflow.
+- **[PERF-07] Regression detected against the base commit** — The bundle-size job measures both the PR build and the exact base commit and reports or fails on a size regression, not only on an absolute budget overflow.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/actions/bundle-size/**`, `scripts/bundle-size/**` · Src: [18]
-- **[PERF-09] Bundle budgets pass** — `pnpm run check:bundle-size` run after a fresh `pnpm run build` reports every size-limit entry under its limit.
+- **[PERF-08] Bundle budgets pass** — `pnpm run check:bundle-size` run after a fresh `pnpm run build` reports every size-limit entry under its limit.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [18]
 
 ## 2. JavaScript cost
 
-- **[PERF-10] Per-route chunks** — `.output/public/_nuxt` contains a separate chunk per page (`/`, `/game`, `/rules`) and the entry chunk contains no page-only feature code (game question feed, tutorial, docs shell).
+- **[PERF-09] Per-route chunks** — `.output/public/_nuxt` contains a separate chunk per page (`/`, `/game`, `/rules`) and the entry chunk contains no page-only feature code (game question feed, tutorial, docs shell).
   Evidence: `artifact` · Diff: ✗ · Severity: high · Src: [9], [19]
-- **[PERF-11] GSAP absent from the initial graph** — In the built client, `gsap` code lives only in a dynamically imported chunk; neither the entry chunk nor the `modulepreload` set of `/` contains GSAP.
+- **[PERF-10] GSAP absent from the initial graph** — In the built client, `gsap` code lives only in a dynamically imported chunk; neither the entry chunk nor the `modulepreload` set of `/` contains GSAP.
   Evidence: `artifact` · Diff: ✗ · Severity: high · Look: `app/composables/core/useGsap/**` · Src: [9], [21]
-- **[PERF-12] GSAP loaded only through useGsap** — No runtime import of GSAP exists outside its single loader unit; other files use `import type` only and obtain the instance through that loader.
+- **[PERF-11] GSAP loaded only through useGsap** — No runtime import of GSAP exists outside its single loader unit; other files use `import type` only and obtain the instance through that loader.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**` · Src: [9], [21], project: docs/architecture.md §4.5
-- **[PERF-13] Sentry client SDK scoped** — The client Sentry init imports no `replayIntegration`, `browserTracingIntegration` or profiling integration unless a documented decision accepts their bundle cost; optional integrations are tree-shaken only when not imported (verified: @sentry/nuxt 11.9.0).
+- **[PERF-12] Sentry client SDK scoped** — The client Sentry init imports no `replayIntegration`, `browserTracingIntegration` or profiling integration unless a documented decision accepts their bundle cost; optional integrations are tree-shaken only when not imported (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `sentry.client.config.ts`, `shared/utils/helpers/sentry/**` · Src: [32]
-- **[PERF-14] Content client database confined to content pages** — `queryCollection` calls run inside `useAsyncData` on content pages only (served from the payload after SSR); because the first client-side query downloads the full database dump and starts a WASM SQLite database in the browser, no component rendered on `/` or `/game` calls `queryCollection` (verified: @nuxt/content 3.16.2).
+- **[PERF-13] Content client database confined to content pages** — `queryCollection` calls run inside `useAsyncData` on content pages only (served from the payload after SSR); because the first client-side query downloads the full database dump and starts a WASM SQLite database in the browser, no component rendered on `/` or `/game` calls `queryCollection` (verified: @nuxt/content 3.16.2).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**`, `content.config.ts` · Src: [30]
-- **[PERF-15] No content dump on game flows** — Loading `/` and `/game` and navigating between them triggers no Nuxt Content database dump or `.wasm` download in the network log.
+- **[PERF-14] No content dump on game flows** — Loading `/` and `/game` and navigating between them triggers no Nuxt Content database dump or `.wasm` download in the network log.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [30]
-- **[PERF-16] No globally registered components** — `components.global` is never `true` and no `.global.vue` file or `components/global/` directory exists; each global component is emitted as its own async chunk registered app-wide (verified: nuxt 4.6.3).
+- **[PERF-15] No globally registered components** — `components.global` is never `true` and no `.global.vue` file or `components/global/` directory exists; each global component is emitted as its own async chunk registered app-wide (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts`, `app/components/**` · Src: [20]
-- **[PERF-17] Off-critical-path components lazy** — Modals, popovers, the tutorial and the changelog render through the `Lazy` prefix (or `defineAsyncComponent`) behind a `v-if` such as `useLazyModal` `hasEverOpened`, so their code loads on first open (verified: nuxt 4.6.3).
+- **[PERF-16] Off-critical-path components lazy** — Modals, popovers, the tutorial and the changelog render through the `Lazy` prefix (or `defineAsyncComponent`) behind a `v-if` such as `useLazyModal` `hasEverOpened`, so their code loads on first open; a server-rendered lazy component that sits below the fold or is interactive only on demand uses a hydration strategy (`hydrate-on-visible`, `hydrate-on-idle`, `hydrate-on-interaction`, `hydrate-on-media-query`, `hydrate-after`, `hydrate-when`) (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/composables/ui/useLazyModal/**` · Src: [19], [20], [21]
-- **[PERF-18] Delayed hydration below the fold** — When a server-rendered lazy component sits below the fold or is interactive only on demand, it uses a hydration strategy (`hydrate-on-visible`, `hydrate-on-idle`, `hydrate-on-interaction`, `hydrate-on-media-query`, `hydrate-after`, `hydrate-when`) (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/**`, `app/pages/**` · Src: [19], [20]
-- **[PERF-19] No delayed hydration above the fold** — The home logo and play button, header controls and the first question card hydrate eagerly; no `hydrate-*` strategy is set on content in the initial viewport (verified: nuxt 4.6.3).
+- **[PERF-17] No delayed hydration above the fold** — The home logo and play button, header controls and the first question card hydrate eagerly; no `hydrate-*` strategy is set on content in the initial viewport (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**` · Src: [20]
-- **[PERF-20] Hydration strategy usable** — Each lazy component sets at most one strategy, writes the hydration prop in the template (no `v-bind` object spread), is not imported directly from `#components`, never uses `hydrate-never` on interactive UI, and shares no `v-model` that would force hydration (verified: nuxt 4.6.3).
+- **[PERF-18] Hydration strategy usable** — Each lazy component sets at most one strategy, writes the hydration prop in the template (no `v-bind` object spread), is not imported directly from `#components`, never uses `hydrate-never` on interactive UI, and shares no `v-model` that would force hydration (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/pages/**` · Src: [20]
-- **[PERF-21] Prefetch volume bounded** — The SSR HTML of `/` carries `rel="prefetch"` hints only for chunks of likely next navigations; chunks never needed from that page are excluded through the `build:manifest` hook with `chunk.prefetch = false` (verified: nuxt 4.6.3).
+- **[PERF-19] Prefetch volume bounded** — The SSR HTML of `/` carries `rel="prefetch"` hints only for chunks of likely next navigations; chunks never needed from that page are excluded through the `build:manifest` hook with `chunk.prefetch = false` (verified: nuxt 4.6.3).
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [11], [19]
-- **[PERF-22] No duplicated dependency copies** — Each library (vue, gsap, zod, @goat-it/schemas, reka-ui…) appears once in the client chunk graph, in a single version.
+- **[PERF-20] No duplicated dependency copies** — Each library (vue, gsap, zod, @goat-it/schemas, reka-ui…) appears once in the client chunk graph, in a single version.
   Evidence: `artifact` · Diff: ✗ · Severity: medium · Src: [9]
-- **[PERF-23] Tree-shakeable ES module dependencies** — Packages reaching the client bundle ship ES modules and are consumed through named imports; no CommonJS-only package is bundled whole.
+- **[PERF-21] Tree-shakeable ES module dependencies** — Packages reaching the client bundle ship ES modules and are consumed through named imports; no CommonJS-only package is bundled whole.
   Evidence: `artifact` · Diff: ✗ · Severity: medium · Src: [21]
-- **[PERF-24] No legacy JavaScript** — Client chunks contain no `core-js` polyfills and no down-levelled syntax for features supported by the declared browser baseline.
+- **[PERF-22] No legacy JavaScript** — Client chunks contain no `core-js` polyfills and no down-levelled syntax for features supported by the declared browser baseline.
   Evidence: `artifact` · Diff: ✗ · Severity: medium · Src: [9]
-- **[PERF-25] No runtime template compiler** — The client bundle uses precompiled templates and does not ship the Vue template compiler (about 14 kB min+gzip) (verified: vue 3.5.44).
-  Evidence: `artifact` · Diff: ✗ · Severity: low · Src: [21]
-- **[PERF-26] Third-party SDKs deferred** — When a third-party SDK other than error monitoring (analytics, chat, ads) is added, it loads after hydration through `onNuxtReady`, an idle callback or a Nuxt Scripts trigger, never in the critical head path.
+- **[PERF-23] Third-party SDKs deferred** — When a third-party SDK other than error monitoring (analytics, chat, ads) is added, it loads after hydration through `onNuxtReady`, an idle callback or a Nuxt Scripts trigger, never in the critical head path.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/plugins/**`, `nuxt.config.ts` · Src: [19]
-- **[PERF-27] Client plugins stay cheap** — Files under `app/plugins/` do no heavy synchronous work during hydration; expensive logic lives in composables, utilities or lazy imports.
+- **[PERF-24] Client plugins stay cheap** — Files under `app/plugins/` do no heavy synchronous work during hydration; expensive logic lives in composables, utilities or lazy imports.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/plugins/**` · Src: [19]
 
 ## 3. CSS & fonts
 
-- **[PERF-28] Render-blocking CSS budget** — The render-blocking `entry.*.css` transfer size is smaller than the LCP resource of `/`, or the critical CSS is inlined.
+- **[PERF-25] Render-blocking CSS budget** — The render-blocking `entry.*.css` transfer size is smaller than the LCP resource of `/`, or the critical CSS is inlined; route-specific stylesheets (`docs.css`, `game-tutorial.css`) are not shipped to routes that do not use them.
   Evidence: `artifact` · Diff: ✗ · Severity: medium · Src: [2]
-- **[PERF-29] Nuxt UI CSS limited to used components** — `ui.experimental.componentDetection` is enabled so CSS is generated only for the Nuxt UI components (and their dependencies) the source uses (verified: @nuxt/ui 4.12.0).
+- **[PERF-26] Nuxt UI CSS limited to used components** — `ui.experimental.componentDetection` is enabled so CSS is generated only for the Nuxt UI components (and their dependencies) the source uses (verified: @nuxt/ui 4.12.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts` · Src: [31]
-- **[PERF-30] Theme colour aliases trimmed** — `ui.theme.colors` lists only the colour aliases the app uses (keeping `error` when forms rely on it), because each alias generates a full set of shades in component themes (verified: @nuxt/ui 4.12.0).
+- **[PERF-27] Theme colour aliases trimmed** — `ui.theme.colors` lists only the colour aliases the app uses (keeping `error` when forms rely on it), because each alias generates a full set of shades in component themes (verified: @nuxt/ui 4.12.0).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `nuxt.config.ts`, `app/app.config.ts` · Src: [31]
-- **[PERF-31] Route-specific CSS not shipped everywhere** — DevTools Coverage on `/` and `/game` shows no large unused rule block coming from route-specific stylesheets (`docs.css`, `game-tutorial.css`) loaded on routes that do not use them.
-  Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [2]
-- **[PERF-32] WOFF2 only** — Every `@font-face` `src` and every font file requested by pages is WOFF2; no `.woff`, `.ttf`, `.otf` or `.eot` request occurs on page load.
+- **[PERF-28] WOFF2 only** — Every `@font-face` `src` and every font file requested by pages is WOFF2; no `.woff`, `.ttf`, `.otf` or `.eot` request occurs on page load.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**`, `public/fonts/**` · Src: [6]
-- **[PERF-33] Fonts limited and subset** — Pages load one family and the minimum number of files split by `unicode-range` that covers the script ranges of the supported locales; variable-font axes are restricted to those used.
+- **[PERF-29] Fonts limited and subset** — Pages load one family and the minimum number of files split by `unicode-range` that covers the script ranges of the supported locales; variable-font axes are restricted to those used.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/**`, `public/fonts/**` · Src: [6], [26]
-- **[PERF-34] Explicit font-display** — Every `@font-face` sets `font-display: swap` or `optional`; `block` and `auto` are never used for body text.
+- **[PERF-30] Explicit font-display** — Every `@font-face` sets `font-display: swap` or `optional`; `block` and `auto` are never used for body text.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**` · Src: [6]
-- **[PERF-35] Critical font preloaded correctly** — At most two font preloads exist, each for a face used above the fold, with `as="font"`, `type="font/woff2"` and `crossorigin`.
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/App.vue` · Src: [6], [8]
-- **[PERF-36] Fallback metric overrides** — The fallback face declares `size-adjust`, `ascent-override`, `descent-override` and `line-gap-override` so the swap to the web font causes no visible layout shift.
+- **[PERF-31] Fallback metric overrides** — The fallback face declares `size-adjust`, `ascent-override`, `descent-override` and `line-gap-override` so the swap to the web font causes no visible layout shift.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/**` · Src: [4], [6]
-- **[PERF-37] No icon fonts or runtime stylesheet imports** — Icons render as SVG, never as an icon font, and no stylesheet or font CSS reaches the browser through a runtime CSS `@import` or a remote URL (build-inlined local `@import`s are fine).
+- **[PERF-32] No icon fonts or runtime stylesheet imports** — Icons render as SVG, never as an icon font, and no stylesheet or font CSS reaches the browser through a runtime CSS `@import` or a remote URL (build-inlined local `@import`s are fine).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/**`, `nuxt.config.ts` · Src: [6]
 
 ## 4. Images
 
-- **[PERF-38] LCP image never lazy-loaded** — The above-the-fold logo on `/` and any image in the first viewport of `/game` and `/rules` carry no `loading="lazy"`.
+- **[PERF-33] LCP image never lazy-loaded** — The above-the-fold logo on `/` and any image in the first viewport of `/game` and `/rules` carry no `loading="lazy"`.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/pages/**`, `app/components/**` · Src: [2], [10]
-- **[PERF-39] LCP image discoverable with high priority** — The LCP image is an `<img>` whose `src` is in the SSR HTML with `fetchpriority="high"`; it is never injected by client JS or rendered inside a `.client` component or `<ClientOnly>`.
+- **[PERF-34] LCP image discoverable with high priority** — The LCP image is an `<img>` whose `src` is in the SSR HTML with `fetchpriority="high"`; it is never injected by client JS or rendered inside a `.client` component or `<ClientOnly>`.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/pages/**` · Src: [2]
-- **[PERF-40] Background LCP preloaded** — When a CSS `background-image` can be the LCP element, the page emits a matching `<link rel="preload" as="image" fetchpriority="high">`.
+- **[PERF-35] Background LCP preloaded** — When a CSS `background-image` can be the LCP element, the page emits a matching `<link rel="preload" as="image" fetchpriority="high">`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `public/img/**` · Src: [2], [8]
-- **[PERF-41] Dimensions on every image** — Every `<img>` has `width` and `height` attributes or a CSS `aspect-ratio`, so space is reserved before the image loads.
+- **[PERF-36] Dimensions on every image** — Every `<img>` has `width` and `height` attributes or a CSS `aspect-ratio`, so space is reserved before the image loads.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**` · Src: [4]
-- **[PERF-42] Modern image formats** — Images rendered in pages are AVIF or WebP (with a `<picture>` fallback when a legacy format is still required); no multi-hundred-KB PNG or JPEG is rendered in a page.
+- **[PERF-37] Modern image formats** — Images rendered in pages are AVIF or WebP (with a `<picture>` fallback when a legacy format is still required); no multi-hundred-KB PNG or JPEG is rendered in a page.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `public/img/**`, `app/components/**` · Src: [7]
-- **[PERF-43] Correctly sized images** — Lighthouse "Properly size images" passes on `/`, `/game` and `/rules`: intrinsic size matches rendered CSS pixels × DPR (beyond DPR 2 is rarely perceivable).
+- **[PERF-38] Correctly sized images** — Lighthouse "Properly size images" passes on `/`, `/game` and `/rules`: intrinsic size matches rendered CSS pixels × DPR (beyond DPR 2 is rarely perceivable).
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [7]
-- **[PERF-44] srcset paired with sizes** — When `srcset` uses width descriptors, the same element sets `sizes` (width descriptors are ignored without it).
+- **[PERF-39] srcset paired with sizes** — When `srcset` uses width descriptors, the same element sets `sizes` (width descriptors are ignored without it).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**` · Src: [7]
-- **[PERF-45] Lazy loading for below-the-fold media** — Images that start below the fold or render inside modals, drawers or popovers use `loading="lazy"`.
+- **[PERF-40] Lazy loading for below-the-fold media** — Images that start below the fold or render inside modals, drawers or popovers use `loading="lazy"`.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/**` · Src: [10]
 
 ## 5. SSR payload & large data
 
-- **[PERF-46] No duplicate requests on hydration** — During hydration of `/`, `/game` and `/rules`, the network log shows no repeat of a request already resolved during SSR; that data arrives through the payload (verified: nuxt 4.6.3).
+- **[PERF-41] No duplicate requests on hydration** — During hydration of `/`, `/game` and `/rules`, the network log shows no repeat of a request already resolved during SSR; that data arrives through the payload (verified: nuxt 4.6.3).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [19], [28]
-- **[PERF-47] Payload bounded per route** — `__NUXT_DATA__` in each route's SSR HTML holds only data the page renders (no unused upstream fields or duplicated catalogs); `pick` or `transform` trims large responses (verified: nuxt 4.6.3).
+- **[PERF-42] Payload bounded per route** — `__NUXT_DATA__` in each route SSR HTML holds only data the page renders (no unused upstream fields or duplicated catalogs); `pick` or `transform` trims large responses, large or immutable results keep `deep: false`, and data not needed after hydration uses `serialize: false` (verified: nuxt 4.6.3).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [22], [28]
-- **[PERF-48] Async data stays shallow** — `useAsyncData` and `useFetch` keep the default `deep: false` for large or immutable results; `deep: true` appears only with a stated need (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/pages/**`, `app/composables/**`, `app/stores/**` · Src: [28]
-- **[PERF-49] Server-only data not serialized** — When server-fetched data is not needed after hydration, the call uses `serialize: false` paired with lazy hydration so the data stays out of `__NUXT_DATA__` (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/pages/**`, `app/components/**` · Src: [19], [28]
-- **[PERF-50] Shallow reactivity for large immutable data** — Large immutable structures (question buffers, theme catalogs) held in refs or stores use `shallowRef` or `shallowReactive` and are updated by replacing the root value (verified: vue 3.5.44).
+- **[PERF-43] Shallow reactivity for large immutable data** — Large immutable structures (question buffers, theme catalogs) held in refs or stores use `shallowRef` or `shallowReactive` and are updated by replacing the root value (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/stores/**`, `app/composables/**` · Src: [21]
-- **[PERF-52] v-memo used correctly** — `v-memo` sits on the same element as `v-for` (it does not work inside `v-for`), is reserved for large lists or measured hotspots, and its dependency array covers every value the subtree renders (verified: vue 3.5.44).
+- **[PERF-44] v-memo used correctly** — `v-memo` sits on the same element as `v-for` (it does not work inside `v-for`), is reserved for large lists or measured hotspots, and its dependency array covers every value the subtree renders (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/pages/**` · Src: [21], [29]
-- **[PERF-53] Stable props in lists** — Parents pass per-item primitives (e.g. `:active="item.id === activeId"`) instead of a shared changing value, so only affected children re-render (verified: vue 3.5.44).
+- **[PERF-45] Stable props in lists** — Parents pass per-item primitives (e.g. `:active="item.id === activeId"`) instead of a shared changing value, so only affected children re-render (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/**` · Src: [21]
-- **[PERF-54] Client-only content off the LCP path** — `.client` components and `<ClientOnly>` never wrap above-the-fold content of `/`, `/game` or `/rules`; the LCP-element rule is PERF-39 (verified: nuxt 4.6.3).
+- **[PERF-46] Client-only content off the LCP path** — `.client` components and `<ClientOnly>` never wrap above-the-fold content of `/`, `/game` or `/rules`; the LCP-element rule is PERF-39 (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/layouts/**`, `app/App.vue` · Src: [20]
-- **[PERF-55] Static routes prerendered** — Routes whose HTML is identical for every request and needs no hydration are prerendered with `prerender: true` and `noScripts` (e.g. `/offline`); cookie-localized interactive routes are not prerendered.
+- **[PERF-47] Static routes prerendered** — Routes whose HTML is identical for every request and needs no hydration are prerendered with `prerender: true` and `noScripts` (e.g. `/offline`); cookie-localized interactive routes are not prerendered.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `nuxt.config.ts` · Src: [19], [27], project: docs/pwa.md §3
 
 ## 6. INP & animation
 
-- **[PERF-56] No long tasks on key interactions** — A DevTools Performance recording with 4× CPU throttling shows no main-thread task over 50 ms during load or on answer reveal, next/previous question, and opening filters or settings.
+- **[PERF-48] No long tasks on key interactions** — A DevTools Performance recording with 4× CPU throttling shows no main-thread task over 50 ms during load or on answer reveal, next/previous question, and opening filters or settings.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [12]
-- **[PERF-57] Interaction latency within 200 ms** — In the same recording, each of those interactions presents its next frame within 200 ms.
+- **[PERF-49] Interaction latency within 200 ms** — In the same recording, each of those interactions presents its next frame within 200 ms.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [3], [19]
-- **[PERF-58] Bulk work yields** — When a loop or work queue can exceed 50 ms, it yields to the main thread (for example `scheduler.yield()` with a `setTimeout` fallback where it is unsupported), batching to a ~50 ms deadline; no `isInputPending()` polling or busy-wait.
+- **[PERF-50] Bulk work yields** — When a loop or work queue can exceed 50 ms, it yields to the main thread (for example `scheduler.yield()` with a `setTimeout` fallback where it is unsupported), batching to a ~50 ms deadline; no `isInputPending()` polling or busy-wait.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/composables/**`, `app/utils/**` · Src: [12]
-- **[PERF-59] Handlers paint first** — Event handlers of primary interactions apply the visual update first and defer non-visual work (cookie persistence, telemetry, logging) to a later task.
+- **[PERF-51] Handlers paint first** — Event handlers of primary interactions apply the visual update first and defer non-visual work (cookie persistence, telemetry, logging) to a later task.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/composables/**` · Src: [3]
-- **[PERF-60] No layout thrashing** — No code writes styles and then reads layout (`offsetWidth`, `getBoundingClientRect`, `scrollHeight`) in the same task inside loops, scroll/resize handlers or animation callbacks.
+- **[PERF-52] No layout thrashing** — No code writes styles and then reads layout (`offsetWidth`, `getBoundingClientRect`, `scrollHeight`) in the same task inside loops, scroll/resize handlers or animation callbacks.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/composables/**`, `app/utils/**` · Src: [3]
-- **[PERF-61] Composited animations only** — CSS transitions and keyframes and GSAP tweens animate `transform` and `opacity` only; never `top`, `left`, `width`, `height`, `margin` or `box-shadow`.
+- **[PERF-53] Composited animations only** — CSS transitions and keyframes and GSAP tweens animate `transform` and `opacity` only, never `top`, `left`, `width`, `height`, `margin` or `box-shadow`; `will-change` is set only while an element animates and removed afterwards, never as a permanent rule on many elements.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**`, `app/components/**` · Src: [4], [13]
-- **[PERF-62] will-change scoped** — `will-change` is set only while an element animates and removed afterwards; it is never a permanent rule on many elements.
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/**`, `app/components/**` · Src: [13]
-- **[PERF-63] DOM size bounded** — Lighthouse DOM size on `/`, `/game` (sidebar and modals closed) and `/rules` stays below 800 elements and never reaches 1400.
+- **[PERF-54] DOM size bounded** — Lighthouse DOM size on `/`, `/game` (sidebar and modals closed) and `/rules` stays below 800 elements and never reaches 1400.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [14]
-- **[PERF-64] Offscreen long content contained** — When a long section renders offscreen (rules prose, changelog list), it uses `content-visibility: auto` with `contain-intrinsic-size: auto <size>` to avoid scrollbar jitter.
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/**`, `app/components/**` · Src: [15]
-- **[PERF-65] Large lists virtualized** — When a rendered list can exceed about 100 items (theme filters, changelog entries), only viewport-adjacent items are rendered.
+- **[PERF-55] Large lists virtualized** — When a rendered list can exceed about 100 items (theme filters, changelog entries), only viewport-adjacent items are rendered; long sections rendered offscreen use `content-visibility: auto` with `contain-intrinsic-size` to avoid scrollbar jitter.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/**` · Src: [21]
 
 ## 7. Caching & delivery
 
-- **[PERF-66] Hashed build assets immutable** — Responses for hashed files under `/_nuxt/` carry `Cache-Control: public, max-age=31536000, immutable`.
+- **[PERF-56] Hashed build assets immutable** — Responses for hashed files under `/_nuxt/` carry `Cache-Control: public, max-age=31536000, immutable`.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [17]
-- **[PERF-67] Immutable only for versioned URLs** — Every path served as immutable (`routeRules` headers for `/fonts/**`, `/img/**`, `/pwa/**`, `/_i18n/**`, or `publicAssets[].maxAge`, which emits `public, max-age=n, immutable`) changes its URL whenever its content changes (verified: nitropack 2.13.5).
+- **[PERF-57] Immutable only for versioned URLs** — Every path served as immutable (`routeRules` headers for `/fonts/**`, `/img/**`, `/pwa/**`, `/_i18n/**`, or `publicAssets[].maxAge`, which emits `public, max-age=n, immutable`) changes its URL whenever its content changes (verified: nitropack 2.13.5).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts`, `public/**` · Src: [17], [27]
-- **[PERF-68] Documents revalidate, never no-store** — HTML documents are served `no-cache` or `max-age=0, must-revalidate`; `no-store` stays scoped to `/api/**` and health probes so pages remain bfcache-eligible.
+- **[PERF-58] Documents revalidate, never no-store** — HTML documents are served `no-cache` or `max-age=0, must-revalidate`; `no-store` stays scoped to `/api/**` and health probes so pages remain bfcache-eligible.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/middleware/**`, `server/utils/security/**` · Src: [16], [17], project: docs/security.md
-- **[PERF-69] Public assets precompressed** — `nitro.compressPublicAssets` enables `gzip` and `brotli` (default: both off); Nitro then writes `.gz`/`.br` only for supported MIME types larger than 1024 bytes, never for WOFF/WOFF2 or raster images (verified: nitropack 2.13.5).
+- **[PERF-59] Public assets precompressed** — `nitro.compressPublicAssets` enables `gzip` and `brotli` (default: both off); Nitro then writes `.gz`/`.br` only for supported MIME types larger than 1024 bytes, never for WOFF/WOFF2 or raster images, and after a build `.output/public/_nuxt/` holds those siblings for every JS and CSS file above 1024 bytes (verified: nitropack 2.13.5).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts` · Src: [27]
-- **[PERF-70] Precompressed variants emitted** — After `pnpm run build`, `.output/public/_nuxt/` holds `.br` and `.gz` siblings for every JS and CSS file above 1024 bytes (verified: nitropack 2.13.5).
-  Evidence: `artifact` · Diff: ✗ · Severity: low · Src: [27]
-- **[PERF-71] Compressed responses served** — Production responses for JS, CSS, SVG, SSR HTML and `/api/**` JSON carry `Content-Encoding: br` (gzip fallback) with `Vary: Accept-Encoding`.
+- **[PERF-60] Compressed responses served** — Production responses for JS, CSS, SVG, SSR HTML and `/api/**` JSON carry `Content-Encoding: br` (gzip fallback) with `Vary: Accept-Encoding`.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [5]
-- **[PERF-72] Edge serves static output** — In production, `.output/public` is served by the edge (nginx or CDN) instead of the Node process, as Nitro recommends (verified: nitropack 2.13.5).
-  Evidence: `manual` · Diff: ✗ · Severity: low · Src: [5], [27]
-- **[PERF-73] No redirect hops** — HTTPS navigations to `/`, `/game` and `/rules` resolve with no same-origin redirect (no trailing-slash or locale bounce).
+- **[PERF-61] No redirect hops** — HTTPS navigations to `/`, `/game` and `/rules` resolve with no same-origin redirect (no trailing-slash or locale bounce).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [5]
-- **[PERF-74] Multiplexed protocol** — Production serves documents and assets over HTTP/2 or HTTP/3 (DevTools Protocol column or `Alt-Svc` header).
+- **[PERF-62] Multiplexed protocol** — Production serves documents and assets over HTTP/2 or HTTP/3 (DevTools Protocol column or `Alt-Svc` header).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [5]
-- **[PERF-75] Resource hints justified** — `preconnect` appears only for critical cross-origin origins (with `crossorigin` for CORS fetches such as fonts); other origins get at most `dns-prefetch`.
+- **[PERF-63] Resource hints justified** — `preconnect` appears only for critical cross-origin origins (with `crossorigin` for CORS fetches such as fonts); other origins get at most `dns-prefetch`.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/App.vue`, `nuxt.config.ts` · Src: [8]
-- **[PERF-76] No unused preloads** — Pages carry at most three manual `preload`s, all consumed; DevTools reports no "preloaded but not used" warning.
-  Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [8]
-- **[PERF-77] Preloads well-formed** — Every manual `preload` sets `as`, font preloads add `crossorigin`, and responsive image preloads use `imagesrcset`.
+- **[PERF-64] Preloads well-formed** — Pages carry at most three manual `preload`s, all consumed with no preloaded-but-not-used warning; every manual `preload` sets `as`, font preloads add `crossorigin` and `type="font/woff2"`, and responsive image preloads use `imagesrcset`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/App.vue`, `app/pages/**` · Src: [8]
 
 ## 8. bfcache
 
-- **[PERF-78] No unload listeners** — No `unload` listener exists in app code or bundled dependencies (Lighthouse `no-unload-listeners` passes).
+- **[PERF-65] No unload listeners** — No `unload` listener exists in app code or bundled dependencies (Lighthouse `no-unload-listeners` passes).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**` · Src: [16]
-- **[PERF-79] beforeunload conditional** — A `beforeunload` listener is attached only while unsaved state exists and removed as soon as it is gone.
+- **[PERF-66] beforeunload conditional** — A `beforeunload` listener is attached only while unsaved state exists and removed as soon as it is gone.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/composables/**`, `app/components/**` · Src: [16]
-- **[PERF-80] Restore refreshes stale state** — Lifecycle work uses `pagehide`/`pageshow`, and a `pageshow` with `event.persisted` refreshes state that can be stale after a restore (e.g. connectivity status).
+- **[PERF-67] Restore refreshes stale state** — Lifecycle work uses `pagehide`/`pageshow`, and a `pageshow` with `event.persisted` refreshes state that can be stale after a restore (e.g. connectivity status).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/composables/**`, `app/plugins/**` · Src: [16]
-- **[PERF-81] bfcache eligibility verified** — DevTools Application → Back/forward cache → "Test back/forward cache" reports a restore for `/`, `/game` and `/rules`.
+- **[PERF-68] bfcache eligibility verified** — DevTools Application → Back/forward cache → "Test back/forward cache" reports a restore for `/`, `/game` and `/rules`.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [16]
 
 ## 9. Server performance
 
-- **[PERF-82] TTFB budget** — Navigation TTFB for `/`, `/game` and `/rules` is ≤ 0.8 s at p75 (0.8–1.8 s needs improvement, > 1.8 s is poor).
+- **[PERF-69] TTFB budget** — Navigation TTFB for `/`, `/game` and `/rules` is ≤ 0.8 s at p75 (0.8–1.8 s needs improvement, > 1.8 s is poor).
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [2], [5]
-- **[PERF-83] Server-Timing exposed** — Document responses expose SSR and upstream phases through `Server-Timing` (Nitro `timing: true` adds the header), so server time is measurable even behind caching (verified: nitropack 2.13.5).
+- **[PERF-70] Server-Timing exposed** — Document responses expose SSR and upstream phases through `Server-Timing` (Nitro `timing: true` adds the header), so server time is measurable even behind caching (verified: nitropack 2.13.5).
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [5], [27]
-- **[PERF-84] SSR awaits only rendered data** — Server rendering awaits only data the initial view renders; data used after an interaction (filters modal, settings, changelog) is fetched on demand or with `lazy: true` (verified: nuxt 4.6.3).
+- **[PERF-71] SSR awaits only rendered data** — Server rendering awaits only data the initial view renders; data used after an interaction (filters modal, settings, changelog) is fetched on demand or with `lazy: true` (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/stores/**`, `app/composables/**` · Src: [19], [28]
-- **[PERF-85] HTML route caching respects variance** — When `swr`, `isr` or `cache` route rules are added for HTML, the cache varies on the `goat_it_locale` cookie and never replays a per-request CSP nonce.
+- **[PERF-72] HTML route caching respects variance** — When `swr`, `isr` or `cache` route rules are added for HTML, the cache varies on the `goat_it_locale` cookie and never replays a per-request CSP nonce.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [19], [27], project: docs/security.md, project: docs/pwa.md
 
 ## 10. Memory & leaks
 
-- **[PERF-86] No detached DOM after navigation cycles** — A heap snapshot filtered on "Detached" is empty after 10 cycles of opening and closing modals, the sidebar and the tutorial and of navigating between `/` and `/game`.
+- **[PERF-73] No detached DOM after navigation cycles** — A heap snapshot filtered on Detached is empty after 10 cycles of opening and closing modals, the sidebar and the tutorial and of navigating between `/` and `/game`; a Performance recording with forced GC at start and end shows the JS heap back at baseline after repeated games and question navigation.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [24]
-- **[PERF-87] Heap returns to baseline** — A Performance recording with forced GC at start and end shows the JS heap back at baseline after repeated games and question navigation.
-  Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [24]
-- **[PERF-88] Teardown for listeners, observers and timers** — Every `addEventListener`, `ResizeObserver`, `IntersectionObserver`, `setInterval` and pending `setTimeout` created by a component or composable is released in `onUnmounted` or `onScopeDispose`, or registered through a scope-bound helper.
+- **[PERF-74] Teardown for listeners, observers and timers** — Every `addEventListener`, `ResizeObserver`, `IntersectionObserver`, `setInterval` and pending `setTimeout` created by a component or composable is released in `onUnmounted` or `onScopeDispose`, or registered through a scope-bound helper.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/composables/**` · Src: [24]
-- **[PERF-89] GSAP animations reverted** — Every GSAP tween, timeline or `gsap.context()` created by a component is killed or reverted on unmount.
+- **[PERF-75] GSAP animations reverted** — Every GSAP tween, timeline or `gsap.context()` created by a component is killed or reverted on unmount.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/composables/**` · Src: [13], [24]
-- **[PERF-91] Bounded server caches** — Every in-process server map or cache has a TTL and a size cap; no map grows without bound with request input.
+- **[PERF-76] Bounded server caches** — Every in-process server map or cache has a TTL and a size cap; no map grows without bound with request input.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/**`, `server/middleware/**` · Src: [5]
 
 ## 11. Sustainability
 
-- **[PERF-92] Resource goals defined** — `docs/performance.md` defines measurable limits on transferred bytes, requests and rendered elements per page type, tracked over time.
+- **[PERF-77] Resource goals defined** — `docs/performance.md` defines measurable limits on transferred bytes, requests and rendered elements per page type, tracked over time; every third-party resource is assessed, self-hosted where possible, loaded only when needed and counted in those budgets.
   Evidence: `static` · Diff: ✓ · Severity: low · Src: [18], [26]
-- **[PERF-93] Animation only where it serves the task** — No decorative loop animation runs continuously; animation is tied to game feedback and pauses when offscreen or when the tab is hidden.
+- **[PERF-78] Animation only where it serves the task** — No decorative loop animation runs continuously; animation is tied to game feedback and pauses when offscreen or when the tab is hidden.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/**`, `app/components/**` · Src: [26]
-- **[PERF-94] Third parties treated as first parties** — Every third-party resource is assessed, self-hosted where possible, loaded only when needed and counted in the budgets.
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `nuxt.config.ts`, `app/App.vue` · Src: [26]
 
 ## Sources
 
@@ -258,7 +230,6 @@ response time, memory growth during long game sessions, and web sustainability.
 [12] Optimize long tasks — https://web.dev/articles/optimize-long-tasks — fetched 2026-10-31 (last updated 2024-12-19)
 [13] How to create high-performance CSS animations — https://web.dev/articles/animations-guide — fetched 2026-10-31 (undated article)
 [14] How large DOM sizes affect interactivity — https://web.dev/articles/dom-size-and-interactivity — fetched 2026-10-31 (last updated 2023-05-09)
-[15] content-visibility: the new CSS property that boosts your rendering performance — https://web.dev/articles/content-visibility — fetched 2026-10-31 (last updated 2025-09-23)
 [16] Back/forward cache — https://web.dev/articles/bfcache — fetched 2026-10-31 (last updated 2026-10-16)
 [17] Prevent unnecessary network requests with the HTTP Cache — https://web.dev/articles/http-cache — fetched 2026-10-31 (undated article)
 [18] Performance budgets 101 — https://web.dev/articles/performance-budgets-101 — fetched 2026-10-31 (last updated 2018-11-05)

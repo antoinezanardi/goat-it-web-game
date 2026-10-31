@@ -46,7 +46,7 @@ actionable, not what data may be collected or how probes are designed.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/utils/helpers/sentry/**`, `sentry.*.config.ts` · Src: [14], project: docs/security.md
 - **[OPS-12] One capture per failure** — Server failures are captured only by the SDK's Nitro error hook (no second capture hook; the Pino error-logging plugin never calls Sentry), and the client reporting boundary reports only client-only unexpected errors (for example a repository `ZodError`), never `FetchError`, errors carrying an HTTP status, or aborted/timed-out requests; the Nuxt SDK captures through Nuxt error hooks, not a Vue `errorHandler` (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/plugins/error-logging/**`, `app/utils/core/sentry/**`, `sentry.*.config.ts` · Src: [14], project: docs/security.md
-- **[OPS-13] Issue alerts routed to an owner** — The Sentry project has alert rules for new issues, regressions and event-frequency spikes, filtered by the `production`/`staging` environment, each notifying a named owner channel (email or Slack).
+- **[OPS-13] Issue alerts routed to an owner** — The Sentry project has alert rules for new issues, regressions and event-frequency spikes, filtered by the `production`/`staging` environment, each notifying a named owner channel (email or Slack); every configured alert (Sentry, UptimeRobot) is actionable, classified as page or notification, and names the runbook section to follow.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [17], [2]
 - **[OPS-14] Spike protection with notification** — Sentry Spike Protection is enabled for the project and a notification action is added, because enabling it sends no notification by default and it does not apply during a trial.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [18]
@@ -76,66 +76,58 @@ actionable, not what data may be collected or how probes are designed.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/logging/**`, `server/middleware/**` · Src: [2], project: docs/operations.md
 - **[OPS-24] SLI specification** — `docs/operations.md` defines availability as good proxy responses over total valid requests and latency as p95 of proxied requests, each with its measurement source, window (for example 28 days) and aggregation.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md` · Src: [3], [10]
-- **[OPS-25] SLO targets or explicit deferral** — `docs/operations.md` states numeric SLO targets with an owner (for example 99.5 % availability, p95 < 2 s) or an explicit deferral with its rationale and revisit trigger.
+- **[OPS-25] SLO targets or explicit deferral** — `docs/operations.md` states numeric SLO targets with an owner (for example 99.5 % availability, p95 < 2 s) or an explicit deferral with its rationale and revisit trigger; when numeric SLOs exist, the document also states the action taken when the error budget is exhausted.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md` · Src: [3], [5], project: docs/operations.md
-- **[OPS-26] Error budget policy** — When numeric SLOs exist, `docs/operations.md` states the action taken when the error budget is exhausted (for example a feature-release freeze until back within budget).
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `docs/operations.md` · Src: [3], [4]
-- **[OPS-27] Burn-rate alerting** — When numeric SLOs exist, alerts fire on burn rate with a fast window and a slow window (multi-window), or a documented simpler equivalent.
+- **[OPS-26] Burn-rate alerting** — When numeric SLOs exist, alerts fire on burn rate with a fast window and a slow window (multi-window), or a documented simpler equivalent.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [4]
-- **[OPS-28] Actionable alert hygiene** — Every configured alert (Sentry, UptimeRobot) is actionable, classified as page or notification, and names the runbook section to follow.
-  Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [2], [17]
 
 ## 4. Uptime monitoring
 
-- **[OPS-29] Monitor inventory per environment and probe** — `docs/operations.md` lists one external monitor for each probe endpoint in each environment, with URL, method, expected result and interval.
+- **[OPS-27] Monitor inventory per environment and probe** — `docs/operations.md` lists one external monitor for each probe endpoint in each environment, with URL, method, expected result and interval.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `docs/operations.md` · Src: [11], [2], project: docs/operations.md
-- **[OPS-30] Keyword assertions match probe bodies** — Each monitor asserts HTTP 2xx plus a body keyword, not an open port, and the documented keywords (`"status":"ok"` for `/healthz`, `"status":"ready"` for `/readyz`) match the bodies returned by the `server/routes/**` handlers.
+- **[OPS-28] Keyword assertions match probe bodies** — Each monitor asserts HTTP 2xx plus a body keyword, not an open port, and the documented keywords (`"status":"ok"` for `/healthz`, `"status":"ready"` for `/readyz`) match the bodies returned by the `server/routes/**` handlers.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md`, `server/routes/**` · Src: [11]
-- **[OPS-31] Monitors active outside the host** — The provider account has the four documented monitors active, probing from outside the VPS, with names that include the environment and the probe type.
+- **[OPS-29] Monitors active outside the host** — The provider account has the four documented monitors active, probing from outside the VPS, with names that include the environment and the probe type.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [11], [2], project: docs/operations.md
-- **[OPS-32] Probe interval** — Uptime monitors run every 1–2 minutes, or `docs/operations.md` records the longer interval (for example a 5-minute free-tier cadence) with its detection-delay trade-off.
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `docs/operations.md` · Src: [11], [2]
-- **[OPS-33] Alert delivery tested** — Monitor alerts reach a primary and an escalation contact, and a test alert was delivered and acknowledged.
+- **[OPS-30] Alert delivery tested** — Monitor alerts reach a primary and an escalation contact, and a test alert was delivered and acknowledged.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [5], [2]
-- **[OPS-34] Synthetic user journey** — A scripted external check periodically exercises a core user journey in production (load the home page and complete one primary interaction).
+- **[OPS-31] Synthetic user journey** — A scripted external check periodically exercises a core user journey in production (load the home page and complete one primary interaction).
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [4], [2]
-- **[OPS-35] Certificate and domain expiry monitoring** — TLS certificate expiry for every deployed host and the domain registration expiry are monitored with lead-time alerts.
+- **[OPS-32] Certificate and domain expiry monitoring** — TLS certificate expiry for every deployed host and the domain registration expiry are monitored with lead-time alerts.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [1]
-- **[OPS-36] Monitoring heartbeat** — A missing heartbeat from the monitoring path (dead-man's switch) raises an alert, so a silent monitor or alert channel is itself detected.
+- **[OPS-33] Monitoring heartbeat** — A missing heartbeat from the monitoring path (dead-man's switch) raises an alert, so a silent monitor or alert channel is itself detected.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [1]
 
 ## 5. Runbooks and incidents
 
-- **[OPS-37] Deploy and rollback runbook** — `docs/operations.md` documents how a release reaches staging and production and the manual rollback (redeploy the previous immutable image tag on the VPS) with copy-pasteable commands and the expected verification.
+- **[OPS-34] Deploy and rollback runbook** — `docs/operations.md` documents how a release reaches staging and production and the manual rollback (redeploy the previous immutable image tag on the VPS) with copy-pasteable commands and the expected verification.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `docs/operations.md` · Src: [5], [7]
-- **[OPS-38] Restart and rate-limiter recovery runbook** — `docs/operations.md` documents a safe container restart (honoring the ~35 s stop grace) and how to clear the in-process rate-limiter state when legitimate players are throttled.
+- **[OPS-35] Restart and rate-limiter recovery runbook** — `docs/operations.md` documents a safe container restart (honoring the ~35 s stop grace) and how to clear the in-process rate-limiter state when legitimate players are throttled.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md` · Src: [5], project: docs/security.md
-- **[OPS-39] Secret rotation runbook** — `docs/operations.md` documents, for `NUXT_GOAT_IT_API_GAME_KEY`, the Sentry DSN, the deploy SSH keys and the Docker Hub credentials, where each value lives, how to rotate it and how to verify the rotation.
+- **[OPS-36] Secret rotation runbook** — `docs/operations.md` documents, for `NUXT_GOAT_IT_API_GAME_KEY`, the Sentry DSN, the deploy SSH keys and the Docker Hub credentials, where each value lives, how to rotate it and how to verify the rotation.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md` · Src: [5]
-- **[OPS-40] Upstream outage runbook** — `docs/operations.md` documents how to confirm a Goat It API outage (`/readyz` 503, readiness monitor alert, `goat-it-api.upstream-error` log events), its user-visible effect, the upstream contact and how to verify recovery.
+- **[OPS-37] Upstream outage runbook** — `docs/operations.md` documents how to confirm a Goat It API outage (`/readyz` 503, readiness monitor alert, `goat-it-api.upstream-error` log events), its user-visible effect, the upstream contact and how to verify recovery.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md` · Src: [5], [6]
-- **[OPS-41] Runbook commands stay current** — Every command, script path, environment variable, endpoint and URL in `docs/operations.md` exists today (for example `scripts/post-deploy-health-check.sh`, `NUXT_LOGGER_LEVEL`, the `jq` filter on the Pino `level` field).
+- **[OPS-38] Runbook commands stay current** — Every command, script path, environment variable, endpoint and URL in `docs/operations.md` exists today (for example `scripts/post-deploy-health-check.sh`, `NUXT_LOGGER_LEVEL`, the `jq` filter on the Pino `level` field).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md`, `scripts/**`, `server/utils/logging/**` · Src: [5]
-- **[OPS-42] Rollback rehearsed** — The previous release's image tag was redeployed (staging or production) and the time to recover was recorded.
+- **[OPS-39] Rollback rehearsed** — The previous release's image tag was redeployed (staging or production) and the time to recover was recorded.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [5], [7]
-- **[OPS-43] Incident contacts** — The repository names the service owner, the escalation path and the upstream Goat It API contact.
+- **[OPS-40] Incident contacts** — The repository names the service owner, the escalation path and the upstream Goat It API contact.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md` · Src: [5]
-- **[OPS-44] Post-incident template** — A blameless post-incident template (timeline, impact, root cause, action items with owners) exists in the repository.
-  Evidence: `static` · Diff: ✓ · Severity: low · Src: [1], [5]
-- **[OPS-45] Dependency inventory** — `docs/operations.md` lists every runtime dependency (Goat It API, Sentry, UptimeRobot, VPS host, Docker Hub registry, DNS/TLS provider) with its owner, plan limits and known SLA.
+- **[OPS-41] Dependency inventory** — `docs/operations.md` lists every runtime dependency (Goat It API, Sentry, UptimeRobot, VPS host, Docker Hub registry, DNS/TLS provider) with its owner, plan limits and known SLA.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md` · Src: [6], [5]
-- **[OPS-46] Failure-mode table** — `docs/operations.md` states, for upstream down, network partition to the upstream, container kill or OOM, host disk full and Sentry unreachable, the expected system behavior and the monitor, alert or log that detects it.
+- **[OPS-42] Failure-mode table** — `docs/operations.md` states, for upstream down, network partition to the upstream, container kill or OOM, host disk full and Sentry unreachable, the expected system behavior and the monitor, alert or log that detects it.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `docs/operations.md` · Src: [1]
 
 ## 6. Post-deploy verification
 
-- **[OPS-47] Post-deploy gate in every deploy workflow** — Every deploy workflow runs the health-check composite action as a separate step after the deploy step against the site's `/healthz`, and a gate failure fails the deployment job.
+- **[OPS-43] Post-deploy gate in every deploy workflow** — Every deploy workflow runs the health-check composite action as a separate step after the deploy step against the site `/healthz`, and a gate failure fails the deployment job; traffic switches to the new container only after it answers 200 on `/healthz` (the old one keeps serving on failure), or the restart gap of the single-container deploy is documented as accepted.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/deploy-*.yml`, `.github/actions/health-check/**` · Src: [5], [11], project: docs/operations.md
-- **[OPS-48] Bounded gate with strict success** — `scripts/post-deploy-health-check.sh` uses a bounded budget (default 5 attempts, 5 s apart, 3 s per request), treats only HTTP `200` as success, retries any other status, timeout or connection error, and exits non-zero with an `::error::` annotation after the last attempt.
+- **[OPS-44] Bounded gate with strict success** — `scripts/post-deploy-health-check.sh` uses a bounded budget (default 5 attempts, 5 s apart, 3 s per request), treats only HTTP `200` as success, retries any other status, timeout or connection error, and exits non-zero with an `::error::` annotation after the last attempt.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `scripts/post-deploy-health-check.sh`, `.github/actions/health-check/**` · Src: [11], project: docs/operations.md
-- **[OPS-49] Smoke beyond liveness** — Post-deploy verification also checks `/readyz`, the home page and one real proxied API call, not only `/healthz`.
+- **[OPS-45] Smoke beyond liveness** — Post-deploy verification also checks `/readyz`, the home page and one real proxied API call, not only `/healthz`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/deploy-*.yml`, `.github/actions/health-check/**` · Src: [5], [11], project: docs/operations.md
-- **[OPS-50] Automatic rollback on failed verification** — A failed post-deploy gate automatically redeploys the previous image tag.
+- **[OPS-46] Automatic rollback on failed verification** — A failed post-deploy gate automatically redeploys the previous image tag.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/deploy-*.yml`, `.github/actions/deploy/**` · Src: [5], project: docs/operations.md
 
 ## Sources

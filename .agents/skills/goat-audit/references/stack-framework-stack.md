@@ -36,166 +36,134 @@ Correct use of the framework and library APIs this product is built on: Nuxt 4 d
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**` · Src: [1], [10]
 - **[STACK-05] Handlers resolve a defined value** — No `useAsyncData` handler resolves `undefined` or `null` (for example a missing `queryCollection(...).first()` result). It maps absence to an explicit empty value or sentinel, otherwise the request may run again on the client (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**` · Src: [1]
-- **[STACK-06] Side-effect-free handlers** — `useAsyncData` handlers only return data: they write no store, no `useState` value and no other shared state; one-time side effects such as store population run in `callOnce` (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**`, `app/composables/**` · Src: [1], [4]
-- **[STACK-07] Store actions awaited inside `callOnce`** — Store-populating actions called from setup run through `await callOnce(...)`, the documented Pinia pattern, and use `{ mode: 'navigation' }` only when data must refresh on every client-side navigation; no code reads a value from `callOnce`, which returns nothing (verified: nuxt 4.6.3).
+- **[STACK-06] Store actions awaited inside `callOnce`** — Store-populating actions called from setup run through `await callOnce(...)`, the documented Pinia pattern, and use `{ mode: navigation }` only when data must refresh on every client-side navigation; no code reads a value from `callOnce`, which returns nothing, and `useAsyncData` handlers only return data — one-time side effects such as store population never run inside a handler (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/App.vue`, `app/pages/**` · Src: [4], [26]
-- **[STACK-08] Shallow `data` never mutated in place** — No code mutates nested properties of `useAsyncData`/`useFetch` `data` and expects reactivity: `data` is a `shallowRef` (`deep` defaults to `false`), so code replaces the whole value or opts in with `deep: true` (verified: nuxt 4.6.3).
+- **[STACK-07] Shallow `data` never mutated in place** — No code mutates nested properties of `useAsyncData`/`useFetch` `data` and expects reactivity: `data` is a `shallowRef` (`deep` defaults to `false`), so code replaces the whole value or opts in with `deep: true` (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**`, `app/composables/**` · Src: [1], [10]
-- **[STACK-09] SSR-shared state through `useState`** — Cross-component state that must survive SSR and hydration uses `useState(key, init)` with a key from the project state-name enum and holds only JSON-serializable values (no class instance, function, symbol, `Map` or `Set`) (verified: nuxt 4.6.3).
+- **[STACK-08] SSR-shared state through `useState`** — Cross-component state that must survive SSR and hydration uses `useState(key, init)` with a key from the project state-name enum and holds only JSON-serializable values (no class instance, function, symbol, `Map` or `Set`) (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/composables/**` · Src: [5], [6]
-- **[STACK-10] Composables called in a valid context** — Nuxt and Vue composables (`useRuntimeConfig`, `useNuxtApp`, `useState`, `useI18n`, `useRequestFetch`…) are called synchronously inside setup, a Nuxt plugin or route middleware. They never run at module scope, and never after an `await` outside `<script setup>`, `defineNuxtPlugin` or `defineNuxtRouteMiddleware` ("Nuxt instance is unavailable") (verified: nuxt 4.6.3).
+- **[STACK-09] Composables called in a valid context** — Nuxt and Vue composables (`useRuntimeConfig`, `useNuxtApp`, `useState`, `useI18n`, `useRequestFetch`…) are called synchronously inside setup, a Nuxt plugin or route middleware. They never run at module scope, and never after an `await` outside `<script setup>`, `defineNuxtPlugin` or `defineNuxtRouteMiddleware` ("Nuxt instance is unavailable") (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/composables/**`, `app/stores/**`, `app/utils/**` · Src: [7]
-- **[STACK-11] Plugin loading strategy declared** — Nuxt app plugins load sequentially by default. An async plugin that no later plugin depends on declares `parallel: true`, and a dependency is expressed with `dependsOn` or a zero-padded numeric filename prefix. Object-syntax fields are static literals, and browser-only plugins carry the `.client` suffix (verified: nuxt 4.6.3).
+- **[STACK-10] Plugin loading strategy declared** — Nuxt app plugins load sequentially by default. An async plugin that no later plugin depends on declares `parallel: true`, and a dependency is expressed with `dependsOn` or a zero-padded numeric filename prefix. Object-syntax fields are static literals, and browser-only plugins carry the `.client` suffix (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/plugins/**` · Src: [8]
 
 ## 2. Nuxt configuration
 
-- **[STACK-12] `compatibilityDate` set and bumped deliberately** — `nuxt.config.ts` sets `compatibilityDate` to a `YYYY-MM-DD` date (a missing value raises `B5001`), and a change to that date comes with a review of the Nitro and module behavior defaults it opts into (verified: nuxt 4.6.3).
+- **[STACK-11] `compatibilityDate` set and bumped deliberately** — `nuxt.config.ts` sets `compatibilityDate` to a `YYYY-MM-DD` date (a missing value raises `B5001`), and a change to that date comes with a review of the Nitro and module behavior defaults it opts into (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts` · Src: [11]
-- **[STACK-13] Compatibility version pinned to 4** — `future.compatibilityVersion` stays `4`. Version `5` is a testing switch that flips defaults (Vite Environment API, `payloadExtraction: 'client'`, `navigateToEarlyReturn`, Nitro auto-imports off, Options API compiled out) and is enabled only by a dedicated Nuxt 5 migration (verified: nuxt 4.6.3).
+- **[STACK-12] Compatibility version pinned to 4** — `future.compatibilityVersion` stays `4`. Version `5` is a testing switch that flips defaults (Vite Environment API, `payloadExtraction: 'client'`, `navigateToEarlyReturn`, Nitro auto-imports off, Options API compiled out) and is enabled only by a dedicated Nuxt 5 migration (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts` · Src: [10], project: docs/architecture.md §9.2
-- **[STACK-14] Experimental flags exist and are justified** — Every experimental flag set in `nuxt.config.ts` (`experimental.*`, `content.experimental.*`, `ui.experimental.*`, `i18n.experimental.*`) exists in the installed version and has a recorded reason and removal trigger in the owning doc, because experimental features can be removed or modified (verified: nuxt 4.6.3).
+- **[STACK-13] Experimental flags exist and are justified** — Every experimental flag set in `nuxt.config.ts` (`experimental.*`, `content.experimental.*`, `ui.experimental.*`, `i18n.experimental.*`) exists in the installed version and has a recorded reason and removal trigger in the owning doc, because experimental features can be removed or modified (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `nuxt.config.ts` · Src: [12]
-- **[STACK-15] Runtime code reads config through `useRuntimeConfig`** — App and Nitro runtime code reads deployment settings through `useRuntimeConfig()`, never `process.env`, so `NUXT_*` overrides apply. Build-time reads in `nuxt.config.ts` and the documented `sentry.server.config.ts` exception ([STACK-54]) are exempt (verified: nuxt 4.6.3).
+- **[STACK-14] Runtime code reads config through `useRuntimeConfig`** — App and Nitro runtime code reads deployment settings through `useRuntimeConfig()`, never `process.env`, so `NUXT_*` overrides apply; `app/app.config.ts` and `app/config/**` hold only non-environment, build-time values (theme and component config) and read no `process.env`, since `app.config` is bundled; build-time reads in `nuxt.config.ts` and the documented `sentry.server.config.ts` exception are exempt (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**`, `server/**` · Src: [9]
-- **[STACK-16] `app.config.ts` holds build-time values only** — `app/app.config.ts` and `app/config/**` hold only non-environment, build-time values (Nuxt UI theme and component config); they read no `process.env`, since `app.config` is bundled and cannot be overridden by environment variables (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/app.config.ts`, `app/config/**` · Src: [9]
-- **[STACK-17] Type checking runs outside the build** — With `typescript.typeCheck` unset or `false`, Nuxt type-checks neither `nuxt dev` nor `nuxt build`, so `package.json` defines a `typecheck` script running `nuxt typecheck` (or `vue-tsc`) and it is a documented quality gate (verified: nuxt 4.6.3).
+- **[STACK-15] Type checking runs outside the build** — With `typescript.typeCheck` unset or `false`, Nuxt type-checks neither `nuxt dev` nor `nuxt build`, so `package.json` defines a `typecheck` script running `nuxt typecheck` (or `vue-tsc`) and it is a documented quality gate (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `package.json`, `nuxt.config.ts` · Src: [13], project: AGENTS.md
 
 ## 3. Errors and route rules
 
-- **[STACK-18] `error.vue` contract** — When `app/error.vue` exists, it sits at the app root next to `app/App.vue` (not under `pages/`), declares the single `error` prop typed `NuxtError`, does not call `definePageMeta`, and renders `error.status`/`error.statusText` rather than the legacy `statusCode`/`statusMessage` (verified: nuxt 4.6.3).
+- **[STACK-16] `error.vue` contract** — When `app/error.vue` exists, it sits at the app root next to `app/App.vue` (not under `pages/`), declares the single `error` prop typed `NuxtError`, does not call `definePageMeta`, and renders `error.status`/`error.statusText` rather than the legacy `statusCode`/`statusMessage` (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/App.vue` · Src: [14]
-- **[STACK-19] App errors carry custom fields in `data`** — App-side `createError`/`showError` calls pass `status`/`statusText` and put any custom field under `data`; other custom fields are dropped from the `NuxtError` (verified: nuxt 4.6.3).
+- **[STACK-17] App errors carry custom fields in `data`** — App-side `createError`/`showError` calls pass `status`/`statusText` and put any custom field under `data`; other custom fields are dropped from the `NuxtError` (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/**` · Src: [14]
-- **[STACK-20] `NuxtErrorBoundary` treated as client-only** — When `<NuxtErrorBoundary>` is used, it only contains client-side errors of its default slot (it relies on `onErrorCaptured`). SSR and data errors are handled through `useAsyncData` `error`/`status` or the error page, not assumed to be caught by the boundary (verified: nuxt 4.6.3).
+- **[STACK-18] `NuxtErrorBoundary` treated as client-only** — When `<NuxtErrorBoundary>` is used, it only contains client-side errors of its default slot (it relies on `onErrorCaptured`). SSR and data errors are handled through `useAsyncData` `error`/`status` or the error page, not assumed to be caught by the boundary (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/**/*.vue` · Src: [15]
-- **[STACK-21] SWR route rules carry a TTL** — No `routeRules` entry uses `swr: true`, which emits `stale-while-revalidate` without any max-age; every SWR-cached route sets a TTL in seconds (`swr: 3600`) (verified: nuxt 4.6.3).
+- **[STACK-19] Route rules: SWR carries a TTL, layouts exist** — No `routeRules` entry uses `swr: true`, which emits `stale-while-revalidate` without any max-age; every SWR-cached route sets a TTL in seconds (`swr: 3600`), and every `routeRules[*].appLayout` value is `false` or the name of a layout registered from `app/layouts/` (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts` · Src: [16]
-- **[STACK-22] `appLayout` names existing layouts** — Every `routeRules[*].appLayout` value (Nuxt 4.3+) is `false` or the name of a layout registered from `app/layouts/` (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts`, `app/layouts/**` · Src: [17]
 
 ## 4. Vue reactivity and SSR
 
-- **[STACK-23] No module-scope reactive state** — No `ref`, `reactive`, `shallowRef` or mutable `Map`/`Set`/array is created at module scope in code that runs on the server (composables, stores, utils, plugins, shared helpers). Module singletons persist across requests and leak one visitor's state into another (cross-request state pollution); use `useState`, Pinia or per-call state (verified: vue 3.5.44).
+- **[STACK-20] No module-scope reactive state** — No `ref`, `reactive`, `shallowRef` or mutable `Map`/`Set`/array is created at module scope in code that runs on the server (composables, stores, utils, plugins, shared helpers). Module singletons persist across requests and leak one visitor's state into another (cross-request state pollution); use `useState`, Pinia or per-call state (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/composables/**`, `app/utils/**`, `shared/**` · Src: [18], [6]
-- **[STACK-24] Browser APIs only on the client** — `window`, `document`, `navigator`, `localStorage` and `matchMedia` are reached only in `onMounted` or other client-only hooks, `.client` plugins or behind `import.meta.client`, never at module scope or in the synchronous setup body (verified: vue 3.5.44).
+- **[STACK-21] Browser APIs and client effects only on the client** — `window`, `document`, `navigator`, `localStorage` and `matchMedia` are reached only in `onMounted` or other client-only hooks, `.client` plugins or behind `import.meta.client`, never at module scope or in the synchronous setup body; timers, subscriptions and global listeners are likewise created in `onMounted`, because unmount hooks never run during SSR (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue`, `app/composables/**`, `app/utils/**` · Src: [18]
-- **[STACK-25] No cleanup-requiring effects in the setup root** — Timers (`setInterval`, `setTimeout`), subscriptions and global listeners are created in `onMounted`, not at the root of `<script setup>` or `setup()`. Unmount hooks never run during SSR, so a server-created timer is never cleared (verified: vue 3.5.44).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue`, `app/composables/**` · Src: [18]
-- **[STACK-26] Deterministic server render** — Rendered output never depends on values that differ between server and client (`Math.random()`, `Date.now()`/`new Date()`, timezone-dependent formatting, viewport size). Such parts render after `onMounted` or inside `<ClientOnly>`, or share a seed through the payload (verified: vue 3.5.44).
+- **[STACK-22] Deterministic server render** — Rendered output never depends on values that differ between server and client (`Math.random()`, `Date.now()`/`new Date()`, timezone-dependent formatting, viewport size) — such parts render after `onMounted`, inside `<ClientOnly>`, or share a seed through the payload — and templates never produce markup the HTML parser rewrites (a block element inside `<p>`); loading `/`, `/game` and `/rules` in each locale under `pnpm run dev` then completing one game turn logs no hydration mismatch warning (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue` · Src: [18]
-- **[STACK-27] Valid HTML nesting** — Templates never produce markup that the HTML parser rewrites, such as a block element (`<div>`) inside `<p>`; the corrected DOM no longer matches the virtual DOM and causes a hydration mismatch (verified: vue 3.5.44).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue` · Src: [18]
-- **[STACK-28] No hydration mismatch at runtime** — Loading `/`, `/game` and `/rules` in each of the six locales under `pnpm run dev`, then completing one game turn, logs no Vue hydration mismatch warning in the browser console (verified: vue 3.5.44).
-  Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [18]
-- **[STACK-29] Stable ids through `useId()`** — Ids bound to `id`, `for` and `aria-*` attributes come from `useId()`, which is stable across server and client renders, never from counters or `Math.random()`; `useId()` is never called inside `computed()` (verified: vue 3.5.44).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue`, `app/composables/**` · Src: [21]
-- **[STACK-30] Watchers created synchronously** — `watch`/`watchEffect` are created synchronously during setup. A watcher created in an async callback or after an `await` outside `<script setup>` is not bound to its owner and is stopped manually through its returned handle (verified: vue 3.5.44).
+- **[STACK-23] Watchers created synchronously** — `watch`/`watchEffect` are created synchronously during setup. A watcher created in an async callback or after an `await` outside `<script setup>` is not bound to its owner and is stopped manually through its returned handle (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue`, `app/composables/**` · Src: [19]
-- **[STACK-31] Template-ref arrays not assumed ordered** — Code reading the array produced by a template ref inside `v-for` (`useTemplateRef` or `ref`) does not rely on it matching the source array order, which Vue does not guarantee; it maps elements by key or data attribute (verified: vue 3.5.44).
+- **[STACK-24] Template-ref arrays not assumed ordered** — Code reading the array produced by a template ref inside `v-for` (`useTemplateRef` or `ref`) does not rely on it matching the source array order, which Vue does not guarantee; it maps elements by key or data attribute (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/**/*.vue` · Src: [20]
 
 ## 5. Pinia
 
-- **[STACK-32] Setup stores return all state, writable** — Each setup store returns every `ref`/`reactive` it creates (no private state) and never wraps returned state in `readonly()`; both break SSR hydration, devtools and plugins (verified: pinia 4.1.0).
+- **[STACK-25] Setup store shape** — Each setup store returns every `ref`/`reactive` it creates (no private state) and never wraps returned state in `readonly()`, both of which break SSR hydration, devtools and plugins; `store.$reset()` is called only on stores that define their own `$reset` action, since setup stores have no built-in one (verified: pinia 4.1.0).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/stores/**/*.store.ts` · Src: [22], project: docs/architecture.md §4.3
-- **[STACK-33] `useStore()` before any `await`** — In store actions and async composables, every `use…Store()` call happens before the first `await`; a later call can bind the wrong Pinia instance during SSR (verified: pinia 4.1.0).
+- **[STACK-26] `useStore()` before any `await`** — In store actions and async composables, every `use…Store()` call happens before the first `await`; a later call can bind the wrong Pinia instance during SSR (verified: pinia 4.1.0).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/stores/**`, `app/composables/**` · Src: [23]
-- **[STACK-34] State destructured through `storeToRefs`** — Store state and getters are destructured only through `storeToRefs()`, while actions are destructured from the store itself; destructuring state or getters directly from the store loses reactivity (verified: pinia 4.1.0).
+- **[STACK-27] State destructured through `storeToRefs`** — Store state and getters are destructured only through `storeToRefs()`, while actions are destructured from the store itself; destructuring state or getters directly from the store loses reactivity (verified: pinia 4.1.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue`, `app/composables/**` · Src: [22]
-- **[STACK-35] `skipHydrate` for client-only store state** — When a setup store returns state that must not be hydrated from the server payload (e.g. `useLocalStorage`, browser-only refs), that property is returned wrapped in `skipHydrate()` (verified: pinia 4.1.0).
+- **[STACK-28] `skipHydrate` for client-only store state** — When a setup store returns state that must not be hydrated from the server payload (e.g. `useLocalStorage`, browser-only refs), that property is returned wrapped in `skipHydrate()` (verified: pinia 4.1.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/stores/**/*.store.ts` · Src: [25]
-- **[STACK-36] No implicit `$reset` on setup stores** — `store.$reset()` is called only on stores that define their own `$reset` action; setup stores have no built-in `$reset` (only option stores do) (verified: pinia 4.1.0).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**` · Src: [24]
-- **[STACK-37] `storesDirs` reaches nested stores** — `pinia.storesDirs` uses a recursive glob (`stores/**`); `@pinia/nuxt` auto-imports only top-level `app/stores` files, while stores live in `app/stores/domain/<entity>/` (verified: pinia 4.1.0).
+- **[STACK-29] Pinia module wiring** — `pinia.storesDirs` uses a recursive glob (`stores/**`) because `@pinia/nuxt` auto-imports only top-level `app/stores` files while stores live in `app/stores/domain/<entity>/`, and `package.json` lists `@vue/devtools-api` (v8) next to `pinia` 4, which moved it to `peerDependencies` and no longer installs it (verified: pinia 4.1.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts` · Src: [26], [27]
-- **[STACK-38] Pinia 4 peer `@vue/devtools-api` installed** — `package.json` lists `@vue/devtools-api` (v8) next to `pinia` 4, which moved it to `peerDependencies` and no longer installs it (verified: pinia 4.1.0).
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `package.json` · Src: [28]
 
 ## 6. VueUse
 
-- **[STACK-39] SSR width for media queries** — `useMediaQuery`/`useBreakpoints` in SSR-rendered components pass `ssrWidth`, or the app calls `provideSSRWidth`; otherwise server and client render different branches (verified: @vueuse/core 15.0.0).
+- **[STACK-30] SSR width for media queries** — `useMediaQuery`/`useBreakpoints` in SSR-rendered components pass `ssrWidth`, or the app calls `provideSSRWidth`; otherwise server and client render different branches (verified: @vueuse/core 15.0.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue`, `app/composables/**` · Src: [29], [30]
-- **[STACK-40] VueUse `useStorage` imported explicitly** — App code that needs VueUse `useStorage` imports it from `@vueuse/core`; in Nuxt the auto-imported `useStorage` is Nitro's storage API (verified: @vueuse/core 15.0.0).
+- **[STACK-31] VueUse `useStorage` imported explicitly** — App code that needs VueUse `useStorage` imports it from `@vueuse/core`; in Nuxt the auto-imported `useStorage` is Nitro's storage API (verified: @vueuse/core 15.0.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**` · Src: [31]
 
 ## 7. Nuxt UI
 
-- **[STACK-41] `UApp` wraps the whole app** — `app/App.vue` renders `<UApp>` around `<NuxtLayout>`/`<NuxtPage>`, and every component that raises toasts, shows tooltips or opens programmatic modals/slideovers renders inside it, since `UApp` provides those providers (verified: @nuxt/ui 4.12.0).
+- **[STACK-32] `UApp` wraps the whole app** — `app/App.vue` renders `<UApp>` around `<NuxtLayout>`/`<NuxtPage>`, and every component that raises toasts, shows tooltips or opens programmatic modals/slideovers renders inside it, since `UApp` provides those providers (verified: @nuxt/ui 4.12.0).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/App.vue` · Src: [32]
-- **[STACK-42] Dynamic components listed for detection** — With `ui.experimental.componentDetection` enabled, every Nuxt UI component reached only dynamically (`<component :is>`, string-resolved) is named in the array form (`componentDetection: ['Modal', …]`); otherwise its theme CSS is not generated (verified: @nuxt/ui 4.12.0).
+- **[STACK-33] Dynamic components listed for detection** — With `ui.experimental.componentDetection` enabled, every Nuxt UI component reached only dynamically (`<component :is>`, string-resolved) is named in the array form (`componentDetection: ['Modal', …]`); otherwise its theme CSS is not generated (verified: @nuxt/ui 4.12.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts`, `app/**/*.vue` · Src: [33]
 
 ## 8. Nuxt I18n module configuration
 
-- **[STACK-43] No avoidable `i18n.config.ts`** — Vue I18n runtime options live in an `i18n.config.ts` (resolved from the i18n `restructureDir`, here `app/i18n/`) only when they need non-serializable runtime values. That file is loaded on every request and adds server latency, so everything the module supports stays under the `i18n` key of `nuxt.config.ts` (verified: @nuxtjs/i18n 10.6.0).
+- **[STACK-34] No avoidable `i18n.config.ts`** — Vue I18n runtime options live in an `i18n.config.ts` (resolved from the i18n `restructureDir`, here `app/i18n/`) only when they need non-serializable runtime values. That file is loaded on every request and adds server latency, so everything the module supports stays under the `i18n` key of `nuxt.config.ts` (verified: @nuxtjs/i18n 10.6.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts`, `app/i18n/**` · Src: [35], [34]
-- **[STACK-44] Strict message compilation explicit** — `i18n.compilation.strictMessage` is set explicitly to `true`; with the default, HTML in static locale files read by the server build is only a build warning. Any `strictMessage: false` comes with `escapeHtml: true` (verified: @nuxtjs/i18n 10.6.0).
+- **[STACK-35] Strict message compilation explicit** — `i18n.compilation.strictMessage` is set explicitly to `true`; with the default, HTML in static locale files read by the server build is only a build warning. Any `strictMessage: false` comes with `escapeHtml: true` (verified: @nuxtjs/i18n 10.6.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts` · Src: [34]
-- **[STACK-45] Portable locale loaders** — When a locale file uses `defineI18nLocale`, its loader uses only APIs available on both server and browser (`$fetch`, `useRuntimeConfig`). Any Nuxt app composable is called directly in the locale file, not through an imported helper, and no loader reads server-only resources through Nuxt composables (verified: @nuxtjs/i18n 10.6.0).
+- **[STACK-36] Portable locale loaders** — When a locale file uses `defineI18nLocale`, its loader uses only APIs available on both server and browser (`$fetch`, `useRuntimeConfig`). Any Nuxt app composable is called directly in the locale file, not through an imported helper, and no loader reads server-only resources through Nuxt composables (verified: @nuxtjs/i18n 10.6.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/i18n/**` · Src: [36]
 
 ## 9. Nitro and h3
 
-- **[STACK-46] Validators passed as throwing functions** — `readValidatedBody`/`getValidatedQuery` receive a function that throws on invalid input (`(raw) => SCHEMA.parse(raw)`), never a bare Zod schema object or `SCHEMA.safeParse`. h3 v1 fails validation only on a thrown error or `false` and otherwise returns the function's result, so a `safeParse` result object becomes the "validated" value (verified: h3 1.15.11).
+- **[STACK-37] Validated reads: throwing validator, awaited** — `readValidatedBody`/`getValidatedQuery` receive a function that throws on invalid input (`(raw) => SCHEMA.parse(raw)`), never a bare Zod schema object or `SCHEMA.safeParse` — h3 v1 fails validation only on a thrown error or `false` and otherwise returns the function result — and every call is awaited, since both return a Promise in h3 v1 (verified: h3 1.15.11).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/**`, `server/api/**` · Src: [37], [38]
-- **[STACK-47] Validated reads awaited** — Every `getValidatedQuery` and `readValidatedBody` call is awaited; both return a Promise in h3 v1, so a missing `await` hands a pending Promise to the handler instead of the validated value (verified: h3 1.15.11).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/**` · Src: [39], [38]
-- **[STACK-48] Cached server output varies on its inputs** — When a `cache`/`swr` route rule, `defineCachedEventHandler` or `defineCachedFunction` serves request-dependent output (locale cookie `goat_it_locale`, `accept-language`), its `varies` option lists those headers, because all other request headers are dropped when handling cached responses (verified: nitropack 2.13.5).
+- **[STACK-38] Cached server output varies on its inputs** — When a `cache`/`swr` route rule, `defineCachedEventHandler` or `defineCachedFunction` serves request-dependent output (locale cookie `goat_it_locale`, `accept-language`), its `varies` option lists those headers, because all other request headers are dropped when handling cached responses (verified: nitropack 2.13.5).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/**`, `nuxt.config.ts` · Src: [40]
-- **[STACK-49] `nuxt/server` imports not mixed with h3** — When a server file imports helpers from `nuxt/server` (Nuxt 4.6+), it also imports `defineEventHandler` from `nuxt/server`; pairing them with h3's auto-imported `defineEventHandler` fails with `NUXT_E8012` (verified: nuxt 4.6.3).
+- **[STACK-39] `nuxt/server` imports not mixed with h3** — When a server file imports helpers from `nuxt/server` (Nuxt 4.6+), it also imports `defineEventHandler` from `nuxt/server`; pairing them with h3's auto-imported `defineEventHandler` fails with `NUXT_E8012` (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/**` · Src: [10]
 
 ## 10. Nuxt Content
 
-- **[STACK-50] Server queries pass the event** — When Nitro code queries a collection, it calls `queryCollection(event, '<collection>')` with the H3 event as first argument; the event-less signature is for Vue code only (verified: @nuxt/content 3.16.2).
+- **[STACK-40] Server queries pass the event** — When Nitro code queries a collection, it calls `queryCollection(event, '<collection>')` with the H3 event as first argument; the event-less signature is for Vue code only (verified: @nuxt/content 3.16.2).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/**` · Src: [41]
-- **[STACK-51] No Content v2 APIs** — Code uses none of the removed v2 APIs: `queryContent()`, `fetchContentNavigation()`, `useContent()`, `<ContentDoc>`, `<ContentList>`, `<ContentNavigation>`, `<ContentQuery>`, `._path` or `_dir.yml`. Their replacements are `queryCollection*`, `<ContentRenderer>`, `.path` and `.navigation.yml` (verified: @nuxt/content 3.16.2).
+- **[STACK-41] No Content v2 APIs** — Code uses none of the removed v2 APIs: `queryContent()`, `fetchContentNavigation()`, `useContent()`, `<ContentDoc>`, `<ContentList>`, `<ContentNavigation>`, `<ContentQuery>`, `._path` or `_dir.yml`. Their replacements are `queryCollection*`, `<ContentRenderer>`, `.path` and `.navigation.yml` (verified: @nuxt/content 3.16.2).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**`, `content/**` · Src: [43]
 
 ## 11. Sentry SDK
 
-- **[STACK-52] No deprecated or removed module options** — The `sentry` options in `nuxt.config.ts` contain neither `autoInjectServerSentry` nor `experimental_entrypointWrappedFunctions` (deprecated in v11), nor `sourceMapsUploadOptions` (removed). Its fields move to the top level: `sourcemaps`, `release`, `authToken`, `org`, `project`, `telemetry` (verified: @sentry/nuxt 11.9.0).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts` · Src: [44]
-- **[STACK-53] No legacy server bootstrap** — No `public/instrument.server.*` file exists and no start command (`package.json` scripts, `Dockerfile` `CMD`, `NODE_OPTIONS`) preloads a Sentry server config with `--import`; the root `sentry.server.config.ts` is bundled into the Nitro build and initializes itself (verified: @sentry/nuxt 11.9.0).
+- **[STACK-42] No legacy server bootstrap** — No `public/instrument.server.*` file exists and no start command (`package.json` scripts, `Dockerfile` `CMD`, `NODE_OPTIONS`) preloads a Sentry server config with `--import`; the root `sentry.server.config.ts` is bundled into the Nitro build and initializes itself (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `package.json`, `Dockerfile`, `sentry.*.config.ts` · Src: [44]
-- **[STACK-54] Server config reads `process.env`** — `sentry.server.config.ts` reads its settings from `process.env`, because it initializes before `useRuntimeConfig()` is available, while `sentry.client.config.ts` may read `useRuntimeConfig().public` (verified: @sentry/nuxt 11.9.0).
+- **[STACK-43] Sentry config files split env and SDK options** — `sentry.server.config.ts` reads its settings from `process.env`, because it initializes before `useRuntimeConfig()` is available, while `sentry.client.config.ts` may read `useRuntimeConfig().public`; runtime SDK options (`dsn`, `environment`, `release`, sample rates, `beforeSend`, integrations) are passed to `init()` in the two config files, built by `shared/utils/helpers/sentry/`, and the `sentry` key of `nuxt.config.ts` keeps only module and build options (`sourcemaps`, `telemetry`, org, project, auth) (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `sentry.*.config.ts` · Src: [45]
-- **[STACK-55] SDK options in the config files** — Runtime SDK options (`dsn`, `environment`, `release`, sample rates, `beforeSend`, integrations) are passed to `init()` in `sentry.client.config.ts`/`sentry.server.config.ts`, built by `shared/utils/helpers/sentry/`. The `sentry` key of `nuxt.config.ts` keeps only module and build options (`sourcemaps`, `telemetry`, org, project, auth) (verified: @sentry/nuxt 11.9.0).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `sentry.*.config.ts`, `shared/utils/helpers/sentry/**`, `nuxt.config.ts` · Src: [45], project: docs/architecture.md §5
-- **[STACK-56] No removed or no-op init options** — `init()` options include none of `sendDefaultPii` (removed, replaced by `dataCollection`), `beforeSendTransaction` or `ignoreTransactions` (no-ops under span streaming; use `beforeSendSpan`/`ignoreSpans`), or `enableMetrics`/`_experiments.enableMetrics` (removed) (verified: @sentry/nuxt 11.9.0).
+- **[STACK-44] No removed or no-op Sentry options** — `init()` and the `sentry` key of `nuxt.config.ts` include none of `sendDefaultPii` (removed, replaced by `dataCollection`), `beforeSendTransaction` or `ignoreTransactions` (no-ops under span streaming; use `beforeSendSpan`/`ignoreSpans`), `enableMetrics`/`_experiments.enableMetrics` (removed), `autoInjectServerSentry` or `experimental_entrypointWrappedFunctions` (deprecated in v11), or `sourceMapsUploadOptions` (removed — its fields move to the top level) (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `sentry.*.config.ts`, `shared/utils/helpers/sentry/**` · Src: [44]
 
 ## 12. PWA module
 
-- **[STACK-57] `$pwa` access tolerates `undefined`** — Every read of `$pwa` or `useNuxtApp().$pwa` uses optional chaining or an explicit guard. `$pwa` is undefined when PWA is disabled and in `nuxt dev` unless `pwa.devOptions.enabled` (default `false`) is set, and its features are unavailable when `pwa.client.registerPlugin` is `false` (verified: @vite-pwa/nuxt 1.1.1).
+- **[STACK-45] `$pwa` access tolerates `undefined`** — Every read of `$pwa` or `useNuxtApp().$pwa` uses optional chaining or an explicit guard. `$pwa` is undefined when PWA is disabled and in `nuxt dev` unless `pwa.devOptions.enabled` (default `false`) is set, and its features are unavailable when `pwa.client.registerPlugin` is `false` (verified: @vite-pwa/nuxt 1.1.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**` · Src: [46], [47]
 
 ## 13. Zod
 
-- **[STACK-58] No `z.coerce.boolean()` on strings** — String inputs carrying booleans (env vars, query params, cookie values) use `z.stringbool()` or an explicit enum. `z.coerce.boolean()` is `Boolean(input)`, so `"false"` parses to `true` (verified: zod 4.6.7).
+- **[STACK-46] Zod coercion traps avoided** — String inputs carrying booleans (env vars, query params, cookie values) use `z.stringbool()` or an explicit enum — `z.coerce.boolean()` is `Boolean(input)`, so "false" parses to `true` — and `z.coerce.number()` is never applied to values that may be empty strings without a guard (`z.string().min(1)` pipe or preprocess), since an empty string silently coerces to `0` (verified: zod 4.6.7).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `shared/schemas/**`, `server/utils/env/**`, `server/**` · Src: [48]
-- **[STACK-59] `z.coerce.number()` guarded against empty strings** — `z.coerce.number()` (`Number(input)`) is never applied to values that may be empty strings without a preceding guard (`z.string().min(1)` pipe or preprocess), since `""` silently coerces to `0` (verified: zod 4.6.7).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/schemas/**`, `server/**` · Src: [48]
-- **[STACK-60] `.catch()` only for intended silent fallbacks** — Schema `.catch()` returns its fallback on any validation error without surfacing the issue. It appears only where a silent default is the intended behavior (e.g. tolerant preference parsing), never on request-body, query or upstream DTO schemas (verified: zod 4.6.7).
+- **[STACK-47] `.catch()` only for intended silent fallbacks** — Schema `.catch()` returns its fallback on any validation error without surfacing the issue. It appears only where a silent default is the intended behavior (e.g. tolerant preference parsing), never on request-body, query or upstream DTO schemas (verified: zod 4.6.7).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/schemas/**`, `server/**`, `app/**` · Src: [48]
-- **[STACK-61] Top-level string formats** — String formats use the top-level forms (`z.url()`, `z.email()`, `z.uuid()`, `z.iso.datetime()`…); the method forms (`z.string().url()`, `.email()`, `.uuid()`, `.datetime()`) are deprecated (verified: zod 4.6.7).
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `shared/**`, `server/**`, `content.config.ts` · Src: [49]
-- **[STACK-62] No other deprecated Zod 4 APIs** — Code uses none of these deprecated APIs: `.merge()` (use `.extend()`), `.strict()`/`.passthrough()` (use `z.strictObject()`/`z.looseObject()`), `z.nativeEnum()` (use `z.enum()`), the `message` parameter (use `error`), `ZodError.format()`/`.flatten()` (use `z.treeifyError()`), `.addIssue()`/`.addIssues()`, or `z.promise()` (verified: zod 4.6.7).
+- **[STACK-48] No deprecated Zod 4 APIs** — String formats use the top-level forms (`z.url()`, `z.email()`, `z.uuid()`, `z.iso.datetime()`…) — the method forms are deprecated — and code uses none of `.merge()` (use `.extend()`), `.strict()`/`.passthrough()` (use `z.strictObject()`/`z.looseObject()`), `z.nativeEnum()` (use `z.enum()`), the `message` parameter (use `error`), `ZodError.format()`/`.flatten()` (use `z.treeifyError()`), `.addIssue()`/`.addIssues()` or `z.promise()` (verified: zod 4.6.7).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `shared/**`, `server/**`, `app/**` · Src: [49], [48]
 
 ## 14. Stack currency and deprecations
 
-- **[STACK-63] No Unhead v1 head props** — `useHead`/`useSeoMeta` entries use none of the props removed in Unhead v2 (`vmid`, `hid`, `children`, `body`) and pass no Promise as input (verified: nuxt 4.6.3).
+- **[STACK-49] No deprecated head and module APIs** — `useHead`/`useSeoMeta` entries use none of the props removed in Unhead v2 (`vmid`, `hid`, `children`, `body`) and pass no Promise as input; module configuration uses no flag deprecated by the installed version, e.g. `content.experimental.nativeSqlite` (use `sqliteConnector`) or the deprecated `app/plugins/<dir>/index.ts` scanning (verified: nuxt 4.6.3, @nuxt/content 3.16.2).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/**/*.vue`, `app/composables/**` · Src: [10]
-- **[STACK-64] No deprecated module flags** — Module configuration uses no flag deprecated by the installed version, e.g. `content.experimental.nativeSqlite` (use `content.experimental.sqliteConnector`) or the deprecated `app/plugins/<dir>/index.ts` scanning (register nested plugins through `plugins` in `nuxt.config.ts`) (verified: @nuxt/content 3.16.2, nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `nuxt.config.ts`, `app/plugins/**` · Src: [42], [8]
-- **[STACK-65] Nuxt 5 migration surface inventoried** — Server code that imports from `h3` or relies on h3 v1 auto-imports is listed as Nuxt 5 work (Nitro v3, h3 v2). The forward-compatible `nuxt/server` helpers (Nuxt 4.6+) differ from h3 v1: `createError({ status, statusText })`, new `handleCors` and `sendRedirect` return contracts, and no `useRuntimeConfig(event)` (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: info · Look: `server/**` · Src: [10]
-- **[STACK-66] Clean build diagnostics** — `pnpm run build` and a `pnpm run dev` start print no deprecation warning or diagnostic code from Nuxt (e.g. `B5001`), Nuxt modules, Vue or Pinia; each one is fixed or recorded as a decision (verified: nuxt 4.6.3, pinia 4.1.0).
+- **[STACK-50] Clean build diagnostics** — `pnpm run build` and a `pnpm run dev` start print no deprecation warning or diagnostic code from Nuxt (e.g. `B5001`), Nuxt modules, Vue or Pinia; each one is fixed or recorded as a decision (verified: nuxt 4.6.3, pinia 4.1.0).
   Evidence: `command` · Diff: ✗ · Severity: low · Src: [11], [28]
 
 ## Sources
@@ -216,14 +184,11 @@ Correct use of the framework and library APIs this product is built on: Nuxt 4 d
 [14] Nuxt — error.vue — https://nuxt.com/docs/4.x/directory-structure/app/error — fetched 2026-10-31 (nuxt 4.6.3, docs 4.x)
 [15] Nuxt — NuxtErrorBoundary — https://nuxt.com/docs/4.x/api/components/nuxt-error-boundary — fetched 2026-10-31 (nuxt 4.6.3, docs 4.x)
 [16] Nuxt — Rendering Modes (route rules) — https://nuxt.com/docs/4.x/guide/concepts/rendering — fetched 2026-10-31 (nuxt 4.6.3, docs 4.x)
-[17] Nuxt — layouts (appLayout route rule, v4.3) — https://nuxt.com/docs/4.x/directory-structure/app/layouts — fetched 2026-10-31 (nuxt 4.6.3, docs 4.x)
 [18] Vue — Server-Side Rendering (SSR) — https://vuejs.org/guide/scaling-up/ssr — fetched 2026-10-31 (vue 3.5.44)
 [19] Vue — Watchers — https://vuejs.org/guide/essentials/watchers — fetched 2026-10-31 (vue 3.5.44)
 [20] Vue — Template Refs — https://vuejs.org/guide/essentials/template-refs — fetched 2026-10-31 (vue 3.5.44)
-[21] Vue — Composition API: Helpers (useId) — https://vuejs.org/api/composition-api-helpers — fetched 2026-10-31 (vue 3.5.44)
 [22] Pinia — Defining a Store — https://pinia.vuejs.org/core-concepts/ — fetched 2026-10-31 (pinia 4.1.0, docs v4 branch)
 [23] Pinia — Composing Stores — https://pinia.vuejs.org/cookbook/composing-stores.html — fetched 2026-10-31 (pinia 4.1.0, docs v4 branch)
-[24] Pinia — State (resetting the state) — https://pinia.vuejs.org/core-concepts/state.html — fetched 2026-10-31 (pinia 4.1.0, docs v4 branch)
 [25] Pinia — Dealing with Composables (skipHydrate) — https://pinia.vuejs.org/cookbook/composables.html — fetched 2026-10-31 (pinia 4.1.0, docs v4 branch)
 [26] Pinia — Nuxt (callOnce, auto imports, storesDirs) — https://pinia.vuejs.org/ssr/nuxt.html — fetched 2026-10-31 (pinia 4.1.0, @pinia/nuxt 1.0.3)
 [27] Pinia — @pinia/nuxt ModuleOptions — https://pinia.vuejs.org/api/%40pinia/nuxt/interfaces/ModuleOptions.html — fetched 2026-10-31 (@pinia/nuxt 1.0.3)
@@ -238,10 +203,8 @@ Correct use of the framework and library APIs this product is built on: Nuxt 4 d
 [36] @nuxtjs/i18n — defineI18nLocale — https://github.com/nuxt-modules/i18n/blob/v10.6.0/docs/content/docs/06.composables/11.define-i18n-locale.md — fetched 2026-10-31 (@nuxtjs/i18n 10.6.0)
 [37] h3 — Request utils (readValidatedBody, getValidatedQuery) — https://github.com/h3js/h3/blob/v1.15.11/docs/2.utils/1.request.md — fetched 2026-10-31 (h3 1.15.11)
 [38] h3 — validateData source — https://github.com/h3js/h3/blob/v1.15.11/src/utils/internal/validate.ts — fetched 2026-10-31 (h3 1.15.11)
-[39] h3 — getValidatedQuery and readValidatedBody source — https://github.com/h3js/h3/blob/v1.15.11/src/utils/request.ts — fetched 2026-10-31 (h3 1.15.11)
 [40] Nitro — Cache (varies, JSON serialization) — https://github.com/nitrojs/nitro/blob/v2.13.5/docs/1.guide/6.cache.md — fetched 2026-10-31 (nitropack 2.13.5)
 [41] Nuxt Content — queryCollection (server usage) — https://content.nuxt.com/docs/utils/query-collection — fetched 2026-10-31 (@nuxt/content 3.16.2)
-[42] Nuxt Content — Configuration (experimental.sqliteConnector, nativeSqlite deprecated) — https://content.nuxt.com/docs/getting-started/configuration — fetched 2026-10-31 (@nuxt/content 3.16.2)
 [43] Nuxt Content — Migration from v2 — https://content.nuxt.com/docs/getting-started/migration — fetched 2026-10-31 (@nuxt/content 3.16.2)
 [44] Sentry JavaScript SDK — MIGRATION.md (v10 to v11) — https://github.com/getsentry/sentry-javascript/blob/11.9.0/MIGRATION.md — fetched 2026-10-31 (@sentry/nuxt 11.9.0)
 [45] Sentry — Nuxt manual setup — https://docs.sentry.io/platforms/javascript/guides/nuxt/manual-setup/ — fetched 2026-10-31 (@sentry/nuxt 11.9.0)

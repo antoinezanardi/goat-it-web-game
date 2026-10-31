@@ -13,7 +13,7 @@ Skeleton of `docs/audits/GOAT-AUDIT-YYYY-MM-DD[-N].md`. Replace every `<…>` pl
 ````markdown
 # Goat It Web Game — GOAT Audit — YYYY-MM-DD[-N]
 
-> **Branch / commit:** `<branch>` @ `<short-sha>` · **Working tree:** clean | <n> uncommitted entries · **Tiers:** T1 ✓ · T2 ✓ · T3 acceptance ✓/✗ · local runtime ✓/✗ · live ✓/✗ · sweep ✓/✗
+> **Branch / commit:** `<branch>` @ `<short-sha>` · **Working tree:** clean | <n> uncommitted entries · **Tiers:** T1 ✓ · T2 ✓ · T3 acceptance ✓/✗ · local runtime ✓/✗ · live ✓/✗
 > **Tools:** node `<x.y.z>` · pnpm `<x.y.z>` · gh `<x.y.z>` · **Method:** <n> category explorers (audited: <codes>), <n> verifiers, <n> docs-fetcher dispatches
 > **Previous audit:** <report name or "none">
 

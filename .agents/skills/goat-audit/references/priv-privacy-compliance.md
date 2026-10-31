@@ -50,142 +50,120 @@ Personal-data and legal compliance of the Goat It web game under EU and French l
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/constants/cookie.constants.ts`, `app/composables/domain/use*Cookie/**` · Src: [3]
 - **[PRIV-12] No silent lifetime extension** — Cookies are rewritten only when their value changes, never on every visit or read, so the expiry is not automatically extended.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/composables/domain/use*Cookie/**`, `app/composables/ui/useLocaleSuggestion/**` · Src: [3]
-- **[PRIV-13] Consent UI offers equal choices** — When a consent banner is introduced, "accept all" and "refuse all" sit at the same level and format, no box is pre-ticked, one click refuses, and closing or ignoring the banner counts as refusal.
+- **[PRIV-13] Consent mechanism compliant if introduced** — When a consent banner or any non-exempt tracker is introduced: accept-all and refuse-all sit at the same level and format, no box is pre-ticked, one click refuses, closing or ignoring counts as refusal, a refusal stops every non-exempt read and write, a persistent manage-cookies control withdraws consent as easily as it was given, each choice is archived with timestamp, UI/policy version and purposes, consent and refusal are stored for about 6 months (13 months is never used as a consent-validity rule), and analytics is either anonymous first-party measurement under the CNIL exemption or consent-gated with a 13-month identifier and 25-month retention cap.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [4], [5]
-- **[PRIV-14] Refusal and withdrawal are honoured** — When a consent mechanism exists, a refusal stops every non-exempt read and write, and a persistent "manage cookies" control reachable from every page withdraws consent as easily as it was given.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [2], [4]
-- **[PRIV-15] Proof of consent retained** — When a consent mechanism exists, each choice is archived with timestamp, UI/policy version and purposes accepted or refused, and the consent UI version is kept (screenshot or hash).
-  Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [2], [4]
-- **[PRIV-16] Consent choice kept about 6 months** — When a consent mechanism exists, both consent and refusal are stored for about 6 months (CNIL good practice) and the user is not re-asked on every page; 13 months is not used as a consent-validity rule.
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/constants/cookie.constants.ts` · Src: [4], [6]
-- **[PRIV-17] Audience measurement meets exemption or consent** — When analytics is added, it is either limited to anonymous first-party statistics with no cross-site tracking, data combination or third-party reuse (CNIL exemption), or consent-gated; its identifier lifetime is at most 13 months without extension and its data is kept at most 25 months.
-  Evidence: `manual` · Diff: ✗ · Severity: high · Src: [3], [4]
-- **[PRIV-18] Exempt items described in a notice** — A cookie and storage notice names each exempt cookie and storage item with its purpose and lifetime, even though no consent is required.
+- **[PRIV-14] Exempt items described in a notice** — A cookie and storage notice names each exempt cookie and storage item with its purpose and lifetime, even though no consent is required.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [4]
 
 ## 3. Transparency (privacy policy)
 
-- **[PRIV-19] Privacy policy page exists** — A privacy-policy route exists under `app/pages/**` (for example `/privacy`) and renders a complete policy, not a placeholder.
+- **[PRIV-15] Privacy policy page exists** — A privacy-policy route exists under `app/pages/**` (for example `/privacy`) and renders a complete policy, not a placeholder.
   Evidence: `static` · Diff: ✓ · Severity: critical · Look: `app/pages/**` · Src: [1], [28]
-- **[PRIV-20] Policy in the six UI languages** — The policy content exists for `fr`, `en`, `de`, `es`, `it` and `pt` and the versions carry the same sections and the same update date.
+- **[PRIV-16] Policy in the six UI languages** — The policy content exists for `fr`, `en`, `de`, `es`, `it` and `pt` and the versions carry the same sections and the same update date.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `content/**`, `app/i18n/locales/**` · Src: [1], [28]
-- **[PRIV-21] Policy linked from every page** — A privacy-policy link is present in the home footer, the docs layout, the game page (menu or settings "About" tab) and the offline page.
+- **[PRIV-17] Policy linked from every page** — A privacy-policy link is present in the home footer, the docs layout, the game page (menu or settings "About" tab) and the offline page.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/domain/home/HomeFooter/**`, `app/layouts/**`, `app/components/domain/game/GameSettingsModal/**`, `app/pages/**` · Src: [9]
-- **[PRIV-22] Controller identity and contact stated** — The policy names the controller (legal name or denomination), a postal address and a privacy contact email; DPO details appear only if one is designated.
+- **[PRIV-18] Controller identity and contact stated** — The policy names the controller (legal name or denomination), a postal address and a privacy contact email; DPO details appear only if one is designated.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [9], [28]
-- **[PRIV-23] Purposes and legal bases per processing** — The policy gives a purpose and an Art. 6 legal basis for preference cookies, server logs and rate limiting, Sentry error tracking, uptime monitoring and the Goat It API calls.
+- **[PRIV-19] Purposes and legal bases per processing** — The policy gives a purpose and an Art. 6 legal basis for preference cookies, server logs and rate limiting, Sentry error tracking, uptime monitoring and the Goat It API calls.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [28]
-- **[PRIV-24] Retention per processing stated** — The policy states a retention period or criterion for cookies, the client content database, Cache Storage, server and host logs, rate-limiter IPs and Sentry events, consistent with `docs/privacy.md`.
+- **[PRIV-20] Retention per processing stated** — The policy states a retention period or criterion for cookies, the client content database, Cache Storage, server and host logs, rate-limiter IPs and Sentry events, consistent with `docs/privacy.md`.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [28], [7]
-- **[PRIV-25] Recipients and transfers stated** — The policy names Sentry, UptimeRobot, the hosting provider and the Goat It API, identifies US recipients and the safeguard used (EU-US Data Privacy Framework, SCC fallback) and how to obtain a copy.
+- **[PRIV-21] Recipients and transfers stated** — The policy names Sentry, UptimeRobot, the hosting provider and the Goat It API, identifies US recipients and the safeguard used (EU-US Data Privacy Framework, SCC fallback) and how to obtain a copy.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [28], [16], [21]
-- **[PRIV-26] Rights and CNIL complaint stated** — The policy lists access, rectification, erasure, restriction and objection with the channel to use, and the right to lodge a complaint with the CNIL (name, address and website).
+- **[PRIV-22] Rights and CNIL complaint stated** — The policy lists access, rectification, erasure, restriction and objection with the channel to use, and the right to lodge a complaint with the CNIL (name, address and website).
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [28], [9]
 
 ## 4. Processors and transfers
 
-- **[PRIV-27] Sentry DPA accepted and archived** — The current Sentry Data Processing Addendum (5.1.0, 29 May 2024) is accepted for the organization and the acceptance evidence is stored.
+- **[PRIV-23] Sentry DPA accepted and archived** — The current Sentry Data Processing Addendum (5.1.0, 29 May 2024) is accepted for the organization and the acceptance evidence is stored.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [16]
-- **[PRIV-28] Hosting provider DPA signed** — An Art. 28 contract covers the VPS or hosting provider, including sub-processors, breach notification and deletion or return of data at contract end.
+- **[PRIV-24] Hosting provider DPA signed** — An Art. 28 contract covers the VPS or hosting provider, including sub-processors, breach notification and deletion or return of data at contract end.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [29]
-- **[PRIV-29] UptimeRobot DPA requested** — The UptimeRobot DPA (offered only on request) is signed and on file, and its monitoring locations and US sub-processors are reviewed.
+- **[PRIV-25] UptimeRobot DPA requested** — The UptimeRobot DPA (offered only on request) is signed and on file, and its monitoring locations and US sub-processors are reviewed.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [24]
-- **[PRIV-30] Goat It API role clarified** — The register states whether the upstream Goat It API operator is a separate controller, joint controller or processor; if processor, an Art. 28 agreement exists.
+- **[PRIV-26] Goat It API role clarified** — The register states whether the upstream Goat It API operator is a separate controller, joint controller or processor; if processor, an Art. 28 agreement exists.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [29]
-- **[PRIV-31] Sentry region matches the documented transfer** — The production Sentry ingest origin (visible in the rendered CSP `connect-src` and the DSN host) matches the region recorded in `docs/privacy.md`; a `*.ingest.us.sentry.io` host means the US region (Iowa) and requires the DPF/SCC transfer to be documented, since the region cannot be changed after organization creation.
+- **[PRIV-27] Sentry region matches the documented transfer** — The production Sentry ingest origin (visible in the rendered CSP `connect-src` and the DSN host) matches the region recorded in `docs/privacy.md`; a `*.ingest.us.sentry.io` host means the US region (Iowa) and requires the DPF/SCC transfer to be documented, since the region cannot be changed after organization creation.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [17], [16], [21]
-- **[PRIV-32] Example DSN reflects the chosen region** — The placeholder `NUXT_PUBLIC_SENTRY_DSN` in `envs/.env.example` uses the ingest host of the region recorded in `docs/privacy.md`, so new environments do not default to another region.
+- **[PRIV-28] Example DSN reflects the chosen region** — The placeholder `NUXT_PUBLIC_SENTRY_DSN` in `envs/.env.example` uses the ingest host of the region recorded in `docs/privacy.md`, so new environments do not default to another region.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `envs/.env.example` · Src: [17]
-- **[PRIV-33] Transfer impact assessment documented** — A short TIA covers each US recipient (Sentry, UptimeRobot): legal route (DPF first, SCC fallback), public-authority access risk and supplementary measures.
+- **[PRIV-29] Transfer impact assessment documented** — A short TIA covers each US recipient (Sentry, UptimeRobot): legal route (DPF first, SCC fallback), public-authority access risk and supplementary measures.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [16], [21]
 
 ## 5. Minimisation and Sentry data collection
 
-- **[PRIV-34] Restrictive `dataCollection` set explicitly** — The shared Sentry init builder sets `dataCollection` with `userInfo: false`, `cookies: false`, `httpHeaders: false`, `urlQueryParams: false`, `httpBodies: []` and `stackFrameVariables: false`; it is never left unset, because unset `dataCollection` collects inferred IP, cookies, headers, bodies and query strings by default in v11 (verified: @sentry/nuxt 11.9.0).
+- **[PRIV-30] Restrictive `dataCollection` set explicitly** — The shared Sentry init builder sets `dataCollection` with `userInfo: false`, `cookies: false`, `httpHeaders: false`, `urlQueryParams: false`, `httpBodies: []` and `stackFrameVariables: false` — never left unset, because unset `dataCollection` collects inferred IP, cookies, headers, bodies and query strings by default in v11; both runtimes spread that builder into `init`, override no `dataCollection` key, and no `sendDefaultPii` option remains (replaced by `dataCollection` in v11) (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: critical · Look: `shared/utils/helpers/sentry/**` · Src: [32], [18], [19]
-- **[PRIV-35] Both runtimes use the shared minimised config** — `sentry.client.config.ts` and `sentry.server.config.ts` spread the shared builder output into `init` and override no `dataCollection` key, and no `sendDefaultPii` option remains (replaced by `dataCollection` in v11) (verified: @sentry/nuxt 11.9.0).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `sentry.*.config.ts` · Src: [32]
-- **[PRIV-36] IP-bearing names denied when collection is re-enabled** — When `httpHeaders`, `cookies` or `urlQueryParams` is set to `true` or an allow/deny object, the deny list includes `forwarded`, `-ip`, `remote-`, `via` and `-user`, because `userInfo: false` does not stop an IP arriving through `X-Forwarded-For` (verified: @sentry/nuxt 11.9.0).
+- **[PRIV-31] IP-bearing names denied when collection is re-enabled** — When `httpHeaders`, `cookies` or `urlQueryParams` is set to `true` or an allow/deny object, the deny list includes `forwarded`, `-ip`, `remote-`, `via` and `-user`, because `userInfo: false` does not stop an IP arriving through `X-Forwarded-For` (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `shared/utils/helpers/sentry/**`, `sentry.*.config.ts` · Src: [19], [32]
-- **[PRIV-37] No integration or API re-enables personal data** — No `Sentry.setUser` call (always sent), no `requestDataIntegration({ include: { ip: true } })` or other `include` override, and no `httpClientIntegration` (captures cookies and headers of failed browser requests) exists in app, server or shared code (verified: @sentry/nuxt 11.9.0).
+- **[PRIV-32] No integration or API re-enables personal data** — No `Sentry.setUser` call (always sent), no `requestDataIntegration({ include: { ip: true } })` or other `include` override, and no `httpClientIntegration` (captures cookies and headers of failed browser requests) exists in app, server or shared code (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `sentry.*.config.ts`, `shared/utils/helpers/sentry/**`, `app/**` · Src: [19], [32]
-- **[PRIV-38] Session Replay and Feedback absent** — No `replayIntegration`, `replaysSessionSampleRate`, `replaysOnErrorSampleRate` or `feedbackIntegration` is configured, because `dataCollection` does not govern Replay masking or network capture (verified: @sentry/nuxt 11.9.0).
+- **[PRIV-33] Session Replay and Feedback absent** — No `replayIntegration`, `replaysSessionSampleRate`, `replaysOnErrorSampleRate` or `feedbackIntegration` is configured, because `dataCollection` does not govern Replay masking or network capture (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `sentry.*.config.ts`, `nuxt.config.ts` · Src: [19], project: docs/security.md
-- **[PRIV-39] Console breadcrumbs not sent** — The `Console` integration is removed or `beforeBreadcrumb` drops breadcrumbs with category `console`, because the SDK sends console output as breadcrumbs by default (verified: @sentry/nuxt 11.9.0).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/utils/helpers/sentry/**`, `sentry.*.config.ts` · Src: [19]
-- **[PRIV-40] Breadcrumb URLs query-stripped** — `beforeBreadcrumb` removes the query string from fetch and XHR breadcrumb `data.url` values on both runtimes.
+- **[PRIV-34] Breadcrumbs carry no console output or query strings** — The `Console` integration is removed or `beforeBreadcrumb` drops breadcrumbs with category `console`, and `beforeBreadcrumb` removes the query string from fetch and XHR breadcrumb `data.url` values on both runtimes (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/utils/helpers/sentry/**` · Src: [19], project: docs/security.md
-- **[PRIV-41] `beforeSend` is an allow-list** — `beforeSend` rebuilds a minimal event from an explicit allow-list of fields (exception, stack trace, query-free URL and transaction, environment, safe tags) instead of deleting selected fields (`user`, `extra`) from the SDK event, so a field added by a future SDK version cannot leave unreviewed.
+- **[PRIV-35] `beforeSend` is an allow-list** — `beforeSend` rebuilds a minimal event from an explicit allow-list of fields (exception, stack trace, query-free URL and transaction, environment, safe tags) instead of deleting selected fields (`user`, `extra`) from the SDK event, so a field added by a future SDK version cannot leave unreviewed.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/utils/helpers/sentry/**` · Src: [18], [15], project: docs/security.md
-- **[PRIV-42] Sentry project stops storing IPs and geo** — The Sentry project has "Prevent storing of IP addresses" enabled and an Advanced Data Scrubbing rule `[Remove] [Anything] from [$user.geo.**]`, since geo data is derived from the IP even when IP storage is off.
+- **[PRIV-36] Sentry project stops storing IPs and geo** — The Sentry project has "Prevent storing of IP addresses" enabled and an Advanced Data Scrubbing rule `[Remove] [Anything] from [$user.geo.**]`, since geo data is derived from the IP even when IP storage is off.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [15]
-- **[PRIV-43] Captured events carry no personal data** — A test error triggered on staging produces a Sentry event with no `user.ip_address`, cookies, headers, query string, request body or stack-frame variables.
+- **[PRIV-37] Captured events carry no personal data** — A test error triggered on staging produces a Sentry event with no `user.ip_address`, cookies, headers, query string, request body or stack-frame variables.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [19]
-- **[PRIV-44] Sentry retention matches the policy** — The error retention of the Sentry plan (30 days Developer, 90 days Team/Business) is the value stated in the privacy policy and the register.
+- **[PRIV-38] Sentry retention matches the policy** — The error retention of the Sentry plan (30 days Developer, 90 days Team/Business) is the value stated in the privacy policy and the register.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [20]
 
 ## 6. Data-subject rights
 
-- **[PRIV-45] Privacy contact channel exists** — A monitored privacy email or form is published in the privacy policy and the legal notice.
+- **[PRIV-39] Privacy contact channel exists** — A monitored privacy email or form is published in the privacy policy and the legal notice.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [28]
-- **[PRIV-46] Rights procedure documented** — A procedure names the owner, intake, proportionate identity verification, search locations (Sentry, server and host logs), response templates, a request log and the one-month response deadline; with no accounts, access answers explain what is and is not retained.
+- **[PRIV-40] Rights procedure documented** — A procedure names the owner, intake, proportionate identity verification, search locations (Sentry, server and host logs), response templates, a request log and the one-month response deadline; with no accounts, access answers explain what is and is not retained.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [1], [28]
-- **[PRIV-47] Erasure is operable in Sentry and logs** — The procedure covers deleting Sentry issues and tag values, and states the log rotation window after which server and host log entries disappear.
+- **[PRIV-41] Erasure is operable in Sentry and logs** — The procedure covers deleting Sentry issues and tag values, and states the log rotation window after which server and host log entries disappear.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [15], [7]
 
 ## 7. Legal notice (LCEN art. 1-1)
 
-- **[PRIV-48] Legal notice page exists** — A `mentions légales` route exists under `app/pages/**` and its content is available at least in French.
+- **[PRIV-42] Legal notice page exists and is server-rendered** — A `mentions légales` route exists under `app/pages/**`, its content is available at least in French, and it answers 200 with its full text in the server-rendered HTML, readable without JavaScript.
   Evidence: `static` · Diff: ✓ · Severity: critical · Look: `app/pages/**` · Src: [11], [9], [31]
-- **[PRIV-49] Legal notice server-rendered** — The legal notice page answers `200` with its full text in the server-rendered HTML, readable without JavaScript.
-  Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [9], [11]
-- **[PRIV-50] Publisher identity complete** — The notice identifies the publisher (individual: name, first name, domicile, phone; company: denomination, legal form, capital, seat, RCS/RNE number, VAT where applicable), or a legal review confirms the LCEN art. 1-1 II non-professional option (only the host's details published, identity given to the host) and that the identity was actually transmitted.
+- **[PRIV-43] Publisher, publication director and host identified** — The notice identifies the publisher (individual: name, first name, domicile, phone; company: denomination, legal form, capital, seat, RCS/RNE number, VAT where applicable) or a legal review confirms the LCEN art. 1-1 II non-professional option with the identity actually transmitted, names the publication director (or co-director), and gives the host name or denomination, address and phone number.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [11]
-- **[PRIV-51] Publication director named** — The notice names the director (or co-director) of publication.
-  Evidence: `manual` · Diff: ✗ · Severity: high · Src: [11]
-- **[PRIV-52] Hosting provider identified** — The notice gives the host's name or denomination, address and phone number.
-  Evidence: `manual` · Diff: ✗ · Severity: high · Src: [11]
-- **[PRIV-53] Legal notice linked from every page** — A legal-notice link is present in the home footer, the docs layout, the game page (menu or settings "About" tab) and the offline page, not only inside the privacy policy.
+- **[PRIV-44] Legal notice linked from every page** — A legal-notice link is present in the home footer, the docs layout, the game page (menu or settings "About" tab) and the offline page, not only inside the privacy policy.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/domain/home/HomeFooter/**`, `app/layouts/**`, `app/components/domain/game/GameSettingsModal/**`, `app/pages/**` · Src: [9]
 
 ## 8. Accessibility legal obligations
 
-- **[PRIV-54] RGAA scope assessed** — A dated legal memo in `docs/privacy.md` concludes whether the publisher falls under the French RGAA obligation (public body, private delegate of a public service, public-interest body, or company above the turnover threshold) and records the result.
+- **[PRIV-45] RGAA scope assessed** — A dated legal memo in `docs/privacy.md` concludes whether the publisher falls under the French RGAA obligation (public body, private delegate of a public service, public-interest body, or company above the turnover threshold) and records the result.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [12]
-- **[PRIV-55] European Accessibility Act applicability assessed** — A dated legal memo records whether the game is a service listed by the EAA (applicable since 28 June 2025: e-commerce, banking, transport, e-books, telephony…) and whether the microenterprise exemption (fewer than 10 staff and at most €2 M turnover or balance sheet) applies, with a revisit trigger such as adding paid features.
+- **[PRIV-46] European Accessibility Act applicability assessed** — A dated legal memo records whether the game is a service listed by the EAA (applicable since 28 June 2025: e-commerce, banking, transport, e-books, telephony…) and whether the microenterprise exemption (fewer than 10 staff and at most €2 M turnover or balance sheet) applies, with a revisit trigger such as adding paid features.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [13], [14]
 
 ## 9. Audience and content
 
-- **[PRIV-56] No adult question before opt-in** — With cleared cookies, a game session served on `/game` shows no question flagged as adult content and every random-questions request carries `isAdultContent: false` until the player turns the adult-content switch on.
+- **[PRIV-47] No adult question before opt-in** — With cleared cookies, a game session served on `/game` shows no question flagged as adult content and every random-questions request carries `isAdultContent: false` until the player turns the adult-content switch on.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [27], [30]
-- **[PRIV-57] Adult opt-in explained** — The adult-content switch in the game settings states, in all six locales, that enabling it shows mature questions, before the player enables it.
+- **[PRIV-48] Adult opt-in explained** — The adult-content switch in the game settings states, in all six locales, that enabling it shows mature questions, before the player enables it.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/GameSettingsModal/**`, `app/i18n/locales/**` · Src: [27], [30]
-- **[PRIV-58] Audience notice and Art. 8 position documented** — The terms or footer state that the game may contain mature content and is not directed at young children (no age gate is claimed if none exists), and `docs/privacy.md` records that no consent-based processing of under-15s exists, to revisit when analytics or accounts are added.
+- **[PRIV-49] Audience notice and Art. 8 position documented** — The terms or footer state that the game may contain mature content and is not directed at young children (no age gate is claimed if none exists), and `docs/privacy.md` records that no consent-based processing of under-15s exists, to revisit when analytics or accounts are added.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [27], [30]
 
 ## 10. Terms, intellectual property and licences
 
-- **[PRIV-59] Terms of use published** — Terms of use state acceptable use, IP ownership, warranty disclaimer, liability limitation, governing law and contact.
+- **[PRIV-50] Terms of use published** — Terms of use state acceptable use, IP ownership, warranty disclaimer, liability limitation, governing law and contact.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [9]
-- **[PRIV-60] Geist font licence shipped** — The self-hosted Geist font files under `public/fonts/` are distributed with the SIL Open Font License 1.1 text and copyright notice, and reserved font names are respected if the font is modified.
+- **[PRIV-51] Font and icon licences shipped** — The self-hosted Geist font files under `public/fonts/` are distributed with the SIL Open Font License 1.1 text and copyright notice (reserved font names respected if modified), and the ISC copyright and permission notice for the Lucide icons inlined into the client bundle is published with the app (licences page or notices file).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `public/fonts/**` · Src: [23]
-- **[PRIV-61] Lucide icon notice shipped** — The ISC copyright and permission notice for the Lucide icons inlined into the client bundle is published with the app (licences page or notices file).
-  Evidence: `artifact` · Diff: ✗ · Severity: low · Src: [25], [22]
-- **[PRIV-62] Image rights documented** — `public/img/**` (including `home-bg.avif` and the logo), `public/og-image.png` and the PWA icons and screenshots have a recorded author and licence, or are recorded as original work.
+- **[PRIV-52] Image rights documented** — `public/img/**` (including `home-bg.avif` and the logo), `public/og-image.png` and the PWA icons and screenshots have a recorded author and licence, or are recorded as original work.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Look: `public/img/**`, `public/pwa/**` · Src: [10]
-- **[PRIV-63] Question content licence documented** — The licence and attribution terms of the upstream question bank are recorded, and question source links stay displayed wherever those terms require attribution.
+- **[PRIV-53] Question content licence documented** — The licence and attribution terms of the upstream question bank are recorded, and question source links stay displayed wherever those terms require attribution.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [10]
 
 ## 11. Records of processing, DPIA and dark patterns
 
-- **[PRIV-64] Art. 30 record maintained** — A dated record of processing activities exists and is updated on change; the Art. 30(5) small-organisation exemption is not assumed for a continuously operated public site.
+- **[PRIV-54] Art. 30 record and DPIA screening maintained** — A dated record of processing activities exists and is updated on change (the Art. 30(5) small-organisation exemption is not assumed for a continuously operated public site), and a screening note explains why no full DPIA is required (no systematic monitoring, no large-scale special-category data, no innovative high-risk processing), to revisit when tracking or accounts are added.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [26]
-- **[PRIV-65] DPIA screening documented** — A screening note explains why no full DPIA is required (no systematic monitoring, no large-scale special-category data, no innovative high-risk processing), to revisit when tracking or accounts are added.
-  Evidence: `manual` · Diff: ✗ · Severity: low · Src: [1]
-- **[PRIV-66] Personal-data breach procedure** — A breach procedure names owners and covers detection, containment, risk assessment, CNIL notification within 72 hours and user communication when the risk is high.
+- **[PRIV-55] Personal-data breach procedure** — A breach procedure names owners and covers detection, containment, risk assessment, CNIL notification within 72 hours and user communication when the risk is high.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [1]
-- **[PRIV-67] No dark patterns** — A review of the whole product against CNIL guidance finds no misleading consent or settings UI, no nagging, no obstructed refusal and no confusing toggle defaults.
+- **[PRIV-56] No dark patterns** — A review of the whole product against CNIL guidance finds no misleading consent or settings UI, no nagging, no obstructed refusal and no confusing toggle defaults.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [4], [5]
 
 ## Sources
@@ -195,7 +173,6 @@ Personal-data and legal compliance of the Goat It web game under EU and French l
 [3] CNIL — Cookies : solutions pour les outils de mesure d'audience — https://www.cnil.fr/fr/cookies-et-autres-traceurs/regles/cookies-solutions-pour-les-outils-de-mesure-daudience — fetched 2026-10-31 (4 July 2025)
 [4] CNIL — Questions-réponses lignes directrices et recommandation cookies — https://www.cnil.fr/fr/cookies-et-autres-traceurs/regles/cookies/FAQ — fetched 2026-10-31 (29 April 2026)
 [5] CNIL — Cookies et traceurs : comment mettre mon site web en conformité ? — https://www.cnil.fr/fr/cookies-et-autres-traceurs/regles/cookies/comment-mettre-mon-site-web-en-conformite — fetched 2026-10-31 (1 Oct 2020)
-[6] CNIL — Cookies : si j'ai refusé, peut-on me redemander mon choix ? — https://www.cnil.fr/fr/cnil-direct/question/cookies-si-jai-refuse-ses-cookies-un-site-web-peut-il-me-redemander-de-les — fetched 2026-10-31 (undated)
 [7] CNIL — Les durées de conservation des données — https://www.cnil.fr/fr/passer-laction/les-durees-de-conservation-des-donnees — fetched 2026-10-31 (2 April 2026)
 [8] EDPB — Guidelines 2/2023 on Technical Scope of Art. 5(3) ePrivacy Directive — https://www.edpb.europa.eu/our-work-tools/documents/public-consultations/2023/guidelines-22023-technical-scope-art-53-eprivacy_en — fetched 2026-10-31 (v2.0, Oct 2024)
 [9] Service-Public Entreprendre — Mentions obligatoires sur le site internet d'une entreprise — https://entreprendre.service-public.fr/vosdroits/F37351 — fetched 2026-10-31 (verified 13 Oct 2026)
@@ -211,10 +188,8 @@ Personal-data and legal compliance of the Goat It web game under EU and French l
 [19] Sentry — Data Collected for Browser JavaScript — https://docs.sentry.io/platforms/javascript/data-management/data-collected/ — fetched 2026-10-31 (@sentry/nuxt 11.x docs)
 [20] Sentry — Data Retention Periods — https://docs.sentry.io/security-legal-pii/security/data-retention-periods/ — fetched 2026-10-31 (accessed 2026-10-31)
 [21] European Commission — EU-US data transfers — https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/eu-us-data-transfers_en — fetched 2026-10-31 (DPF adequacy 10 July 2023)
-[22] Open Source Guides — The Legal Side of Open Source — https://opensource.guide/legal/ — fetched 2026-10-31 (accessed 2026-10-31)
 [23] SIL — SIL Open Font License — https://openfontlicense.org/ — fetched 2026-10-31 (OFL 1.1; FAQ update 7 Nov 2023)
 [24] UptimeRobot — Privacy Policy — https://uptimerobot.com/privacy/ — fetched 2026-10-31 (updated 13 Oct 2026)
-[25] Lucide — License — https://lucide.dev/license — fetched 2026-10-31 (ISC, 2026)
 [26] GDPR.eu — Art. 30 records of processing activities — https://gdpr.eu/article-30-records-of-processing-activities/ — fetched 2026-10-31 (accessed 2026-10-31)
 [27] GDPR.eu — Art. 8 conditions applicable to child's consent — https://gdpr.eu/article-8-childs-consent/ — fetched 2026-10-31 (accessed 2026-10-31)
 [28] GDPR.eu — Art. 13 information to be provided — https://gdpr.eu/article-13-personal-data-collected/ — fetched 2026-10-31 (accessed 2026-10-31)

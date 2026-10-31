@@ -66,77 +66,73 @@ collections and caps at every boundary, upstream contract compatibility with `@g
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/composables/**`, `app/stores/**`, `shared/types/async-result.types.ts` · Src: [3], project: docs/architecture.md §4.3
 - **[REL-19] Timeout is an error, supersede is not** — A lane timeout aborts with a `TimeoutError` reason and resolves as a failure (`fetchStatus` `error`, `onError` called), distinct from a supersede abort; code never treats the two reasons as the same outcome.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/composables/core/useAsyncAction/**` · Src: [1], project: docs/architecture.md §4.2
-- **[REL-20] `useAsyncData` handlers honour the signal** — When `useAsyncData` is used, its handler forwards the `{ signal }` from its second argument to `$fetch` or its own work, so `dedupe: 'cancel'`, `clear()` and `timeout` actually abort the request (verified: nuxt 4.6.3).
+- **[REL-20] `useAsyncData` handlers honour the signal** — When `useAsyncData` is used, its handler forwards the `{ signal }` from its second argument to `$fetch` or its own work, so `dedupe: cancel`, `clear()` and `timeout` actually abort the request; a keyed `useAsyncData` that can be re-triggered chooses its `dedupe` deliberately and never treats retained `data` as fresh after `enabled` flips (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**/*.vue` · Src: [9]
-- **[REL-21] `useAsyncData` cancellation options deliberate** — When a keyed `useAsyncData` can be re-triggered, its `dedupe` is chosen deliberately (default `'cancel'` aborts the pending call, `'defer'` keeps it), and when `enabled` gates it the UI does not treat retained `data` as fresh: switching `enabled` to `false` cancels in-flight work without clearing `data`, and re-enabling does not refetch (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/pages/**/*.vue` · Src: [9], [11]
-- **[REL-22] Cancellation at runtime** — Rapidly re-triggering an action (changing settings, restarting a game, navigating away) shows the previous proxy request as cancelled in the browser network log, and only the latest response reaches the UI.
+- **[REL-21] Cancellation at runtime** — Rapidly re-triggering an action (changing settings, restarting a game, navigating away) shows the previous proxy request as cancelled in the browser network log, and only the latest response reaches the UI.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [3], [9]
 
 ## 4. Graceful degradation
 
-- **[REL-23] Failure is never empty or success** — Stores apply only `ok` results; a failed or unparsable response (a repository `ZodError` surfaces as `{ ok: false, error }`) leaves existing state untouched and the lane in `error`, and no repository, store or handler converts a failure into `[]`, a default object or a success status.
+- **[REL-22] Failure is never empty or success** — Stores apply only `ok` results; a failed or unparsable response (a repository `ZodError` surfaces as `{ ok: false, error }`) leaves existing state untouched and the lane in `error`, and no repository, store or handler converts a failure into `[]`, a default object or a success status.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/repositories/goat-it-api/**`, `app/stores/**`, `server/api/goat-it-api/**` · Src: [5], [12], project: docs/architecture.md §4.3
-- **[REL-24] Proxy failure statuses** — Upstream failures map to the error contract — `502` `upstream-error` (upstream 5xx, 401/403, redirect, network failure, contract drift), `504` `upstream-timeout`, `500` `internal-error` — each with `data.errorCode`; the proxy never answers `200` with an empty or partial body after an upstream failure.
+- **[REL-23] Proxy failure statuses** — Upstream failures map to the error contract — `502` `upstream-error` (upstream 5xx, 401/403, redirect, network failure, contract drift), `504` `upstream-timeout`, `500` `internal-error` — each with `data.errorCode`; the proxy never answers `200` with an empty or partial body after an upstream failure.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-error/**` · Src: [5], project: docs/security.md
-- **[REL-25] Retry-After propagation** — An upstream `429` keeps its status and forwards `Retry-After` as `data.retryAfter`, and every `429` or `503` the `/api/goat-it-api/**` proxy emits itself carries a `Retry-After` header, so clients back off instead of retrying immediately.
+- **[REL-24] Retry-After propagation** — An upstream `429` keeps its status and forwards `Retry-After` as `data.retryAfter`, and every `429` or `503` the `/api/goat-it-api/**` proxy emits itself carries a `Retry-After` header, so clients back off instead of retrying immediately.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/helpers/goat-it-api-error/**`, `server/middleware/02-api-rate-limit.middleware.ts` · Src: [3], project: docs/security.md
-- **[REL-26] Degradation matrix documented** — `docs/operations.md` or `docs/security.md` maps each dependency failure (upstream 5xx, timeout, contract drift, `429`, client offline) to its HTTP status and `errorCode`; the expected system behaviour and detection for the same failures is covered by OPS-46.
+- **[REL-25] Degradation matrix documented** — `docs/operations.md` or `docs/security.md` maps each dependency failure (upstream 5xx, timeout, contract drift, `429`, client offline) to its HTTP status and `errorCode`; the expected system behaviour and detection for the same failures is covered by OPS-46.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md`, `docs/security.md` · Src: [5], [8]
-- **[REL-27] Partial batch policy explicit** — When an upstream batch contains an item that fails validation, the policy is explicit and documented — reject the whole batch with `502`, or drop invalid items above a minimum count with a warning log — and items are never silently truncated.
+- **[REL-26] Partial batch policy explicit** — When an upstream batch contains an item that fails validation, the policy is explicit and documented — reject the whole batch with `502`, or drop invalid items above a minimum count with a warning log — and items are never silently truncated.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/helpers/goat-it-api-validation/**` · Src: [5], project: docs/security.md
-- **[REL-28] Persistent-failure cooldown** — Repeated upstream failures trip a bounded cooldown (circuit breaker or short negative cache) instead of one upstream call per user retry, or the absence is a documented decision that names the rate limiter as the bound.
+- **[REL-27] Persistent-failure cooldown** — Repeated upstream failures trip a bounded cooldown (circuit breaker or short negative cache) instead of one upstream call per user retry, or the absence is a documented decision that names the rate limiter as the bound.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/**` · Src: [1], [3]
-- **[REL-29] Non-critical dependency isolation** — A Sentry transport failure never fails a request, an SSR render or a client action: error reporting never throws into the request path (logger failures are covered by OPS-20).
+- **[REL-28] Non-critical dependency isolation** — A Sentry transport failure never fails a request, an SSR render or a client action: error reporting never throws into the request path (logger failures are covered by OPS-20).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/logging/**`, `server/plugins/error-logging/**` · Src: [5], project: docs/operations.md
-- **[REL-30] Upstream outage drill** — With the upstream stopped or answering `503`, the home and game pages still render with HTTP `200` and show an error state, proxy calls answer `502` with `data.errorCode`, and the web process stays live (`/healthz` `200`).
+- **[REL-29] Upstream outage drill** — With the upstream stopped or answering `503`, the home and game pages still render with HTTP `200` and show an error state, proxy calls answer `502` with `data.errorCode`, and the web process stays live (`/healthz` `200`).
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [5], project: docs/operations.md
-- **[REL-31] Kill switch** — Upstream-dependent features can be disabled through a runtime `NUXT_*` variable without a rebuild, documented in `envs/.env.example`, or the absence of a kill switch is a recorded decision.
+- **[REL-30] Kill switch** — Upstream-dependent features can be disabled through a runtime `NUXT_*` variable without a rebuild, documented in `envs/.env.example`, or the absence of a kill switch is a recorded decision.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `envs/.env.example`, `server/utils/runtime-config/**` · Src: [3], [8]
 
 ## 5. Limits at boundaries
 
-- **[REL-32] Proxy clamps page size** — Every proxy route that forwards a `limit` clamps it with `clampFindQueryLimit` to its `FIND_*_QUERY_LIMIT_MAXIMUM` (the `0` sentinel maps to the maximum), so a client cannot request an unbounded upstream page.
+- **[REL-31] Proxy clamps page size** — Every proxy route that forwards a `limit` clamps it with `clampFindQueryLimit` to its `FIND_*_QUERY_LIMIT_MAXIMUM` (the `0` sentinel maps to the maximum), so a client cannot request an unbounded upstream page.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/api/goat-it-api/**`, `server/utils/goat-it-api/helpers/goat-it-api-find-query-limit/**` · Src: [3], [14]
-- **[REL-33] Caps aligned with the upstream schema** — Each proxy cap (`FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM`, `FIND_QUESTION_THEMES_QUERY_LIMIT_MAXIMUM`) is at most the maximum the matching `@goat-it/schemas` query DTO accepts, so a clamped request never fails upstream validation.
+- **[REL-32] Caps aligned with the upstream schema** — Each proxy cap (`FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM`, `FIND_QUESTION_THEMES_QUERY_LIMIT_MAXIMUM`) is at most the maximum the matching `@goat-it/schemas` query DTO accepts, so a clamped request never fails upstream validation.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/constants/goat-it-api.constants.ts` · Src: [14]
-- **[REL-34] Bounded request arrays** — Every array a proxy route accepts (query `ids`, random-search exclusion list) is bounded by a `.max()` in its validation schema before any upstream call, and a request over the bound fails with `400` `invalid-request`.
+- **[REL-33] Bounded request arrays** — Every array a proxy route accepts (query `ids`, random-search exclusion list) is bounded by a `.max()` in its validation schema before any upstream call, and a request over the bound fails with `400` `invalid-request`.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/api/goat-it-api/**`, `server/utils/goat-it-api/helpers/goat-it-api-validation/**` · Src: [3], [14], project: docs/security.md
-- **[REL-35] Exclusion list fits the body guard** — The client caps the exclusion list it sends with a named maximum (newest ids kept), so maximum ids × maximum id length stays well under the 512 KiB body guard and within the upstream array maximum; a long session never trips `413`.
+- **[REL-34] Exclusion list fits the body guard** — The client caps the exclusion list it sends with a named maximum (newest ids kept), so maximum ids × maximum id length stays well under the 512 KiB body guard and within the upstream array maximum; a long session never trips `413`.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/composables/domain/useGameQuestionFeed/**` · Src: [6], project: docs/security.md
-- **[REL-36] Session-growing collections capped** — Every client collection that grows during a session (question buffer, answer history, any id list) has a named maximum constant enforced on insert, so a long session cannot grow requests or state without bound.
+- **[REL-35] Session-growing collections capped** — Every client collection that grows during a session (question buffer, answer history, any id list) has a named maximum constant enforced on insert, so a long session cannot grow requests or state without bound.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/stores/**`, `app/composables/domain/**` · Src: [3], [6]
-- **[REL-37] Response arrays bounded** — Shared domain schemas used by repositories bound every array, top-level and nested, with a named maximum (nested ones reuse `@goat-it/schemas` constants such as `QUESTION_SOURCE_URLS_MAX_ITEMS`), so an oversized proxy response fails validation instead of flooding the UI.
+- **[REL-36] Response arrays bounded** — Shared domain schemas used by repositories bound every array, top-level and nested, with a named maximum (nested ones reuse `@goat-it/schemas` constants such as `QUESTION_SOURCE_URLS_MAX_ITEMS`), so an oversized proxy response fails validation instead of flooding the UI.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/schemas/**` · Src: [14]
 
 ## 6. Upstream contract compatibility
 
-- **[REL-38] Additive drift tolerated, other drift rejected** — Upstream responses go through `parseAndMapGoatItApiResponse`: when every issue is `unrecognized_keys`, the keys are stripped from a clone and the payload re-parsed with a `GOAT_IT_API_SCHEMA_DRIFT` warning; any other issue becomes `502` `upstream-error`.
+- **[REL-37] Additive drift tolerated, other drift rejected** — Upstream responses go through `parseAndMapGoatItApiResponse`: when every issue is `unrecognized_keys`, the keys are stripped from a clone and the payload re-parsed with a `GOAT_IT_API_SCHEMA_DRIFT` warning; any other issue becomes `502` `upstream-error`.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-validation/**`, `server/api/goat-it-api/**` · Src: [14], project: docs/security.md
-- **[REL-39] Unknown-key policy deliberate per boundary** — Each schema boundary chooses its unknown-key policy on purpose — `z.object` strips, `z.strictObject` throws, `z.looseObject` passes keys through, and `.extend()` keeps the base schema's policy (spreading `.shape` into an explicit constructor makes it visible) — and domain schemas extending strict `@goat-it/schemas` DTOs accept exactly the keys the proxy mappers emit (verified: zod 4.6.7).
+- **[REL-38] Unknown-key policy deliberate per boundary** — Each schema boundary chooses its unknown-key policy on purpose — `z.object` strips, `z.strictObject` throws, `z.looseObject` passes keys through, and `.extend()` keeps the base schema's policy (spreading `.shape` into an explicit constructor makes it visible) — and domain schemas extending strict `@goat-it/schemas` DTOs accept exactly the keys the proxy mappers emit (verified: zod 4.6.7).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/schemas/**` · Src: [14]
-- **[REL-40] No silent fallbacks on transported data** — Schemas that parse upstream DTOs or proxy responses never use `.catch()`, which returns a fallback instead of failing and hides contract drift (verified: zod 4.6.7); `.catch()` is reserved for persisted client preferences.
+- **[REL-39] No silent fallbacks on transported data** — Schemas that parse upstream DTOs or proxy responses never use `.catch()`, which returns a fallback instead of failing and hides contract drift (verified: zod 4.6.7); `.catch()` is reserved for persisted client preferences.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/schemas/**`, `server/utils/goat-it-api/**` · Src: [14]
-- **[REL-41] Drift is observable** — Every tolerated drift logs the stripped paths at `warn`, and every rejected drift logs the failing issue paths before answering `502`, so an upstream contract change is visible before users report it.
+- **[REL-40] Drift is observable** — Every tolerated drift logs the stripped paths at `warn`, and every rejected drift logs the failing issue paths before answering `502`, so an upstream contract change is visible before users report it.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/helpers/**` · Src: [5], project: docs/operations.md
-- **[REL-42] New enum values handled** — The behaviour when the upstream adds an enum value (question category, cognitive difficulty, locale) is decided and documented — whole-batch `502` or a mapped fallback — and a unit spec of the validation path covers it.
+- **[REL-41] New enum values handled** — The behaviour when the upstream adds an enum value (question category, cognitive difficulty, locale) is decided and documented — whole-batch `502` or a mapped fallback — and a unit spec of the validation path covers it.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/**`, `shared/schemas/**` · Src: [5], [14]
-- **[REL-43] Schema package pinned** — `package.json` pins `@goat-it/schemas` to an exact version or a range that admits a single version, and `pnpm-lock.yaml` resolves it, so contract changes arrive only through a reviewed upgrade.
+- **[REL-42] Schema package pinned** — `package.json` pins `@goat-it/schemas` to an exact version or a range that admits a single version, and `pnpm-lock.yaml` resolves it, so contract changes arrive only through a reviewed upgrade; a documented procedure covers reading the changelog, re-checking proxy caps, mappers and domain schemas, and running the validation and mapper specs before merging.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `package.json`, `pnpm-lock.yaml` · Src: [7], [14]
-- **[REL-44] Schema upgrade procedure** — A documented procedure governs `@goat-it/schemas` upgrades: read the package changelog, re-check proxy caps, mappers and domain schemas against the new DTOs, and run the validation and mapper specs before merging.
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `AGENTS.md`, `docs/**` · Src: [7], [14]
 
 ## 7. Capacity & load
 
-- **[REL-45] Rate limit sized for legitimate play** — The per-client budget (`NUXT_RATE_LIMIT_MAXIMUM_REQUESTS` `60` per `NUXT_RATE_LIMIT_WINDOW_IN_MS` `60000`) covers the heaviest legitimate flow — fast play with prefetch, client retries, several players behind one NAT address — with documented headroom.
+- **[REL-43] Rate limit sized for legitimate play** — The per-client budget (`NUXT_RATE_LIMIT_MAXIMUM_REQUESTS` `60` per `NUXT_RATE_LIMIT_WINDOW_IN_MS` `60000`) covers the heaviest legitimate flow — fast play with prefetch, client retries, several players behind one NAT address — with documented headroom.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/security.md`, `server/middleware/02-api-rate-limit.middleware.ts` · Src: [6], project: docs/security.md
-- **[REL-46] Load test to breaking point** — SSR pages and `/api/goat-it-api/**` have been load-tested to their breaking point on the production VPS size, and the sustainable requests per second, p95 latency and failure mode are recorded.
+- **[REL-44] Load test to breaking point** — SSR pages and `/api/goat-it-api/**` have been load-tested to their breaking point on the production VPS size, and the sustainable requests per second, p95 latency and failure mode are recorded.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [3], [6]
-- **[REL-47] Overload sheds load** — At about 2× expected peak traffic the app answers `429` or `503` and recovers when load drops, without a crash or restart loop.
+- **[REL-45] Overload sheds load** — At about 2× expected peak traffic the app answers `429` or `503` and recovers when load drops, without a crash or restart loop.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [3], [5]
-- **[REL-48] Soak stability** — A session of at least 1 h at steady load keeps latency and error rate flat, with no unbounded growth of prefetch buffers or history.
+- **[REL-46] Soak stability** — A session of at least 1 h at steady load keeps latency and error rate flat, with no unbounded growth of prefetch buffers or history.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [3], [6]
-- **[REL-49] Upstream quota headroom** — Peak proxy requests per second × upstream attempts per request × instances stays below the Goat It API quota or rate limit, and the figure is written down.
+- **[REL-47] Upstream quota headroom** — Peak proxy requests per second × upstream attempts per request × instances stays below the Goat It API quota or rate limit, and the figure is written down.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [6], [8]
 
 ## Sources
@@ -151,7 +147,6 @@ collections and caps at every boundary, upstream contract compatibility with `@g
 [8] Google SRE Book, Appendix E — Launch Coordination Checklist — https://sre.google/sre-book/launch-checklist/ — fetched 2026-10-31 (2017)
 [9] Nuxt 4.x — useAsyncData API — https://nuxt.com/docs/4.x/api/composables/use-async-data — fetched 2026-10-31 (nuxt 4.6.3, docs v4.6)
 [10] Nuxt 4.x — useFetch API — https://nuxt.com/docs/4.x/api/composables/use-fetch — fetched 2026-10-31 (nuxt 4.6.3, docs v4.6)
-[11] Nuxt 4.x — Data Fetching — https://nuxt.com/docs/4.x/getting-started/data-fetching — fetched 2026-10-31 (nuxt 4.6.3)
 [12] Nuxt 4.x — Error Handling — https://nuxt.com/docs/4.x/getting-started/error-handling — fetched 2026-10-31 (nuxt 4.6.3)
 [13] ofetch v1 — README (retry, retryDelay, timeout defaults) — https://github.com/unjs/ofetch/blob/v1/README.md — fetched 2026-10-31 (library ofetch 1.5.1)
 [14] Zod — Defining schemas (objects, `.extend()`, `.catch()`) — https://github.com/colinhacks/zod/blob/v4.6.5/packages/docs/content/api.mdx — fetched 2026-10-31 (docs v4.6.5, library zod 4.6.7)

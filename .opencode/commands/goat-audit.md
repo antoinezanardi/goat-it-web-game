@@ -31,7 +31,7 @@ A full run is expensive: 20 explorer dispatches in waves of six, adversarial ver
 6. Load the previous audit: the latest existing GOAT report, Appendix B findings index. On the first run the delta section says "First GOAT audit".
 7. Build `decisions.md` in the run directory: the `## GOAT audit decisions` entries of every decision doc plus the documented decisions listed in the skill §7, each with doc path and line.
 8. Ask **one multi-select question** for the scope: `All 20 categories (recommended)`, `Security & platform (SEC, SUP, CICD, PLAT, OPS, REL)`, `Product experience (LOGIC, PERF, A11Y, I18N, SEO, PWA)`, `Engineering quality (UX, ARCH, STACK, CODE, TEST, PRIV)`, `Docs & agents (DOCS, AGENT)`, or explicit codes via a custom answer. Quote the cost of a full run. Skip the question when `$ARGUMENTS` already names the categories. Write the selection to `evidence/scope.md` and into the report header.
-9. Ask **one multi-select question** (Tier 3 + optional sweep): "Acceptance suite (Docker sandbox required)", "Local runtime: headers + Lighthouse", "Live production + staging GETs", "Per-file test-convention sweep", "None". If live GETs are chosen, ask one follow-up confirming the base URLs (prefilled from `docs/operations.md`; custom answer allowed). Never ask more than these two questions plus the live-URL confirmation before phase 1.
+9. Ask **one multi-select question** (Tier 3): "Acceptance suite (Docker sandbox required)", "Local runtime: headers + Lighthouse", "Live production + staging GETs", "None". If live GETs are chosen, ask one follow-up confirming the base URLs (prefilled from `docs/operations.md`; custom answer allowed). Never ask more than these two questions plus the live-URL confirmation before phase 1.
 
 ### 1. Evidence (conductor)
 
@@ -52,7 +52,6 @@ Every command output goes to `evidence/<name>` with a header (`$ <command>`, exi
 - Dispatch one `explore` subagent per **selected** category, waves of at most 6, in this order: [SEC, SUP, CICD, PLAT, OPS, REL], [LOGIC, PERF, A11Y, I18N, SEO, PWA], [UX, ARCH, STACK, CODE, TEST, PRIV], [DOCS, AGENT].
 - Explorer prompt (template in `references/triage-templates.md` §Explorer): category code; paths of `SKILL.md`, the category reference file (read **in full**), `decisions.md`, `evidence/INDEX.md`; the rules: evaluate **every** check of the file with an outcome and evidence; verify each `Look` glob still exists (missing → note for AGENT); tag library-behavior claims `needs-docs: <library>`; never modify any file except `categories/<CODE>.md`; if writing fails return the full result inline; reply in ≤ 150 words (path + outcome counts).
 - If the conductor receives an inline result, it writes `categories/<CODE>.md` itself.
-- **Per-file test-convention sweep** (opt-in): batches of 4 spec files (`/lint-unit-tests` §3 classification) and 4–8 acceptance files (`/lint-acceptance-tests` §3) audited by `explore` subagents against the §4 checklists of those commands, using their return format; results are reported as [TEST-66] (unit conventions) and [TEST-67] (acceptance conventions) with a violation table grouped by lint tag. Without the sweep both checks are `⚠️ UNVERIFIED (sweep not run)`.
 
 ### 3. Library verification
 
@@ -103,6 +102,6 @@ Dispatch fresh `explore` verifiers, ≤ 8 FAIL findings per verifier, grouped by
 After the finish report, run a short retrospective and offer to improve **this command and the skill**:
 
 1. **Collect findings:** checks that could not be evaluated (missing evidence, ambiguous criterion), stale `Look` hints and dead sources, explorer/verifier friction, triage questions the maintainer found unclear, false positives that survived verification, boundary disputes between categories.
-2. **Propose improvements** as a table (improvement → lessons addressed): next free check IDs, retired IDs, command protocol edits, template fixes. Ask via the question tool which to apply (multi-select plus custom answers).
+2. **Propose improvements** as a table (improvement → lessons addressed): new check IDs, removals and merges (with the renumbering they imply), command protocol edits, template fixes. Ask via the question tool which to apply (multi-select plus custom answers).
 3. **Never modify the skill, its references or this command.** The auditor is read-only (skill §2(c)): the only write paths are the report and its run directory, the decision docs and `AGENTS.md`.
-4. **Hand off approved edits.** Produce a ready-to-apply payload — exact file, check ID or section, BEFORE/AFTER text, and the structural rules to respect (next free ID, removed IDs never reused, `Diff ✓` only with `static`, sources resolve, `Look` globs exist) — and tell the maintainer to run it through the normal orchestrator cycle. Do not apply it yourself.
+4. **Hand off approved edits.** Produce a ready-to-apply payload — exact file, check ID or section, BEFORE/AFTER text, and the structural rules to respect (IDs stay gap-free after any removal, `Diff ✓` only with `static`, sources resolve, `Look` globs exist) — and tell the maintainer to run it through the normal orchestrator cycle. Do not apply it yourself.

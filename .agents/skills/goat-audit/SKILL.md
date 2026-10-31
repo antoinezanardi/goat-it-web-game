@@ -44,7 +44,7 @@ A full audit is expensive: 20 explorer dispatches in waves of six, adversarial v
 ### 4.1 Check line format
 
 ```markdown
-- **[SEC-09] Nonce-based `script-src`** — <Pass criterion with exact values, names, thresholds>.
+- **[SEC-08] Nonce-based `script-src`** — <Pass criterion with exact values, names, thresholds>.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/security/**` · Src: [1], project: docs/security.md
 ```
 
@@ -54,13 +54,15 @@ A full audit is expensive: 20 explorer dispatches in waves of six, adversarial v
 - **Look** — optional repository globs; every glob matched at least one path when the file was written.
 - **Src** — `[n]` indexes into the file's `## Sources`, and/or `project: <repo path>` (optionally ` §<n>`).
 - `(verified: <library> <x.y[.z]>)` marks a library-dependent criterion. Re-verify when the installed major or minor differs.
-- A removed check leaves no line (§11); its ID is never reused.
+- A removed check leaves no line (§11); the category's IDs are compacted in the same change.
 - **Criterion scope.** A criterion states an outcome that stays true as the product grows: it prescribes no single component, route, screen or feature as the only acceptable implementation, and component or file names belong in `Look` and `Src`, never inside the criterion.
 
 ### 4.2 IDs
 
 - Format `<CODE>-<NN>`: two digits, zero-padded (`SEC-07`); three digits from 100 (`SEC-100`).
-- IDs are unique per category and **never reused**: never renumber an existing check and never give a removed ID to a new one. New checks take the next free number (gaps left by removals are expected) and may sit in any sub-area.
+- IDs are unique per category and form a **gap-free sequence** `-01`…`-NN`: no gap, no duplicate.
+- A removal or merge renumbers the category's remaining checks in file order, and every reference to them (this skill, agents, commands, templates, decision notes) is updated in the same change.
+- A new check takes the number after the category's last check; the next removal-driven renumbering restores file order.
 - Always cite a check as `[SEC-07]` in reports, reviews and decisions.
 
 ### 4.3 Outcomes (full audit)
@@ -187,16 +189,16 @@ Boundaries worth repeating: sustainability → PERF; cost amplification → SEC/
 **Full report** (inside the category section):
 
 ```markdown
-#### [SEC-09] Nonce-based script-src — HIGH 🔒
+#### [SEC-08] Nonce-based script-src — HIGH 🔒
 
 - **Evidence:** `server/utils/security/security-headers.constants.ts:22-35` — <quoted fact>; `evidence/live-production.txt` line 14
 - **Impact:** <concrete consequence for this product>
 - **Remediation:** <concrete steps>
-- **References:** [SEC-09] sources; <docs-fetcher URL when relevant>
+- **References:** [SEC-08] sources; <docs-fetcher URL when relevant>
 - **Verification:** CONFIRMED by verifier <batch id> | ADJUSTED high → medium: <reason>
 ```
 
-**Diff mode** (`final-reviewer`): `` `[SEC-09]` `file:line` — expected pattern (severity) ``. For `Diff: ✗` checks whose `Look` matches a changed file: `` ⚠️ `[PERF-11]` `file` — verify in next /goat-audit (requires artifact) ``.
+**Diff mode** (`final-reviewer`): `` `[SEC-08]` `file:line` — expected pattern (severity) ``. For `Diff: ✗` checks whose `Look` matches a changed file: `` ⚠️ `[PERF-10]` `file` — verify in next /goat-audit (requires artifact) ``.
 
 ## 10. Diff-mode procedure (final-reviewer)
 
@@ -211,7 +213,7 @@ Boundaries worth repeating: sustainability → PERF; cost amplification → SEC/
 
 ## 11. Maintaining the checklists
 
-- Adding a check: next free ID, all fields, a fetched source (never training data), `Look` globs that exist.
-- Removing a check: delete its line entirely; its ID is never reused.
-- Rewriting a check: rewrite the criterion in place, keeping the ID. When a `## GOAT audit decisions` entry is attached to the old criterion, the next run reports `decision revisit triggered — <doc>:<line>` so the maintainer re-decides it.
-- Every `/goat-audit` run reports stale `Look` hints as [AGENT-18] and dead source links as [AGENT-19].
+- Adding a check: take the number after the category's last check, all fields, a fetched source (never training data), `Look` globs that exist.
+- Removing or merging a check: delete its line entirely, renumber the category's remaining checks in file order, and update every reference to a shifted ID in the same change; a decision note attached to a shifted check is updated to its new ID.
+- Rewriting a check: rewrite the criterion in place; the ID moves only through a removal-driven renumbering. When a decision note is attached to the old criterion, the next run reports `decision revisit triggered — <doc>:<line>` so the maintainer re-decides it.
+- Every `/goat-audit` run reports stale `Look` hints and dead source links as [AGENT-10].

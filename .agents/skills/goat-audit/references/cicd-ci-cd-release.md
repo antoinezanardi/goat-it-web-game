@@ -39,115 +39,113 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml` · Src: [1], [4]
 - **[CICD-10] Personal access tokens minimized** — `SEMANTIC_RELEASE_TOKEN` and `BYOB_TOKEN` are fine-grained, single-repository, expiring tokens limited to the scopes their job needs, and `GITHUB_TOKEN` is used wherever it suffices.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [1], [4]
-- **[CICD-11] Release content isolated from caches** — Workflows that publish or write repository state (release, release-PR, deploy) never feed files restored by the cache into release content, PR bodies or images; data passes between jobs through run-scoped artifacts or job outputs, or the cache is disabled for those jobs.
+- **[CICD-11] Release content isolated from caches** — Workflows that publish or write repository state (release, release-PR, deploy) never feed files restored by the cache into release content, PR bodies or images; data passes between jobs through run-scoped artifacts or job outputs, and caches those jobs restore cannot be seeded by pull-request runs.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/upsert-pr-release.yml`, `.github/workflows/release-creation.yml` · Src: [8]
-- **[CICD-12] Cache scope cannot cross trust boundaries** — Cache keys include the OS and `hashFiles('pnpm-lock.yaml')`, and caches restored by default-branch release or deploy jobs (`node_modules`, coverage `restore-keys` prefixes) cannot be seeded by pull-request runs.
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/actions/install-project/action.yml`, `.github/actions/sonarcloud/action.yml`, `.github/actions/unit-tests/action.yml` · Src: [8]
-- **[CICD-13] Run-scoped, short-lived artifacts** — Artifacts exchanged between jobs carry a run scope (`${{ github.run_id }}-${{ github.run_attempt }}`), set `retention-days` ≤ 2, and the consumer fails on a missing or duplicate artifact (`if-no-files-found: error`; the manifest merge aborts when a platform digest is missing).
+- **[CICD-12] Run-scoped, short-lived artifacts** — Artifacts exchanged between jobs carry a run scope (`${{ github.run_id }}-${{ github.run_attempt }}`), set `retention-days` ≤ 2, and the consumer fails on a missing or duplicate artifact (`if-no-files-found: error`; the manifest merge aborts when a platform digest is missing).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/build.yml`, `.github/workflows/docker-build-and-push.yml` · Src: [8]
-- **[CICD-14] Bot conditions not spoofable** — Conditions that skip or trust bots test `github.event.pull_request.user.login` or an app id, never `github.actor` (e.g. `if: github.actor != 'renovate[bot]'`).
+- **[CICD-13] Bot conditions not spoofable** — Conditions that skip or trust bots test `github.event.pull_request.user.login` or an app id, never `github.actor` (e.g. `if: github.actor != 'renovate[bot]'`).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `.github/workflows/build.yml` · Src: [8]
-- **[CICD-15] Third-party actions vetted** — Every non-GitHub-owned action is not archived and still maintained (`gh api repos/<owner>/<repo>`) and receives only the token it needs.
+- **[CICD-14] Third-party actions vetted** — Every non-GitHub-owned action is not archived and still maintained (`gh api repos/<owner>/<repo>`) and receives only the token it needs.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [1], [2]
-- **[CICD-16] Workflow lint and security audit in CI** — A pull-request job runs a workflow linter and a workflow security auditor over `.github/workflows/**` and `.github/actions/**` and fails on any finding (for example actionlint with shellcheck plus zizmor); linting alone does not cover security audits.
+- **[CICD-15] Workflow lint and security audit in CI** — A pull-request job runs a workflow linter and a workflow security auditor over `.github/workflows/**` and `.github/actions/**` and fails on any finding (for example actionlint with shellcheck plus zizmor); linting alone does not cover security audits.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml` · Src: [8]
-- **[CICD-17] Every job has a timeout** — Every job that runs steps declares `timeout-minutes`; jobs that only call a reusable workflow rely on the callee's job timeouts.
+- **[CICD-16] Every job has a timeout** — Every job that runs steps declares `timeout-minutes`; jobs that only call a reusable workflow rely on the callee's job timeouts.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `.github/workflows/*.yml` · Src: [8]
 
 ## 2. CI completeness
 
-- **[CICD-18] PR CI runs every AGENTS.md quality gate** — Pull requests to `develop` and `main` run the CI equivalents of the four `AGENTS.md` gates — `pnpm run lint` (ESLint and Oxlint), `pnpm run typecheck`, `pnpm run test:unit:cov`, `pnpm run test:acceptance` — each in a job that blocks the merge.
+- **[CICD-17] PR CI runs every AGENTS.md quality gate** — Pull requests to `develop` and `main` run the CI equivalents of the four `AGENTS.md` gates — `pnpm run lint` (ESLint and Oxlint), `pnpm run typecheck`, `pnpm run test:unit:cov`, `pnpm run test:acceptance` — each in a job that blocks the merge.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml`, `.github/actions/*/action.yml`, `AGENTS.md` · Src: [9], project: AGENTS.md
-- **[CICD-19] Gate failures fail the job** — No gate step is neutralized by `continue-on-error: true`, `|| true` or `set +e` unless a later step of the same job exits non-zero on `steps.<id>.outcome != 'success'`.
+- **[CICD-18] Gate failures fail the job** — No gate step is neutralized by `continue-on-error: true`, `|| true` or `set +e` unless a later step of the same job exits non-zero on `steps.<id>.outcome != 'success'`.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/actions/*/action.yml`, `.github/workflows/*.yml` · Src: [1], project: AGENTS.md
-- **[CICD-20] CodeQL on every PR and on main** — CodeQL (`javascript,typescript`) runs on every pull request to `develop` and `main` and on push to `main`, with `security-events: write` granted only to that job.
+- **[CICD-19] CodeQL on every PR and on main** — CodeQL (`javascript,typescript`) runs on every pull request to `develop` and `main` and on push to `main`, with `security-events: write` granted only to that job.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml`, `.github/workflows/release-creation.yml`, `.github/actions/code-ql/action.yml` · Src: [2], [9]
-- **[CICD-21] Scheduled CI run** — A `schedule:` trigger (at least weekly) runs CodeQL and the build, lint and test gates against the default branch, so analysis-rule updates and toolchain drift surface without pull-request activity (the scheduled dependency scan itself belongs to SUP).
+- **[CICD-20] Scheduled CI run** — A `schedule:` trigger (at least weekly) runs CodeQL and the build, lint and test gates against the default branch, so analysis-rule updates and toolchain drift surface without pull-request activity (the scheduled dependency scan itself belongs to SUP).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/*.yml` · Src: [2], [9]
-- **[CICD-22] Scripts referenced by CI exist** — Every `pnpm run <script>` and `scripts/*` path invoked from workflows, composite actions and `.husky/*` hooks exists in `package.json` `scripts` or on disk.
+- **[CICD-21] Scripts referenced by CI exist** — Every `pnpm run <script>` and `scripts/*` path invoked from workflows, composite actions and `.husky/*` hooks exists in `package.json` `scripts` or on disk.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/actions/*/action.yml`, `.github/workflows/*.yml`, `.husky/*`, `package.json` · Src: project: AGENTS.md
-- **[CICD-23] Sonar analyses coverage from the same commit** — SonarCloud reads `tests/unit/coverage/lcov.info` produced by the same workflow run (artifact or job dependency), not a cache restored through a broad `restore-keys` prefix that can return another branch's coverage.
+- **[CICD-22] Sonar analyses coverage from the same commit** — SonarCloud reads `tests/unit/coverage/lcov.info` produced by the same workflow run (artifact or job dependency), not a cache restored through a broad `restore-keys` prefix that can return another branch's coverage.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/actions/sonarcloud/action.yml`, `sonar-project.properties` · Src: [8], project: AGENTS.md
 
 ## 3. Rulesets and CODEOWNERS
 
-- **[CICD-24] Rulesets protect main and develop** — `gh api repos/{owner}/{repo}/rulesets` shows active branch rulesets targeting `refs/heads/main` and `refs/heads/develop` that block deletion and non-fast-forward pushes and require a pull request, since anyone able to push to a semantic-release branch can publish a release.
+- **[CICD-23] Rulesets protect main and develop** — `gh api repos/{owner}/{repo}/rulesets` shows active branch rulesets targeting `refs/heads/main` and `refs/heads/develop` that block deletion and non-fast-forward pushes and require a pull request, since anyone able to push to a semantic-release branch can publish a release.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [6], [14]
-- **[CICD-25] Required status checks match real jobs** — The rulesets require every blocking job of the pull-request workflow (including CodeQL, workflow lint, codebase lint, dependency audit, build, Docker build per platform, unit and acceptance tests), the PR-title lint and, for `main`, the main-branch protection job, with `strict_required_status_checks_policy: true`; no required context names a renamed or deleted job.
+- **[CICD-24] Required status checks match real jobs** — The rulesets require every blocking job of the pull-request workflow (including CodeQL, workflow lint, codebase lint, dependency audit, build, Docker build per platform, unit and acceptance tests), the PR-title lint and, for `main`, the main-branch protection job, with `strict_required_status_checks_policy: true`; no required context names a renamed or deleted job.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [6]
-- **[CICD-26] Required review enforced** — The rulesets require at least one approving review, code-owner review, dismissal of stale approvals on push and approval of the last push; a single-maintainer exception is recorded as a decision.
+- **[CICD-25] Required review enforced** — The rulesets require at least one approving review, code-owner review, dismissal of stale approvals on push and approval of the last push; a single-maintainer exception is recorded as a decision.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [6]
-- **[CICD-27] No ruleset bypass actors** — The bypass list of every branch ruleset is empty; Scorecard treats any bypass actor as protections not enforced for admins.
+- **[CICD-26] No ruleset bypass actors** — The bypass list of every branch ruleset is empty; Scorecard treats any bypass actor as protections not enforced for admins.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [6]
-- **[CICD-28] Signed commits required** — The rulesets on `main` and `develop` require signed commits; a merge queue on `main` is optional.
+- **[CICD-27] Signed commits required** — The rulesets on `main` and `develop` require signed commits; a merge queue on `main` is optional.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [6]
-- **[CICD-29] CODEOWNERS has no errors** — `gh api repos/{owner}/{repo}/codeowners/errors` returns an empty `errors` array, because GitHub silently skips invalid lines.
+- **[CICD-28] CODEOWNERS has no errors** — `gh api repos/{owner}/{repo}/codeowners/errors` returns an empty `errors` array, because GitHub silently skips invalid lines.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [12]
-- **[CICD-30] Sensitive paths have explicit owners** — `.github/CODEOWNERS` assigns owners to the workflow and action definitions, the CODEOWNERS file itself, container and dependency-policy files and the release configuration, with these patterns after any catch-all because the last matching pattern wins.
+- **[CICD-29] Sensitive paths have explicit owners** — `.github/CODEOWNERS` assigns owners to the workflow and action definitions, the CODEOWNERS file itself, container and dependency-policy files and the release configuration, with these patterns after any catch-all because the last matching pattern wins.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/CODEOWNERS` · Src: [12]
-- **[CICD-31] Bus factor documented** — At least two people can approve pull requests and publish a release, or the single-maintainer situation and its continuity plan are recorded.
+- **[CICD-30] Bus factor documented** — At least two people can approve pull requests and publish a release, or the single-maintainer situation and its continuity plan are recorded.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [9], [12]
 
 ## 4. Release engineering
 
-- **[CICD-32] Release branches match release workflows** — `branches` in `configs/semantic-release/release.config.mjs` lists only branches on which a workflow runs semantic-release or a documented dry-run version preview (`script:create-release-changelog` on `develop`), and the release step's `--extends` path points to that file (verified: semantic-release 25.0.9).
+- **[CICD-31] Release branches match release workflows** — `branches` in `configs/semantic-release/release.config.mjs` lists only branches on which a workflow runs semantic-release or a documented dry-run version preview (`script:create-release-changelog` on `develop`), and the release step's `--extends` path points to that file (verified: semantic-release 25.0.9).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/semantic-release/**`, `.github/workflows/release-creation.yml`, `.github/workflows/upsert-pr-release.yml` · Src: [14]
-- **[CICD-33] Release gated by green gates** — The semantic-release job `needs:` the blocking quality jobs of the same run (at least CodeQL and the unit and acceptance tests), so a red `main` never publishes a tag, a GitHub Release or a production deploy.
+- **[CICD-32] Release gated by green gates** — The semantic-release job `needs:` the blocking quality jobs of the same run (at least CodeQL and the unit and acceptance tests), so a red `main` never publishes a tag, a GitHub Release or a production deploy.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/release-creation.yml` · Src: [1], [9]
-- **[CICD-34] Commit types map to SemVer** — `releaseRules` keep `feat` → minor, `fix` → patch and breaking changes (`!` or a `BREAKING CHANGE:` footer) → major; any extra patch-releasing type (`docs`, `style`, `refactor`, `test`, `ci`, `chore`) is a documented choice.
+- **[CICD-33] Commit types map to SemVer** — `releaseRules` keep `feat` → minor, `fix` → patch and breaking changes (`!` or a `BREAKING CHANGE:` footer) → major; any extra patch-releasing type (`docs`, `style`, `refactor`, `test`, `ci`, `chore`) is a documented choice.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/semantic-release/**` · Src: [10], [11], [14]
-- **[CICD-35] Tag equals manifest version** — Every release tag follows `tagFormat` `v${version}` (semantic-release default), is strict SemVer and unique, equals the `package.json` `version` of the tagged commit and the matching `CHANGELOG.md` heading, and has a GitHub Release (verified: semantic-release 25.0.9).
+- **[CICD-34] Tag equals manifest version** — Every release tag follows `tagFormat` `v${version}` (semantic-release default), is strict SemVer and unique, equals the `package.json` `version` of the tagged commit and the matching `CHANGELOG.md` heading, and has a GitHub Release (verified: semantic-release 25.0.9).
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [9], [10], [14]
-- **[CICD-36] Release tags protected** — A tag ruleset on `refs/tags/v*` restricts creation, update and deletion of release tags to the release automation identity.
+- **[CICD-35] Release tags protected** — A tag ruleset on `refs/tags/v*` restricts creation, update and deletion of release tags to the release automation identity.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [6], [9]
-- **[CICD-37] Main merged back into develop after release** — After a published release (`new-release-published == 'true'`), the release workflow merges `main` into `develop` with a Conventional `chore:` message, and a merge conflict fails the job instead of force-pushing.
+- **[CICD-36] Main merged back into develop after release** — After a published release (`new-release-published == 'true'`), the release workflow merges `main` into `develop` with a Conventional `chore:` message, and a merge conflict fails the job instead of force-pushing.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/release-creation.yml` · Src: [1], [11], project: .github/CONTRIBUTING.md
-- **[CICD-38] Release process documented end to end** — `docs/ci-cd.md` or `.github/CONTRIBUTING.md` describes the chain Conventional commit → release PR (`upsert-pr-release.yml`) → merge to `main` → semantic-release tag and changelog → image build → production deploy, states who may release, and links the rollback procedure.
+- **[CICD-37] Release process documented end to end** — `docs/ci-cd.md` or `.github/CONTRIBUTING.md` describes the chain Conventional commit → release PR (`upsert-pr-release.yml`) → merge to `main` → semantic-release tag and changelog → image build → production deploy, states who may release, and links the rollback procedure.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/CONTRIBUTING.md` · Src: [9], [13]
 
 ## 5. Deploy safety and credentials
 
-- **[CICD-39] Deploy jobs use GitHub environments** — The staging and production SSH deploy jobs declare `environment:` (`staging`, `production`) and read the SSH key, user, address, update-script path and `known_hosts` from environment-scoped secrets, not repository secrets.
+- **[CICD-38] Deploy jobs use GitHub environments** — The staging and production SSH deploy jobs declare `environment:` (`staging`, `production`) and read the SSH key, user, address, update-script path and `known_hosts` from environment-scoped secrets, not repository secrets.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/deploy-*.yml` · Src: [4], [17]
-- **[CICD-40] Environment protection rules** — `gh api repos/{owner}/{repo}/environments/production` shows a required reviewer or wait timer, deployment branches and tags restricted to release tags (`v*`), and administrator bypass disallowed; `staging` is restricted to `develop`.
+- **[CICD-39] Environment protection rules** — `gh api repos/{owner}/{repo}/environments/production` shows a required reviewer or wait timer, deployment branches and tags restricted to release tags (`v*`), and administrator bypass disallowed; `staging` is restricted to `develop`.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [17]
-- **[CICD-41] Deploy by immutable digest** — The deploy step passes the `sha256:` digest produced by the same run's image job to the update script, so the server pulls `image@sha256:…` instead of the mutable `latest` or `develop` tags.
+- **[CICD-40] Deploy by immutable digest** — The deploy step passes the `sha256:` digest produced by the same run's image job to the update script, so the server pulls `image@sha256:…` instead of the mutable `latest` or `develop` tags.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/deploy-*.yml`, `.github/workflows/docker-build-and-push.yml` · Src: [1], [3]
-- **[CICD-42] Provenance verified before deploy** — When the image is attested, the deploy job runs `gh attestation verify oci://<image>@sha256:<digest>` (or a cosign signature check) and fails before the SSH step if verification fails.
+- **[CICD-41] Provenance verified before deploy** — When the image is attested, the deploy job runs `gh attestation verify oci://<image>@sha256:<digest>` (or a cosign signature check) and fails before the SSH step if verification fails.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/deploy-*.yml` · Src: [3], [5]
-- **[CICD-43] Pinned SSH host key** — The deploy action connects with `StrictHostKeyChecking=yes` and a `known_hosts` entry supplied from a reviewed secret, never generated by `ssh-keyscan` at deploy time; no staging or production workflow passes `strict-host-key-checking: "no"`.
+- **[CICD-42] Pinned SSH host key** — The deploy action connects with `StrictHostKeyChecking=yes` and a `known_hosts` entry supplied from a reviewed secret, never generated by `ssh-keyscan` at deploy time; no staging or production workflow passes `strict-host-key-checking: "no"`.
   Evidence: `static` · Diff: ✓ · Severity: critical · Look: `.github/actions/deploy/action.yml`, `.github/workflows/deploy-*.yml` · Src: [4]
-- **[CICD-44] SSH inputs passed safely** — The deploy action passes user, host and update-script path through `env:` and quotes them (`ssh "$SSH_USER@$SSH_HOST"`), with no `${{ inputs.* }}` interpolated into the `run:` body or the SSH heredoc.
+- **[CICD-43] SSH inputs passed safely** — The deploy action passes user, host and update-script path through `env:` and quotes them (`ssh "$SSH_USER@$SSH_HOST"`), with no `${{ inputs.* }}` interpolated into the `run:` body or the SSH heredoc.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/actions/deploy/action.yml` · Src: [8]
-- **[CICD-45] Key material contained** — The private key is written with `chmod 600` and never echoed to logs, `set -x` is absent from secret-handling steps, and an `if: always()` step deletes the key file and kills `ssh-agent`.
+- **[CICD-44] Key material contained** — The private key is written with `chmod 600` and never echoed to logs, `set -x` is absent from secret-handling steps, and an `if: always()` step deletes the key file and kills `ssh-agent`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/actions/deploy/action.yml` · Src: [4]
-- **[CICD-46] Restricted deploy identity on the VPS** — The SSH deploy user can run only the update script (`authorized_keys` `command=`/`from=` restrictions, or sudoers `NOPASSWD` limited to that absolute path) and cannot read repository or registry credentials.
+- **[CICD-45] Restricted deploy identity on the VPS** — The SSH deploy user can run only the update script (`authorized_keys` `command=`/`from=` restrictions, or sudoers `NOPASSWD` limited to that absolute path) and cannot read repository or registry credentials.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [1], [4]
-- **[CICD-47] Deploy keys typed, per environment, rotated** — Deploy keys are ed25519, distinct for staging and production, and rotated at least every 90 days and immediately when an operator leaves.
+- **[CICD-46] Deploy keys typed, per environment, rotated** — Deploy keys are ed25519, distinct for staging and production, and rotated at least every 90 days and immediately when an operator leaves.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [1], [4]
-- **[CICD-48] Scoped registry credentials** — The CI `DOCKER_HUB_PASSWORD` secret holds a Docker Hub access token limited to the image repository, not the account password, and the VPS holds a pull-only credential.
+- **[CICD-47] Scoped registry credentials** — The CI `DOCKER_HUB_PASSWORD` secret holds a Docker Hub access token limited to the image repository, not the account password, and the VPS holds a pull-only credential.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [1], [4]
-- **[CICD-49] Serialized release and deploy runs** — Release, release-PR and deploy workflows use a stable concurrency group per branch or environment (e.g. `deploy-production`), not a `github.run_id` fallback that never serializes, and set `cancel-in-progress: false` so a running release or deploy is never cut midway.
+- **[CICD-48] Serialized release and deploy runs** — Release, release-PR and deploy workflows use a stable concurrency group per branch or environment (e.g. `deploy-production`), not a `github.run_id` fallback that never serializes, and set `cancel-in-progress: false` so a running release or deploy is never cut midway.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/deploy-*.yml`, `.github/workflows/release-creation.yml`, `.github/workflows/upsert-pr-release.yml` · Src: [8], [16]
 
 ## 6. CI efficiency
 
-- **[CICD-50] Superseded PR runs cancelled** — Every `pull_request`-triggered workflow declares `concurrency` with group `${{ github.workflow }}-${{ github.head_ref || github.run_id }}` and `cancel-in-progress: true`.
+- **[CICD-49] Superseded PR runs cancelled** — Every `pull_request`-triggered workflow declares `concurrency` with group `${{ github.workflow }}-${{ github.head_ref || github.run_id }}` and `cancel-in-progress: true`.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `.github/workflows/*.yml` · Src: [8], [16]
-- **[CICD-51] No duplicate CI runs** — A commit runs each gate once per trigger: workflows that share a trigger do not repeat the same job, and the release branch re-runs only the jobs whose outputs it consumes.
+- **[CICD-50] No duplicate CI runs** — A commit runs each gate once per trigger: workflows that share a trigger do not repeat the same job, and the release branch re-runs only the jobs whose outputs it consumes.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `.github/workflows/*.yml` · Src: [16]
 
 ## 7. Hooks and commit, branch and PR-title enforcement
 
-- **[CICD-52] commit-msg hook runs commitlint** — The `commit-msg` hook runs commitlint with the repository configuration on the edited message, and that configuration extends `@commitlint/config-conventional`.
+- **[CICD-51] commit-msg hook runs commitlint** — The `commit-msg` hook runs commitlint with the repository configuration on the edited message, and that configuration extends `@commitlint/config-conventional`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.husky/*`, `configs/commitlint/**` · Src: [11], [15]
-- **[CICD-53] pre-commit gates installed and scoped** — The `pre-commit` hook validates the branch name, lints and fixes staged files, type-checks and runs the unit tests affected by the staged files; the `prepare` script installs the hooks outside CI.
+- **[CICD-52] pre-commit gates installed and scoped** — The `pre-commit` hook validates the branch name, lints and fixes staged files, type-checks and runs the unit tests affected by the staged files; the `prepare` script installs the hooks outside CI.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.husky/*`, `configs/lint-staged/**`, `package.json` · Src: [9], project: .github/CONTRIBUTING.md
-- **[CICD-54] CI re-enforces hook rules** — Because `--no-verify` skips hooks, a pull-request job runs `pnpm run validate:branch-name` on the head branch and commitlint over the PR commit range (`commitlint --from <base-sha> --to <head-sha>`).
+- **[CICD-53] CI re-enforces hook rules** — Because `--no-verify` skips hooks, a pull-request job runs `pnpm run validate:branch-name` on the head branch and commitlint over the PR commit range (`commitlint --from <base-sha> --to <head-sha>`).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/*.yml`, `configs/validate-branch-name/**` · Src: [11], [15], project: .github/CONTRIBUTING.md
-- **[CICD-55] PR titles linted on every merge target** — PR titles are validated on `opened`, `edited`, `reopened` and `synchronize` for every base branch whose PR title becomes a commit header (`develop`, and `main` when release PRs are squash-merged), including the 100-character `header-max-length` (verified: @commitlint/config-conventional 21.2.4).
+- **[CICD-54] PR titles linted on every merge target** — PR titles are validated on `opened`, `edited`, `reopened` and `synchronize` for every base branch whose PR title becomes a commit header (`develop`, and `main` when release PRs are squash-merged), including the 100-character `header-max-length` (verified: @commitlint/config-conventional 21.2.4).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/lint-pr-name-into-develop.yml` · Src: [11], [15]
-- **[CICD-56] One commit-type list everywhere** — The allowed types are identical across commitlint `type-enum` (`build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`), the PR-title regex, the branch-name pattern (plus bot prefixes `copilot` and `renovate`), the `.coderabbit.yaml` title requirement and semantic-release `releaseRules`; no type (e.g. `tech`) is accepted in one place and rejected in another (verified: @commitlint/config-conventional 21.2.4).
+- **[CICD-55] One commit-type list everywhere** — The allowed types are identical across commitlint `type-enum` (`build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`), the PR-title regex, the branch-name pattern (plus bot prefixes `copilot` and `renovate`), the `.coderabbit.yaml` title requirement and semantic-release `releaseRules`; no type (e.g. `tech`) is accepted in one place and rejected in another (verified: @commitlint/config-conventional 21.2.4).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/commitlint/**`, `configs/validate-branch-name/**`, `configs/semantic-release/**`, `.github/workflows/lint-pr-name-into-develop.yml`, `.coderabbit.yaml` · Src: [11], [15]
 
 ## Sources

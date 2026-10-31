@@ -39,7 +39,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `tests/acceptance/features/step-definitions/accessibility/**` · Src: [8]
 - **[A11Y-07] Exclusions are explicit and justified** — Every `.exclude()`, `.disableRules()` or rule override in the axe helper targets a narrow selector and is recorded in `docs/accessibility.md` with rule id, WCAG success criterion, reason and revisit condition; no per-scenario silencing exists.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `tests/acceptance/features/step-definitions/accessibility/**` · Src: [8]
-- **[A11Y-08] Scan after hydration and animations settle** — `checkAccessibility` waits for load completion, `document.fonts.ready` and the end of all finite running animations before `analyze()`, so GSAP entrances from `opacity: 0` do not produce false contrast or hidden-content results.
+- **[A11Y-08] Scan after hydration and animations settle** — `checkAccessibility` waits for load completion, `document.fonts.ready` and the end of all finite running animations before `analyze()`, so GSAP entrances from `opacity: 0` do not produce false contrast or hidden-content results; the step first opens and awaits the target state (dialog visible, question revealed, toast shown) so axe scans it while visible.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `tests/acceptance/features/step-definitions/accessibility/**` · Src: [16], [8]
 - **[A11Y-09] Portalled content in scope** — The `AxeBuilder` context is the whole document (no `.include()` limited to a subtree), so teleported dialogs, slideovers, popovers, tooltips and toasts are analysed.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `tests/acceptance/features/step-definitions/accessibility/**` · Src: [8], [9]
@@ -137,7 +137,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/GameSettingsModal/**` · Src: [15]
 - **[A11Y-50] No nested interactive elements** — No button, link or form control is nested inside another interactive element (for example a `UButton` inside a `NuxtLink` or a clickable card), and `nested-interactive` passes.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [8]
-- **[A11Y-51] Instance-unique ids** — Ids referenced by `for`, `aria-labelledby`, `aria-describedby` or `aria-controls` in reusable components are generated per instance (Vue `useId()`; verified: vue 3.5.44), never hard-coded literals, and `duplicate-id-aria` passes.
+- **[A11Y-51] Instance-unique, hydration-stable ids** — Ids referenced by `for`, `aria-labelledby`, `aria-describedby` or `aria-controls` in reusable components are generated per instance (Vue `useId()`), stable across server and client renders, never counters or `Math.random()`, never hard-coded literals, and `useId()` is never called inside `computed()`; `duplicate-id-aria` passes (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue` · Src: [5], [29], [8]
 
 ## 6. Status messages
@@ -159,105 +159,91 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 
 ## 7. Forms
 
-- **[A11Y-59] Every control has a programmatic label** — Every `UInput`, `USelect`, `USelectMenu`, `UInputMenu`, `UCheckbox`, `USwitch` and native control has a label via `UFormField` `label`, `label[for]`, `aria-labelledby` or `aria-label` (3.3.2, 4.1.2).
+- **[A11Y-59] Every control has a programmatic label** — Every `UInput`, `USelect`, `USelectMenu`, `UInputMenu`, `UCheckbox`, `USwitch` and native control has a label via `UFormField` `label`, `label[for]`, `aria-labelledby` or `aria-label`, and removing the `placeholder` of any search or select field still leaves a non-empty accessible name (3.3.2, 4.1.2).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/**/*.vue` · Src: [8], [5]
-- **[A11Y-60] Placeholder is never the only label** — Removing the `placeholder` of any search or select field still leaves a non-empty accessible name.
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue` · Src: [5], [4]
-- **[A11Y-61] Related controls are grouped** — Each filter group (categories, themes, cognitive difficulties) is wrapped in `fieldset`/`legend` or `role="group"` with `aria-labelledby` pointing at its visible heading (1.3.1).
+- **[A11Y-60] Related controls are grouped** — Each filter group (categories, themes, cognitive difficulties) is wrapped in `fieldset`/`legend` or `role="group"` with `aria-labelledby` pointing at its visible heading (1.3.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/GameQuestionsFiltersModalContent/**`, `app/components/domain/game/GameSettingsModal/**` · Src: [1], [3]
-- **[A11Y-62] Errors are text and associated** — When a control can be invalid, the error is text, the control gets `aria-invalid="true"` and `aria-describedby` pointing at the message, and multi-field errors are summarised (3.3.1, 3.3.3).
+- **[A11Y-61] Errors are text and associated** — When a control can be invalid, the error is text, the control gets `aria-invalid="true"` and `aria-describedby` pointing at the message, and multi-field errors are summarised (3.3.1, 3.3.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue` · Src: [1], [4]
-- **[A11Y-63] No change of context on input** — Selecting a filter, locale or switch value never navigates, reloads or moves focus unexpectedly; changes apply in place or through an explicit apply action (3.2.2).
+- **[A11Y-62] No change of context on input** — Selecting a filter, locale or switch value never navigates, reloads or moves focus unexpectedly; changes apply in place or through an explicit apply action (3.2.2).
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1]
 
 ## 8. Contrast and colour
 
-- **[A11Y-64] Text contrast** — All text, including muted and dimmed text, placeholders, badges, chips, docs pages and disabled-adjacent labels, reaches 4.5:1 (3:1 for large text) against its background in every scanned state (`color-contrast`, 1.4.3); text on gradients, images or transformed layers that axe reports as `incomplete` has a dated manual measurement.
+- **[A11Y-63] Text contrast** — All text, including muted and dimmed text, placeholders, badges, chips, docs pages and disabled-adjacent labels, reaches 4.5:1 (3:1 for large text) against its background in every scanned state (`color-contrast`, 1.4.3); text on gradients, images or transformed layers that axe reports as `incomplete` has a dated manual measurement.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [4], [8]
-- **[A11Y-65] Token pairs meet contrast** — Every foreground/background token pair defined for text in `app/assets/css/**` and the `ui.colors` mapping in `app/app.config.ts` computes to at least 4.5:1, and colour opacity modifiers on text (for example `/60`) are included in the computation.
+- **[A11Y-64] Token pairs meet contrast** — Every foreground/background token pair defined for text in `app/assets/css/**` and the `ui.colors` mapping in `app/app.config.ts` computes to at least 4.5:1, and colour opacity modifiers on text (for example `/60`) are included in the computation.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**`, `app/app.config.ts`, `app/config/**` · Src: [1], [4]
-- **[A11Y-66] Non-text contrast** — Input borders, switch track and thumb, progress indicators, selected-state outlines and focus indicators reach 3:1 against adjacent colours (1.4.11).
+- **[A11Y-65] Non-text contrast** — Input borders, switch track and thumb, progress indicators, selected-state outlines and focus indicators reach 3:1 against adjacent colours (1.4.11).
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [1], [4]
-- **[A11Y-67] Colour is never the only cue** — Difficulty, adult-content and hint badges, selected filters, offline status and validation states convey meaning with text, icon or shape in addition to colour (1.4.1).
+- **[A11Y-66] Colour is never the only cue** — Difficulty, adult-content and hint badges, selected filters, offline status and validation states convey meaning with text, icon or shape in addition to colour (1.4.1).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/**/*.vue`, `app/config/**` · Src: [1], [4]
-- **[A11Y-68] Inline links distinguishable** — Links inside body text (rules page, docs, changelog, question sources) are underlined or otherwise distinguishable without colour (`link-in-text-block`, 1.4.1).
+- **[A11Y-67] Inline links distinguishable** — Links inside body text (rules page, docs, changelog, question sources) are underlined or otherwise distinguishable without colour (`link-in-text-block`, 1.4.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**`, `app/components/docs/**`, `app/components/**/*.vue` · Src: [8], [1]
-- **[A11Y-69] Forced-colors focus fallback** — Focus indicators and control boundaries drawn only with `box-shadow` or `background-image` (both forced to `none` under `forced-colors: active`) also have an `outline` or border fallback; no separate forced-colors theme is shipped, only targeted fixes.
+- **[A11Y-68] Forced-colors focus fallback** — Focus indicators and control boundaries drawn only with `box-shadow` or `background-image` (both forced to `none` under `forced-colors: active`) also have an `outline` or border fallback; no separate forced-colors theme is shipped, only targeted fixes.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**`, `app/config/**`, `app/**/*.vue` · Src: [17]
-- **[A11Y-70] Forced-colors mode usable** — With `forced-colors: active` emulated, focus rings, button and input boundaries, selected states and the tutorial spotlight remain visible on every page.
+- **[A11Y-69] Forced-colors mode usable** — With `forced-colors: active` emulated, focus rings, button and input boundaries, selected states and the tutorial spotlight remain visible on every page.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [17]
-- **[A11Y-71] `prefers-contrast` keeps ratios** — When `prefers-contrast: more` is honoured, the higher-contrast variant keeps 4.5:1 and 3:1, accounting for `prefers-contrast: custom` matching forced-colors users.
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/**` · Src: [18]
 
 ## 9. Motion
 
-- **[A11Y-72] GSAP honours reduced motion** — Every GSAP timeline or tween branches on the `prefers-reduced-motion` preference (`usePreferredReducedMotion()` or `gsap.matchMedia()`; verified: @vueuse/core 15.0.0) and skips transform, rotation, scale and filter animation when it is `reduce`.
+- **[A11Y-70] GSAP honours reduced motion** — Every GSAP timeline or tween branches on the `prefers-reduced-motion` preference (`usePreferredReducedMotion()` or `gsap.matchMedia()`; verified: @vueuse/core 15.0.0) and skips transform, rotation, scale and filter animation when it is `reduce`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/GamePlaying/**`, `app/composables/domain/useQuestionCardHighlight/**` · Src: [28], [16], [4]
-- **[A11Y-73] CSS motion has reduced-motion overrides** — Every `@keyframes`, `transition`, Vue `<Transition>` class and `animate-*` utility in stylesheets and components has a `prefers-reduced-motion: reduce` override or a `motion-safe:` variant.
+- **[A11Y-71] CSS motion has reduced-motion overrides** — Every `@keyframes`, `transition`, Vue `<Transition>` class and `animate-*` utility in stylesheets and components has a `prefers-reduced-motion: reduce` override or a `motion-safe:` variant; `scroll-behavior: smooth` and `scrollTo({ behavior: smooth })` apply only under `prefers-reduced-motion: no-preference`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**`, `app/components/**/*.vue` · Src: [16], [6]
-- **[A11Y-74] Smooth scrolling respects the setting** — `scroll-behavior: smooth` and `scrollTo({ behavior: "smooth" })` (back-to-top, table of contents, router scroll) apply only under `prefers-reduced-motion: no-preference`.
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/**`, `app/components/docs/**` · Src: [6], [16]
-- **[A11Y-75] Reduced motion keeps essential feedback** — The reduced-motion branch still applies the final visual state (active card visible, highlight shown) and completes pending callbacks; only decorative motion is dropped.
+- **[A11Y-72] Reduced motion keeps essential feedback** — The reduced-motion branch still applies the final visual state (active card visible, highlight shown) and completes pending callbacks; only decorative motion is dropped.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/GamePlaying/**`, `app/composables/domain/useQuestionCardHighlight/**` · Src: [16]
-- **[A11Y-76] Looping motion can be stopped** — Any animation that starts automatically, lasts more than 5 s and is shown alongside other content (pulses, infinite iterations) is stoppable, or stops under reduced motion, unless it is an essential loading indicator (2.2.2).
+- **[A11Y-73] Looping motion can be stopped** — Any animation that starts automatically, lasts more than 5 s and is shown alongside other content (pulses, infinite iterations) is stoppable, or stops under reduced motion, unless it is an essential loading indicator (2.2.2).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**`, `app/components/**/*.vue` · Src: [1], [4]
-- **[A11Y-77] No flashing above threshold** — No state transition flashes more than three times in any one second (2.3.1).
+- **[A11Y-74] No flashing above threshold** — No state transition flashes more than three times in any one second (2.3.1).
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [1], [4]
 
 ## 10. Layout and zoom
 
-- **[A11Y-78] Viewport allows zoom** — The `app.head.viewport` meta in `nuxt.config.ts` contains no `user-scalable=no` and no `maximum-scale` below 5 (`meta-viewport`).
+- **[A11Y-75] Viewport allows zoom** — The `app.head.viewport` meta starts with `width=device-width, initial-scale=1` and contains no `user-scalable=no` and no `maximum-scale` below 5 (`meta-viewport`).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [8], [4]
-- **[A11Y-79] Reflow at 320 CSS px** — At 320 CSS px width (400 % zoom of 1280 px), every page and overlay (modals, tutorial popover, sidebar) needs no horizontal scrolling and loses no content or function (1.4.10).
+- **[A11Y-76] Reflow at 320 CSS px** — At 320 CSS px width (400 % zoom of 1280 px), every page and overlay (modals, tutorial popover, sidebar) needs no horizontal scrolling and loses no content or function (1.4.10).
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [4]
-- **[A11Y-80] Text resizes to 200 %** — At 200 % text size, no label, button text, badge or question text is clipped, overlapped or truncated without a way to read it (1.4.4).
+- **[A11Y-77] Text resizes to 200 %** — At 200 % text size, no label, button text, badge or question text is clipped, overlapped or truncated without a way to read it (1.4.4).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [1], [4]
-- **[A11Y-81] Text-spacing overrides do not clip** — With line-height 1.5, letter-spacing 0.12 em, word-spacing 0.16 em and paragraph spacing 2 em applied, no text is cut off or overlaps (1.4.12).
+- **[A11Y-78] Text-spacing overrides do not clip** — With line-height 1.5, letter-spacing 0.12 em, word-spacing 0.16 em and paragraph spacing 2 em applied, no text is cut off or overlaps (1.4.12).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [1], [4]
-- **[A11Y-82] No fixed-height text containers** — Containers holding translatable text do not combine fixed heights (`h-*`, `max-h-*`) with `overflow-hidden`, `truncate` or `line-clamp-*` unless the full text stays available (scroll, expand or accessible name).
+- **[A11Y-79] No fixed-height text containers** — Containers holding translatable text do not combine fixed heights (`h-*`, `max-h-*`) with `overflow-hidden`, `truncate` or `line-clamp-*` unless the full text stays available (scroll, expand or accessible name).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue` · Src: [1]
-- **[A11Y-83] Orientation not locked** — Neither CSS nor the web app manifest locks the display to portrait or landscape, and both orientations are usable (1.3.4, `css-orientation-lock`).
+- **[A11Y-80] Orientation not locked** — Neither CSS nor the web app manifest locks the display to portrait or landscape, and both orientations are usable (1.3.4, `css-orientation-lock`).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts`, `app/assets/css/**` · Src: [8], [1]
-- **[A11Y-84] Hover and focus content meets 1.4.13** — Tooltips and popovers (theme stack, icon-button tooltips) dismiss with Escape without moving focus, stay open while the pointer moves onto them, and persist until dismissed or the trigger loses hover/focus.
+- **[A11Y-81] Hover and focus content meets 1.4.13** — Tooltips and popovers (theme stack, icon-button tooltips) dismiss with Escape without moving focus, stay open while the pointer moves onto them, and persist until dismissed or the trigger loses hover/focus.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [1], [14]
 
 ## 11. Pointer and touch
 
-- **[A11Y-85] Targets meet 24×24 CSS px** — Every pointer target is at least 24×24 CSS px or spaced so a 24 px circle centred on it does not intersect another target; inline links in sentences are exempt (`target-size`, 2.5.8).
+- **[A11Y-82] Targets meet 24×24 CSS px** — Every pointer target is at least 24×24 CSS px or spaced so a 24 px circle centred on it does not intersect another target, and icon-only controls never use sizing that yields less than 24×24 CSS px unless the 24 px spacing exception applies; inline links in sentences are exempt (`target-size`, 2.5.8).
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [2], [8]
-- **[A11Y-86] Small icon controls are sized or spaced** — Icon-only interactive elements do not use sizing that yields less than 24×24 CSS px (for example `size-4`, `size-5`, `p-0` on the clickable element) unless the 24 px spacing exception applies.
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue`, `app/config/**` · Src: [1], [2]
-- **[A11Y-87] Activation on the up event** — No action fires on `@pointerdown`, `@mousedown` or `@touchstart`; activation uses `click` or the up event so sliding off a target cancels it (2.5.2).
+- **[A11Y-83] Activation on the up event** — No action fires on `@pointerdown`, `@mousedown` or `@touchstart`; activation uses `click` or the up event so sliding off a target cancels it (2.5.2).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue`, `app/composables/**` · Src: [1]
-- **[A11Y-88] No hover-only functionality** — Everything revealed on hover (theme stack details, tooltips, card affordances) is also reachable by tap and keyboard focus.
+- **[A11Y-84] No hover-only functionality** — Everything revealed on hover (theme stack details, tooltips, card affordances) is also reachable by tap and keyboard focus.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue` · Src: [1]
 
 ## 12. Content
 
-- **[A11Y-89] Images have appropriate alternatives** — Informative `<img>` and `NuxtImg` elements have an `alt` describing purpose, decorative ones have `alt=""`, and the logo's `alt` is the brand name (`image-alt`, 1.1.1).
+- **[A11Y-85] Images have appropriate alternatives** — Informative `<img>` and `NuxtImg` elements have an `alt` describing purpose, decorative ones have `alt=""`, and the logo `alt` is the brand name; decorative `UIcon` and inline `svg` next to text are `aria-hidden="true"`, while standalone informative icons have a text alternative (`image-alt`, `svg-img-alt`, 1.1.1).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [8], [4]
-- **[A11Y-90] Icons are hidden or named** — Decorative `UIcon` and inline `svg` elements next to text are `aria-hidden="true"`, while standalone informative icons (question theme icon, difficulty icon) have a text alternative (`svg-img-alt`, 1.1.1).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue` · Src: [8], [1]
-- **[A11Y-91] Link purpose clear** — Link text identifies its destination without surrounding context (no bare "click here" or "learn more"), and links opening a new tab say so in their name or an announced icon (2.4.4).
+- **[A11Y-86] Link purpose clear** — Link text identifies its destination without surrounding context (no bare "click here" or "learn more"), and links opening a new tab say so in their name or an announced icon (2.4.4).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue`, `app/i18n/locales/**` · Src: [1], [4]
-- **[A11Y-92] Consistent navigation and identification** — Repeated navigation (sidebar, docs back link, footer links) keeps the same relative order on every route, and the same icon and label always denote the same function (close, settings, filters, offline) across components (3.2.3, 3.2.4).
+- **[A11Y-87] Consistent navigation and identification** — Repeated navigation (sidebar, docs back link, footer links) keeps the same relative order on every route, the same icon and label always denote the same function across components, and the help entry points keep the same relative position on every page that offers them (3.2.3, 3.2.4, 3.2.6).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/**/*.vue`, `app/layouts/**` · Src: [1]
-- **[A11Y-93] Consistent help placement** — The help entry points (tutorial replay, rules link) keep the same relative position on every page that offers them (3.2.6).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue`, `app/pages/**` · Src: [2], [1]
-- **[A11Y-94] Offline and error pages are real pages** — `app/pages/offline/**` and the error page render an `h1`, explanatory text and a keyboard-reachable route back to the game or home.
+- **[A11Y-88] Offline and error pages are real pages** — `app/pages/offline/**` and the error page render an `h1`, explanatory text and a keyboard-reachable route back to the game or home.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/offline/**`, `app/pages/**` · Src: [1], [6]
 
 ## 13. Statement and manual test protocol
 
-- **[A11Y-95] Target standard declared** — `docs/accessibility.md` declares the conformance target (WCAG 2.2 AA) and how it relates to RGAA 4.1.2 and EN 301 549 (WCAG 2.1 AA), consistent with the `AXE_TAGS` set.
+- **[A11Y-89] Target standard declared** — `docs/accessibility.md` declares the conformance target (WCAG 2.2 AA) and how it relates to RGAA 4.1.2 and EN 301 549 (WCAG 2.1 AA), consistent with the `AXE_TAGS` set.
   Evidence: `static` · Diff: ✓ · Severity: medium · Src: [22], [8]
-- **[A11Y-96] Accessibility statement linked everywhere** — When an accessibility statement is published, it is an accessible page reachable from the home page and from every page (for example the footer).
+- **[A11Y-90] Accessibility statement linked and complete** — When an accessibility statement is published, it is an accessible page reachable from the home page and every other page, states the conformance level, lists non-accessible content (non-conformities, disproportionate-burden exemptions, out-of-scope content), provides a contact and recourse path, and is dated and re-validated (at least every 3 years and within 18 months of a new RGAA version).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/home/HomeFooter/**`, `app/pages/**` · Src: [21]
-- **[A11Y-97] Statement structure** — When an accessibility statement is published, it states the conformance level (total, partial or non-conformant), lists non-accessible content split into non-conformities, disproportionate-burden exemptions and out-of-scope content, provides an accessible contact mechanism and the recourse path, and is dated and re-validated after any substantial redesign, at least every 3 years and within 18 months of a new RGAA version (RGAA 5 is announced for late 2026).
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**` · Src: [21], [20]
-- **[A11Y-98] Manual screen-reader protocol defined** — `docs/accessibility.md` defines named assistive-technology pairs (NVDA + Firefox, VoiceOver + Safari on macOS and iOS, TalkBack + Chrome), per-page task scripts, the success criteria axe cannot prove (2.1.1, 2.1.2, 2.1.4, 2.4.3, 2.4.11, 1.3.2, 2.2.2, 2.5.2, 3.2.6, 4.1.3 timing) each mapped to a manual or scripted check, and compensating manual checks for known third-party gaps (Reka primitives, the work-in-progress APG tooltip pattern).
+- **[A11Y-91] Manual screen-reader protocol defined** — `docs/accessibility.md` defines named assistive-technology pairs (NVDA + Firefox, VoiceOver + Safari on macOS and iOS, TalkBack + Chrome), per-page task scripts, the success criteria axe cannot prove (2.1.1, 2.1.2, 2.1.4, 2.4.3, 2.4.11, 1.3.2, 2.2.2, 2.5.2, 3.2.6, 4.1.3 timing) each mapped to a manual or scripted check, and compensating manual checks for known third-party gaps (Reka primitives, the work-in-progress APG tooltip pattern).
   Evidence: `static` · Diff: ✓ · Severity: medium · Src: [21], [4], [14], [1]
-- **[A11Y-99] Manual protocol executed per release** — Each release has dated screen-reader, keyboard-only and zoom results tied to a commit SHA and covering every task script, retained with the axe output and axe-core version so a result can be reproduced.
+- **[A11Y-92] Manual protocol executed per release** — Each release has dated screen-reader, keyboard-only and zoom results tied to a commit SHA and covering every task script, retained with the axe output and axe-core version so a result can be reproduced.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [21], [4], [8]
 
 ## Sources
@@ -279,9 +265,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 [15] APG Switch Pattern — https://www.w3.org/WAI/ARIA/apg/patterns/switch/ — fetched 2026-10-31 (WAI-ARIA APG)
 [16] MDN prefers-reduced-motion — https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion — fetched 2026-10-31 (last modified 2026-06-10)
 [17] MDN forced-colors — https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors — fetched 2026-10-31 (last modified 2026-04-20)
-[18] MDN prefers-contrast — https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-contrast — fetched 2026-10-31 (last modified 2026-04-20)
 [19] MDN aria-keyshortcuts — https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-keyshortcuts — fetched 2026-10-31 (last modified 2025-05-12)
-[20] RGAA 4.1.2 — https://accessibilite.numerique.gouv.fr/ — fetched 2026-10-31 (DINUM, version 4.1.2)
 [21] RGAA — Déclaration d'accessibilité — https://accessibilite.numerique.gouv.fr/obligations/declaration-accessibilite/ — fetched 2026-10-31 (RGAA 4.1.2)
 [22] RGAA — Rappel du champ d'application — https://accessibilite.numerique.gouv.fr/obligations/champ-application/ — fetched 2026-10-31 (RGAA 4.1.2)
 [23] Nuxt UI Button — https://ui.nuxt.com/docs/components/button — fetched 2026-10-31 (library @nuxt/ui 4.12.0)
