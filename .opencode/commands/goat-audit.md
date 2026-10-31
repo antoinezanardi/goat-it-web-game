@@ -13,10 +13,13 @@ The report lives in `docs/audits/` (gitignored because the repository is public 
 
 `$ARGUMENTS` selects the mode:
 
-- empty → full run (phases 0–7).
+- empty → full run (phases 0–7), all 20 categories.
+- `categories <CODES>` → run restricted to those category codes, comma-separated (e.g. `categories SEC,A11Y,UX`); an unknown code → ask the maintainer.
 - `triage` → resume triage on the latest `docs/audits/GOAT-AUDIT-*.md` (latest = greatest date, then greatest suffix).
 - `triage <path>` → resume triage on that report.
 - anything else → ask the maintainer what they mean.
+
+A full run is expensive: 20 explorer dispatches in waves of six, adversarial verification of every FAIL, a production build with coverage, bundle-size and secrets checks, and the opt-in runtime probes (acceptance suite, Lighthouse, live GETs). State that cost when offering the category choice; a partial run costs proportionally less.
 
 ### 0. Mode and preflight
 
@@ -27,7 +30,8 @@ The report lives in `docs/audits/` (gitignored because the repository is public 
 5. Choose the report name: `GOAT-AUDIT-YYYY-MM-DD` (local date). If `docs/audits/GOAT-AUDIT-YYYY-MM-DD.md` exists, use `-2`, then `-3`, … — **never overwrite**. Create `docs/audits/.work/<report-name>/` with `evidence/`, `categories/`, `verification/`, `issues/`, `advisories/`.
 6. Load the previous audit: the latest existing GOAT report, Appendix B findings index. On the first run the delta section says "First GOAT audit".
 7. Build `decisions.md` in the run directory: the `## GOAT audit decisions` entries of every decision doc plus the documented decisions listed in the skill §7, each with doc path and line.
-8. Ask **one multi-select question** (Tier 3 + optional sweep): "Acceptance suite (Docker sandbox required)", "Local runtime: headers + Lighthouse", "Live production + staging GETs", "Per-file test-convention sweep", "None". If live GETs are chosen, ask one follow-up confirming the base URLs (prefilled from `docs/operations.md`; custom answer allowed). Never ask more than these two questions before phase 1.
+8. Ask **one multi-select question** for the scope: `All 20 categories (recommended)`, `Security & platform (SEC, SUP, CICD, PLAT, OPS, REL)`, `Product experience (LOGIC, PERF, A11Y, I18N, SEO, PWA)`, `Engineering quality (UX, ARCH, STACK, CODE, TEST, PRIV)`, `Docs & agents (DOCS, AGENT)`, or explicit codes via a custom answer. Quote the cost of a full run. Skip the question when `$ARGUMENTS` already names the categories. Write the selection to `evidence/scope.md` and into the report header.
+9. Ask **one multi-select question** (Tier 3 + optional sweep): "Acceptance suite (Docker sandbox required)", "Local runtime: headers + Lighthouse", "Live production + staging GETs", "Per-file test-convention sweep", "None". If live GETs are chosen, ask one follow-up confirming the base URLs (prefilled from `docs/operations.md`; custom answer allowed). Never ask more than these two questions plus the live-URL confirmation before phase 1.
 
 ### 1. Evidence (conductor)
 
@@ -45,7 +49,7 @@ Every command output goes to `evidence/<name>` with a header (`$ <command>`, exi
 
 ### 2. Category fan-out
 
-- Dispatch one `explore` subagent per category, waves of at most 6, in this order: [SEC, SUP, CICD, PLAT, OPS, REL], [LOGIC, PERF, A11Y, I18N, SEO, PWA], [UX, ARCH, STACK, CODE, TEST, PRIV], [DOCS, AGENT].
+- Dispatch one `explore` subagent per **selected** category, waves of at most 6, in this order: [SEC, SUP, CICD, PLAT, OPS, REL], [LOGIC, PERF, A11Y, I18N, SEO, PWA], [UX, ARCH, STACK, CODE, TEST, PRIV], [DOCS, AGENT].
 - Explorer prompt (template in `references/triage-templates.md` §Explorer): category code; paths of `SKILL.md`, the category reference file (read **in full**), `decisions.md`, `evidence/INDEX.md`; the rules: evaluate **every** check of the file with an outcome and evidence; verify each `Look` glob still exists (missing → note for AGENT); tag library-behavior claims `needs-docs: <library>`; never modify any file except `categories/<CODE>.md`; if writing fails return the full result inline; reply in ≤ 150 words (path + outcome counts).
 - If the conductor receives an inline result, it writes `categories/<CODE>.md` itself.
 - **Per-file test-convention sweep** (opt-in): batches of 4 spec files (`/lint-unit-tests` §3 classification) and 4–8 acceptance files (`/lint-acceptance-tests` §3) audited by `explore` subagents against the §4 checklists of those commands, using their return format; results are reported as [TEST-66] (unit conventions) and [TEST-67] (acceptance conventions) with a violation table grouped by lint tag. Without the sweep both checks are `⚠️ UNVERIFIED (sweep not run)`.
@@ -60,9 +64,9 @@ Dispatch fresh `explore` verifiers, ≤ 8 FAIL findings per verifier, grouped by
 
 ### 5. Synthesis and report
 
-1. Compute grades, release verdict and priorities (skill §5) from confirmed findings.
+1. Compute grades, release verdict and priorities (skill §5) from confirmed findings, over the audited categories only; a partial run labels the release verdict `partial (n/20)`.
 2. Delta against the previous Appendix B: fingerprint = `<ID>::<subject>` where the subject is the normalized primary evidence path without line numbers (repo-relative) or a resource key (`gh:rulesets`, `live:production:/`, `artifact:.output/public/sw.js`). Statuses: **Resolved** (was FAIL, now PASS/N/A), **Still open**, **New**, **Regressed** (was Resolved in an earlier report or PASS previously, now FAIL), **Newly decided** (now DECIDED).
-3. Assemble `docs/audits/<report-name>.md` from `references/full-audit-report-template.md`; category sections are taken from `categories/<CODE>.md` (adjusted by verification). Immediately before writing, check again that the path does not exist; if it does, take the next suffix.
+3. Assemble `docs/audits/<report-name>.md` from `references/full-audit-report-template.md`; category sections are taken from `categories/<CODE>.md` (adjusted by verification) for the audited categories only, and every other category stays a `— not audited` row in the scorecard. Immediately before writing, check again that the path does not exist; if it does, take the next suffix.
 4. Print in chat: release verdict, scorecard table, counts, report path.
 
 ### 6. Triage (also the `triage` mode entry point)
@@ -71,9 +75,11 @@ Dispatch fresh `explore` verifiers, ≤ 8 FAIL findings per verifier, grouped by
 2. Order: critical → high → medium → low; within a severity, by category order of the skill §6. Info findings are never triaged. In `triage` mode, findings whose Appendix B `decision` is not `pending` are skipped.
 3. Duplicate search per finding: `gh issue list --state open --label "🐐 goat-audit" --search "<ID>" --json number,title,url`, then `gh issue list --state open --search "<3–5 keywords>" --limit 10 --json number,title,url`; for 🔒 findings also scan `gh-draft-advisories.json` for the ID.
 4. **One question per finding** (never batched) showing: ID, title, severity, 🔒 mark, a 2–3 line evidence summary, the proposed artifact (public issue title `type(scope): imperative subject` + type label, or "private draft advisory"), and duplicate matches. Options:
-   - **Create** (public issue, or 🔒 draft advisory) — recommended default;
-   - **Create as private advisory** / **Create as public issue** (whichever is the opposite of the 🔒 mark);
-   - **Comment on #N** (only when a duplicate exists: posts the new evidence as a comment);
+   - **Create** — public issue for a public finding, private draft advisory for a 🔒 finding (recommended default);
+   - **Create as draft advisory** (available for any finding: the maintainer prefers a private channel);
+   - **Create as public issue** (only when the finding is not 🔒);
+   - **Comment on #N** (only when a duplicate exists and the finding is not 🔒);
+   - **Clear the 🔒 mark, then publish** (only when the maintainer states why publication is safe; record the override and the new `private` value in the report, then re-offer the public options);
    - **Push back — Accepted risk**;
    - **Deny — False positive / Not applicable**;
    - **Skip (decide later)**;
@@ -98,5 +104,5 @@ After the finish report, run a short retrospective and offer to improve **this c
 
 1. **Collect findings:** checks that could not be evaluated (missing evidence, ambiguous criterion), stale `Look` hints and dead sources, explorer/verifier friction, triage questions the maintainer found unclear, false positives that survived verification, boundary disputes between categories.
 2. **Propose improvements** as a table (improvement → lessons addressed): next free check IDs, retired IDs, command protocol edits, template fixes. Ask via the question tool which to apply (multi-select plus custom answers).
-3. **Never modify the skill or this command without explicit user approval.**
-4. **Apply approved edits** directly (next free ID, append-only; retire rather than renumber), re-run the structural checks on the touched reference file (`Diff ✓` only with `static`, sources resolve, `Look` globs exist), and report where each change lives.
+3. **Never modify the skill, its references or this command.** The auditor is read-only (skill §2(c)): the only write paths are the report and its run directory, the decision docs and `AGENTS.md`.
+4. **Hand off approved edits.** Produce a ready-to-apply payload — exact file, check ID or section, BEFORE/AFTER text, and the structural rules to respect (next free ID, removed IDs never reused, `Diff ✓` only with `static`, sources resolve, `Look` globs exist) — and tell the maintainer to run it through the normal orchestrator cycle. Do not apply it yourself.

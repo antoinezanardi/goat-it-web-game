@@ -25,11 +25,11 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 
 ## 1. Automated coverage
 
-- **[A11Y-01] Axe scan on every route** — Every routed page (`/`, `/game`, `/rules`, `/offline`, and the 404 error page once it exists) has an `@accessibility`-tagged scenario ending with `the page should not contain accessibility issues in <view> mode`.
+- **[A11Y-01] Axe scan on every route** — Every routed page, including the offline and error pages, has an `@accessibility`-tagged scenario ending with `the page should not contain accessibility issues in <view> mode`.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `tests/acceptance/features/**/*accessibility*.feature`, `app/pages/**` · Src: [4], [8]
-- **[A11Y-02] Axe scan on every interactive state** — Each overlay and state is scanned while open or visible: settings modal (every tab), questions-filters modal, game sidebar, each tutorial step, changelog modal, confirm dialog, a visible toast, the offline indicator, and the game loading, fetch-error, empty-filters and no-more-questions states.
+- **[A11Y-02] Axe scan on every interactive state** — Every overlay is scanned while open (each modal and its tabs, the sidebar, every tutorial step, confirm dialogs, a visible toast, the offline indicator) and every non-idle game state is scanned while visible (loading, fetch-error, empty-filters and terminal).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `tests/acceptance/features/**/*accessibility*.feature` · Src: [4], [8]
-- **[A11Y-03] Desktop and mobile viewports** — Every accessibility scenario is a `Scenario Outline` with both `desktop` and `mobile` examples, using the shared `DESKTOP_VIEWPORT` and `MOBILE_VIEWPORT` constants (mobile width ≤ 390 CSS px).
+- **[A11Y-03] Desktop and mobile viewports** — Every accessibility scenario runs at a desktop viewport and at a mobile viewport (width ≤ 390 CSS px).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `tests/acceptance/features/**/*accessibility*.feature`, `tests/acceptance/features/step-definitions/accessibility/**` · Src: [4], [8]
 - **[A11Y-04] WCAG 2.2 AA tag set** — `AXE_TAGS` passed to `AxeBuilder.withTags()` contains `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa` and `best-practice`, so `region`, `landmark-one-main`, `page-has-heading-one`, `heading-order` and `aria-dialog-name` (best-practice rules) also run.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `tests/acceptance/features/step-definitions/accessibility/**` · Src: [8]
@@ -50,7 +50,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 
 - **[A11Y-11] Landmarks complete and unique** — Every page has exactly one `main`, at most one `banner` and one `contentinfo`, and all content sits inside a landmark (`landmark-one-main`, `landmark-no-duplicate-banner`, `landmark-no-duplicate-contentinfo`, `region` pass).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [8], [1]
-- **[A11Y-12] Single `main` element** — `UMain` in `app/App.vue` is the only `main` landmark: no layout, page or component renders another `<main>` or `role="main"` inside it (`UMain` renders `<main>` by default; verified: @nuxt/ui 4.12.0).
+- **[A11Y-12] Single `main` element** — Exactly one `main` landmark exists: no layout, page or component renders another `<main>` or `role="main"` (`UMain` renders `<main>` by default; verified: @nuxt/ui 4.12.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/App.vue`, `app/layouts/**`, `app/pages/**`, `app/components/**/*.vue` · Src: [27], [8]
 - **[A11Y-13] One descriptive `h1` per page** — Each page and each game state renders exactly one `h1` that names the page or state (not the brand alone), and heading levels never skip (`page-has-heading-one`, `heading-order`, 2.4.6).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**/*.vue` · Src: [8], [1]
@@ -65,7 +65,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 
 ## 3. Keyboard
 
-- **[A11Y-18] Every core task keyboard-only** — A keyboard-only Playwright run completes: start a game from home, read a question, go next and previous, open the sidebar, open and apply question filters, change settings and language, open, step through and skip the tutorial, open the changelog, and dismiss a toast, with the Tab sequence following the painted reading order (2.1.1, 2.4.3).
+- **[A11Y-18] Every core task keyboard-only** — A keyboard-only Playwright run completes every core task — start a game, read a question, navigate next/previous, open the sidebar, apply filters, change settings and language, run and skip the tutorial, open the changelog, dismiss a toast — with the Tab sequence following the painted reading order (2.1.1, 2.4.3).
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [4]
 - **[A11Y-19] No keyboard trap** — Tab and Shift+Tab leave every non-modal region, and Escape closes every dismissible overlay, sidebar and tutorial popover, returning to the page (2.1.2).
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [9]
@@ -77,7 +77,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [12], [1]
 - **[A11Y-23] Character-key shortcuts conform to 2.1.4** — Any shortcut made of a single letter, digit or punctuation key without modifier can be turned off, remapped, or is active only while its component has focus; arrow keys and modifier combinations are out of scope (technique G217, failure F99).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/**/*.vue`, `app/composables/**` · Src: [1], [3], [19]
-- **[A11Y-24] Modifier shortcut fires once** — The modal `meta_enter` primary shortcut (⌘ on macOS, Ctrl elsewhere; verified: @nuxt/ui 4.12.0) ignores `event.repeat` or is blocked while the primary action is pending, so a held key triggers one submission.
+- **[A11Y-24] Modifier shortcut fires once** — A modifier shortcut that triggers a primary action ignores `event.repeat` or is blocked while that action is pending, so a held key triggers one submission (verified: @nuxt/ui 4.12.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/shared/ui/modal/**` · Src: [24], [19]
 - **[A11Y-25] Shortcuts are discoverable** — Every keyboard shortcut is shown next to its control (`UKbd` hint) or exposed with `aria-keyshortcuts` using a modifier-first value that matches the handler, and the hint is hidden when the shortcut is disabled.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/shared/ui/modal/**` · Src: [19]
@@ -102,7 +102,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [9], [8]
 - **[A11Y-34] Escape and outside click keep working** — `UModal`, `USlideover` and `UPopover` keep the default `dismissible: true` (Escape and outside click close; verified: @nuxt/ui 4.12.0); any `:dismissible="false"` overlay provides a visible keyboard-reachable close or cancel action and handles `close:prevent`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue` · Src: [25], [26], [30]
-- **[A11Y-35] Route announcer mounted** — `<NuxtRouteAnnouncer>` is rendered once at the application root (`app/App.vue` or the layouts), so client-side navigations announce the new page title.
+- **[A11Y-35] Route announcer mounted** — A route announcer is mounted once at the application root, so client-side navigations announce the new page title (Nuxt's `<NuxtRouteAnnouncer>`).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/App.vue`, `app/layouts/**` · Src: [7], [6]
 - **[A11Y-36] Navigation is announced and moves focus** — After each client-side navigation (home → game, game → rules, rules → home), the announcer text equals the new title and the next Tab starts inside `main` because focus was moved to `main` or the `h1` (Nuxt does not move focus itself).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [6], [7]
@@ -137,7 +137,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/GameSettingsModal/**` · Src: [15]
 - **[A11Y-50] No nested interactive elements** — No button, link or form control is nested inside another interactive element (for example a `UButton` inside a `NuxtLink` or a clickable card), and `nested-interactive` passes.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [8]
-- **[A11Y-51] Instance-unique ids** — Ids referenced by `for`, `aria-labelledby`, `aria-describedby` or `aria-controls` in reusable components come from Vue `useId()` (verified: vue 3.5.44), never hard-coded literals, and `duplicate-id-aria` passes.
+- **[A11Y-51] Instance-unique ids** — Ids referenced by `for`, `aria-labelledby`, `aria-describedby` or `aria-controls` in reusable components are generated per instance (Vue `useId()`; verified: vue 3.5.44), never hard-coded literals, and `duplicate-id-aria` passes.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue` · Src: [5], [29], [8]
 
 ## 6. Status messages
@@ -191,7 +191,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 
 ## 9. Motion
 
-- **[A11Y-72] GSAP honours reduced motion** — Every GSAP timeline or tween (question card switcher, question highlight) branches on `usePreferredReducedMotion()` (`'reduce' | 'no-preference'`; verified: @vueuse/core 15.0.0) or `gsap.matchMedia()` and skips transform, rotation, scale and filter animation when the value is `'reduce'`.
+- **[A11Y-72] GSAP honours reduced motion** — Every GSAP timeline or tween branches on the `prefers-reduced-motion` preference (`usePreferredReducedMotion()` or `gsap.matchMedia()`; verified: @vueuse/core 15.0.0) and skips transform, rotation, scale and filter animation when it is `reduce`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/GamePlaying/**`, `app/composables/domain/useQuestionCardHighlight/**` · Src: [28], [16], [4]
 - **[A11Y-73] CSS motion has reduced-motion overrides** — Every `@keyframes`, `transition`, Vue `<Transition>` class and `animate-*` utility in stylesheets and components has a `prefers-reduced-motion: reduce` override or a `motion-safe:` variant.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**`, `app/components/**/*.vue` · Src: [16], [6]

@@ -31,8 +31,6 @@ Runtime platform of the Goat It Web Game: the multi-stage `Dockerfile` that turn
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.dockerignore` · Src: [1], [7]
 - **[PLAT-06] Cache-friendly layer order** — Dependency manifests (`package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`) and only the files the install/postinstall step needs are copied before `pnpm install`; application sources are copied after it, so a source-only change does not invalidate the install layer.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `Dockerfile` · Src: [1], [7]
-- **[PLAT-07] Frozen lockfile install** — The image installs dependencies with `pnpm install --frozen-lockfile`, so a lockfile out of sync with `package.json` fails the build instead of re-resolving.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `Dockerfile` · Src: [1], [7]
 - **[PLAT-08] NODE_ENV=production at runtime** — The final stage sets `ENV NODE_ENV=production`; Nuxt requires it at runtime, not only at build time.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `Dockerfile` · Src: [5], [7], [13]
 - **[PLAT-09] Exec-form CMD without package-manager wrapper** — The final `CMD`/`ENTRYPOINT` is a JSON array that starts `node` directly on `.output/server/index.mjs`, with no shell form and no `npm start`/`pnpm start` indirection (hadolint DL3025), so the stop signal reaches Node.
@@ -52,7 +50,7 @@ Runtime platform of the Goat It Web Game: the multi-stage `Dockerfile` that turn
   Evidence: `command` · Diff: ✗ · Severity: critical · Src: [2], [7]
 - **[PLAT-15] No secret files in the final image** — `docker run --rm --entrypoint sh <image> -c 'find / -xdev \( -name ".env*" -o -name ".npmrc" -o -name "*.pem" -o -name "*.key" \) 2>/dev/null'` prints nothing.
   Evidence: `command` · Diff: ✗ · Severity: critical · Src: [7]
-- **[PLAT-16] Blocking image vulnerability scan** — Every pushed image is scanned before deployment with `trivy image --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1` (or an equivalent scanner); Trivy does not fail by default, so `--exit-code 1` is mandatory.
+- **[PLAT-16] Blocking image vulnerability scan** — Every pushed image is scanned before deployment by a scanner that fails the build on HIGH or CRITICAL vulnerabilities (for example `trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1`); the default scanner settings must not be left non-blocking.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/*.yml` · Src: [3], [16]
 - **[PLAT-17] Scan waivers are scoped and expire** — When an image scan exists, its step never sets `continue-on-error: true`, no blanket ignore file is used, and each `.trivyignore`/`trivyignore.yaml` waiver names one finding with `expired_at` and a statement.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/*.yml` · Src: [15]
@@ -71,7 +69,7 @@ Runtime platform of the Goat It Web Game: the multi-stage `Dockerfile` that turn
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [9], [11]
 - **[PLAT-23] .env.example parity and build/runtime markers** — `envs/.env.example` lists every `NUXT_*` variable the app or build reads (each `runtimeConfig` key plus every Docker build arg) with a placeholder, marks each one build-time (Docker build arg) or runtime, and lists no stale variable.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `envs/.env.example`, `nuxt.config.ts`, `Dockerfile` · Src: [11], [17]
-- **[PLAT-24] Secure configuration defaults** — `runtimeConfig` defaults ship no credential (`goatItApi.gameKey: ""`), keep `rateLimit.trustProxy: false`, `security.cspMode: "enforce"` and an enabled rate limit, and no file sets `NODE_TLS_REJECT_UNAUTHORIZED=0`.
+- **[PLAT-24] Secure configuration defaults** — `runtimeConfig` defaults ship no credential, keep proxy trust off, CSP in enforce mode and rate limiting enabled, and no file sets `NODE_TLS_REJECT_UNAUTHORIZED=0`.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts`, `envs/.env.example` · Src: [11]
 - **[PLAT-25] Build-time values consistent at runtime** — Variables consumed at build time (`NUXT_SITE_ENV`, `NUXT_PUBLIC_SITE_URL`, `NUXT_PUBLIC_DEFAULT_LOCALE`) come from per-environment Docker build args, and a variable also read at runtime (`NUXT_SITE_ENV`, which resolves the Sentry environment label) is re-declared in the `production` stage from the same build arg so client and server agree.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `Dockerfile`, `.github/workflows/deploy-*.yml` · Src: [17], project: docs/operations.md
@@ -90,7 +88,7 @@ Runtime platform of the Goat It Web Game: the multi-stage `Dockerfile` that turn
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [9], [12], project: docs/operations.md
 - **[PLAT-31] SIGTERM drains in-flight requests** — `docker stop` during a slow SSR page or proxied `/api/goat-it-api/**` request lets the response complete, accepts no new connection, and the process exits with code 0 before the shutdown timeout.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [9], [12]
-- **[PLAT-32] In-process state is single-instance safe** — The rate-limit `Map` and the readiness cache are documented as per-process, and the deployment either runs exactly one app container per environment or moves the limiter to a shared store before scaling out.
+- **[PLAT-32] In-process state is single-instance safe** — The deployment runs exactly one app container per environment, or every in-process store (rate limiter, readiness cache) is replaced by a shared store before scaling out.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/rate-limit/**`, `docs/security.md` · Src: [14], project: docs/security.md
 - **[PLAT-33] Heap sized to the container memory limit** — When the container has a memory limit, `--max-old-space-size` (via `NODE_OPTIONS`) is about 70–80 % of it (e.g. 384 MB for 512 MB), or the cgroup-aware default is verified under load without OOM kills.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [3], [5]
@@ -141,10 +139,8 @@ Runtime platform of the Goat It Web Game: the multi-stage `Dockerfile` that turn
 
 - **[PLAT-52] TLS terminates at the proxy** — No image, env file or deploy configuration sets `NITRO_SSL_CERT`/`NITRO_SSL_KEY`; Nitro's in-process HTTPS is meant for testing behind a TLS-terminating reverse proxy (verified: nitropack 2.13.5).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `Dockerfile`, `envs/.env.example` · Src: [12], [13]
-- **[PLAT-53] HTTP redirects to HTTPS** — `curl -sI http://goat-it.fr/` and `curl -sI http://staging.goat-it.fr/` answer 301 or 308 with an `https://` `Location`.
+- **[PLAT-53] HTTP redirects to HTTPS** — Requests to the production and staging hosts over plain HTTP answer 301 or 308 with an `https://` `Location`.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [20]
-- **[PLAT-54] Client IP header overwritten** — When `NUXT_RATE_LIMIT_TRUST_PROXY=true`, nginx sets `proxy_set_header X-Forwarded-For $remote_addr;` (never `$proxy_add_x_forwarded_for`), so a client cannot choose the first `X-Forwarded-For` entry used as rate-limit key.
-  Evidence: `manual` · Diff: ✗ · Severity: high · Src: [20], project: docs/security.md
 - **[PLAT-55] Host and scheme forwarded** — nginx sets `proxy_set_header Host $host;` and `proxy_set_header X-Forwarded-Proto $scheme;`, so Nuxt emits `https://` absolute URLs for the public hostname.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [20]
 - **[PLAT-56] Proxy body size and timeouts fit the app** — nginx sets `client_max_body_size` explicitly (default `1m`) at or above the app's 512 KiB `POST /api/goat-it-api/**` limit, `proxy_read_timeout` (default 60 s) above the worst-case SSR plus upstream latency, and a short `proxy_connect_timeout` (about 5 s).

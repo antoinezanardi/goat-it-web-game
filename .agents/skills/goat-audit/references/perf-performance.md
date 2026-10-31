@@ -37,7 +37,7 @@ response time, memory growth during long game sessions, and web sustainability.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/plugins/**` · Src: [16], [25]
 - **[PERF-05] Lighthouse CI assertions** — CI runs Lighthouse on `/`, `/game` and `/rules` with assertions on LCP, TBT, CLS and a performance score ≥ 0.9 (the "good" band is 90–100).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/**`, `.github/actions/**` · Src: [18], [23]
-- **[PERF-06] Bundle budgets cover JS and CSS** — `configs/size-limit/size-limit.config.ts` sets an explicit byte `limit` for all client JS and all client CSS under `.output/public/_nuxt`, and `pnpm run check:bundle-size` runs that config.
+- **[PERF-06] Bundle budgets cover JS and CSS** — The size-budget configuration sets an explicit byte limit for all client JS and all client CSS in the build output, and the bundle-size script runs that configuration.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/size-limit/**`, `package.json` · Src: [18]
 - **[PERF-07] Per-page-type budget** — The initial JS of each page type (home `/`, game `/game`, docs `/rules`: entry chunk plus the page chunk and its static imports) has its own ceiling, separate from the aggregate `_nuxt/**/*.js` limit.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/size-limit/**` · Src: [18]
@@ -52,7 +52,7 @@ response time, memory growth during long game sessions, and web sustainability.
   Evidence: `artifact` · Diff: ✗ · Severity: high · Src: [9], [19]
 - **[PERF-11] GSAP absent from the initial graph** — In the built client, `gsap` code lives only in a dynamically imported chunk; neither the entry chunk nor the `modulepreload` set of `/` contains GSAP.
   Evidence: `artifact` · Diff: ✗ · Severity: high · Look: `app/composables/core/useGsap/**` · Src: [9], [21]
-- **[PERF-12] GSAP loaded only through useGsap** — No runtime `import … from "gsap"` exists outside `app/composables/core/useGsap/useGsap.ts`; other files use `import type` only and obtain the instance through `loadGsap()`.
+- **[PERF-12] GSAP loaded only through useGsap** — No runtime import of GSAP exists outside its single loader unit; other files use `import type` only and obtain the instance through that loader.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**` · Src: [9], [21], project: docs/architecture.md §4.5
 - **[PERF-13] Sentry client SDK scoped** — The client Sentry init imports no `replayIntegration`, `browserTracingIntegration` or profiling integration unless a documented decision accepts their bundle cost; optional integrations are tree-shaken only when not imported (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `sentry.client.config.ts`, `shared/utils/helpers/sentry/**` · Src: [32]
@@ -97,7 +97,7 @@ response time, memory growth during long game sessions, and web sustainability.
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [2]
 - **[PERF-32] WOFF2 only** — Every `@font-face` `src` and every font file requested by pages is WOFF2; no `.woff`, `.ttf`, `.otf` or `.eot` request occurs on page load.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**`, `public/fonts/**` · Src: [6]
-- **[PERF-33] Fonts limited and subset** — Pages load one family and at most two files split by `unicode-range` (latin, latin-ext) covering the six Latin-script locales; variable-font axes are restricted to those used.
+- **[PERF-33] Fonts limited and subset** — Pages load one family and the minimum number of files split by `unicode-range` that covers the script ranges of the supported locales; variable-font axes are restricted to those used.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/**`, `public/fonts/**` · Src: [6], [26]
 - **[PERF-34] Explicit font-display** — Every `@font-face` sets `font-display: swap` or `optional`; `block` and `auto` are never used for body text.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**` · Src: [6]
@@ -114,7 +114,7 @@ response time, memory growth during long game sessions, and web sustainability.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/pages/**`, `app/components/**` · Src: [2], [10]
 - **[PERF-39] LCP image discoverable with high priority** — The LCP image is an `<img>` whose `src` is in the SSR HTML with `fetchpriority="high"`; it is never injected by client JS or rendered inside a `.client` component or `<ClientOnly>`.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/pages/**` · Src: [2]
-- **[PERF-40] Background LCP preloaded** — When a CSS `background-image` (such as `/img/home-bg.avif`) can be the LCP element, the page emits a matching `<link rel="preload" as="image" fetchpriority="high">`.
+- **[PERF-40] Background LCP preloaded** — When a CSS `background-image` can be the LCP element, the page emits a matching `<link rel="preload" as="image" fetchpriority="high">`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `public/img/**` · Src: [2], [8]
 - **[PERF-41] Dimensions on every image** — Every `<img>` has `width` and `height` attributes or a CSS `aspect-ratio`, so space is reserved before the image loads.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**` · Src: [4]
@@ -139,13 +139,11 @@ response time, memory growth during long game sessions, and web sustainability.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/pages/**`, `app/components/**` · Src: [19], [28]
 - **[PERF-50] Shallow reactivity for large immutable data** — Large immutable structures (question buffers, theme catalogs) held in refs or stores use `shallowRef` or `shallowReactive` and are updated by replacing the root value (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/stores/**`, `app/composables/**` · Src: [21]
-- **[PERF-51] v-once on never-changing subtrees** — Subtrees rendered from data that never changes after the first render use `v-once` (verified: vue 3.5.44).
-  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/**`, `app/pages/**` · Src: [21], [29]
 - **[PERF-52] v-memo used correctly** — `v-memo` sits on the same element as `v-for` (it does not work inside `v-for`), is reserved for large lists or measured hotspots, and its dependency array covers every value the subtree renders (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/pages/**` · Src: [21], [29]
 - **[PERF-53] Stable props in lists** — Parents pass per-item primitives (e.g. `:active="item.id === activeId"`) instead of a shared changing value, so only affected children re-render (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/**` · Src: [21]
-- **[PERF-54] Client-only content off the LCP path** — `.client` components and `<ClientOnly>` never wrap the LCP element or above-the-fold content of `/`, `/game` or `/rules` (verified: nuxt 4.6.3).
+- **[PERF-54] Client-only content off the LCP path** — `.client` components and `<ClientOnly>` never wrap above-the-fold content of `/`, `/game` or `/rules`; the LCP-element rule is PERF-39 (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/layouts/**`, `app/App.vue` · Src: [20]
 - **[PERF-55] Static routes prerendered** — Routes whose HTML is identical for every request and needs no hydration are prerendered with `prerender: true` and `noScripts` (e.g. `/offline`); cookie-localized interactive routes are not prerendered.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `nuxt.config.ts` · Src: [19], [27], project: docs/pwa.md §3
@@ -156,7 +154,7 @@ response time, memory growth during long game sessions, and web sustainability.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [12]
 - **[PERF-57] Interaction latency within 200 ms** — In the same recording, each of those interactions presents its next frame within 200 ms.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [3], [19]
-- **[PERF-58] Bulk work yields** — When a loop or work queue can exceed 50 ms, it yields with `scheduler.yield()` and a `setTimeout` fallback (Safari lacks `scheduler.yield`), batching to a ~50 ms deadline; no `isInputPending()` polling or busy-wait.
+- **[PERF-58] Bulk work yields** — When a loop or work queue can exceed 50 ms, it yields to the main thread (for example `scheduler.yield()` with a `setTimeout` fallback where it is unsupported), batching to a ~50 ms deadline; no `isInputPending()` polling or busy-wait.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/composables/**`, `app/utils/**` · Src: [12]
 - **[PERF-59] Handlers paint first** — Event handlers of primary interactions apply the visual update first and defer non-visual work (cookie persistence, telemetry, logging) to a later task.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/composables/**` · Src: [3]
@@ -232,8 +230,6 @@ response time, memory growth during long game sessions, and web sustainability.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/composables/**` · Src: [24]
 - **[PERF-89] GSAP animations reverted** — Every GSAP tween, timeline or `gsap.context()` created by a component is killed or reverted on unmount.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**`, `app/composables/**` · Src: [13], [24]
-- **[PERF-90] Bounded client collections** — Session-long in-memory collections (question buffers, excluded-id sets, client caches) have a maximum size and eviction; none grows for the whole session.
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/stores/**`, `app/composables/domain/**` · Src: [24]
 - **[PERF-91] Bounded server caches** — Every in-process server map or cache has a TTL and a size cap; no map grows without bound with request input.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/**`, `server/middleware/**` · Src: [5]
 

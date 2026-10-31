@@ -269,14 +269,14 @@ Available skills: `acceptance-testing`, `brainstorming`, `context7`, `goat-audit
 - **When writing unit tests** (including inside plans): always load the `unit-testing` skill first and verify the result against the `.opencode/commands/lint-unit-tests.md` §4 checklist.
 - **When writing acceptance tests** (including inside plans): always load the `acceptance-testing` skill first and verify the result against the `.opencode/commands/lint-acceptance-tests.md` §4 checklist.
 - **When reviewing, planning or auditing**: the `final-reviewer` applies the `goat-audit` skill in diff mode on every review and the `plan-writer` embeds triggered GOAT checks in tasks; run `/goat-audit` (agent `goat-auditor`) for a full audit. Reports are written to the gitignored `docs/audits/GOAT-AUDIT-<date>.md`; decisions live in the mapped doc's `## GOAT audit decisions` section and are binding.
-- **When brainstorming or writing plans**: always consult the `nuxt`, `nuxt-ui`, and `vueuse` skills.
+- **When brainstorming or writing plans**: always consult the `nuxt`, `nuxt-ui`, `vueuse` and `goat-audit` skills — the brainstormer records GOAT constraints in the spec (design mode) and the plan-writer embeds the triggered checks in every task.
 
 ## OpenCode commands (`.opencode/commands/`)
 
 Slash commands available in OpenCode sessions:
 
 - `/complete-i18n`   – Translate all French locale JSON files into every other locale.
-- `/goat-audit` – Run the full GOAT audit of the repository, then triage findings into issues, private advisories or decision notes.
+- `/goat-audit` – Run the GOAT audit (all 20 categories, or a subset with `/goat-audit categories SEC,A11Y,UX`), then triage findings into issues, private advisories or decision notes.
 - `/implement-oxlint-rules` – Add missing oxlint rules one by one after validation.
 - `/lint-unit-tests` – Audit spec files against unit testing conventions, then fix user-approved violations.
 - `/lint-acceptance-tests` – Audit feature/step/helper files against acceptance testing conventions, then fix user-approved violations.

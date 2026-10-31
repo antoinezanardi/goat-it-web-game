@@ -14,21 +14,21 @@ Skeleton of `docs/audits/GOAT-AUDIT-YYYY-MM-DD[-N].md`. Replace every `<…>` pl
 # Goat It Web Game — GOAT Audit — YYYY-MM-DD[-N]
 
 > **Branch / commit:** `<branch>` @ `<short-sha>` · **Working tree:** clean | <n> uncommitted entries · **Tiers:** T1 ✓ · T2 ✓ · T3 acceptance ✓/✗ · local runtime ✓/✗ · live ✓/✗ · sweep ✓/✗
-> **Tools:** node `<x.y.z>` · pnpm `<x.y.z>` · gh `<x.y.z>` · **Method:** 20 category explorers, <n> verifiers, <n> docs-fetcher dispatches
+> **Tools:** node `<x.y.z>` · pnpm `<x.y.z>` · gh `<x.y.z>` · **Method:** <n> category explorers (audited: <codes>), <n> verifiers, <n> docs-fetcher dispatches
 > **Previous audit:** <report name or "none">
 
 ## 0. Verdict
 
 <One paragraph: what the audit covered, the state of the product, the dominant risk theme.>
 
-**Release verdict:** Ship-ready | Ship with follow-ups | Not ship-ready
+**Release verdict:** Ship-ready | Ship with follow-ups | Not ship-ready (prefixed `partial (<n>/20):` when the run covered a subset)
 
 ### Global scorecard
 
 | Code | Category | Grade | Critical | High | Medium | Low | Info | Unverified | Comment |
 |------|----------|-------|----------|------|--------|-----|------|------------|---------|
-| SEC | Application security | <A–F[ ⚠️ partial]> | n | n | n | n | n | n | <one line> |
-| … (all 20 rows, category order of the skill) |
+| SEC | Application security | <A–F[ ⚠️ unverified]> | n | n | n | n | n | n | <one line> |
+| … (all 20 rows, category order of the skill; a category not audited in this run shows `— not audited` in place of its grade and counts) |
 
 ## 1. Top findings (P0 and P1)
 
@@ -131,8 +131,8 @@ Skeleton of `docs/audits/GOAT-AUDIT-YYYY-MM-DD[-N].md`. Replace every `<…>` pl
     "severity": "high",
     "status": "confirmed",
     "private": true,
-    "decision": "issue",
-    "artifact": "#612"
+    "decision": "advisory",
+    "artifact": "GHSA-xxxx-xxxx-xxxx"
   }
 ]
 ```
@@ -141,7 +141,7 @@ Field rules:
 
 - `fingerprint` = `<ID>::<subject>`; the subject is the normalized primary evidence path without line numbers (repo-relative) or a resource key (`gh:rulesets`, `live:production:/`, `artifact:.output/public/sw.js`).
 - `status`: `confirmed` | `decided` | `discarded`.
-- `private`: `true` when the finding carries 🔒.
+- `private`: `true` when the finding carries 🔒. A 🔒 finding never pairs with `decision: issue` or `comment`; only `advisory`, `accepted-risk`, `not-applicable`, `false-positive` or `skipped` are valid, and public handling requires the maintainer to clear the mark first (command §6).
 - `decision`: `issue` | `advisory` | `comment` | `accepted-risk` | `not-applicable` | `false-positive` | `skipped` | `pending`.
 - `artifact`: `#612` | `GHSA-xxxx-xxxx-xxxx` | `docs/security.md:210` | `null`.
 - Delta computation against the previous report compares fingerprints: **Resolved** (was FAIL, now PASS/N/A), **Still open**, **New**, **Regressed** (Resolved in an earlier report or PASS previously, now FAIL), **Newly decided** (now DECIDED).

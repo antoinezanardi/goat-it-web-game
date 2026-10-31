@@ -1,6 +1,6 @@
 # UX — UX & interaction quality
 
-Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales, PWA): the heuristic gates that keep every async action observable, the loading/empty/error/partial/offline/terminal state matrix, feedback and response-time thresholds, error-message UX, user control across overlays and navigation, design-system consistency (semantic tokens, component variants, pointer cursor), responsive and touch comfort at 320 px, motion duration and easing, readability, onboarding and tutorial replay, game-specific UX (progress, pause/leave, adult-content safety, replay), microcopy, perceived performance, and the Laws of UX as concrete checks. Contrast, reduced-motion implementation and WCAG target-size conformance are audited under A11Y; this file audits the interaction decisions those mechanics serve.
+Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales, PWA): the heuristic gates that keep every async action observable, the loading/empty/error/partial/offline/terminal state matrix, feedback and response-time thresholds, error-message UX, user control across overlays and navigation, design-system consistency (semantic tokens, component variants, pointer cursor), responsive and touch comfort at 320 px, motion duration and easing, readability, onboarding and discoverability, microcopy, perceived performance, and the Laws of UX as concrete checks. Criteria state outcomes that survive product growth: they name no single component, screen or feature as the only acceptable implementation. Contrast, reduced-motion implementation and WCAG target-size conformance are audited under A11Y; this file audits the interaction decisions those mechanics serve.
 
 **Decision doc:** `docs/ux.md` (section `## GOAT audit decisions`). **Diff triggers:** see SKILL.md category index.
 
@@ -18,10 +18,9 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
 - [8. Motion](#8-motion)
 - [9. Readability](#9-readability)
 - [10. Onboarding and discoverability](#10-onboarding-and-discoverability)
-- [11. Game UX](#11-game-ux)
-- [12. Microcopy](#12-microcopy)
-- [13. Perceived performance](#13-perceived-performance)
-- [14. Laws of UX](#14-laws-of-ux)
+- [11. Microcopy](#11-microcopy)
+- [12. Perceived performance](#12-perceived-performance)
+- [13. Laws of UX](#13-laws-of-ux)
 - [Sources](#sources)
 
 ## 1. Heuristics
@@ -30,23 +29,21 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [2], [6]
 - **[UX-02] Domain language only** — Rendered UI uses the game vocabulary defined in the rules and tutorial (question, theme, category, cognitive difficulty, game master); no API, HTTP or storage term appears as user copy.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/i18n/locales/fr/**`, `app/components/domain/game/**` · Src: [1], [2]
-- **[UX-03] Same action, same presentation** — The same intent keeps one label, Lucide icon, variant and relative placement across home, game, sidebar, settings, filters, changelog and every locale.
+- **[UX-03] Same action, same presentation** — The same intent keeps one label, variant and relative placement across home, game, sidebar, settings, filters, changelog and every locale; icon consistency is checked separately in UX-38.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/i18n/locales/fr/**`, `app/components/domain/**`, `app/utils/ui/**` · Src: [1], [2]
 - **[UX-04] Error prevention before apply** — Filter combinations that cannot return a question are prevented or explained before Apply, and a settings or filter change that discards a draft asks before losing it.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [1], [2], [7]
 - **[UX-05] Recognition over recall** — Active filters and the current rule context are visible in place; no task requires remembering content from a closed modal or a previous question.
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [1], [2]
-- **[UX-06] Minimalist question card** — The card leads with the statement and answer, collapses context and trivia behind one accordion, and keeps sources secondary.
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/GameQuestionCard/**`, `app/components/domain/game/GamePlaying/**` · Src: [1], [2]
+- **[UX-06] Minimalist question card** — The card leads with the statement and the answer; secondary context (trivia, sources, metadata) is progressively disclosed so it never competes with the primary content.
+  Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/domain/game/GameQuestionCard/**`, `app/components/domain/game/GamePlaying/**` · Src: [1], [2]
 
 ## 2. State coverage
 
 - **[UX-07] Complete async state matrix** — Each async surface (question feed, theme catalog, question translation, changelog entries, rules content) renders mutually exclusive idle, loading, empty, error, partial and success/end states; no catch-all branch substitutes a terminal screen for an unhandled state.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [4], [5], [8]
-- **[UX-08] No catch-all terminal fallback** — `GameStateRenderer` maps each known state explicitly and renders a visible failure (or development warning) for an unknown state instead of falling through to the no-more-questions screen.
+- **[UX-08] No catch-all terminal fallback** — Every known game state is mapped explicitly by the game state renderer, and an unknown state renders a visible failure (or development warning) instead of falling through to the terminal screen.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/domain/game/GameStateRenderer/**`, `app/composables/domain/useGame/**` · Src: [4], [8]
-- **[UX-09] Terminal is not failure** — The no-more-questions state uses neutral or success styling with a party or completion icon, never an error icon, red treatment or a retry-only action.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/domain/game/GameNoMoreQuestions/**`, `app/components/shared/ui/StatusScreen/**` · Src: [4], [2]
 - **[UX-10] Success only after success** — A success toast or success state appears only after the awaited operation resolves with `ok: true`; a forced 4xx, 5xx or malformed response never produces success feedback.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [8]
 - **[UX-11] Empty state explains and acts** — Every empty state names its cause and offers one primary next action (reset filters, play, back home); no blank panel or read-only dead end is rendered.
@@ -68,7 +65,7 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [5], [6], project: docs/security.md
 - **[UX-18] Toast duration by outcome** — Passive success and info toasts auto-dismiss after 3–5 s, the global toaster duration is between 3000 and 5000 ms, and action-required or blocking messages persist with `duration: 0` or move to an inline/error surface (verified: @nuxt/ui 4.12.0).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/app.constants.ts`, `app/composables/ui/useAppToast/**`, `app/composables/domain/useGameTutorialInvitation/**`, `app/composables/domain/useChangelog/**` · Src: [8], [23]
-- **[UX-19] Toast stack bounded and deduplicated** — `toaster.max` is explicitly set to 3 or fewer and repeat-prone toasts carry stable ids, so a repeated failure replaces or pulses the existing toast instead of growing an unbounded stack (id reuse pulses since 4.5; verified: @nuxt/ui 4.12.0).
+- **[UX-19] Toast stack bounded and deduplicated** — The toast stack is bounded (`toaster.max` explicitly configured) and repeat-prone toasts carry stable ids, so a repeated failure replaces or pulses the existing toast instead of growing an unbounded stack (id reuse pulses since 4.5; verified: @nuxt/ui 4.12.0).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/App.vue`, `app/app.constants.ts`, `app/composables/domain/useGoatItApiErrorToast/**` · Src: [23]
 - **[UX-20] Toast channel semantics** — Results of a user action use `type: foreground`, background work uses `type: background`, and a blocking failure also renders a full state or modal rather than only a toast (verified: @nuxt/ui 4.12.0).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/composables/ui/useAppToast/**`, `app/composables/domain/useChangelog/**`, `app/composables/ui/useLocaleSuggestion/**` · Src: [8], [23]
@@ -104,7 +101,7 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/shared/ui/modal/**`, `app/composables/domain/useGameLeaveConfirmation/**`, `app/i18n/locales/fr/game.json` · Src: [7]
 - **[UX-33] No dead ends** — Every terminal state (game over, fetch error, offline) shows both a primary recovery action and a secondary help or home route, so the player can always leave without retrying blindly.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [4]
-- **[UX-34] Long overlays scroll internally** — When modal, sidebar or tutorial content exceeds the viewport, the body scrolls internally while the close control and primary action stay reachable (use the `scrollable` modal layout; verified: @nuxt/ui 4.12.0).
+- **[UX-34] Long overlays scroll internally** — When modal, sidebar or tutorial content exceeds the viewport, the body scrolls internally while the close control and primary action stay reachable (Nuxt UI `scrollable` layout where a modal is used; verified: @nuxt/ui 4.12.0).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [24]
 
 ## 6. Design-system consistency
@@ -117,9 +114,9 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/**/*.vue`, `app/config/**` · Src: [1], [22]
 - **[UX-38] Icon semantics stable** — The same action keeps one Lucide icon everywhere (settings, filters, next, previous, skip, retry, close); no action swaps icons between views or locales.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/**`, `app/utils/ui/**` · Src: [22]
-- **[UX-39] One primary action and consistent states** — Each view exposes exactly one primary action, and disabled, loading, selected and error states look and behave identically for the same component type across home, game, settings and filters.
+- **[UX-39] Consistent component states** — Disabled, loading, selected and error states look and behave identically for the same component type across home, game, settings and filters; the single-primary-action rule is checked in UX-55.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [1], [22]
-- **[UX-40] Pointer cursor restored on enabled controls** — A base-layer rule restores `cursor: pointer` for `button:not(:disabled)` and `[role="button"]:not(:disabled)`, because Tailwind CSS 4 defaults buttons to `cursor: default` (verified: @nuxt/ui 4.12.0).
+- **[UX-40] Pointer cursor restored on enabled controls** — Enabled buttons and elements with `role="button"` show a pointer cursor (Tailwind CSS 4 defaults buttons to `cursor: default`), restored once in the base layer (verified: @nuxt/ui 4.12.0).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/main.css` · Src: [22]
 - **[UX-41] Theme overrides centralized** — Nuxt UI component theme overrides live in `app/config/*.config.ts` and are composed once by `app/app.config.ts`; component files pass only documented per-instance props.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/app.config.ts`, `app/config/**` · Src: [22], project: docs/architecture.md §4.7
@@ -132,7 +129,7 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [17], [19]
 - **[UX-44] Touch comfort at 44 px** — Primary touch controls (Play, Next, Previous, sidebar toggle, filters trigger, footer help) reach at least 44×44 CSS px including padding where the layout allows; dense secondary controls are covered by A11Y target-size checks.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/home/**`, `app/components/domain/game/**`, `app/utils/ui/**` · Src: [21]
-- **[UX-45] Short-viewport game layout** — The game page sizes from `min-h-dvh` and `dvh`-based card heights, and the sticky action bar uses viewport-relative units, so a 320×568 viewport keeps the card and both navigation controls reachable without vertical clipping.
+- **[UX-45] Short-viewport game layout** — On a 320×568 viewport the game card and both navigation controls stay reachable without vertical clipping, with heights derived from the dynamic viewport rather than `100vh` and an action bar that does not consume the card's visible area.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/(game)/game/**`, `app/components/domain/game/GamePlaying/**`, `app/components/domain/game/GameQuestionCard/**` · Src: [17], [19]
 - **[UX-46] Virtual keyboard** — Every text input, including the filter search field, declares an appropriate `type` and `inputmode` and keeps the focused field and its visible results reachable above the virtual keyboard in portrait and landscape.
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [16], [17]
@@ -156,40 +153,15 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/docs.css`, `app/assets/css/tokens.css`, `app/components/docs/**`, `app/components/domain/game/GameQuestionCard/**` · Src: [18]
 - **[UX-53] Scannable hierarchy** — Long content uses short paragraphs and labelled sections, and no all-caps body text carries more than a short label.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/assets/css/docs.css`, `app/components/docs/**`, `app/components/domain/game/GameQuestionCard/**` · Src: [18]
-- **[UX-54] Question card reading order and density** — The card presents the statement, then the answer, with context and trivia collapsed and sources secondary; on a short viewport the card scrolls internally so the answer stays reachable without scrolling the page.
-  Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [1], [2]
 
 ## 10. Onboarding and discoverability
 
 - **[UX-55] One dominant start action** — The home page shows one dominant Play call to action above the fold at 320×568; starting a game never requires opening a menu or choosing a mode first.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [2], [16]
-- **[UX-56] Tutorial exits at every step** — Every tutorial step exposes a visible Skip or Finish control, Escape ends the tour from any step, and the completion decision persists across reloads.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [2], [16]
-- **[UX-57] Tutorial replayable** — A replay entry for the interactive tutorial is reachable from the game sidebar and the rules or help surface while a question is live, without restarting the game.
-  Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [2], [16]
-- **[UX-58] First-run invitation non-blocking** — The first-run tutorial invitation is a single persistent info toast with Start and Not now actions, blocks no navigation, persists its decision, and never reappears after a decision.
-  Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [16], [8]
 
-## 11. Game UX
+## 11. Microcopy
 
-- **[UX-59] No essential time pressure** — No countdown or timer is required to answer or advance; any displayed timer is informational or can be paused or disabled.
-  Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [2], [16]
-- **[UX-60] Progress visible during play** — During play the current position (index/total or remaining count) is visible as text and exposed to assistive technology, not conveyed by colour or a thin bar alone.
-  Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [2], [16]
-- **[UX-61] Pause or leave from the in-game menu** — The in-game menu offers leave or quit; choosing it while a question is live shows a confirmation that names the lost progress and offers staying in the game.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [2], [16]
-- **[UX-62] Filters reachable during play** — Adult-content, category, cognitive-difficulty and theme filters are reachable and adjustable from the game (sidebar or filters trigger) without restarting the session.
-  Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [16]
-- **[UX-63] Adult-content safety copy** — The adult-content toggle defaults off, and its description names the sensitive topics that can then appear; enabling it is an explicit choice in settings and in filters, never a hidden default.
-  Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [16]
-- **[UX-64] Replay from the end screen** — The game-over screen offers a replay action that starts a new feed with the same filters, plus a home action; no player is stranded after the last question.
-  Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [2], [16]
-- **[UX-65] Rules without losing progress** — The rules entry opens in a new tab or a non-blocking route, and returning to the game keeps the current question and filters.
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/GameSidebar/**`, `app/components/domain/home/HomeFooter/**`, `app/pages/(docs)/rules/**` · Src: [1], [2]
-
-## 12. Microcopy
-
-- **[UX-66] Verb-first action labels** — Action buttons start with a verb in every locale (Play, Retry, Reset filters, Keep playing); OK and Yes are never used for a consequential action.
+- **[UX-66] Action labels describe the action** — Action labels describe the action in every locale (Play, Retry, Reset filters, Keep playing) — verb-first where the locale grammar allows — and OK/Yes never label a consequential action.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/i18n/locales/fr/**`, `app/components/domain/**`, `app/components/shared/**` · Src: [1], [3]
 - **[UX-67] No blame or stale humour** — Error and empty copy avoids "invalid", "illegal", "you failed" and jokes; it states the system constraint and the recovery step.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/i18n/locales/fr/errors.json`, `app/i18n/locales/fr/game.json` · Src: [3]
@@ -198,26 +170,21 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
 - **[UX-69] Loading labels name the task** — Loading indicators name the operation ("Loading questions", "Translating questions", "Loading themes") or provide an equivalent text label; a bare spinner never stands alone.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/domain/game/GameLoading/**`, `app/components/shared/ui/LoadingSpinner/**`, `app/i18n/locales/fr/game.json` · Src: [5], [8]
 
-## 13. Perceived performance
+## 12. Perceived performance
 
-- **[UX-70] Doherty 400 ms** — Primary interactions acknowledge input within 400 ms, either by a state change or a visible pending indication, so no action waits silently past the Doherty threshold.
-  Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [10], [6]
 - **[UX-71] No spinner flicker** — A spinner or skeleton appears only after a 200–300 ms delay and never for cached or already-prefetched content, so fast responses do not flash.
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [5]
-- **[UX-72] Instant route and press feedback** — Press and route changes render feedback before the network resolves, and the previous screen stays visible until the next one is ready.
+- **[UX-72] Instant route feedback** — Route changes render feedback before the network resolves and the previous screen stays visible until the next one is ready; press feedback is checked in UX-15.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [6], [9]
-## 14. Laws of UX
+
+## 13. Laws of UX
 
 - **[UX-73] Fitts's Law** — Frequent targets are large and close to the task area: Next sits adjacent to the question card, while leave, destructive and settings controls are separated from it enough to prevent mis-taps.
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [11]
-- **[UX-74] Hick's Law** — The start screen limits the decision set to starting play plus secondary help and settings, and the filters modal discloses groups progressively (category, cognitive difficulty, adult content, themes) instead of presenting every option at once.
+- **[UX-74] Hick's Law** — The start screen limits the initial decision set to starting play plus secondary help and settings, and the filters modal discloses option groups progressively instead of presenting every option at once.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/pages/index/**`, `app/components/domain/home/**`, `app/components/domain/game/GameQuestionsFiltersModalContent/**` · Src: [12]
-- **[UX-75] Jakob's Law** — Modal, Back, toast, select and external-link behaviour follows common web conventions; no novel close gesture or non-standard placement is required to complete a task.
-  Evidence: `manual` · Diff: ✗ · Severity: low · Src: [13]
-- **[UX-76] Choice overload guard** — Large theme lists provide search, a selected count and an explicit restore-all or reset control, so a long list never becomes an ungrouped wall of options.
+- **[UX-76] Choice overload guard** — A long option list (for example themes) stays manageable through search or grouping, shows the current selection count and offers an explicit reset, so it never becomes an ungrouped wall of options.
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [15]
-- **[UX-77] Aesthetic-usability caveat** — Audit the interface with motion disabled and at low fidelity; polished visuals must never mask a missing state, an unreachable control or an unhandled error.
-  Evidence: `manual` · Diff: ✗ · Severity: low · Src: [14]
 
 ## Sources
 
@@ -230,11 +197,9 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
 [7] Confirmation Dialogs Can Prevent User Errors — If Not Overused — https://www.nngroup.com/articles/confirmation-dialog/ — fetched 2026-10-31 (last reviewed 2026-08-07)
 [8] Indicators, Validations, and Notifications: Pick the Correct Communication Option — https://www.nngroup.com/articles/indicators-validations-notifications/ — fetched 2026-10-31 (2024-01-17)
 [9] Executing UX Animations: Duration and Motion Characteristics — https://www.nngroup.com/articles/animation-duration/ — fetched 2026-10-31 (2020-02-09)
-[10] Doherty Threshold — https://lawsofux.com/doherty-threshold/ — fetched 2026-10-31 (accessed 2026-10-31)
 [11] Fitts's Law — https://lawsofux.com/fittss-law/ — fetched 2026-10-31 (accessed 2026-10-31)
 [12] Hick's Law — https://lawsofux.com/hicks-law/ — fetched 2026-10-31 (accessed 2026-10-31)
 [13] Jakob's Law — https://lawsofux.com/jakobs-law/ — fetched 2026-10-31 (accessed 2026-10-31)
-[14] Aesthetic-Usability Effect — https://lawsofux.com/aesthetic-usability-effect/ — fetched 2026-10-31 (accessed 2026-10-31)
 [15] Choice Overload — https://lawsofux.com/choice-overload/ — fetched 2026-10-31 (accessed 2026-10-31)
 [16] Game Accessibility Guidelines — Full list — https://gameaccessibilityguidelines.com/full-list/ — fetched 2026-10-31 (accessed 2026-10-31)
 [17] web.dev Learn Responsive Design — Interaction — https://web.dev/learn/design/interaction — fetched 2026-10-31 (updated 2021-12-23)

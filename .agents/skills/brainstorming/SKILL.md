@@ -29,9 +29,10 @@ You MUST create a task for each of these items and complete them in order:
 4. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 5. **Propose 2-3 approaches** — with trade-offs and your recommendation
 6. **Present design** — in sections scaled to their complexity, get user approval after each section
-7. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
-8. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
-9. **User reviews written spec** — ask user to review the spec file before proceeding, you can't proceed until they approve
+7. **Identify GOAT constraints** — map the feature's design areas to audit categories, read the triggered checks, and record the constraints in the spec (see GOAT constraints below)
+8. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
+9. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
+10. **User reviews written spec** — ask user to review the spec file before proceeding, you can't proceed until they approve
 
 ## Process Flow
 
@@ -45,6 +46,7 @@ digraph brainstorming {
     "Propose 2-3 approaches" [shape=box];
     "Present design sections" [shape=box];
     "User approves design?" [shape=diamond];
+    "Identify GOAT constraints" [shape=box];
     "Write design doc" [shape=box];
     "Spec self-review\n(fix inline)" [shape=box];
     "User reviews spec?" [shape=diamond];
@@ -58,7 +60,8 @@ digraph brainstorming {
     "Propose 2-3 approaches" -> "Present design sections";
     "Present design sections" -> "User approves design?";
     "User approves design?" -> "Present design sections" [label="no, revise"];
-    "User approves design?" -> "Write design doc" [label="yes"];
+    "User approves design?" -> "Identify GOAT constraints" [label="yes"];
+    "Identify GOAT constraints" -> "Write design doc";
     "Write design doc" -> "Spec self-review\n(fix inline)";
     "Spec self-review\n(fix inline)" -> "User reviews spec?";
     "User reviews spec?" -> "Write design doc" [label="changes requested"];
@@ -106,6 +109,15 @@ digraph brainstorming {
 - Where existing code has problems that affect the work (e.g., a file that's grown too large, unclear boundaries, tangled responsibilities), include targeted improvements as part of the design - the way a good developer improves code they're working in.
 - Don't propose unrelated refactoring. Stay focused on what serves the current goal.
 
+## GOAT constraints (design mode)
+
+When the design creates or modifies any project file, load the `goat-audit` skill and use its design triggers:
+
+- Map each design area the feature touches to audit categories (`goat-audit` SKILL.md §6, design triggers table) and state the resulting category set in the spec.
+- Read the triggered category references. CODE and STACK are not design triggers — they are handled at plan and review time.
+- Write two sections in the spec: `## GOAT constraints` (each check ID with the design decision that satisfies it — cite the ID, do not restate the whole checklist) and `## Constraints accepted as risks` (every deliberate departure with its rationale and revisit trigger, so the orchestrator can later record a decision note).
+- A design that contradicts an accepted decision in a category's `## GOAT audit decisions` section must either follow it or record a new accepted risk.
+
 ## After the Design
 
 **Documentation:**
@@ -122,6 +134,7 @@ After writing the spec document, look at it with fresh eyes:
 2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
 3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
+5. **GOAT coverage:** Does every triggered category appear in `## GOAT constraints`, or is it explicitly traded off in `## Constraints accepted as risks`? Do the cited check IDs exist in the references?
 
 Fix any issues inline. No need to re-review — just fix and move on.
 

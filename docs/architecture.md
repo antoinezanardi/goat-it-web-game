@@ -476,7 +476,6 @@ This document is canonical. Do not copy its full contents into every prompt. Eve
 - Implementers follow planned paths. If repository reality conflicts with the guide or plan, stop and surface the mismatch rather than inventing a rule.
 - Debugger, investigator, review-fix, gatekeeper/autofix, test-writing, localization, and config-edit workflows consult the guide before file edits.
 - The final reviewer checks every created, edited, or moved file for owner directory, source/spec pairing, type/constant scope, alias, layer dependency, framework discovery and test-project correctness.
-- The final reviewer also applies the `goat-audit` skill (`.agents/skills/goat-audit/`) in diff mode, the plan-writer embeds triggered GOAT checks, and `/goat-audit` runs the full audit. Decisions recorded in a doc's `## GOAT audit decisions` section (category → doc mapping in the skill) are binding for later audits, reviews and plans.
 - Specialist testing/security documents remain authoritative for their detailed procedures and are linked rather than duplicated.
 - This guide does not itself add lint/Vitest enforcement. No agent commits.
 

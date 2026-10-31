@@ -52,7 +52,7 @@ Hygiene of the AI-agent tooling that builds and reviews Goat It: the root `AGENT
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.opencode/agents/final-reviewer.md`, `.opencode/agents/orchestrator.md`, `.opencode/agents/plan-writer.md`, `.opencode/commands/lint-*-tests.md` · Src: project: AGENTS.md
 - **[AGENT-14] Section and step references resolve** — Every numbered reference between agent files ("section 4 of `lint-unit-tests.md`", "§3 classification table", "step 8", "`/lint-unit-tests` §11", "final-reviewer §12", "`docs/acceptance-testing.md` §5.4") points to an existing heading whose content matches what the citing file says it contains.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.opencode/agents/*.md`, `.opencode/commands/*.md`, `.agents/skills/*/SKILL.md` · Src: [1], project: AGENTS.md
-- **[AGENT-15] Cited GOAT check IDs exist** — Every `[<CODE>-NN]` cited in the `goat-audit` `SKILL.md`, its report and triage templates, the `goat-audit` command, `final-reviewer`, `plan-writer`, `orchestrator` and any `## GOAT audit decisions` entry matches an active or retired check line in `.agents/skills/goat-audit/references/*.md`.
+- **[AGENT-15] Cited GOAT check IDs exist** — Every `[<CODE>-NN]` cited in the `goat-audit` `SKILL.md`, its report and triage templates, the `goat-audit` command, `final-reviewer`, `plan-writer`, `orchestrator` and any `## GOAT audit decisions` entry matches an active check line in `.agents/skills/goat-audit/references/*.md`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.opencode/agents/final-reviewer.md`, `.opencode/agents/plan-writer.md`, `.opencode/agents/orchestrator.md` · Src: project: .agents/skills/goat-audit/SKILL.md §4.2
 
 ## 4. Checklist drift
@@ -67,7 +67,7 @@ Hygiene of the AI-agent tooling that builds and reviews Goat It: the root `AGENT
   Evidence: `command` · Diff: ✗ · Severity: low · Src: project: .agents/skills/goat-audit/SKILL.md §11
 - **[AGENT-20] GOAT reference files keep the check format** — Every check in `.agents/skills/goat-audit/references/*.md` has the line `- **[CODE-NN] Title** — criterion` followed by the indented metadata `Evidence · Diff · Severity · [Look ·] Src` in that order; `Diff: ✓` appears only with `Evidence: static`; every `Src: [n]` exists in the file's `## Sources` and every source is cited; each file longer than 100 lines has `## Contents`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Src: project: .agents/skills/goat-audit/SKILL.md §4.1, project: .agents/skills/writing-skills/anthropic-best-practices.md
-- **[AGENT-21] GOAT check IDs are append-only** — Across `git log -p -- .agents/skills/goat-audit/references/`, no check ID is renumbered, reused for another criterion or deleted; a removed or materially changed check stays as `- ~~[CODE-NN]~~ Retired YYYY-MM-DD — <reason>` and its replacement takes the next free number.
+- **[AGENT-21] GOAT check IDs are never reused** — Across `git log -p -- .agents/skills/goat-audit/references/`, no check ID is renumbered, given to a second criterion, or reintroduced after removal; a removed check leaves no line and its ID stays unused, while a rewritten criterion keeps its ID.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: project: .agents/skills/goat-audit/SKILL.md §4.2
 
 ## 5. Permission sanity

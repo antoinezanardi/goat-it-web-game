@@ -1,13 +1,13 @@
 ---
 name: goat-audit
-description: Use when running /goat-audit, when final-reviewer reviews a diff, when plan-writer plans file changes, or when recording a GOAT audit decision in goat-it-web-game. Defines the 20 GOAT audit categories, [CODE-NN] check IDs, evidence and severity rules, grading, diff triggers and the "GOAT audit decisions" notes.
+description: Use when running /goat-audit, when brainstormer designs a spec, when final-reviewer reviews a diff, when plan-writer plans file changes, or when recording a GOAT audit decision in goat-it-web-game. Defines the 20 GOAT audit categories, [CODE-NN] check IDs, evidence and severity rules, grading, diff triggers, design triggers and the "GOAT audit decisions" notes.
 ---
 
 # GOAT audit
 
 ## 1. Overview
 
-The GOAT audit ("Greatest Of All Time" × Goat It) is a reusable, exhaustive, evidence-based audit of the whole repository across 20 professional dimensions. The bar is a god-tier professional web product, not "no obvious bug".
+The GOAT audit ("Greatest Of All Time" × Goat It) is a reusable, exhaustive, evidence-based audit of the whole repository across 20 professional dimensions. The bar is a god-tier professional web product, not "no obvious bug". Judge the product, not the polish: evaluate the interface with motion disabled and at low fidelity; polished visuals never mask a missing state, an unreachable control or an unhandled error.
 
 The category checklists in `references/` **are the audit contract**. Each check has a stable ID, one evidence type, a default severity, optional `Look` globs and cited sources. Three consumers read this skill:
 
@@ -32,8 +32,12 @@ The orchestrator also reads §7 when the maintainer pushes back on a GOAT findin
 ## 3. Modes
 
 - **Full audit** — procedure in `.opencode/commands/goat-audit.md` (agent `goat-auditor`): preflight, evidence tiers, one explorer per category, library verification, adversarial verification, report, triage.
+- **Partial audit** — the same procedure restricted to a chosen subset of categories (the run asks for it; full audit is the default). A partial report states the audited set in its header, prints `— not audited` for every other category in the scorecard, computes grades only for audited categories, labels the release verdict `partial (n/20)`, and limits the delta and Appendix B to audited categories.
 - **Diff mode** — §10; used by `final-reviewer` on every review.
-- **Plan mode (shift-left)** — `plan-writer` matches planned paths against the category index triggers, reads the triggered references' `Diff: ✓` checks and the mapped decision docs, and writes a `GOAT checks:` line in every task.
+- **Plan mode (shift-left)** — `plan-writer` matches planned paths against the category index triggers **and the Decision doc column**, reads the triggered references' `Diff: ✓` checks and the mapped decision docs, and writes a `GOAT checks:` line in every task.
+- **Design mode (shift-left at spec time)** — `brainstormer` has no paths yet: it maps the feature's design areas to categories (§6 design triggers), reads those references, and writes `## GOAT constraints` (check ID → design decision) and `## Constraints accepted as risks` in the spec, so the plan inherits the category set instead of re-deriving it and the orchestrator can later record decision notes.
+
+A full audit is expensive: 20 explorer dispatches in waves of six, adversarial verification, a production build with coverage and bundle checks, and the opt-in runtime probes. Say so when offering the category choice; a partial audit costs proportionally less.
 
 ## 4. Check format, IDs, outcomes
 
@@ -50,12 +54,13 @@ The orchestrator also reads §7 when the maintainer pushes back on a GOAT findin
 - **Look** — optional repository globs; every glob matched at least one path when the file was written.
 - **Src** — `[n]` indexes into the file's `## Sources`, and/or `project: <repo path>` (optionally ` §<n>`).
 - `(verified: <library> <x.y[.z]>)` marks a library-dependent criterion. Re-verify when the installed major or minor differs.
-- A retired check stays as `- ~~[SEC-12]~~ Retired YYYY-MM-DD — <reason>`.
+- A removed check leaves no line (§11); its ID is never reused.
+- **Criterion scope.** A criterion states an outcome that stays true as the product grows: it prescribes no single component, route, screen or feature as the only acceptable implementation, and component or file names belong in `Look` and `Src`, never inside the criterion.
 
 ### 4.2 IDs
 
 - Format `<CODE>-<NN>`: two digits, zero-padded (`SEC-07`); three digits from 100 (`SEC-100`).
-- IDs are unique per category, **stable forever, append-only**: never renumber, never reuse. New checks take the next free number and may sit in any sub-area.
+- IDs are unique per category and **never reused**: never renumber an existing check and never give a removed ID to a new one. New checks take the next free number (gaps left by removals are expected) and may sit in any sub-area.
 - Always cite a check as `[SEC-07]` in reports, reviews and decisions.
 
 ### 4.3 Outcomes (full audit)
@@ -94,7 +99,7 @@ Points over CONFIRMED findings (after verification; DECIDED excluded): critical 
 | D | ≤ 25 points and at most 1 critical |
 | F | otherwise (> 25 points or ≥ 2 critical) |
 
-Append `⚠️ partial` when more than 10 % of the category's checks are `⚠️ UNVERIFIED`.
+Append `⚠️ unverified` when more than 10 % of the category's checks are `⚠️ UNVERIFIED`.
 
 ### 5.3 Release verdict and priorities
 
@@ -103,7 +108,7 @@ Append `⚠️ partial` when more than 10 % of the category's checks are `⚠️
 
 ## 6. Category index
 
-Each check belongs to exactly one category. Diff triggers activate when a changed path matches them; a doc under `docs/**` also triggers the category it documents (e.g. `docs/security.md` → SEC + DOCS). Triggers may name paths that do not exist yet; they activate when such a file is added.
+Each check belongs to exactly one category. Diff triggers activate when a changed path matches them. The **Decision doc** column is part of the matching: a changed decision doc triggers every category mapped to it (`docs/security.md` → SEC + SUP, `docs/architecture.md` → ARCH + STACK + CODE + AGENT, `docs/operations.md` → PLAT + OPS + REL, `docs/seo.md` → SEO, `docs/pwa.md` → PWA, `docs/unit-testing.md` and `docs/acceptance-testing.md` → TEST, `.github/CONTRIBUTING.md` → DOCS). Triggers may name paths that do not exist yet; they activate when such a file is added.
 
 | Code | Category | Reference file | Decision doc | Diff triggers |
 |------|----------|----------------|--------------|---------------|
@@ -129,6 +134,22 @@ Each check belongs to exactly one category. Diff triggers activate when a change
 | AGENT | AI-agent tooling hygiene | `references/agent-agent-tooling.md` | `docs/architecture.md` | `AGENTS.md`, `.agents/**`, `.opencode/**`, `opencode.json`, `skills-lock.json`, `.github/copilot-instructions.md`, `.coderabbit.yaml` |
 
 Boundaries worth repeating: sustainability → PERF; cost amplification → SEC/REL; duplicate CI runs → CICD; timeout/retry/cancellation → REL; what may be logged (secrets) → SEC while log operation → OPS; Sentry data collection/PII → PRIV.
+
+**Design triggers (spec time).** At spec time no path exists yet: `brainstormer` maps the feature's design areas to categories, states the resulting set in the spec, and reads those references. CODE and STACK are not design triggers — they stay at plan and review time.
+
+| Design area the feature touches | Categories |
+|---------------------------------|------------|
+| New page, route, layout or navigation entry | A11Y, UX, I18N, SEO, PWA, PERF |
+| New component, overlay, form or interactive state | A11Y, UX, PERF |
+| New domain rule, state or transition | LOGIC, REL, TEST |
+| New server route or upstream call | SEC, REL, PLAT, OPS, LOGIC |
+| New persisted value (cookie, storage, cache) | LOGIC, PRIV, SEC |
+| New dependency | SUP, ARCH, PERF |
+| New environment variable or runtime configuration | PLAT, SEC |
+| New workflow or release step | CICD, SUP |
+| New document, runbook or decision record | DOCS |
+| New agent, skill or command | AGENT |
+| Any project-file change | ARCH, TEST |
 
 ## 7. Decision-note protocol
 
@@ -180,16 +201,17 @@ Boundaries worth repeating: sustainability → PERF; cost amplification → SEC/
 ## 10. Diff-mode procedure (final-reviewer)
 
 1. List changed paths (commit range, or `git status` + `git diff HEAD` when no commits exist).
-2. Match paths against the diff triggers (§6) → triggered categories; always state them in the report.
+2. Match paths against the diff triggers **and the Decision doc column** (§6) → triggered categories; always state them in the report.
 3. For each triggered category: read its reference file **in full**, then the decision doc (GOAT section + documented decisions).
-4. Evaluate only `Diff: ✓` checks against the changed files (and code directly affected inside those files). For `Diff: ✗` checks whose `Look` globs match a changed file, emit a non-blocking ⚠️ "verify in next /goat-audit".
+4. Evaluate the `Diff: ✓` checks **whose `Look` globs match a changed path**, plus the category-wide `Diff: ✓` checks that carry no `Look`, against the changed files and the code directly affected inside them. For `Diff: ✗` checks whose `Look` globs match a changed file, emit a non-blocking ⚠️ "verify in next /goat-audit".
 5. Library-behavior claims → `docs-fetcher` (§8).
 6. TEST in diff mode applies only checks tagged `(strategy)` in their title; per-file test conventions stay with final-reviewer §10/§11.
 7. Static analysis only; never run builds, tests or servers.
-8. Map severities: critical → Critical, high/medium → Important, low/info → Minor. Any finding ≥ medium forces "Needs changes before merge".
+8. Map severities: critical → Critical, high → Important, medium/low/info → Minor. Only Critical and Important force "Needs changes before merge".
 
 ## 11. Maintaining the checklists
 
 - Adding a check: next free ID, all fields, a fetched source (never training data), `Look` globs that exist.
-- Changing a criterion materially: retire the old ID and add a new one (decision notes stay attached to the old meaning).
+- Removing a check: delete its line entirely; its ID is never reused.
+- Rewriting a check: rewrite the criterion in place, keeping the ID. When a `## GOAT audit decisions` entry is attached to the old criterion, the next run reports `decision revisit triggered — <doc>:<line>` so the maintainer re-decides it.
 - Every `/goat-audit` run reports stale `Look` hints as [AGENT-18] and dead source links as [AGENT-19].

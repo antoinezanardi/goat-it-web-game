@@ -1,5 +1,5 @@
 ---
-description: Runs the GOAT audit of the whole goat-it-web-game repository through /goat-audit — collects evidence, fans out one explore agent per category, verifies findings, writes the gitignored report, then triages findings into GitHub issues, private security advisories or decision notes. Never modifies application code. Switch with Tab or run /goat-audit.
+description: Runs the GOAT audit of the goat-it-web-game repository through /goat-audit — all 20 categories or a chosen subset — collects evidence, fans out one explore agent per category, verifies findings, writes the gitignored report, then triages findings into GitHub issues, private security advisories or decision notes. Never modifies application code. Switch with Tab or run /goat-audit.
 mode: primary
 temperature: 0.1
 steps: 500
@@ -69,7 +69,8 @@ permission:
     "pnpm dedupe --check*": "allow"
     "pnpm dlx lighthouse *": "allow"
     "gh auth status*": "allow"
-    "gh api *": "allow"
+    "gh api *": "deny"
+    "gh api repos/antoinezanardi/goat-it-web-game*": "allow"
     "gh repo view*": "allow"
     "gh issue list*": "allow"
     "gh issue view*": "allow"
@@ -116,6 +117,10 @@ permission:
     "gh api * --field *": "deny"
     "gh api * --raw-field *": "deny"
     "gh api * --input *": "deny"
+    "gh api *--method=*": "deny"
+    "gh api *--field=*": "deny"
+    "gh api *--raw-field=*": "deny"
+    "gh api *--input=*": "deny"
     "gh api -X POST repos/antoinezanardi/goat-it-web-game/security-advisories --input docs/audits/*": "allow"
     "curl * -X *": "deny"
     "curl * -d *": "deny"

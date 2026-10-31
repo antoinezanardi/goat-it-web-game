@@ -55,7 +55,7 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
   Evidence: `artifact` · Diff: ✗ · Severity: high · Src: [5], [9]
 - **[SUP-12] Full audit clean at high** — `pnpm audit --audit-level=high` without `--prod` exits 0, or every remaining advisory is ignored per [SUP-16].
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [5]
-- **[SUP-13] Audit on every pull request** — The dependency audit job runs on every pull request targeting `main` and `develop`.
+- **[SUP-13] Audit on every pull request** — The dependency audit job runs on every pull request targeting a protected branch.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml`, `.github/actions/audit-dependencies/**` · Src: [5], [13]
 - **[SUP-14] Scheduled audit** — A workflow with a `schedule:` trigger runs the dependency audit (full scope or image SBOM) so new advisories against unchanged code are detected without a pull request.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/**` · Src: [5], [9]
@@ -65,7 +65,7 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `pnpm-workspace.yaml` · Src: [5]
 - **[SUP-17] Registry signatures verified** — A CI step runs `pnpm audit signatures`, which fails on an invalid signature or on an unsigned package from a registry that publishes signing keys (verified: pnpm 12.16.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/actions/**`, `.github/workflows/**` · Src: [5]
-- **[SUP-18] Dependency review on pull requests** — `actions/dependency-review-action` runs on every pull request with `fail-on-severity: high` and posts a summary comment.
+- **[SUP-18] Dependency review on pull requests** — A dependency-review check runs on every pull request and fails it when the pull request introduces a high-severity advisory (for example `actions/dependency-review-action` with `fail-on-severity: high`) and reports what it found.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/**` · Src: [14]
 - **[SUP-19] Dependabot alerts enabled** — GitHub Dependabot alerts are enabled for the repository (`gh api`), so Renovate's vulnerability PRs have an advisory signal.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [7], [8]
@@ -86,7 +86,7 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `pnpm-workspace.yaml` · Src: [4]
 - **[SUP-26] Release-age floor** — `minimumReleaseAge` in `pnpm-workspace.yaml` is at least `10080` minutes (7 days), or a lower value (e.g. `4320`) is backed by a recorded risk acceptance.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `pnpm-workspace.yaml` · Src: [1], [3], [7]
-- **[SUP-27] Release-age exclusion hygiene** — `minimumReleaseAgeExclude` holds exact `name@version` entries; a bare name or scope pattern (e.g. `pnpm`, `@pnpm/*`, `@goat-it/schemas`) exempts every version and carries a written justification, and entries added by `pnpm audit --fix` are reviewed (verified: pnpm 12.16.1).
+- **[SUP-27] Release-age exclusion hygiene** — `minimumReleaseAgeExclude` holds exact `name@version` entries; a bare name or scope pattern exempts every version and carries a written justification, and entries added by `pnpm audit --fix` are reviewed (verified: pnpm 12.16.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `pnpm-workspace.yaml` · Src: [3], [5]
 - **[SUP-28] Stale exclusions pruned** — `minimumReleaseAgeExcludePrune: true` is set (default `false`), so version entries disappear once the lockfile no longer resolves them (verified: pnpm 12.16.1).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `pnpm-workspace.yaml` · Src: [3]
@@ -109,7 +109,7 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
 
 ## 4. Provenance, SBOM & attestations
 
-- **[SUP-37] Build provenance attestation** — The image publishing job attests the pushed image with `actions/attest` (or `attest-build-provenance`) using `subject-name`, `subject-digest` and `push-to-registry: true`.
+- **[SUP-37] Build provenance attestation** — The image publishing job attests the pushed image digest (for example with `actions/attest` or `attest-build-provenance`) and publishes the attestation to the registry.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/docker-build-and-push.yml`, `.github/actions/docker-build/**` · Src: [10]
 - **[SUP-38] Provenance verifiable** — When the image is attested, `gh attestation verify oci://<image>@<digest>` succeeds for the latest published production and staging images.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [10]
@@ -126,7 +126,7 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [11]
 - **[SUP-43] Push protection enabled** — `security_and_analysis.secret_scanning_push_protection.status == "enabled"` for the repository (repository-level push protection is off by default).
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [11]
-- **[SUP-44] Custom push-protection patterns** — Push protection (built-in plus custom patterns) covers the project's credentials: Docker Hub tokens, `ghp_` and `github_pat_` tokens, SSH private keys, `SONAR_TOKEN` and `BYOB_TOKEN`.
+- **[SUP-44] Custom push-protection patterns** — Push protection (built-in plus custom patterns) covers every credential type the project uses: registry access tokens, GitHub tokens, SSH private keys and CI scanner tokens.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [11]
 - **[SUP-45] Push-protection bypasses reviewed** — No unreviewed push-protection bypass occurred in the last 90 days; every bypass is resolved and its reason recorded.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [11]
@@ -134,11 +134,11 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [12]
 - **[SUP-47] Leaked secrets rotated** — Every secret ever found in history has been rotated at its provider, not only deleted from the tree.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [12]
-- **[SUP-48] Env files ignored** — `.gitignore` ignores `.env` and `.env.*` and re-includes only `envs/.env.example` and `envs/.env.test`.
+- **[SUP-48] Env files ignored** — `.gitignore` ignores env files (`.env`, `.env.*`) and re-includes only the committed templates and test fixtures.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.gitignore` · Src: [12]
-- **[SUP-49] No other env file tracked** — `git ls-files` lists no `.env*` file other than `envs/.env.example` and `envs/.env.test` (no force-added local or production env file).
+- **[SUP-49] No other env file tracked** — `git ls-files` lists no env file other than the committed templates and test fixtures — no force-added local, staging or production env file.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `envs/**` · Src: [12]
-- **[SUP-50] Tracked env files hold no live credentials** — `envs/.env.example` and `envs/.env.test` contain only placeholders or sandbox fixture values; no production or staging key, DSN token or password appears in them.
+- **[SUP-50] Tracked env files hold no live credentials** — Committed env templates and test fixtures contain only placeholders or sandbox values; no production or staging key, DSN token or password appears in them.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `envs/**` · Src: [12]
 
 ## 6. Licenses
@@ -156,10 +156,8 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
 
 ## 7. Renovate, bots & Scorecard
 
-- **[SUP-56] Best-practices preset** — `.github/renovate.json` `extends` includes `config:best-practices` (adds `docker:pinDigests`, `helpers:pinGitHubActionDigests`, `:pinDevDependencies`, abandonment checks, `security:minimumReleaseAgeNpm` and weekly lockfile maintenance over `config:recommended`).
+- **[SUP-56] Best-practices preset** — Renovate extends a curated preset set that pins digests and devDependencies, enables abandonment and release-age security checks, and schedules weekly lockfile maintenance (for example `config:best-practices`).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/renovate.json` · Src: [7]
-- **[SUP-57] Lockfile maintenance scheduled** — Lockfile maintenance is enabled (`lockFileMaintenance.enabled: true` or a preset that enables it) on a weekly schedule; it is `false` by default.
-  Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/renovate.json` · Src: [8]
 - **[SUP-58] Vulnerability alerts not disabled** — `vulnerabilityAlerts` is not disabled in `.github/renovate.json`, so Renovate opens security PRs from GitHub advisory alerts.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/renovate.json` · Src: [7], [8]
 - **[SUP-59] OSV vulnerability alerts** — `osvVulnerabilityAlerts: true` is set in `.github/renovate.json` to add OSV advisories and malicious-package detection.

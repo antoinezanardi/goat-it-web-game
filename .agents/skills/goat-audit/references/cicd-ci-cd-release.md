@@ -27,7 +27,7 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/*.yml` · Src: [4], [8]
 - **[CICD-04] Read-only default workflow token** — `gh api repos/{owner}/{repo}/actions/permissions/workflow` returns `default_workflow_permissions: "read"` and `can_approve_pull_request_reviews: false`.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [4]
-- **[CICD-05] No dangerous triggers** — No workflow uses `pull_request_target`, `workflow_run` or `issue_comment`; pull-request automation runs on `pull_request`, whose token is read-only for forks.
+- **[CICD-05] No dangerous triggers** — No workflow uses `pull_request_target` or `issue_comment`, and pull-request automation runs on `pull_request`, whose token is read-only for forks; a `workflow_run` trigger exists only with a documented reason and checks out the trusted default branch, never the triggering PR head.
   Evidence: `static` · Diff: ✓ · Severity: critical · Look: `.github/workflows/*.yml` · Src: [2], [4], [8]
 - **[CICD-06] No template injection in run steps** — No `run:` body or `actions/github-script` `script:` interpolates `${{ github.event.* }}` strings, `${{ github.head_ref }}`, `${{ inputs.* }}`, `${{ env.* }}` or step outputs directly, in workflows and composite actions alike; values flow through `env:` and are used as quoted shell variables (`"$PR_TITLE"`).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/*.yml`, `.github/actions/*/action.yml` · Src: [4], [8]
@@ -39,7 +39,7 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml` · Src: [1], [4]
 - **[CICD-10] Personal access tokens minimized** — `SEMANTIC_RELEASE_TOKEN` and `BYOB_TOKEN` are fine-grained, single-repository, expiring tokens limited to the scopes their job needs, and `GITHUB_TOKEN` is used wherever it suffices.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [1], [4]
-- **[CICD-11] Release content isolated from caches** — Workflows that publish or write repository state (`release-creation.yml`, `upsert-pr-release.yml`, deploys) never feed files restored by `actions/cache` into release content, PR bodies (`RELEASE.md` → `gh pr create --body`) or images; data passes between jobs through run-scoped artifacts or job outputs, or the cache is disabled with `cache-mode: none`.
+- **[CICD-11] Release content isolated from caches** — Workflows that publish or write repository state (release, release-PR, deploy) never feed files restored by the cache into release content, PR bodies or images; data passes between jobs through run-scoped artifacts or job outputs, or the cache is disabled for those jobs.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/upsert-pr-release.yml`, `.github/workflows/release-creation.yml` · Src: [8]
 - **[CICD-12] Cache scope cannot cross trust boundaries** — Cache keys include the OS and `hashFiles('pnpm-lock.yaml')`, and caches restored by default-branch release or deploy jobs (`node_modules`, coverage `restore-keys` prefixes) cannot be seeded by pull-request runs.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/actions/install-project/action.yml`, `.github/actions/sonarcloud/action.yml`, `.github/actions/unit-tests/action.yml` · Src: [8]
@@ -47,9 +47,9 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/build.yml`, `.github/workflows/docker-build-and-push.yml` · Src: [8]
 - **[CICD-14] Bot conditions not spoofable** — Conditions that skip or trust bots test `github.event.pull_request.user.login` or an app id, never `github.actor` (e.g. `if: github.actor != 'renovate[bot]'`).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `.github/workflows/build.yml` · Src: [8]
-- **[CICD-15] Third-party actions vetted** — Every non-GitHub-owned action (e.g. `RubbaBoy/BYOB`, `morrisoncole/pr-lint-action`, `raven-actions/actionlint`, `SonarSource/sonarqube-scan-action`) is not archived and still maintained per `gh api repos/<owner>/<repo>`, and receives only the token it needs.
+- **[CICD-15] Third-party actions vetted** — Every non-GitHub-owned action is not archived and still maintained (`gh api repos/<owner>/<repo>`) and receives only the token it needs.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [1], [2]
-- **[CICD-16] Workflow lint and security audit in CI** — A pull-request job runs actionlint (with shellcheck) and zizmor (`zizmorcore/zizmor-action` or `zizmor --pedantic`) over `.github/workflows/**` and `.github/actions/**` and fails on any finding; actionlint alone does not cover security audits.
+- **[CICD-16] Workflow lint and security audit in CI** — A pull-request job runs a workflow linter and a workflow security auditor over `.github/workflows/**` and `.github/actions/**` and fails on any finding (for example actionlint with shellcheck plus zizmor); linting alone does not cover security audits.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml` · Src: [8]
 - **[CICD-17] Every job has a timeout** — Every job that runs steps declares `timeout-minutes`; jobs that only call a reusable workflow rely on the callee's job timeouts.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `.github/workflows/*.yml` · Src: [8]
@@ -73,7 +73,7 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
 
 - **[CICD-24] Rulesets protect main and develop** — `gh api repos/{owner}/{repo}/rulesets` shows active branch rulesets targeting `refs/heads/main` and `refs/heads/develop` that block deletion and non-fast-forward pushes and require a pull request, since anyone able to push to a semantic-release branch can publish a release.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [6], [14]
-- **[CICD-25] Required status checks match real jobs** — The rulesets require every blocking job of `build.yml` (CodeQL, workflow lint, codebase lint, dependency audit, app build, Docker build per platform, unit tests, acceptance tests), the PR-title lint and, for `main`, the `protect-main-branch.yml` job, with `strict_required_status_checks_policy: true`; no required context names a renamed or deleted job.
+- **[CICD-25] Required status checks match real jobs** — The rulesets require every blocking job of the pull-request workflow (including CodeQL, workflow lint, codebase lint, dependency audit, build, Docker build per platform, unit and acceptance tests), the PR-title lint and, for `main`, the main-branch protection job, with `strict_required_status_checks_policy: true`; no required context names a renamed or deleted job.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [6]
 - **[CICD-26] Required review enforced** — The rulesets require at least one approving review, code-owner review, dismissal of stale approvals on push and approval of the last push; a single-maintainer exception is recorded as a decision.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [6]
@@ -83,7 +83,7 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [6]
 - **[CICD-29] CODEOWNERS has no errors** — `gh api repos/{owner}/{repo}/codeowners/errors` returns an empty `errors` array, because GitHub silently skips invalid lines.
   Evidence: `command` · Diff: ✗ · Severity: medium · Src: [12]
-- **[CICD-30] Sensitive paths have explicit owners** — `.github/CODEOWNERS` assigns owners to `.github/workflows/`, `.github/actions/`, `.github/CODEOWNERS`, `Dockerfile`, `pnpm-lock.yaml`, `pnpm-workspace.yaml` and `configs/semantic-release/`, with these patterns after any catch-all because the last matching pattern wins.
+- **[CICD-30] Sensitive paths have explicit owners** — `.github/CODEOWNERS` assigns owners to the workflow and action definitions, the CODEOWNERS file itself, container and dependency-policy files and the release configuration, with these patterns after any catch-all because the last matching pattern wins.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/CODEOWNERS` · Src: [12]
 - **[CICD-31] Bus factor documented** — At least two people can approve pull requests and publish a release, or the single-maintainer situation and its continuity plan are recorded.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [9], [12]
@@ -92,7 +92,7 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
 
 - **[CICD-32] Release branches match release workflows** — `branches` in `configs/semantic-release/release.config.mjs` lists only branches on which a workflow runs semantic-release or a documented dry-run version preview (`script:create-release-changelog` on `develop`), and the release step's `--extends` path points to that file (verified: semantic-release 25.0.9).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/semantic-release/**`, `.github/workflows/release-creation.yml`, `.github/workflows/upsert-pr-release.yml` · Src: [14]
-- **[CICD-33] Release gated by green gates** — The semantic-release job `needs:` the CodeQL, unit-test and acceptance-test jobs of the same run, so a red `main` never publishes a tag, a GitHub Release or a production deploy.
+- **[CICD-33] Release gated by green gates** — The semantic-release job `needs:` the blocking quality jobs of the same run (at least CodeQL and the unit and acceptance tests), so a red `main` never publishes a tag, a GitHub Release or a production deploy.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/release-creation.yml` · Src: [1], [9]
 - **[CICD-34] Commit types map to SemVer** — `releaseRules` keep `feat` → minor, `fix` → patch and breaking changes (`!` or a `BREAKING CHANGE:` footer) → major; any extra patch-releasing type (`docs`, `style`, `refactor`, `test`, `ci`, `chore`) is a documented choice.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/semantic-release/**` · Src: [10], [11], [14]
@@ -134,14 +134,14 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
 
 - **[CICD-50] Superseded PR runs cancelled** — Every `pull_request`-triggered workflow declares `concurrency` with group `${{ github.workflow }}-${{ github.head_ref || github.run_id }}` and `cancel-in-progress: true`.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `.github/workflows/*.yml` · Src: [8], [16]
-- **[CICD-51] No duplicate CI runs** — A commit runs each gate once per trigger: workflows sharing a trigger (push to `develop`: `deploy-to-staging.yml` and `upsert-pr-release.yml`; push to `main`: `release-creation.yml`) do not repeat the same job, and `main` re-runs only the jobs whose outputs are consumed (release, badges, Sonar).
+- **[CICD-51] No duplicate CI runs** — A commit runs each gate once per trigger: workflows that share a trigger do not repeat the same job, and the release branch re-runs only the jobs whose outputs it consumes.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `.github/workflows/*.yml` · Src: [16]
 
 ## 7. Hooks and commit, branch and PR-title enforcement
 
-- **[CICD-52] commit-msg hook runs commitlint** — `.husky/commit-msg` runs `commitlint --config configs/commitlint/.commitlintrc.json --edit "$1"`, and that config extends `@commitlint/config-conventional`.
+- **[CICD-52] commit-msg hook runs commitlint** — The `commit-msg` hook runs commitlint with the repository configuration on the edited message, and that configuration extends `@commitlint/config-conventional`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.husky/*`, `configs/commitlint/**` · Src: [11], [15]
-- **[CICD-53] pre-commit gates installed and scoped** — `.husky/pre-commit` runs `validate:branch-name`, `lint:staged:fix` (Oxlint and ESLint through `configs/lint-staged/*.json` on `*.{js,mjs,cjs,ts,vue}`), `typecheck` and `test:unit:staged`, and the `prepare` script installs Husky outside CI.
+- **[CICD-53] pre-commit gates installed and scoped** — The `pre-commit` hook validates the branch name, lints and fixes staged files, type-checks and runs the unit tests affected by the staged files; the `prepare` script installs the hooks outside CI.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.husky/*`, `configs/lint-staged/**`, `package.json` · Src: [9], project: .github/CONTRIBUTING.md
 - **[CICD-54] CI re-enforces hook rules** — Because `--no-verify` skips hooks, a pull-request job runs `pnpm run validate:branch-name` on the head branch and commitlint over the PR commit range (`commitlint --from <base-sha> --to <head-sha>`).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/*.yml`, `configs/validate-branch-name/**` · Src: [11], [15], project: .github/CONTRIBUTING.md

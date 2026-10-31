@@ -34,7 +34,7 @@ actionable, not what data may be collected or how probes are designed.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/deploy-*.yml` · Src: [14], project: docs/operations.md
 - **[OPS-06] Release tag on both runtimes** — Client and server `init` set `release` to the deployed immutable version (release tag or git SHA), injected at build time for the client and through the option or `SENTRY_RELEASE` on the server, so regressions are attributable to a deploy (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `sentry.*.config.ts`, `nuxt.config.ts`, `.github/workflows/deploy-*.yml` · Src: [14], [16], project: docs/operations.md
-- **[OPS-07] Documented source-map strategy** — `nuxt.config.ts` either uploads maps (`sourcemap.client: 'hidden'`, `sentry.org`/`project`/`authToken` supplied by CI, `sentry.sourcemaps.filesToDeleteAfterUpload` covering `.output/**/public/**/*.map`) or sets `sentry.sourcemaps.disable: true` with `docs/operations.md` stating that client stack traces stay minified (verified: @sentry/nuxt 11.9.0).
+- **[OPS-07] Documented source-map strategy** — Sentry source maps are either uploaded from CI with a token that never reaches the client bundle and deleted after upload, or disabled with the resulting limitation (minified client stack traces) documented (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts`, `docs/operations.md` · Src: [13], [20], project: docs/operations.md
 - **[OPS-08] Deliberate error sample rate** — Error `sampleRate` stays at its default `1.0` (every error sent) or is set explicitly with a quota rationale recorded in `docs/operations.md` (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `sentry.*.config.ts`, `shared/utils/helpers/sentry/**` · Src: [14], [15]
@@ -80,14 +80,14 @@ actionable, not what data may be collected or how probes are designed.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md` · Src: [3], [5], project: docs/operations.md
 - **[OPS-26] Error budget policy** — When numeric SLOs exist, `docs/operations.md` states the action taken when the error budget is exhausted (for example a feature-release freeze until back within budget).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `docs/operations.md` · Src: [3], [4]
-- **[OPS-27] Burn-rate alerting** — When numeric SLOs exist, alerts page at 14.4× burn over 1 h + 5 m and 6× over 6 h + 30 m and open a ticket at 1× over 3 d + 6 h, or a documented simpler equivalent.
+- **[OPS-27] Burn-rate alerting** — When numeric SLOs exist, alerts fire on burn rate with a fast window and a slow window (multi-window), or a documented simpler equivalent.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [4]
 - **[OPS-28] Actionable alert hygiene** — Every configured alert (Sentry, UptimeRobot) is actionable, classified as page or notification, and names the runbook section to follow.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [2], [17]
 
 ## 4. Uptime monitoring
 
-- **[OPS-29] Monitor inventory per environment and probe** — `docs/operations.md` lists one external monitor for each of `/healthz` and `/readyz` in production and in staging (four monitors) with URL, method, expected result and interval.
+- **[OPS-29] Monitor inventory per environment and probe** — `docs/operations.md` lists one external monitor for each probe endpoint in each environment, with URL, method, expected result and interval.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `docs/operations.md` · Src: [11], [2], project: docs/operations.md
 - **[OPS-30] Keyword assertions match probe bodies** — Each monitor asserts HTTP 2xx plus a body keyword, not an open port, and the documented keywords (`"status":"ok"` for `/healthz`, `"status":"ready"` for `/readyz`) match the bodies returned by the `server/routes/**` handlers.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md`, `server/routes/**` · Src: [11]
@@ -97,9 +97,9 @@ actionable, not what data may be collected or how probes are designed.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `docs/operations.md` · Src: [11], [2]
 - **[OPS-33] Alert delivery tested** — Monitor alerts reach a primary and an escalation contact, and a test alert was delivered and acknowledged.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [5], [2]
-- **[OPS-34] Synthetic user journey** — A scripted external check periodically loads the production home page, starts a game and answers one question.
+- **[OPS-34] Synthetic user journey** — A scripted external check periodically exercises a core user journey in production (load the home page and complete one primary interaction).
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [4], [2]
-- **[OPS-35] Certificate and domain expiry monitoring** — TLS certificate expiry for `goat-it.fr` and `staging.goat-it.fr` and the domain registration expiry are monitored with lead-time alerts.
+- **[OPS-35] Certificate and domain expiry monitoring** — TLS certificate expiry for every deployed host and the domain registration expiry are monitored with lead-time alerts.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [1]
 - **[OPS-36] Monitoring heartbeat** — A missing heartbeat from the monitoring path (dead-man's switch) raises an alert, so a silent monitor or alert channel is itself detected.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [1]
@@ -129,7 +129,7 @@ actionable, not what data may be collected or how probes are designed.
 
 ## 6. Post-deploy verification
 
-- **[OPS-47] Post-deploy gate in every deploy workflow** — `deploy-to-staging.yml` and `deploy-to-production.yml` run the `health-check` composite action as a separate step after the deploy step against `<site-url>/healthz`, and a gate failure fails the deployment job.
+- **[OPS-47] Post-deploy gate in every deploy workflow** — Every deploy workflow runs the health-check composite action as a separate step after the deploy step against the site's `/healthz`, and a gate failure fails the deployment job.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/deploy-*.yml`, `.github/actions/health-check/**` · Src: [5], [11], project: docs/operations.md
 - **[OPS-48] Bounded gate with strict success** — `scripts/post-deploy-health-check.sh` uses a bounded budget (default 5 attempts, 5 s apart, 3 s per request), treats only HTTP `200` as success, retries any other status, timeout or connection error, and exits non-zero with an `::error::` annotation after the last attempt.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `scripts/post-deploy-health-check.sh`, `.github/actions/health-check/**` · Src: [11], project: docs/operations.md

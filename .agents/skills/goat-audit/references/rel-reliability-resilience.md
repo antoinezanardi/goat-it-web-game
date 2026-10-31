@@ -22,13 +22,13 @@ collections and caps at every boundary, upstream contract compatibility with `@g
 
 ## 1. Timeouts & end-to-end budget
 
-- **[REL-01] Hop timeout inventory** — Every network hop has a named timeout constant: browser→proxy `GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS` (15 s), proxy→upstream `GOAT_IT_API_REQUEST_TIMEOUT_IN_MS` (10 s), `/readyz`→upstream `GOAT_IT_API_READINESS_PROBE_TIMEOUT_IN_MS` (3 s); no hop relies on a library default, and a change adding a hop adds its constant.
+- **[REL-01] Hop timeout inventory** — Every network hop has a named timeout constant with a documented value (browser→proxy, proxy→upstream, readiness probe); no hop relies on a library default, and a change adding a hop adds its constant.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `shared/constants/goat-it-api.constants.ts`, `server/utils/goat-it-api/goat-it-api.constants.ts`, `server/utils/goat-it-api/helpers/goat-it-api-readiness/**` · Src: [1], [9], project: docs/security.md
-- **[REL-02] Client lane timeout** — Every `useAsyncAction` that wraps a network call passes `timeoutInMs` (proxy calls use `GOAT_IT_API_CLIENT_ASYNC_ACTION_OPTIONS`); repositories never set their own timeout.
+- **[REL-02] Client lane timeout** — Every async lane that wraps a network call passes an explicit timeout from the shared client options; repositories never set their own timeout.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/stores/**`, `app/composables/**` · Src: [1], project: docs/architecture.md §4.4
 - **[REL-03] Explicit `useAsyncData`/`useFetch` timeout** — When `useAsyncData`, `useFetch` or `useLazyFetch` fetches over the network, it passes an explicit `timeout`; the option defaults to `undefined` (no timeout) and its expiry aborts the handler signal (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**/*.vue`, `app/composables/**` · Src: [9], [10]
-- **[REL-04] Upstream timeout composed into the signal** — Every proxy→upstream `$fetch` uses the signal built by `createGoatItApiFetchOptions` (`AbortSignal.any([disconnect, AbortSignal.timeout(GOAT_IT_API_REQUEST_TIMEOUT_IN_MS)])`); no call relies on ofetch `timeout` together with `signal`, because ofetch ignores `timeout` when a `signal` is present (verified: ofetch 1.5.1).
+- **[REL-04] Upstream timeout composed into the signal** — Every proxy→upstream call applies its timeout through the request signal, composed with the disconnect signal; no call relies on ofetch `timeout` together with `signal`, because ofetch ignores `timeout` when a `signal` is present (verified: ofetch 1.5.1).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-fetch-options/**`, `server/api/goat-it-api/**` · Src: [13], project: docs/security.md
 - **[REL-05] End-to-end budget arithmetic** — The client timeout (15 s) exceeds the proxy worst case — one 10 s signal created once per inbound request and shared by every upstream attempt and retry delay — plus proxy overhead, and this arithmetic is written in `docs/security.md`.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `docs/security.md`, `server/utils/goat-it-api/helpers/goat-it-api-fetch-options/**` · Src: [1], [3], project: docs/security.md
@@ -81,13 +81,13 @@ collections and caps at every boundary, upstream contract compatibility with `@g
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-error/**` · Src: [5], project: docs/security.md
 - **[REL-25] Retry-After propagation** — An upstream `429` keeps its status and forwards `Retry-After` as `data.retryAfter`, and every `429` or `503` the `/api/goat-it-api/**` proxy emits itself carries a `Retry-After` header, so clients back off instead of retrying immediately.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/helpers/goat-it-api-error/**`, `server/middleware/02-api-rate-limit.middleware.ts` · Src: [3], project: docs/security.md
-- **[REL-26] Degradation matrix documented** — `docs/operations.md` or `docs/security.md` maps each dependency failure — upstream 5xx, upstream timeout, contract drift, upstream `429`, client offline, Sentry unreachable, logger failure — to its HTTP status and user-visible behaviour.
+- **[REL-26] Degradation matrix documented** — `docs/operations.md` or `docs/security.md` maps each dependency failure (upstream 5xx, timeout, contract drift, `429`, client offline) to its HTTP status and `errorCode`; the expected system behaviour and detection for the same failures is covered by OPS-46.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md`, `docs/security.md` · Src: [5], [8]
 - **[REL-27] Partial batch policy explicit** — When an upstream batch contains an item that fails validation, the policy is explicit and documented — reject the whole batch with `502`, or drop invalid items above a minimum count with a warning log — and items are never silently truncated.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/helpers/goat-it-api-validation/**` · Src: [5], project: docs/security.md
 - **[REL-28] Persistent-failure cooldown** — Repeated upstream failures trip a bounded cooldown (circuit breaker or short negative cache) instead of one upstream call per user retry, or the absence is a documented decision that names the rate limiter as the bound.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/**` · Src: [1], [3]
-- **[REL-29] Non-critical dependency isolation** — A Sentry transport failure or a logger write error never fails a request, an SSR render or a client action: logger errors are caught (falling back to `console.error`) and error reporting never throws into the request path.
+- **[REL-29] Non-critical dependency isolation** — A Sentry transport failure never fails a request, an SSR render or a client action: error reporting never throws into the request path (logger failures are covered by OPS-20).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/logging/**`, `server/plugins/error-logging/**` · Src: [5], project: docs/operations.md
 - **[REL-30] Upstream outage drill** — With the upstream stopped or answering `503`, the home and game pages still render with HTTP `200` and show an error state, proxy calls answer `502` with `data.errorCode`, and the web process stays live (`/healthz` `200`).
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [5], project: docs/operations.md
@@ -138,8 +138,6 @@ collections and caps at every boundary, upstream contract compatibility with `@g
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [3], [6]
 - **[REL-49] Upstream quota headroom** — Peak proxy requests per second × upstream attempts per request × instances stays below the Goat It API quota or rate limit, and the figure is written down.
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [6], [8]
-- **[REL-50] Memory limit alignment** — The container memory limit and the Node heap limit (`--max-old-space-size` or `NODE_OPTIONS`) are aligned so the process reaches its heap limit before a kernel OOM kill, and OOM restarts are observable.
-  Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [7]
 
 ## Sources
 
