@@ -1,16 +1,12 @@
 import type { AsyncDataRequestStatus } from "#app";
+import type { UseFetchStatus } from "@/composables/core/useFetchStatus/use-fetch-status.types";
 
-type UseFetchStatus = {
-  fetchStatus: Ref<AsyncDataRequestStatus>;
-  isIdle: ComputedRef<boolean>;
-  isPending: ComputedRef<boolean>;
-  isSuccess: ComputedRef<boolean>;
-  isError: ComputedRef<boolean>;
-  setFetchStatusToPending: () => void;
-  setFetchStatusToSuccess: () => void;
-  setFetchStatusToError: () => void;
-};
-
+/**
+ * Tracks an async operation through the `idle | pending | success | error` lifecycle.
+ *
+ * Starts in `idle` and exposes read-only computed flags plus three setters; the
+ * setters are the only supported mutation path for `fetchStatus`.
+ */
 function useFetchStatus(): UseFetchStatus {
   const fetchStatus = ref<AsyncDataRequestStatus>("idle");
 
@@ -41,10 +37,6 @@ function useFetchStatus(): UseFetchStatus {
     setFetchStatusToError,
   };
 }
-
-export type {
-  UseFetchStatus,
-};
 
 export {
   useFetchStatus,

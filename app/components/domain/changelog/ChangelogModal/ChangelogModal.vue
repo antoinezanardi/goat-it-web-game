@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { CHANGELOG_ICON } from "@/components/shared/core/changelog/changelog.constants";
+import { CHANGELOG_ICON } from "@/utils/ui/changelog/changelog.constants";
 import type { ChangelogCollectionName } from "@/components/domain/changelog/ChangelogModal/changelog-modal.types";
 import { CHANGELOG_MODAL_UI, CHANGELOG_VERSION_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
-import { sortChangelogEntries } from "~/composables/domain/useChangelog/helpers/changelog.helpers";
+import { sortChangelogEntries } from "@/components/domain/changelog/ChangelogModal/helpers/changelog-sorting/changelog-sorting.helpers";
 
 const { locale, t } = useI18n();
 
@@ -15,7 +15,7 @@ const { data: latestRelease } = useAsyncData(
     .order("date", "DESC")
     .limit(1)
     .first(),
-  { watch: [locale] },
+  { lazy: true, server: false, watch: [locale] },
 );
 
 const latestVersion = computed<string | undefined>(() => latestRelease.value?.version);
@@ -34,9 +34,9 @@ const sortedChangelogEntries = computed(() => sortChangelogEntries(changelogEntr
 
 const isChangelogEntriesLoading = computed<boolean>(() => changelogEntriesStatus.value === "idle" || changelogEntriesStatus.value === "pending");
 
-const { isOpen, close } = useChangelog({ latestVersion });
+const { isChangelogOpen, closeChangelog } = useChangelog({ latestVersion });
 
-const { hasEverOpened } = useLazyModal({ isOpen });
+const { hasEverOpened } = useLazyModal({ isOpen: isChangelogOpen });
 
 const requestedLocale = ref<string>();
 
@@ -45,21 +45,21 @@ function requestChangelogEntries(): void {
   void fetchChangelogEntries();
 }
 
-watch(isOpen, isOpenValue => {
-  if (isOpenValue && requestedLocale.value !== locale.value) {
+watch(isChangelogOpen, isChangelogOpenValue => {
+  if (isChangelogOpenValue && requestedLocale.value !== locale.value) {
     requestChangelogEntries();
   }
 });
 
 watch(locale, () => {
-  if (isOpen.value) {
+  if (isChangelogOpen.value) {
     requestChangelogEntries();
   }
 });
 
 function onUpdateOpen(value: boolean): void {
   if (!value) {
-    close();
+    closeChangelog();
   }
 }
 </script>
@@ -71,7 +71,7 @@ function onUpdateOpen(value: boolean): void {
   >
     <LazyUModal
       v-if="hasEverOpened"
-      :open="isOpen"
+      :open="isChangelogOpen"
       scrollable
       :ui="CHANGELOG_MODAL_UI"
       @update:open="onUpdateOpen"
@@ -119,7 +119,7 @@ function onUpdateOpen(value: boolean): void {
         <DefaultModalFooter
           data-testid="changelog-modal-footer"
           disable-shortcuts
-          @close-modal="close"
+          @close-modal="closeChangelog"
         />
       </template>
     </LazyUModal>

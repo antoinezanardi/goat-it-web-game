@@ -1,24 +1,26 @@
 import { FIND_RANDOM_QUESTIONS_BODY_DTO, QUESTION_DTO } from "@goat-it/schemas/question";
 import type { H3Event } from "h3";
-import { z } from "zod";
 
 import type { Question } from "#shared/types/question.types";
 import { createQuestionFromQuestionDto } from "#server/utils/goat-it-api/mappers/question/question.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
+import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers";
+import { createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api-fetch-options/goat-it-api-fetch-options.helpers";
+import { parseAndMapGoatItApiResponse, validateGoatItApiBody } from "#server/utils/goat-it-api/helpers/goat-it-api-validation/goat-it-api-validation.helpers";
+import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error/goat-it-api-error.helpers";
+import { GOAT_IT_API_SEARCH_RANDOM_SUFFIX } from "#server/utils/goat-it-api/goat-it-api.constants";
+import { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
 
 async function getRandomQuestionsHandler(event: H3Event): Promise<Question[]> {
-  const endpoint = createGoatItApiEndpoint("questions", { suffix: "search/random" });
-  const fetchOptions = createGoatItApiFetchOptions(event);
-  const rawBody: unknown = await readBody(event);
-  const body = FIND_RANDOM_QUESTIONS_BODY_DTO.parse(rawBody);
+  const endpoint = createGoatItApiEndpoint(GoatItApiResourceNames.QUESTIONS, { suffix: GOAT_IT_API_SEARCH_RANDOM_SUFFIX });
+  const fetchOptions = createGoatItApiFetchOptions(event, { method: "POST" });
+  const body = await validateGoatItApiBody(event, FIND_RANDOM_QUESTIONS_BODY_DTO);
 
   try {
     const rawData = await $fetch(endpoint, { ...fetchOptions, method: "POST", body });
-    const questions = z.array(QUESTION_DTO).parse(rawData);
 
-    return questions.map(createQuestionFromQuestionDto);
+    return parseAndMapGoatItApiResponse(rawData, QUESTION_DTO, createQuestionFromQuestionDto);
   } catch(error: unknown) {
-    handleGoatItApiError(error);
+    throwGoatItApiError(error);
   }
 }
 

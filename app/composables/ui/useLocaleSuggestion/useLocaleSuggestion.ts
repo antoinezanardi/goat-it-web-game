@@ -1,18 +1,34 @@
 import { isValidLocale } from "@goat-it/schemas/shared/locale";
+import type { Locale } from "@goat-it/schemas/shared/locale";
+import { usePreferredLanguages } from "@vueuse/core";
 
+import { CookieNames } from "#shared/enums/cookie.enums";
 import { resolveSuggestedLocale } from "#shared/utils/helpers/locale/locale.helpers";
+import { LOCALE_COOKIE_OPTIONS } from "@/app.constants";
+import type { UseLocaleSuggestionReturn } from "@/composables/ui/useLocaleSuggestion/use-locale-suggestion.types";
 import type { Toast } from "#ui/composables";
 
-async function useLocaleSuggestion(): Promise<void> {
-  const { addInfoToast, removeToast } = useAppToast();
+/**
+ * Proposes switching to the locale suggested by the browser's preferred languages.
+ *
+ * Performs its one-shot side effect during setup and returns `Promise<void>` when the flow is in place. It is a
+ * no-op when the locale cookie already holds a valid locale, or when no valid
+ * suggestion differs from the current locale. Otherwise it loads the suggested
+ * messages before showing a persistent toast: accept writes the locale cookie and
+ * applies the locale, while decline or close writes the current locale. If applying
+ * the locale fails, the cookie is cleared and an error toast is shown.
+ */
+async function useLocaleSuggestion(): UseLocaleSuggestionReturn {
+  const { addErrorToast, addInfoToast, removeToast } = useAppToast();
   const { $i18n } = useNuxtApp();
-  const redirectedCookie = useLocaleCookie();
+  const localeCookie = useCookie<string | undefined>(CookieNames.LOCALE, LOCALE_COOKIE_OPTIONS);
+  const preferredLanguages = usePreferredLanguages();
 
-  if (redirectedCookie.value !== null && isValidLocale(redirectedCookie.value)) {
+  if (localeCookie.value !== undefined && isValidLocale(localeCookie.value)) {
     return;
   }
 
-  const suggestedLocale = resolveSuggestedLocale(navigator.languages);
+  const suggestedLocale = resolveSuggestedLocale(preferredLanguages.value);
   const currentLocale = $i18n.locale.value;
 
   if (suggestedLocale === undefined || suggestedLocale === currentLocale) {
@@ -21,20 +37,36 @@ async function useLocaleSuggestion(): Promise<void> {
 
   const targetLocale = suggestedLocale;
 
-  await $i18n.loadLocaleMessages(targetLocale);
+  try {
+    await $i18n.loadLocaleMessages(targetLocale);
+  } catch(error: unknown) {
+    console.error("Failed to load the suggested locale messages", error);
+
+    return;
+  }
 
   let isHandled = false;
 
   function handleAccept(): void {
     isHandled = true;
-    redirectedCookie.value = targetLocale;
-    void $i18n.setLocale(targetLocale);
+    localeCookie.value = targetLocale;
     removeToast(suggestionToast.id);
+    void applySuggestedLocale(targetLocale);
+  }
+
+  async function applySuggestedLocale(locale: Locale): Promise<void> {
+    try {
+      await $i18n.setLocale(locale);
+    } catch(error: unknown) {
+      localeCookie.value = undefined;
+      console.error("Failed to apply the suggested locale", error);
+      addErrorToast({ title: $i18n.t("common.error"), description: $i18n.t("errors.unknown") });
+    }
   }
 
   function handleDecline(): void {
     isHandled = true;
-    redirectedCookie.value = currentLocale;
+    localeCookie.value = currentLocale;
     removeToast(suggestionToast.id);
   }
 
@@ -42,7 +74,7 @@ async function useLocaleSuggestion(): Promise<void> {
     if (open || isHandled) {
       return;
     }
-    redirectedCookie.value = currentLocale;
+    localeCookie.value = currentLocale;
   }
 
   function translateInSuggestedLocale(key: string): string {

@@ -1,67 +1,51 @@
-import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
-import { until } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { isEqual } from "radashi";
 
 import type { Question } from "#shared/types/question.types";
-import { buildGameSettingsFetchFilters } from "~/composables/domain/useGameQuestionsFilters/helpers/game-questions-filters.helpers";
-import type { GameSettingsFetchFilters } from "~/composables/domain/useGameQuestionsFilters/use-game-questions-filters.types";
-import { GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY, GAME_PREFETCH_THRESHOLD } from "@/pages/(game)/game.constants";
+import { GAME_SETTINGS_RESET_TOAST_ID } from "@/composables/domain/useGame/use-game.constants";
+import type { GamePageState, UseGame } from "@/composables/domain/useGame/use-game.types";
+import { useGameQuestionFeed } from "@/composables/domain/useGameQuestionFeed/useGameQuestionFeed";
+import { useGameSettingsSync } from "@/composables/domain/useGameSettingsSync/useGameSettingsSync";
 
-type GamePageState = "loading" | "playing" | "game-over";
-
-type UseGame = {
-  canGoToPreviousQuestion: ComputedRef<boolean>;
-  currentIndex: Ref<number>;
-  currentQuestion: ComputedRef<Question | undefined>;
-  isFetchingQuestions: ComputedRef<boolean>;
-  isTranslating: ComputedRef<boolean>;
-  questions: Ref<Question[]>;
-  syncQuestionsWithGameSettings: () => Promise<void>;
-  advanceToNextQuestion: () => void;
-  goToPreviousQuestion: () => void;
-  initialize: () => Promise<void>;
-  gameState: ComputedRef<GamePageState>;
-};
-
+/**
+ * Orchestrates the game page: clears the question store, initializes the feed on mount, and derives the page state.
+ *
+ * On mount, a pending settings-reset warning is shown once and acknowledged before the first fetch.
+ * Navigation is clamped: `advanceToNextQuestion` stops at game over and `goToPreviousQuestion` stops at index 0.
+ * `resetFilters` restores the default settings and restarts the feed from the current question.
+ */
 function useGame(): UseGame {
   const store = useGameStore();
-  const { questions, isError, isPending, isFetchingQuestionsByIds } = storeToRefs(store);
-  const settingsStore = useGameSettingsStore();
-  const questionThemesStore = useQuestionThemesStore();
+  const gameSettingsStore = useGameSettingsStore();
+  const { addWarningToast } = useAppToast();
+  const { t } = useI18n();
+  const { questions, isPending, isFetchingQuestionsByIds } = storeToRefs(store);
 
   const currentIndex = ref<number>(0);
   const canGoToPreviousQuestion = computed<boolean>(() => currentIndex.value > 0);
-  const isExhausted = ref<boolean>(false);
-  const hasTriggeredPrefetch = ref<boolean>(false);
 
-  function getGameSettingsFetchFilters(): GameSettingsFetchFilters {
-    return buildGameSettingsFetchFilters(settingsStore.settings, questionThemesStore.activeQuestionThemeIds);
-  }
-
-  const appliedFetchFilters = ref<GameSettingsFetchFilters>(getGameSettingsFetchFilters());
-
-  const randomQuestionsRequestBody = computed<FindRandomQuestionsBodyDto>(() => {
-    if (questions.value.length === 0) {
-      return {
-        ...GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY,
-        ...getGameSettingsFetchFilters(),
-      };
-    }
-    return {
-      limit: GAME_DEFAULT_FETCH_RANDOM_QUESTIONS_BODY.limit,
-      excludedIds: questions.value.map(question => question.id),
-      ...getGameSettingsFetchFilters(),
-    };
-  });
+  const feed = useGameQuestionFeed({ currentIndex });
+  const settingsSync = useGameSettingsSync({ restartFromCurrentIndex: feed.restartFromCurrentIndex });
+  const { hasFetchError, hasNoMatchingFiltersQuestions, isExhausted } = feed;
 
   const currentQuestion = computed<Question | undefined>(() => questions.value[currentIndex.value]);
-  const isInitialLoading = computed<boolean>(() => questions.value.length === 0 && !isExhausted.value);
-  const isOutOfQuestionsLoading = computed<boolean>(() => currentIndex.value >= questions.value.length && isPending.value && !isExhausted.value);
-  const isGameOver = computed<boolean>(() => isExhausted.value && currentIndex.value >= questions.value.length);
-  const prefetchThreshold = computed<number>(() => Math.floor(questions.value.length * GAME_PREFETCH_THRESHOLD));
+  const hasPlayableQuestion = computed<boolean>(() => currentIndex.value < questions.value.length);
+  const isFetchError = computed<boolean>(() => hasFetchError.value && !hasPlayableQuestion.value && !isPending.value);
+  const isNoMatchingFiltersQuestions = computed<boolean>(() => hasNoMatchingFiltersQuestions.value && !hasPlayableQuestion.value && !isPending.value);
+  const isInitialLoading = computed<boolean>(() => questions.value.length === 0 && !isExhausted.value && !isFetchError.value && !isNoMatchingFiltersQuestions.value);
+  const isOutOfQuestionsLoading = computed<boolean>(() => !hasPlayableQuestion.value &&
+    isPending.value &&
+    !isExhausted.value &&
+    !isFetchError.value &&
+    !isNoMatchingFiltersQuestions.value);
+  const isGameOver = computed<boolean>(() => isExhausted.value && !hasPlayableQuestion.value);
 
   const gameState = computed<GamePageState>(() => {
+    if (isFetchError.value) {
+      return "error";
+    }
+    if (isNoMatchingFiltersQuestions.value) {
+      return "no-matching-filters-questions";
+    }
     if (isInitialLoading.value || isOutOfQuestionsLoading.value) {
       return "loading";
     }
@@ -72,44 +56,23 @@ function useGame(): UseGame {
   });
 
   const canTranslateQuestions = computed<boolean>(() => gameState.value === "playing" && questions.value.length > 0 && !isPending.value && !isFetchingQuestionsByIds.value);
-
   const { isTranslating } = useGameQuestionTranslation(questions, canTranslateQuestions);
   const isFetchingQuestions = computed<boolean>(() => isPending.value || isFetchingQuestionsByIds.value);
 
   async function initialize(): Promise<void> {
-    appliedFetchFilters.value = getGameSettingsFetchFilters();
-    await store.fetchAndAppendRandomQuestions(randomQuestionsRequestBody.value);
-    if (questions.value.length === 0) {
-      isExhausted.value = true;
-    }
+    settingsSync.markFetchFiltersApplied();
+    await feed.initialize();
   }
 
-  onBeforeMount(() => {
-    store.resetQuestions();
-  });
+  async function retryQuestionFetch(): Promise<void> {
+    await feed.retryQuestionFetch();
+  }
 
-  onMounted(() => {
-    void initialize();
-  });
-
-  watch(currentIndex, async index => {
-    if (index < prefetchThreshold.value || isPending.value || isExhausted.value || hasTriggeredPrefetch.value) {
-      return;
-    }
-
-    hasTriggeredPrefetch.value = true;
-    const lengthBefore = questions.value.length;
-    await store.fetchAndAppendRandomQuestions(randomQuestionsRequestBody.value);
-    if (questions.value.length === lengthBefore) {
-      isExhausted.value = true;
-    }
-  });
-
-  watch(isPending, pending => {
-    if (!pending) {
-      hasTriggeredPrefetch.value = false;
-    }
-  });
+  async function resetFilters(): Promise<void> {
+    gameSettingsStore.resetSettings();
+    settingsSync.markFetchFiltersApplied();
+    await feed.restartFromCurrentIndex();
+  }
 
   function goToPreviousQuestion(): void {
     if (canGoToPreviousQuestion.value) {
@@ -123,25 +86,16 @@ function useGame(): UseGame {
     }
   }
 
-  async function syncQuestionsWithGameSettings(): Promise<void> {
-    const currentFetchFilters = getGameSettingsFetchFilters();
-    if (isEqual(currentFetchFilters, appliedFetchFilters.value)) {
-      return;
-    }
-    await until(isPending).toBe(false);
-    store.truncateQuestions(currentIndex.value + 1);
-    isExhausted.value = false;
-    hasTriggeredPrefetch.value = false;
-    appliedFetchFilters.value = currentFetchFilters;
-    const lengthBefore = questions.value.length;
-    await store.fetchAndAppendRandomQuestions(randomQuestionsRequestBody.value);
-    if (!isError.value && questions.value.length === lengthBefore) {
-      isExhausted.value = true;
-    }
-  }
+  onBeforeMount(() => {
+    store.resetQuestions();
+  });
 
-  watch(() => questionThemesStore.activeQuestionThemeIds, async() => {
-    await syncQuestionsWithGameSettings();
+  onMounted(() => {
+    if (gameSettingsStore.wasGameSettingsReset) {
+      addWarningToast({ id: GAME_SETTINGS_RESET_TOAST_ID, description: t("game.settings.resetNotice") });
+      gameSettingsStore.acknowledgeSettingsReset();
+    }
+    void initialize();
   });
 
   return {
@@ -151,14 +105,14 @@ function useGame(): UseGame {
     isFetchingQuestions,
     isTranslating,
     questions,
-    syncQuestionsWithGameSettings,
+    syncQuestionsWithGameSettings: settingsSync.syncQuestionsWithGameSettings,
     advanceToNextQuestion,
     goToPreviousQuestion,
     initialize,
+    resetFilters,
+    retryQuestionFetch,
     gameState,
   };
 }
-
-export type { GamePageState, UseGame };
 
 export { useGame };

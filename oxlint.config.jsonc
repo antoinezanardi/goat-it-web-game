@@ -5,11 +5,14 @@
   },
   "globals": {
     "$fetch": "readonly",
+    "AbortController": "readonly",
     "AbortSignal": "readonly",
     "StoreNames": "readonly",
     "URL": "readonly",
+    "caches": "readonly",
     "callOnce": "readonly",
     "computed": "readonly",
+    "crypto": "readonly",
     "console": "readonly",
     "createError": "readonly",
     "defineAppConfig": "readonly",
@@ -20,15 +23,20 @@
     "defineNuxtConfig": "readonly",
     "defineNuxtPlugin": "readonly",
     "defineOptions": "readonly",
+    "defineOrganization": "readonly",
     "definePageMeta": "readonly",
     "defineShortcuts": "readonly",
     "defineProps": "readonly",
     "defineSlots": "readonly",
     "defineStore": "readonly",
+    "defineWebPage": "readonly",
+    "defineWebSite": "readonly",
     "document": "readonly",
+    "DOMException": "readonly",
     "Element": "readonly",
     "Event": "readonly",
     "getComputedStyle": "readonly",
+    "getCurrentScope": "readonly",
     "HTMLElement": "readonly",
     "HTMLInputElement": "readonly",
     "HTMLSelectElement": "readonly",
@@ -39,12 +47,18 @@
     "window": "readonly",
     "fetch": "readonly",
     "getQuery": "readonly",
+    "getRequestHeader": "readonly",
+    "getRequestIP": "readonly",
     "getRouterParam": "readonly",
+    "getRouteRules": "readonly",
+    "getValidatedQuery": "readonly",
     "navigator": "readonly",
+    "nextTick": "readonly",
     "onBeforeMount": "readonly",
     "onBeforeRouteLeave": "readonly",
     "onBeforeUnmount": "readonly",
     "onMounted": "readonly",
+    "onScopeDispose": "readonly",
     "onUnmounted": "readonly",
     "process": "readonly",
     "questionThemesRepository": "readonly",
@@ -53,6 +67,10 @@
     "queryCollectionSearchSections": "readonly",
     "reactive": "readonly",
     "readBody": "readonly",
+    "readValidatedBody": "readonly",
+    "setResponseHeader": "readonly",
+    "setResponseHeaders": "readonly",
+    "structuredClone": "readonly",
     "ref": "readonly",
     "refDebounced": "readonly",
     "clearNuxtState": "readonly",
@@ -70,24 +88,29 @@
     "useAsyncAction": "readonly",
     "useAsyncData": "readonly",
     "useChangelog": "readonly",
+    "useChangelogState": "readonly",
     "useColorMode": "readonly",
     "useCookie": "readonly",
     "useFetch": "readonly",
     "useFetchStatus": "readonly",
-    "useGSAP": "readonly",
+    "useGsap": "readonly",
     "useGame": "readonly",
+    "useGameFiltersModal": "readonly",
+    "useGameLeaveConfirmation": "readonly",
     "useGameQuestionTranslation": "readonly",
     "useGameQuestionsFilters": "readonly",
     "useGameSettingsCookie": "readonly",
+    "useGameSettingsModal": "readonly",
     "useGameSettingsStore": "readonly",
+    "useGameSidebar": "readonly",
     "useGameStore": "readonly",
+    "useGameTutorial": "readonly",
     "useGameTutorialInvitation": "readonly",
     "useGoatItApiErrorToast": "readonly",
     "useHead": "readonly",
     "useHexColor": "readonly",
     "useI18n": "readonly",
     "useLazyModal": "readonly",
-    "useLocaleCookie": "readonly",
     "useLocaleSuggestion": "readonly",
     "useLocalizedValue": "readonly",
     "useNuxtApp": "readonly",
@@ -95,9 +118,11 @@
     "usePreferredReducedMotion": "readonly",
     "useQuestionCardHighlight": "readonly",
     "useQuestionThemesStore": "readonly",
+    "useRequestFetch": "readonly",
     "useRoute": "readonly",
     "useRouter": "readonly",
     "useRuntimeConfig": "readonly",
+    "useSchemaOrg": "readonly",
     "useSeoMeta": "readonly",
     "useState": "readonly",
     "useTableFilters": "readonly",
@@ -125,6 +150,7 @@
   "plugins": [
     "eslint",
     "import",
+    "jsdoc",
     "oxc",
     "promise",
     "node",
@@ -471,6 +497,25 @@
     "import/no-webpack-loader-syntax": "error",
     "import/prefer-default-export": "off",
     "import/unambiguous": "error",
+    // ---- JSDoc rules ----
+    "jsdoc/check-access": "error",
+    "jsdoc/check-property-names": "error",
+    "jsdoc/check-tag-names": [
+      "error",
+      {
+        "definedTags": [
+          "remarks"
+        ]
+      }
+    ],
+    "jsdoc/empty-tags": "error",
+    "jsdoc/no-blank-blocks": "error",
+    "jsdoc/no-defaults": "error",
+    "jsdoc/require-param-description": "error",
+    "jsdoc/require-param-name": "error",
+    "jsdoc/require-returns-description": "error",
+    "jsdoc/require-throws-description": "error",
+    "jsdoc/require-yields-description": "error",
     // ---- Node Rules ----
     "node/callback-return": "error",
     "node/exports-style": [
@@ -775,7 +820,7 @@
         "typescript/explicit-function-return-type": "error",
         "typescript/explicit-member-accessibility": "error",
         "typescript/explicit-module-boundary-types": "error",
-        "typescript/init-declarations": "error",
+        "typescript/init-declarations": "off",
         "typescript/max-params": [
           "error",
           {
@@ -806,6 +851,7 @@
         "typescript/no-extraneous-class": "off",
         "typescript/no-floating-promises": "error",
         "typescript/no-for-in-array": "error",
+        "typescript/no-generated-empty-object-type": "error",
         "typescript/no-implied-eval": "error",
         "typescript/no-import-type-side-effects": "error",
         "typescript/no-inferrable-types": [
@@ -1107,6 +1153,7 @@
       "rules": {
         "eslint/max-lines-per-function": "off",
         "eslint/no-magic-numbers": "off",
+        "eslint/no-script-url": "off",
         "import/max-dependencies": [
           "error",
           {
@@ -1116,7 +1163,6 @@
         ],
         "import/no-namespace": "off",
         "jest/valid-title": "off",
-        "typescript/init-declarations": "off",
         "typescript/no-magic-numbers": "off",
         "typescript/no-unsafe-type-assertion": "off",
         "unicorn/consistent-function-scoping": "off",
@@ -1288,10 +1334,54 @@
         "import/no-default-export": "off"
       }
     },
+    // ---- Override for server root route endpoint files -----
+    {
+      "files": [
+        "**/server/routes/**/*.{get,post,put,patch,delete}.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
     // ---- Override for server plugin files -----
     {
       "files": [
         "**/server/plugins/**/*.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off",
+        "eslint/no-param-reassign": [
+          "error",
+          {
+            "props": true,
+            "ignorePropertyModificationsFor": [
+              "htmlContext"
+            ]
+          }
+        ]
+      }
+    },
+    // ---- Override for security headers helper file -----
+    {
+      "files": [
+        "**/server/utils/security/helpers/security-headers/security-headers.helpers.ts"
+      ],
+      "rules": {
+        "eslint/no-param-reassign": [
+          "error",
+          {
+            "props": true,
+            "ignorePropertyModificationsFor": [
+              "htmlContext"
+            ]
+          }
+        ]
+      }
+    },
+    // ---- Override for server middleware files -----
+    {
+      "files": [
+        "**/server/middleware/**/*.ts"
       ],
       "rules": {
         "import/no-default-export": "off"
@@ -1304,6 +1394,8 @@
         "**/app/app.config.ts",
         "eslint.config.ts",
         "content.config.ts",
+        "sentry.client.config.ts",
+        "sentry.server.config.ts",
         "**/configs/**/*.{js,mjs,ts}",
         "**/app/config/**/*.config.ts"
       ],
@@ -1332,6 +1424,15 @@
         ]
       }
     },
+    // ---- Override for scripts -----
+    {
+      "files": [
+        "**/scripts/**/*.ts"
+      ],
+      "rules": {
+        "node/no-process-env": "off"
+      }
+    },
     // ---- Override for declaration files -----
     {
       "files": [
@@ -1346,6 +1447,7 @@
     // ---- Override for shared files -----
     {
       "files": [
+        "**/shared/schemas/**/*.ts",
         "**/shared/types/**/*.ts",
         "**/shared/utils/**/*.ts"
       ],
@@ -1489,6 +1591,15 @@
         "unicorn/no-null": "off"
       }
     },
+    // ---- Override for Nuxt test plugins -----
+    {
+      "files": [
+        "**/tests/unit/setup/**/*-plugin.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
     // ---- Override for composable mock setup files -----
     {
       "files": [
@@ -1511,8 +1622,7 @@
         "func-names": "off",
         "eslint/no-await-in-loop": "off",
         "eslint/no-console": "off",
-        "node/no-process-env": "off",
-        "typescript/init-declarations": "off"
+        "node/no-process-env": "off"
       }
     },
     // ---- Override for Nuxt config -----

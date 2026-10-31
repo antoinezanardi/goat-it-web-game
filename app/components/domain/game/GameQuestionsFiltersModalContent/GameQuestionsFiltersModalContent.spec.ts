@@ -6,6 +6,7 @@ import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
+import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
 import { GameQuestionsFiltersModalContent } from "#components";
 import type {
@@ -20,8 +21,14 @@ import type { GameQuestionsFiltersModalContentProps } from "@/components/domain/
 describe("GameQuestionsFiltersModalContent Component", () => {
   let wrapper: VueWrapper;
 
+  const activeQuestionThemes = [createFakeQuestionTheme({ id: "theme-a", label: "Cinema", slug: "cinema-series", status: "active" })];
+
   const defaultGameQuestionsFiltersModalContentProps: GameQuestionsFiltersModalContentProps = {
-    draft: { isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"], categories: ["trivia", "lexicon", "riddle", "explanation"], themeIds: [] },
+    filtersDraft: { isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"], categories: ["trivia", "lexicon", "riddle", "explanation"], themeIds: [] },
+    activeQuestionThemeIds: ["theme-a"],
+    activeQuestionThemes,
+    themesCatalogStatus: "ready",
+    isThemesCatalogAvailable: true,
   };
 
   async function mountGameQuestionsFiltersModalContent(options: MountSuspendedOptions<typeof GameQuestionsFiltersModalContent> = {}): Promise<VueWrapper> {
@@ -75,14 +82,16 @@ describe("GameQuestionsFiltersModalContent Component", () => {
 
   it("should pass the draft adult content value to the switch when mounted.", async() => {
     await wrapper.setProps({
-      draft: { isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"], categories: ["trivia", "lexicon", "riddle", "explanation"], themeIds: [] },
+      filtersDraft: { isAdultContentEnabled: true, cognitiveDifficulties: ["easy", "medium", "hard"], categories: ["trivia", "lexicon", "riddle", "explanation"], themeIds: [] },
     });
 
     expect(getAdultContentSwitch().props("isAdultContentEnabled")).toBe(true);
   });
 
   it("should pass the draft cognitive difficulties to the filter when mounted.", async() => {
-    await wrapper.setProps({ draft: { isAdultContentEnabled: false, cognitiveDifficulties: ["easy"], categories: ["trivia", "lexicon", "riddle", "explanation"], themeIds: [] } });
+    await wrapper.setProps({
+      filtersDraft: { isAdultContentEnabled: false, cognitiveDifficulties: ["easy"], categories: ["trivia", "lexicon", "riddle", "explanation"], themeIds: [] },
+    });
 
     expect(getCognitiveDifficultiesFilter().props("modelValue")).toStrictEqual(["easy"]);
   });
@@ -111,23 +120,50 @@ describe("GameQuestionsFiltersModalContent Component", () => {
 
   it("should pass the draft theme ids to the theme filter when mounted.", async() => {
     await wrapper.setProps({
-      draft: { isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"], categories: ["trivia", "lexicon", "riddle", "explanation"], themeIds: ["theme-a"] },
+      filtersDraft: {
+        isAdultContentEnabled: false,
+        cognitiveDifficulties: ["easy", "medium", "hard"],
+        categories: ["trivia", "lexicon", "riddle", "explanation"],
+        themeIds: ["theme-a"],
+      },
     });
 
     expect(getThemeFilter().props("modelValue")).toStrictEqual(["theme-a"]);
   });
 
+  it("should pass the active theme ids to the theme filter when mounted.", () => {
+    expect(getThemeFilter().props("activeQuestionThemeIds")).toStrictEqual(["theme-a"]);
+  });
+
+  it("should pass the active themes to the theme filter when mounted.", () => {
+    expect(getThemeFilter().props("activeQuestionThemes")).toStrictEqual(activeQuestionThemes);
+  });
+
+  it("should pass the catalog status to the theme filter when mounted.", () => {
+    expect(getThemeFilter().props("themesCatalogStatus")).toBe("ready");
+  });
+
+  it("should pass the themes catalog availability to the theme filter when mounted.", () => {
+    expect(getThemeFilter().props("isThemesCatalogAvailable")).toBe(true);
+  });
+
+  it("should forward the themes catalog availability to the theme filter when it becomes unavailable.", async() => {
+    await wrapper.setProps({ isThemesCatalogAvailable: false });
+
+    expect(getThemeFilter().props("isThemesCatalogAvailable")).toBe(false);
+  });
+
   it("should pass the draft categories to the category filter when mounted.", async() => {
-    await wrapper.setProps({ draft: { isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"], categories: ["trivia"], themeIds: [] } });
+    await wrapper.setProps({ filtersDraft: { isAdultContentEnabled: false, cognitiveDifficulties: ["easy", "medium", "hard"], categories: ["trivia"], themeIds: [] } });
 
     expect(getCategoryFilter().props("modelValue")).toStrictEqual(["trivia"]);
   });
 
-  it("should emit update:themeIds when the theme filter changes.", async() => {
+  it("should emit update:questionThemeIds when the theme filter changes.", async() => {
     getWrapperVm(getThemeFilter()).$emit("update:modelValue", ["theme-a"]);
     await nextTick();
 
-    expect(wrapper.emitted("update:themeIds")).toStrictEqual([[["theme-a"]]]);
+    expect(wrapper.emitted("update:questionThemeIds")).toStrictEqual([[["theme-a"]]]);
   });
 
   it("should emit update:categories when the category filter changes.", async() => {

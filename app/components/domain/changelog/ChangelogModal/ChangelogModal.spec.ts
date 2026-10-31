@@ -19,7 +19,7 @@ import { ChangelogModal } from "#components";
 import type { ContentRenderer, DefaultModalFooter, DefaultModalTitle, UChangelogVersion } from "#components";
 
 import { CHANGELOG_MODAL_UI, CHANGELOG_VERSION_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
-import type { ChangelogEntry } from "~/composables/domain/useChangelog/use-changelog.types";
+import type { ChangelogEntry } from "@/composables/domain/useChangelog/use-changelog.types";
 import { StateNames } from "#shared/enums/state.enums";
 
 const defaultChangelogEntries: ChangelogEntry[] = [
@@ -238,6 +238,18 @@ describe("ChangelogModal Component", () => {
     const { locale } = useI18n();
 
     expect(options?.watch).toStrictEqual([locale]);
+  });
+
+  it("should fetch the latest release on the client only when mounted.", () => {
+    const options = useAsyncDataMock.instance.mock.calls[0]?.[2];
+
+    expect(options?.server).toBe(false);
+  });
+
+  it("should load the latest release without blocking navigation when mounted.", () => {
+    const options = useAsyncDataMock.instance.mock.calls[0]?.[2];
+
+    expect(options?.lazy).toBe(true);
   });
 
   it("should not pass a default factory for the latest release query when mounted.", () => {

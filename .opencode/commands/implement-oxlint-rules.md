@@ -7,6 +7,8 @@ with ESLint configs, and inserting after user validation.
 
 ## Instructions
 
+Before editing lint configuration, read `docs/architecture.md` for the project's configuration boundary and ensure the proposed changes stay within the approved scope.
+
 ### 1. Run the checker script
 
 Run `pnpm run lint:oxlint:check-rules` and parse the output to get the list of missing rules grouped by plugin. Each rule has a name and a documentation URL.

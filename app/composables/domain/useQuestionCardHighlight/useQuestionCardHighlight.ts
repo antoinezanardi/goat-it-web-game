@@ -4,8 +4,8 @@ import {
   QUESTION_CARD_HIGHLIGHT_DURATION_SECONDS,
   QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES,
   QUESTION_CARD_HIGHLIGHT_STAGGER_SECONDS,
-} from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.constants";
-import type { QuestionCardHighlightPlayable, UseQuestionCardHighlightReturn } from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
+} from "@/composables/domain/useQuestionCardHighlight/use-question-card-highlight.constants";
+import type { QuestionCardHighlightPlayable, UseQuestionCardHighlightReturn } from "@/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
 
 async function playSequence(
   targets: (QuestionCardHighlightPlayable | undefined | null)[],
@@ -14,17 +14,14 @@ async function playSequence(
   const { gapMs = 0 } = options;
   const playableTargets = targets.filter((target): target is QuestionCardHighlightPlayable => target !== undefined && target !== null);
 
-  for (const [index, target] of playableTargets.entries()) {
-    // Acceptable as sequential await is intentional — playSequence must run targets one after another
-    // oxlint-disable-next-line eslint/no-await-in-loop
+  await playableTargets.reduce<Promise<void>>(async(previousPlay, target, index) => {
+    await previousPlay;
     await target.playHighlight();
 
     if (index < playableTargets.length - 1) {
-      // Acceptable as the gap delay must resolve sequentially between targets
-      // oxlint-disable-next-line eslint/no-await-in-loop
       await promiseTimeout(gapMs);
     }
-  }
+  }, Promise.resolve());
 }
 
 function readRestingScale(element: HTMLElement): number {
@@ -34,17 +31,31 @@ function readRestingScale(element: HTMLElement): number {
   return Number.isNaN(scale) ? 1 : scale;
 }
 
+/**
+ * Plays a GSAP scale and brightness highlight on question cards.
+ *
+ * Honors the reduced-motion preference and clears the inline `transform` and `filter` properties once the sequence
+ * settles so resting styles are restored.
+ */
 function useQuestionCardHighlight(): UseQuestionCardHighlightReturn {
-  const gsap = useGSAP();
+  const { loadGsap } = useGsap();
   const reducedMotion = usePreferredReducedMotion();
 
+  function isReducedMotionPreferred(): boolean {
+    return reducedMotion.value === "reduce";
+  }
+
   async function animate(elements: HTMLElement[]): Promise<void> {
-    if (reducedMotion.value === "reduce") {
+    if (isReducedMotionPreferred() || elements.length === 0) {
       return;
     }
     const restingScales = elements.map(readRestingScale);
     const [popKeyframe, settleKeyframe, restKeyframe] = QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES;
+    const gsap = await loadGsap();
 
+    if (isReducedMotionPreferred()) {
+      return;
+    }
     await gsap.set(elements, { filter: "brightness(1)" });
     await gsap.timeline().to(
       elements,

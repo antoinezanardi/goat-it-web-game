@@ -169,6 +169,8 @@ You MUST complete each phase before proceeding to the next.
 
 ### Phase 4: Implementation
 
+Before editing project files, read `docs/architecture.md`; place regression specs and fixes according to its ownership, dependency, alias, and companion-file rules.
+
 **Fix the root cause, not the symptom:**
 
 1. **Create Failing Test Case**

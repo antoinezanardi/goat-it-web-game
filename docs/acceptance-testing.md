@@ -2,6 +2,7 @@
 
 This document is the complete reference for writing acceptance tests in this repository.
 It covers the test infrastructure, feature file patterns, step definition conventions, Playwright integration, and common pitfalls.
+For repository boundaries and file placement, see [`docs/architecture.md`](architecture.md); this document remains authoritative for acceptance-specific mechanics.
 
 ---
 
@@ -31,6 +32,7 @@ It covers the test infrastructure, feature file patterns, step definition conven
   - [Locators and selectors](#72-locators-and-selectors)
   - [Assertions](#73-assertions)
   - [Accessibility scanning (axe-core)](#74-accessibility-scanning-axe-core)
+  - [Offline and service-worker emulation](#75-offline-and-service-worker-emulation)
 8. [Support utilities](#8-support-utilities)
   - [World class (GoatItWorld)](#81-world-class-goatitworld)
   - [Navigation helpers](#82-navigation-helpers)
@@ -40,7 +42,7 @@ It covers the test infrastructure, feature file patterns, step definition conven
 9. [Sandbox management](#9-sandbox-management)
   - [Docker compose setup](#91-docker-compose-setup)
   - [MongoDB reset](#92-mongodb-reset)
-  - [Health check](#93-health-check)
+  - [Sandbox health check](#93-sandbox-health-check)
 10. [Adding new features (step-by-step)](#10-adding-new-features-step-by-step)
 11. [Naming conventions](#11-naming-conventions)
 12. [Common pitfalls](#12-common-pitfalls)
@@ -93,6 +95,17 @@ Location: `configs/cucumber/cucumber.json`
 - **`parallel: 4`** — Tests run in 4 parallel workers (IDs 0–3), each targeting its own API sandbox on ports 9090–9093 (calculated as 9090 + worker ID)
 - **`format`** — Summary to stdout + JSON and JUnit report files
 
+#### Step timeouts
+
+Cucumber's own default is 5 000 ms, which is too tight for browser-driven steps on a loaded machine (starting a page, opening a modal, or awaiting a question transition can exceed it while still being healthy). The default is raised to 15 s in support code, not in `cucumber.json`: Cucumber.js `IConfiguration` has no `timeout` key (unknown keys are silently ignored), so `tests/acceptance/features/support/hooks.ts` calls `setDefaultTimeout(DEFAULT_STEP_TIMEOUT)` once at module load. Any step or hook without an explicit timeout then gets 15 s.
+
+Explicit timeouts always take precedence over the default:
+
+- Hooks: `BeforeAll` 360 s, `Before` 60 s, and `AfterAll` 60 s (`tests/acceptance/features/support/constants/hooks.constants.ts`). `After` has no override, so it inherits the 15 s default.
+- Steps: the next/previous question steps use 90 s, the skip-questions step uses 300 s (`tests/acceptance/features/step-definitions/game/game.when-steps.ts`), and the accessibility steps use 10 s (`tests/acceptance/features/step-definitions/accessibility/accessibility.then-steps.ts`).
+
+Only override the timeout for operations that are inherently long. Do not add long step timeouts to mask flakiness, and do not confuse these with Playwright's own assertion timeouts (for example `expect(...).toBeVisible({ timeout: 10_000 })`), which are independent of Cucumber's step timeout.
+
 ### Import alias
 
 The `#acceptance/` import alias maps to `tests/acceptance/`. Use it in all acceptance test TypeScript files:
@@ -117,7 +130,7 @@ Reports are generated in `tests/acceptance/reports/`:
 # Full acceptance test run: builds Nuxt once + runs all workers (CI and first run)
 pnpm run test:acceptance
 
-# Skip build: re-run tests against existing build (fast local iteration)
+# Skip build: re-run against the existing build (fast iteration, see the rule below)
 pnpm run test:acceptance:skip-build
 
 # Build only: pre-build Nuxt for tests without running them
@@ -126,7 +139,7 @@ pnpm run test:acceptance:build
 # Install Playwright (run once after fresh checkout)
 pnpm run test:acceptance:prepare
 
-# Run a specific feature file (skip build for fast iteration)
+# Run a specific feature file (reuses the existing build)
 pnpm run test:acceptance:skip-build tests/acceptance/features/home/home.feature
 
 # Run a specific scenario by line number
@@ -136,17 +149,20 @@ pnpm run test:acceptance:skip-build tests/acceptance/features/home/home.feature:
 pnpm run test:acceptance:skip-build --name "should display"
 
 # Run by tag
-pnpm run test:acceptance:skip-build --tags "@question-theme-creation"
+pnpm run test:acceptance:skip-build --tags "@game-settings"
 
 # Multiple tags (OR)
-pnpm run test:acceptance:skip-build --tags "@home or @questions"
+pnpm run test:acceptance:skip-build --tags "@home or @game"
 
 # Exclude tag
 pnpm run test:acceptance:skip-build --tags "not @accessibility"
 
 # Multiple tags (AND)
-pnpm run test:acceptance:skip-build --tags "@question-themes and @accessibility"
+pnpm run test:acceptance:skip-build --tags "@game-settings and @accessibility"
 ```
+
+> [!IMPORTANT]
+> Agents may use `pnpm run test:acceptance:skip-build` to save time, but **only when the existing `.nuxt/test/output` build is guaranteed up to date**. It is up to date only if `pnpm run test:acceptance:build` ran after the last change to any build input — i.e. anything outside `tests/acceptance/`: `app/`, `server/`, `shared/`, `public/`, `content/`, locale JSON files, `nuxt.config.ts`, `configs/`, `envs/.env.test`, `package.json`, `pnpm-lock.yaml`. Rebuild (`pnpm run test:acceptance` or `test:acceptance:build`) after a branch switch, a dependency install, an env change, or whenever you are unsure. Changes limited to `tests/acceptance/` (features, steps, helpers, constants) never require a rebuild.
 
 **Prerequisites:**
 
@@ -161,15 +177,17 @@ pnpm run test:acceptance:skip-build --tags "@question-themes and @accessibility"
 
 The hooks in `tests/acceptance/features/support/hooks.ts` manage the full test lifecycle:
 
-| Hook        | Timeout | What it does                                                                                        |
-|-------------|---------|-----------------------------------------------------------------------------------------------------|
-| `BeforeAll` | 360s    | Cleans screenshot directory (worker 0 only), waits for API sandbox health check, starts Nuxt server |
-| `Before`    | 60s     | Resets MongoDB sandbox data, creates a new Playwright page and browser context                      |
-| `After`     | —       | Takes screenshot on failure (attached to report), closes browser context                            |
-| `AfterAll`  | —       | Tears down Nuxt server                                                                              |
+| Hook        | Timeout       | What it does                                                                                        |
+|-------------|---------------|-----------------------------------------------------------------------------------------------------|
+| `BeforeAll` | 360s          | Cleans screenshot directory (worker 0 only), waits for API sandbox health check, starts Nuxt server |
+| `Before`    | 60s           | Resets MongoDB sandbox data, creates a new Playwright page and browser context                      |
+| `After`     | default (15s) | Takes screenshot on failure (attached to report), closes browser context                            |
+| `AfterAll`  | 60s           | Tears down Nuxt server                                                                              |
 
 ```ts
 // hooks.ts — simplified structure
+setDefaultTimeout(DEFAULT_STEP_TIMEOUT);
+
 const rootDirectory = fileURLToPath(new URL("../../../..", import.meta.url));
 const workerId = getWorkerId();
 const sandboxBaseUrl = getSandboxBaseUrl();
@@ -217,8 +235,9 @@ BeforeAll({ timeout: BEFORE_ALL_TIMEOUT }, async () => {
 Before({ timeout: BEFORE_TIMEOUT }, async function (this: GoatItWorld) {
   await resetSandboxData(this.mongoDb);
   beforeEach();
-  this.page = await createPage();
-  this.context = this.page.context();
+  const browser = await getBrowser();
+  this.context = await browser.newContext();
+  this.page = await this.context.newPage();
 });
 
 After(async function (this: GoatItWorld, scenario) {
@@ -233,6 +252,8 @@ AfterAll(async () => {
   await afterAll();
 });
 ```
+
+Pages are created from an explicit `BrowserContext` via `getBrowser()` instead of `createPage()`: axe's default analysis opens a blank aggregation page through that context, and a page created in Playwright's implicit context makes that call throw `Please use browser.newContext()`. The explicit context also isolates cookies and storage per scenario.
 
 ### World class
 
@@ -263,6 +284,7 @@ Given(/^the user is on (?<page>.+) page$/u, async function (this: GoatItWorld, p
 |-----------------------------------|------------------------------------|------------------------------------------------------------------|
 | `BEFORE_ALL_TIMEOUT`              | `360_000` (360s)                   | `tests/acceptance/features/support/constants/hooks.constants.ts` |
 | `BEFORE_TIMEOUT`                  | `60_000` (60s)                     | `tests/acceptance/features/support/constants/hooks.constants.ts` |
+| `DEFAULT_STEP_TIMEOUT`            | `15_000` (15s)                     | `tests/acceptance/features/support/constants/hooks.constants.ts` |
 | `ACCEPTANCE_TESTS_DEFAULT_LOCALE` | `"en"`                             | `tests/acceptance/features/support/constants/hooks.constants.ts` |
 | `SANDBOX_BASE_PORT`               | `9090`                             | `tests/acceptance/features/support/constants/hooks.constants.ts` |
 | `SANDBOX_ADMIN_KEY`               | `"test_admin_api_key_for_testing"` | `tests/acceptance/features/support/constants/hooks.constants.ts` |
@@ -323,29 +345,44 @@ Tags are placed at the top of the feature file, before the `Feature:` keyword:
 **For page-level features** (no action subdirectory):
 
 ```gherkin
-@home-page
+@home
 Feature: 🏡 Home Page
 ```
 
 **For action-specific features** (within an action subdirectory):
 
 ```gherkin
-@question-themes @question-theme-creation
-Feature: 🎨 Question Theme Creation
+@game @game-settings
+Feature: ⚙️ Game Settings Modal
 ```
 
 **For sub-feature features** (nested action subdirectory):
 
 ```gherkin
-@questions @question-theme-assignment-modification
-Feature: 🏷️ Question Theme Assignment Modification
+@game @game-tutorial
+Feature: 🧑‍🏫 Game Tutorial
 ```
 
-- **Page-level**: Single tag (`@<domain>-page`, e.g., `@home-page`, `@questions-page`)
-- **Action-specific**: Domain tag + action tag (`@<domain>` + `@<domain>-<action>`, e.g., `@question-themes` + `@question-theme-creation`)
-- **Sub-feature**: Domain tag + sub-feature-action tag (e.g., `@questions` + `@question-theme-assignment-modification`)
+- **Page-level**: Single domain tag (`@<domain>`, e.g., `@home`, `@game`, `@rules`)
+- **Action-specific**: Domain tag + action tag (`@<domain>` + `@<domain>-<action>`, e.g., `@game` + `@game-settings`)
+- **Sub-feature**: Domain tag + sub-feature-action tag (e.g., `@game` + `@game-tutorial`)
+- **Accessibility companions**: Same domain/action tags + `@accessibility` (e.g., `@game @game-settings @accessibility`), so `--tags "@game-settings"` selects both functional and accessibility scenarios
 - Tags use `kebab-case`
-- Tags enable selective test runs: `--tags "@question-theme-creation"`
+- Tags enable selective test runs: `--tags "@game-settings"`
+
+The current tag families are:
+
+| Domain               | Functional features                  | Accessibility features                          |
+|----------------------|--------------------------------------|-------------------------------------------------|
+| Home                 | `@home`                              | `@home @accessibility`                          |
+| Game                 | `@game`, `@game-<action>`            | `@game`, `@game-<action>`, `@accessibility`     |
+| Rules                | `@rules`                             | `@rules @accessibility`                         |
+| Changelog            | `@changelog`                         | `@changelog @accessibility`                     |
+| SEO                  | `@seo`, `@seo @html-lang`            | —                                               |
+| Security             | `@security`                          | —                                               |
+| PWA                  | `@pwa`                               | `@pwa @accessibility`                           |
+| Locale suggestion    | `@locale-suggestion`                 | —                                               |
+| Health               | `@health`                            | —                                               |
 
 ### 5.3 Scenarios and Scenario Outlines
 
@@ -358,7 +395,7 @@ Scenario: 🎨 Question Theme is created and displayed in the list
 **Scenario Outline:** Used for parameterized tests (e.g., accessibility across viewports):
 
 ```gherkin
-Scenario Outline: 🎨 Question Theme Creation Form should not contain accessibility issues in light <View> mode
+Scenario Outline: 🎨 Question Theme Creation Form should not contain accessibility issues in <View> mode
 Given the user is on question-themes page
 When the user clicks on the button with name "Create a new theme"
 Then the page should not contain accessibility issues in <View> mode
@@ -460,31 +497,16 @@ DataTable columns that may be empty use `zCoerceOptionalString()` in their Zod s
 
 ### 5.6 Accessibility features
 
-Every page and modal with a UI gets an accessibility feature file testing the WCAG compliance matrix:
-
-- Light mode + desktop viewport
-- Light mode + mobile viewport
-- Dark mode + desktop viewport
-- Dark mode + mobile viewport
+Every page and modal with a UI gets an accessibility feature file testing the desktop and mobile viewports.
+The app is dark-only (`ui.colorMode: false` in `nuxt.config.ts`); there is no light/dark toggle.
 
 ```gherkin
 @question-themes @accessibility @question-theme-creation
 Feature: 🎨 Question Theme Creation Form Accessibility
 
-  Scenario Outline: 🎨 Question Theme Creation Form should not contain accessibility issues in light <View> mode
+  Scenario Outline: 🎨 Question Theme Creation Form should not contain accessibility issues in <View> mode
     Given the user is on question-themes page
     When the user clicks on the button with name "Create a new theme"
-    Then the page should not contain accessibility issues in <View> mode
-
-    Examples:
-      | View    |
-      | desktop |
-      | mobile  |
-
-  Scenario Outline: 🎨 Question Theme Creation Form should not contain accessibility issues in dark <View> mode
-    Given the user is on question-themes page
-    When the user switches to dark mode
-    And the user clicks on the button with name "Create a new theme"
     Then the page should not contain accessibility issues in <View> mode
 
     Examples:
@@ -506,8 +528,6 @@ step-definitions/
 ├── accessibility/          # Generic accessibility steps
 │   ├── accessibility.steps.constants.ts
 │   └── accessibility.then-steps.ts
-├── color-mode/             # Dark/light mode switching
-│   └── color-mode.when-steps.ts
 ├── element/                # Generic element interactions
 │   ├── element.steps.constants.ts
 │   ├── element.then-steps.ts
@@ -563,7 +583,7 @@ Steps are split into **generic** (reusable across all domains) and **domain-spec
 
 | Category        | Domains                                                                                                        |
 |-----------------|----------------------------------------------------------------------------------------------------------------|
-| Generic         | `accessibility`, `color-mode`, `element`, `form`, `keyboard`, `locale`, `modal`, `navigation`, `text`, `toast` |
+| Generic         | `accessibility`, `element`, `form`, `keyboard`, `locale`, `modal`, `navigation`, `text`, `toast`             |
 | Domain-specific | `question-theme`, `question`                                                                                   |
 
 **Sub-feature step grouping:** When a domain has a distinct sub-feature with its own unique steps (e.g., source URL tag interactions within questions), those steps are grouped in a subdirectory: `step-definitions/question/source-url-tag/`. The naming follows `<domain>-<sub-feature>.<step-type>-steps.ts`.
@@ -580,8 +600,8 @@ import type { DataTable } from "@cucumber/cucumber";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
 
-// Simple navigation
-Given(/^the user is on (?<page>.+) page$/u, async function (this: GoatItWorld, page: string): Promise<void> {
+// Simple navigation — restrict the page name to the pages that actually exist
+Given(/^the user is on (?<page>home|game|rules|robots\.txt|sitemap\.xml) page$/u, async function (this: GoatItWorld, page: string): Promise<void> {
   const pageName = page === "home" ? "" : page;
   await goOnPage(this, pageName);
 });
@@ -730,20 +750,7 @@ Location: `tests/acceptance/features/support/helpers/`
 
 Functions used across **multiple step types or domains** live in `support/helpers/`. These are never placed in domain-specific helper directories.
 
-```ts
-// support/helpers/navigation.helpers.ts
-import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-
-async function waitForPageLoadStates(world: GoatItWorld): Promise<void> {
-  await world.page.waitForLoadState("load");
-}
-
-async function waitForPageUrl(world: GoatItWorld, pageUrl: string): Promise<void> {
-  await world.page.waitForURL(currentUrl => new URL(currentUrl).pathname === pageUrl);
-}
-
-export { waitForPageLoadStates, waitForPageUrl };
-```
+`waitForPageLoadStates` waits for the browser `"load"` event and for Nuxt hydration to finish (`$nuxt.isHydrating === false`, i.e. `app:suspense:resolve`). Waiting for the Vue app container alone (`#__nuxt.__vue_app__`) is not enough: pages with an async `setup()` (for example `/rules`, which awaits `useAsyncData`) hydrate their subtree after the app mount, so clicks issued in between are lost. Non-Nuxt responses such as `/robots.txt` and `/sitemap.xml` have no `#__nuxt` container and resolve as soon as they load.
 
 These cross-step helpers are consumed by domain-specific helpers:
 
@@ -899,7 +906,6 @@ this.openedTabPage = openedTabPage;
    this.page.getByRole("table");
    this.page.getByRole("listbox");
    this.page.getByRole("option", { name: "English" });
-   this.page.getByRole("switch", { name: "Switch to dark mode" });
    this.page.getByRole("region", { name: "Notifications" });
    ```
 
@@ -950,14 +956,23 @@ Accessibility tests use `AxeBuilder` from `@axe-core/playwright`:
 ```ts
 import { AxeBuilder } from "@axe-core/playwright";
 
-const results = await new AxeBuilder({ page: this.page })
-  .setLegacyMode()
+await page.waitForLoadState("networkidle");
+await page.waitForFunction((): boolean => document.getAnimations().every(animation => {
+  const iterations = animation.effect?.getTiming().iterations;
+  const isInfinite = !Number.isFinite(iterations ?? 1);
+
+  return isInfinite || animation.playState !== "running";
+}));
+
+const results = await new AxeBuilder({ page })
   .withTags([...AXE_TAGS])
   .exclude("input[data-hidden]")
   .analyze();
 
 expect(results.violations).toHaveLength(0);
 ```
+
+The scan never uses a fixed sleep: it waits for the page to reach `networkidle` and for every finite CSS animation/transition to settle, ignoring infinite ambient animations. This keeps repeated runs deterministic.
 
 **Tags tested:** `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`, `best-practice`, `ACT`
 
@@ -969,6 +984,26 @@ expect(results.violations).toHaveLength(0);
 | Mobile  | 375   | 667    |
 
 The `input[data-hidden]` exclusion handles hidden file inputs that are implementation details and not user-facing.
+
+---
+
+### 7.5 Offline and service-worker emulation
+
+PWA scenarios live under `tests/acceptance/features/pwa/` with the `@pwa` tag. They run against the built
+app, so the service worker is real:
+
+- wait for installation and precache (`navigator.serviceWorker.ready`, an `/offline` cache entry, and a
+  non-null `navigator.serviceWorker.controller`) before switching the browser offline;
+- use `context.setOffline(true|false)` and poll `navigator.onLine` before asserting UI transitions;
+- direct offline navigations and reloads use a dedicated step that does **not** wait for Nuxt hydration (the
+  fallback page has no app instance);
+- failure-path toasts are provoked with `context.route(...).fulfill` (HTTP response) or
+  `context.route(...).abort("failed")` (no response);
+- generated-output assertions read `.nuxt/test/output/public/sw.js` and
+  `.nuxt/test/output/public/offline/index.html` directly from Node.
+
+Chromium is the only automated browser; installed-app cold launch on iOS Safari is not covered by the automated
+suite.
 
 ---
 
@@ -1000,10 +1035,10 @@ Location: `tests/acceptance/features/support/helpers/navigation.helpers.ts`
 
 These are **cross-step** helpers used by multiple step-definition domains:
 
-| Function                         | Purpose                                             |
-|----------------------------------|-----------------------------------------------------|
-| `waitForPageLoadStates(world)`   | Waits for the page `"load"` state                   |
-| `waitForPageUrl(world, pageUrl)` | Waits until the page pathname matches the given URL |
+| Function                         | Purpose                                                                 |
+|----------------------------------|-------------------------------------------------------------------------|
+| `waitForPageLoadStates(world)`   | Waits for the page `"load"` state and complete Nuxt hydration           |
+| `waitForPageUrl(world, pageUrl)` | Waits until the page pathname matches the given URL                     |
 
 ```ts
 import { waitForPageLoadStates, waitForPageUrl } from "#acceptance/features/support/helpers/navigation.helpers.ts";
@@ -1075,7 +1110,7 @@ Before each scenario, the `Before` hook calls `resetSandboxData(this.mongoDb)`, 
 
 The MongoDB client is created with `RESET_SANDBOX_DATA_TIMEOUT_IN_MS` (10s) as its connect timeout.
 
-### 9.3 Health check
+### 9.3 Sandbox health check
 
 The `BeforeAll` hook calls `waitForSandboxHealthCheck()` which polls `http://localhost:<9090 + workerId>/health` with:
 
@@ -1105,12 +1140,12 @@ If the sandbox is not healthy after all retries, the test suite fails immediatel
    | `toast`         | Then: toast with text visible (scoped to Notifications region).                                         |
    | `modal`         | When: close modal (header button or footer button).                                                     |
    | `locale`        | When: switch locale. Then: locale completion status.                                                    |
-   | `color-mode`    | When: switch to dark mode.                                                                              |
    | `accessibility` | Then: page has no accessibility issues (desktop/mobile).                                                |
+   | `security`      | When: request a route as a client IP. Then: response status.                                            |
 
 3. **Write the feature file.** Create it in the correct directory with proper tags, emoji-prefixed Feature/Scenario titles, and DataTables. Consider using `Background:` if 3+ scenarios share identical initial steps.
 
-4. **Write the accessibility feature file.** Create a `*-accessibility.feature` with Scenario Outlines for the light/dark + desktop/mobile matrix.
+4. **Write the accessibility feature file.** Create a `*-accessibility.feature` with Scenario Outlines for the desktop/mobile viewport matrix (the app is dark-only).
 
 5. **Create domain-specific step definitions** (only for steps not covered by generic ones):
   - `<domain>.given-steps.ts` — Setup / preconditions
@@ -1180,6 +1215,20 @@ await locator.click();
 // GOOD
 await expect(locator).toBeVisible();
 await locator.click();
+```
+
+### Interacting before Nuxt hydration completes
+
+`page.goto()` resolving and even the `#__nuxt` container exposing `__vue_app__` do not guarantee the page is interactive. Pages with an async `setup()` (for example `/rules`, which awaits `useAsyncData`) hydrate their subtree only when the page Suspense resolves, so clicks issued in between are silently dropped. Navigate through `waitForPageLoadStates(world)` (as `goOnPage` does) instead of calling `page.goto()` directly, and never replace it with a bare `__vue_app__` check.
+
+```ts
+// BAD — may click before the async page subtree is hydrated
+await world.page.goto(url("/rules"));
+await world.page.getByRole("button", { name: "Show a complete example of a round" }).click();
+
+// GOOD — waits for "load" and full Nuxt hydration
+await goOnPage(world, "rules");
+await world.page.getByRole("button", { name: "Show a complete example of a round" }).click();
 ```
 
 ### Using CSS selectors instead of role-based locators

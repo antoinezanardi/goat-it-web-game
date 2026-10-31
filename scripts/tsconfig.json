@@ -8,7 +8,9 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
     "types": ["node"]
   },
-  "include": ["*.ts"]
+  "include": ["**/*.ts"]
 }

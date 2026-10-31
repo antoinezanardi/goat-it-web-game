@@ -1,0 +1,91 @@
+name: Bundle Size Budget 📏
+description: Compare client bundle sizes against the base commit and write a job summary.
+author: Antoine ZANARDI
+
+inputs:
+  pr-artifact-name:
+    description: Name of the PR client-bundle artifact
+    required: true
+  base-artifact-name:
+    description: Name of the base client-bundle artifact
+    required: true
+  base-ref:
+    description: Target branch of the pull request
+    required: true
+  base-sha:
+    description: Exact base commit of the pull request
+    required: true
+  head-sha:
+    description: Head commit of the pull request
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare bundle-size workspace 🗂️
+      if: ${{ always() }}
+      shell: bash
+      run: mkdir -p "${{ runner.temp }}/bundle-size"
+
+    - name: Download PR client bundle 📩
+      id: download-pr
+      continue-on-error: true
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+      with:
+        name: ${{ inputs.pr-artifact-name }}
+        path: ${{ runner.temp }}/bundle-size/pr
+
+    - name: Download base client bundle 📩
+      id: download-base
+      continue-on-error: true
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+      with:
+        name: ${{ inputs.base-artifact-name }}
+        path: ${{ runner.temp }}/bundle-size/base
+
+    - name: Install project 📦
+      uses: ./.github/actions/install-project
+
+    - name: Measure PR bundle 📏
+      continue-on-error: true
+      shell: bash
+      env:
+        PR_JSON: ${{ runner.temp }}/bundle-size/pr.json
+        SIZE_LIMIT_OUTPUT_DIR: ${{ runner.temp }}/bundle-size/pr
+      run: |
+        status=0
+        pnpm exec size-limit --config configs/size-limit/size-limit.config.ts --json > "$PR_JSON" || status=$?
+        echo "PR Size Limit exit code: $status"
+
+    - name: Measure base bundle 📏
+      continue-on-error: true
+      shell: bash
+      env:
+        BASE_JSON: ${{ runner.temp }}/bundle-size/base.json
+        SIZE_LIMIT_OUTPUT_DIR: ${{ runner.temp }}/bundle-size/base
+      run: |
+        status=0
+        pnpm exec size-limit --config configs/size-limit/size-limit.config.ts --json > "$BASE_JSON" || status=$?
+        echo "Base Size Limit exit code: $status"
+
+    - name: Compare bundles and write summary 📊
+      if: ${{ always() }}
+      shell: bash
+      env:
+        PR_JSON: ${{ runner.temp }}/bundle-size/pr.json
+        BASE_JSON: ${{ runner.temp }}/bundle-size/base.json
+        PR_DOWNLOAD_OUTCOME: ${{ steps.download-pr.outcome }}
+        BASE_DOWNLOAD_OUTCOME: ${{ steps.download-base.outcome }}
+        BASE_REF: ${{ inputs.base-ref }}
+        BASE_SHA: ${{ inputs.base-sha }}
+        HEAD_SHA: ${{ inputs.head-sha }}
+      run: node "${{ github.workspace }}/scripts/bundle-size/compare-bundles.ts"
+
+    - name: Upload bundle-size measurements 📦
+      if: ${{ always() }}
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+      with:
+        name: size-limit-measurements-${{ github.run_id }}-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/bundle-size/*.json
+        if-no-files-found: ignore
+        retention-days: 1

@@ -17,8 +17,9 @@ Report all violations once in-chat, then use the question tool to validate with 
 
 ### 1. Load context
 
-1. Load the `unit-testing` skill from `.agents/skills/unit-testing/SKILL.md`.
-2. Read `docs/unit-testing.md` in full.
+1. Read `docs/architecture.md` for source/spec ownership and placement.
+2. Load the `unit-testing` skill from `.agents/skills/unit-testing/SKILL.md`.
+3. Read `docs/unit-testing.md` in full.
 
 ### 2. Determine scope
 
@@ -34,12 +35,13 @@ Apply the rules **in order**, first match wins:
 | 1 | Suffix `.store.spec.ts`                                                  | Store              | `stores`       |
 | 2 | Suffix `.repository.spec.ts`                                             | Repository         | `repositories` |
 | 3 | Located in `app/i18n/specs/`                                             | i18n translations  | `node`         |
-| 4 | Suffix `.mappers.spec.ts`, `.helpers.spec.ts` or `.translations.spec.ts` | Node helper/mapper | `node`         |
-| 5 | Located under `app/layouts/**/spec/`                                     | Layout             | `nuxt`         |
-| 6 | Located under `app/pages/`                                               | Page               | `nuxt`         |
-| 7 | Located under `app/composables/`                                         | Composable         | `composables`  |
-| 8 | Under `server/api/**/handlers/` or suffix `.handler.spec.ts`             | Server handler     | `nuxt`         |
-| 9 | Anything else (e.g. `App.spec.ts`, `OgImage.takumi.spec.ts`)             | Component          | `nuxt`         |
+| 4 | Suffix `.schemas.spec.ts` or located under `shared/schemas/`             | Schema             | `node`         |
+| 5 | Suffix `.mappers.spec.ts`, `.helpers.spec.ts` or `.translations.spec.ts` | Node helper/mapper | `node`         |
+| 6 | Located under `app/layouts/**/spec/`                                     | Layout             | `nuxt`         |
+| 7 | Located under `app/pages/`                                               | Page               | `nuxt`         |
+| 8 | Located under `app/composables/`                                         | Composable         | `composables`  |
+| 9 | Under `server/api/**/handlers/` or suffix `.handler.spec.ts`             | Server handler     | `nuxt`         |
+| 10 | Anything else (e.g. `App.spec.ts`, `OgImage.takumi.spec.ts`)            | Component          | `nuxt`         |
 
 The type selects which per-type checklist applies alongside the universal checks.
 
@@ -51,13 +53,13 @@ Audit subagents apply this checklist verbatim. Violations are recorded with rule
 
 - **[U1] Location & naming** — Spec colocated with source as `SourceFile.spec.ts`. Exceptions: layouts → `spec/` subfolder; i18n → `app/i18n/specs/`.
 - **[U2] Explicit vitest imports** — `describe`, `it`, `expect`, `vi`, etc. imported from `"vitest"` in every test file. No reliance on globals.
-- **[U3] Describe label rule** — Components: string `"<Name> Component"`. Pages: string `"<Name> Page"`. Layouts: string `"<Name> Layout"`. Server handlers: outer string `"Server Goat It API <Resource> <Method> Handler"` + inner `describe(handlerFn, ...)`. Stores: string form `describe("useXxxStore", ...)` or symbol reference (docs §6.5 pattern). Functions/composables/repositories: symbol reference (`describe(myFn, ...)`); free-form string only when no single symbol applies. Never a direct component/page/layout reference, and never a free-form grouping string wrapping symbol describes.
+- **[U3] Describe label rule** — Components: string `"<Name> Component"`. Pages: string `"<Name> Page"`. Layouts: string `"<Name> Layout"`. Server handlers: outer string `"Server <Domain> <Resource> <Method> Handler"` (e.g. `"Server Goat It API Question Themes Get Handler"`, `"Server Health Liveness Get Handler"`) + inner `describe(handlerFn, ...)`. Stores: string form `describe("useXxxStore", ...)` or symbol reference (docs §6.5 pattern). Schemas: human-readable string form `"<Name> schema"` (e.g. `describe("Question theme schema", ...)`), never the constant symbol; a Zod schema is an object, not a valid Vitest title, and a title equal to the imported constant is auto-rewritten by `vitest/prefer-describe-function-title`. Functions/composables/repositories: symbol reference (`describe(myFn, ...)`); free-form string only when no single symbol applies. Never a direct component/page/layout reference, and never a free-form grouping string wrapping symbol describes.
 - **[U4] Single-call assertions** — No `toHaveBeenCalledTimes(1)` combined with `toHaveBeenCalledWith(...)`. Use `toHaveBeenCalledExactlyOnceWith(...)`.
 - **[U5] Error swallowing** — No `.catch(() => null)`. Use try/catch with `void error` when asserting side effects of throwing code.
 - **[U6] Translation keys** — Assertions compare translation keys, never translated prose strings.
-- **[U7] Type safety** — No `any`; no unsafe assertions without an `// Acceptable as ...` + `// oxlint-disable-next-line ...` comment pair. Exceptions — bare `as` casts accepted as-is: those mirroring a documented docs example (e.g. store specs' `capturedAction = action as () => Promise<...>` per §6.5), and the following established codebase patterns: DOM element casts (`.element as HTMLElement`), mock-shape casts in tests (`expect.any(Function) as () => void`, `{ matches: true } as MediaQueryList`), runtime-config/error narrowing in server helper specs (`as unknown as ReturnType<typeof useRuntimeConfig>`, `error as H3Error`), and repository shape-test casts (`expect.any(Function) as () => Promise<Entity[]>`).
+- **[U7] Type safety** — No `any`; no unsafe assertions without an `// Acceptable as ...` + `// oxlint-disable-next-line ...` comment pair. Exceptions — bare `as` casts accepted as-is: those mirroring a documented docs example (e.g. store specs' `capturedAction = action as (context: AsyncActionContext, ...args) => Promise<...>` per §6.5), and the following established codebase patterns: DOM element casts (`.element as HTMLElement`), mock-shape casts in tests (`expect.any(Function) as () => void`, `{ matches: true } as MediaQueryList`), runtime-config/error narrowing in server helper specs (`as unknown as ReturnType<typeof useRuntimeConfig>`, `error as H3Error`), repository shape-test casts (`expect.any(Function) as () => Promise<Entity[]>`), abort-reason assertions in async-action specs (`signal.reason as DOMException | undefined`), and the closing cast of a delegated `mockNuxtImport` wrapper in store specs (`}) as unknown as typeof useAsyncAction`).
 - **[U8] Faketory sources** — Fake data from `tests/unit/utils/faketories/` or `@goat-it/schemas/testing/*`. No local DTO faketories.
-- **[U9] Global mocks** — No `mockNuxtImport("useFoo", ...)` in component/store specs for composables already globally mocked via setup files (import the MockHolder instead).
+- **[U9] Global mocks** — No `mockNuxtImport("useFoo", ...)` in component/store specs for composables already globally mocked via setup files (import the MockHolder instead). Exception: `mockNuxtImport("useFetchStatus", original => original)` is allowed in store specs when it is part of the documented `[S1]` real-lane block (see `docs/unit-testing.md` §6.5); that pass-through is required to exercise the real `useAsyncAction` and is not a duplicate global mock.
 - **[U10] `it.each` usage** — Always use `it.each` for parameterized tests. Don't write multiple `it(...)` for the same test with different inputs. `it.each` should always be typed like `it.each<T>([...])`. Do NOT flag tests that describe semantically different conditions or edge cases (e.g. zero-delay immediate resolution vs delayed resolution) as mergeable — only pure input duplicates of identical test logic count.
 - **[U11] Positional `findAllComponents`** — Never index positionally into `findAllComponents({ name: "..." })` when multiple sibling instances exist (e.g. `icons[0]`, `icons[2]`, `icons[index]`). Address each instance uniquely via its dynamic `data-testid` selector (per docs §7.5), typed as `findComponent<typeof Component>("[data-testid='...']")`; pin sibling order via a single assertion over the ordered testid/slug list. Count-only `findAllComponents(...)` without positional indexing remains exempt (see Established patterns).
 
@@ -69,7 +71,7 @@ These recurring shapes are accepted codebase conventions. Auditors must not repo
 - Count-only `findAllComponents({ name: "..." })` usage that never indexes positionally into siblings.
 - Typed self-filtering lookups when a wrapper shares the component's root element — `findAllComponents<typeof C>({ name: "C" }).find(component => component.attributes("data-testid") === id)` is acceptable when a reka-ui `asChild` trigger (e.g. `UPopover`'s `HoverCardTrigger` wrapping a `UBadge`) renders the same DOM root, so `findComponent<typeof C>("[data-testid='…']")` resolves to the wrapper instead of the component; the lookup stays typed and non-positional.
 - `getWrapperVm<T>` + local `ComponentVm` extension asserting derived computed values when the rendered output itself is not observable in happy-dom (see [C8]).
-- Environment-coupled server helper specs stubbing `useRuntimeConfig` / h3 globals (see [N1] exception).
+- Environment-coupled server helper specs stubbing `useRuntimeConfig` / h3 globals (see [N1] exception). Global `fetch` stubbing in helpers whose only outbound seam is the global fetch is also accepted.
 
 #### Component checks
 
@@ -143,7 +145,7 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 
 #### Store checks
 
-- **[S1] Capture wiring** — `capturedAction` / `capturedOnError` captured through `mockNuxtImport("useAsyncAction", ...)`.
+- **[S1] Capture wiring** — `capturedAction` / `capturedOptions` captured through `mockNuxtImport("useAsyncAction", ...)`; the captured wrapper is invoked with `{ signal }` and the repository call is asserted to include `{ signal }`.
 - **[S2] Reset captured vars** — Set to `undefined` at the top of each `beforeEach`; multi-action stores also reset their call counter to `0`.
 - **[S3] Dynamic import** — Store dynamically imported inside `beforeEach`.
 - **[S4] Pinia setup** — No manual `setActivePinia(createPinia())` (runs automatically).
@@ -160,17 +162,26 @@ Missing branch/slot coverage detection stays out of audit scope — it is enforc
 #### Server handler checks
 
 - **[H1] Helpers mock syntax** — `vi.mock(import("#server/utils/..."))` using the `import()` expression form at module level.
-- **[H2] Two-level describe** — Outer string label `"Server Goat It API <Resource> <Method> Handler"`, inner `describe(handlerFn, ...)`.
+- **[H2] Two-level describe** — Outer string label `"Server <Domain> <Resource> <Method> Handler"` (e.g. `"Server Goat It API Question Themes Get Handler"`, `"Server Health Liveness Get Handler"`), inner `describe(handlerFn, ...)`.
 - **[H3] $fetch usage** — `vi.mocked($fetch).mockResolvedValue(...)` / `mockRejectedValue(...)`, never re-mocked from scratch.
 - **[H4] Zod path** — A test asserting `ZodError` is thrown for invalid API data.
 - **[H5] Throw side-effects** — try/catch with `void error` around the awaited handler call.
 - **[H6] Status codes** — Values from the `HttpStatusCode` enum (`#server/utils/http/http.enums`), not raw numbers.
-- **[H7] Param/body assertions** — Routes with params assert `getRouterParam(event, "id")`; routes with body assert `readBody(event)`.
+- **[H7] Param/body assertions** — Routes with params assert the input path the handler actually uses: Goat It API handlers wired through the shared validation wrappers assert `validateGoatItApiQuery` / `validateGoatItApiBody` with `(event, SCHEMA)`; handlers still reading raw h3 inputs assert `getRouterParam(event, "id")` / `readBody(event)`.
 
 #### Node helper/mapper checks
 
-- **[N1] Pure tests** — No mocking infrastructure of the unit under test or its collaborators. Exception: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, spying on global timers) are allowed to test time-dependent helpers deterministically. Environment-coupled server helpers (`server/utils/goat-it-api/helpers/goat-it-api.helpers.ts`) may stub `useRuntimeConfig` and h3 globals — established exception, never flagged.
+- **[N1] Pure tests** — No mocking infrastructure of the unit under test or its collaborators. Exception: time-control utilities (`vi.useFakeTimers()`, `vi.advanceTimersByTime(...)`, spying on global timers) are allowed to test time-dependent helpers deterministically. Environment-coupled Goat It API fetch-options and locale helper specs may stub `useRuntimeConfig` and h3 globals where required by the function contract, and a server helper whose only outbound seam is the global `fetch` may stub that global directly — established exceptions, never flagged.
 - **[N2] Aliases** — Server helper specs import via `#server/utils/...`; shared helper specs via `#shared/utils/...`; app-local helper/mapper specs (e.g. under `app/components/` or `app/composables/`) via `@/`.
+
+#### Schema checks
+
+- **[SC1] Location & project** — Spec colocated as `shared/schemas/<domain>/<entity>.schemas.spec.ts`, running in the `node` project. No Nuxt environment, no mocks, no `mountSuspended`.
+- **[SC2] Describe label** — One top-level string describe per exported schema constant, using a human-readable label and no suffix: `describe("Question theme schema", ...)`. Never the constant symbol (`describe(QUESTION_THEME_SCHEMA, ...)`) — a Zod schema is an object, not a valid Vitest title — and never the exact constant name, which `vitest/prefer-describe-function-title` auto-rewrites into that invalid symbol form.
+- **[SC3] Valid path** — The valid-path test builds its payload with the serialized faketory (`<entity>.serialized.faketory.ts`) from an entity faketory and asserts `toStrictEqual` against the domain entity, proving ISO strings hydrate into `Date` instances without data loss.
+- **[SC4] Invalid paths** — Every exported schema constant has at least one malformed-payload test asserting `ZodError`. Input variants are grouped in a typed `it.each` table with a `description` field; malformed values that cannot go through the entity faketory (unknown keys, `null` dates) use a per-case `mutateSerialized` builder.
+- **[SC5] Null-date regressions** — Every date field has a `null` regression row (`z.coerce.date()` silently accepts `null` as the epoch); date fields must validate an ISO datetime string first.
+- **[SC6] Array schemas** — When a list schema is exported (`QUESTIONS_SCHEMA`), cover it with a valid-path test over a list of serialized entities.
 
 #### i18n translation checks
 
@@ -229,7 +240,7 @@ Emit exactly one report block:
 
 | Status | File                                 | Type       | Violations |
 |--------|--------------------------------------|------------|------------|
-| ❌     | app/pages/index.spec.ts              | page       | V1, V2     |
+| ❌     | app/pages/index/index.spec.ts        | page       | V1, V2     |
 | ⚠️     | app/composables/core/useGame.spec.ts | composable | —          |
 
 (✅ pass · ❌ violation · ⚠️ needs human judgment)
@@ -238,7 +249,7 @@ Emit exactly one report block:
 Table lists **only failing/warning files**, ordered by path — one row per file. Status precedence: a file with both violations and warnings shows ❌ (violations outrank warnings); list its violation IDs in the Violations column and mention the warnings in their entries below. Then list every violation, numbered sequentially:
 
 ```markdown
-**V1** `app/pages/index.spec.ts:38` — [P2] Missing `shallow: true` in mount helper
+**V1** `app/pages/index/index.spec.ts:38` — [P2] Missing `shallow: true` in mount helper
 **V2** `app/stores/domain/game/game.store.spec.ts:31,45` — [U5] `toHaveBeenCalledTimes(1)` + `toHaveBeenCalledWith` → use `toHaveBeenCalledExactlyOnceWith(...)`
 ```
 

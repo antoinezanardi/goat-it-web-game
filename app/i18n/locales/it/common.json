@@ -3,10 +3,17 @@
     "success": "Successo",
     "error": "Errore",
     "info": "Informazione",
+    "warning": "Avviso",
     "close": "Chiudi",
     "confirm": "Conferma",
     "cancel": "Annulla",
     "listConjunction": "e",
+    "retry": "Riprova",
+    "backToHome": "Torna alla home",
+    "connectivity": {
+      "offline": "Offline",
+      "online": "Online"
+    },
     "localeSuggestion": {
       "title": "Vuoi giocare in italiano?",
       "description": "Questo gioco è disponibile nella tua lingua.",

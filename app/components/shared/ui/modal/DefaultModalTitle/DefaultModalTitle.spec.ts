@@ -7,7 +7,7 @@ import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.type
 import { DefaultModalTitle } from "#components";
 import type { UIcon } from "#components";
 
-import type { DefaultModalTitleProps } from "~/components/shared/ui/modal/DefaultModalTitle/default-modal-title.types";
+import type { DefaultModalTitleProps } from "@/components/shared/ui/modal/DefaultModalTitle/default-modal-title.types";
 
 describe("DefaultModalTitle Component", () => {
   let wrapper: VueWrapper;

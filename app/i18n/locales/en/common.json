@@ -3,10 +3,17 @@
     "success": "Success",
     "error": "Error",
     "info": "Information",
+    "warning": "Warning",
     "close": "Close",
     "confirm": "Confirm",
     "cancel": "Cancel",
     "listConjunction": "and",
+    "retry": "Retry",
+    "backToHome": "Back to Home",
+    "connectivity": {
+      "offline": "Offline",
+      "online": "Online"
+    },
     "localeSuggestion": {
       "title": "Would you like to play in English?",
       "description": "This game is available in your language.",

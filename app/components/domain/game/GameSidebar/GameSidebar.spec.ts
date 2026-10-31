@@ -10,9 +10,10 @@ import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 
-import type { UButton, ULink } from "#components";
+import type { ChangelogWhatsNewButton, UButton, ULink } from "#components";
 import { GameSidebar } from "#components";
 
+import { StateNames } from "#shared/enums/state.enums";
 import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
 import type { GameSidebarProps } from "@/components/domain/game/GameSidebar/game-sidebar.types";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
@@ -21,8 +22,8 @@ describe("GameSidebar Component", () => {
   let wrapper: VueWrapper;
 
   const defaultGameSidebarProps: GameSidebarProps = {
-    isTutorialAvailable: true,
-    isOpen: true,
+    isGameTutorialAvailable: true,
+    isSidebarOpen: true,
   } as const;
 
   async function mountGameSidebar(options: MountSuspendedOptions<typeof GameSidebar> = {}): Promise<VueWrapper> {
@@ -40,6 +41,7 @@ describe("GameSidebar Component", () => {
   }
 
   beforeEach(async() => {
+    clearNuxtState([StateNames.CHANGELOG_IS_OPEN, StateNames.CHANGELOG_IS_UNREAD]);
     wrapper = await mountGameSidebar();
   });
 
@@ -56,7 +58,7 @@ describe("GameSidebar Component", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")).not.toBeNull();
   });
 
-  it("should pass isOpen as the open prop to USlideover when mounted.", () => {
+  it("should pass isSidebarOpen as the open prop to USlideover when mounted.", () => {
     const slideover = wrapper.findComponent({ name: "USlideover" });
 
     expect(slideover.props("open")).toBe(true);
@@ -82,6 +84,12 @@ describe("GameSidebar Component", () => {
 
   it("should render the brand text in the sidebar title when mounted.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")?.textContent).toContain("home.brand");
+  });
+
+  it("should provide lazy loading and asynchronous decoding hints to the brand logo when mounted.", () => {
+    const logo = document.body.querySelector<HTMLImageElement>("[data-testid='game-sidebar'] img");
+
+    expect({ decoding: logo?.getAttribute("decoding"), loading: logo?.getAttribute("loading") }).toStrictEqual({ decoding: "async", loading: "lazy" });
   });
 
   it("should render the sidebar title as a link to the home page when mounted.", () => {
@@ -140,25 +148,25 @@ describe("GameSidebar Component", () => {
     expect(settingsButton.props("icon")).toBe("i-lucide-settings");
   });
 
-  it("should emit openSettings when the settings button is clicked.", async() => {
+  it("should emit openGameSettings when the settings button is clicked.", async() => {
     const settingsButton = wrapper.findComponent<typeof UButton>("[data-testid='game-sidebar-settings-button']");
     await settingsButton.trigger("click");
 
-    expect(wrapper.emitted("openSettings")).toStrictEqual([[]]);
+    expect(wrapper.emitted("openGameSettings")).toStrictEqual([[]]);
   });
 
   it("should have the footer data-testid attribute when mounted.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar-footer']")).not.toBeNull();
   });
 
-  it("should emit update:isOpen when USlideover emits update:open.", () => {
+  it("should emit update:isSidebarOpen when USlideover emits update:open.", () => {
     const slideover = wrapper.findComponent({ name: "USlideover" });
     getWrapperVm(slideover).$emit("update:open", false);
 
-    expect(wrapper.emitted("update:isOpen")).toStrictEqual([[false]]);
+    expect(wrapper.emitted("update:isSidebarOpen")).toStrictEqual([[false]]);
   });
 
-  it("should render the tutorial entry when isTutorialAvailable is true.", () => {
+  it("should render the tutorial entry when isGameTutorialAvailable is true.", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar-tutorial-link']")).not.toBeNull();
   });
 
@@ -170,14 +178,14 @@ describe("GameSidebar Component", () => {
     expect(findLinkByTestId("game-sidebar-tutorial-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-compass");
   });
 
-  it("should emit startTutorial when the tutorial entry is clicked.", async() => {
+  it("should emit startGameTutorial when the tutorial entry is clicked.", async() => {
     await findLinkByTestId("game-sidebar-tutorial-link").find("button").trigger("click");
 
-    expect(wrapper.emitted("startTutorial")).toStrictEqual([[]]);
+    expect(wrapper.emitted("startGameTutorial")).toStrictEqual([[]]);
   });
 
-  it("should not render the tutorial entry when isTutorialAvailable is false.", async() => {
-    await wrapper.setProps({ isTutorialAvailable: false });
+  it("should not render the tutorial entry when isGameTutorialAvailable is false.", async() => {
+    await wrapper.setProps({ isGameTutorialAvailable: false });
 
     expect(document.body.querySelector("[data-testid='game-sidebar-tutorial-link']")).toBeNull();
   });
@@ -229,10 +237,10 @@ describe("GameSidebar Component", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar-filters-link']")?.getAttribute("aria-label")).toBeNull();
   });
 
-  it("should emit openFilters when the question filters action is clicked.", async() => {
+  it("should emit openGameFilters when the question filters action is clicked.", async() => {
     await findLinkByTestId("game-sidebar-filters-link").find("button").trigger("click");
 
-    expect(wrapper.emitted("openFilters")).toStrictEqual([[]]);
+    expect(wrapper.emitted("openGameFilters")).toStrictEqual([[]]);
   });
 
   it("should render the changelog entry with the correct data-testid when mounted.", () => {
@@ -253,6 +261,32 @@ describe("GameSidebar Component", () => {
       .map(element => element.dataset.testid);
 
     expect(sidebarLinks).toStrictEqual(["game-sidebar-filters-link", "game-sidebar-changelog-link", "game-sidebar-rules-link"]);
+  });
+
+  it("should pass the shared unread state to the changelog entry when the changelog is unread.", async() => {
+    wrapper.unmount();
+    useState<boolean>(StateNames.CHANGELOG_IS_UNREAD).value = true;
+    wrapper = await mountGameSidebar();
+
+    expect(wrapper.findComponent<typeof ChangelogWhatsNewButton>({ name: "ChangelogWhatsNewButton" }).props("isChangelogUnread")).toBe(true);
+  });
+
+  it("should pass the shared unread state as false to the changelog entry when the changelog is read.", () => {
+    expect(wrapper.findComponent<typeof ChangelogWhatsNewButton>({ name: "ChangelogWhatsNewButton" }).props("isChangelogUnread")).toBe(false);
+  });
+
+  it("should open the shared changelog state when the changelog entry emits openChangelog.", async() => {
+    getWrapperVm(wrapper.findComponent<typeof ChangelogWhatsNewButton>({ name: "ChangelogWhatsNewButton" })).$emit("openChangelog");
+    await nextTick();
+
+    expect(useState<boolean>(StateNames.CHANGELOG_IS_OPEN).value).toBe(true);
+  });
+
+  it("should emit openChangelog when the changelog entry emits openChangelog.", async() => {
+    getWrapperVm(wrapper.findComponent<typeof ChangelogWhatsNewButton>({ name: "ChangelogWhatsNewButton" })).$emit("openChangelog");
+    await nextTick();
+
+    expect(wrapper.emitted("openChangelog")).toStrictEqual([[]]);
   });
 
   it("should emit after:leave when the slideover emits after:leave.", () => {

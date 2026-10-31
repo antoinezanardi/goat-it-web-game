@@ -26,6 +26,25 @@ Feature: 🧑‍🏫 Game Page Interactive Tutorial
     And the interactive tutorial should be visible
     And the interactive tutorial step title should be "You hold the answer. It's up to them to find it!"
 
+  Scenario: ⌨️ Tab navigation stays inside the interactive tutorial
+    Given the database is populated with the question fixture set "single-question"
+    And the user is on game page
+    And a game question should be displayed
+    When the user opens the interactive tutorial from the game sidebar
+    And the user presses the Tab key 12 times
+    Then the focus should remain inside the interactive tutorial
+    And the background game content should be inert
+
+  Scenario: ⌨️ Escape closes the interactive tutorial and restores focus
+    Given the database is populated with the question fixture set "single-question"
+    And the user is on game page
+    And a game question should be displayed
+    When the user opens the interactive tutorial from the game sidebar
+    And the user presses the Escape key
+    Then the interactive tutorial should be hidden
+    And the element with testid "game-sidebar-toggle-button" should be focused
+    And the background game content should not be inert
+
   Scenario: 🧑‍🏫 Complete nine-step tour can be navigated forward and finished
     Given the database is populated with the question fixture set "single-question"
     And the user is on game page

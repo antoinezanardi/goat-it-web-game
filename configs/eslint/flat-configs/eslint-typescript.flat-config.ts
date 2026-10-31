@@ -55,7 +55,7 @@ const ESLINT_TYPESCRIPT_FLAT_CONFIG: Linter.Config = {
     "@typescript-eslint/explicit-function-return-type": "error",
     "@typescript-eslint/explicit-member-accessibility": "error",
     "@typescript-eslint/explicit-module-boundary-types": "error",
-    "@typescript-eslint/init-declarations": "error",
+    "@typescript-eslint/init-declarations": "off",
     "@typescript-eslint/max-params": [
       "error",
       {

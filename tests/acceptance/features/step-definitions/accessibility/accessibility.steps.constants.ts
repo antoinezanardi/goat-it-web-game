@@ -12,11 +12,8 @@ const AXE_TAGS = [
   "ACT",
 ] as const;
 
-const CSS_ANIMATION_SETTLE_MS = 300;
-
 export {
   AXE_TAGS,
   DESKTOP_VIEWPORT,
   MOBILE_VIEWPORT,
-  CSS_ANIMATION_SETTLE_MS,
 };

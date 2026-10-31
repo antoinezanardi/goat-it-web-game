@@ -1,49 +1,53 @@
-import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
-import { nextTick } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 import type { ComponentVm } from "~~/tests/unit/utils/types/vtu.types";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
-import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 
 import { GameQuestionsFiltersThemeFilter } from "#components";
 import type { GameSettingsFilterMultiSelect, UIcon } from "#components";
 
 import type { GameQuestionsFiltersThemeFilterProps } from "@/components/domain/game/GameQuestionsFiltersModalContent/GameQuestionsFiltersThemeFilter/game-questions-filters-theme-filter.types";
-import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
 
 describe("GameQuestionsFiltersThemeFilter Component", () => {
   type GameQuestionsFiltersThemeFilterVm = ComponentVm & { selectedThemeIds: string[] };
 
   let wrapper: VueWrapper;
 
-  const defaultGameQuestionsFiltersThemeFilterProps: GameQuestionsFiltersThemeFilterProps = {
-    modelValue: ["theme-a", "theme-b"],
-  };
-
-  const activeThemes = [
+  const activeQuestionThemes = [
     createFakeQuestionTheme({ color: "#E11D48", id: "theme-a", slug: "cinema-series", label: "Cinema", status: "active" }),
     createFakeQuestionTheme({ color: "#2563EB", id: "theme-b", slug: "music", label: "Music", status: "active" }),
   ];
 
+  const defaultGameQuestionsFiltersThemeFilterProps: GameQuestionsFiltersThemeFilterProps = {
+    modelValue: ["theme-a", "theme-b"],
+    activeQuestionThemeIds: ["theme-a", "theme-b"],
+    activeQuestionThemes,
+    themesCatalogStatus: "ready",
+    isThemesCatalogAvailable: true,
+  };
+
   async function mountGameQuestionsFiltersThemeFilter(options: MountSuspendedOptions<typeof GameQuestionsFiltersThemeFilter> = {}): Promise<VueWrapper> {
-    return mountSuspended(GameQuestionsFiltersThemeFilter, {
-      props: defaultGameQuestionsFiltersThemeFilterProps,
-      global: { plugins: [createTestingPinia()] },
-      ...options,
-    });
+    return mountSuspended(GameQuestionsFiltersThemeFilter, { props: defaultGameQuestionsFiltersThemeFilterProps, ...options });
   }
 
-  function setCatalog(themes: ReturnType<typeof createFakeQuestionTheme>[]): void {
-    mockStore(useQuestionThemesStore).questionThemes = themes;
+  function getGenericFilter(): VueWrapper<InstanceType<typeof GameSettingsFilterMultiSelect>> {
+    return wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
   }
 
-  function getStatusIcon(): HTMLElement | null {
-    return wrapper.find<HTMLElement>("[data-testid='game-questions-filters-theme-filter-status-icon']").element;
+  function getStatusText(): string {
+    return wrapper.get("[data-testid='game-questions-filters-theme-filter-status']").text();
+  }
+
+  function getStatusIcon(): VueWrapper<InstanceType<typeof UIcon>> {
+    return wrapper.findComponent<typeof UIcon>("[data-testid='game-questions-filters-theme-filter-status-icon']");
+  }
+
+  function getStatusIconElement(): HTMLElement {
+    return wrapper.get<HTMLElement>("[data-testid='game-questions-filters-theme-filter-status-icon']").element;
   }
 
   beforeEach(async() => {
@@ -58,209 +62,166 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
     expect(wrapper.find("[data-testid='game-questions-filters-theme-filter']").exists()).toBe(true);
   });
 
-  it("should render the unavailable status when no active theme is available.", () => {
-    expect(wrapper.find("[data-testid='game-questions-filters-theme-filter-status']").exists()).toBe(true);
+  it("should render the generic filter when the themes catalog is available.", () => {
+    expect(getGenericFilter().exists()).toBe(true);
   });
 
-  it("should render the unavailable status icon when no active theme is available.", () => {
-    expect(wrapper.find("[data-testid='game-questions-filters-theme-filter-status-icon']").exists()).toBe(true);
-  });
-
-  it("should render the loading translation key in the status when the catalog is loading.", async() => {
-    setCatalog([]);
-    await nextTick();
-
-    expect(wrapper.get("[data-testid='game-questions-filters-theme-filter-status']").text()).toBe("game.questionsFilters.themes.loading");
-  });
-
-  it("should render the unavailable translation key in the status when the catalog is unavailable.", async() => {
-    setCatalog([]);
-    mockStore(useQuestionThemesStore).fetchStatus = "error";
-    await nextTick();
-
-    expect(wrapper.get("[data-testid='game-questions-filters-theme-filter-status']").text()).toBe("game.questionsFilters.themes.unavailable");
-  });
-
-  it("should render the unavailable translation key in the status when a successful fetch leaves no active theme.", async() => {
-    setCatalog([createFakeQuestionTheme({ status: "archived" })]);
-    mockStore(useQuestionThemesStore).fetchStatus = "success";
-    await nextTick();
-
-    expect(wrapper.get("[data-testid='game-questions-filters-theme-filter-status']").text()).toBe("game.questionsFilters.themes.unavailable");
-  });
-
-  it("should render the loader status icon when the catalog is loading.", () => {
-    const statusIcon = wrapper.findComponent<typeof UIcon>("[data-testid='game-questions-filters-theme-filter-status-icon']");
-
-    expect(statusIcon.props("name")).toBe("i-lucide-loader-circle");
-  });
-
-  it("should spin the status icon when the catalog is loading.", () => {
-    expect(getStatusIcon()?.classList.contains("animate-spin")).toBe(true);
-  });
-
-  it("should render the alert status icon when the catalog is unavailable.", async() => {
-    mockStore(useQuestionThemesStore).fetchStatus = "error";
-    await nextTick();
-    const statusIcon = wrapper.findComponent<typeof UIcon>("[data-testid='game-questions-filters-theme-filter-status-icon']");
-
-    expect(statusIcon.props("name")).toBe("i-lucide-triangle-alert");
-  });
-
-  it("should not spin the status icon when the catalog is unavailable.", async() => {
-    mockStore(useQuestionThemesStore).fetchStatus = "error";
-    await nextTick();
-
-    expect(getStatusIcon()?.classList.contains("animate-spin")).toBe(false);
-  });
-
-  it("should not render the generic filter when no active theme is available.", () => {
-    expect(wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" }).exists()).toBe(false);
-  });
-
-  it("should render the generic filter when active themes are available.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-
-    expect(wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" }).exists()).toBe(true);
-  });
-
-  it("should render the generic filter root with the correct data-testid when active themes are available.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-
+  it("should render the generic filter root with the correct data-testid when the themes catalog is available.", () => {
     expect(wrapper.find("[data-testid='game-questions-filters-theme-filter-select']").exists()).toBe(true);
   });
 
-  it("should pass the theme label translation key to the generic filter when active themes are available.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("label")).toBe("game.questionsFilters.themes.label");
+  it("should pass the theme label translation key to the generic filter when the themes catalog is available.", () => {
+    expect(getGenericFilter().props("label")).toBe("game.questionsFilters.themes.label");
   });
 
-  it("should pass the theme label icon to the generic filter when active themes are available.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("labelIcon")).toBe("i-lucide-palette");
+  it("should pass the theme label icon to the generic filter when the themes catalog is available.", () => {
+    expect(getGenericFilter().props("labelIcon")).toBe("i-lucide-palette");
   });
 
-  it("should pass the all selected translation key to the generic filter when active themes are available.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("allSelectedLabel")).toBe("game.questionsFilters.themes.allSelected");
+  it("should pass the all selected translation key to the generic filter when the themes catalog is available.", () => {
+    expect(getGenericFilter().props("allSelectedLabel")).toBe("game.questionsFilters.themes.allSelected");
   });
 
-  it("should pass the active theme options with their labels, icons and colors to the generic filter when active themes are available.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("options")).toStrictEqual([
+  it("should pass the active theme options with their labels, icons and colors to the generic filter when the themes catalog is available.", () => {
+    expect(getGenericFilter().props("options")).toStrictEqual([
       { color: "#E11D48", icon: "i-lucide-clapperboard", label: "Cinema", value: "theme-a" },
       { color: "#2563EB", icon: "i-lucide-music", label: "Music", value: "theme-b" },
     ]);
   });
 
-  it("should bind the model value to the generic filter when active themes are available.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-
-    expect(filter.props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
+  it("should bind the model value to the generic filter when the themes catalog is available.", () => {
+    expect(getGenericFilter().props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
   });
 
-  it("should render every active theme as selected when the model value is empty and a catalog is available.", async() => {
-    setCatalog(activeThemes);
+  it("should render every active theme as selected when the model value is empty.", async() => {
     await wrapper.setProps({ modelValue: [] });
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
-    expect(filter.props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
+    expect(getGenericFilter().props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
   });
 
-  it("should render every active theme as selected when the model value is undefined and a catalog is available.", async() => {
-    setCatalog(activeThemes);
+  it("should render every active theme as selected when the model value is undefined.", async() => {
     await wrapper.setProps({ modelValue: undefined });
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
-    expect(filter.props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
+    expect(getGenericFilter().props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
   });
 
-  it("should render only the still-active theme ids when the model value holds stale ids and a catalog is available.", async() => {
-    setCatalog(activeThemes);
+  it("should render only the still-active theme ids when the model value holds stale ids.", async() => {
     await wrapper.setProps({ modelValue: ["theme-a", "stale"] });
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
-    expect(filter.props("modelValue")).toStrictEqual(["theme-a"]);
+    expect(getGenericFilter().props("modelValue")).toStrictEqual(["theme-a"]);
   });
 
-  it("should render every active theme when every saved theme id is stale and a catalog is available.", async() => {
-    setCatalog(activeThemes);
+  it("should render every active theme when every saved theme id is stale.", async() => {
     await wrapper.setProps({ modelValue: ["stale"] });
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
 
-    expect(filter.props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
+    expect(getGenericFilter().props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
   });
 
-  it("should keep the model value unchanged when no catalog is available.", async() => {
-    await wrapper.setProps({ modelValue: ["theme-a"] });
-    await nextTick();
+  it("should keep the model value unchanged when the catalog is unavailable.", async() => {
+    await wrapper.setProps({
+      modelValue: ["theme-a"],
+      activeQuestionThemeIds: [],
+      activeQuestionThemes: [],
+      themesCatalogStatus: "unavailable",
+      isThemesCatalogAvailable: false,
+    });
     const vm = getWrapperVm<GameQuestionsFiltersThemeFilterVm>(wrapper);
 
     expect(vm.selectedThemeIds).toStrictEqual(["theme-a"]);
   });
 
-  it("should fall back to an empty selection when the model value is undefined and no catalog is available.", async() => {
-    await wrapper.setProps({ modelValue: undefined });
-    await nextTick();
+  it("should fall back to an empty selection when the model value is undefined and the catalog is unavailable.", async() => {
+    await wrapper.setProps({
+      modelValue: undefined,
+      activeQuestionThemeIds: [],
+      activeQuestionThemes: [],
+      themesCatalogStatus: "unavailable",
+      isThemesCatalogAvailable: false,
+    });
     const vm = getWrapperVm<GameQuestionsFiltersThemeFilterVm>(wrapper);
 
     expect(vm.selectedThemeIds).toStrictEqual([]);
   });
 
-  it("should emit update:modelValue in catalog order when the generic filter emits a selection.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-    getWrapperVm(filter).$emit("update:modelValue", ["theme-b", "theme-a"]);
+  it("should emit update:modelValue in catalog order when the generic filter emits a selection.", () => {
+    getWrapperVm(getGenericFilter()).$emit("update:modelValue", ["theme-b", "theme-a"]);
 
     expect(wrapper.emitted("update:modelValue")).toStrictEqual([[["theme-a", "theme-b"]]]);
   });
 
-  it("should ignore unknown theme ids when the generic filter emits a selection.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    const filter = wrapper.findComponent<typeof GameSettingsFilterMultiSelect>({ name: "GameSettingsFilterMultiSelect" });
-    getWrapperVm(filter).$emit("update:modelValue", ["theme-a", "unknown"]);
+  it("should ignore unknown theme ids when the generic filter emits a selection.", () => {
+    getWrapperVm(getGenericFilter()).$emit("update:modelValue", ["theme-a", "unknown"]);
 
     expect(wrapper.emitted("update:modelValue")).toStrictEqual([[["theme-a"]]]);
   });
 
-  it("should render the refresh failure status when the catalog is stale.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    mockStore(useQuestionThemesStore).fetchStatus = "error";
-    await nextTick();
+  it("should not render the generic filter when the themes catalog is unavailable.", async() => {
+    await wrapper.setProps({ isThemesCatalogAvailable: false, activeQuestionThemeIds: [], activeQuestionThemes: [], themesCatalogStatus: "unavailable" });
+
+    expect(getGenericFilter().exists()).toBe(false);
+  });
+
+  it("should render the unavailable status container when the themes catalog is unavailable.", async() => {
+    await wrapper.setProps({ isThemesCatalogAvailable: false, activeQuestionThemeIds: [], activeQuestionThemes: [], themesCatalogStatus: "unavailable" });
+
+    expect(wrapper.find("[data-testid='game-questions-filters-theme-filter-status']").exists()).toBe(true);
+  });
+
+  it("should render the loading translation key in the status when the catalog status is loading.", async() => {
+    await wrapper.setProps({ isThemesCatalogAvailable: false, activeQuestionThemeIds: [], activeQuestionThemes: [], themesCatalogStatus: "loading" });
+
+    expect(getStatusText()).toBe("game.questionsFilters.themes.loading");
+  });
+
+  it("should render the unavailable translation key in the status when the catalog status is unavailable.", async() => {
+    await wrapper.setProps({ isThemesCatalogAvailable: false, activeQuestionThemeIds: [], activeQuestionThemes: [], themesCatalogStatus: "unavailable" });
+
+    expect(getStatusText()).toBe("game.questionsFilters.themes.unavailable");
+  });
+
+  it("should render the loader status icon when the catalog status is loading.", async() => {
+    await wrapper.setProps({ isThemesCatalogAvailable: false, activeQuestionThemeIds: [], activeQuestionThemes: [], themesCatalogStatus: "loading" });
+
+    expect(getStatusIcon().props("name")).toBe("i-lucide-loader-circle");
+  });
+
+  it("should spin the status icon when the catalog status is loading.", async() => {
+    await wrapper.setProps({ isThemesCatalogAvailable: false, activeQuestionThemeIds: [], activeQuestionThemes: [], themesCatalogStatus: "loading" });
+
+    expect(getStatusIconElement().classList.contains("animate-spin")).toBe(true);
+  });
+
+  it("should render the alert status icon when the catalog status is unavailable.", async() => {
+    await wrapper.setProps({ isThemesCatalogAvailable: false, activeQuestionThemeIds: [], activeQuestionThemes: [], themesCatalogStatus: "unavailable" });
+
+    expect(getStatusIcon().props("name")).toBe("i-lucide-triangle-alert");
+  });
+
+  it("should not spin the status icon when the catalog status is unavailable.", async() => {
+    await wrapper.setProps({ isThemesCatalogAvailable: false, activeQuestionThemeIds: [], activeQuestionThemes: [], themesCatalogStatus: "unavailable" });
+
+    expect(getStatusIconElement().classList.contains("animate-spin")).toBe(false);
+  });
+
+  it("should not render the refresh failure status when the catalog status is ready.", () => {
+    expect(wrapper.find("[data-testid='game-questions-filters-theme-filter-refresh-error']").exists()).toBe(false);
+  });
+
+  it("should render the refresh failure status when the catalog status is stale.", async() => {
+    await wrapper.setProps({ themesCatalogStatus: "stale" });
 
     expect(wrapper.find("[data-testid='game-questions-filters-theme-filter-refresh-error']").exists()).toBe(true);
   });
 
-  it("should render the refresh failure translation key when the catalog is stale.", async() => {
-    setCatalog(activeThemes);
-    await nextTick();
-    mockStore(useQuestionThemesStore).fetchStatus = "error";
-    await nextTick();
-    const refreshError = wrapper.get("[data-testid='game-questions-filters-theme-filter-refresh-error']");
+  it("should render the refresh failure translation key when the catalog status is stale.", async() => {
+    await wrapper.setProps({ themesCatalogStatus: "stale" });
 
-    expect(refreshError.text()).toBe("game.questionsFilters.themes.refreshFailed");
+    expect(wrapper.get("[data-testid='game-questions-filters-theme-filter-refresh-error']").text()).toBe("game.questionsFilters.themes.refreshFailed");
+  });
+
+  it("should not render the refresh failure status when the catalog status is refreshing.", async() => {
+    await wrapper.setProps({ themesCatalogStatus: "refreshing" });
+
+    expect(wrapper.find("[data-testid='game-questions-filters-theme-filter-refresh-error']").exists()).toBe(false);
   });
 });

@@ -1,4 +1,5 @@
-import type { GameTutorialStep, GameTutorialStepDirection } from "@/components/domain/game/GameTutorial/game-tutorial.types";
+import type { GameTutorialStep } from "@/components/domain/game/GameTutorial/game-tutorial.types";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 
 const GAME_TUTORIAL_POPOVER_UI = {
   content: [
@@ -13,7 +14,7 @@ const GAME_TUTORIAL_POPOVER_OFFSET = 12;
 const GAME_TUTORIAL_SPOTLIGHT_PADDING = 8;
 const GAME_TUTORIAL_SPOTLIGHT_PADDING_SIDES = 2;
 
-const GAME_TUTORIAL_ARROW_KEY_DIRECTIONS: Readonly<Record<string, GameTutorialStepDirection>> = {
+const GAME_TUTORIAL_ARROW_KEY_DIRECTIONS: Readonly<Record<string, GameNavigationDirection>> = {
   ArrowLeft: "backward",
   ArrowRight: "forward",
 };

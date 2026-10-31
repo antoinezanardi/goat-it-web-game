@@ -5,29 +5,34 @@ import type { GoatItWorld } from "#acceptance/features/support/types/world.types
 import { prettyStringify } from "#acceptance/features/support/helpers/format.helpers.ts";
 import {
   AXE_TAGS,
-  CSS_ANIMATION_SETTLE_MS,
   DESKTOP_VIEWPORT,
   MOBILE_VIEWPORT,
 } from "#acceptance/features/step-definitions/accessibility/accessibility.steps.constants.ts";
 
-async function checkAccessibility(world: GoatItWorld, mode: "desktop" | "mobile", ignoredViolations: string[]): Promise<void> {
+async function waitForAnimationsToSettle(world: GoatItWorld): Promise<void> {
+  await world.page.waitForFunction((): boolean => document.getAnimations().every(animation => {
+    const iterations = animation.effect?.getTiming().iterations;
+    const isInfinite = !Number.isFinite(iterations ?? 1);
+
+    return isInfinite || animation.playState !== "running";
+  }));
+}
+
+async function checkAccessibility(world: GoatItWorld, mode: "desktop" | "mobile"): Promise<void> {
   const viewport = mode === "desktop" ? DESKTOP_VIEWPORT : MOBILE_VIEWPORT;
 
   await world.page.setViewportSize(viewport);
   await world.page.waitForLoadState("networkidle");
-  await world.page.waitForTimeout(CSS_ANIMATION_SETTLE_MS);
+  await waitForAnimationsToSettle(world);
   const results = await new AxeBuilder({ page: world.page })
-    .setLegacyMode()
     .withTags([...AXE_TAGS])
     .exclude("input[data-hidden]")
     .analyze();
 
-  const violationsToReport = results.violations.filter(violation => !ignoredViolations.includes(violation.id));
-
-  if (violationsToReport.length > 0) {
-    console.error(`Accessibility violations:\n${prettyStringify(violationsToReport)}`);
+  if (results.violations.length > 0) {
+    console.error(`Accessibility violations:\n${prettyStringify(results.violations)}`);
   }
-  expect(violationsToReport).toHaveLength(0);
+  expect(results.violations).toHaveLength(0);
 }
 
 export {

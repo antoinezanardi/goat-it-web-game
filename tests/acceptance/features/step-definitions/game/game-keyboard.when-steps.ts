@@ -18,3 +18,19 @@ When(
     await waitForQuestionCardTransition(this);
   },
 );
+
+When(
+  /^the user presses the Escape key$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await this.page.keyboard.press("Escape");
+  },
+);
+
+When(
+  /^the user presses the Tab key (?<times>\d+) times$/u,
+  async function(this: GoatItWorld, times: string): Promise<void> {
+    for (let index = 0; index < Number(times); index++) {
+      await this.page.keyboard.press("Tab");
+    }
+  },
+);

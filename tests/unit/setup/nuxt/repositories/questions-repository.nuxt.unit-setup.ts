@@ -1,7 +1,7 @@
 import { vi, beforeEach } from "vitest";
 
 import { createQuestionsRepositoryMock } from "~~/tests/unit/utils/mocks/repositories/goat-it-api/questions/questions.repository.mock";
-import type { QuestionsRepositoryMock } from "~~/tests/unit/utils/mocks/repositories/goat-it-api/questions/questions.repository.mock.types";
+import type { QuestionsRepositoryMock } from "~~/tests/unit/utils/mocks/repositories/goat-it-api/questions/questions.repository.mock";
 
 let questionsRepositoryMock: QuestionsRepositoryMock = createQuestionsRepositoryMock();
 

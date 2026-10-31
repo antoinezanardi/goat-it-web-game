@@ -2,7 +2,7 @@ import { vi } from "vitest";
 
 import type { ToMock } from "~~/tests/unit/utils/types/mock.types";
 
-import type { UseQuestionCardHighlightReturn } from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
+import type { UseQuestionCardHighlightReturn } from "@/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
 
 type UseQuestionCardHighlightMock = ToMock<UseQuestionCardHighlightReturn>;
 

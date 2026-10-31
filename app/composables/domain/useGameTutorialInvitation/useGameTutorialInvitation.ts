@@ -1,19 +1,29 @@
 import type { Toast } from "#ui/composables";
 import { CookieNames } from "#shared/enums/cookie.enums";
-import type { GamePageState } from "~/composables/domain/useGame/useGame";
+import type { GamePageState } from "@/composables/domain/useGame/use-game.types";
 import {
   GAME_TUTORIAL_INVITATION_DECISION_COOKIE_OPTIONS,
   GAME_TUTORIAL_INVITATION_TOAST_ID,
-} from "~/composables/domain/useGameTutorialInvitation/use-game-tutorial-invitation.constants";
+} from "@/composables/domain/useGameTutorialInvitation/use-game-tutorial-invitation.constants";
 import type {
   GameTutorialInvitationOptions,
   UseGameTutorialInvitation,
-} from "~/composables/domain/useGameTutorialInvitation/use-game-tutorial-invitation.types";
+} from "@/composables/domain/useGameTutorialInvitation/use-game-tutorial-invitation.types";
+import { isGameInTerminalState } from "@/utils/domain/game/helpers/game-state/game-state.helpers";
 
 function preventDismissal(event: Event): void {
   event.preventDefault();
 }
 
+/**
+ * Presents a one-time toast invitation to start the interactive tutorial.
+ *
+ * The invitation honors the decision cookie and is removed on terminal game states and unmount; it is re-rendered
+ * when availability or locale changes. Start and Not now persist the decision and dismiss the toast.
+ *
+ * @example
+ * const { acceptFromSidebar } = useGameTutorialInvitation({ gameState, isTutorialAvailable, onStartTutorial });
+ */
 function useGameTutorialInvitation(options: GameTutorialInvitationOptions): UseGameTutorialInvitation {
   const { addInfoToast, removeToast, updateToast } = useAppToast();
   const { locale, t } = useI18n();
@@ -83,7 +93,7 @@ function useGameTutorialInvitation(options: GameTutorialInvitationOptions): UseG
   }
 
   function observeInvitation(isTutorialAvailable: boolean, gameState: GamePageState): void {
-    if (gameState === "game-over") {
+    if (isGameInTerminalState(gameState)) {
       removeInvitation();
 
       return;

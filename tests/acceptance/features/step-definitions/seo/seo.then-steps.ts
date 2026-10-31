@@ -3,13 +3,23 @@ import { Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import { validateDataTableAndGetRows } from "#acceptance/features/support/helpers/datatable.helpers.ts";
-import { ACCEPTANCE_TESTS_SITE_URL } from "#acceptance/features/support/constants/hooks.constants.ts";
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-import { fetchSitemapXml } from "#acceptance/features/step-definitions/seo/helpers/seo.then-steps.helpers.ts";
+import {
+  collectSchemaOrgGraphNodes,
+  fetchSitemapXml,
+  findSchemaOrgGraphNodeByType,
+  hasSchemaOrgGraphType,
+} from "#acceptance/features/step-definitions/seo/helpers/seo.then-steps.helpers.ts";
 
 import { SEO_META_TAG_ROW_SCHEMA } from "./datatables/seo.datatables.schemas.ts";
 
 const HTTP_STATUS_OK = 200;
+
+const HTTP_STATUS_NOT_FOUND = 404;
+
+const SOCIAL_IMAGE_HEIGHT = 600;
+
+const SOCIAL_IMAGE_WIDTH = 1200;
 
 Then(
   /^the following meta tags should be present:$/u,
@@ -18,8 +28,6 @@ Then(
 
     for (const row of rows) {
       const selector = `head meta[${row.type}="${row.key}"]`;
-      // Acceptable as each meta tag assertion must be awaited sequentially to verify its content
-      // oxlint-disable-next-line eslint/no-await-in-loop
       await expect(this.page.locator(selector)).toHaveAttribute("content", row.content);
     }
   },
@@ -33,12 +41,57 @@ Then(
 );
 
 Then(
-  /^the robots.txt response should reference the sitemap$/u,
+  /^the robots.txt response should not reference the sitemap$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const content = await this.page.locator("body").textContent();
-    const sitemapUrl = `${new URL(ACCEPTANCE_TESTS_SITE_URL).origin}/sitemap.xml`;
+    const content = await this.page.locator("body").textContent() ?? "";
 
-    expect(content).toContain(`Sitemap: ${sitemapUrl}`);
+    expect(content).not.toMatch(/^\s*Sitemap:/imu);
+  },
+);
+
+Then(
+  /^the home response should expose a non-indexable X-Robots-Tag$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const response = await this.page.request.get(new URL(this.page.url()).origin);
+    const robotsHeader = response.headers()["x-robots-tag"];
+
+    expect(robotsHeader).toContain("noindex");
+  },
+);
+
+Then(
+  /^the robots.txt response should disallow crawling$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const content = await this.page.locator("body").textContent() ?? "";
+    const wildcardGroup = content.split(/\n\s*\n/u).find(group => group.includes("User-agent: *"));
+    const wildcardDirectives = wildcardGroup?.split("\n").map(line => line.trim()) ?? [];
+
+    expect(wildcardGroup).toBeDefined();
+    expect(wildcardDirectives).toContain("Disallow: /");
+    expect(wildcardDirectives).not.toContain("Allow: /");
+  },
+);
+
+Then(
+  /^the robots.txt response should allow crawling$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const content = await this.page.locator("body").textContent() ?? "";
+    const wildcardGroup = content.split(/\n\s*\n/u).find(group => group.includes("User-agent: *"));
+    const wildcardDirectives = wildcardGroup?.split("\n").map(line => line.trim()) ?? [];
+
+    expect(wildcardGroup).toBeDefined();
+    expect(wildcardDirectives).toContain("Allow: /");
+    expect(wildcardDirectives).not.toContain("Disallow: /");
+  },
+);
+
+Then(
+  /^the sitemap.xml should not be served$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const baseUrl = new URL(this.page.url()).origin;
+    const response = await this.page.request.get(`${baseUrl}/sitemap.xml`);
+
+    expect(response.status()).toBe(HTTP_STATUS_NOT_FOUND);
   },
 );
 
@@ -73,18 +126,6 @@ Then(
 );
 
 Then(
-  /^the sitemap.xml should contain hreflang alternates for all 6 locales$/u,
-  async function(this: GoatItWorld): Promise<void> {
-    const content = await fetchSitemapXml(this.page);
-    const localeCodes = ["fr", "en", "de", "es", "it", "pt"];
-
-    for (const locale of localeCodes) {
-      expect(content).toContain(`hreflang="${locale}"`);
-    }
-  },
-);
-
-Then(
   /^the canonical link should point to the current page$/u,
   async function(this: GoatItWorld): Promise<void> {
     const canonicalLocator = this.page.locator("head link[rel=\"canonical\"]");
@@ -110,31 +151,66 @@ Then(
 Then(
   /^the page should contain schema.org WebPage and WebSite structured data$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const scriptLocator = this.page.locator("script[type=\"application/ld+json\"]");
-    const scriptCount = await scriptLocator.count();
+    const graphNodes = await collectSchemaOrgGraphNodes(this.page);
+    const webSiteNode = findSchemaOrgGraphNodeByType(graphNodes, "WebSite");
+    const webPageNode = findSchemaOrgGraphNodeByType(graphNodes, "WebPage");
 
-    const allGraphTypes: string[] = [];
-
-    for (let index = 0; index < scriptCount; index++) {
-      // Acceptable as each JSON-LD script must be parsed and validated sequentially
-      // oxlint-disable-next-line eslint/no-await-in-loop
-      const jsonContent = await scriptLocator.nth(index).textContent();
-
-      if (jsonContent === null) {
-        throw new Error(`Expected JSON-LD script at index ${index} to have text content.`);
-      }
-
-      // Acceptable as JSON.parse returns any and the schema.org script shape is validated at runtime
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      const parsed = JSON.parse(jsonContent) as { "@graph"?: { "@type"?: string | string[] }[] };
-
-      const graphTypes = (parsed["@graph"] ?? []).flatMap(node => node["@type"] ?? []);
-
-      allGraphTypes.push(...graphTypes);
+    if (webSiteNode === undefined || webPageNode === undefined) {
+      throw new Error("Expected the schema.org graph to contain WebSite and WebPage nodes.");
     }
 
-    expect(allGraphTypes).toContain("WebSite");
-    expect(allGraphTypes).toContain("WebPage");
+    expect(webSiteNode.description).toBe("Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, " +
+      "investigate, and find the answer.");
+    expect(webSiteNode.inLanguage).toBe("en-US");
+    expect(webPageNode.inLanguage).toBe("en");
+    expect(webPageNode.primaryImageOfPage?.contentUrl).toMatch(/\/og-image\.png$/u);
+    expect(webPageNode.primaryImageOfPage?.width).toBe(SOCIAL_IMAGE_WIDTH);
+    expect(webPageNode.primaryImageOfPage?.height).toBe(SOCIAL_IMAGE_HEIGHT);
+  },
+);
+
+Then(
+  /^the page should contain the schema.org Organization identity$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const graphNodes = await collectSchemaOrgGraphNodes(this.page);
+    const organizationNode = findSchemaOrgGraphNodeByType(graphNodes, "Organization");
+
+    if (organizationNode === undefined) {
+      throw new Error("Expected the schema.org graph to contain an Organization node.");
+    }
+
+    expect(organizationNode.name).toBe("Goat It");
+    expect(organizationNode.description).toBe("Goat It is a deduction game based on unusual facts. Ask the Game Master your questions, " +
+      "investigate, and find the answer.");
+    expect(organizationNode.email).toBe("antoine.zanardi@epitech.eu");
+    expect(organizationNode.foundingDate).toBe("2025-10-11");
+    expect(organizationNode.slogan).toBe("The game where the answer is guessed");
+    expect(organizationNode.sameAs).toContain("https://github.com/antoinezanardi/goat-it-web-game");
+
+    const organizationLogoId = organizationNode.logo?.["@id"];
+
+    if (organizationLogoId === undefined) {
+      throw new Error("Expected the schema.org Organization node to reference a logo.");
+    }
+
+    const organizationLogoNode = graphNodes.find(graphNode => graphNode["@id"] === organizationLogoId);
+
+    if (organizationLogoNode === undefined) {
+      throw new Error("Expected the schema.org Organization logo to reference an existing graph node.");
+    }
+
+    expect(hasSchemaOrgGraphType(organizationLogoNode, "ImageObject")).toBe(true);
+    expect(organizationLogoNode.contentUrl?.endsWith("/pwa/pwa-512x512.png")).toBe(true);
+  },
+);
+
+Then(
+  /^the schema.org graph should contain a logo image pointing to the PWA icon$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const graphNodes = await collectSchemaOrgGraphNodes(this.page);
+    const logoImageNode = graphNodes.find(graphNode => hasSchemaOrgGraphType(graphNode, "ImageObject") && graphNode.contentUrl?.endsWith("/pwa/pwa-512x512.png") === true);
+
+    expect(logoImageNode).toBeDefined();
   },
 );
 
@@ -158,5 +234,12 @@ Then(
 
     expect(response.status()).toBe(HTTP_STATUS_OK);
     expect(response.headers()["content-type"]).toContain("image/png");
+  },
+);
+
+Then(
+  /^the html lang attribute should be "(?<language>[^"]*)"$/u,
+  async function(this: GoatItWorld, language: string): Promise<void> {
+    await expect(this.page.locator("html")).toHaveAttribute("lang", language);
   },
 );

@@ -12,7 +12,7 @@ const commitGroupsOrder = {
 
 export default {
   branches: ["main", "develop"],
-  repositoryUrl: "git@github.com:antoinezanardi/goat-it-web-game.git",
+  repositoryUrl: "https://github.com/antoinezanardi/goat-it-web-game.git",
   plugins: [
     [
       "@semantic-release/commit-analyzer",
@@ -128,7 +128,7 @@ export default {
       "@semantic-release/changelog",
       {
         changelogFile: "CHANGELOG.md",
-        changelogTitle: "# 🐐👑 Goat It Web Admin Versioning Changelog",
+        changelogTitle: "# 🐐👑 Goat It Web Game Versioning Changelog",
       },
     ],
     [

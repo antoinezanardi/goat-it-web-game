@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
-import { GameNoMoreQuestions } from "#components";
+import { GameNoMoreQuestions, StatusScreen } from "#components";
 
 describe("GameNoMoreQuestions Component", () => {
   let wrapper: VueWrapper;
@@ -21,6 +21,18 @@ describe("GameNoMoreQuestions Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
+  it("should render StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).exists()).toBeTruthy();
+  });
+
+  it("should pass the no more questions title key to StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).props("title")).toBe("game.noMoreQuestions");
+  });
+
+  it("should pass the party-popper icon to StatusScreen when mounted.", () => {
+    expect(wrapper.findComponent(StatusScreen).props("icon")).toBe("i-lucide-party-popper");
+  });
+
   it("should render the no more questions message when mounted.", () => {
     expect(wrapper.text()).toContain("game.noMoreQuestions");
   });
@@ -29,6 +41,10 @@ describe("GameNoMoreQuestions Component", () => {
     const icon = wrapper.findComponent({ name: "UIcon" });
 
     expect(icon.props("name")).toBe("i-lucide-party-popper");
+  });
+
+  it("should render the no more questions title test id when mounted.", () => {
+    expect(wrapper.find("[data-testid='game-no-more-questions-title']").text()).toBe("game.noMoreQuestions");
   });
 
   it("should render the back to home button with correct label when mounted.", () => {

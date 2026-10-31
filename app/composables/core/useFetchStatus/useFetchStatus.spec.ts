@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { AsyncDataRequestStatus } from "#app";
-import type { UseFetchStatus } from "@/composables/core/useFetchStatus/useFetchStatus";
+import type { UseFetchStatus } from "@/composables/core/useFetchStatus/use-fetch-status.types";
 import { useFetchStatus } from "@/composables/core/useFetchStatus/useFetchStatus";
 
 type FetchStatusComputationCase = {

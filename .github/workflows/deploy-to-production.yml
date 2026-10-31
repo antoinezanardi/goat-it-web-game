@@ -21,12 +21,10 @@ jobs:
       build-args: |
         NUXT_PUBLIC_DEFAULT_LOCALE=${{ vars.PRODUCTION_DEFAULT_LOCALE }}
         NUXT_PUBLIC_SITE_URL=${{ vars.PRODUCTION_SITE_URL }}
+        NUXT_SITE_ENV=production
     secrets:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      NUXT_GOAT_IT_API_BASE_URL: ${{ secrets.PRODUCTION_GOAT_IT_API_BASE_URL }}
-      NUXT_GOAT_IT_API_GAME_KEY: ${{ secrets.PRODUCTION_GOAT_IT_API_GAME_KEY }}
-      NUXT_APP_SECRET: ${{ secrets.PRODUCTION_GOAT_IT_OG_IMAGE_SECURITY_SECRET }}
 
   deploy-to-production:
     name: Deploy to production server 🚀
@@ -37,7 +35,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository 📡
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Deploy to production server 🚀
         uses: ./.github/actions/deploy
@@ -46,3 +44,9 @@ jobs:
           ssh-user: ${{ secrets.PRODUCTION_SERVER_SSH_USER }}
           ssh-server-ip: ${{ secrets.PRODUCTION_SERVER_SSH_ADDRESS }}
           update-script-full-path: ${{ secrets.PRODUCTION_UPDATE_SCRIPT_FULL_PATH }}
+          known-hosts: ${{ secrets.PRODUCTION_SERVER_KNOWN_HOSTS }}
+
+      - name: Health check deployed site 🩺
+        uses: ./.github/actions/health-check
+        with:
+          health-check-url: ${{ vars.PRODUCTION_SITE_URL }}/healthz

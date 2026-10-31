@@ -4,4 +4,9 @@ type GameQuestionCardThemeStackProps = {
   question: Question;
 };
 
-export type { GameQuestionCardThemeStackProps };
+type GameQuestionCardThemeStackExposed = {
+  playHighlight: () => Promise<void>;
+  toggleOpen: () => void;
+};
+
+export type { GameQuestionCardThemeStackExposed, GameQuestionCardThemeStackProps };
