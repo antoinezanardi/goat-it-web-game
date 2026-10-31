@@ -124,7 +124,7 @@
     "@vueuse/nuxt": "^15.0.0",
     "commitlint": "^21.2.4",
     "cross-env": "^10.1.0",
-    "eslint": "^10.13.0",
+    "eslint": "^10.14.0",
     "eslint-plugin-oxlint": "^1.89.0",
     "eslint-plugin-unicorn": "^79.0.0",
     "gsap": "^3.15.0",
