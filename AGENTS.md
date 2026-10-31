@@ -263,11 +263,12 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
 
 Each skill has a `SKILL.md` entry point. Load only the relevant skill for the task. Any skill or command that can lead to project file changes must require consultation of [`docs/architecture.md`](docs/architecture.md).
 
-Available skills: `acceptance-testing`, `brainstorming`, `nuxt`, `nuxt-ui`, `receiving-code-review`,
+Available skills: `acceptance-testing`, `brainstorming`, `context7`, `goat-audit`, `nuxt`, `nuxt-ui`, `receiving-code-review`,
 `systematic-debugging`, `unit-testing`, `vite`, `vitest`, `vue`, `vueuse`, `writing-plans`, `writing-skills`.
 
 - **When writing unit tests** (including inside plans): always load the `unit-testing` skill first and verify the result against the `.opencode/commands/lint-unit-tests.md` §4 checklist.
 - **When writing acceptance tests** (including inside plans): always load the `acceptance-testing` skill first and verify the result against the `.opencode/commands/lint-acceptance-tests.md` §4 checklist.
+- **When reviewing, planning or auditing**: the `final-reviewer` applies the `goat-audit` skill in diff mode on every review and the `plan-writer` embeds triggered GOAT checks in tasks; run `/goat-audit` (agent `goat-auditor`) for a full audit. Reports are written to the gitignored `docs/audits/GOAT-AUDIT-<date>.md`; decisions live in the mapped doc's `## GOAT audit decisions` section and are binding.
 - **When brainstorming or writing plans**: always consult the `nuxt`, `nuxt-ui`, and `vueuse` skills.
 
 ## OpenCode commands (`.opencode/commands/`)
@@ -275,10 +276,13 @@ Available skills: `acceptance-testing`, `brainstorming`, `nuxt`, `nuxt-ui`, `rec
 Slash commands available in OpenCode sessions:
 
 - `/complete-i18n`   – Translate all French locale JSON files into every other locale.
+- `/goat-audit` – Run the full GOAT audit of the repository, then triage findings into issues, private advisories or decision notes.
+- `/implement-oxlint-rules` – Add missing oxlint rules one by one after validation.
 - `/lint-unit-tests` – Audit spec files against unit testing conventions, then fix user-approved violations.
 - `/lint-acceptance-tests` – Audit feature/step/helper files against acceptance testing conventions, then fix user-approved violations.
 - `/write-unit-test` – Write a complete, passing unit test for a given source file.
 - `/write-acceptance-test` – Write a complete acceptance test (feature + steps) for a given page/feature.
+- `/write-release-changelog` – Draft and translate the end-user release changelog for the open release PR.
 
 ## Useful docs (`docs/`)
 
@@ -288,6 +292,7 @@ Slash commands available in OpenCode sessions:
 - `docs/security.md` – Security hardening reference: security headers, CSP nonce, rate limiting, body guard, upstream fetch pipeline and error contract.
 - `docs/pwa.md` – PWA behavior: manifest/update strategy, Workbox precache, offline fallback, connectivity indicator, and API caching limits.
 - `docs/operations.md` – Operations reference: health/readiness endpoints, container health check, graceful shutdown, and post-deploy verification.
+- `docs/audits/` – Gitignored GOAT audit reports (`GOAT-AUDIT-<date>.md`) and run directories.
 - `docs/architecture.md` – Canonical architecture, file placement, naming, and dependency boundaries.
 
 ## MemPalace (persistent project memory)

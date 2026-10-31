@@ -4,7 +4,7 @@ mode: subagent
 model: opencode-go/deepseek-v4.1-flash
 temperature: 0.1
 hidden: true
-steps: 80
+steps: 120
 permission:
   edit: deny
   bash:
@@ -160,6 +160,17 @@ No files are automatically ignored in the diff review.
 - Entries under "Established patterns — do NOT flag" are conventions, not violations.
 - Report every violation as `` `[tag]` `file:line` — expected pattern ``.
 
+### 12. GOAT audit — diff mode (mandatory)
+
+- **Trigger:** every review, in addition to sections 10 and 11.
+- Load the `goat-audit` skill and follow its diff-mode procedure (`.agents/skills/goat-audit/SKILL.md` — overview, category index, decision-note protocol, §10 diff-mode procedure): list the changed paths; match them against the category index's diff triggers and state the triggered categories in the report; for each triggered category read its reference file **in full**, then the mapped decision doc (GOAT section + documented decisions).
+- Evaluate only `Diff: ✓` checks against the changed files (and code directly affected inside those files). For `Diff: ✗` checks whose `Look` globs match a changed file, emit a non-blocking ⚠️ "verify in next /goat-audit".
+- Honor decision notes and documented decisions (`DECIDED` findings are not reported; a met revisit trigger is reported with `decision revisit triggered — <doc>:<line>`).
+- Library-behavior claims → `docs-fetcher` (one library per dispatch). TEST in diff mode applies only checks tagged `(strategy)` in their title.
+- **Static analysis only**; never run builds, tests or servers.
+- Severity mapping: critical → Critical; high/medium → Important; low/info → Minor. Any finding of severity medium or higher forces "Needs changes before merge".
+- Report every finding as `` `[ID]` `file:line` — expected pattern (severity) ``.
+
 ## Return format
 
 **Evidence discipline:** every ✅/❌ claim MUST cite `file:line` (or command output). A claim you could not verify is marked ⚠️ unverified — never silently omitted, never asserted without proof.
@@ -193,6 +204,12 @@ No files are automatically ignored in the diff review.
 **Acceptance-test conventions:**
 - `[tag]` `file:line` — violation description (or "No acceptance-test files changed" / "Conforms to the checklist")
 
+**GOAT audit (diff mode):**
+- Triggered categories: <codes>
+- `[ID]` `file:line` — violation description (severity)
+- ⚠️ `[ID]` `file` — verify in next /goat-audit (requires <evidence type>)
+- (or "No GOAT findings in triggered categories")
+
 **Security:**
 - [issues or "No security concerns"]
 
@@ -205,7 +222,7 @@ No files are automatically ignored in the diff review.
 **Assessment:** Ready to merge | Ready with minor follow-ups | Needs changes before merge
 ```
 
-**Hard verdict gate:** the assessment MUST be `Needs changes before merge` if ANY of the following holds — one or more Critical issues; a spec requirement unimplemented; a security finding; any unit-test `[U*]`–`[T*]` violation or acceptance-test `[AU*]`–`[SU*]` violation. Only a fully clean report (or Minor-only findings) may yield `Ready to merge` / `Ready with minor follow-ups`.
+**Hard verdict gate:** the assessment MUST be `Needs changes before merge` if ANY of the following holds — one or more Critical issues; a spec requirement unimplemented; a security finding; any unit-test `[U*]`–`[T*]` violation or acceptance-test `[AU*]`–`[SU*]` violation; any GOAT audit finding of severity medium or higher (`[<CODE>-NN]`). Low/info GOAT findings are Minor. Only a fully clean report (or Minor-only findings) may yield `Ready to merge` / `Ready with minor follow-ups`.
 
 ## Skills to load
 
@@ -214,6 +231,7 @@ No files are automatically ignored in the diff review.
 - `nuxt-ui` — to evaluate UI component usage
 - `unit-testing` — **mandatory whenever the diff adds or modifies any `*.spec.ts`, faketory, mock file, or setup registration** (section 10 trigger); required for the section 10 audit
 - `acceptance-testing` — **mandatory whenever the diff adds or modifies anything under `tests/acceptance/` or a `.feature` file** (section 11 trigger); required for the section 11 audit
+- `goat-audit` — **mandatory for every review** (section 12): diff-mode procedure, category index triggers, decision notes and finding format
 
 ## Convention authority
 
