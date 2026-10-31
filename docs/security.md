@@ -170,4 +170,4 @@ The Nitro error hook skips expected 4xx responses and proxy failures already han
 | `NUXT_PUBLIC_SENTRY_DISABLED`      | no              | `false`   | boolean; `true` explicitly disables tracking              |
 | `NUXT_LOGGER_LEVEL`                | no              | `info`    | supported Pino level                                      |
 
-Invalid values fail the Nitro boot (values are never logged).
+Invalid values fail the Nitro boot through one schema: the error names the offending config paths and constraints it detects, and received values are never logged.
