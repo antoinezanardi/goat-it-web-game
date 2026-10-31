@@ -26,7 +26,7 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
 ## 1. Heuristics
 
 - **[UX-01] No silent async action** — Every fetch, mutation and restart renders a pending indication, then a success, empty/end or error outcome, within 1 s of the trigger; no wait state is unlabelled.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [2], [6]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [1], [2], [6]
 - **[UX-02] Domain language only** — Rendered UI uses the game vocabulary defined in the rules and tutorial (question, theme, category, cognitive difficulty, game master); no API, HTTP or storage term appears as user copy.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/i18n/locales/fr/**`, `app/components/domain/game/**` · Src: [1], [2]
 - **[UX-03] Same action, same presentation** — The same intent keeps one label, variant and relative placement across home, game, sidebar, settings, filters, changelog and every locale; icon consistency is checked separately in UX-38.
@@ -39,17 +39,17 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
 ## 2. State coverage
 
 - **[UX-06] Complete async state matrix** — Each async surface (question feed, theme catalog, question translation, changelog entries, rules content) renders mutually exclusive idle, loading, empty, error, partial and success/end states; no catch-all branch substitutes a terminal screen for an unhandled state.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [4], [5], [8]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [4], [5], [8]
 - **[UX-07] No catch-all terminal fallback** — Every known game state is mapped explicitly by the game state renderer, and an unknown state renders a visible failure (or development warning) instead of falling through to the terminal screen.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/domain/game/GameStateRenderer/**`, `app/composables/domain/useGame/**` · Src: [4], [8]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/components/domain/game/GameStateRenderer/**`, `app/composables/domain/useGame/**` · Src: [4], [8]
 - **[UX-08] Success only after success** — A success toast or success state appears only after the awaited operation resolves with `ok: true`; a forced 4xx, 5xx or malformed response never produces success feedback.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [8]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [1], [8]
 - **[UX-09] Empty state explains and acts** — Every empty state names its cause and offers one primary next action (reset filters, play, back home); no blank panel or read-only dead end is rendered.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [4]
 - **[UX-10] Partial results preserved** — When a later page, translation or secondary fetch fails, already loaded questions stay visible and the failure is inline with retry; the screen is never wiped to a full error state.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [4], [5]
 - **[UX-11] Offline is a distinct state** — Offline renders the global `role="status"` connectivity indicator plus offline-specific copy and retry, never the generic server-error or empty-results screen.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/App.vue`, `app/components/shared/ui/OfflineStatusIndicator/**`, `app/composables/ui/useConnectivityStatus/**`, `app/i18n/locales/*/errors.json`, `app/i18n/locales/fr/offline.json` · Src: [4], [8], project: docs/pwa.md §4
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/App.vue`, `app/components/shared/ui/OfflineStatusIndicator/**`, `app/composables/ui/useConnectivityStatus/**`, `app/i18n/locales/*/errors.json`, `app/i18n/locales/fr/offline.json` · Src: [4], [8], project: docs/pwa.md §4
 
 ## 3. Feedback and response times
 
@@ -86,7 +86,7 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
 - **[UX-24] Escape closes only the top layer** — Stacked overlays close one layer per Escape or outside click, and non-destructive overlays close consistently through X, Cancel and outside click, while a destructive confirmation keeps its explicit decision buttons (verified: @nuxt/ui 4.12.0).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [1], [24]
 - **[UX-25] Browser Back is predictable** — Back from `/game` returns to `/` once, and Back from a deep-linked `/rules` or an open overlay returns to the prior route or closes the overlay without a history trap.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [13]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [1], [13]
 - **[UX-26] Scroll position restored** — Closing an overlay or returning from `/rules` restores the previous scroll position and keeps the control that opened it in view.
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [1], [21]
 - **[UX-27] Undo before confirm** — Reversible filter and settings changes apply immediately with an undo path; modal confirmation is reserved for irreversible loss such as discarding an unapplied filter draft or leaving a running game.
@@ -94,7 +94,7 @@ Interaction quality of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4, six locales,
 - **[UX-28] Confirmation names consequence** — A confirmation names the consequence, labels its buttons with the decision verbs instead of OK/Yes, offers Cancel or close, and binds no default affirmative action to Enter.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/shared/ui/modal/**`, `app/composables/domain/useGameLeaveConfirmation/**`, `app/i18n/locales/fr/game.json` · Src: [7]
 - **[UX-29] No dead ends** — Every terminal state (game over, fetch error, offline) shows both a primary recovery action and a secondary help or home route, so the player can always leave without retrying blindly.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [4]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [1], [4]
 - **[UX-30] Long overlays scroll internally** — When modal, sidebar or tutorial content exceeds the viewport, the body scrolls internally while the close control and primary action stay reachable (Nuxt UI `scrollable` layout where a modal is used; verified: @nuxt/ui 4.12.0).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [24]
 

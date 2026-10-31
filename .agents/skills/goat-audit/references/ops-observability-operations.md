@@ -23,7 +23,7 @@ actionable, not what data may be collected or how probes are designed.
 ## 1. Error tracking
 
 - **[OPS-01] Conditional Sentry initialization** — `sentry.client.config.ts` and `sentry.server.config.ts` call `init` only when the build is not a dev build, `public.sentry.disabled` is `false`, the environment label is `production` or `staging`, and the trimmed `NUXT_PUBLIC_SENTRY_DSN` is non-empty; `enabled: false` alone does not remove SDK overhead, so the `init` call itself is conditional (verified: @sentry/nuxt 11.9.0).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `sentry.*.config.ts`, `shared/utils/helpers/sentry/**` · Src: [12], [14], project: docs/operations.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `sentry.*.config.ts`, `shared/utils/helpers/sentry/**` · Src: [12], [14], project: docs/operations.md
 - **[OPS-02] Server SDK self-initializes without preload** — `sentry.server.config.ts` sits at the repository root next to `nuxt.config.ts`, and the production start command (`Dockerfile` `CMD`, `start:prod` script) is `node .output/server/index.mjs` with no `--import` or `NODE_OPTIONS` preload, because the SDK bundles the server config into the Nitro build and initializes at server start (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `Dockerfile`, `package.json`, `sentry.*.config.ts` · Src: [20]
 - **[OPS-03] Test builds never contact Sentry** — The `$test` build sets `sentry: { enabled: false }` in `nuxt.config.ts` and `envs/.env.test` sets `NUXT_PUBLIC_SENTRY_DISABLED=true`, so no unit or acceptance run sends an event.
@@ -84,11 +84,11 @@ actionable, not what data may be collected or how probes are designed.
 ## 4. Uptime monitoring
 
 - **[OPS-27] Monitor inventory per environment and probe** — `docs/operations.md` lists one external monitor for each probe endpoint in each environment, with URL, method, expected result and interval.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `docs/operations.md` · Src: [11], [2], project: docs/operations.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `docs/operations.md` · Src: [11], [2], project: docs/operations.md
 - **[OPS-28] Keyword assertions match probe bodies** — Each monitor asserts HTTP 2xx plus a body keyword, not an open port, and the documented keywords (`"status":"ok"` for `/healthz`, `"status":"ready"` for `/readyz`) match the bodies returned by the `server/routes/**` handlers.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md`, `server/routes/**` · Src: [11]
 - **[OPS-29] Monitors active outside the host** — The provider account has the four documented monitors active, probing from outside the VPS, with names that include the environment and the probe type.
-  Evidence: `manual` · Diff: ✗ · Severity: high · Src: [11], [2], project: docs/operations.md
+  Evidence: `manual` · Diff: ✗ · Core: ✓ · Severity: high · Src: [11], [2], project: docs/operations.md
 - **[OPS-30] Alert delivery tested** — Monitor alerts reach a primary and an escalation contact, and a test alert was delivered and acknowledged.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [5], [2]
 - **[OPS-31] Synthetic user journey** — A scripted external check periodically exercises a core user journey in production (load the home page and complete one primary interaction).
@@ -101,7 +101,7 @@ actionable, not what data may be collected or how probes are designed.
 ## 5. Runbooks and incidents
 
 - **[OPS-34] Deploy and rollback runbook** — `docs/operations.md` documents how a release reaches staging and production and the manual rollback (redeploy the previous immutable image tag on the VPS) with copy-pasteable commands and the expected verification.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `docs/operations.md` · Src: [5], [7]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `docs/operations.md` · Src: [5], [7]
 - **[OPS-35] Restart and rate-limiter recovery runbook** — `docs/operations.md` documents a safe container restart (honoring the ~35 s stop grace) and how to clear the in-process rate-limiter state when legitimate players are throttled.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md` · Src: [5], project: docs/security.md
 - **[OPS-36] Secret rotation runbook** — `docs/operations.md` documents, for `NUXT_GOAT_IT_API_GAME_KEY`, the Sentry DSN, the deploy SSH keys and the Docker Hub credentials, where each value lives, how to rotate it and how to verify the rotation.
@@ -117,18 +117,18 @@ actionable, not what data may be collected or how probes are designed.
 - **[OPS-41] Dependency inventory** — `docs/operations.md` lists every runtime dependency (Goat It API, Sentry, UptimeRobot, VPS host, Docker Hub registry, DNS/TLS provider) with its owner, plan limits and known SLA.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `docs/operations.md` · Src: [6], [5]
 - **[OPS-42] Failure-mode table** — `docs/operations.md` states, for upstream down, network partition to the upstream, container kill or OOM, host disk full and Sentry unreachable, the expected system behavior and the monitor, alert or log that detects it.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `docs/operations.md` · Src: [1]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `docs/operations.md` · Src: [1]
 
 ## 6. Post-deploy verification
 
 - **[OPS-43] Post-deploy gate in every deploy workflow** — Every deploy workflow runs the health-check composite action as a separate step after the deploy step against the site `/healthz`, and a gate failure fails the deployment job; traffic switches to the new container only after it answers 200 on `/healthz` (the old one keeps serving on failure), or the restart gap of the single-container deploy is documented as accepted.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/deploy-*.yml`, `.github/actions/health-check/**` · Src: [5], [11], project: docs/operations.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/workflows/deploy-*.yml`, `.github/actions/health-check/**` · Src: [5], [11], project: docs/operations.md
 - **[OPS-44] Bounded gate with strict success** — `scripts/post-deploy-health-check.sh` uses a bounded budget (default 5 attempts, 5 s apart, 3 s per request), treats only HTTP `200` as success, retries any other status, timeout or connection error, and exits non-zero with an `::error::` annotation after the last attempt.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `scripts/post-deploy-health-check.sh`, `.github/actions/health-check/**` · Src: [11], project: docs/operations.md
 - **[OPS-45] Smoke beyond liveness** — Post-deploy verification also checks `/readyz`, the home page and one real proxied API call, not only `/healthz`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/deploy-*.yml`, `.github/actions/health-check/**` · Src: [5], [11], project: docs/operations.md
 - **[OPS-46] Automatic rollback on failed verification** — A failed post-deploy gate automatically redeploys the previous image tag.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/deploy-*.yml`, `.github/actions/deploy/**` · Src: [5], project: docs/operations.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/workflows/deploy-*.yml`, `.github/actions/deploy/**` · Src: [5], project: docs/operations.md
 
 ## Sources
 

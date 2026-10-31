@@ -30,7 +30,7 @@ and remaining web risks (CORS, open redirect, CSRF, Host header, prototype pollu
 ## 1. Headers and browser isolation
 
 - **[SEC-01] Security headers on every response** — On the production build, every HTML route, every API route, a static asset, a health probe and an unknown path (404) each return `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` and `Strict-Transport-Security` with the values documented in `docs/security.md`.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Look: `server/middleware/**`, `tests/acceptance/features/security/**` · Src: [8], [30], project: docs/security.md
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Look: `server/middleware/**`, `tests/acceptance/features/security/**` · Src: [8], [30], project: docs/security.md
 - **[SEC-02] HSTS max-age** — `Strict-Transport-Security` carries `max-age` ≥ `31536000`; `includeSubDomains` and `preload` are added only once every subdomain is HTTPS-only and the domain is submitted to the preload list, otherwise their omission is documented.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/security/**` · Src: [8], [4], project: docs/security.md
 - **[SEC-03] nosniff everywhere** — The global header middleware sets `X-Content-Type-Options: nosniff` for every path, including `/api/**` JSON and error responses, and every handler answers with an explicit, correct `Content-Type`.
@@ -47,17 +47,17 @@ and remaining web risks (CORS, open redirect, CSRF, Host header, prototype pollu
 ## 2. Content Security Policy
 
 - **[SEC-08] Nonce-based `script-src`** — `script-src` is `'self'` plus a per-render `'nonce-…'` (optionally `'strict-dynamic'`), with no `'unsafe-inline'`, no `*`, `https:`, `http:` or `data:` source and no third-party host; eval-class allowances are checked in SEC-19.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/security/**` · Src: [9], [20], [4], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/security/**` · Src: [9], [20], [4], project: docs/security.md
 - **[SEC-09] Nonce on every rendered script** — On every HTML route of the production build, including the 404 page, each `<script>` element of the rendered document carries the nonce from the response CSP header, and the browser reports zero CSP violations.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Look: `tests/acceptance/features/security/**` · Src: [20], [9], project: docs/security.md
 - **[SEC-10] CSP baseline directives** — The enforced policy contains `default-src 'self'`, `object-src 'none'`, `base-uri 'self'` (or `'none'`), `form-action 'self'` and `frame-ancestors 'none'`, and is delivered as an HTTP header, never only through `<meta http-equiv>` (which cannot carry `frame-ancestors` or reporting).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/security/**` · Src: [9], [4], [19]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/security/**` · Src: [9], [4], [19]
 - **[SEC-11] CSP violation reporting** — When violation reporting is configured, the policy declares `report-to <group>` with a matching `Reporting-Endpoints` header targeting a same-origin endpoint that accepts `application/reports+json`, answers `204`, is rate limited and logs reports in a bounded form; otherwise the check is N/A.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `server/utils/security/**`, `server/routes/**` · Src: [9], [4], [7]
 - **[SEC-12] Enforced CSP on every HTML response** — Every HTML response of the production build, including 404 and 500 error pages, carries `Content-Security-Policy`, not only `Content-Security-Policy-Report-Only`.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Look: `tests/acceptance/features/security/**` · Src: [8], [9], [4]
 - **[SEC-13] Enforce mode in deployed environments** — The CSP is enforced in every deployed environment; report-only is limited to non-deployed environments and `off` is never deployed. When a mode switch exists, it accepts only enforce, report-only and off.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `envs/**`, `server/utils/env/**`, `nuxt.config.ts` · Src: [9], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `envs/**`, `server/utils/env/**`, `nuxt.config.ts` · Src: [9], project: docs/security.md
 - **[SEC-14] Nonce entropy** — The nonce is generated per render by a CSPRNG (Web Crypto or `node:crypto`) with at least 128 bits of entropy, base64-encoded, and never derived from time, a counter or request data.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/security/**` · Src: [9], [20]
 - **[SEC-15] Nonce freshness** — Two consecutive requests to the same SSR route return different nonces in both header and HTML; no cache, ISR or SWR route rule serves HTML whose nonce was minted for an earlier response.
@@ -67,7 +67,7 @@ and remaining web risks (CORS, open redirect, CSRF, Host header, prototype pollu
 - **[SEC-17] Nonce stamping scope** — The nonce is attached only to framework-emitted script markup; app-rendered body HTML is never rewritten, so an injected `<script>` cannot inherit the nonce.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/security/**`, `server/plugins/csp-nonce/**` · Src: [9], project: docs/security.md
 - **[SEC-18] No eval-class allowances** — `'unsafe-eval'` is absent from `script-src`; `'wasm-unsafe-eval'` is present only while Nuxt Content's client-side SQLite WebAssembly queries require it, with that reason documented.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/security/**` · Src: [9], [2], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/security/**` · Src: [9], [2], project: docs/security.md
 - **[SEC-19] No `new Function`-based parsers in client code** — Client code never calls `z.compile()`, which builds its parser with `new Function` and is blocked by a CSP without `'unsafe-eval'`; externally generated parsers are installed with `z.withParser()` instead (verified: zod 4.6.7).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.ts`, `shared/**/*.ts` · Src: [26], [9]
 - **[SEC-20] `style-src` scope** — `style-src` is `'self'` plus `'unsafe-inline'` only with its documented reason (@nuxt/ui runtime styles); no style nonce or hash is mixed in (it would cancel `'unsafe-inline'`) and no third-party style host is listed.
@@ -78,9 +78,9 @@ and remaining web risks (CORS, open redirect, CSRF, Host header, prototype pollu
 ## 3. XSS and injection in Vue and Nuxt
 
 - **[SEC-22] No `v-html` on untrusted data** — No `v-html` (or `innerHTML` render-function prop) receives any untrusted value — upstream API data, route or query values, cookie or storage values, parameterised locale messages or content data; any remaining use renders a compile-time constant or server-sanitized HTML, because Vue escapes interpolations and attribute bindings but renders `v-html` raw (verified: vue 3.5.44).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [21], [10], [2]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [21], [10], [2]
 - **[SEC-23] No dangerous DOM sinks** — `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `srcdoc` and `Range.createContextualFragment` are absent from `app/**` and `shared/**`, or receive only constants.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.ts`, `app/**/*.vue`, `shared/**/*.ts` · Src: [10], [2], [21]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.ts`, `app/**/*.vue`, `shared/**/*.ts` · Src: [10], [2], [21]
 - **[SEC-24] URL-scheme allowlist for bound URLs** — Every data-driven URL bound to navigation or resource attributes (`:href`, `:src`, `:action`, `:formaction`, link `to`) is validated with an explicit scheme allowlist before render, because a generic URL validator accepts `javascript:` and `data:` schemes (verified: zod 4.6.7) and Vue does not sanitize URL schemes (verified: vue 3.5.44); `z.httpUrl()` or `z.url({ protocol: /^https?$/ })` satisfy it.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `shared/schemas/**`, `shared/utils/helpers/question/**`, `app/**/*.vue` · Src: [25], [21], [2], [10]
 - **[SEC-25] Safe external links** — Every `target="_blank"` link renders a `rel` containing `noopener` (preferably `noopener noreferrer`).
@@ -90,22 +90,22 @@ and remaining web risks (CORS, open redirect, CSRF, Host header, prototype pollu
 - **[SEC-27] Plain-text locale messages** — Values in `app/i18n/locales/**` contain no HTML markup, no translated message is rendered through `v-html`, and message keys are never built from API or user input.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/i18n/locales/**`, `app/**/*.vue` · Src: [2], [10]
 - **[SEC-28] Trusted markdown sources only** — Content collections load only repository files under `content/**` (no remote source, no user-authored markdown); any non-repository source adds a sanitizing rehype plugin, because the content pipeline ships no built-in HTML sanitizer (verified: @nuxt/content 3.16.2).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `content.config.ts`, `nuxt.config.ts`, `content/**` · Src: [27], [2], [10]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `content.config.ts`, `nuxt.config.ts`, `content/**` · Src: [27], [2], [10]
 - **[SEC-29] SSR payload escaping** — With a stubbed upstream returning question text containing `</script><script>alert(1)</script>`, `<!--` and U+2028/U+2029, the rendered HTML and the hydration payload keep the text escaped: no markup breakout and no script execution.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [2], [4]
 - **[SEC-30] No runtime template compilation** — No `compile()` call, no `template` option built from data, no alias to the Vue build that bundles the template compiler, no `<component :is>` fed an API or user string, and Vue is never mounted on server-rendered user content (verified: vue 3.5.44).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue`, `app/**/*.ts`, `nuxt.config.ts` · Src: [21]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.vue`, `app/**/*.ts`, `nuxt.config.ts` · Src: [21]
 - **[SEC-31] No string-evaluated code** — `eval`, `new Function`, string-form `setTimeout`/`setInterval` and data bound to `on*` attributes are absent from `app/**`, `server/**` and `shared/**`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.ts`, `server/**`, `shared/**/*.ts` · Src: [12], [2], [21], [32]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.ts`, `server/**`, `shared/**/*.ts` · Src: [12], [2], [21], [32]
 
 ## 4. Server input validation and API contract
 
 - **[SEC-32] Schema-validated handler inputs** — Every API handler validates its query, body and path parameters with a Zod schema before use, through the project's validated-read helpers; no raw query, body or router-param value reaches the upstream call (verified: h3 1.15.11).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/api/**`, `server/utils/goat-it-api/**` · Src: [3], [13], [12], [23]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/api/**`, `server/utils/goat-it-api/**` · Src: [3], [13], [12], [23]
 - **[SEC-33] Explicit unknown-key policy on request schemas** — Each request schema, including those imported from `@goat-it/schemas`, sets its unknown-key policy deliberately: `z.strictObject()`/`.strict()` to reject or `z.object()` to strip (the default); `z.looseObject()`, `.passthrough()` or `.catchall()` never forward unknown keys upstream (verified: zod 4.6.7).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/api/**`, `shared/schemas/**` · Src: [25], [3]
 - **[SEC-34] Explicit request body-size guard** — Because h3 v1 `readBody`, `readRawBody` and `readValidatedBody` buffer the whole body and expose no size-limit option (verified: h3 1.15.11), a middleware rejects every body-bearing `/api/**` request (`POST`, and `PUT`/`PATCH`/`DELETE` once such routes exist) before buffering: missing or invalid `content-length` → `411`, above `512 KiB` → `413`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/middleware/**`, `server/utils/security/**` · Src: [23], [12], [16], [31], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/middleware/**`, `server/utils/security/**` · Src: [23], [12], [16], [31], project: docs/security.md
 - **[SEC-35] JSON-only request bodies** — Body-bearing API routes accept only `application/json` and answer `415` otherwise, because h3 `readBody` also parses `application/x-www-form-urlencoded` (verified: h3 1.15.11).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/middleware/**`, `server/utils/security/**` · Src: [23], [13]
 - **[SEC-36] Repeated query parameters rejected** — Query schemas declare each parameter as a scalar or an explicit array, so a repeated parameter (`?limit=1&limit=2`, which h3's ufo-based `getQuery` returns as an array) fails with `400` instead of reaching the upstream as an unexpected type (verified: h3 1.15.11).
@@ -113,7 +113,7 @@ and remaining web risks (CORS, open redirect, CSRF, Host header, prototype pollu
 - **[SEC-37] Numeric and collection bounds** — `limit` is clamped to `FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM`, and every array input (`excludedIds`, theme and category filters) and string input has an explicit maximum length in its schema.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/api/**`, `server/utils/goat-it-api/**`, `shared/constants/**` · Src: [3], [12]
 - **[SEC-38] Validation failures are 400** — Schema failures answer `400` with a fixed `statusMessage` and `data.errorCode = "invalid-request"`, without Zod issue text or echoed input, and never fall through to `500`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [12], [15], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [12], [15], project: docs/security.md
 - **[SEC-39] Method allowlist** — Every API and server route file is method-suffixed (`*.get.ts`, `*.post.ts`); no method-less or catch-all (`[...].ts`) handler accepts arbitrary verbs.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/api/**`, `server/routes/**` · Src: [13], [5]
 - **[SEC-40] Private, uncacheable API responses** — Every `/api/**` response carries `Cache-Control: private, no-store` and `Vary: Cookie`, because the locale cookie changes the forwarded `Accept-Language`.
@@ -122,28 +122,28 @@ and remaining web risks (CORS, open redirect, CSRF, Host header, prototype pollu
 ## 5. Outbound calls, SSRF and upstream pipeline
 
 - **[SEC-41] Validated upstream base URL** — `NUXT_GOAT_IT_API_BASE_URL` is required, parsed as an absolute URL, `https:` in production (loopback and internal hosts exempt), and an invalid value aborts the Nitro boot.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/env/**`, `server/plugins/env-validation/**` · Src: [11], [3], [6], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/env/**`, `server/plugins/env-validation/**` · Src: [11], [3], [6], project: docs/security.md
 - **[SEC-42] Fixed upstream destination** — Server code issues outbound requests only through `createGoatItApiEndpoint` and `createGoatItApiFetchOptions` against the configured `baseURL`; no handler fetches a URL, host, port or scheme derived from request data (no image proxy, link preview or webhook).
-  Evidence: `static` · Diff: ✓ · Severity: critical · Look: `server/api/**`, `server/utils/goat-it-api/**` · Src: [11], [6]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: critical · Look: `server/api/**`, `server/utils/goat-it-api/**` · Src: [11], [6]
 - **[SEC-43] Encoded upstream path segments** — Upstream paths are built from resource enums and constants with every slash-separated segment percent-encoded; no request value is concatenated into the path, so `..`, `%2e%2e` and `//` cannot escape the API prefix.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [11], [2], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [11], [2], project: docs/security.md
 - **[SEC-44] Redirects refused** — Upstream calls set `redirect: "error"`, so the `goat-it-api-key` header can never follow a cross-origin redirect.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [11], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [11], project: docs/security.md
 - **[SEC-45] Outbound header allowlist** — The upstream request carries only the API key header and a validated `Accept-Language`; client `Cookie`, `Authorization`, `Host` and `X-Forwarded-*` headers are never forwarded wholesale.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [11], [14]
 - **[SEC-46] Upstream failures not reflected** — Upstream status text, body, headers and messages are never forwarded verbatim; upstream `401`/`403` become `502` with `errorCode = "upstream-error"` and no detail, and only a schema-validated upstream `errorCode` (plus `Retry-After` on `429`) passes through.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [15], [14], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [15], [14], project: docs/security.md
 - **[SEC-47] Upstream responses validated** — Every upstream payload is parsed with its DTO schema before mapping; only `unrecognized_keys` drift is stripped, and any other mismatch becomes `502 upstream-error`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/**`, `server/api/**` · Src: [3], [13], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/**`, `server/api/**` · Src: [3], [13], project: docs/security.md
 - **[SEC-48] Upstream response size** — The upstream response body is size-capped before parsing, or the uncapped size is documented as a known limitation with its compensating controls (pinned env-validated `baseUrl`, refused redirects, request timeout).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/**` · Src: [11], [12], project: docs/security.md
 
 ## 6. Secrets and configuration exposure
 
 - **[SEC-49] Server-only secrets in runtime config** — `goatItApi.gameKey` and `goatItApi.baseUrl` live in private `runtimeConfig`; `runtimeConfig.public` holds only non-secret values (default locale, Sentry DSN, environment and disabled flag), and no secret is read from a `NUXT_PUBLIC_*` variable or a client-imported constant.
-  Evidence: `static` · Diff: ✓ · Severity: critical · Look: `nuxt.config.ts`, `server/utils/runtime-config/**`, `envs/**` · Src: [14], [6]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: critical · Look: `nuxt.config.ts`, `server/utils/runtime-config/**`, `envs/**` · Src: [14], [6]
 - **[SEC-50] No secret in the client artifact** — After a production build, searching `.output/public/**`, rendered HTML and payloads for the game-key value, `goat-it-api-key`, `gameKey`, `Authorization` and `SENTRY_AUTH_TOKEN` returns zero hits.
-  Evidence: `artifact` · Diff: ✗ · Severity: critical · Src: [14], [6]
+  Evidence: `artifact` · Diff: ✗ · Core: ✓ · Severity: critical · Src: [14], [6]
 - **[SEC-51] Source maps not published (config)** — Production keeps client source maps disabled (`sourcemap: false`), or uses `sourcemap: { client: 'hidden' }` with `sentry.sourcemaps.filesToDeleteAfterUpload` covering `.output/**/public/**/*.map` (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [28], [6]
 - **[SEC-52] No source map in the public output** — `.output/public/**/*.map` matches no file and no built JS chunk ends with a `sourceMappingURL` comment.
@@ -156,9 +156,9 @@ and remaining web risks (CORS, open redirect, CSRF, Host header, prototype pollu
 ## 7. Abuse, DoS and cost amplification
 
 - **[SEC-55] API rate limiter** — `/api/goat-it-api/**` is rate limited with an explicit window and budget (defaults `60` requests per `60000` ms), both env-validated integers ≥ 1.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/middleware/**`, `server/utils/rate-limit/**` · Src: [12], [16], [13], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/middleware/**`, `server/utils/rate-limit/**` · Src: [12], [16], [13], project: docs/security.md
 - **[SEC-56] Client IP trust model** — Proxy trust defaults to off; when enabled, the client key is taken from the forwarded header only behind a proxy that controls it, through h3 documented safe accessor, and the documented trust contract requires the proxy to overwrite `X-Forwarded-For`; a request whose client IP cannot be resolved is limited under a shared fallback key or its exemption is documented with a compensating control (verified: h3 1.15.11).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/rate-limit/**` · Src: [23], [12], [5], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/rate-limit/**` · Src: [23], [12], [5], project: docs/security.md
 - **[SEC-57] Reverse proxy overwrites X-Forwarded-For** — Whenever production runs with `NUXT_RATE_LIMIT_TRUST_PROXY=true`, the maintainer confirms the reverse proxy sets `proxy_set_header X-Forwarded-For $remote_addr;` (overwrite, not append).
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [12], project: docs/security.md
 - **[SEC-58] 429 contract** — Throttled responses answer `429` with `Retry-After` in seconds and `data.errorCode = "rate-limited"`.
@@ -183,14 +183,14 @@ and remaining web risks (CORS, open redirect, CSRF, Host header, prototype pollu
 - **[SEC-66] Cookie values validated on read** — Every cookie value is treated as untrusted input: enumerated values are checked against their allowed set before use or forwarding (the locale cookie before building `Accept-Language`), and JSON cookies are parsed with a Zod schema and fall back to defaults on failure.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/composables/**`, `server/utils/goat-it-api/**`, `server/plugins/locale-detector/**` · Src: [3], [17]
 - **[SEC-67] No secrets in client storage** — `localStorage`, `sessionStorage`, IndexedDB and cookies hold no token, API key or personal data, and every key written is enumerable from source.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.ts` · Src: [17], [10]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.ts` · Src: [17], [10]
 
 ## 9. Error handling and information leakage
 
 - **[SEC-68] Client-visible error fields** — `createError` calls put only fixed, client-safe text in `statusMessage` and `data` (both reach the client), keep diagnostics in `message` or `cause` (not propagated to the client), and never pass upstream or user text to `statusMessage` or `setResponseStatus` (verified: h3 1.15.11).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/**` · Src: [24], [15], [7]
 - **[SEC-69] Generic unexpected-error response** — Non-HTTP errors in API handlers become `500` with `data.errorCode = "internal-error"`; no raw `Error` escapes with its message (h3 turns a thrown `Error` into a `500`, verified: h3 1.15.11).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [24], [15], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/**` · Src: [24], [15], project: docs/security.md
 - **[SEC-70] Production error responses leak nothing** — Forcing a 404 and a 500 on an HTML route and on an API route of the production build returns no stack trace, file path, framework or version, environment name or upstream body.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Look: `tests/acceptance/features/security/**` · Src: [15], [7]
 - **[SEC-71] Minimal health probes** — `/healthz` and `/readyz` return only a status and readiness result, with no upstream URL, error message, dependency version or environment name.
@@ -203,7 +203,7 @@ and remaining web risks (CORS, open redirect, CSRF, Host header, prototype pollu
 - **[SEC-73] Security events logged** — Rate-limit rejections, body-guard rejections (`411`, `413`, `415`), validation failures, upstream `401`/`403`, refused redirects and schema drift each emit a named server log event (aggregated or sampled when noisy).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/logging/**`, `server/middleware/**`, `server/utils/goat-it-api/**` · Src: [7], [33], [16]
 - **[SEC-74] Logged-field allowlist** — Server logs carry only the event name, status, method, query-free path and format-checked error class and code; never request or response bodies, cookies, authorization headers, query strings, API or game keys, h3 error `data` or source IPs.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/logging/**`, `server/plugins/error-logging/**` · Src: [7], [14], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/logging/**`, `server/plugins/error-logging/**` · Src: [7], [14], project: docs/security.md
 - **[SEC-75] Redaction paths as defense in depth** — The logger `redact` paths cover `authorization`, `cookie`, `apiKey`, `gameKey`, `token`, `password` and the upstream key header `goat-it-api-key`, at top level and under `headers` and `request.headers`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/logging/**` · Src: [14], [7]
 - **[SEC-76] Log-injection safe** — User and upstream values are logged as structured fields, never concatenated into message strings, and free-text fields pass a format check so CR/LF cannot forge log entries.

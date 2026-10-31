@@ -32,7 +32,7 @@ manual compatibility verification, progressive enhancement (no-JS, blocked stora
 - **[PWA-01] Installability members present** — The built `manifest.webmanifest` contains `name` or `short_name`, `icons` with a 192x192 and a 512x512 entry, `start_url`, `display` in {`standalone`, `fullscreen`, `minimal-ui`, `window-controls-overlay`}, and no `prefer_related_applications: true`.
   Evidence: `artifact` · Diff: ✗ · Severity: high · Src: [1], [2], [19]
 - **[PWA-02] Manifest link in the app shell** — Every layout's server-rendered head emits the manifest link (`rel="manifest"` to the manifest URL), never through client-only code (verified: @vite-pwa/nuxt 1.1.1).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/App.vue`, `app/layouts/**` · Src: [16], [2]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/App.vue`, `app/layouts/**` · Src: [16], [2]
 - **[PWA-03] Manifest MIME type** — `GET /manifest.webmanifest` on the production server responds 200 with `Content-Type: application/manifest+json` (never `text/html` or `application/octet-stream`) (verified: @vite-pwa/nuxt 1.1.1).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [19], [3]
 - **[PWA-04] Stable manifest id** — `id` is the root-relative constant `/` (same origin as `start_url`, no locale, hash or version), and any change to it or to `start_url` is treated as a breaking install change, because Chrome updates `start_url` only when `id` is stable.
@@ -57,9 +57,9 @@ manual compatibility verification, progressive enhancement (no-JS, blocked stora
 ## 2. Service-worker updates
 
 - **[PWA-13] Documented update strategy** — The registration strategy is a deliberate choice recorded in `docs/pwa.md`: auto-update forces `skipWaiting` and `clientsClaim` and the docs state the reload consequence for an in-progress game; otherwise a prompt flow is used, and no service worker is enabled in development (`devOptions.enabled` absent or false outside an explicit debugging session) (verified: @vite-pwa/nuxt 1.1.1).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts`, `docs/pwa.md` · Src: [15], [22], [11], project: docs/pwa.md §1
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts`, `docs/pwa.md` · Src: [15], [22], [11], project: docs/pwa.md §1
 - **[PWA-14] Update never destroys a running game** — With a game in progress on `/game`, deploying a build with a new `sw.js` and triggering an update check does not reload the page or lose the current question, score or buffer without user consent (autoUpdate warns that open forms can lose data).
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [15], [12]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [15], [12]
 - **[PWA-15] Prompt UI wired** — When `registerType` is `prompt`, `$pwa.needRefresh` drives a visible, localized, non-modal refresh action calling `$pwa.updateServiceWorker()`, and `$pwa.closePrompt()` dismisses it (verified: @vite-pwa/nuxt 1.1.1).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [16], [17]
 - **[PWA-16] Periodic update checks** — Long game sessions get update checks through `pwa.client.periodicSyncForUpdates` (interval in seconds, e.g. `3600`), or `docs/pwa.md` states why navigation-triggered update checks suffice (verified: @vite-pwa/nuxt 1.1.1).
@@ -74,9 +74,9 @@ manual compatibility verification, progressive enhancement (no-JS, blocked stora
 ## 3. Precache scope
 
 - **[PWA-20] Narrow globPatterns** — `pwa.workbox.globPatterns` lists only the offline shell (the prerendered offline document, the entry stylesheet it links, self-hosted fonts) and never `**/*` or broad extensions such as `**/*.{js,css,html,png,svg,json}`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [25], [20], project: docs/pwa.md §2
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [25], [20], project: docs/pwa.md §2
 - **[PWA-21] Offline shell actually precached** — The built `sw.js` precache manifest contains the offline HTML entry, the entry stylesheet it links and the self-hosted woff2 fonts.
-  Evidence: `artifact` · Diff: ✗ · Severity: high · Src: [25], [14]
+  Evidence: `artifact` · Diff: ✗ · Core: ✓ · Severity: high · Src: [25], [14]
 - **[PWA-22] Nothing beyond the shell precached** — The built `sw.js` precache manifest contains no lazy `_nuxt/*.js` chunk, `_i18n` bundle, icon, image, screenshot, `/api/` URL or SSR page HTML other than the prerendered `offline` document.
   Evidence: `artifact` · Diff: ✗ · Severity: medium · Src: [25], project: docs/pwa.md §2
 - **[PWA-23] Precache budget respected** — The precache manifest in the built `sw.js` holds at most 10 entries and its shell stays within the 512 KiB budget documented in `docs/pwa.md`.
@@ -89,13 +89,13 @@ manual compatibility verification, progressive enhancement (no-JS, blocked stora
 ## 4. Runtime caching
 
 - **[PWA-26] Network-only navigations with precached fallback** — `pwa.workbox.runtimeCaching` contains one route matching `sameOrigin && request.mode === "navigate"` with `handler: "NetworkOnly"` and `precacheFallback: { fallbackURL: "/offline" }`, and its `urlPattern` callback is self-contained (it is stringified into `sw.js`).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [14], [25], project: docs/pwa.md §3
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [14], [25], project: docs/pwa.md §3
 - **[PWA-27] navigateFallback explicitly null** — `pwa.workbox.navigateFallback` is present and `null`, because `@vite-pwa/nuxt` sets it to the app `baseURL` when the key is absent and a `NavigationRoute` would then serve a cached document for online navigations (verified: @vite-pwa/nuxt 1.1.1).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [22], [14], project: docs/pwa.md §2
 - **[PWA-28] Built worker has no navigation route** — The built `sw.js` contains `NetworkOnly` with `PrecacheFallbackPlugin` and no `NavigationRoute`/`createHandlerBoundToURL` for `/` or `index.html`.
   Evidence: `artifact` · Diff: ✗ · Severity: high · Src: [14], project: docs/pwa.md §7
 - **[PWA-29] No API response cached (config)** — No `runtimeCaching` entry (`NetworkFirst`, `StaleWhileRevalidate`, `CacheFirst`, `CacheOnly`) matches `/api/**`, `/api/goat-it-api/**`, `/_i18n/**` data or any `POST`; API responses stay uncached by design because they depend on the `goat_it_locale` cookie.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [13], [29], project: docs/pwa.md §5
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [13], [29], project: docs/pwa.md §5
 - **[PWA-30] No API response cached (artifact)** — The built `sw.js` contains no `registerRoute`, `cacheName` or `cache.put` targeting `/api/` URLs.
   Evidence: `artifact` · Diff: ✗ · Severity: high · Src: [13], [29]
 - **[PWA-31] Future API cache partitions on locale** — When API runtime caching is introduced, cache keys partition on the locale dimension without relying on `Vary: Cookie` (the worker cannot read the Cookie header), `Set-Cookie`, `private` and `no-store` responses are never stored, and `docs/pwa.md` §5 is updated.
@@ -108,7 +108,7 @@ manual compatibility verification, progressive enhancement (no-JS, blocked stora
 ## 5. Offline UX
 
 - **[PWA-34] Script-free prerendered fallback** — `routeRules["/offline"]` sets `prerender: true` and `noScripts: true`, and `app/pages/offline/index.vue` renders title, explanation and a native `<a href="">` Retry link usable without JavaScript.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts`, `app/pages/offline/**` · Src: [32], [50], project: docs/pwa.md §3
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts`, `app/pages/offline/**` · Src: [32], [50], project: docs/pwa.md §3
 - **[PWA-35] Fallback document carries no runtime** — The prerendered `offline/index.html` contains no Nuxt entry `<script>`, `modulepreload` or payload reference, and links only the precached entry stylesheet and fonts.
   Evidence: `artifact` · Diff: ✗ · Severity: medium · Src: [32], project: docs/pwa.md §3
 - **[PWA-36] Localized fallback copy** — The fallback text comes from the `offline` i18n namespace rendered at prerender with the build default locale, and the prerendered document's `<html lang>` equals that locale.
@@ -135,7 +135,7 @@ manual compatibility verification, progressive enhancement (no-JS, blocked stora
 - **[PWA-45] Minimal same-origin scope** — `/sw.js` is same-origin with scope `/`, no `Service-Worker-Allowed` header widens it, and the generated worker uses no cross-origin `importScripts`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts`, `server/middleware/**` · Src: [30], [11], project: docs/pwa.md §6
 - **[PWA-46] No sensitive data in Cache Storage** — After home → game → locale change → rules, `caches.keys()` lists only the Workbox precache and no stored request URL contains `/api/` or a per-request SSR page.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [29], [31]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [29], [31]
 - **[PWA-47] Secure-context registration** — On the production origin over HTTPS, the service worker activates and controls the page after one reload (`navigator.serviceWorker.controller` set, `$pwa.registrationError` false).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [2], [16]
 - **[PWA-48] No CSP violation from PWA resources** — Loading `/` in production and installing the worker produces no CSP violation for `/sw.js`, `/manifest.webmanifest` or manifest icon URLs (directive content itself is owned by SEC).
@@ -163,7 +163,7 @@ manual compatibility verification, progressive enhancement (no-JS, blocked stora
 - **[PWA-56] Worker activation asserted** — A `@pwa` acceptance scenario waits for `navigator.serviceWorker.ready` and asserts the page is controlled after reload before any offline assertion.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `tests/acceptance/features/pwa/**`, `tests/acceptance/features/step-definitions/pwa/**` · Src: [40]
 - **[PWA-57] Offline navigation tested** — A `@pwa` scenario sets the browser context offline, navigates to an uncached in-scope URL and asserts the localized fallback renders with its stylesheet and Retry link.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `tests/acceptance/features/pwa/**`, `tests/acceptance/features/step-definitions/pwa/**` · Src: [32], [40]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `tests/acceptance/features/pwa/**`, `tests/acceptance/features/step-definitions/pwa/**` · Src: [32], [40]
 - **[PWA-58] Built worker and manifest asserted** — A `@pwa` scenario inspects the built `sw.js` (offline entry present, only the offline shell, ≤ 10 entries, fallback plugin, no API route) and the manifest's required members and icon sizes.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `tests/acceptance/features/pwa/**`, `tests/acceptance/features/step-definitions/pwa/**` · Src: [14], [1], project: docs/pwa.md §7
 - **[PWA-59] Update behaviour tested** — A scenario simulates a new worker (second build or `SKIP_WAITING` message) and asserts the documented update behaviour: prompt shown and accepted once under `prompt`, or no lost game state under `autoUpdate`.
@@ -200,7 +200,7 @@ manual compatibility verification, progressive enhancement (no-JS, blocked stora
 ## 11. Progressive enhancement
 
 - **[PWA-71] Usable SSR HTML without JavaScript** — `curl` of `/`, `/rules` and `/game` returns readable headings, copy and navigation links in the initial HTML, not an empty app shell.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [50], [49]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [50], [49]
 - **[PWA-72] Entry script failure is not a blank page** — With `_nuxt/*.js` requests blocked, `/` and `/rules` still show their server-rendered content instead of a white screen.
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [50], [49]
 - **[PWA-73] Blocked storage does not crash** — When client code accesses `localStorage`, `sessionStorage` or IndexedDB, access is wrapped (Safari private mode, blocked storage, quota 0, `QuotaExceededError`) with an in-memory fallback.

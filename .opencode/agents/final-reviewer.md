@@ -163,8 +163,8 @@ No files are automatically ignored in the diff review.
 ### 12. GOAT audit — diff mode (mandatory)
 
 - **Trigger:** every review, in addition to sections 10 and 11.
-- Load the `goat-audit` skill and follow its diff-mode procedure (`.agents/skills/goat-audit/SKILL.md` — overview, category index, decision-note protocol, §10 diff-mode procedure): list the changed paths; match them against the category index's diff triggers **and Decision doc column** and state the triggered categories in the report; for each triggered category read its reference file **in full**, then the mapped decision doc (GOAT section + documented decisions).
-- Evaluate the `Diff: ✓` checks **whose `Look` globs match a changed path**, plus the category-wide `Diff: ✓` checks carrying no `Look`, against the changed files and code directly affected inside them. For `Diff: ✗` checks whose `Look` globs match a changed file, emit a non-blocking ⚠️ "verify in next /goat-audit".
+- Load the `goat-audit` skill and follow its diff-mode procedure (`.agents/skills/goat-audit/SKILL.md` — overview, category index, Core tier §4.4, decision-note protocol, §10 diff-mode procedure): list the changed paths; match them against the category index's diff triggers **and Decision doc column** and state the triggered categories in the report; for each triggered category read only the sections that contain in-scope checks (use `## Contents` and the `Look` globs), then the mapped decision doc (GOAT section + documented decisions).
+- Evaluate the **Core** `Diff: ✓` checks **whose `Look` globs match a changed path**, plus the category-wide Core `Diff: ✓` checks carrying no `Look`, against the changed files and code directly affected inside them. For Core `Diff: ✗` checks whose `Look` globs match a changed file, emit a non-blocking ⚠️ "verify in next /goat-audit". Non-Core checks are not evaluated in diff mode.
 - Honor decision notes and documented decisions (`DECIDED` findings are not reported; a met revisit trigger is reported with `decision revisit triggered — <doc>:<line>`).
 - Library-behavior claims → `docs-fetcher` (one library per dispatch). TEST in diff mode applies only checks tagged `(strategy)` in their title.
 - **Static analysis only**; never run builds, tests or servers.
@@ -222,7 +222,7 @@ No files are automatically ignored in the diff review.
 **Assessment:** Ready to merge | Ready with minor follow-ups | Needs changes before merge
 ```
 
-**Hard verdict gate:** the assessment MUST be `Needs changes before merge` if ANY of the following holds — one or more Critical issues; a spec requirement unimplemented; a security finding; any unit-test `[U*]`–`[T*]` violation or acceptance-test `[AU*]`–`[SU*]` violation; any GOAT audit finding of severity **high or critical** (`[<CODE>-NN]`). Medium, low and info GOAT findings are Minor. Only a fully clean report (or Minor-only findings) may yield `Ready to merge` / `Ready with minor follow-ups`.
+**Hard verdict gate:** the assessment MUST be `Needs changes before merge` if ANY of the following holds — one or more Critical issues; a spec requirement unimplemented; a security finding; any unit-test `[U*]`–`[T*]` violation or acceptance-test `[AU*]`–`[SU*]` violation; any GOAT audit finding of severity **high or critical** on a **Core** check (`[<CODE>-NN]`). Medium, low and info GOAT findings, and findings on non-Core checks, are Minor. Only a fully clean report (or Minor-only findings) may yield `Ready to merge` / `Ready with minor follow-ups`.
 
 ## Skills to load
 

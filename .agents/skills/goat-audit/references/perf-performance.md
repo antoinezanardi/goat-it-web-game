@@ -28,7 +28,7 @@ response time, memory growth during long game sessions, and web sustainability.
 ## 1. Budgets & measurement
 
 - **[PERF-01] Lab Core Web Vitals and score** — Mobile Lighthouse runs of `/`, `/game` and `/rules` show LCP ≤ 2500 ms, CLS ≤ 0.1 and a performance score ≥ 90 (weights: TBT 30 %, LCP 25 %, CLS 25 %, FCP 10 %, Speed Index 10 %).
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [23]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [1], [23]
 - **[PERF-02] Field Core Web Vitals at p75** — Field data (RUM or CrUX) shows LCP ≤ 2500 ms, INP ≤ 200 ms and CLS ≤ 0.1 at the 75th percentile, reported separately for mobile and desktop; INP verdicts never come from lab runs.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1]
 - **[PERF-03] Field RUM collection** — A client plugin registers `web-vitals` (v5+) `onLCP`, `onINP`, `onCLS`, `onTTFB` and `onFCP` exactly once per page load (never per route change or component mount), reports through `navigator.sendBeacon` or `fetch` with `keepalive`, and tags every report with the navigation type (`navigate`, `reload`, `back-forward`, `prerender`) so bfcache restores are analysed apart from full loads.
@@ -47,11 +47,11 @@ response time, memory growth during long game sessions, and web sustainability.
 ## 2. JavaScript cost
 
 - **[PERF-09] Per-route chunks** — `.output/public/_nuxt` contains a separate chunk per page (`/`, `/game`, `/rules`) and the entry chunk contains no page-only feature code (game question feed, tutorial, docs shell).
-  Evidence: `artifact` · Diff: ✗ · Severity: high · Src: [9], [19]
+  Evidence: `artifact` · Diff: ✗ · Core: ✓ · Severity: high · Src: [9], [19]
 - **[PERF-10] GSAP absent from the initial graph** — In the built client, `gsap` code lives only in a dynamically imported chunk; neither the entry chunk nor the `modulepreload` set of `/` contains GSAP.
-  Evidence: `artifact` · Diff: ✗ · Severity: high · Look: `app/composables/core/useGsap/**` · Src: [9], [21]
+  Evidence: `artifact` · Diff: ✗ · Core: ✓ · Severity: high · Look: `app/composables/core/useGsap/**` · Src: [9], [21]
 - **[PERF-11] GSAP loaded only through useGsap** — No runtime import of GSAP exists outside its single loader unit; other files use `import type` only and obtain the instance through that loader.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**` · Src: [9], [21], project: docs/architecture.md §4.5
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**` · Src: [9], [21], project: docs/architecture.md §4.5
 - **[PERF-12] Sentry client SDK scoped** — The client Sentry init imports no `replayIntegration`, `browserTracingIntegration` or profiling integration unless a documented decision accepts their bundle cost; optional integrations are tree-shaken only when not imported (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `sentry.client.config.ts`, `shared/utils/helpers/sentry/**` · Src: [32]
 - **[PERF-13] Content client database confined to content pages** — `queryCollection` calls run inside `useAsyncData` on content pages only (served from the payload after SSR); because the first client-side query downloads the full database dump and starts a WASM SQLite database in the browser, no component rendered on `/` or `/game` calls `queryCollection` (verified: @nuxt/content 3.16.2).
@@ -101,9 +101,9 @@ response time, memory growth during long game sessions, and web sustainability.
 ## 4. Images
 
 - **[PERF-33] LCP image never lazy-loaded** — The above-the-fold logo on `/` and any image in the first viewport of `/game` and `/rules` carry no `loading="lazy"`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/pages/**`, `app/components/**` · Src: [2], [10]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/pages/**`, `app/components/**` · Src: [2], [10]
 - **[PERF-34] LCP image discoverable with high priority** — The LCP image is an `<img>` whose `src` is in the SSR HTML with `fetchpriority="high"`; it is never injected by client JS or rendered inside a `.client` component or `<ClientOnly>`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/pages/**` · Src: [2]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/pages/**` · Src: [2]
 - **[PERF-35] Background LCP preloaded** — When a CSS `background-image` can be the LCP element, the page emits a matching `<link rel="preload" as="image" fetchpriority="high">`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `public/img/**` · Src: [2], [8]
 - **[PERF-36] Dimensions on every image** — Every `<img>` has `width` and `height` attributes or a CSS `aspect-ratio`, so space is reserved before the image loads.
@@ -137,9 +137,9 @@ response time, memory growth during long game sessions, and web sustainability.
 ## 6. INP & animation
 
 - **[PERF-48] No long tasks on key interactions** — A DevTools Performance recording with 4× CPU throttling shows no main-thread task over 50 ms during load or on answer reveal, next/previous question, and opening filters or settings.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [12]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [12]
 - **[PERF-49] Interaction latency within 200 ms** — In the same recording, each of those interactions presents its next frame within 200 ms.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [3], [19]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [3], [19]
 - **[PERF-50] Bulk work yields** — When a loop or work queue can exceed 50 ms, it yields to the main thread (for example `scheduler.yield()` with a `setTimeout` fallback where it is unsupported), batching to a ~50 ms deadline; no `isInputPending()` polling or busy-wait.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/composables/**`, `app/utils/**` · Src: [12]
 - **[PERF-51] Handlers paint first** — Event handlers of primary interactions apply the visual update first and defer non-visual work (cookie persistence, telemetry, logging) to a later task.
@@ -156,7 +156,7 @@ response time, memory growth during long game sessions, and web sustainability.
 ## 7. Caching & delivery
 
 - **[PERF-56] Hashed build assets immutable** — Responses for hashed files under `/_nuxt/` carry `Cache-Control: public, max-age=31536000, immutable`.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [17]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [17]
 - **[PERF-57] Immutable only for versioned URLs** — Every path served as immutable (`routeRules` headers for `/fonts/**`, `/img/**`, `/pwa/**`, `/_i18n/**`, or `publicAssets[].maxAge`, which emits `public, max-age=n, immutable`) changes its URL whenever its content changes (verified: nitropack 2.13.5).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts`, `public/**` · Src: [17], [27]
 - **[PERF-58] Documents revalidate, never no-store** — HTML documents are served `no-cache` or `max-age=0, must-revalidate`; `no-store` stays scoped to `/api/**` and health probes so pages remain bfcache-eligible.
@@ -188,13 +188,13 @@ response time, memory growth during long game sessions, and web sustainability.
 ## 9. Server performance
 
 - **[PERF-69] TTFB budget** — Navigation TTFB for `/`, `/game` and `/rules` is ≤ 0.8 s at p75 (0.8–1.8 s needs improvement, > 1.8 s is poor).
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [2], [5]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [2], [5]
 - **[PERF-70] Server-Timing exposed** — Document responses expose SSR and upstream phases through `Server-Timing` (Nitro `timing: true` adds the header), so server time is measurable even behind caching (verified: nitropack 2.13.5).
   Evidence: `runtime` · Diff: ✗ · Severity: low · Src: [5], [27]
 - **[PERF-71] SSR awaits only rendered data** — Server rendering awaits only data the initial view renders; data used after an interaction (filters modal, settings, changelog) is fetched on demand or with `lazy: true` (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/stores/**`, `app/composables/**` · Src: [19], [28]
 - **[PERF-72] HTML route caching respects variance** — When `swr`, `isr` or `cache` route rules are added for HTML, the cache varies on the `goat_it_locale` cookie and never replays a per-request CSP nonce.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [19], [27], project: docs/security.md, project: docs/pwa.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [19], [27], project: docs/security.md, project: docs/pwa.md
 
 ## 10. Memory & leaks
 
@@ -237,7 +237,7 @@ response time, memory growth during long game sessions, and web sustainability.
 [20] Nuxt components directory (lazy components, delayed hydration, global components) — https://nuxt.com/docs/4.x/directory-structure/app/components — fetched 2026-10-31 (nuxt 4.6.3)
 [21] Vue Performance — https://vuejs.org/guide/best-practices/performance.html — fetched 2026-10-31 (vue 3.5.44)
 [22] Vue Server-Side Rendering (SSR) — https://vuejs.org/guide/scaling-up/ssr.html — fetched 2026-10-31 (Vue 3.5+ docs)
-[23] Lighthouse performance scoring — https://developer.chrome.com/docs/lighthouse/performance/performance-scoring — fetched 2026-10-31 (Lighthouse 10 weights)
+[23] Lighthouse performance scoring — https://developer.chrome.com/docs/lighthouse/performance/performance-scoring — fetched 2026-10-31 (weights unchanged since Lighthouse 10; current stable 13.6.0)
 [24] Fix memory problems (Chrome DevTools) — https://developer.chrome.com/docs/devtools/memory-problems — fetched 2026-10-31 (last updated 2024-11-06)
 [25] web-vitals README — https://github.com/GoogleChrome/web-vitals — fetched 2026-10-31 (v5 line)
 [26] Web Sustainability Guidelines (WSG) — https://w3c.github.io/sustainableweb-wsg/ — fetched 2026-10-31 (W3C IG draft 2026)

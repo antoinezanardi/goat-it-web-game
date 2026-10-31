@@ -29,7 +29,7 @@ You MUST create a task for each of these items and complete them in order:
 4. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 5. **Propose 2-3 approaches** — with trade-offs and your recommendation
 6. **Present design** — in sections scaled to their complexity, get user approval after each section
-7. **Identify GOAT constraints** — map the feature's design areas to audit categories, read the triggered checks, and record the constraints in the spec (see GOAT constraints below)
+7. **Identify GOAT constraints** — map the feature's design areas to audit categories, read the triggered **Core** checks that constrain the design (10–20, never a whole category), and record the constraints in the spec (see GOAT constraints below)
 8. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
 9. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
 10. **User reviews written spec** — ask user to review the spec file before proceeding, you can't proceed until they approve
@@ -115,7 +115,7 @@ When the design creates or modifies any project file, load the `goat-audit` skil
 
 - Map each design area the feature touches to audit categories (`goat-audit` SKILL.md §6, design triggers table) and state the resulting category set in the spec.
 - Read the triggered category references. CODE and STACK are not design triggers — they are handled at plan and review time.
-- Write two sections in the spec: `## GOAT constraints` (each check ID with the design decision that satisfies it — cite the ID, do not restate the whole checklist) and `## Constraints accepted as risks` (every deliberate departure with its rationale and revisit trigger, so the orchestrator can later record a decision note).
+- Write two sections in the spec: `## GOAT constraints` (each check ID with the design decision that satisfies it — cite the ID, do not restate the whole checklist) and `## Constraints accepted as risks` (every deliberate departure with its rationale and revisit trigger, so the orchestrator can later record a decision note). Keep `## GOAT constraints` to the **Core** checks that actually constrain the design (10–20 per spec); list the other triggered categories with a one-line `deferred to plan/review` note instead of copying their checks.
 - A design that contradicts an accepted decision in a category's `## GOAT audit decisions` section must either follow it or record a new accepted risk.
 
 ## After the Design
@@ -134,7 +134,7 @@ After writing the spec document, look at it with fresh eyes:
 2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
 3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
-5. **GOAT coverage:** Does every triggered category appear in `## GOAT constraints`, or is it explicitly traded off in `## Constraints accepted as risks`? Do the cited check IDs exist in the references?
+5. **GOAT coverage:** Does every triggered category appear in `## GOAT constraints`, is it explicitly deferred to plan/review, or is it traded off in `## Constraints accepted as risks`? Do the cited check IDs exist in the references and are they Core checks?
 
 Fix any issues inline. No need to re-review — just fix and move on.
 

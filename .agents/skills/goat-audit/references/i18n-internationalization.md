@@ -26,15 +26,15 @@ Covers whether every user-facing surface of the Goat It quiz game works correctl
 ## 1. Completeness and parity
 
 - **[I18N-01] Key-set parity across the six locales** — Flatten every `app/i18n/locales/<locale>/<namespace>.json` and assert that the key sets of `de`, `en`, `es`, `it` and `pt` equal `fr` in both directions: zero missing keys, zero extra keys.
-  Evidence: `command` · Diff: ✗ · Severity: high · Look: `app/i18n/locales/**`, `app/i18n/specs/*.translations.spec.ts` · Src: [15], project: docs/unit-testing.md §6.11
+  Evidence: `command` · Diff: ✗ · Core: ✓ · Severity: high · Look: `app/i18n/locales/**`, `app/i18n/specs/*.translations.spec.ts` · Src: [15], project: docs/unit-testing.md §6.11
 - **[I18N-02] Namespace registered for every locale** — Every namespace file is listed in `locales[].files` of all six locale objects in `nuxt.config.ts`, because an unlisted file is never loaded for that locale (verified: @nuxtjs/i18n 10.6.0).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts`, `app/i18n/locales/**` · Src: [18], [24]
 - **[I18N-03] No empty values** — No value in any locale file, `fr` included, matches `^\s*$`.
-  Evidence: `command` · Diff: ✗ · Severity: high · Look: `app/i18n/locales/**` · Src: [5]
+  Evidence: `command` · Diff: ✗ · Core: ✓ · Severity: high · Look: `app/i18n/locales/**` · Src: [5]
 - **[I18N-04] No untranslated copies of the source** — Every key whose source value is prose has a different value in every other locale. The only exceptions are an explicit allowlist: the brand `Goat It`, proper nouns, code-like tokens and format-only keys, which stay identical in every locale and content file.
   Evidence: `command` · Diff: ✗ · Severity: high · Look: `app/i18n/locales/**` · Src: [5], project: .opencode/commands/complete-i18n.md
 - **[I18N-05] Placeholder parity per key** — For each key, the multisets of named `{name}` placeholders, list `{0}` placeholders, linked `@:key` references and `|` plural branches are identical in all six locales.
-  Evidence: `command` · Diff: ✗ · Severity: high · Look: `app/i18n/locales/**` · Src: [12]
+  Evidence: `command` · Diff: ✗ · Core: ✓ · Severity: high · Look: `app/i18n/locales/**` · Src: [12]
 - **[I18N-06] Call sites supply every placeholder** — Every `t()`/`$t()`/`<i18n-t>` call passes a value for each `{placeholder}` of its message and passes no named parameter the message does not use.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue`, `app/composables/**/*.ts` · Src: [12]
 - **[I18N-07] Plural form at zero follows CLDR** — Every pluralized key renders the CLDR-correct form at 0, 1 and 2 in each locale; keys that can receive multiples of 1,000,000 also carry the CLDR `many` branch where the locale has one, or the code documents a floor that makes such counts unreachable (verified: vue-i18n 11.4.8).
@@ -45,9 +45,9 @@ Covers whether every user-facing surface of the Goat It quiz game works correctl
 ## 2. Hardcoded text
 
 - **[I18N-09] No hardcoded user-facing text** — Every user-visible string in SFCs resolves through `t()`/`$t()`/`<i18n-t>`. This covers template text nodes, `aria-label`, `aria-description`, `title`, `alt`, `placeholder` and `label` attributes or props, toast and modal `title`/`description`/action labels, and the title and description values passed to `useSeoMeta`/`useHead`. Only `SITE_NAME`, icon names and non-linguistic tokens are exempt.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue`, `app/App.vue` · Src: [1], [29], project: AGENTS.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.vue`, `app/App.vue` · Src: [1], [29], project: AGENTS.md
 - **[I18N-10] Script-produced copy is keyed** — Composables, utils and constants under `app/` that produce user-visible text (toast payloads, error mappers, labels, filter names) return i18n keys or call `t()`, never literal prose in any language.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/composables/**/*.ts`, `app/utils/**/*.ts`, `app/**/*.constants.ts` · Src: [1], project: AGENTS.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/composables/**/*.ts`, `app/utils/**/*.ts`, `app/**/*.constants.ts` · Src: [1], project: AGENTS.md
 - **[I18N-11] Head metadata follows a locale switch** — `useSeoMeta`, `useHead` and `useSchemaOrg` values that carry translated text are getters or computed values, so a client-side switch updates the title, meta descriptions and JSON-LD text; `WebPage.inLanguage` uses the active locale's BCP 47 tag.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/App.vue`, `app/pages/**/*.vue` · Src: [17]
 - **[I18N-12] Server-surfaced errors are keyed** — The UI never displays upstream or h3 `statusMessage` prose. Upstream `errorCode` values resolve to `errors.goatItApi.<code>` keys present in all six locales, with an HTTP-status fallback key when no code is present.
@@ -83,7 +83,7 @@ Covers whether every user-facing surface of the Goat It quiz game works correctl
 ## 6. Language and direction attributes
 
 - **[I18N-22] SSR `<html lang>` matches the resolved locale** — For every supported locale set through the locale cookie, the server-rendered `<html lang>` equals that locale's configured BCP 47 `language` tag; a request without the cookie gets the default locale's tag.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [2], [29], project: docs/seo.md §1
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [2], [29], project: docs/seo.md §1
 - **[I18N-23] `<html lang>` updates on client switch** — After a switch through the locale select or the locale-suggestion toast, `<html lang>` equals the new locale's tag without a reload.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [17], [29]
 - **[I18N-24] Every locale declares a BCP 47 `language`** — Each `i18n.locales[]` object declares `code`, `name` and `language` as a BCP 47 tag with region (e.g. `pt-PT`). `language` is required by the module's SEO features, which generate `lang` (verified: @nuxtjs/i18n 10.6.0).
@@ -100,17 +100,17 @@ Covers whether every user-facing surface of the Goat It quiz game works correctl
 - **[I18N-28] Suggestion never switches without consent** — With no valid cookie and a supported browser language that differs from the current locale, only the suggestion toast appears; declining or closing it leaves the active locale unchanged and stores the current locale, only accepting calls `setLocale()`. With a valid locale cookie, no suggestion appears and no locale change fires on mount, whatever `navigator.languages` reports.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [16], [28], project: docs/seo.md §1
 - **[I18N-29] Locale changes go through `setLocale()`** — Locale changes call `setLocale(code)`, which loads messages and triggers hooks. No production code assigns `locale.value` directly (verified: @nuxtjs/i18n 10.6.0).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue`, `app/composables/**/*.ts`, `app/plugins/**` · Src: [19]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.vue`, `app/composables/**/*.ts`, `app/plugins/**` · Src: [19]
 - **[I18N-30] Choice persisted in the locale cookie** — Every user-initiated switch writes the locale cookie with the shared cookie options, and only the switcher and the suggestion flow write it. With browser detection disabled the module manages no locale cookie, so `setLocale()` alone does not persist the choice (verified: @nuxtjs/i18n 10.6.0).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/shared/core/localization/**`, `app/composables/ui/useLocaleSuggestion/**`, `app/app.constants.ts` · Src: [19], [24], project: docs/architecture.md §4.7
 - **[I18N-31] Server locale derivation from the cookie** — The server resolves the request locale from the locale cookie, falling back to the configured default for a missing, unsupported or malformed value; every upstream call forwards an `Accept-Language` built from the same cookie, constant and default locale, and the incoming request's `Accept-Language` is never forwarded.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/plugins/locale-detector/**`, `shared/utils/helpers/locale/**` · Src: [20], project: docs/architecture.md §4.7
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/plugins/locale-detector/**`, `shared/utils/helpers/locale/**` · Src: [20], project: docs/architecture.md §4.7
 - **[I18N-32] SSR and hydration resolve the same locale** — For each cookie locale, the hydrated page shows no text swap and logs no hydration-mismatch warning, and no client code rewrites the locale during hydration.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [16], [23]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [16], [23]
 - **[I18N-33] Locale-dependent data refetched on switch** — Every locale-dependent fetch re-runs on locale change, through `watch: [locale]` or a locale watcher. This includes question themes, active questions, and `content_<locale>`/`changelog_<locale>` queries, so no previous-locale data stays on screen.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/App.vue`, `app/pages/**/*.vue`, `app/components/domain/**/*.vue`, `app/stores/**` · Src: [34], project: docs/pwa.md
 - **[I18N-34] Locale in data cache keys** — Every `useAsyncData`/`useFetch` key for locale-dependent data includes the locale (e.g. `rules-${locale}`), so SSR payloads and cached entries never serve another locale's content.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/pages/**/*.vue`, `app/components/**/*.vue`, `app/stores/**` · Src: [34]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/pages/**/*.vue`, `app/components/**/*.vue`, `app/stores/**` · Src: [34]
 
 ## 8. Language switcher
 

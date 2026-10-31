@@ -1,5 +1,5 @@
 ---
-description: Run the GOAT audit — exhaustive, evidence-based audit of the whole repository across 20 categories, then triage findings into GitHub issues, private security advisories or decision notes. Use "/goat-audit triage [report]" to resume triage.
+description: Run the GOAT audit — exhaustive, evidence-based audit across the 20 categories (the run asks for the scope first), then triage findings into GitHub issues, private security advisories or decision notes. Use "/goat-audit triage [report]" to resume triage.
 agent: goat-auditor
 ---
 
@@ -7,13 +7,13 @@ agent: goat-auditor
 
 ## Task
 
-Run the GOAT audit for the **goat-it-web-game** repository: collect evidence, audit all 20 categories of the `goat-audit` skill, verify the findings adversarially, write a gitignored report with a machine-readable findings index, then triage every confirmed finding into a GitHub issue, a private draft security advisory, a comment on a duplicate, or a decision note.
+Run the GOAT audit for the **goat-it-web-game** repository: collect evidence, audit the selected categories of the `goat-audit` skill, verify the findings adversarially, write a gitignored report with a machine-readable findings index, then triage every confirmed finding into a GitHub issue, a private draft security advisory, a comment on a duplicate, or a decision note.
 
 The report lives in `docs/audits/` (gitignored because the repository is public and the report lists unfixed weaknesses). The audit **never fixes anything** and **never commits**.
 
 `$ARGUMENTS` selects the mode:
 
-- empty → full run (phases 0–7), all 20 categories.
+- empty → ask the scope question (phase 0 step 8). Never assume a full run: 20 categories is the most expensive option, not the default.
 - `categories <CODES>` → run restricted to those category codes, comma-separated (e.g. `categories SEC,A11Y,UX`); an unknown code → ask the maintainer.
 - `triage` → resume triage on the latest `docs/audits/GOAT-AUDIT-*.md` (latest = greatest date, then greatest suffix).
 - `triage <path>` → resume triage on that report.
@@ -29,8 +29,8 @@ A full run is expensive: 20 explorer dispatches in waves of six, adversarial ver
 4. Snapshot the repository: `git rev-parse HEAD`, `git branch --show-current`, `git status --porcelain=v1` (later to `evidence/git-state.txt`), tool versions (`node --version`, `pnpm --version`, `gh --version`) to `evidence/tool-versions.txt`, `gh auth status`, and the admin right (`gh api repos/antoinezanardi/goat-it-web-game --jq .permissions.admin`).
 5. Choose the report name: `GOAT-AUDIT-YYYY-MM-DD` (local date). If `docs/audits/GOAT-AUDIT-YYYY-MM-DD.md` exists, use `-2`, then `-3`, … — **never overwrite**. Create `docs/audits/.work/<report-name>/` with `evidence/`, `categories/`, `verification/`, `issues/`, `advisories/`.
 6. Load the previous audit: the latest existing GOAT report, Appendix B findings index. On the first run the delta section says "First GOAT audit".
-7. Build `decisions.md` in the run directory: the `## GOAT audit decisions` entries of every decision doc plus the documented decisions listed in the skill §7, each with doc path and line.
-8. Ask **one multi-select question** for the scope: `All 20 categories (recommended)`, `Security & platform (SEC, SUP, CICD, PLAT, OPS, REL)`, `Product experience (LOGIC, PERF, A11Y, I18N, SEO, PWA)`, `Engineering quality (UX, ARCH, STACK, CODE, TEST, PRIV)`, `Docs & agents (DOCS, AGENT)`, or explicit codes via a custom answer. Quote the cost of a full run. Skip the question when `$ARGUMENTS` already names the categories. Write the selection to `evidence/scope.md` and into the report header.
+7. Build `decisions.md` in the run directory: the documented decisions listed in the skill §7 (the only source of `DECIDED`), then the `## GOAT audit decisions` entries of every decision doc with doc path and line, used to annotate findings whose checklist amendment has not landed yet.
+8. Ask **one multi-select question** for the scope, smallest bundle first: `Docs & agents (DOCS, AGENT)`, `Security & platform (SEC, SUP, CICD, PLAT, OPS, REL)`, `Product experience (LOGIC, PERF, A11Y, I18N, SEO, PWA)`, `Engineering quality (UX, ARCH, STACK, CODE, TEST, PRIV)`, `All 20 categories (full run — the most expensive option)`, or explicit codes via a custom answer. Never preselect a full run: a partial audit costs proportionally less, and maintainers usually run one. Skip the question when `$ARGUMENTS` already names the categories. Write the selection to `evidence/scope.md` and into the report header.
 9. Ask **one multi-select question** (Tier 3): "Acceptance suite (Docker sandbox required)", "Local runtime: headers + Lighthouse", "Live production + staging GETs", "None". If live GETs are chosen, ask one follow-up confirming the base URLs (prefilled from `docs/operations.md`; custom answer allowed). Never ask more than these two questions plus the live-URL confirmation before phase 1.
 
 ### 1. Evidence (conductor)
@@ -39,12 +39,12 @@ Every command output goes to `evidence/<name>` with a header (`$ <command>`, exi
 
 **Tier 1 (always):** `pnpm audit --json` → `pnpm-audit.json`; `pnpm audit --prod --json` → `pnpm-audit-prod.json`; `pnpm outdated --format json` → `pnpm-outdated.json`; `pnpm licenses list --json` → `pnpm-licenses.json`; `pnpm dedupe --check` → `pnpm-dedupe-check.txt`; `pnpm ls --depth 0 --json` → `pnpm-ls.json`; `pnpm run lint:oxlint:check-rules` → `oxlint-rules.txt`; `gh api repos/antoinezanardi/goat-it-web-game` → `gh-repo.json`; `gh api repos/antoinezanardi/goat-it-web-game/rulesets` → `gh-rulesets.json`; `gh api repos/antoinezanardi/goat-it-web-game/branches/main/protection` and `…/branches/develop/protection` → `gh-protection-main.json`, `gh-protection-develop.json`; `gh api repos/antoinezanardi/goat-it-web-game/private-vulnerability-reporting` → `gh-pvr.json`; `gh api repos/antoinezanardi/goat-it-web-game/actions/permissions` and `…/actions/permissions/workflow` → `gh-actions-permissions.json`, `gh-actions-workflow-permissions.json`; `gh api repos/antoinezanardi/goat-it-web-game/environments` → `gh-environments.json`; `gh api "repos/antoinezanardi/goat-it-web-game/dependabot/alerts?state=open"` → `gh-dependabot-alerts.json`; `gh api "repos/antoinezanardi/goat-it-web-game/code-scanning/alerts?state=open"` → `gh-code-scanning-alerts.json`; `gh api "repos/antoinezanardi/goat-it-web-game/secret-scanning/alerts?state=open"` → `gh-secret-scanning-alerts.json`; `gh api "repos/antoinezanardi/goat-it-web-game/security-advisories?state=draft"` → `gh-draft-advisories.json`; `gh label list --json name,color,description --limit 200` → `gh-labels.json`; `gh issue list --state open --limit 300 --json number,title,labels,url,body` → `gh-open-issues.json`; `gh run list --limit 30 --json name,conclusion,headBranch,event,createdAt` → `gh-runs.json`.
 
-**Tier 2 (always):** `pnpm run build` → `build.txt`, then `find .output -type f | sort` and `du -ab .output/public | sort -n` → `output-inventory.txt` (the built `sw.js`, manifest, `robots.txt`, `sitemap.xml` are read in place); `pnpm run check:bundle-size` → `bundle-size.json`; `pnpm run check:secrets-in-built-output` → `secrets-scan.txt`; `pnpm run lint` → `lint.txt`; `pnpm run typecheck` → `typecheck.txt`; `pnpm run test:unit:cov` → `unit-coverage.txt`.
+**Tier 2 (only when the selection includes SEC, PLAT, OPS, PERF, PWA, SEO, CODE, STACK or TEST):** `pnpm run build` → `build.txt`, then `find .output -type f | sort` and `du -ab .output/public | sort -n` → `output-inventory.txt` (the built `sw.js`, manifest, `robots.txt`, `sitemap.xml` are read in place); `pnpm run check:bundle-size` → `bundle-size.json`; `pnpm run check:secrets-in-built-output` → `secrets-scan.txt`; `pnpm run lint` → `lint.txt`; `pnpm run typecheck` → `typecheck.txt`; `pnpm run test:unit:cov` → `unit-coverage.txt`. A partial run whose categories need no build records `Tier 2 skipped (no selected category needs it)` in `evidence/INDEX.md`; dependent checks become `⚠️ UNVERIFIED` only when a command was required and failed.
 
 **Tier 3 (only when opted in):**
 
 - **Acceptance:** `pnpm run test:acceptance` → `acceptance.txt` (requires the Docker API sandbox; unavailable → ⚠️ for dependent checks).
-- **Local runtime:** build with `pnpm run test:acceptance:build`, start the built test server exactly as `tests/acceptance/features/support/hooks.ts` does (same command, env file, port), wait for `/healthz`. Then `curl -sS -D - -o /dev/null` on `/`, `/game`, `/rules`, `/offline`, `/api/goat-it-api/question-themes`, `/healthz`, `/readyz`, `/this-page-does-not-exist` and one hashed `/_nuxt/` asset → `local-headers.txt`. Lighthouse: `pnpm dlx lighthouse <url> --output=json --output-path=<run>/evidence/lighthouse/<page>-<device>-<n>.json --quiet --chrome-flags="--headless"` (`--preset=desktop` for desktop), 3 runs per page (`/`, `/game`, `/rules`) and device (mobile, desktop), median reported → `lighthouse-summary.md`. Stop the server.
+- **Local runtime:** build with `pnpm run test:acceptance:build`, start the built test server exactly as `tests/acceptance/features/support/hooks.ts` does (same command, env file, port), wait for `/healthz`. Then `curl -sS -D - -o /dev/null` on `/`, `/game`, `/rules`, `/offline`, `/api/goat-it-api/question-themes`, `/healthz`, `/readyz`, `/this-page-does-not-exist` and one hashed `/_nuxt/` asset → `local-headers.txt`. Lighthouse: `pnpm dlx lighthouse@13.6.0 <url> --output=json --output-path=<run>/evidence/lighthouse/<page>-<device>-<n>.json --quiet --chrome-flags="--headless"` (`--preset=desktop` for desktop), 3 runs per page (`/`, `/game`, `/rules`) and device (mobile, desktop), median reported → `lighthouse-summary.md`. Stop the server.
 - **Live:** for each confirmed base URL (production, staging), `curl -sS -D - -o /dev/null -H "Accept-Encoding: br, gzip"` on `/`, `/game`, `/rules`, `/robots.txt`, `/sitemap.xml`, `/manifest.webmanifest`, `/.well-known/security.txt`, `/healthz`, `/readyz`, `/api/goat-it-api/question-themes`, `/this-page-does-not-exist`; `curl -sS -o /dev/null -w "%{http_version} %{ssl_verify_result} %{remote_ip}\n"` on `/`; `curl -sS -D - -o /dev/null http://<host>/` → `live-<env>.txt`. Keep live requests under the 60 requests/minute rate limit.
 
 ### 2. Category fan-out
@@ -83,7 +83,7 @@ Dispatch fresh `explore` verifiers, ≤ 8 FAIL findings per verifier, grouped by
    - **Deny — False positive / Not applicable**;
    - **Skip (decide later)**;
    - **Stop triage here** (resume later with `/goat-audit triage`).
-5. Push back and Deny ask **one** follow-up question (custom answer) for the rationale and the "Revisit when" trigger, then append the decision note (skill §7) to the mapped doc (creating the doc and its `AGENTS.md` line when new).
+5. Push back and Deny ask **one** follow-up question (custom answer) for the rationale, the "Revisit when" trigger and the checklist change (criterion rewrite, or removal with its renumbering), then append the decision note (skill §7) to the mapped doc (creating the doc and its `AGENTS.md` line when new) and write the ready-to-apply checklist patch to `checklist-amendments.md` in the run directory — never apply it (skill §2(c)).
 6. Public issue: body written to `issues/<ID>.md` from the template; `gh issue create --title "<title>" --body-file docs/audits/.work/<report-name>/issues/<ID>.md --label "<type label>" --label "🐐 goat-audit"`.
 7. Private advisory: payload written to `advisories/<ID>.json`; `gh api -X POST repos/antoinezanardi/goat-it-web-game/security-advisories --input docs/audits/.work/<report-name>/advisories/<ID>.json`; record the returned `ghsa_id` and `html_url`. 🔒 details never appear in a public issue, comment or commit.
 8. After **every** decision, update the report's §10 follow-up log and the Appendix B `decision`/`artifact` fields (resumability).
@@ -92,8 +92,8 @@ Dispatch fresh `explore` verifiers, ≤ 8 FAIL findings per verifier, grouped by
 
 ### 7. Finish
 
-1. `git status --porcelain=v1` compared with the phase-0 snapshot: only appends to decision docs and `AGENTS.md` (new doc registration) are allowed; any other difference is reported as a violation in chat and in the report header.
-2. Chat summary: verdict, grades, counts (issues, advisories, comments, decisions, skipped), links.
+1. `git status --porcelain=v1` compared with the phase-0 snapshot: only appends to decision docs and `AGENTS.md` (new doc registration) are allowed; any other difference is reported as a violation in chat and in the report header. Checklist amendments stay in the run directory, unapplied.
+2. Chat summary: verdict, grades, counts (issues, advisories, comments, decisions, skipped, checklist amendments pending), links.
 3. MemPalace diary entry (agent `goat-auditor`, wing `goat_it_web_game`): report name, verdict, grades, counts.
 4. Remind: decision notes are uncommitted; the maintainer commits; fixes go through the normal orchestrator cycle.
 

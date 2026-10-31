@@ -48,17 +48,17 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
 ## 2. Vulnerability management
 
 - **[SUP-09] Audit not limited to `--prod`** — While `package.json` has no `dependencies` key, no audit step relies only on `pnpm audit --prod`, which audits only `dependencies` and `optionalDependencies` and therefore scans nothing here (verified: pnpm 12.16.1).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/actions/audit-dependencies/**`, `package.json` · Src: [5]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/actions/audit-dependencies/**`, `package.json` · Src: [5]
 - **[SUP-10] Audit scope covers the shipped set** — Every package present in `.output/server/node_modules` after a production build is inside the scope of the CI vulnerability audit (full `pnpm audit` or an SBOM scan of the image).
   Evidence: `artifact` · Diff: ✗ · Severity: high · Src: [5], [9]
 - **[SUP-11] Full audit clean at high** — `pnpm audit --audit-level=high` without `--prod` exits 0, or every remaining advisory is ignored per [SUP-16].
-  Evidence: `command` · Diff: ✗ · Severity: high · Src: [5]
+  Evidence: `command` · Diff: ✗ · Core: ✓ · Severity: high · Src: [5]
 - **[SUP-12] Audit on every pull request** — The dependency audit job runs on every pull request targeting a protected branch.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml`, `.github/actions/audit-dependencies/**` · Src: [5], [13]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/workflows/build.yml`, `.github/actions/audit-dependencies/**` · Src: [5], [13]
 - **[SUP-13] Scheduled audit** — A workflow with a `schedule:` trigger runs the dependency audit (full scope or image SBOM) so new advisories against unchanged code are detected without a pull request.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/**` · Src: [5], [9]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/workflows/**` · Src: [5], [9]
 - **[SUP-14] No silent audit escapes** — No audit invocation uses `--ignore-registry-errors` (exits 0 on a registry failure), and `--ignore-unfixable` is absent or paired with a tracked, dated exception (verified: pnpm 12.16.1).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/actions/**`, `.github/workflows/**`, `package.json` · Src: [5]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/actions/**`, `.github/workflows/**`, `package.json` · Src: [5]
 - **[SUP-15] Ignore-list governance** — When advisories are ignored, they live in `audit.ignore` of `pnpm-workspace.yaml` as GHSA IDs only (CVE IDs and `auditConfig.ignoreCves` are not recognized), each with an owner and expiry comment, and `audit.ignorePrune: true` is set (verified: pnpm 12.16.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `pnpm-workspace.yaml` · Src: [5]
 - **[SUP-16] Registry signatures verified** — A CI step runs `pnpm audit signatures`, which fails on an invalid signature or on an unsigned package from a registry that publishes signing keys (verified: pnpm 12.16.1).
@@ -89,15 +89,15 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
 - **[SUP-27] Missing publish time fails closed** — `minimumReleaseAgeIgnoreMissingTime: false` is set (default `true` silently skips the age and trust checks when registry metadata omits `time`) (verified: pnpm 12.16.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `pnpm-workspace.yaml` · Src: [3]
 - **[SUP-28] Trust policy enabled** — `trustPolicy: no-downgrade` is set (default `off`), any `trustPolicyExclude` entry is an exact `name@version` with a justification, and `trustLockfile` is absent or `false` so the policy is re-applied to every lockfile entry on install (verified: pnpm 12.16.1).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `pnpm-workspace.yaml` · Src: [1], [3]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `pnpm-workspace.yaml` · Src: [1], [3]
 - **[SUP-29] Exotic subdependencies blocked** — `blockExoticSubdeps` is not set to `false` (default `true`: only direct dependencies may come from git or tarball URLs) (verified: pnpm 12.16.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `pnpm-workspace.yaml` · Src: [1], [3]
 - **[SUP-30] No exotic resolutions in the lockfile** — `pnpm-lock.yaml` contains no transitive `git+` or direct tarball URL resolution.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `pnpm-lock.yaml` · Src: [1], [3]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `pnpm-lock.yaml` · Src: [1], [3]
 - **[SUP-31] Registry pinned** — Packages resolve only from HTTPS `registry.npmjs.org` (or a declared mirror); any additional registry is declared in `registries` so lockfile keys are registry-qualified and substitution is detectable (verified: pnpm 12.16.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `pnpm-workspace.yaml`, `pnpm-lock.yaml` · Src: [1], [3]
 - **[SUP-32] Frozen installs everywhere** — Every CI install and the Docker build run `pnpm install --frozen-lockfile`; no workflow or `Dockerfile` step runs `pnpm add` or `pnpm install <pkg>`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/actions/install-project/**`, `.github/workflows/**`, `Dockerfile` · Src: [13]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/actions/install-project/**`, `.github/workflows/**`, `Dockerfile` · Src: [13]
 
 ## 4. Provenance, SBOM & attestations
 
@@ -115,7 +115,7 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
 ## 5. Secret-leak prevention
 
 - **[SUP-38] Secret scanning enabled** — `gh api repos/{owner}/{repo}` reports `security_and_analysis.secret_scanning.status == "enabled"`.
-  Evidence: `command` · Diff: ✗ · Severity: high · Src: [11]
+  Evidence: `command` · Diff: ✗ · Core: ✓ · Severity: high · Src: [11]
 - **[SUP-39] Push protection enabled** — `security_and_analysis.secret_scanning_push_protection.status == "enabled"` for the repository (repository-level push protection is off by default).
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [11]
 - **[SUP-40] Custom push-protection patterns** — Push protection (built-in plus custom patterns) covers every credential type the project uses: registry access tokens, GitHub tokens, SSH private keys and CI scanner tokens.
@@ -127,11 +127,11 @@ single Node/pnpm version source → PLAT · secrets in the client bundle or `.ou
 - **[SUP-43] Leaked secrets rotated** — Every secret ever found in history has been rotated at its provider, not only deleted from the tree.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [12]
 - **[SUP-44] Env files ignored** — `.gitignore` ignores env files (`.env`, `.env.*`) and re-includes only the committed templates and test fixtures.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.gitignore` · Src: [12]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.gitignore` · Src: [12]
 - **[SUP-45] No other env file tracked** — `git ls-files` lists no env file other than the committed templates and test fixtures — no force-added local, staging or production env file.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `envs/**` · Src: [12]
 - **[SUP-46] Tracked env files hold no live credentials** — Committed env templates and test fixtures contain only placeholders or sandbox values; no production or staging key, DSN token or password appears in them.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `envs/**` · Src: [12]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `envs/**` · Src: [12]
 
 ## 6. Licenses
 

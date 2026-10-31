@@ -40,20 +40,20 @@ Conformance of the repository to its canonical architecture guide, `docs/archite
 ## 2. Dependency direction
 
 - **[ARCH-09] Cross-runtime boundaries hold and are enforced** — No module under `app/` imports `#server/…` or a path under `server/`, and no module under `server/` imports `@/`, `~/` or a path under `app/`; app data access crosses the runtime boundary only through internal `/api/goat-it-api/**` routes, and each cross-runtime boundary is either enforced by a tool rule (a dependency-cruiser `forbidden` rule at `error`) or explicitly listed in `docs/architecture.md` as enforced by convention and review only.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**` · Src: [3], [4], project: docs/architecture.md §2
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**` · Src: [3], [4], project: docs/architecture.md §2
 - **[ARCH-10] Shared and scripts stay runtime-neutral** — Modules under `shared/` import no `app/`, `server/`, `#build/` or `#imports` module and no Vue, Nuxt, `@nuxt/ui` or other UI dependency and use no browser or DOM global; files under `scripts/` import no project alias (`@/`, `~/`, `~~/`, `#shared/`, `#server/`) and no module under `app/`, `server/` or `shared/`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `shared/**` · Src: [4], project: docs/architecture.md §2, project: docs/architecture.md §5
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `shared/**` · Src: [4], project: docs/architecture.md §2, project: docs/architecture.md §5
 - **[ARCH-11] App calls only internal API routes** — No app module calls the external Goat It API (its base URL or the server-only `runtimeConfig.goatItApi`) — repositories under `app/repositories/goat-it-api/` are the only app callers of `/api/goat-it-api/**` — and components and pages never import a `*.repository.ts` module nor call `/api/` routes with `$fetch`; stores construct repositories and expose actions instead.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/repositories/**`, `app/**` · Src: project: docs/architecture.md §2, project: docs/architecture.md §4.4
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/repositories/**`, `app/**` · Src: project: docs/architecture.md §2, project: docs/architecture.md §4.4
 - **[ARCH-12] Thin repositories, mapped DTOs** — Repository factories accept a `$Fetch`-compatible dependency, call no Nuxt composable, embed no UI logic and perform no DTO-to-domain mapping; server handlers convert upstream DTOs only through pure `create<Entity>From<Dto>` functions in `server/utils/goat-it-api/mappers/<entity>/`, never inline field-by-field.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/repositories/**` · Src: project: docs/architecture.md §4.4, project: AGENTS.md
 
 ## 3. State ownership
 
 - **[ARCH-13] Stores are presentation-agnostic** — Files under `app/stores/` import or call no toast API, no i18n API, no overlay API, no router API, no component and no DOM API — async failures surface only through the returned `AsyncResult` — and the composable or component that calls a store action and receives its result owns the user feedback, domain composables reaching it only through UI composables and owning no markup.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/stores/**` · Src: [2], project: docs/architecture.md §4.3
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/stores/**` · Src: [2], project: docs/architecture.md §4.3
 - **[ARCH-14] Store state changes only through actions** — No component, page or composable assigns store state (`store.x = …`, `stateRef.value = …` on a `storeToRefs` ref), mutates a store-owned array or object in place (`store.items.push(…)`, `store.settings.field = …`) or calls `$patch`; every change goes through an action of the owning store.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/**`, `app/pages/**`, `app/composables/**` · Src: [2], project: docs/architecture.md §4.1, project: docs/architecture.md §4.2, project: docs/architecture.md §4.3
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/components/**`, `app/pages/**`, `app/composables/**` · Src: [2], project: docs/architecture.md §4.1, project: docs/architecture.md §4.2, project: docs/architecture.md §4.3
 - **[ARCH-15] Async store actions return AsyncResult** — Every async store action returns the discriminated `AsyncResult` from `shared/types/async-result.types.ts` so the caller decides how to surface the failure, and fetch statuses and loading flags are exposed as read-only `computed` getters, never as writable refs consumers could assign.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/stores/**`, `shared/types/async-result.types.ts` · Src: project: docs/architecture.md §4.3
 - **[ARCH-16] Presentation children use props and emits** — A presentation child receives the data it displays through props and reports user intent through emits; only feature-owning components read a store or shared-state domain composable. Ownership follows responsibility, not depth, and no pass-through prop chain exists solely to hide a store read.
@@ -74,7 +74,7 @@ Conformance of the repository to its canonical architecture guide, `docs/archite
 ## 6. Duplicated domain rules
 
 - **[ARCH-20] One source per domain rule and constant** — Each domain invariant used by more than one unit (question and theme shape rules, locale validity, filter narrowing) is implemented once in a schema or helper under `shared/` or in the owning unit and imported by every consumer; values used by both app and server (cookie names, locale lists, Goat It API constants, site constants) are declared once in `shared/constants/` or `shared/enums/`, with no identical literal repeated across `app/` and `server/`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `shared/schemas/**`, `shared/utils/helpers/**` · Src: [1], project: docs/architecture.md §2, project: docs/architecture.md §5
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `shared/schemas/**`, `shared/utils/helpers/**` · Src: [1], project: docs/architecture.md §2, project: docs/architecture.md §5
 - **[ARCH-21] Upstream contract reused, not copied** — No module redefines a schema, DTO type or domain constant array exported by `@goat-it/schemas` (for example `QUESTION_CATEGORIES`, `QUESTION_COGNITIVE_DIFFICULTIES`, `isValidLocale`); server code validates upstream data with the package schemas and app code imports the package constants.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/**`, `app/**`, `shared/**` · Src: project: docs/architecture.md §2, project: docs/architecture.md §6.1, project: AGENTS.md
 

@@ -14,8 +14,8 @@ The category checklists in `references/` **are the audit contract**. Each check 
 | Consumer | Mode | Reads | Output |
 |----------|------|-------|--------|
 | `goat-auditor` via `/goat-audit` | Full audit | this file, all 20 references, templates, decision docs | `docs/audits/GOAT-AUDIT-*.md`, GitHub artifacts, decision notes |
-| `final-reviewer` | Diff | this file, references of triggered categories, mapped decision docs | "GOAT audit (diff mode)" block |
-| `plan-writer` | Shift-left | this file, references of triggered categories, mapped decision docs | `GOAT checks:` line per task |
+| `final-reviewer` | Diff | this file, the in-scope sections of triggered references, mapped decision docs | "GOAT audit (diff mode)" block |
+| `plan-writer` | Shift-left | this file, Core checks of triggered references, mapped decision docs, the spec's `## GOAT constraints` | `GOAT checks:` line per task |
 
 The orchestrator also reads §7 when the maintainer pushes back on a GOAT finding.
 
@@ -25,17 +25,18 @@ The orchestrator also reads §7 when the maintainer pushes back on a GOAT findin
 - **(b) No speculation.** A claim that cannot be proven is `⚠️ UNVERIFIED`, never FAIL and never PASS.
 - **(c) Read-only.** Auditors never modify project files. The only writes allowed are the report, its run directory, and approved decision notes. Never bypass a permission denial; report it instead.
 - **(d) Library facts are verified, not remembered.** Any finding that depends on a library default, API or behaviour is confirmed with `docs-fetcher` (or Context7/`webfetch` when the subagent is unavailable) before it is reported (§8).
-- **(e) Decisions are binding.** Read the mapped decision doc in full. Entries in `## GOAT audit decisions` and the documented decisions listed in §7 suppress or reshape checks, until their revisit condition is met.
+- **(e) Decisions are binding.** Read the mapped decision doc in full. A `## GOAT audit decisions` entry has already reshaped the checklist it belongs to (§7); the documented decisions listed in §7 are honored until their revisit condition is met.
 - **(f) Read `docs/architecture.md`** before any audit, review or plan that touches project files.
 - **(g) `Look` hints are starting points, never proof.** A glob tells you where evidence usually lives; the finding still needs `file:line`.
+- **(h) Core gates, the full set audits.** Every change is gated on the **Core** checks of its triggered categories; the full set is for a full audit. A Core mark is part of the check contract, not a severity alias (§4.4).
 
 ## 3. Modes
 
-- **Full audit** — procedure in `.opencode/commands/goat-audit.md` (agent `goat-auditor`): preflight, evidence tiers, one explorer per category, library verification, adversarial verification, report, triage.
-- **Partial audit** — the same procedure restricted to a chosen subset of categories (the run asks for it; full audit is the default). A partial report states the audited set in its header, prints `— not audited` for every other category in the scorecard, computes grades only for audited categories, labels the release verdict `partial (n/20)`, and limits the delta and Appendix B to audited categories.
-- **Diff mode** — §10; used by `final-reviewer` on every review.
-- **Plan mode (shift-left)** — `plan-writer` matches planned paths against the category index triggers **and the Decision doc column**, reads the triggered references' `Diff: ✓` checks and the mapped decision docs, and writes a `GOAT checks:` line in every task.
-- **Design mode (shift-left at spec time)** — `brainstormer` has no paths yet: it maps the feature's design areas to categories (§6 design triggers), reads those references, and writes `## GOAT constraints` (check ID → design decision) and `## Constraints accepted as risks` in the spec, so the plan inherits the category set instead of re-deriving it and the orchestrator can later record decision notes.
+- **Full audit** — procedure in `.opencode/commands/goat-audit.md` (agent `goat-auditor`): preflight, evidence tiers, one explorer per category, library verification, adversarial verification, report, triage; evaluates every check of the selected categories.
+- **Partial audit** — the same procedure restricted to a chosen subset of categories (the run always asks for the scope first; `categories <CODES>` skips the question). A partial report states the audited set in its header, prints `— not audited` for every other category in the scorecard, computes grades only for audited categories, labels the release verdict `partial (n/20)`, and limits the delta and Appendix B to audited categories.
+- **Diff mode** — §10; used by `final-reviewer` on every review; evaluates the **Core** checks (§4.4) of the triggered categories, never the full set.
+- **Plan mode (shift-left)** — `plan-writer` inherits the spec's `## GOAT constraints` when one exists, matches planned paths against the category index triggers **and the Decision doc column**, reads the triggered references' **Core** `Diff: ✓` checks and the mapped decision docs, and writes a `GOAT checks:` line in every task.
+- **Design mode (shift-left at spec time)** — `brainstormer` has no paths yet: it maps the feature's design areas to categories (§6 design triggers), reads those references' **Core** checks that actually constrain the design (10–20 of them, never a whole category), and writes `## GOAT constraints` (check ID → design decision) and `## Constraints accepted as risks` in the spec; every other check is deferred to plan and review.
 
 A full audit is expensive: 20 explorer dispatches in waves of six, adversarial verification, a production build with coverage and bundle checks, and the opt-in runtime probes. Say so when offering the category choice; a partial audit costs proportionally less.
 
@@ -45,14 +46,15 @@ A full audit is expensive: 20 explorer dispatches in waves of six, adversarial v
 
 ```markdown
 - **[SEC-08] Nonce-based `script-src`** — <Pass criterion with exact values, names, thresholds>.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/security/**` · Src: [1], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/security/**` · Src: [1], project: docs/security.md
 ```
 
 - **Evidence** — exactly one of: `static` (source/config/docs/grep), `artifact` (built `.output` or generated files), `command` (tool output: `pnpm audit`, `gh api`, lint, tests…), `runtime` (running app: acceptance suite, local server, Lighthouse, live URL), `manual` (needs a human: screen reader, legal confirmation, visual judgment).
 - **Diff** — `✓` only when Evidence is `static`; `✗` otherwise.
+- **Core** — `✓` marks a check in the Core tier (§4.4); omitted otherwise. The category index records each category's Core count.
 - **Severity** — the default when the check fails (§5). Auditors may move it **one level** with a written justification in the finding.
 - **Look** — optional repository globs; every glob matched at least one path when the file was written.
-- **Src** — `[n]` indexes into the file's `## Sources`, and/or `project: <repo path>` (optionally ` §<n>`).
+- **Src** — `[n]` indexes into the file's `## Sources`, and/or `project: <repo path>` (optionally `§<n>`).
 - `(verified: <library> <x.y[.z]>)` marks a library-dependent criterion. Re-verify when the installed major or minor differs.
 - A removed check leaves no line (§11); the category's IDs are compacted in the same change.
 - **Criterion scope.** A criterion states an outcome that stays true as the product grows: it prescribes no single component, route, screen or feature as the only acceptable implementation, and component or file names belong in `Look` and `Src`, never inside the criterion.
@@ -61,7 +63,7 @@ A full audit is expensive: 20 explorer dispatches in waves of six, adversarial v
 
 - Format `<CODE>-<NN>`: two digits, zero-padded (`SEC-07`); three digits from 100 (`SEC-100`).
 - IDs are unique per category and form a **gap-free sequence** `-01`…`-NN`: no gap, no duplicate.
-- A removal or merge renumbers the category's remaining checks in file order, and every reference to them (this skill, agents, commands, templates, decision notes) is updated in the same change.
+- A removal or merge renumbers the category's remaining checks in file order, and every reference to them (this skill, agents, commands, templates) is updated in the same change, except a decision note attached to a removed check, which keeps the historical ID marked `(removed)` (§7).
 - A new check takes the number after the category's last check; the next removal-driven renumbering restores file order.
 - Always cite a check as `[SEC-07]` in reports, reviews and decisions.
 
@@ -73,9 +75,19 @@ A full audit is expensive: 20 explorer dispatches in waves of six, adversarial v
 | `FAIL` | Violated; produces a finding (§9) and a severity. |
 | `N/A` | The check does not apply (reason given). |
 | `⚠️ UNVERIFIED` | Cannot be proven (e.g. Tier 3 probe skipped); reason given. |
-| `DECIDED` | Suppressed by a decision note or a documented decision; cite `doc:line`. |
+| `DECIDED` | Covered by a documented decision outside the `## GOAT audit decisions` sections (e.g. a `docs/security.md` known limitation); cite `doc:line`. A GOAT decision note never yields `DECIDED` — it amends the checklist (§7). |
 
-Every check of every triggered reference gets one of these outcomes. Never omit a check.
+Every check of every triggered reference gets one of these outcomes in a full or partial audit. Never omit a check.
+
+### 4.4 Core tier
+
+`Core: ✓` marks the 206 checks that gate every change. `final-reviewer`'s diff mode, `plan-writer` and `brainstormer` evaluate the Core checks of the categories they trigger; a full audit evaluates all 1,048.
+
+- **Every critical check is Core.**
+- A high check is Core when its failure can break a core flow, expose data, break the release or deindex the product.
+- A medium check is Core only when it encodes a project-wide invariant already enforced by `AGENTS.md`.
+- The tier targets ~200 checks (10–20 % of the set); the category index's `Core` column states each category's count and AGENT-11 checks it.
+- A Core check keeps its evidence type: diff mode evaluates the `Diff: ✓` ones and defers the `Diff: ✗` ones with a non-blocking ⚠️.
 
 ## 5. Severity, grading, release verdict, priorities
 
@@ -95,13 +107,14 @@ Points over CONFIRMED findings (after verification; DECIDED excluded): critical 
 
 | Grade | Rule |
 |-------|------|
-| A | ≤ 2 points and no high/critical |
-| B | ≤ 6 points and no critical |
-| C | ≤ 12 points and no critical |
-| D | ≤ 25 points and at most 1 critical |
-| F | otherwise (> 25 points or ≥ 2 critical) |
+| 🐐 GOAT | 0 points, zero findings (info included) and zero `⚠️ UNVERIFIED` checks |
+| 🏆 A | ≤ 2 points and no high/critical |
+| ✅ B | ≤ 6 points and no critical |
+| ⚠️ C | ≤ 12 points and no critical |
+| 🟠 D | ≤ 25 points and at most 1 critical |
+| ❌ F | otherwise (> 25 points or ≥ 2 critical) |
 
-Append `⚠️ unverified` when more than 10 % of the category's checks are `⚠️ UNVERIFIED`.
+Append `⚠️ unverified` when more than 10 % of the category's checks are `⚠️ UNVERIFIED`; a category carrying that suffix is never 🐐 GOAT.
 
 ### 5.3 Release verdict and priorities
 
@@ -112,28 +125,28 @@ Append `⚠️ unverified` when more than 10 % of the category's checks are `⚠
 
 Each check belongs to exactly one category. Diff triggers activate when a changed path matches them. The **Decision doc** column is part of the matching: a changed decision doc triggers every category mapped to it (`docs/security.md` → SEC + SUP, `docs/architecture.md` → ARCH + STACK + CODE + AGENT, `docs/operations.md` → PLAT + OPS + REL, `docs/seo.md` → SEO, `docs/pwa.md` → PWA, `docs/unit-testing.md` and `docs/acceptance-testing.md` → TEST, `.github/CONTRIBUTING.md` → DOCS). Triggers may name paths that do not exist yet; they activate when such a file is added.
 
-| Code | Category | Reference file | Decision doc | Diff triggers |
-|------|----------|----------------|--------------|---------------|
-| SEC | Application security | `references/sec-application-security.md` | `docs/security.md` | `server/**`, `shared/schemas/**`, `nuxt.config.ts`, `app/**/*.vue`, `app/plugins/**`, `envs/**`, `sentry.*.config.ts`, `public/.well-known/**` |
-| SUP | Supply chain & dependencies | `references/sup-supply-chain.md` | `docs/security.md` | `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.github/renovate.json`, `.npmrc` |
-| CICD | CI/CD, release & repository governance | `references/cicd-ci-cd-release.md` | `docs/ci-cd.md` (new) | `.github/**`, `configs/semantic-release/**`, `configs/commitlint/**`, `configs/validate-branch-name/**`, `configs/lint-staged/**`, `.husky/**`, `sonar-project.properties`, `.coderabbit.yaml` |
-| PLAT | Runtime platform (containers, config, deployment) | `references/plat-runtime-platform.md` | `docs/operations.md` | `Dockerfile`, `.dockerignore`, `docker/**`, `envs/**`, `configs/node/**`, `server/plugins/**`, `server/routes/**`, `server/utils/env/**`, `server/utils/runtime-config/**`, `nuxt.config.ts`, `scripts/**` |
-| OPS | Observability & operations | `references/ops-observability-operations.md` | `docs/operations.md` | `sentry.*.config.ts`, `shared/utils/helpers/sentry/**`, `server/utils/logging/**`, `server/plugins/error-logging/**`, `server/routes/**`, `scripts/post-deploy-health-check.sh`, `.github/workflows/deploy-*.yml`, `.github/actions/health-check/**`, `docs/operations.md` |
-| REL | Reliability & resilience | `references/rel-reliability-resilience.md` | `docs/operations.md` | `server/**`, `app/composables/**`, `app/stores/**`, `app/repositories/**`, `shared/schemas/**`, `shared/constants/**`, `shared/types/**` |
-| LOGIC | Domain logic & data correctness | `references/logic-domain-logic.md` | `docs/game-logic.md` (new) | `app/composables/domain/**`, `app/stores/**`, `app/pages/**`, `app/components/domain/**`, `shared/**`, `server/api/**`, `server/utils/goat-it-api/**`, `content/*/rules.md` |
-| PERF | Performance | `references/perf-performance.md` | `docs/performance.md` (new) | `app/**`, `server/**`, `nuxt.config.ts`, `public/**`, `configs/size-limit/**` |
-| A11Y | Accessibility | `references/a11y-accessibility.md` | `docs/accessibility.md` (new) | `app/**/*.vue`, `app/assets/**`, `app/app.config.ts`, `app/config/**`, `app/i18n/locales/**`, `tests/acceptance/features/**/*accessibility*` |
-| I18N | Internationalization & localization | `references/i18n-internationalization.md` | `docs/i18n.md` (new) | `app/i18n/**`, `content/**`, `app/**/*.vue`, `nuxt.config.ts`, `shared/utils/helpers/locale/**`, `server/plugins/locale-detector/**`, `shared/utils/helpers/pwa/**` |
-| SEO | SEO & social sharing | `references/seo-seo-social.md` | `docs/seo.md` | `app/pages/**`, `app/layouts/**`, `app/App.vue`, `nuxt.config.ts`, `public/**`, `app/i18n/locales/*/seo.json`, `shared/utils/helpers/site/**` |
-| PWA | PWA, offline & browser compatibility | `references/pwa-pwa-offline-compatibility.md` | `docs/pwa.md` | `nuxt.config.ts`, `shared/utils/helpers/pwa/**`, `app/pages/offline/**`, `public/pwa/**`, `app/composables/ui/useConnectivityStatus/**`, `app/components/shared/ui/OfflineStatusIndicator/**`, `app/assets/css/**`, `app/App.vue` |
-| UX | UX & interaction quality | `references/ux-ux-interaction.md` | `docs/ux.md` (new) | `app/**/*.vue`, `app/app.config.ts`, `app/config/**`, `app/assets/**`, `app/i18n/locales/**`, `app/composables/ui/**` |
-| ARCH | Architecture & design | `references/arch-architecture.md` | `docs/architecture.md` | any added, moved or deleted file under `app/`, `server/`, `shared/`, `scripts/`, `tests/`, `configs/`; any changed import statement |
-| STACK | Framework & stack correctness | `references/stack-framework-stack.md` | `docs/architecture.md` | `app/**`, `server/**`, `shared/**`, `nuxt.config.ts`, `app/app.config.ts`, `content.config.ts`, `sentry.*.config.ts`, `package.json` |
-| CODE | Code quality & conventions | `references/code-code-quality.md` | `docs/architecture.md` | any `*.ts` or `*.vue` file, `tsconfig.json`, `eslint.config.ts`, `configs/eslint/**`, `oxlint.config.jsonc` |
-| TEST | Testing & quality assurance | `references/test-testing-qa.md` | `docs/acceptance-testing.md` if the evidence is under `tests/acceptance/**` or concerns E2E/visual/load testing, else `docs/unit-testing.md` | `**/*.spec.ts`, `tests/**`, `configs/vitest/**`, `configs/cucumber/**`, and any change adding or altering user-facing behavior (strategy checks) |
-| PRIV | Privacy, compliance & legal | `references/priv-privacy-compliance.md` | `docs/privacy.md` (new) | `app/**/*cookie*`, `shared/enums/cookie.enums.ts`, `sentry.*.config.ts`, `shared/utils/helpers/sentry/**`, `server/utils/logging/**`, `app/pages/**`, `app/layouts/**`, `public/**`, `package.json`, any diff line using `localStorage`, `sessionStorage`, `indexedDB` or `caches` |
-| DOCS | Documentation & developer experience | `references/docs-documentation-dx.md` | `.github/CONTRIBUTING.md` | `docs/**`, `README.md`, `.github/*.md`, `.github/ISSUE_TEMPLATE/**`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md`, `envs/.env.example`, `package.json` (scripts) |
-| AGENT | AI-agent tooling hygiene | `references/agent-agent-tooling.md` | `docs/architecture.md` | `AGENTS.md`, `.agents/**`, `.opencode/**`, `opencode.json`, `skills-lock.json`, `.github/copilot-instructions.md`, `.coderabbit.yaml` |
+| Code | Category | Reference file | Decision doc | Core | Diff triggers |
+|------|----------|----------------|--------------|------|---------------|
+| SEC | Application security | `references/sec-application-security.md` | `docs/security.md` | 26 | `server/**`, `shared/schemas/**`, `nuxt.config.ts`, `app/**/*.vue`, `app/plugins/**`, `envs/**`, `sentry.*.config.ts`, `public/.well-known/**` |
+| SUP | Supply chain & dependencies | `references/sup-supply-chain.md` | `docs/security.md` | 11 | `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.github/renovate.json`, `.npmrc` |
+| CICD | CI/CD, release & repository governance | `references/cicd-ci-cd-release.md` | `docs/ci-cd.md` (new) | 11 | `.github/**`, `configs/semantic-release/**`, `configs/commitlint/**`, `configs/validate-branch-name/**`, `configs/lint-staged/**`, `.husky/**`, `sonar-project.properties`, `.coderabbit.yaml` |
+| PLAT | Runtime platform (containers, config, deployment) | `references/plat-runtime-platform.md` | `docs/operations.md` | 12 | `Dockerfile`, `.dockerignore`, `docker/**`, `envs/**`, `configs/node/**`, `server/plugins/**`, `server/routes/**`, `server/utils/env/**`, `server/utils/runtime-config/**`, `nuxt.config.ts`, `scripts/**` |
+| OPS | Observability & operations | `references/ops-observability-operations.md` | `docs/operations.md` | 7 | `sentry.*.config.ts`, `shared/utils/helpers/sentry/**`, `server/utils/logging/**`, `server/plugins/error-logging/**`, `server/routes/**`, `scripts/post-deploy-health-check.sh`, `.github/workflows/deploy-*.yml`, `.github/actions/health-check/**`, `docs/operations.md` |
+| REL | Reliability & resilience | `references/rel-reliability-resilience.md` | `docs/operations.md` | 10 | `server/**`, `app/composables/**`, `app/stores/**`, `app/repositories/**`, `shared/schemas/**`, `shared/constants/**`, `shared/types/**` |
+| LOGIC | Domain logic & data correctness | `references/logic-domain-logic.md` | `docs/game-logic.md` (new) | 10 | `app/composables/domain/**`, `app/stores/**`, `app/pages/**`, `app/components/domain/**`, `shared/**`, `server/api/**`, `server/utils/goat-it-api/**`, `content/*/rules.md` |
+| PERF | Performance | `references/perf-performance.md` | `docs/performance.md` (new) | 11 | `app/**`, `server/**`, `nuxt.config.ts`, `public/**`, `configs/size-limit/**` |
+| A11Y | Accessibility | `references/a11y-accessibility.md` | `docs/accessibility.md` (new) | 17 | `app/**/*.vue`, `app/assets/**`, `app/app.config.ts`, `app/config/**`, `app/i18n/locales/**`, `tests/acceptance/features/**/*accessibility*` |
+| I18N | Internationalization & localization | `references/i18n-internationalization.md` | `docs/i18n.md` (new) | 10 | `app/i18n/**`, `content/**`, `app/**/*.vue`, `nuxt.config.ts`, `shared/utils/helpers/locale/**`, `server/plugins/locale-detector/**`, `shared/utils/helpers/pwa/**` |
+| SEO | SEO & social sharing | `references/seo-seo-social.md` | `docs/seo.md` | 11 | `app/pages/**`, `app/layouts/**`, `app/App.vue`, `nuxt.config.ts`, `public/**`, `app/i18n/locales/*/seo.json`, `shared/utils/helpers/site/**` |
+| PWA | PWA, offline & browser compatibility | `references/pwa-pwa-offline-compatibility.md` | `docs/pwa.md` | 11 | `nuxt.config.ts`, `shared/utils/helpers/pwa/**`, `app/pages/offline/**`, `public/pwa/**`, `app/composables/ui/useConnectivityStatus/**`, `app/components/shared/ui/OfflineStatusIndicator/**`, `app/assets/css/**`, `app/App.vue` |
+| UX | UX & interaction quality | `references/ux-ux-interaction.md` | `docs/ux.md` (new) | 7 | `app/**/*.vue`, `app/app.config.ts`, `app/config/**`, `app/assets/**`, `app/i18n/locales/**`, `app/composables/ui/**` |
+| ARCH | Architecture & design | `references/arch-architecture.md` | `docs/architecture.md` | 6 | any added, moved or deleted file under `app/`, `server/`, `shared/`, `scripts/`, `tests/`, `configs/`; any changed import statement |
+| STACK | Framework & stack correctness | `references/stack-framework-stack.md` | `docs/architecture.md` | 9 | `app/**`, `server/**`, `shared/**`, `nuxt.config.ts`, `app/app.config.ts`, `content.config.ts`, `sentry.*.config.ts`, `package.json` |
+| CODE | Code quality & conventions | `references/code-code-quality.md` | `docs/architecture.md` | 6 | any `*.ts` or `*.vue` file, `tsconfig.json`, `eslint.config.ts`, `configs/eslint/**`, `oxlint.config.jsonc` |
+| TEST | Testing & quality assurance | `references/test-testing-qa.md` | `docs/acceptance-testing.md` if the evidence is under `tests/acceptance/**` or concerns E2E/visual/load testing, else `docs/unit-testing.md` | 11 | `**/*.spec.ts`, `tests/**`, `configs/vitest/**`, `configs/cucumber/**`, and any change adding or altering user-facing behavior (strategy checks) |
+| PRIV | Privacy, compliance & legal | `references/priv-privacy-compliance.md` | `docs/privacy.md` (new) | 9 | `app/**/*cookie*`, `shared/enums/cookie.enums.ts`, `sentry.*.config.ts`, `shared/utils/helpers/sentry/**`, `server/utils/logging/**`, `app/pages/**`, `app/layouts/**`, `public/**`, `package.json`, any diff line using `localStorage`, `sessionStorage`, `indexedDB` or `caches` |
+| DOCS | Documentation & developer experience | `references/docs-documentation-dx.md` | `.github/CONTRIBUTING.md` | 4 | `docs/**`, `README.md`, `.github/*.md`, `.github/ISSUE_TEMPLATE/**`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md`, `envs/.env.example`, `package.json` (scripts) |
+| AGENT | AI-agent tooling hygiene | `references/agent-agent-tooling.md` | `docs/architecture.md` | 7 | `AGENTS.md`, `.agents/**`, `.opencode/**`, `opencode.json`, `skills-lock.json`, `.github/copilot-instructions.md`, `.coderabbit.yaml` |
 
 Boundaries worth repeating: sustainability → PERF; cost amplification → SEC/REL; duplicate CI runs → CICD; timeout/retry/cancellation → REL; what may be logged (secrets) → SEC while log operation → OPS; Sentry data collection/PII → PRIV.
 
@@ -170,12 +183,13 @@ Boundaries worth repeating: sustainability → PERF; cost amplification → SEC/
 - **Decision:** <what was decided>
 - **Rationale:** <why>
 - **Revisit when:** <observable trigger or date, e.g. "a text input is added to the game page" / "2027-04-30">
+- **Checklist change:** <the exact criterion rewrite, or the removal and the renumbering it implies>
 - **Recorded by:** /goat-audit (GOAT-AUDIT-2026-10-31) | orchestrator final review (<branch>)
 ```
 
 **Kinds.** **Accepted risk** (valid finding consciously not fixed) · **Not applicable** (the check does not apply to this product; scope reason) · **False positive** (the finding was wrong; explain so the check is evaluated correctly next time).
 
-**Matching.** A FAIL is suppressed (`DECIDED`) when an entry has the same check ID **and** the same subject (same evidence path or resource). Several entries may share an ID with different subjects. If the entry's "Revisit when" condition is observably met, evaluate the check normally and add `decision revisit triggered — <doc>:<line>` to the finding.
+**Checklist amendment.** A decision is history, never a permanent suppression: recording it also amends the checklist, through the ready-to-apply patch the run hands off (command §6.5 and §8.4; the auditor stays read-only). **Accepted risk** and **False positive** rewrite the criterion so it encodes the accepted deviation or the corrected rule and passes on the next run. **Not applicable** deletes the check, renumbers the category (§4.2, §11) and marks the note's ID `(removed)`. Until the amendment lands, the next run still reports the finding as `FAIL` with `decision recorded, checklist not yet amended — <doc>:<line>` instead of `DECIDED`. If the entry's "Revisit when" condition is observably met, evaluate the check normally and add `decision revisit triggered — <doc>:<line>` to the finding.
 
 **Existing documented decisions are binding too** (cite `file:line`, outcome `DECIDED`): `docs/seo.md` "Decision (date)" entries, `docs/security.md` "Known limitation" and deliberate choices (e.g. HSTS without `includeSubDomains`/`preload`, `'wasm-unsafe-eval'`, `style-src 'unsafe-inline'`, in-process rate limiter, uncapped upstream response size), `docs/operations.md` "Out of scope" and "Reliability targets", `docs/pwa.md` "by design" limitations, `docs/architecture.md` named exceptions, and the "Accepted patterns (do not flag)" sections of `docs/unit-testing.md` and `docs/acceptance-testing.md`. Auditors therefore read each decision doc **in full**, not only its GOAT section.
 
@@ -204,8 +218,8 @@ Boundaries worth repeating: sustainability → PERF; cost amplification → SEC/
 
 1. List changed paths (commit range, or `git status` + `git diff HEAD` when no commits exist).
 2. Match paths against the diff triggers **and the Decision doc column** (§6) → triggered categories; always state them in the report.
-3. For each triggered category: read its reference file **in full**, then the decision doc (GOAT section + documented decisions).
-4. Evaluate the `Diff: ✓` checks **whose `Look` globs match a changed path**, plus the category-wide `Diff: ✓` checks that carry no `Look`, against the changed files and the code directly affected inside them. For `Diff: ✗` checks whose `Look` globs match a changed file, emit a non-blocking ⚠️ "verify in next /goat-audit".
+3. For each triggered category: read only the sections that contain in-scope checks (use the reference's `## Contents` and the `Look` globs), then the decision doc (GOAT section + documented decisions).
+4. Evaluate the **Core** `Diff: ✓` checks **whose `Look` globs match a changed path**, plus the category-wide Core `Diff: ✓` checks that carry no `Look`, against the changed files and the code directly affected inside them. For Core `Diff: ✗` checks whose `Look` globs match a changed file, emit a non-blocking ⚠️ "verify in next /goat-audit". Non-Core checks are not evaluated in diff mode.
 5. Library-behavior claims → `docs-fetcher` (§8).
 6. TEST in diff mode applies only checks tagged `(strategy)` in their title; per-file test conventions stay with final-reviewer §10/§11.
 7. Static analysis only; never run builds, tests or servers.
@@ -213,7 +227,9 @@ Boundaries worth repeating: sustainability → PERF; cost amplification → SEC/
 
 ## 11. Maintaining the checklists
 
-- Adding a check: take the number after the category's last check, all fields, a fetched source (never training data), `Look` globs that exist.
+- Adding a check: take the number after the category's last check, all fields, a fetched source (never training data), `Look` globs that exist; mark it Core only under §4.4.
+- Marking Core: a check loses the mark when it no longer gates a change; every change to a mark updates the category index's `Core` column in the same change.
 - Removing or merging a check: delete its line entirely, renumber the category's remaining checks in file order, and update every reference to a shifted ID in the same change; a decision note attached to a shifted check is updated to its new ID.
+- Applying a decision note: an Accepted-risk or False-positive note rewrites the criterion so it encodes the deviation or the corrected rule and passes; a Not-applicable note deletes the check and renumbers the category (§4.2). The note keeps its ID, and a deleted check's note carries `(removed)` after it so AGENT-06 does not treat it as active.
 - Rewriting a check: rewrite the criterion in place; the ID moves only through a removal-driven renumbering. When a decision note is attached to the old criterion, the next run reports `decision revisit triggered — <doc>:<line>` so the maintainer re-decides it.
 - Every `/goat-audit` run reports stale `Look` hints and dead source links as [AGENT-10].

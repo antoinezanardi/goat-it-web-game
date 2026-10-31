@@ -27,8 +27,10 @@ Skeleton of `docs/audits/GOAT-AUDIT-YYYY-MM-DD[-N].md`. Replace every `<…>` pl
 
 | Code | Category | Grade | Critical | High | Medium | Low | Info | Unverified | Comment |
 |------|----------|-------|----------|------|--------|-----|------|------------|---------|
-| SEC | Application security | <A–F[ ⚠️ unverified]> | n | n | n | n | n | n | <one line> |
+| SEC | Application security | <🐐 GOAT / 🏆 A / ✅ B / ⚠️ C / 🟠 D / ❌ F[ ⚠️ unverified]> | n | n | n | n | n | n | <one line> |
 | … (all 20 rows, category order of the skill; a category not audited in this run shows `— not audited` in place of its grade and counts) |
+
+> **Grades:** 🐐 GOAT = 0 points, no finding of any severity and nothing unverified · 🏆 A · ✅ B · ⚠️ C · 🟠 D · ❌ F · `— not audited` for a category outside the run scope.
 
 ## 1. Top findings (P0 and P1)
 
@@ -60,15 +62,15 @@ Skeleton of `docs/audits/GOAT-AUDIT-YYYY-MM-DD[-N].md`. Replace every `<…>` pl
 
 ## 4. Findings by category
 
-### 4.1 SEC — Application security — <grade>
+### 4.1 SEC — Application security — <grade icon + letter>
 
 <Counts line: PASS n · FAIL n · N/A n · UNVERIFIED n · DECIDED n, then finding blocks in the skill's §9 format, then the N/A, unverified and decided lists with reasons.>
 
-### 4.2 SUP — Supply chain & dependencies — <grade>
+### 4.2 SUP — Supply chain & dependencies — <grade icon + letter>
 
 …
 
-### 4.20 AGENT — AI-agent tooling hygiene — <grade>
+### 4.20 AGENT — AI-agent tooling hygiene — <grade icon + letter>
 
 …
 
@@ -77,6 +79,8 @@ Skeleton of `docs/audits/GOAT-AUDIT-YYYY-MM-DD[-N].md`. Replace every `<…>` pl
 - <Concrete practice worth preserving, with evidence.>
 
 ## 6. Honored decisions
+
+<Documented decisions honored as DECIDED. A GOAT decision note whose checklist amendment already landed no longer appears here: the rewritten criterion passes on its own and the note stays in the doc as history.>
 
 | Check | Subject | Decision | Doc |
 |-------|---------|----------|-----|
@@ -141,7 +145,7 @@ Field rules:
 
 - `fingerprint` = `<ID>::<subject>`; the subject is the normalized primary evidence path without line numbers (repo-relative) or a resource key (`gh:rulesets`, `live:production:/`, `artifact:.output/public/sw.js`).
 - `status`: `confirmed` | `decided` | `discarded`.
-- `private`: `true` when the finding carries 🔒. A 🔒 finding never pairs with `decision: issue` or `comment`; only `advisory`, `accepted-risk`, `not-applicable`, `false-positive` or `skipped` are valid, and public handling requires the maintainer to clear the mark first (command §6).
+- `private`: `true` when the finding carries 🔒. A 🔒 finding never pairs with `decision: issue` or `comment`; only `advisory`, `accepted-risk`, `not-applicable`, `false-positive`, `skipped` or `pending` are valid, and public handling requires the maintainer to clear the mark first (command §6).
 - `decision`: `issue` | `advisory` | `comment` | `accepted-risk` | `not-applicable` | `false-positive` | `skipped` | `pending`.
 - `artifact`: `#612` | `GHSA-xxxx-xxxx-xxxx` | `docs/security.md:210` | `null`.
 - Delta computation against the previous report compares fingerprints: **Resolved** (was FAIL, now PASS/N/A), **Still open**, **New**, **Regressed** (Resolved in an earlier report or PASS previously, now FAIL), **Newly decided** (now DECIDED).

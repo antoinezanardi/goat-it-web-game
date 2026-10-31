@@ -20,13 +20,13 @@ Runtime platform of the Goat It Web Game: the multi-stage `Dockerfile` that turn
 ## 1. Dockerfile and image
 
 - **[PLAT-01] Base images pinned by exact tag and digest** — Every `FROM` of every stage uses an exact version tag plus digest (`node:<x.y.z>-alpine<a.b>@sha256:<64 hex>`); no `latest`, variant-only (`node:alpine`, `node:lts`) or untagged image (hadolint DL3006/DL3007 clean).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `Dockerfile` · Src: [1], [6]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `Dockerfile` · Src: [1], [6]
 - **[PLAT-02] Production stage ships only the build output** — The final `production` stage starts from a clean runtime base and copies only `/app/.output` from the `build` stage: no dependency install, no source tree, no `node_modules` at the app root, no compilers (`python3`, `make`, `g++`, `build-base`).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `Dockerfile` · Src: [1], [5], [7]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `Dockerfile` · Src: [1], [5], [7]
 - **[PLAT-03] Every published platform image boots** — For each platform of the manifest list (`linux/amd64`, `linux/arm64`), `docker run --platform <platform>` starts the server and `GET /healthz` returns 200; any native `.node` binary under `.output/server/node_modules` matches the target architecture and musl libc, because the `build` stage runs on `$BUILDPLATFORM`.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [5], [7], [19]
 - **[PLAT-04] Non-root user owns the app files** — The final stage's last `USER` is the non-root `node` user (hadolint DL3002) and every `COPY` into that stage uses `--chown=node:node` (Docker's default owner is UID/GID 0).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `Dockerfile` · Src: [3], [4], [5], [6]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `Dockerfile` · Src: [3], [4], [5], [6]
 - **[PLAT-05] Complete .dockerignore** — `.dockerignore` excludes at least `.git`, `node_modules`, `.nuxt`, `.output`, `coverage`, `tests`, `docs`, `.github`, `Dockerfile`, `envs` and `.env*`, plus `.npmrc`, `*.pem` and `*.key` whenever such files can exist, so no `COPY` can pull secrets or local artefacts into a layer.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.dockerignore` · Src: [1], [7]
 - **[PLAT-06] Cache-friendly layer order** — Dependency manifests (`package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`) and only the files the install/postinstall step needs are copied before `pnpm install`; application sources are copied after it, so a source-only change does not invalidate the install layer.
@@ -43,12 +43,12 @@ Runtime platform of the Goat It Web Game: the multi-stage `Dockerfile` that turn
 ## 2. Build secrets and image scanning
 
 - **[PLAT-11] No credential in ARG or ENV** — No `ARG`/`ENV` of any stage carries a token, key or password (only non-secret build values such as `NUXT_PUBLIC_DEFAULT_LOCALE`, `NUXT_PUBLIC_SITE_URL`, `NUXT_SITE_ENV`; hadolint DL3064); a build step that needs a credential uses `RUN --mount=type=secret,id=<id>,required=true`.
-  Evidence: `static` · Diff: ✓ · Severity: critical · Look: `Dockerfile`, `.github/workflows/deploy-*.yml` · Src: [2], [4], [6]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: critical · Look: `Dockerfile`, `.github/workflows/deploy-*.yml` · Src: [2], [4], [6]
 - **[PLAT-12] No secret in image history** — `docker history --no-trunc <image>` contains no token, `_authToken=`, Goat It API game key value or key material.
-  Evidence: `command` · Diff: ✗ · Severity: critical · Src: [2], [7]
+  Evidence: `command` · Diff: ✗ · Core: ✓ · Severity: critical · Src: [2], [7]
 - **[PLAT-13] No secret files in the final image** — `docker run --rm --entrypoint sh <image> -c 'find / -xdev \( -name ".env*" -o -name ".npmrc" -o -name "*.pem" -o -name "*.key" \) 2>/dev/null'` prints nothing.
-  Evidence: `command` · Diff: ✗ · Severity: critical · Src: [7]
-- **[PLAT-14] Blocking image vulnerability scan** — Every pushed image is scanned before deployment by a scanner that fails the build on HIGH or CRITICAL vulnerabilities (for example `trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1`); the default scanner settings must not be left non-blocking.
+  Evidence: `command` · Diff: ✗ · Core: ✓ · Severity: critical · Src: [7]
+- **[PLAT-14] Blocking image vulnerability scan** — Every pushed image is scanned before deployment by a scanner that fails the build on HIGH or CRITICAL vulnerabilities (for example `trivy image --severity HIGH,CRITICAL --exit-code 1`; unfixed findings are waived only through a PLAT-15 waiver, never filtered out by default); the default scanner settings must not be left non-blocking.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/*.yml` · Src: [3], [16]
 - **[PLAT-15] Scan waivers are scoped and expire** — When an image scan exists, its step never sets `continue-on-error: true`, no blanket ignore file is used, and each `.trivyignore`/`trivyignore.yaml` waiver names one finding with `expired_at` and a statement.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/*.yml` · Src: [15]
@@ -58,17 +58,17 @@ Runtime platform of the Goat It Web Game: the multi-stage `Dockerfile` that turn
 ## 3. Twelve-factor configuration
 
 - **[PLAT-17] Runtime-overridable keys declared in runtimeConfig** — Every setting the deployment changes without a rebuild is a `runtimeConfig` key in `nuxt.config.ts` overridden by its matching `NUXT_*` variable (e.g. `goatItApi.gameKey` ↔ `NUXT_GOAT_IT_API_GAME_KEY`); no `runtimeConfig` default reads a differently named `process.env` variable, which only works at build time (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [23]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [23]
 - **[PLAT-18] String settings survive destr casting** — Boot validation rejects non-string values for string settings (game key, base URL, Sentry DSN), because Nitro casts `NUXT_*` values with `destr` (`4848e0` becomes a number), and the env documentation tells operators to quote numeric- or JSON-looking strings (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/env/**`, `envs/.env.example` · Src: [23]
 - **[PLAT-19] Boot validation covers every key outside dev** — `server/plugins/env-validation/` validates the whole runtime config (`goatItApi`, `rateLimit`, `security`, `logger`, `public.defaultLocale`, `public.sentry`) whenever the server is not in dev mode, and no server code reads `process.env.*` directly at request time.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/plugins/env-validation/**`, `server/utils/env/**`, `server/utils/runtime-config/**` · Src: [11]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/plugins/env-validation/**`, `server/utils/env/**`, `server/utils/runtime-config/**` · Src: [11]
 - **[PLAT-20] Invalid config fails fast at boot** — Starting the production image with a missing or invalid required variable (e.g. empty `NUXT_GOAT_IT_API_GAME_KEY` or a non-https `NUXT_GOAT_IT_API_BASE_URL`) exits non-zero within seconds and the log names the offending variable.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [9], [11]
 - **[PLAT-21] .env.example parity and build/runtime markers** — `envs/.env.example` lists every `NUXT_*` variable the app or build reads (each `runtimeConfig` key plus every Docker build arg) with a placeholder, marks each one build-time (Docker build arg) or runtime, and lists no stale variable.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `envs/.env.example`, `nuxt.config.ts`, `Dockerfile` · Src: [11], [17]
 - **[PLAT-22] Secure configuration defaults** — `runtimeConfig` defaults ship no credential, keep proxy trust off, CSP in enforce mode and rate limiting enabled, and no file sets `NODE_TLS_REJECT_UNAUTHORIZED=0`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts`, `envs/.env.example` · Src: [11]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts`, `envs/.env.example` · Src: [11]
 - **[PLAT-23] Build-time values consistent at runtime** — Variables consumed at build time (`NUXT_SITE_ENV`, `NUXT_PUBLIC_SITE_URL`, `NUXT_PUBLIC_DEFAULT_LOCALE`) come from per-environment Docker build args, and a variable also read at runtime (`NUXT_SITE_ENV`, which resolves the Sentry environment label) is re-declared in the `production` stage from the same build arg so client and server agree.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `Dockerfile`, `.github/workflows/deploy-*.yml` · Src: [17], project: docs/operations.md
 - **[PLAT-24] One Node and pnpm version source** — `configs/node/.node-version`, `package.json` `engines.node`, every Dockerfile `FROM node:` tag and CI `setup-node` resolve to the same exact Node version, and the pnpm version installed in the Dockerfile equals `package.json` `packageManager`.
@@ -96,9 +96,9 @@ Runtime platform of the Goat It Web Game: the multi-stage `Dockerfile` that turn
 ## 5. Health probes
 
 - **[PLAT-33] Liveness never touches dependencies** — The `/healthz` handler returns 200 `{ "status": "ok" }` without calling the Goat It API, reading upstream state or awaiting I/O, so an upstream outage cannot fail liveness.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/routes/healthz/**` · Src: [8], project: docs/operations.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/routes/healthz/**` · Src: [8], project: docs/operations.md
 - **[PLAT-34] Readiness probes the upstream with a bounded call** — `/readyz` performs one `GET` to `<NUXT_GOAT_IT_API_BASE_URL>/health` with a 3 s timeout, no retry and no game key, and answers 200 `{ "status": "ready" }` or 503 `{ "status": "not_ready" }` without upstream status, URL, body or error text.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/routes/readyz/**` · Src: [8], project: docs/operations.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/routes/readyz/**` · Src: [8], project: docs/operations.md
 - **[PLAT-35] Readiness cache and single flight** — The readiness result, success or failure, is cached in-process for 5 s and concurrent cache misses share one in-flight upstream probe, bounding upstream calls to one per 5 s per process.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/routes/readyz/**` · Src: [8], project: docs/operations.md
 - **[PLAT-36] Readiness reflects an outage after the TTL** — With the Goat It API stopped, `GET /readyz` returns 503 at most 5 s plus one probe timeout after the last successful probe, and returns 200 again within the same delay after recovery.
@@ -127,7 +127,7 @@ Runtime platform of the Goat It Web Game: the multi-stage `Dockerfile` that turn
 - **[PLAT-46] Container resource limits** — The production container has memory, CPU and pids limits (`--memory`, `--cpus`, `--pids-limit` or `deploy.resources.limits`).
   Evidence: `manual` · Diff: ✗ · Severity: medium · Src: [3], [5]
 - **[PLAT-47] No Docker socket exposure** — No compose file, deploy script or workflow bind-mounts `/var/run/docker.sock` into a container.
-  Evidence: `static` · Diff: ✓ · Severity: critical · Look: `docker/**`, `.github/**` · Src: [3]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: critical · Look: `docker/**`, `.github/**` · Src: [3]
 
 ## 7. Reverse-proxy contract
 

@@ -24,13 +24,13 @@ Personal-data and legal compliance of the Goat It web game under EU and French l
 ## 1. Data and storage inventory
 
 - **[PRIV-01] Processing inventory documented** — `docs/privacy.md` lists every processing activity (preference cookies, Nuxt Content client database, Workbox Cache Storage, Pino server logs, rate-limiter client IP, Sentry client and server events, UptimeRobot probes, Goat It API upstream calls, host and reverse-proxy access logs) with purpose, data categories, recipients, transfers and retention.
-  Evidence: `static` · Diff: ✓ · Severity: high · Src: [1], [26]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Src: [1], [26]
 - **[PRIV-02] Cookie register matches `CookieNames`** — The cookie register has exactly one row per `CookieNames` value (`goat_it_locale`, `game_settings`, `game_tutorial_invitation_decided`, `changelog_state`) with name, purpose, exemption basis, lifetime and recipient, and a cookie added to or removed from the enum updates the register in the same change.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `shared/enums/cookie.enums.ts`, `shared/constants/cookie.constants.ts`, `app/composables/domain/use*Cookie/**` · Src: [2], [4]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `shared/enums/cookie.enums.ts`, `shared/constants/cookie.constants.ts`, `app/composables/domain/use*Cookie/**` · Src: [2], [4]
 - **[PRIV-03] Non-cookie terminal storage registered** — The register also lists the Nuxt Content client SQLite database (OPFS or IndexedDB, `sqlite3-opfs-async-proxy` worker) and the Workbox Cache Storage entries with purpose, contents, lifetime and clearing path, and describes the service worker and its caches as strictly necessary for the user-requested offline feature.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts`, `content/**` · Src: [4], [5], [8], project: docs/pwa.md
 - **[PRIV-04] No unregistered storage or tracker in source** — No `localStorage`, `sessionStorage`, `indexedDB`, `caches` or `document.cookie` access, analytics, advertising, pixel, fingerprinting, A/B-testing or social-embed SDK exists in `app/`, `shared/` or `package.json` beyond the registered items, and every `useCookie` name comes from `CookieNames`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**`, `shared/**`, `package.json` · Src: [4], [5]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**`, `shared/**`, `package.json` · Src: [4], [5]
 - **[PRIV-05] Runtime storage matches the register** — On a cold load of `/`, `/game` and `/rules` with cleared site data, the browser Application view shows only registered cookies and storage, and the Network view shows only same-origin requests plus the DSN-derived Sentry ingest origin.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [4], [5], [8]
 - **[PRIV-06] Rate-limiter IP processing inventoried** — The register states that the client IP is held only in the in-process rate-limiter `Map` for one window (`NUXT_RATE_LIMIT_WINDOW_IN_MS`, default `60000`), is never logged or persisted, and is processed for security and availability under a stated legal basis.
@@ -43,7 +43,7 @@ Personal-data and legal compliance of the Goat It web game under EU and French l
 - **[PRIV-08] Written exemption analysis per tracker** — Each cookie and storage item is mapped to art. 82 of the loi Informatique et Libertés and the CNIL exemption list (including whether the `game_settings.isAdultContentEnabled` preference is an expected UI personalisation), and the conclusion is dated.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [2], [4]
 - **[PRIV-09] No non-exempt tracker before consent** — A cold load with cleared storage and no recorded choice reads or writes no non-exempt tracker and sends no request to a non-exempt third party.
-  Evidence: `runtime` · Diff: ✗ · Severity: critical · Src: [2], [4]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: critical · Src: [2], [4]
 - **[PRIV-10] Client-side Sentry ePrivacy assessment** — A dated note concludes whether the browser Sentry SDK (which reads the User-Agent and referrer from the terminal) is strictly necessary for security and exempt, or must be consent-gated or disabled in the browser.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [4], [8], [19]
 - **[PRIV-11] Cookie lifetime capped at 13 months** — Every cookie's `maxAge` is at most `COOKIE_MAX_AGE_IN_SECONDS` (`34_214_400` s, the 13-month CNIL tracker-lifetime benchmark) through `DEFAULT_COOKIE_OPTIONS` or a shorter value justified in the register.
@@ -58,11 +58,11 @@ Personal-data and legal compliance of the Goat It web game under EU and French l
 ## 3. Transparency (privacy policy)
 
 - **[PRIV-15] Privacy policy page exists** — A privacy-policy route exists under `app/pages/**` (for example `/privacy`) and renders a complete policy, not a placeholder.
-  Evidence: `static` · Diff: ✓ · Severity: critical · Look: `app/pages/**` · Src: [1], [28]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: critical · Look: `app/pages/**` · Src: [1], [28]
 - **[PRIV-16] Policy in the six UI languages** — The policy content exists for `fr`, `en`, `de`, `es`, `it` and `pt` and the versions carry the same sections and the same update date.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `content/**`, `app/i18n/locales/**` · Src: [1], [28]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `content/**`, `app/i18n/locales/**` · Src: [1], [28]
 - **[PRIV-17] Policy linked from every page** — A privacy-policy link is present in the home footer, the docs layout, the game page (menu or settings "About" tab) and the offline page.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/domain/home/HomeFooter/**`, `app/layouts/**`, `app/components/domain/game/GameSettingsModal/**`, `app/pages/**` · Src: [9]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/components/domain/home/HomeFooter/**`, `app/layouts/**`, `app/components/domain/game/GameSettingsModal/**`, `app/pages/**` · Src: [9]
 - **[PRIV-18] Controller identity and contact stated** — The policy names the controller (legal name or denomination), a postal address and a privacy contact email; DPO details appear only if one is designated.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [9], [28]
 - **[PRIV-19] Purposes and legal bases per processing** — The policy gives a purpose and an Art. 6 legal basis for preference cookies, server logs and rate limiting, Sentry error tracking, uptime monitoring and the Goat It API calls.
@@ -94,7 +94,7 @@ Personal-data and legal compliance of the Goat It web game under EU and French l
 ## 5. Minimisation and Sentry data collection
 
 - **[PRIV-30] Restrictive `dataCollection` set explicitly** — The shared Sentry init builder sets `dataCollection` with `userInfo: false`, `cookies: false`, `httpHeaders: false`, `urlQueryParams: false`, `httpBodies: []` and `stackFrameVariables: false` — never left unset, because unset `dataCollection` collects inferred IP, cookies, headers, bodies and query strings by default in v11; both runtimes spread that builder into `init`, override no `dataCollection` key, and no `sendDefaultPii` option remains (replaced by `dataCollection` in v11) (verified: @sentry/nuxt 11.9.0).
-  Evidence: `static` · Diff: ✓ · Severity: critical · Look: `shared/utils/helpers/sentry/**` · Src: [32], [18], [19]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: critical · Look: `shared/utils/helpers/sentry/**` · Src: [32], [18], [19]
 - **[PRIV-31] IP-bearing names denied when collection is re-enabled** — When `httpHeaders`, `cookies` or `urlQueryParams` is set to `true` or an allow/deny object, the deny list includes `forwarded`, `-ip`, `remote-`, `via` and `-user`, because `userInfo: false` does not stop an IP arriving through `X-Forwarded-For` (verified: @sentry/nuxt 11.9.0).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `shared/utils/helpers/sentry/**`, `sentry.*.config.ts` · Src: [19], [32]
 - **[PRIV-32] No integration or API re-enables personal data** — No `Sentry.setUser` call (always sent), no `requestDataIntegration({ include: { ip: true } })` or other `include` override, and no `httpClientIntegration` (captures cookies and headers of failed browser requests) exists in app, server or shared code (verified: @sentry/nuxt 11.9.0).
@@ -124,7 +124,7 @@ Personal-data and legal compliance of the Goat It web game under EU and French l
 ## 7. Legal notice (LCEN art. 1-1)
 
 - **[PRIV-42] Legal notice page exists and is server-rendered** — A `mentions légales` route exists under `app/pages/**`, its content is available at least in French, and it answers 200 with its full text in the server-rendered HTML, readable without JavaScript.
-  Evidence: `static` · Diff: ✓ · Severity: critical · Look: `app/pages/**` · Src: [11], [9], [31]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: critical · Look: `app/pages/**` · Src: [11], [9], [31]
 - **[PRIV-43] Publisher, publication director and host identified** — The notice identifies the publisher (individual: name, first name, domicile, phone; company: denomination, legal form, capital, seat, RCS/RNE number, VAT where applicable) or a legal review confirms the LCEN art. 1-1 II non-professional option with the identity actually transmitted, names the publication director (or co-director), and gives the host name or denomination, address and phone number.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [11]
 - **[PRIV-44] Legal notice linked from every page** — A legal-notice link is present in the home footer, the docs layout, the game page (menu or settings "About" tab) and the offline page, not only inside the privacy policy.

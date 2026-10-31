@@ -23,15 +23,15 @@ collections and caps at every boundary, upstream contract compatibility with `@g
 ## 1. Timeouts & end-to-end budget
 
 - **[REL-01] Hop timeout inventory** — Every network hop has a named timeout constant with a documented value (browser→proxy, proxy→upstream, readiness probe); no hop relies on a library default, and a change adding a hop adds its constant.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `shared/constants/goat-it-api.constants.ts`, `server/utils/goat-it-api/goat-it-api.constants.ts`, `server/utils/goat-it-api/helpers/goat-it-api-readiness/**` · Src: [1], [9], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `shared/constants/goat-it-api.constants.ts`, `server/utils/goat-it-api/goat-it-api.constants.ts`, `server/utils/goat-it-api/helpers/goat-it-api-readiness/**` · Src: [1], [9], project: docs/security.md
 - **[REL-02] Client lane timeout** — Every async lane that wraps a network call passes an explicit timeout from the shared client options; repositories never set their own timeout.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/stores/**`, `app/composables/**` · Src: [1], project: docs/architecture.md §4.4
 - **[REL-03] Explicit `useAsyncData`/`useFetch` timeout** — When `useAsyncData`, `useFetch` or `useLazyFetch` fetches over the network, it passes an explicit `timeout`; the option defaults to `undefined` (no timeout) and its expiry aborts the handler signal (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**/*.vue`, `app/composables/**` · Src: [9], [10]
 - **[REL-04] Upstream timeout composed into the signal** — Every proxy→upstream call applies its timeout through the request signal, composed with the disconnect signal; no call relies on ofetch `timeout` together with `signal`, because ofetch ignores `timeout` when a `signal` is present (verified: ofetch 1.5.1).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-fetch-options/**`, `server/api/goat-it-api/**` · Src: [13], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-fetch-options/**`, `server/api/goat-it-api/**` · Src: [13], project: docs/security.md
 - **[REL-05] End-to-end budget arithmetic** — The client timeout (15 s) exceeds the proxy worst case — one 10 s signal created once per inbound request and shared by every upstream attempt and retry delay — plus proxy overhead, and this arithmetic is written in `docs/security.md`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `docs/security.md`, `server/utils/goat-it-api/helpers/goat-it-api-fetch-options/**` · Src: [1], [3], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `docs/security.md`, `server/utils/goat-it-api/helpers/goat-it-api-fetch-options/**` · Src: [1], [3], project: docs/security.md
 - **[REL-06] SSR fetches bounded** — Data fetched during SSR (store actions through `useRequestFetch`, `useAsyncData` handlers) runs under a timeout no longer than the client budget, so a slow upstream cannot hold an SSR document beyond 15 s; Nuxt waits for `useAsyncData` on the server before rendering (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/pages/**/*.vue`, `app/stores/**` · Src: [9], [3]
 - **[REL-07] Timeout behaviour at runtime** — With the upstream delayed beyond 10 s, a proxy call answers `504` with `data.errorCode = "upstream-timeout"` in about 10 s and the client lane ends in `error` before 15 s, with no endless pending state.
@@ -40,11 +40,11 @@ collections and caps at every boundary, upstream contract compatibility with `@g
 ## 2. Retries & backoff
 
 - **[REL-08] Idempotent-only retries** — Only `GET`/`HEAD` upstream calls retry: `createGoatItApiFetchOptions` resolves `retry: 0` for `POST` and for any `PUT`/`PATCH`/`DELETE` call; a custom `retry` value makes ofetch retry every method (verified: ofetch 1.5.1).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-fetch-options/**` · Src: [2], [13], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-fetch-options/**` · Src: [2], [13], project: docs/security.md
 - **[REL-09] Retry policy keyed on the real method** — Every handler passes the same `method` to `createGoatItApiFetchOptions` and to `$fetch`, so the retry policy cannot diverge from the method actually sent (the helper defaults to `GET`).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/api/goat-it-api/**` · Src: [2], project: docs/security.md
 - **[REL-10] No retry amplification** — Only one layer retries a hop: browser calls to `/api/goat-it-api/**` pass `retry: 0`, because ofetch retries `GET` once by default and stacks with the proxy's `GOAT_IT_API_REQUEST_RETRY_COUNT` retries (verified: ofetch 1.5.1); otherwise the stacked attempt count per user action is a documented decision.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/repositories/goat-it-api/**`, `app/stores/**` · Src: [1], [3], [13]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/repositories/goat-it-api/**`, `app/stores/**` · Src: [1], [3], [13]
 - **[REL-11] Backoff with jitter** — Retry delays are non-zero and grow between attempts with randomized jitter, or the fixed `GOAT_IT_API_REQUEST_RETRY_DELAY_IN_MS` is a documented choice bounded by the retry count; ofetch's default `retryDelay` is `0` ms (verified: ofetch 1.5.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/goat-it-api.constants.ts` · Src: [1], [3], [13]
 - **[REL-12] Retry predicate** — Retries fire only on network errors and transient statuses (408, 425, 5xx); other 4xx and Zod contract failures are terminal, and upstream `429` is never retried before its `Retry-After` delay — ofetch's default `retryStatusCodes` include `409` and `429` (verified: ofetch 1.5.1).
@@ -55,11 +55,11 @@ collections and caps at every boundary, upstream contract compatibility with `@g
 ## 3. Cancellation & latest-wins
 
 - **[REL-14] Client disconnect aborts upstream** — The upstream signal aborts when the inbound response closes before it was sent (`res.on("close")` with `!writableEnded`), freeing the upstream call; a request whose response was already sent is never aborted.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-fetch-options/**` · Src: [3], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-fetch-options/**` · Src: [3], project: docs/security.md
 - **[REL-15] Signal forwarded end to end** — Every repository method accepts `GoatItApiRequestOptions` and forwards `signal` unchanged to the fetch, and every store or composable action forwards the `{ signal }` it receives from `useAsyncAction`; no network call inside an async lane drops the signal.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/repositories/goat-it-api/**`, `app/stores/**` · Src: [3], project: docs/architecture.md §4.4
 - **[REL-16] Latest-wins lane** — Overlapping executions of one operation go through one `useAsyncAction` instance, which aborts the previous request with an `AbortError` reason and clears its timer before starting the next; no hand-rolled request id or `AbortController` bookkeeping exists outside it.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/composables/core/useAsyncAction/**`, `app/stores/**`, `app/composables/domain/**` · Src: [3], project: docs/architecture.md §4.2
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/composables/core/useAsyncAction/**`, `app/stores/**`, `app/composables/domain/**` · Src: [3], project: docs/architecture.md §4.2
 - **[REL-17] Separate lanes for independent operations** — Operations that may legitimately run concurrently (for example the random batch and the by-ids lookup) use distinct `useAsyncAction` instances, so one never cancels the other.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/stores/**` · Src: project: docs/architecture.md §4.3
 - **[REL-18] Superseded is a silent no-op** — A superseded result (`{ ok: false, superseded: true }`) writes no fetch status, no state and calls no `onError`, and callers narrow `result.superseded === true` before surfacing an error, so a cancellation never produces a toast or an error log.
@@ -74,9 +74,9 @@ collections and caps at every boundary, upstream contract compatibility with `@g
 ## 4. Graceful degradation
 
 - **[REL-22] Failure is never empty or success** — Stores apply only `ok` results; a failed or unparsable response (a repository `ZodError` surfaces as `{ ok: false, error }`) leaves existing state untouched and the lane in `error`, and no repository, store or handler converts a failure into `[]`, a default object or a success status.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/repositories/goat-it-api/**`, `app/stores/**`, `server/api/goat-it-api/**` · Src: [5], [12], project: docs/architecture.md §4.3
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/repositories/goat-it-api/**`, `app/stores/**`, `server/api/goat-it-api/**` · Src: [5], [12], project: docs/architecture.md §4.3
 - **[REL-23] Proxy failure statuses** — Upstream failures map to the error contract — `502` `upstream-error` (upstream 5xx, 401/403, redirect, network failure, contract drift), `504` `upstream-timeout`, `500` `internal-error` — each with `data.errorCode`; the proxy never answers `200` with an empty or partial body after an upstream failure.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-error/**` · Src: [5], project: docs/security.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/helpers/goat-it-api-error/**` · Src: [5], project: docs/security.md
 - **[REL-24] Retry-After propagation** — An upstream `429` keeps its status and forwards `Retry-After` as `data.retryAfter`, and every `429` or `503` the `/api/goat-it-api/**` proxy emits itself carries a `Retry-After` header, so clients back off instead of retrying immediately.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/utils/goat-it-api/helpers/goat-it-api-error/**`, `server/middleware/02-api-rate-limit.middleware.ts` · Src: [3], project: docs/security.md
 - **[REL-25] Degradation matrix documented** — `docs/operations.md` or `docs/security.md` maps each dependency failure (upstream 5xx, timeout, contract drift, `429`, client offline) to its HTTP status and `errorCode`; the expected system behaviour and detection for the same failures is covered by OPS-46.
@@ -95,7 +95,7 @@ collections and caps at every boundary, upstream contract compatibility with `@g
 ## 5. Limits at boundaries
 
 - **[REL-31] Proxy clamps page size** — Every proxy route that forwards a `limit` clamps it with `clampFindQueryLimit` to its `FIND_*_QUERY_LIMIT_MAXIMUM` (the `0` sentinel maps to the maximum), so a client cannot request an unbounded upstream page.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/api/goat-it-api/**`, `server/utils/goat-it-api/helpers/goat-it-api-find-query-limit/**` · Src: [3], [14]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/api/goat-it-api/**`, `server/utils/goat-it-api/helpers/goat-it-api-find-query-limit/**` · Src: [3], [14]
 - **[REL-32] Caps aligned with the upstream schema** — Each proxy cap (`FIND_QUESTIONS_QUERY_LIMIT_MAXIMUM`, `FIND_QUESTION_THEMES_QUERY_LIMIT_MAXIMUM`) is at most the maximum the matching `@goat-it/schemas` query DTO accepts, so a clamped request never fails upstream validation.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `shared/constants/goat-it-api.constants.ts` · Src: [14]
 - **[REL-33] Bounded request arrays** — Every array a proxy route accepts (query `ids`, random-search exclusion list) is bounded by a `.max()` in its validation schema before any upstream call, and a request over the bound fails with `400` `invalid-request`.

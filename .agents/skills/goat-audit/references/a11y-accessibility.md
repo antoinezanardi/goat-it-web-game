@@ -26,13 +26,13 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 ## 1. Automated coverage
 
 - **[A11Y-01] Axe scan on every route** — Every routed page, including the offline and error pages, has an `@accessibility`-tagged scenario ending with `the page should not contain accessibility issues in <view> mode`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `tests/acceptance/features/**/*accessibility*.feature`, `app/pages/**` · Src: [4], [8]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `tests/acceptance/features/**/*accessibility*.feature`, `app/pages/**` · Src: [4], [8]
 - **[A11Y-02] Axe scan on every interactive state** — Every overlay is scanned while open (each modal and its tabs, the sidebar, every tutorial step, confirm dialogs, a visible toast, the offline indicator) and every non-idle game state is scanned while visible (loading, fetch-error, empty-filters and terminal).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `tests/acceptance/features/**/*accessibility*.feature` · Src: [4], [8]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `tests/acceptance/features/**/*accessibility*.feature` · Src: [4], [8]
 - **[A11Y-03] Desktop and mobile viewports** — Every accessibility scenario runs at a desktop viewport and at a mobile viewport (width ≤ 390 CSS px).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `tests/acceptance/features/**/*accessibility*.feature`, `tests/acceptance/features/step-definitions/accessibility/**` · Src: [4], [8]
 - **[A11Y-04] WCAG 2.2 AA tag set** — `AXE_TAGS` passed to `AxeBuilder.withTags()` contains `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa` and `best-practice`, so `region`, `landmark-one-main`, `page-has-heading-one`, `heading-order` and `aria-dialog-name` (best-practice rules) also run.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `tests/acceptance/features/step-definitions/accessibility/**` · Src: [8]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `tests/acceptance/features/step-definitions/accessibility/**` · Src: [8]
 - **[A11Y-05] `target-size` rule explicitly enabled** — The axe call enables `target-size` explicitly (for example `.options({ rules: { "target-size": { enabled: true } } })`), because axe-core ships WCAG 2.2 rules disabled by default and a tag filter alone is not proof they run.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `tests/acceptance/features/step-definitions/accessibility/**` · Src: [8], [2]
 - **[A11Y-06] `incomplete` results surfaced** — The axe helper logs or writes `results.incomplete` (needs-review items such as `color-contrast` on gradients, `aria-hidden-focus`) instead of asserting `violations` only, so needs-review nodes reach a human verdict.
@@ -57,7 +57,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 - **[A11Y-14] Semantic lists for grouped items** — Groups of like items (question source lists, theme stacks, filter options, sidebar entries, changelog entries, rules table of contents) are `ul`/`ol` + `li` or a documented ARIA pattern, not sibling `div`s (1.3.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue` · Src: [8], [1]
 - **[A11Y-15] Buttons are buttons, links are links** — Navigation uses `NuxtLink`, `ULink` or `UButton` with `to` (real `<a href>`); actions use `<button>` or `UButton`; no `@click` on `div`, `span`, `li`, `img` or `svg`, and no `<a>` without `href`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [5], [6], [1]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [5], [6], [1]
 - **[A11Y-16] Current location exposed** — The active item of every navigation set (docs table of contents, settings tabs, tutorial progress) exposes `aria-current` (`page`, `location` or `step`) on exactly one item.
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/components/docs/**`, `app/components/domain/game/GameTutorial/**` · Src: [6], [1]
 - **[A11Y-17] DOM order matches visual order** — Interactive content is not visually reordered with CSS `order`, `flex-row-reverse`, `flex-col-reverse` or absolute positioning in a way that changes reading or tab sequence (1.3.2, 2.4.3).
@@ -66,11 +66,11 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 ## 3. Keyboard
 
 - **[A11Y-18] Every core task keyboard-only** — A keyboard-only Playwright run completes every core task — start a game, read a question, navigate next/previous, open the sidebar, apply filters, change settings and language, run and skip the tutorial, open the changelog, dismiss a toast — with the Tab sequence following the painted reading order (2.1.1, 2.4.3).
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [4]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [1], [4]
 - **[A11Y-19] No keyboard trap** — Tab and Shift+Tab leave every non-modal region, and Escape closes every dismissible overlay, sidebar and tutorial popover, returning to the page (2.1.2).
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [9]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [1], [9]
 - **[A11Y-20] Shortcuts never fire while typing** — Every `defineShortcuts` binding keeps the default `usingInput: false` (the shortcut triggers only when no input is focused; verified: @nuxt/ui 4.12.0); a binding that sets `usingInput: true` or an input name returns early when the received `KeyboardEvent` has `isComposing === true`, so typing and IME composition never submit, confirm or close anything.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/**/*.vue`, `app/composables/**` · Src: [24], [12], [1]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/components/**/*.vue`, `app/composables/**` · Src: [24], [12], [1]
 - **[A11Y-21] Custom key handlers ignore editable targets** — Every raw `keydown`/`keyup` listener (`useEventListener`, `onKeyStroke`, `@keydown`) used for game navigation or the tutorial returns early for `input`, `textarea`, `select`, `[contenteditable]` and `role="combobox"` targets and for `event.isComposing`, through the shared editable-target helper.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/**/*.vue`, `app/composables/**`, `app/utils/core/element/**` · Src: [12], [1]
 - **[A11Y-22] Arrow keys keep text-editing behaviour** — With focus in a text field, select menu or multi-select, arrow keys move the caret or the option highlight and never change the question or tutorial step.
@@ -84,7 +84,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 - **[A11Y-26] No positive `tabindex`** — No element uses `tabindex` greater than `0` (axe `tabindex`); focusability changes use `0` or `-1` only.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue` · Src: [8], [1]
 - **[A11Y-27] Focus indicator never removed** — No component class, `app.config.ts` slot override or stylesheet applies `outline-none`, `focus:outline-none`, `focus-visible:outline-none`, `ring-0` on focus or `outline: none` without a visible `focus-visible` replacement (2.4.7).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue`, `app/config/**`, `app/assets/css/**`, `app/app.config.ts` · Src: [1], [4]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.vue`, `app/config/**`, `app/assets/css/**`, `app/app.config.ts` · Src: [1], [4]
 - **[A11Y-28] Focus indicator visible on every control type** — A computed-style or screenshot check shows a non-transparent focus indicator on buttons, links, cards, chips, tabs, switches, select triggers and the tutorial popover controls.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [4]
 - **[A11Y-29] Focus never fully obscured** — For every focus stop, the focused element is not entirely hidden behind the sidebar toggle, sticky headers, the toast stack, the offline indicator or the tutorial spotlight overlay (2.4.11).
@@ -95,15 +95,15 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 ## 4. Focus management
 
 - **[A11Y-31] Dialog initial focus is deliberate** — On opening settings, filters, changelog, confirm dialog or the sidebar, `document.activeElement` is inside the overlay (first control, or the title with `tabindex="-1"` for long content), never `body`.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [9]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [9]
 - **[A11Y-32] Focus returns to the invoker** — Closing any overlay with Escape, the close button, the primary action or an outside click returns focus to its trigger; when the trigger no longer exists, focus lands on a logical successor (for example the sidebar toggle), never `body`.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [9]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [9]
 - **[A11Y-33] Background inert while modal** — While a modal overlay is open, Tab never leaves it, the dialog has `aria-modal="true"` and outside content is inert or hidden without any `aria-hidden="true"` ancestor of the dialog (`aria-hidden-focus` passes); non-modal popovers and tooltips never carry `aria-modal`.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [9], [8]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [9], [8]
 - **[A11Y-34] Escape and outside click keep working** — `UModal`, `USlideover` and `UPopover` keep the default `dismissible: true` (Escape and outside click close; verified: @nuxt/ui 4.12.0); any `:dismissible="false"` overlay provides a visible keyboard-reachable close or cancel action and handles `close:prevent`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/**/*.vue` · Src: [25], [26], [30]
 - **[A11Y-35] Route announcer mounted** — A route announcer is mounted once at the application root, so client-side navigations announce the new page title (Nuxt's `<NuxtRouteAnnouncer>`).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/App.vue`, `app/layouts/**` · Src: [7], [6]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/App.vue`, `app/layouts/**` · Src: [7], [6]
 - **[A11Y-36] Navigation is announced and moves focus** — After each client-side navigation (home → game, game → rules, rules → home), the announcer text equals the new title and the next Tab starts inside `main` because focus was moved to `main` or the `h1` (Nuxt does not move focus itself).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [6], [7]
 - **[A11Y-37] Focus survives reactive re-render** — Going to the next or previous question, applying filters, toggling settings and switching locale never leave `document.activeElement === body`; focus stays on the same logical control or moves deliberately.
@@ -116,11 +116,11 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 ## 5. ARIA patterns
 
 - **[A11Y-40] Icon-only buttons have an accessible name** — Every `UButton`, `ULink`, `<button>` or `<a>` rendered without visible text (only `icon`, `leading-icon`, `trailing-icon`, avatar or an icon slot) sets a translated `aria-label` or `aria-labelledby` naming the action, not the icon; `UButton` `label` is optional and the component adds no name by itself (verified: @nuxt/ui 4.12.0).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [23], [8], [1]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [23], [8], [1]
 - **[A11Y-41] Label in name** — When a control has both visible text and an `aria-label`, the accessible name contains the visible text, ideally at the start (`label-content-name-mismatch`, 2.5.3).
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue` · Src: [8], [1]
 - **[A11Y-42] Dialogs have an accessible name** — Every `UModal` and `USlideover` sets the `title` prop or `#title` slot (also when the `#content` slot is used), because without one Nuxt UI renders an empty visually hidden `DialogTitle` and the dialog is nameless (verified: @nuxt/ui 4.12.0); `aria-dialog-name` passes.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/components/**/*.vue` · Src: [25], [26], [9], [8]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/components/**/*.vue` · Src: [25], [26], [9], [8]
 - **[A11Y-43] Interactive popovers are named** — Every `UPopover` whose content contains controls (tutorial steps, theme stack details) passes an `aria-label` or `aria-labelledby` through its `content` props.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/components/domain/game/GameTutorial/**`, `app/components/domain/game/GameQuestionCard/**` · Src: [9], [8]
 - **[A11Y-44] Select and menu widgets are operable** — Every `USelect`, `USelectMenu` and `UDropdownMenu` (locale select, filter multi-selects) has an accessible name, opens with Enter/Space/ArrowDown, moves with arrows, and Escape closes it and restores focus to the trigger with `aria-expanded` in sync.
@@ -171,7 +171,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 ## 8. Contrast and colour
 
 - **[A11Y-63] Text contrast** — All text, including muted and dimmed text, placeholders, badges, chips, docs pages and disabled-adjacent labels, reaches 4.5:1 (3:1 for large text) against its background in every scanned state (`color-contrast`, 1.4.3); text on gradients, images or transformed layers that axe reports as `incomplete` has a dated manual measurement.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [4], [8]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [1], [4], [8]
 - **[A11Y-64] Token pairs meet contrast** — Every foreground/background token pair defined for text in `app/assets/css/**` and the `ui.colors` mapping in `app/app.config.ts` computes to at least 4.5:1, and colour opacity modifiers on text (for example `/60`) are included in the computation.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/assets/css/**`, `app/app.config.ts`, `app/config/**` · Src: [1], [4]
 - **[A11Y-65] Non-text contrast** — Input borders, switch track and thumb, progress indicators, selected-state outlines and focus indicators reach 3:1 against adjacent colours (1.4.11).
@@ -201,7 +201,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 ## 10. Layout and zoom
 
 - **[A11Y-75] Viewport allows zoom** — The `app.head.viewport` meta starts with `width=device-width, initial-scale=1` and contains no `user-scalable=no` and no `maximum-scale` below 5 (`meta-viewport`).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [8], [4]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [8], [4]
 - **[A11Y-76] Reflow at 320 CSS px** — At 320 CSS px width (400 % zoom of 1280 px), every page and overlay (modals, tutorial popover, sidebar) needs no horizontal scrolling and loses no content or function (1.4.10).
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [4]
 - **[A11Y-77] Text resizes to 200 %** — At 200 % text size, no label, button text, badge or question text is clipped, overlapped or truncated without a way to read it (1.4.4).
@@ -218,7 +218,7 @@ Conformance of the Goat It web game (Nuxt 4 SSR, Nuxt UI 4 on Reka primitives, s
 ## 11. Pointer and touch
 
 - **[A11Y-82] Targets meet 24×24 CSS px** — Every pointer target is at least 24×24 CSS px or spaced so a 24 px circle centred on it does not intersect another target, and icon-only controls never use sizing that yields less than 24×24 CSS px unless the 24 px spacing exception applies; inline links in sentences are exempt (`target-size`, 2.5.8).
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [1], [2], [8]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [1], [2], [8]
 - **[A11Y-83] Activation on the up event** — No action fires on `@pointerdown`, `@mousedown` or `@touchstart`; activation uses `click` or the up event so sliding off a target cancels it (2.5.2).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue`, `app/composables/**` · Src: [1]
 - **[A11Y-84] No hover-only functionality** — Everything revealed on hover (theme stack details, tooltips, card affordances) is also reachable by tap and keyboard focus.

@@ -20,23 +20,23 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
 ## 1. Workflow hardening
 
 - **[CICD-01] Actions pinned to full commit SHAs** — Pin every remote `uses:` reference in `.github/workflows/*.yml` and in the composite actions `.github/actions/*/action.yml` (including sub-path actions such as `github/codeql-action/init` and `actions/cache/restore`) to a full 40-hex commit SHA followed by a version comment (`# v7`, `# v2.2.0`); only local `./.github/...` references are exempt, and no tag or branch ref (`@v4`, `@main`) remains.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/*.yml`, `.github/actions/*/action.yml` · Src: [2], [4], [7]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/workflows/*.yml`, `.github/actions/*/action.yml` · Src: [2], [4], [7]
 - **[CICD-02] Read-only top-level permissions** — Every workflow declares a top-level `permissions:` block set to `{}` or `contents: read`, so no job inherits the repository default token scope.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/*.yml` · Src: [2], [4], [8]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/workflows/*.yml` · Src: [2], [4], [8]
 - **[CICD-03] Write scopes granted per job** — Grant write scopes (`contents: write`, `pull-requests: write`, `issues: write`, `security-events: write`, `id-token: write`) only at job level on the jobs that call the matching API; never at workflow level and never `write-all`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/*.yml` · Src: [4], [8]
 - **[CICD-04] Read-only default workflow token** — `gh api repos/{owner}/{repo}/actions/permissions/workflow` returns `default_workflow_permissions: "read"` and `can_approve_pull_request_reviews: false`.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [4]
 - **[CICD-05] No dangerous triggers** — No workflow uses `pull_request_target` or `issue_comment`, and pull-request automation runs on `pull_request`, whose token is read-only for forks; a `workflow_run` trigger exists only with a documented reason and checks out the trusted default branch, never the triggering PR head.
-  Evidence: `static` · Diff: ✓ · Severity: critical · Look: `.github/workflows/*.yml` · Src: [2], [4], [8]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: critical · Look: `.github/workflows/*.yml` · Src: [2], [4], [8]
 - **[CICD-06] No template injection in run steps** — No `run:` body or `actions/github-script` `script:` interpolates `${{ github.event.* }}` strings, `${{ github.head_ref }}`, `${{ inputs.* }}`, `${{ env.* }}` or step outputs directly, in workflows and composite actions alike; values flow through `env:` and are used as quoted shell variables (`"$PR_TITLE"`).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/*.yml`, `.github/actions/*/action.yml` · Src: [4], [8]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/workflows/*.yml`, `.github/actions/*/action.yml` · Src: [4], [8]
 - **[CICD-07] Checkout credentials not persisted** — Every `actions/checkout` step sets `persist-credentials: false`, except in a job that pushes (release, `main` → `develop` sync), where `persist-credentials: true` or an explicit `token:` is written deliberately.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/*.yml` · Src: [4], [8]
 - **[CICD-08] Secrets scoped to the consuming step** — Set `GITHUB_TOKEN`, `GH_TOKEN`, `SEMANTIC_RELEASE_TOKEN` and other secrets in the `env:`/`with:` of the step that uses them, not in workflow-level or job-level `env:` where every step (including third-party actions such as `pnpm/action-setup`) receives them; reusable-workflow calls pass an explicit `secrets:` map, never `secrets: inherit`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/*.yml` · Src: [1], [4], [8]
 - **[CICD-09] No production credentials in pull-request jobs** — Jobs triggered by `pull_request` never receive production secrets (e.g. `PRODUCTION_GOAT_IT_API_GAME_KEY`, `PRODUCTION_GOAT_IT_API_BASE_URL`); PR builds use staging or sandbox values, and production secrets are reachable only from `main`/release workflows or a `production` environment.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml` · Src: [1], [4]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/workflows/build.yml` · Src: [1], [4]
 - **[CICD-10] Personal access tokens minimized** — `SEMANTIC_RELEASE_TOKEN` and `BYOB_TOKEN` are fine-grained, single-repository, expiring tokens limited to the scopes their job needs, and `GITHUB_TOKEN` is used wherever it suffices.
   Evidence: `manual` · Diff: ✗ · Severity: high · Src: [1], [4]
 - **[CICD-11] Release content isolated from caches** — Workflows that publish or write repository state (release, release-PR, deploy) never feed files restored by the cache into release content, PR bodies or images; data passes between jobs through run-scoped artifacts or job outputs, and caches those jobs restore cannot be seeded by pull-request runs.
@@ -55,9 +55,9 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
 ## 2. CI completeness
 
 - **[CICD-17] PR CI runs every AGENTS.md quality gate** — Pull requests to `develop` and `main` run the CI equivalents of the four `AGENTS.md` gates — `pnpm run lint` (ESLint and Oxlint), `pnpm run typecheck`, `pnpm run test:unit:cov`, `pnpm run test:acceptance` — each in a job that blocks the merge.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml`, `.github/actions/*/action.yml`, `AGENTS.md` · Src: [9], project: AGENTS.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/workflows/build.yml`, `.github/actions/*/action.yml`, `AGENTS.md` · Src: [9], project: AGENTS.md
 - **[CICD-18] Gate failures fail the job** — No gate step is neutralized by `continue-on-error: true`, `|| true` or `set +e` unless a later step of the same job exits non-zero on `steps.<id>.outcome != 'success'`.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/actions/*/action.yml`, `.github/workflows/*.yml` · Src: [1], project: AGENTS.md
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/actions/*/action.yml`, `.github/workflows/*.yml` · Src: [1], project: AGENTS.md
 - **[CICD-19] CodeQL on every PR and on main** — CodeQL (`javascript,typescript`) runs on every pull request to `develop` and `main` and on push to `main`, with `security-events: write` granted only to that job.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/build.yml`, `.github/workflows/release-creation.yml`, `.github/actions/code-ql/action.yml` · Src: [2], [9]
 - **[CICD-20] Scheduled CI run** — A `schedule:` trigger (at least weekly) runs CodeQL and the build, lint and test gates against the default branch, so analysis-rule updates and toolchain drift surface without pull-request activity (the scheduled dependency scan itself belongs to SUP).
@@ -70,9 +70,9 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
 ## 3. Rulesets and CODEOWNERS
 
 - **[CICD-23] Rulesets protect main and develop** — `gh api repos/{owner}/{repo}/rulesets` shows active branch rulesets targeting `refs/heads/main` and `refs/heads/develop` that block deletion and non-fast-forward pushes and require a pull request, since anyone able to push to a semantic-release branch can publish a release.
-  Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [6], [14]
+  Evidence: `command` · Diff: ✗ · Core: ✓ · Severity: high · Src: [2], [6], [14]
 - **[CICD-24] Required status checks match real jobs** — The rulesets require every blocking job of the pull-request workflow (including CodeQL, workflow lint, codebase lint, dependency audit, build, Docker build per platform, unit and acceptance tests), the PR-title lint and, for `main`, the main-branch protection job, with `strict_required_status_checks_policy: true`; no required context names a renamed or deleted job.
-  Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [6]
+  Evidence: `command` · Diff: ✗ · Core: ✓ · Severity: high · Src: [2], [6]
 - **[CICD-25] Required review enforced** — The rulesets require at least one approving review, code-owner review, dismissal of stale approvals on push and approval of the last push; a single-maintainer exception is recorded as a decision.
   Evidence: `command` · Diff: ✗ · Severity: high · Src: [2], [6]
 - **[CICD-26] No ruleset bypass actors** — The bypass list of every branch ruleset is empty; Scorecard treats any bypass actor as protections not enforced for admins.
@@ -91,7 +91,7 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
 - **[CICD-31] Release branches match release workflows** — `branches` in `configs/semantic-release/release.config.mjs` lists only branches on which a workflow runs semantic-release or a documented dry-run version preview (`script:create-release-changelog` on `develop`), and the release step's `--extends` path points to that file (verified: semantic-release 25.0.9).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/semantic-release/**`, `.github/workflows/release-creation.yml`, `.github/workflows/upsert-pr-release.yml` · Src: [14]
 - **[CICD-32] Release gated by green gates** — The semantic-release job `needs:` the blocking quality jobs of the same run (at least CodeQL and the unit and acceptance tests), so a red `main` never publishes a tag, a GitHub Release or a production deploy.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `.github/workflows/release-creation.yml` · Src: [1], [9]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `.github/workflows/release-creation.yml` · Src: [1], [9]
 - **[CICD-33] Commit types map to SemVer** — `releaseRules` keep `feat` → minor, `fix` → patch and breaking changes (`!` or a `BREAKING CHANGE:` footer) → major; any extra patch-releasing type (`docs`, `style`, `refactor`, `test`, `ci`, `chore`) is a documented choice.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `configs/semantic-release/**` · Src: [10], [11], [14]
 - **[CICD-34] Tag equals manifest version** — Every release tag follows `tagFormat` `v${version}` (semantic-release default), is strict SemVer and unique, equals the `package.json` `version` of the tagged commit and the matching `CHANGELOG.md` heading, and has a GitHub Release (verified: semantic-release 25.0.9).
@@ -114,7 +114,7 @@ Covers how code reaches production for this Nuxt 4 quiz game: GitHub Actions wor
 - **[CICD-41] Provenance verified before deploy** — When the image is attested, the deploy job runs `gh attestation verify oci://<image>@sha256:<digest>` (or a cosign signature check) and fails before the SSH step if verification fails.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/workflows/deploy-*.yml` · Src: [3], [5]
 - **[CICD-42] Pinned SSH host key** — The deploy action connects with `StrictHostKeyChecking=yes` and a `known_hosts` entry supplied from a reviewed secret, never generated by `ssh-keyscan` at deploy time; no staging or production workflow passes `strict-host-key-checking: "no"`.
-  Evidence: `static` · Diff: ✓ · Severity: critical · Look: `.github/actions/deploy/action.yml`, `.github/workflows/deploy-*.yml` · Src: [4]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: critical · Look: `.github/actions/deploy/action.yml`, `.github/workflows/deploy-*.yml` · Src: [4]
 - **[CICD-43] SSH inputs passed safely** — The deploy action passes user, host and update-script path through `env:` and quotes them (`ssh "$SSH_USER@$SSH_HOST"`), with no `${{ inputs.* }}` interpolated into the `run:` body or the SSH heredoc.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `.github/actions/deploy/action.yml` · Src: [8]
 - **[CICD-44] Key material contained** — The private key is written with `chmod 600` and never echoed to logs, `set -x` is absent from secret-handling steps, and an `if: always()` step deletes the key file and kills `ssh-agent`.

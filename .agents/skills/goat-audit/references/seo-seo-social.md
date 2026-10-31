@@ -26,19 +26,19 @@ Covers how search engines and social platforms discover, render, index and prese
 ## 1. Indexing per environment
 
 - **[SEO-01] Site environment derived from `NUXT_SITE_ENV`** — `site.env` derives from `NUXT_SITE_ENV` when non-empty, otherwise `production` only when `NODE_ENV` is production; `site.indexable` is never set explicitly so it stays derived from `env`, and `sitemap.enabled` derives from the same environment value so one switch gates indexability and the sitemap (verified: nuxt-site-config 5.0.3).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts`, `shared/utils/helpers/site/**` · Src: [24], [51], project: docs/architecture.md §9.1
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts`, `shared/utils/helpers/site/**` · Src: [24], [51], project: docs/architecture.md §9.1
 - **[SEO-02] Same `NUXT_SITE_ENV` at build and runtime** — The Docker build stage receives `NUXT_SITE_ENV` as a build argument and the runtime stage carries the same value. The production deploy passes `production` and the staging deploy passes `staging`, because the generated site config, `sitemap.enabled` and the static robots rules are serialized at build time.
   Evidence: `static` · Diff: ✓ · Severity: high · Look: `Dockerfile`, `.github/workflows/deploy-*.yml`, `.github/actions/docker-build/**` · Src: [41], project: docs/architecture.md §9.1
 - **[SEO-03] Robots header and meta tag stay enabled** — `robots.header` and `robots.metaTag` are not set to `false` (both default to `true`), so every page gets both the `X-Robots-Tag` header and the `<meta name="robots">` tag (verified: @nuxtjs/robots 7.0.2).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts` · Src: [44], [7]
 - **[SEO-04] Staging responses carry `noindex`** — On the staging host, every HTML 200 response for `/`, `/game` and `/rules` carries `X-Robots-Tag: noindex, nofollow` and a `<meta name="robots" content="noindex, nofollow">` in the SSR `<head>` (verified: @nuxtjs/robots 7.0.2).
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [7], [41], [44]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [7], [41], [44]
 - **[SEO-05] Staging `robots.txt` blocks all crawlers** — `GET /robots.txt` on the staging host answers `User-agent: *` with `Disallow: /`, and `/sitemap.xml` answers 404 with no `Sitemap:` line in `robots.txt` (verified: @nuxtjs/robots 7.0.2).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [41], [20], [8]
 - **[SEO-06] Production `robots.txt` is not a blanket block** — `GET /robots.txt` on the production host answers 200, UTF-8, under 500 KiB, with no `Disallow: /` for `User-agent: *` or `Googlebot`, no disallow of rendering assets (`/_nuxt/`, `/_i18n/`, `/fonts/`, `/img/`, `/pwa/`, `/og-image.png`, `/favicon.ico`), and an absolute `Sitemap:` line (verified: @nuxtjs/robots 7.0.2).
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [8], [36]
 - **[SEO-07] Production pages are indexable** — On the production host, `/`, `/game` and `/rules` carry neither a `noindex` robots meta nor a `noindex` `X-Robots-Tag`; the robots meta is `index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1` (verified: @nuxtjs/robots 7.0.2).
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [37], [44], [2]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [37], [44], [2]
 - **[SEO-08] Offline fallback is noindexed** — `routeRules["/offline"]` keeps `robots: false`, so the prerendered fallback sends `X-Robots-Tag: noindex, nofollow` plus the robots meta and never appears in `sitemap.xml` (verified: @nuxtjs/robots 7.0.2).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts` · Src: [25], [42], project: docs/pwa.md §6
 - **[SEO-09] Deindexing uses `noindex`, not `Disallow`** — When a production URL must leave the index, it is served with `noindex` and stays crawlable: `robots.disallow`, `robots.groups` and any `public/robots.txt` or `public/_robots.txt` do not disallow it, because a crawler that obeys `robots.txt` never reads the `noindex` (verified: @nuxtjs/robots 7.0.2).
@@ -47,20 +47,20 @@ Covers how search engines and social platforms discover, render, index and prese
 ## 2. Titles and descriptions
 
 - **[SEO-10] Every indexable page sets its own title and description** — `/`, `/game` and `/rules` each call `useSeoMeta` with `title` and `description` from `seo.<page>.title` and `seo.<page>.description`. No indexable page relies on the `nuxt-seo-utils` fallback title, which is derived from the last URL slug (verified: nuxt-seo-utils 9.0.1).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/pages/**/*.vue`, `app/i18n/locales/*/seo.json` · Src: [11], [48]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/pages/**/*.vue`, `app/i18n/locales/*/seo.json` · Src: [11], [48]
 - **[SEO-11] SSR `<title>` is non-empty and page-specific** — For `/`, `/game` and `/rules` in each of the six locales, the server-rendered `<title>` is non-empty, in the rendered locale, not the site name alone and not a bare separator such as `| Goat It`.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [11], [23]
 - **[SEO-12] Titles and descriptions are unique per page** — In every `app/i18n/locales/<locale>/seo.json`, `seo.home/game/rules.title` are pairwise distinct and share no boilerplate beyond the brand; their `description` values are pairwise distinct, summarize each page in one or two sentences, and are not site-wide boilerplate.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/i18n/locales/*/seo.json` · Src: [11]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/i18n/locales/*/seo.json` · Src: [11]
 - **[SEO-13] Site name appears exactly once** — Either the default `%s %separator %siteName` template appends `SITE_NAME` to brand-free page titles, or `app.head.titleTemplate` is `"%s"` and every `seo.<page>.title` contains `Goat It` exactly once; each title puts the page-specific term before the brand so mobile truncation keeps the distinguishing text (verified: nuxt-seo-utils 9.0.1).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `nuxt.config.ts`, `app/i18n/locales/*/seo.json` · Src: [11], [48]
 
 ## 3. Canonical URLs
 
 - **[SEO-14] Site URL is the absolute production origin** — `site.url` resolves from `NUXT_PUBLIC_SITE_URL` to an absolute `https://` origin without trailing path for each deployment, and the production deploy passes the production origin. Without it, site config falls back to the request URL at runtime (verified: nuxt-site-config 5.0.3).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts`, `envs/.env.example`, `.github/workflows/deploy-*.yml` · Src: [6], [51]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts`, `envs/.env.example`, `.github/workflows/deploy-*.yml` · Src: [6], [51]
 - **[SEO-15] Exactly one self-referencing canonical** — Every 200 HTML page (`/`, `/game`, `/rules`) contains exactly one `<link rel="canonical">` whose `href` is its own absolute URL built from `site.url` and the current route, using the production host over `https://` and never the staging host, `http://`, `localhost` or an attacker-supplied `Host` (verified: nuxt-seo-utils 9.0.1).
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [6], [47]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [6], [47]
 - **[SEO-16] Tracking parameters stripped from canonical** — `/?utm_source=x&gclid=y` canonicalizes to `https://<host>/`. `seo.canonicalQueryWhitelist` only keeps parameters that change page content (default `page`, `sort`, `filter`, `search`, `q`, `category`, `tag`) (verified: nuxt-seo-utils 9.0.1).
   Evidence: `runtime` · Diff: ✗ · Severity: medium · Src: [6], [47]
 - **[SEO-17] Path variants resolve to one URL** — `/game/`, `/Game` and `/rules/` either answer a single-hop 301/308 to the canonical path, a 404, or a 200 whose canonical is the slash-less lowercase path; every permanent redirect (www/apex, legacy paths) answers 301/308 straight to the final canonical URL with no chain, and no canonical, sitemap `<loc>` or internal link targets a redirecting URL.
@@ -101,7 +101,7 @@ Covers how search engines and social platforms discover, render, index and prese
 ## 6. Social cards
 
 - **[SEO-31] Core Open Graph tags on every page** — The SSR `<head>` of `/`, `/game` and `/rules` contains `og:title`, `og:description`, `og:type` = `website`, `og:url` and `og:site_name`.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [17], [47]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [17], [47]
 - **[SEO-32] Social text mirrors the page metadata** — Each page passes `ogTitle` and `ogDescription` from the same `seo.<page>.title` and `seo.<page>.description` keys as `title` and `description`.
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**/*.vue` · Src: [17]
 - **[SEO-33] `og:image` is an absolute HTTPS URL** — `og:image` and `twitter:image` resolve to `https://<production-host>/og-image.png` (or a CDN URL), never a relative `/og-image.png`.
@@ -125,16 +125,16 @@ Covers how search engines and social platforms discover, render, index and prese
 ## 8. Rendering and crawlability
 
 - **[SEO-40] Indexable routes stay server-rendered** — `ssr` stays `true`, no route rule sets `ssr: false` or `noScripts` on `/`, `/game` or `/rules`, and hash routing (`router.options.hashMode`) is not enabled.
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [3]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `nuxt.config.ts` · Src: [3]
 - **[SEO-41] SSR HTML contains the content** — With JavaScript disabled, `/`, `/game` and `/rules` show their main copy and navigation links in the server HTML (`/rules` includes the full rules content), and primary content — the game explanation on `/`, the rules on `/rules` — is visible without opening a tab, accordion or modal.
   Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [3], [2]
 - **[SEO-42] Head metadata is in the initial HTML** — Title, description, canonical, Open Graph tags, robots meta and JSON-LD are present in the SSR response source, not only after hydration.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [3]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [3]
 
 ## 9. Sitemap
 
 - **[SEO-43] Production sitemap is valid XML** — On production, `GET /sitemap.xml` answers 200 with an XML content type and a UTF-8 `<urlset>` of absolute canonical URLs, within 50,000 URLs and 50 MB uncompressed.
-  Evidence: `runtime` · Diff: ✗ · Severity: high · Src: [28], [9]
+  Evidence: `runtime` · Diff: ✗ · Core: ✓ · Severity: high · Src: [28], [9]
 - **[SEO-44] Sitemap is prerendered at build** — With `sitemap.zeroRuntime: true`, a production build (`NUXT_SITE_ENV=production`) contains `.output/public/sitemap.xml`, because `/sitemap.xml` is added to `nitro.prerender.routes` and generation never runs at runtime (verified: @nuxtjs/sitemap 9.1.0).
   Evidence: `artifact` · Diff: ✗ · Severity: high · Src: [46], project: docs/architecture.md §9.1
 - **[SEO-45] Only indexable pages listed** — The production sitemap lists `/`, `/game` and `/rules` and excludes `/offline`, error pages, `/api/**`, `/_nuxt/**`, noindexed routes and redirecting URLs.

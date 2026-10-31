@@ -27,9 +27,9 @@ Correct use of the framework and library APIs this product is built on: Nuxt 4 d
 ## 1. Nuxt data fetching and SSR
 
 - **[STACK-01] No bare `$fetch` in setup for SSR-rendered data** — Data rendered during SSR is loaded through `useAsyncData`/`useFetch`, or through a store action awaited inside `callOnce`; no top-level `await $fetch(...)` or direct repository call runs in `<script setup>`, a composable body or a plugin, because `$fetch` does not transfer state to the client and the request runs again during hydration (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue`, `app/composables/**`, `app/plugins/**` · Src: [3]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.vue`, `app/composables/**`, `app/plugins/**` · Src: [3]
 - **[STACK-02] Request-aware fetch during SSR** — Code that calls internal `/api/goat-it-api/**` routes during SSR uses the fetcher returned by `useRequestFetch()` (stores build repositories as `<resource>Repository(useRequestFetch())`), never the global `$fetch`, which forwards no request headers (cookie, `accept-language`) on the server; hop-by-hop headers such as `host`, `connection` and `accept` are stripped by design (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/stores/**`, `app/repositories/**` · Src: [2], project: docs/architecture.md §4.4
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/stores/**`, `app/repositories/**` · Src: [2], project: docs/architecture.md §4.4
 - **[STACK-03] Shared `useAsyncData` keys share options** — All `useAsyncData`/`useFetch` calls that use the same explicit key pass the same `handler`, `deep`, `transform`, `pick`, `getCachedData`, `default` and `middleware`; only `server`, `lazy`, `immediate`, `dedupe`, `watch`, `enabled` and `serialize` differ, and shared-key calls with custom options live in one composable (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/pages/**`, `app/components/**`, `app/composables/**` · Src: [1], [10]
 - **[STACK-04] Reactive keys for reactive inputs** — A `useAsyncData` key that depends on reactive input (locale, route param, filter) is a computed ref or getter, so each value is stored and refetched separately; a string built once from `.value` and paired with `watch` keeps one key for different payloads (verified: nuxt 4.6.3).
@@ -43,7 +43,7 @@ Correct use of the framework and library APIs this product is built on: Nuxt 4 d
 - **[STACK-08] SSR-shared state through `useState`** — Cross-component state that must survive SSR and hydration uses `useState(key, init)` with a key from the project state-name enum and holds only JSON-serializable values (no class instance, function, symbol, `Map` or `Set`) (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/composables/**` · Src: [5], [6]
 - **[STACK-09] Composables called in a valid context** — Nuxt and Vue composables (`useRuntimeConfig`, `useNuxtApp`, `useState`, `useI18n`, `useRequestFetch`…) are called synchronously inside setup, a Nuxt plugin or route middleware. They never run at module scope, and never after an `await` outside `<script setup>`, `defineNuxtPlugin` or `defineNuxtRouteMiddleware` ("Nuxt instance is unavailable") (verified: nuxt 4.6.3).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/composables/**`, `app/stores/**`, `app/utils/**` · Src: [7]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/composables/**`, `app/stores/**`, `app/utils/**` · Src: [7]
 - **[STACK-10] Plugin loading strategy declared** — Nuxt app plugins load sequentially by default. An async plugin that no later plugin depends on declares `parallel: true`, and a dependency is expressed with `dependsOn` or a zero-padded numeric filename prefix. Object-syntax fields are static literals, and browser-only plugins carry the `.client` suffix (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: low · Look: `app/plugins/**` · Src: [8]
 
@@ -74,9 +74,9 @@ Correct use of the framework and library APIs this product is built on: Nuxt 4 d
 ## 4. Vue reactivity and SSR
 
 - **[STACK-20] No module-scope reactive state** — No `ref`, `reactive`, `shallowRef` or mutable `Map`/`Set`/array is created at module scope in code that runs on the server (composables, stores, utils, plugins, shared helpers). Module singletons persist across requests and leak one visitor's state into another (cross-request state pollution); use `useState`, Pinia or per-call state (verified: vue 3.5.44).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/composables/**`, `app/utils/**`, `shared/**` · Src: [18], [6]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/composables/**`, `app/utils/**`, `shared/**` · Src: [18], [6]
 - **[STACK-21] Browser APIs and client effects only on the client** — `window`, `document`, `navigator`, `localStorage` and `matchMedia` are reached only in `onMounted` or other client-only hooks, `.client` plugins or behind `import.meta.client`, never at module scope or in the synchronous setup body; timers, subscriptions and global listeners are likewise created in `onMounted`, because unmount hooks never run during SSR (verified: vue 3.5.44).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/**/*.vue`, `app/composables/**`, `app/utils/**` · Src: [18]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/**/*.vue`, `app/composables/**`, `app/utils/**` · Src: [18]
 - **[STACK-22] Deterministic server render** — Rendered output never depends on values that differ between server and client (`Math.random()`, `Date.now()`/`new Date()`, timezone-dependent formatting, viewport size) — such parts render after `onMounted`, inside `<ClientOnly>`, or share a seed through the payload — and templates never produce markup the HTML parser rewrites (a block element inside `<p>`); loading `/`, `/game` and `/rules` in each locale under `pnpm run dev` then completing one game turn logs no hydration mismatch warning (verified: vue 3.5.44).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue` · Src: [18]
 - **[STACK-23] Watchers created synchronously** — `watch`/`watchEffect` are created synchronously during setup. A watcher created in an async callback or after an `await` outside `<script setup>` is not bound to its owner and is stopped manually through its returned handle (verified: vue 3.5.44).
@@ -87,9 +87,9 @@ Correct use of the framework and library APIs this product is built on: Nuxt 4 d
 ## 5. Pinia
 
 - **[STACK-25] Setup store shape** — Each setup store returns every `ref`/`reactive` it creates (no private state) and never wraps returned state in `readonly()`, both of which break SSR hydration, devtools and plugins; `store.$reset()` is called only on stores that define their own `$reset` action, since setup stores have no built-in one (verified: pinia 4.1.0).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/stores/**/*.store.ts` · Src: [22], project: docs/architecture.md §4.3
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/stores/**/*.store.ts` · Src: [22], project: docs/architecture.md §4.3
 - **[STACK-26] `useStore()` before any `await`** — In store actions and async composables, every `use…Store()` call happens before the first `await`; a later call can bind the wrong Pinia instance during SSR (verified: pinia 4.1.0).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `app/stores/**`, `app/composables/**` · Src: [23]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `app/stores/**`, `app/composables/**` · Src: [23]
 - **[STACK-27] State destructured through `storeToRefs`** — Store state and getters are destructured only through `storeToRefs()`, while actions are destructured from the store itself; destructuring state or getters directly from the store loses reactivity (verified: pinia 4.1.0).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `app/**/*.vue`, `app/composables/**` · Src: [22]
 - **[STACK-28] `skipHydrate` for client-only store state** — When a setup store returns state that must not be hydrated from the server payload (e.g. `useLocalStorage`, browser-only refs), that property is returned wrapped in `skipHydrate()` (verified: pinia 4.1.0).
@@ -123,9 +123,9 @@ Correct use of the framework and library APIs this product is built on: Nuxt 4 d
 ## 9. Nitro and h3
 
 - **[STACK-37] Validated reads: throwing validator, awaited** — `readValidatedBody`/`getValidatedQuery` receive a function that throws on invalid input (`(raw) => SCHEMA.parse(raw)`), never a bare Zod schema object or `SCHEMA.safeParse` — h3 v1 fails validation only on a thrown error or `false` and otherwise returns the function result — and every call is awaited, since both return a Promise in h3 v1 (verified: h3 1.15.11).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/utils/goat-it-api/**`, `server/api/**` · Src: [37], [38]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/utils/goat-it-api/**`, `server/api/**` · Src: [37], [38]
 - **[STACK-38] Cached server output varies on its inputs** — When a `cache`/`swr` route rule, `defineCachedEventHandler` or `defineCachedFunction` serves request-dependent output (locale cookie `goat_it_locale`, `accept-language`), its `varies` option lists those headers, because all other request headers are dropped when handling cached responses (verified: nitropack 2.13.5).
-  Evidence: `static` · Diff: ✓ · Severity: high · Look: `server/**`, `nuxt.config.ts` · Src: [40]
+  Evidence: `static` · Diff: ✓ · Core: ✓ · Severity: high · Look: `server/**`, `nuxt.config.ts` · Src: [40]
 - **[STACK-39] `nuxt/server` imports not mixed with h3** — When a server file imports helpers from `nuxt/server` (Nuxt 4.6+), it also imports `defineEventHandler` from `nuxt/server`; pairing them with h3's auto-imported `defineEventHandler` fails with `NUXT_E8012` (verified: nuxt 4.6.3).
   Evidence: `static` · Diff: ✓ · Severity: medium · Look: `server/**` · Src: [10]
 
