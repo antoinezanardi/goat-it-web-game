@@ -39,6 +39,7 @@
       "filters": {
         "searchPlaceholder": "Buscar opciones…",
         "selectedCount": "{count} seleccionados",
+        "selectAriaLabel": "{label}: {value}",
         "confirmRestoreTitle": "¿Restaurar todas las opciones?",
         "confirmRestoreDescription": "Si deseleccionas la última opción, se restaurarán todas las opciones.",
         "confirmRestoreAction": "Restaurar todo"
