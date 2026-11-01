@@ -32,12 +32,9 @@ const statusAnnouncement = computed<string>(() => {
     class="flex flex-col h-full"
     data-testid="changelog-modal"
   >
-    <p
-      class="sr-only"
-      role="status"
-    >
+    <output class="sr-only">
       {{ statusAnnouncement }}
-    </p>
+    </output>
 
     <div
       :aria-busy="isChangelogEntriesLoading"

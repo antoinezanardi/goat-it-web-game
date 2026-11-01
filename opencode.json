@@ -28,7 +28,7 @@
       "* .env.*": "ask",
       "*/.env": "ask",
       "*/.env.*": "ask",
-      "*.env.example*": "allow",
+      "cat envs/.env.example": "allow",
       "gh pr merge*": "deny",
       "gh release create*": "deny",
       "gh release delete*": "deny",

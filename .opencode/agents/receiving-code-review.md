@@ -81,11 +81,17 @@ You are the **receiving-code-review** agent. You evaluate code review feedback w
 
 ## Process (mandatory, in order). You **MUST** follow these steps, even for a simple fix.
 
-- [ ] **Step 0: Scan the branch** — understand what changed before reading feedback
+- [ ] **Step 0: Scan the branch and every feedback source** — before reading any feedback
   - Run `git log --oneline -20` to see recent commits
   - Run `git diff --stat HEAD~1..HEAD` (or the relevant range) to see which files were modified
   - Read the key files that were changed with the **explore** tool to read the code here.
   - You cannot evaluate feedback about code you haven't read
+  - **Collect ALL feedback before triaging any of it** — never triage from a partial paste:
+    - PR inline review threads, resolved AND unresolved: `gh api graphql` `reviewThreads(first: 50) { isResolved isOutdated path line comments { nodes { databaseId author { login } body } } }`
+    - PR reviews and issue comments (bot summaries often carry points absent from inline threads): `gh api repos/<owner>/<repo>/pulls/<n>/reviews` and `.../issues/<n>/comments`
+    - Failing CI checks: `gh pr checks <n>` then `gh pr view <n> --json statusCheckRollup` — never assume the PR is green
+    - SonarQube issues behind a failed `SonarCloud Code Analysis` check: `gh api repos/<owner>/<repo>/check-runs/<id>/annotations`, then the issue keys/rules via `https://sonarcloud.io/api/issues/search?organization=<org>&componentKeys=<key>&pullRequest=<n>&issueStatuses=OPEN,CONFIRMED&sinceLeakPeriod=true`
+  - Add every collected item to one global triage; a green-looking PR review does not cancel pending Sonar or CI findings
 
 - [ ] **Step 1: READ** the full feedback
   - Don't react. Don't skim. Read every word, including code snippets.
@@ -127,7 +133,7 @@ You are the **receiving-code-review** agent. You evaluate code review feedback w
 
 - [ ] **Step 8: OFFER A FINAL REVIEW** when the fix set is not trivial — **before** the gatekeeper
   - Skip it when the changes are really small (roughly fewer than 3 files and no behavior change) and say so explicitly
-  - Otherwise **ask** the user whether to dispatch the `final-reviewer` on the working tree (`git status` + `git diff HEAD`), passing the feedback summary and the list of changed files
+  - Otherwise **ask** the user whether to dispatch the `final-reviewer` on the working tree (`git status` + `git diff HEAD`), passing every input its contract declares (`SPEC` path, `PLAN` path, `BASE_SHA`, `HEAD_SHA`, `DESCRIPTION`), plus the feedback summary and the list of changed files
   - Never dispatch it silently; triage the issues it reports through Steps 2–7 like any review, apply the approved fixes first, then move on to the gatekeeper so the gates validate the final code
   - It never replaces the gatekeeper
 

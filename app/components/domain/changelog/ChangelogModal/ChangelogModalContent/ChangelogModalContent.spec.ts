@@ -29,7 +29,7 @@ describe("ChangelogModalContent Component", () => {
   }
 
   function findStatusRegion(): Element {
-    return wrapper.find("[role='status']").element;
+    return wrapper.find("output").element;
   }
 
   beforeEach(async() => {
@@ -86,17 +86,17 @@ describe("ChangelogModalContent Component", () => {
   ])("should announce $expectedAnnouncement through the status region when the changelog entries status is $entriesStatus.", async({ entriesStatus, expectedAnnouncement }) => {
     await wrapper.setProps({ changelogEntriesStatus: entriesStatus });
 
-    expect(wrapper.find("[role='status']").text()).toBe(expectedAnnouncement);
+    expect(wrapper.find("output").text()).toBe(expectedAnnouncement);
   });
 
   it("should announce the empty changelog state through the status region when the changelog entries are empty.", async() => {
     await wrapper.setProps({ changelogEntries: [] });
 
-    expect(wrapper.find("[role='status']").text()).toBe("changelog.modal.empty");
+    expect(wrapper.find("output").text()).toBe("changelog.modal.empty");
   });
 
   it("should announce nothing through the status region when the changelog entries are populated.", () => {
-    expect(wrapper.find("[role='status']").text()).toBe("");
+    expect(wrapper.find("output").text()).toBe("");
   });
 
   it("should keep the status region outside the changelog body transition when mounted.", () => {
