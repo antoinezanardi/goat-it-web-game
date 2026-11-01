@@ -23,7 +23,21 @@
       "git checkout -b *": "allow",
       "git add *": "deny",
       "git commit *": "deny",
-      "git push *": "deny"
+      "git push *": "deny",
+      "* .env": "ask",
+      "* .env.*": "ask",
+      "*/.env": "ask",
+      "*/.env.*": "ask",
+      "cat envs/.env.example": "allow",
+      "gh pr merge*": "deny",
+      "gh release create*": "deny",
+      "gh release delete*": "deny",
+      "gh release edit*": "deny",
+      "gh release upload*": "deny",
+      "gh repo delete*": "deny",
+      "gh repo archive*": "deny",
+      "gh secret set*": "deny",
+      "gh secret delete*": "deny"
     }
   },
   "lsp": {

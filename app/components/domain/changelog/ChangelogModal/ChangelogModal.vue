@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { CHANGELOG_ICON } from "@/utils/ui/changelog/changelog.constants";
 import type { ChangelogCollectionName } from "@/components/domain/changelog/ChangelogModal/changelog-modal.types";
-import { CHANGELOG_MODAL_UI, CHANGELOG_VERSION_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
+import { CHANGELOG_MODAL_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
 import { sortChangelogEntries } from "@/components/domain/changelog/ChangelogModal/helpers/changelog-sorting/changelog-sorting.helpers";
 
 const { locale, t } = useI18n();
@@ -31,8 +31,6 @@ const {
 );
 
 const sortedChangelogEntries = computed(() => sortChangelogEntries(changelogEntries.value));
-
-const isChangelogEntriesLoading = computed<boolean>(() => changelogEntriesStatus.value === "idle" || changelogEntriesStatus.value === "pending");
 
 const { isChangelogOpen, closeChangelog } = useChangelog({ latestVersion });
 
@@ -72,7 +70,6 @@ function onUpdateOpen(value: boolean): void {
     <LazyUModal
       v-if="hasEverOpened"
       :open="isChangelogOpen"
-      scrollable
       :ui="CHANGELOG_MODAL_UI"
       @update:open="onUpdateOpen"
     >
@@ -85,34 +82,10 @@ function onUpdateOpen(value: boolean): void {
       </template>
 
       <template #body>
-        <div data-testid="changelog-modal">
-          <LoadingSpinner v-if="isChangelogEntriesLoading"/>
-
-          <p v-else-if="changelogEntriesStatus === 'error'">
-            {{ t("errors.generic") }}
-          </p>
-
-          <LazyUChangelogVersions
-            v-else
-            class="docs-prose"
-            :indicator="false"
-          >
-            <LazyUChangelogVersion
-              v-for="entry in sortedChangelogEntries"
-              :key="entry.version"
-              :badge="`v${entry.version}`"
-              :date="entry.date"
-              :description="entry.description"
-              :indicator="false"
-              :title="entry.title"
-              :ui="CHANGELOG_VERSION_UI"
-            >
-              <template #body>
-                <LazyContentRenderer :value="entry"/>
-              </template>
-            </LazyUChangelogVersion>
-          </LazyUChangelogVersions>
-        </div>
+        <ChangelogModalContent
+          :changelog-entries="sortedChangelogEntries"
+          :changelog-entries-status="changelogEntriesStatus"
+        />
       </template>
 
       <template #footer>

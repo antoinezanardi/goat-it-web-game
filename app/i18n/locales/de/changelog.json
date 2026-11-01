@@ -2,12 +2,16 @@
   "changelog": {
     "entryPoint": "Neuigkeiten",
     "modal": {
-      "title": "Neuigkeiten"
+      "title": "Neuigkeiten",
+      "loading": "Changelog-Einträge werden geladen.",
+      "empty": "Es sind keine Changelog-Einträge verfügbar.",
+      "error": "Der Changelog konnte nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen."
     },
     "toast": {
       "title": "Es gibt Neuigkeiten in Goat It!",
       "description": "Entdecke die neuesten Verbesserungen des Spiels.",
       "action": "Notizen lesen"
-    }
+    },
+    "unreadStatus": "Neue Einträge im Changelog verfügbar."
   }
 }

@@ -249,6 +249,10 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
 - **Never commit unless the user explicitly asks for it.** Do not create commits
   autonomously after completing tasks or passing quality gates. This applies to ALL
   agents, including subagents dispatched via Task/parallel execution.
+- **Always propose a commit message once you changed files.** At the end of any session
+  that modified the working tree, hand the user a ready-to-copy conventional commit
+  message (`type(scope): summary` plus a grouped body) covering **all** changes in the
+  working tree, not only the last edit. Proposing is mandatory; committing stays forbidden.
 - Do not commit `.env.*` files with real secrets (`.env.example` is safe).
 - Husky pre-commit hooks are active; never bypass with `--no-verify`.
 - Conventional commits enforced by commitlint: `type(scope): message`.
