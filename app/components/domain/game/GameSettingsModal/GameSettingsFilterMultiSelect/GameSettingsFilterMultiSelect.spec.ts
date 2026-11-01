@@ -171,6 +171,17 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     expect(wrapper.get("[data-testid='game-settings-filter-multi-select-summary']").text()).toBe("game.settings.filters.selectedCount");
   });
 
+  it("should set the select aria label translation key as the select input aria-label when mounted.", () => {
+    expect(wrapper.get("[data-testid='game-settings-filter-multi-select-input']").attributes("aria-label")).toBe("game.settings.filters.selectAriaLabel");
+  });
+
+  it("should interpolate the label and the summary into the select aria label translation when mounted.", () => {
+    expect(useI18n().t).toHaveBeenCalledWith("game.settings.filters.selectAriaLabel", {
+      label: "Cognitive difficulty",
+      value: "All difficulties",
+    });
+  });
+
   it("should emit the selected values when the select menu emits a non-empty selection.", async() => {
     const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
     getWrapperVm(selectMenu).$emit("update:modelValue", ["easy", "medium"]);

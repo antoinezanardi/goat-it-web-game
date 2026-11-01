@@ -47,6 +47,11 @@ const summaryLabel = computed<string>(() => {
   return `${labels.slice(0, -1).join(", ")} ${t("common.listConjunction")} ${lastLabel}`;
 });
 
+const selectAriaLabel = computed<string>(() => t("game.settings.filters.selectAriaLabel", {
+  label: props.label,
+  value: summaryLabel.value,
+}));
+
 watch(() => props.modelValue, (value: string[]) => {
   selectedValues.value = [...value];
 }, { immediate: true });
@@ -104,7 +109,7 @@ function onUpdateSelectedValues(value: string[]): void {
     </span>
 
     <USelectMenu
-      :aria-label="props.label"
+      :aria-label="selectAriaLabel"
       :data-testid="props.selectTestId"
       :items="items"
       :model-value="selectedValues"
