@@ -3,6 +3,7 @@ import type {
   ChangelogWhatsNewButtonEmits,
   ChangelogWhatsNewButtonProps,
 } from "@/components/domain/changelog/ChangelogWhatsNewButton/changelog-whats-new-button.types";
+import { CHANGELOG_UNREAD_STATUS_ID } from "@/utils/ui/changelog/changelog.constants";
 
 const props = withDefaults(defineProps<ChangelogWhatsNewButtonProps>(), {
   displayVariant: "button",
@@ -20,6 +21,7 @@ function onOpenChangelog(): void {
 <template>
   <UButton
     v-if="isButtonVariant"
+    :aria-describedby="CHANGELOG_UNREAD_STATUS_ID"
     color="primary"
     size="md"
     variant="soft"
@@ -30,6 +32,7 @@ function onOpenChangelog(): void {
 
   <ULink
     v-else
+    :aria-describedby="CHANGELOG_UNREAD_STATUS_ID"
     class="flex gap-1.5 items-center"
     @click="onOpenChangelog"
   >

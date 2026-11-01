@@ -1,3 +1,5 @@
-const CHANGELOG_ICON = "i-lucide-sparkles";
+const CHANGELOG_ICON = "i-lucide-megaphone";
 
-export { CHANGELOG_ICON };
+const CHANGELOG_UNREAD_STATUS_ID = "changelog-unread-status-description";
+
+export { CHANGELOG_ICON, CHANGELOG_UNREAD_STATUS_ID };

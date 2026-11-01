@@ -251,8 +251,8 @@ describe("GameSidebar Component", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar-changelog-link']")?.textContent).toContain("changelog.entryPoint");
   });
 
-  it("should render the sparkles icon on the changelog entry when mounted.", () => {
-    expect(findLinkByTestId("game-sidebar-changelog-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-sparkles");
+  it("should render the megaphone icon on the changelog entry when mounted.", () => {
+    expect(findLinkByTestId("game-sidebar-changelog-link").findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-megaphone");
   });
 
   it("should render the changelog entry between the filters and the rules links when mounted.", () => {

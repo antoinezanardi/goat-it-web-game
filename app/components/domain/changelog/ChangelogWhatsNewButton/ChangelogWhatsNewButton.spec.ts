@@ -8,6 +8,7 @@ import { ChangelogWhatsNewButton } from "#components";
 import type { ChangelogWhatsNewButtonContent } from "#components";
 
 import type { ChangelogWhatsNewButtonProps } from "@/components/domain/changelog/ChangelogWhatsNewButton/changelog-whats-new-button.types";
+import { CHANGELOG_UNREAD_STATUS_ID } from "@/utils/ui/changelog/changelog.constants";
 
 describe("ChangelogWhatsNewButton Component", () => {
   const defaultChangelogWhatsNewButtonProps: ChangelogWhatsNewButtonProps = { displayVariant: "button", isChangelogUnread: false } as const;
@@ -82,10 +83,10 @@ describe("ChangelogWhatsNewButton Component", () => {
     expect(wrapper.findComponent({ name: "ULink" }).text()).toContain("changelog.entryPoint");
   });
 
-  it("should render the sparkles icon in the menu variant when the variant is menu.", async() => {
+  it("should render the megaphone icon in the menu variant when the variant is menu.", async() => {
     wrapper = await mountChangelogWhatsNewButton({ props: { displayVariant: "menu", isChangelogUnread: false } });
 
-    expect(wrapper.findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-sparkles");
+    expect(wrapper.findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-megaphone");
   });
 
   it("should emit openChangelog when the menu variant is clicked.", async() => {
@@ -93,5 +94,15 @@ describe("ChangelogWhatsNewButton Component", () => {
     await wrapper.findComponent({ name: "ULink" }).trigger("click");
 
     expect(wrapper.emitted("openChangelog")).toStrictEqual([[]]);
+  });
+
+  it("should describe the changelog button with the unread status when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UButton" }).attributes("aria-describedby")).toBe(CHANGELOG_UNREAD_STATUS_ID);
+  });
+
+  it("should describe the changelog menu link with the unread status when the variant is menu.", async() => {
+    wrapper = await mountChangelogWhatsNewButton({ props: { displayVariant: "menu", isChangelogUnread: false } });
+
+    expect(wrapper.findComponent({ name: "ULink" }).attributes("aria-describedby")).toBe(CHANGELOG_UNREAD_STATUS_ID);
   });
 });
