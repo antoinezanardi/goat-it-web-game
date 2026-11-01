@@ -9,7 +9,7 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV CI="true"
 
-RUN npm install -g pnpm@12.11.2
+RUN npm install -g pnpm@12.16.1
 
 RUN mkdir -p "$PNPM_HOME" && chown node:node "$PNPM_HOME"
 
