@@ -53,7 +53,15 @@ describe("ChangelogModalSkeleton Component", () => {
     expect(descriptionWidths).toStrictEqual(["w-full", "w-11/12", "w-4/5", "w-full", "w-11/12", "w-4/5"]);
   });
 
+  it("should not use the default skeleton pulse when mounted.", () => {
+    expect(wrapper.find("[data-testid='changelog-modal-skeleton-title']").classes()).not.toContain("animate-pulse");
+  });
+
   it("should disable the skeleton pulse when the player prefers reduced motion.", () => {
     expect(wrapper.find("[data-testid='changelog-modal-skeleton-title']").classes()).toContain("motion-reduce:animate-none");
+  });
+
+  it("should give the skeleton blocks a subtle stroke background so they stay visible against the modal surface when mounted.", () => {
+    expect(wrapper.find("[data-testid='changelog-modal-skeleton-title']").classes()).toContain("bg-stroke-subtle");
   });
 });

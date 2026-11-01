@@ -114,10 +114,10 @@ describe("ChangelogModal Component", () => {
     expect(wrapper.findComponent({ name: "UModal" }).props("open")).toBe(true);
   });
 
-  it("should give the modal a full viewport height shell with an internally scrolling body when mounted.", () => {
+  it("should give the modal a fixed viewport-fit height shell with an internally scrolling body when mounted.", () => {
     expect(wrapper.findComponent({ name: "UModal" }).props("ui")).toStrictEqual({
       body: "min-h-0",
-      content: "h-dvh max-h-dvh sm:max-h-dvh max-w-3xl lg:max-w-6xl",
+      content: "h-[calc(100dvh-2rem)] sm:h-[calc(100dvh-4rem)] max-w-3xl lg:max-w-6xl",
     });
   });
 

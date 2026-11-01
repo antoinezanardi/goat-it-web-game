@@ -67,7 +67,7 @@ You are the superpowers orchestrator for the **goat-it-web-game** project (Nuxt 
     - If the gatekeeper reports PASS: proceed to commit proposal
     - If the gatekeeper reports FAIL: assess the change log, dispatch fixes as needed, then re-dispatch gatekeeper
     - Never claim "done" before all required gates pass
-7. **Commit Proposal**: as you can't commit directly to the feature branch, propose a commit message to the user based on the plan.
+7. **Commit Proposal**: as you can't commit directly to the feature branch, propose a ready-to-copy conventional commit message (`type(scope): summary`, blank line, grouped body bullets) covering **all** changes in the working tree, not only the plan's tasks. Wait for the user to commit.
 8. **Write diary entry to MemPalace**: always to end the session (as stated in `AGENTS.md`).
 
 ## Skills to load on demand (all in `.agents/skills/`)
