@@ -1,0 +1,7 @@
+{
+  "offline": {
+    "title": "You're offline",
+    "description": "A network connection is required to load new questions and content. Reconnect, then try again.",
+    "retry": "Retry"
+  }
+}

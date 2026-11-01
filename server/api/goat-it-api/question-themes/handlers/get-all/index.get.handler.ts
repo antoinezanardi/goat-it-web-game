@@ -1,28 +1,28 @@
 import { FIND_QUESTION_THEMES_QUERY_DTO, QUESTION_THEME_DTO } from "@goat-it/schemas/question-theme";
 import type { H3Event } from "h3";
-import { z } from "zod";
 
 import type { QuestionTheme } from "#shared/types/question-theme.types";
 import { createQuestionThemeFromQuestionThemeDto } from "#server/utils/goat-it-api/mappers/question-theme/question-theme.mappers";
-import { createGoatItApiEndpoint, createGoatItApiFetchOptions, handleGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api.helpers";
-import { FIND_QUERY_UNBOUNDED_LIMIT } from "#shared/constants/goat-it-api.constants";
+import { clampFindQueryLimit } from "#server/utils/goat-it-api/helpers/goat-it-api-find-query-limit/goat-it-api-find-query-limit.helpers";
+import { createGoatItApiEndpoint } from "#server/utils/goat-it-api/helpers/goat-it-api-endpoint/goat-it-api-endpoint.helpers";
+import { createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api-fetch-options/goat-it-api-fetch-options.helpers";
+import { parseAndMapGoatItApiResponse, validateGoatItApiQuery } from "#server/utils/goat-it-api/helpers/goat-it-api-validation/goat-it-api-validation.helpers";
+import { throwGoatItApiError } from "#server/utils/goat-it-api/helpers/goat-it-api-error/goat-it-api-error.helpers";
+import { FIND_QUESTION_THEMES_QUERY_LIMIT_MAXIMUM } from "#shared/constants/goat-it-api.constants";
+import { GoatItApiResourceNames } from "#server/utils/goat-it-api/goat-it-api.enums";
 
 async function getQuestionThemesHandler(event: H3Event): Promise<QuestionTheme[]> {
-  const endpoint = createGoatItApiEndpoint("question-themes");
-  const fetchOptions = createGoatItApiFetchOptions(event);
-  const rawQuery = getQuery(event);
-  const query = FIND_QUESTION_THEMES_QUERY_DTO.parse({
-    ...rawQuery,
-    limit: FIND_QUERY_UNBOUNDED_LIMIT,
-  });
+  const endpoint = createGoatItApiEndpoint(GoatItApiResourceNames.QUESTION_THEMES);
+  const fetchOptions = createGoatItApiFetchOptions(event, { method: "GET" });
+  const parsedQuery = await validateGoatItApiQuery(event, FIND_QUESTION_THEMES_QUERY_DTO);
+  const query = { ...parsedQuery, limit: clampFindQueryLimit(parsedQuery.limit, FIND_QUESTION_THEMES_QUERY_LIMIT_MAXIMUM) };
 
   try {
     const rawData = await $fetch(endpoint, { ...fetchOptions, query });
-    const questionThemes = z.array(QUESTION_THEME_DTO).parse(rawData);
 
-    return questionThemes.map(createQuestionThemeFromQuestionThemeDto);
+    return parseAndMapGoatItApiResponse(rawData, QUESTION_THEME_DTO, createQuestionThemeFromQuestionThemeDto);
   } catch(error: unknown) {
-    handleGoatItApiError(error);
+    throwGoatItApiError(error);
   }
 }
 

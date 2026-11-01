@@ -33,7 +33,7 @@ Running a single test or file (`NODE_OPTIONS='--no-webstorage'` is required):
 
 - By filename:    `pnpm run test:unit index.spec.ts`
 - By test name:    `pnpm run test:unit -t "should render"`
-- Watch file: `pnpm run test:unit:watch app/pages/index.spec.ts`
+- Watch file: `pnpm run test:unit:watch app/pages/index/index.spec.ts`
 - Direct:     `pnpm exec cross-env NODE_OPTIONS='--no-webstorage' vitest --config configs/vitest/vitest.config.ts path/to/file.spec.ts`
 
 Running acceptance tests:
@@ -41,16 +41,15 @@ Running acceptance tests:
 - Full run (build + test):  `pnpm run test:acceptance`
 - Build only:               `pnpm run test:acceptance:build`
 - By scenario name:         `pnpm run test:acceptance --name "should display"`
-- By tag:                   `pnpm run test:acceptance --tags "@question-themes"`
-- Multiple tags (OR):       `pnpm run test:acceptance --tags "@home or @questions"`
+- By tag:                   `pnpm run test:acceptance --tags "@game-settings"`
+- Multiple tags (OR):       `pnpm run test:acceptance --tags "@home or @game"`
 - Exclude tag:              `pnpm run test:acceptance --tags "not @accessibility"`
-- By tag (AND):             `pnpm run test:acceptance --tags "@question-themes and @accessibility"`
+- By tag (AND):             `pnpm run test:acceptance --tags "@game-settings and @accessibility"`
 
 > **Per-task agents** should scope acceptance tests to their changes with `--tags`:
-> `pnpm run test:acceptance --tags "@feature-tag"`
-> Always build fresh (do not use `test:acceptance:skip-build`).
+> `pnpm run test:acceptance:skip-build --tags "@feature-tag"` is allowed **only** if the existing `.nuxt/test/output` build was produced after the last change to any build input (anything outside `tests/acceptance/`). Otherwise run `pnpm run test:acceptance --tags "@feature-tag"` (fresh build). Rebuild after a branch switch, a dependency install, an env change, or whenever unsure.
 
-**Mandatory quality gates** — the orchestrator (via the gatekeeper agent) runs these four commands **in order** before considering any task complete. **Do NOT skip any gate**, even for "trivial" changes:
+**Mandatory quality gates** — the orchestrator (via the gatekeeper agent) runs these four commands **in order** before considering any task complete. **Do NOT skip any gate**, even for "trivial" changes. Gate 4 always builds fresh: `test:acceptance:skip-build` is never a substitute for it.
 
 1. `pnpm run lint:fix`
 2. `pnpm run typecheck`
@@ -66,18 +65,21 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 
 ## Repository structure
 
+Every added or changed file MUST strictly follow the canonical conventions in [`docs/architecture.md`](docs/architecture.md). This applies to all file types and locations, including source, specs, types, constants, tests, configuration, documentation, agents, skills, and commands. Read the guide before planning or making file changes; if an existing pattern conflicts, follow the architecture guide.
+
 - `app/`              – Nuxt application source
-  - `pages/`, `assets/`
+  - `pages/`, `assets/`, `utils/{core,domain,ui}/`
   - `composables/`    – Organised as `core/`, `domain/`, `ui/`; each composable in its own sub-dir
-  - `repositories/`   – Client-side data access (`*.repository.ts`); factory functions, auto-imported by Nuxt
+  - `repositories/`   – Client-side internal API data access (`*.repository.ts`); factory functions, auto-imported by Nuxt
   - `stores/`         – Pinia stores under `domain/`; store names from `stores/store.enums.ts`
   - `i18n/`           – i18n resources, locale JSON files live in `locales/{de,en,es,fr,it,pt}/`
 - `server/`           – Nitro server routes and utilities (API handlers, mappers, helpers)
   - `api/**/handlers/` – Route handler files (`*.handler.ts`); thin wrappers in `api/**/index.*.ts`
   - `utils/goat-it-api/` – Helpers, mappers, types, constants for the external API
 - `shared/enums/`     – Enums shared between app and server (e.g. `CookieNames`)
+- `shared/schemas/`   – Zod domain schemas for JSON-transported domain shapes; explicitly imported
 - `shared/types/`     – Types shared between app and server (e.g. `QuestionTheme`)
-- `shared/utils/`     – Helpers auto-imported in both app and server
+- `shared/utils/`     – Runtime-neutral app/server helpers; explicitly imported
 - `tests/unit/`       – Test utilities: `setup/nuxt/`, `utils/faketories/`, `utils/mocks/`
 - `tests/acceptance/` – Acceptance tests: Cucumber features, Playwright step definitions, hooks
 - `configs/`          – Vitest, Cucumber, ESLint, Oxlint, lint-staged configs
@@ -91,6 +93,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - Nuxt 4 file-based routing, composables, auto-imports. Prefer idiomatic Nuxt patterns.
   - Vue 3 `script setup` in all SFCs. Keep `<script>` before `<template>` in every `.vue`.
   - Pinia for global state; stores named `use<Entity>Store`, store ID from `StoreNames` enum.
+  - Never assign store state directly outside the store (`store.items = ...` is forbidden); mutate through actions and read through getters/refs. Transient state (fetch statuses, loading flags) is exposed as read-only computed getters.
   - Composables use `use*` prefix; repositories use `*Repository` suffix.
   - Prefer `@nuxt/ui` components and `@vueuse/core` composables where applicable.
   - i18n via `@nuxtjs/i18n`; use `$t()` / `useI18n()` — no hardcoded user-visible strings.
@@ -99,8 +102,8 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - `any` is forbidden. Use precise types; `unknown` + narrowing when truly needed.
   - No unsafe type assertions without an explicit ESLint disable comment explaining why.
   - Use `zod` for runtime validation of external data (API responses, request bodies, env vars).
-  - Types colocated: component props inline, shared in `shared/types/`, server-local in
-    `server/utils/**/*.types.ts`.
+  - Component props/emits/slots/exposed contracts live in a colocated `*.types.ts`; composables use a colocated named return type.
+  - Types shared across app and server live in `shared/types/`; server-domain types live under `server/utils/<domain>/`.
   - `type-fest` utilities (e.g. `TupleToUnion`, `ArrayValues`) preferred over manual mapped types.
 
 - Formatting / Editor settings (see `.editorconfig`):
@@ -111,15 +114,16 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - Imports and module layout (groups separated by blank lines, in order):
   1. Node builtins (`node:path`)
   2. External packages
-  3. Project aliases (`~~/`, `#server/`, `#components`, `@/`, `~/`)
+  3. Project aliases (`~~/`, `#server/`, `#shared/`, `#components`, `@/`, `~/`)
   4. Relative imports
 
   - Use `type` imports for type-only symbols (`import type { Foo } from '...'`).
   - Prefer named exports; avoid default exports for utilities and composables.
-  - Barrel exports are forbidden (`export { foo } from '...'` or `export * from '...'`). Always import directly from the source module.
+  - Barrel exports are forbidden (`export { foo } from '...'` or `export * from '...'`). Files whose only purpose is to re-export or alias a symbol from another module are also forbidden — always import directly from the source module.
 
 - Import aliases:
-  - `@/` and `~/` → `app/`
+  - `@/` → `app/` code modules (canonical app code alias)
+  - `~/` → Nuxt resource/config paths (assets, CSS/resource references, discovery globs); not app code imports
   - `~~/` → repo root (use for `~~/tests/unit/...` in tests)
   - `#server/utils/...` → inside `server/` only
   - `#shared/` → `shared/`
@@ -130,7 +134,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - Files: Components: `PascalCase.vue` | Composables: `use*.ts` | Stores: `<entity>.store.ts`
     Repositories: `<resource>.repository.ts` | Server handlers: `<resource>.<method>.handler.ts`
     Types: `*.types.ts` | Constants: `*.constants.ts` | Enums: `*.enums.ts`
-    Tests: `*.spec.ts` next to source | Entity faketories: `<entity>.<layer>.faketory.ts` (DTO faketories come from `@goat-it/schemas/testing/*`)
+    Tests: `*.spec.ts` next to source | Entity/serialized faketories: `<entity>.<layer>.faketory.ts` (DTO faketories come from `@goat-it/schemas/testing/*`)
     Mocks: `<composable>.mock.ts` (+ `.mock.constants.ts` + `.mock.types.ts` as needed)
   - Symbols: Types/Interfaces: `PascalCase` | Variables/functions: `camelCase`
     Exported constants: `UPPER_SNAKE_CASE`
@@ -152,7 +156,13 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - Repository pattern:
   - Factory function: `export const fooRepository: FooRepository = (fetch: $Fetch) => ({ ... })`.
   - Calls internal Nuxt server routes (`/api/goat-it-api/...`), never the external API directly.
-  - Auto-imported by Nuxt; instantiated in stores as `fooRepository($fetch)`.
+  - Validates every response with the shared domain schema (`shared/schemas/<domain>/<entity>.schemas.ts`) via `.parse()`; never casts `$Fetch` results.
+  - Auto-imported by Nuxt; instantiated in stores as `fooRepository(useRequestFetch())` for request-aware SSR behavior.
+
+- Architecture and file placement:
+  - Canonical rules: [`docs/architecture.md`](docs/architecture.md). Read and follow it before planning or creating, editing, or moving project files.
+  - Production units own source/spec directories; types/constants follow the narrowest production-consumer scope.
+  - File-changing agents, skills, and commands must consult the architecture guide. Plan-writers specify exact paths and companions; final reviewers check every changed path against it.
 
 - Error handling and logging:
   - Never swallow exceptions silently — re-throw with context, return typed failure, or log + show i18n UI message.
@@ -164,7 +174,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 
 - No agent-generated comments in source code. Agents must never add comments to `.ts`, `.vue`, or other source files unless:
   1. **Lint disable comments** — following the two-line format below
-  2. **JSDoc-type documentation** — for public API surfaces, exported functions, and composables
+  2. **JSDoc-type documentation** — for the public logic API surfaces defined in [`docs/jsdoc.md`](docs/jsdoc.md): composables and their option/return types, store actions, repositories, server helpers/mappers/types, shared and app helpers, and shared types. Follow the concise-TSDoc rules there.
   - No explanatory comments, no `// TODO`, no `// FIXME`, no inline notes, no section markers.
 
 - Lint disable comments (last resort):
@@ -189,16 +199,19 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 ## Tests and test style
 
 - Framework: Vitest + `@nuxt/test-utils` + `@vue/test-utils` + `happy-dom`.
-- Vitest runs five projects (defined in `configs/vitest/vitest.config.ts`):
+- Vitest runs six projects (defined in `configs/vitest/vitest.config.ts`):
   - `nuxt`         – `app/**/*.spec.ts`, `server/**/*.spec.ts`, `shared/**/*.spec.ts` (excluding composables/stores/repositories/node)
   - `composables`  – `app/composables/**/*.spec.ts`
   - `stores`       – `app/**/*.store.spec.ts` (includes Pinia + composables + repository mock setup)
   - `repositories` – `app/**/*.repository.spec.ts` (plain Node env, no Nuxt)
-  - `node`         – `*.mappers.spec.ts`, `*.helpers.spec.ts`, `*.translations.spec.ts` under app/, server/, shared/
-- Coverage threshold: 100% (`thresholds: { 100: true }`).
+  - `node`         – `*.mappers.spec.ts`, `*.helpers.spec.ts`, `*.translations.spec.ts` under app/, server/, shared/, plus `shared/**/*.schemas.spec.ts`
+  - `dom`          – `*.dom.helpers.spec.ts` in the happy-dom environment
+- Coverage threshold: 100% aggregate across all projects (not per project), via `thresholds: { 100: true }`.
   - Collected for `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`, `shared/**/*.ts`.
   - Excluded: `*.constants.ts`, `*.enums.ts`, `*.types.ts`, `*.d.ts`, `*.config.ts`,
-    `*.spec.ts`, `server/api/**/*.{get,post,put,patch,delete}.ts`.
+    `*.spec.ts`, `app/plugins/**/*.ts`, `server/api/**/*.{get,post,put,patch,delete}.ts`,
+    `server/routes/**/*.{get,post,put,patch,delete}.ts`, `server/middleware/**/*.ts`,
+    `server/plugins/**/*.ts`.
 
 - Mocks in `tests/unit/utils/mocks/` — `composables/` and `repositories/` sub-dirs.
   - Non-trivial mocks use a triplet: `.mock.ts` + optionally `.mock.constants.ts` + `.mock.types.ts`.
@@ -207,7 +220,7 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
   - New repository mocks: use `vi.mock(...)` (NOT `mockNuxtImport`).
   - New composable mocks: use `mockNuxtImport`.
   - Register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES` or `VITEST_REPOSITORIES_MOCK_SETUP_FILES`
-    in `configs/vitest/vitest.config.constants.ts`. Load in `nuxt`, `composables`, `stores`; NOT in `repositories` or `node`.
+    in `configs/vitest/vitest.config.setup-files.constants.ts`. Load in `nuxt`, `composables`, `stores`; NOT in `repositories` or `node`.
 
 - Infrastructure registration checklist:
   - New composable mock → register in `VITEST_COMPOSABLES_MOCK_SETUP_FILES`
@@ -217,10 +230,12 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - Fake data: faketory functions (`@faker-js/faker`) in `tests/unit/utils/faketories/`.
   - Accept `Partial<T>`; named `createFake<Entity>` (e.g. `createFakeQuestionTheme`).
   - Entity faketories live locally (domain type). DTO faketories come from `@goat-it/schemas/testing/*` (raw API DTO).
+  - Serialized faketories (`.serialized.faketory.ts`, e.g. `createFakeQuestionSerialized`) build the JSON-transported
+    domain shape (`Jsonify<Entity>`, dates as ISO strings) from an entity faketory for repository and schema tests.
   - Do NOT create local DTO faketories — always import from the package.
 
 - Config per project: `mockReset: true`, `clearMocks: true`, `restoreMocks: true`.
-- `describe(functionName, ...)` — pass the function/composable/store reference as label. Exception for components, which are always `describe("<ComponentName> Component", ...)`
+- `describe(functionName, ...)` — pass the function/composable/store reference as label. Exceptions: components use `describe("<ComponentName> Component", ...)`; schemas use a human-readable `describe("<Name> schema", ...)` (Zod objects cannot be a title symbol, and the exact constant name is auto-rewritten to the symbol by ESLint).
 - Test names: `"should <action> when <condition>."` pattern.
 - Use `expect(...).toHaveBeenCalledExactlyOnceWith(...)` for single-call assertions.
 
@@ -234,38 +249,55 @@ If any gate fails, fix the issue and re-run from that gate onward until all four
 - **Never commit unless the user explicitly asks for it.** Do not create commits
   autonomously after completing tasks or passing quality gates. This applies to ALL
   agents, including subagents dispatched via Task/parallel execution.
+- **Always propose a commit message once you changed files.** At the end of any session
+  that modified the working tree, hand the user a ready-to-copy conventional commit
+  message (`type(scope): summary` plus a grouped body) covering **all** changes in the
+  working tree, not only the last edit. Proposing is mandatory; committing stays forbidden.
 - Do not commit `.env.*` files with real secrets (`.env.example` is safe).
 - Husky pre-commit hooks are active; never bypass with `--no-verify`.
 - Conventional commits enforced by commitlint: `type(scope): message`.
   Common types: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`.
 - Validate branch names: `pnpm run validate:branch-name`.
+- **When dealing with GitHub or the repository, use the `gh` CLI as much as possible**
+  (issues, PRs, workflows, runs, reviews, comments, releases, secrets). Prefer `gh` subcommands
+  (`gh issue view`, `gh pr view`, `gh pr checks`, `gh run list`, …) and `gh api` for the rest —
+  never `curl` or the web UI. `gh` commands are allowed for ALL agents (main and subagents alike).
 
 ## Agent skills (`.agents/skills/`)
 
-Each skill has a `SKILL.md` entry point. Load only the relevant skill for the task.
+Each skill has a `SKILL.md` entry point. Load only the relevant skill for the task. Any skill or command that can lead to project file changes must require consultation of [`docs/architecture.md`](docs/architecture.md).
 
-Available skills: `acceptance-testing`, `brainstorming`, `nuxt`, `nuxt-ui`, `receiving-code-review`,
+Available skills: `acceptance-testing`, `brainstorming`, `context7`, `goat-audit`, `nuxt`, `nuxt-ui`, `receiving-code-review`,
 `systematic-debugging`, `unit-testing`, `vite`, `vitest`, `vue`, `vueuse`, `writing-plans`, `writing-skills`.
 
 - **When writing unit tests** (including inside plans): always load the `unit-testing` skill first and verify the result against the `.opencode/commands/lint-unit-tests.md` §4 checklist.
 - **When writing acceptance tests** (including inside plans): always load the `acceptance-testing` skill first and verify the result against the `.opencode/commands/lint-acceptance-tests.md` §4 checklist.
-- **When brainstorming or writing plans**: always consult the `nuxt`, `nuxt-ui`, and `vueuse` skills.
+- **When reviewing, planning or auditing**: the `final-reviewer` applies the `goat-audit` skill in diff mode on every review and the `plan-writer` embeds triggered GOAT checks in tasks; run `/goat-audit` (agent `goat-auditor`) for a full audit. Reports are written to the gitignored `docs/audits/GOAT-AUDIT-<date>.md`; decisions live in the mapped doc's `## GOAT audit decisions` section and are binding.
+- **When brainstorming or writing plans**: always consult the `nuxt`, `nuxt-ui`, `vueuse` and `goat-audit` skills — the brainstormer records GOAT constraints in the spec (design mode) and the plan-writer embeds the triggered checks in every task.
 
 ## OpenCode commands (`.opencode/commands/`)
 
 Slash commands available in OpenCode sessions:
 
 - `/complete-i18n`   – Translate all French locale JSON files into every other locale.
+- `/goat-audit` – Run the GOAT audit (all 20 categories, or a subset with `/goat-audit categories SEC,A11Y,UX`), then triage findings into issues, private advisories or decision notes.
+- `/implement-oxlint-rules` – Add missing oxlint rules one by one after validation.
 - `/lint-unit-tests` – Audit spec files against unit testing conventions, then fix user-approved violations.
 - `/lint-acceptance-tests` – Audit feature/step/helper files against acceptance testing conventions, then fix user-approved violations.
 - `/write-unit-test` – Write a complete, passing unit test for a given source file.
 - `/write-acceptance-test` – Write a complete acceptance test (feature + steps) for a given page/feature.
+- `/write-release-changelog` – Draft and translate the end-user release changelog for the open release PR.
 
 ## Useful docs (`docs/`)
 
 - `docs/superpowers/` – Agent workflow artifacts: `specs/` (design specs from brainstormer), `plans/` (implementation plans from plan-writer).
 - `docs/unit-testing.md` – Full human-readable unit testing guide (patterns, examples, pitfalls).
 - `docs/acceptance-testing.md` – Full acceptance testing guide (Cucumber, Playwright, patterns, examples).
+- `docs/security.md` – Security hardening reference: security headers, CSP nonce, rate limiting, body guard, upstream fetch pipeline and error contract.
+- `docs/pwa.md` – PWA behavior: manifest/update strategy, Workbox precache, offline fallback, connectivity indicator, and API caching limits.
+- `docs/operations.md` – Operations reference: health/readiness endpoints, container health check, graceful shutdown, and post-deploy verification.
+- `docs/audits/` – Gitignored GOAT audit reports (`GOAT-AUDIT-<date>.md`) and run directories.
+- `docs/architecture.md` – Canonical architecture, file placement, naming, and dependency boundaries.
 
 ## MemPalace (persistent project memory)
 
@@ -279,7 +311,7 @@ MemPalace stores project context as searchable embeddings. It runs as an MCP ser
 
 ## Useful paths
 
-- Vitest config:    `configs/vitest/vitest.config.ts` + `vitest.config.constants.ts`
+- Vitest config:    `configs/vitest/` (`vitest.config.ts` + split `vitest.config.*.constants.ts` modules)
 - ESLint config:    `eslint.config.ts` + `configs/eslint/flat-configs/`
 - Oxlint config:    `oxlint.config.jsonc`
 - Cucumber config:  `configs/cucumber/cucumber.json`

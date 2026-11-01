@@ -1,0 +1,4 @@
+const ARROW_LEFT_KEY_HINT = "←";
+const ESCAPE_KEY_HINT = "Esc";
+
+export { ARROW_LEFT_KEY_HINT, ESCAPE_KEY_HINT };

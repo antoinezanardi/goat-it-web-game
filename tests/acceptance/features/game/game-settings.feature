@@ -1,4 +1,4 @@
-@game-settings
+@game @game-settings
 Feature: ⚙️ Game Settings Modal
 
   Background:

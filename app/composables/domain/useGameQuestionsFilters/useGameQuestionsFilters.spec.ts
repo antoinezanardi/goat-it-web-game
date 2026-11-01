@@ -2,16 +2,16 @@ import { QUESTION_CATEGORIES } from "@goat-it/schemas/question";
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { nextTick } from "vue";
+import { nextTick, ref } from "vue";
 
 import { mockStore } from "~~/tests/unit/utils/mocks/stores/store.mock";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question-theme/question-theme.entity.faketory";
 
-import type { useGameQuestionsFilters as UseGameQuestionsFiltersType } from "~/composables/domain/useGameQuestionsFilters/useGameQuestionsFilters";
-import type { UseGameSettingsCookie } from "~/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
-import { GAME_SETTINGS_DEFAULTS } from "~/stores/domain/game-settings/game-settings.constants";
-import type { GameSettings } from "~/stores/domain/game-settings/game-settings.types";
+import type { useGameQuestionsFilters as UseGameQuestionsFiltersType } from "@/composables/domain/useGameQuestionsFilters/useGameQuestionsFilters";
+import type { UseGameSettingsCookie } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.types";
+import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
+import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 import { useGameSettingsStore } from "@/stores/domain/game-settings/game-settings.store";
 import { useQuestionThemesStore } from "@/stores/domain/question-theme/question-themes.store";
 
@@ -34,12 +34,14 @@ let useGameQuestionsFilters: typeof UseGameQuestionsFiltersType;
 mockNuxtImport("useGameSettingsCookie", () => (): UseGameSettingsCookie => ({
   readGameSettingsCookie: (): GameSettings => GAME_SETTINGS_DEFAULTS,
   writeGameSettingsCookie: vi.fn<UseGameSettingsCookie["writeGameSettingsCookie"]>(),
+  wasGameSettingsReset: ref<boolean>(false),
+  acknowledgeSettingsReset: vi.fn<UseGameSettingsCookie["acknowledgeSettingsReset"]>(),
 }));
 
 describe("useGameQuestionsFilters", () => {
   beforeEach(async() => {
     createTestingPinia();
-    ({ useGameQuestionsFilters } = await import("~/composables/domain/useGameQuestionsFilters/useGameQuestionsFilters"));
+    ({ useGameQuestionsFilters } = await import("@/composables/domain/useGameQuestionsFilters/useGameQuestionsFilters"));
   });
 
   it("should count zero active groups when adult content is disabled and every difficulty is selected.", () => {

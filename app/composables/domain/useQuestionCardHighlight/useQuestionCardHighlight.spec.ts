@@ -1,34 +1,39 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Ref } from "vue";
 import type { ReducedMotionType } from "@vueuse/core";
 
 import { createUsePreferredReducedMotionMock } from "~~/tests/unit/utils/mocks/composables/core/usePreferredReducedMotion/usePreferredReducedMotion.mock";
 import type { UsePreferredReducedMotionMock } from "~~/tests/unit/utils/mocks/composables/core/usePreferredReducedMotion/usePreferredReducedMotion.mock";
-import { createUseGSAPMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useGsap/useGsap.mock";
-import type { UseGSAPMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useGsap/useGsap.mock";
+import { createUseGsapMock } from "~~/tests/unit/utils/mocks/composables/core/useGsap/useGsap.mock";
+import type { UseGsapMock } from "~~/tests/unit/utils/mocks/composables/core/useGsap/useGsap.mock.types";
 
-import type { useQuestionCardHighlight as UseQuestionCardHighlightType } from "~/composables/domain/useQuestionCardHighlight/useQuestionCardHighlight";
+import type { useQuestionCardHighlight as UseQuestionCardHighlightType } from "@/composables/domain/useQuestionCardHighlight/useQuestionCardHighlight";
 import {
   QUESTION_CARD_HIGHLIGHT_DURATION_SECONDS,
   QUESTION_CARD_HIGHLIGHT_SCALE_BRIGHTNESS_KEYFRAMES,
   QUESTION_CARD_HIGHLIGHT_STAGGER_SECONDS,
-} from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.constants";
-import type { QuestionCardHighlightPlayable } from "~/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
+} from "@/composables/domain/useQuestionCardHighlight/use-question-card-highlight.constants";
+import type { QuestionCardHighlightPlayable } from "@/composables/domain/useQuestionCardHighlight/use-question-card-highlight.types";
 
-let useGSAPMock: UseGSAPMock;
+let useGsapMock: UseGsapMock;
 let usePreferredReducedMotionMock: UsePreferredReducedMotionMock;
 
-mockNuxtImport("useGSAP", () => (): UseGSAPMock => useGSAPMock);
+mockNuxtImport("useGsap", () => (): UseGsapMock => useGsapMock);
 mockNuxtImport("usePreferredReducedMotion", () => (): Ref<ReducedMotionType> => usePreferredReducedMotionMock.preferredReducedMotionRef);
 
 let useQuestionCardHighlight: typeof UseQuestionCardHighlightType;
 
 describe("useQuestionCardHighlight", () => {
   beforeEach(async() => {
-    useGSAPMock = createUseGSAPMock();
+    vi.useFakeTimers();
+    useGsapMock = createUseGsapMock();
     usePreferredReducedMotionMock = createUsePreferredReducedMotionMock();
-    ({ useQuestionCardHighlight } = await import("~/composables/domain/useQuestionCardHighlight/useQuestionCardHighlight"));
+    ({ useQuestionCardHighlight } = await import("@/composables/domain/useQuestionCardHighlight/useQuestionCardHighlight"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe("animate", () => {
@@ -38,7 +43,7 @@ describe("useQuestionCardHighlight", () => {
 
       await animate([element]);
 
-      expect(useGSAPMock.timeline).toHaveBeenCalledExactlyOnceWith();
+      expect(useGsapMock.timeline).toHaveBeenCalledExactlyOnceWith();
     });
 
     it("should set the starting filter before animating when reduced motion is not preferred.", async() => {
@@ -47,7 +52,7 @@ describe("useQuestionCardHighlight", () => {
 
       await animate([element]);
 
-      expect(useGSAPMock.set).toHaveBeenNthCalledWith(1, [element], { filter: "brightness(1)" });
+      expect(useGsapMock.set).toHaveBeenNthCalledWith(1, [element], { filter: "brightness(1)" });
     });
 
     it("should clear the transform and filter props when the timeline completes.", async() => {
@@ -56,7 +61,7 @@ describe("useQuestionCardHighlight", () => {
 
       await animate([element]);
 
-      expect(useGSAPMock.set).toHaveBeenNthCalledWith(2, [element], { clearProps: "transform,filter" });
+      expect(useGsapMock.set).toHaveBeenNthCalledWith(2, [element], { clearProps: "transform,filter" });
     });
 
     it("should pass the element, keyframes, stagger and position to the timeline tween when animating a single element.", async() => {
@@ -71,7 +76,7 @@ describe("useQuestionCardHighlight", () => {
         expect.objectContaining({ filter: "brightness(1)", scale: expect.any(Function) as (index: number) => number }),
       ];
 
-      expect(useGSAPMock.timelineTo).toHaveBeenCalledExactlyOnceWith(
+      expect(useGsapMock.timelineTo).toHaveBeenCalledExactlyOnceWith(
         [element],
         expect.objectContaining({
           duration: QUESTION_CARD_HIGHLIGHT_DURATION_SECONDS,
@@ -88,7 +93,7 @@ describe("useQuestionCardHighlight", () => {
 
       await animate([element]);
 
-      const variables = useGSAPMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
+      const variables = useGsapMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
       const scale = variables?.keyframes?.[2]?.scale as ((index: number) => number) | undefined;
 
       expect(scale?.(0)).toBe(1);
@@ -101,7 +106,7 @@ describe("useQuestionCardHighlight", () => {
 
       await animate([element]);
 
-      const variables = useGSAPMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
+      const variables = useGsapMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
       const scale = variables?.keyframes?.[2]?.scale as ((index: number) => number) | undefined;
 
       expect(scale?.(0)).toBe(0.85);
@@ -113,7 +118,7 @@ describe("useQuestionCardHighlight", () => {
 
       await animate([element]);
 
-      const variables = useGSAPMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
+      const variables = useGsapMock.timelineTo.mock.calls[0]?.[1] as unknown as { keyframes?: { scale?: unknown }[] } | undefined;
       const scale = variables?.keyframes?.[2]?.scale as ((index: number) => number) | undefined;
 
       expect(scale?.(99)).toBe(1);
@@ -126,7 +131,7 @@ describe("useQuestionCardHighlight", () => {
 
       await animate([firstElement, secondElement]);
 
-      expect(useGSAPMock.timelineTo).toHaveBeenCalledExactlyOnceWith(
+      expect(useGsapMock.timelineTo).toHaveBeenCalledExactlyOnceWith(
         [firstElement, secondElement],
         expect.any(Object),
         0,
@@ -147,13 +152,45 @@ describe("useQuestionCardHighlight", () => {
 
       await animate([element]);
 
-      expect(useGSAPMock.timeline).not.toHaveBeenCalled();
+      expect(useGsapMock.timeline).not.toHaveBeenCalled();
+    });
+
+    it("should not load gsap when reduced motion is preferred.", async() => {
+      usePreferredReducedMotionMock.preferredReducedMotionRef.value = "reduce";
+      const { animate } = useQuestionCardHighlight();
+
+      await animate([document.createElement("div")]);
+
+      expect(useGsapMock.loadGsap).not.toHaveBeenCalled();
+    });
+
+    it("should not load gsap when there are no elements to animate.", async() => {
+      const { animate } = useQuestionCardHighlight();
+
+      await animate([]);
+
+      expect(useGsapMock.loadGsap).not.toHaveBeenCalled();
+    });
+
+    it("should skip the animation when reduced motion becomes preferred while gsap is loading.", async() => {
+      const deferred: { resolve?: (gsap: UseGsapMock) => void } = {};
+      useGsapMock.loadGsap.mockReturnValue(new Promise<UseGsapMock>(resolve => {
+        deferred.resolve = resolve;
+      }));
+      const { animate } = useQuestionCardHighlight();
+      const element = document.createElement("div");
+
+      const animation = animate([element]);
+      usePreferredReducedMotionMock.preferredReducedMotionRef.value = "reduce";
+      deferred.resolve?.(useGsapMock);
+      await animation;
+
+      expect(useGsapMock.set).not.toHaveBeenCalled();
     });
   });
 
   describe("playSequence", () => {
     it("should call each target's playHighlight in order when called.", async() => {
-      vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
       const calls: string[] = [];
       const firstTarget = {
@@ -172,13 +209,11 @@ describe("useQuestionCardHighlight", () => {
       const promise = playSequence([firstTarget, secondTarget]);
       await vi.advanceTimersByTimeAsync(0);
       await promise;
-      vi.useRealTimers();
 
       expect(calls).toStrictEqual(["first", "second"]);
     });
 
     it("should skip undefined and null targets without consuming a gap when called.", async() => {
-      vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
       const firstTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
       const secondTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
@@ -186,13 +221,11 @@ describe("useQuestionCardHighlight", () => {
       const promise = playSequence([firstTarget, undefined, null, secondTarget], { gapMs: 100 });
       await vi.advanceTimersByTimeAsync(100);
       await promise;
-      vi.useRealTimers();
 
       expect(secondTarget.playHighlight).toHaveBeenCalledExactlyOnceWith();
     });
 
     it("should use a default gapMs of 0 when called without options.", async() => {
-      vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
       const target = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
 
@@ -203,12 +236,9 @@ describe("useQuestionCardHighlight", () => {
       const elapsed = Date.now() - startTime;
 
       expect(elapsed).toBe(0);
-
-      vi.useRealTimers();
     });
 
     it("should apply gapMs only between targets, not after the last one, when called.", async() => {
-      vi.useFakeTimers();
       const { playSequence } = useQuestionCardHighlight();
       const firstTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
       const secondTarget = { playHighlight: vi.fn<QuestionCardHighlightPlayable["playHighlight"]>().mockResolvedValue(undefined) };
@@ -220,8 +250,6 @@ describe("useQuestionCardHighlight", () => {
       const elapsed = Date.now() - startTime;
 
       expect(elapsed).toBe(250);
-
-      vi.useRealTimers();
     });
   });
 });

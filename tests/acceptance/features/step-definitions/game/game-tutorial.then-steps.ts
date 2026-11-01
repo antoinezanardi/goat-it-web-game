@@ -52,3 +52,26 @@ Then(
     await expectTutorialSpotlightCovers(this.page, this.page.getByTestId("game-questions-filters-button"));
   },
 );
+
+Then(
+  /^the focus should remain inside the interactive tutorial$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    const tooltip = getGameTourTooltip(this.page);
+
+    await expect(tooltip.locator(":focus")).toHaveCount(1);
+  },
+);
+
+Then(
+  /^the background game content should be inert$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expect(this.page.getByTestId("game-page-content")).toHaveAttribute("inert", "");
+  },
+);
+
+Then(
+  /^the background game content should not be inert$/u,
+  async function(this: GoatItWorld): Promise<void> {
+    await expect(this.page.getByTestId("game-page-content")).not.toHaveAttribute("inert");
+  },
+);

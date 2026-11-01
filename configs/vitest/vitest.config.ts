@@ -1,7 +1,8 @@
 import { defineVitestProject } from "@nuxt/test-utils/config";
 import { defineConfig } from "vitest/config";
 
-import { VITEST_COMPOSABLES_PROJECT_CONFIG, VITEST_DOM_PROJECT_CONFIG, VITEST_IGNORED_STARTING_BY_LOGS, VITEST_NODE_PROJECT_CONFIG, VITEST_NUXT_PROJECT_CONFIG, VITEST_REPOSITORIES_PROJECT_CONFIG, VITEST_STORES_PROJECT_CONFIG } from "./vitest.config.constants.ts";
+import { VITEST_IGNORED_STARTING_BY_LOGS } from "./vitest.config.constants.ts";
+import { VITEST_COMPOSABLES_PROJECT_CONFIG, VITEST_DOM_PROJECT_CONFIG, VITEST_NODE_PROJECT_CONFIG, VITEST_NUXT_PROJECT_CONFIG, VITEST_REPOSITORIES_PROJECT_CONFIG, VITEST_STORES_PROJECT_CONFIG } from "./vitest.config.projects.constants.ts";
 
 export default defineConfig({
   test: {
@@ -33,6 +34,8 @@ export default defineConfig({
         "**/*.spec.ts",
         "app/plugins/**/*.ts",
         "server/api/**/*.{get,post,put,patch,delete}.ts",
+        "server/routes/**/*.{get,post,put,patch,delete}.ts",
+        "server/middleware/**/*.ts",
         "server/plugins/**/*.ts",
       ],
       reportsDirectory: "tests/unit/coverage",

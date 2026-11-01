@@ -113,6 +113,19 @@ pnpm run docker:build:linux/arm64
 pnpm run docker:build:linux/amd64
 ```
 
+No secrets are required at build time. The image reads `NUXT_GOAT_IT_API_BASE_URL`, `NUXT_GOAT_IT_API_GAME_KEY`, and `NUXT_PUBLIC_SENTRY_DSN` from the runtime environment. The Sentry DSN is a public ingest identifier, not a secret; set `NUXT_PUBLIC_SENTRY_DISABLED=true` to run a production image without error tracking:
+
+```bash
+# Run the production image (runtime environment variables are required)
+docker run -p 3002:3002 \
+  -e NUXT_GOAT_IT_API_BASE_URL=https://api.goat-it.fr \
+  -e NUXT_GOAT_IT_API_GAME_KEY=your_game_key_here \
+  -e NUXT_PUBLIC_SENTRY_DSN=https://your_public_key@o000000.ingest.us.sentry.io/000000 \
+  goat-it-web-game
+```
+
+Health, readiness, container shutdown, and post-deploy verification are documented in the **[operations reference](docs/operations.md)**.
+
 ### 🐐💽 Goat It API sandbox
 
 For development or testing purposes, you can run the Goat It API sandbox with the following command :
@@ -150,7 +163,7 @@ pnpm run docker:api-sandbox:update
 
 This project uses `Vitest` for unit tests, with coverage thresholds set to `100%` for all files included in coverage.
 
-All related test files are located in the **[app/](app/)** directory, alongside the code they test, suffixing the file name with `.spec.ts`.
+Test files live under `app/`, `server/`, and `shared/`, usually alongside the code they test, suffixing the file name with `.spec.ts`.
 
 ```bash
 # Run unit tests

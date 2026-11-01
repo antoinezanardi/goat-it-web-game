@@ -1,35 +1,52 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { FindRandomQuestionsBodyDto } from "@goat-it/schemas/question";
 import { createFakeFindRandomQuestionsBodyDto } from "@goat-it/schemas/testing/question";
 
 import { createUseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import type { UseAsyncActionMock } from "~~/tests/unit/utils/mocks/composables/core/useAsyncAction/useAsyncAction.mock";
 import { createFakeQuestion } from "~~/tests/unit/utils/faketories/question/question.entity.faketory";
 
+import { GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS } from "#shared/constants/goat-it-api.constants";
+import type { AsyncActionContext, UseAsyncAction, UseAsyncActionOptions } from "@/composables/core/useAsyncAction/use-async-action.types";
 import type { useGameStore as UseGameStoreType } from "@/stores/domain/game/game.store";
+
+type CapturedRandomAction = (context: AsyncActionContext, body?: FindRandomQuestionsBodyDto) => Promise<Question[]>;
+
+type CapturedByIdsAction = (context: AsyncActionContext, ids: string[]) => Promise<Question[]>;
 
 let randomAsyncActionMock: UseAsyncActionMock;
 let byIdsAsyncActionMock: UseAsyncActionMock;
-let capturedRandomAction: ((...arguments_: unknown[]) => Promise<unknown>) | undefined;
-let capturedByIdsAction: ((...arguments_: unknown[]) => Promise<unknown>) | undefined;
-let capturedRandomOnError: ((error: unknown) => void) | undefined;
-let capturedByIdsOnError: ((error: unknown) => void) | undefined;
+let capturedRandomAction: CapturedRandomAction | undefined;
+let capturedRandomOptions: UseAsyncActionOptions | undefined;
+let capturedByIdsAction: CapturedByIdsAction | undefined;
+let capturedByIdsOptions: UseAsyncActionOptions | undefined;
 let useAsyncActionCallCount: number;
+let isUsingRealAsyncAction: boolean;
 
-mockNuxtImport("useAsyncAction", () => (action: unknown, onError: unknown): UseAsyncActionMock => {
-  useAsyncActionCallCount++;
-  if (useAsyncActionCallCount === 1) {
-    capturedRandomAction = action as (...arguments_: unknown[]) => Promise<unknown>;
-    capturedRandomOnError = onError as (error: unknown) => void;
-    randomAsyncActionMock = createUseAsyncActionMock();
+mockNuxtImport("useFetchStatus", (original: typeof useFetchStatus) => original);
 
-    return randomAsyncActionMock;
-  }
-  capturedByIdsAction = action as (...arguments_: unknown[]) => Promise<unknown>;
-  capturedByIdsOnError = onError as (error: unknown) => void;
-  byIdsAsyncActionMock = createUseAsyncActionMock();
+mockNuxtImport("useAsyncAction", (original: typeof useAsyncAction) => {
+  const realUseAsyncAction = original as unknown as (...arguments_: unknown[]) => UseAsyncAction<unknown, unknown[]>;
 
-  return byIdsAsyncActionMock;
+  return ((...arguments_: unknown[]): UseAsyncActionMock | UseAsyncAction<unknown, unknown[]> => {
+    if (isUsingRealAsyncAction) {
+      return realUseAsyncAction(...arguments_);
+    }
+    useAsyncActionCallCount++;
+    if (useAsyncActionCallCount === 1) {
+      capturedRandomAction = arguments_[0] as CapturedRandomAction;
+      capturedRandomOptions = arguments_[1] as UseAsyncActionOptions | undefined;
+      randomAsyncActionMock = createUseAsyncActionMock();
+
+      return randomAsyncActionMock;
+    }
+    capturedByIdsAction = arguments_[0] as CapturedByIdsAction;
+    capturedByIdsOptions = arguments_[1] as UseAsyncActionOptions | undefined;
+    byIdsAsyncActionMock = createUseAsyncActionMock();
+
+    return byIdsAsyncActionMock;
+  }) as unknown as typeof useAsyncAction;
 });
 
 let useGameStore: typeof UseGameStoreType;
@@ -37,11 +54,16 @@ let useGameStore: typeof UseGameStoreType;
 describe("useGameStore", () => {
   beforeEach(async() => {
     useAsyncActionCallCount = 0;
+    isUsingRealAsyncAction = false;
     capturedRandomAction = undefined;
-    capturedRandomOnError = undefined;
+    capturedRandomOptions = undefined;
     capturedByIdsAction = undefined;
-    capturedByIdsOnError = undefined;
+    capturedByIdsOptions = undefined;
     ({ useGameStore } = await import("@/stores/domain/game/game.store"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe("questions", () => {
@@ -144,6 +166,7 @@ describe("useGameStore", () => {
   describe("fetchAndAppendRandomQuestions", () => {
     it("should call fetchRandomQuestions without query when called without params.", async() => {
       const store = useGameStore();
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: [] });
 
       await store.fetchAndAppendRandomQuestions();
 
@@ -155,6 +178,7 @@ describe("useGameStore", () => {
       const body = createFakeFindRandomQuestionsBodyDto({
         limit: 20,
       });
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: [] });
 
       await store.fetchAndAppendRandomQuestions(body);
 
@@ -167,7 +191,7 @@ describe("useGameStore", () => {
         createFakeQuestion(),
       ];
       const store = useGameStore();
-      randomAsyncActionMock.execute.mockResolvedValue(fakeQuestions);
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: fakeQuestions });
 
       await store.fetchAndAppendRandomQuestions();
 
@@ -180,19 +204,119 @@ describe("useGameStore", () => {
       const expectedQuestions = [...initialQuestions, ...appendedQuestions];
       const store = useGameStore();
       store.questions = initialQuestions;
-      randomAsyncActionMock.execute.mockResolvedValue(appendedQuestions);
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: appendedQuestions });
 
       await store.fetchAndAppendRandomQuestions();
 
       expect(store.questions).toStrictEqual(expectedQuestions);
     });
 
-    it("should not mutate questions when fetchRandomQuestions resolves with undefined.", async() => {
+    it("should return the success result when fetchRandomQuestions resolves.", async() => {
+      const fakeQuestions = [createFakeQuestion()];
       const store = useGameStore();
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: fakeQuestions });
+
+      const result = await store.fetchAndAppendRandomQuestions();
+
+      expect(result).toStrictEqual({ ok: true, value: fakeQuestions });
+    });
+
+    it("should return the failure result when fetchRandomQuestions fails.", async() => {
+      const store = useGameStore();
+      const error = new Error("fetch failed");
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: false, error });
+
+      const result = await store.fetchAndAppendRandomQuestions();
+
+      expect(result).toStrictEqual({ ok: false, error });
+    });
+
+    it("should not append questions when fetchRandomQuestions fails.", async() => {
+      const store = useGameStore();
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: false, error: new Error("fetch failed") });
 
       await store.fetchAndAppendRandomQuestions();
 
       expect(store.questions).toStrictEqual([]);
+    });
+
+    it("should append only the questions whose id is not already stored when the batch repeats known ids.", async() => {
+      const knownQuestion = createFakeQuestion();
+      const unseenQuestion = createFakeQuestion();
+      const store = useGameStore();
+      store.questions = [knownQuestion];
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: [knownQuestion, unseenQuestion] });
+
+      await store.fetchAndAppendRandomQuestions();
+
+      expect(store.questions).toStrictEqual([knownQuestion, unseenQuestion]);
+    });
+
+    it("should keep the stored question objects and order when the batch repeats known ids.", async() => {
+      const firstKnown = createFakeQuestion();
+      const secondKnown = createFakeQuestion();
+      const repeatedFirst = createFakeQuestion({ id: firstKnown.id });
+      const store = useGameStore();
+      store.questions = [firstKnown, secondKnown];
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: [repeatedFirst] });
+
+      await store.fetchAndAppendRandomQuestions();
+
+      expect(store.questions).toStrictEqual([firstKnown, secondKnown]);
+    });
+
+    it("should keep only the first occurrence when a batch repeats an id.", async() => {
+      const firstOccurrence = createFakeQuestion();
+      const repeatedOccurrence = createFakeQuestion({ id: firstOccurrence.id });
+      const store = useGameStore();
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: [firstOccurrence, repeatedOccurrence] });
+
+      await store.fetchAndAppendRandomQuestions();
+
+      expect(store.questions).toStrictEqual([firstOccurrence]);
+    });
+
+    it("should return the appended questions as value when the batch contains known ids.", async() => {
+      const knownQuestion = createFakeQuestion();
+      const unseenQuestion = createFakeQuestion();
+      const store = useGameStore();
+      store.questions = [knownQuestion];
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: [knownQuestion, unseenQuestion] });
+
+      const result = await store.fetchAndAppendRandomQuestions();
+
+      expect(result).toStrictEqual({ ok: true, value: [unseenQuestion] });
+    });
+
+    it("should return an empty value when every returned question is already stored.", async() => {
+      const knownQuestion = createFakeQuestion();
+      const store = useGameStore();
+      store.questions = [knownQuestion];
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: true, value: [knownQuestion] });
+
+      const result = await store.fetchAndAppendRandomQuestions();
+
+      expect(result).toStrictEqual({ ok: true, value: [] });
+    });
+
+    it("should return the superseded result unchanged when the fetch is superseded.", async() => {
+      const store = useGameStore();
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: false, superseded: true });
+
+      const result = await store.fetchAndAppendRandomQuestions();
+
+      expect(result).toStrictEqual({ ok: false, superseded: true });
+    });
+
+    it("should not append questions when the fetch is superseded.", async() => {
+      const existingQuestion = createFakeQuestion();
+      const store = useGameStore();
+      store.questions = [existingQuestion];
+      randomAsyncActionMock.execute.mockResolvedValue({ ok: false, superseded: true });
+
+      await store.fetchAndAppendRandomQuestions();
+
+      expect(store.questions).toStrictEqual([existingQuestion]);
     });
   });
 
@@ -249,34 +373,146 @@ describe("useGameStore", () => {
   });
 
   describe("useAsyncAction setup", () => {
-    it("should pass the repository getRandom function as action to the first useAsyncAction when created.", () => {
+    it("should forward the signal to the repository getRandom when the first captured action is invoked.", async() => {
       useGameStore();
+      const signal = new AbortController().signal;
+      const body = createFakeFindRandomQuestionsBodyDto({ limit: 20 });
 
-      expect(capturedRandomAction).toBe(questionsRepository($fetch).getRandom);
+      await capturedRandomAction?.({ signal }, body);
+
+      expect(questionsRepository($fetch).getRandom).toHaveBeenCalledExactlyOnceWith(body, { signal });
     });
 
-    it("should pass the repository getByIds function as action to the second useAsyncAction when created.", () => {
+    it("should forward the signal to the repository getByIds when the second captured action is invoked.", async() => {
       useGameStore();
+      const signal = new AbortController().signal;
+      const ids = ["507f1f77bcf86cd799439011"];
 
-      expect(capturedByIdsAction).toBe(questionsRepository($fetch).getByIds);
+      await capturedByIdsAction?.({ signal }, ids);
+
+      expect(questionsRepository($fetch).getByIds).toHaveBeenCalledExactlyOnceWith(ids, { signal });
     });
 
-    it("should call handleGoatItApiError with the error and cantFetch translation key when the random fetch error callback is invoked.", () => {
+    it("should pass the client timeout option to the random-questions useAsyncAction when created.", () => {
       useGameStore();
-      const fakeError = new Error("fetch failed");
 
-      capturedRandomOnError?.(fakeError);
-
-      expect(useGoatItApiErrorToast().handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fakeError, "questions.cantFetch");
+      expect(capturedRandomOptions).toStrictEqual({ timeoutInMs: GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS });
     });
 
-    it("should call handleGoatItApiError with the error and cantFetch translation key when the by ids fetch error callback is invoked.", () => {
+    it("should pass the client timeout option to the by-ids useAsyncAction when created.", () => {
       useGameStore();
-      const fakeError = new Error("fetch failed");
 
-      capturedByIdsOnError?.(fakeError);
+      expect(capturedByIdsOptions).toStrictEqual({ timeoutInMs: GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS });
+    });
+  });
 
-      expect(useGoatItApiErrorToast().handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(fakeError, "questions.cantFetch");
+  describe("with the real useAsyncAction", () => {
+    beforeEach(() => {
+      isUsingRealAsyncAction = true;
+      vi.mocked(questionsRepository($fetch).getRandom).mockResolvedValue([]);
+      vi.mocked(questionsRepository($fetch).getByIds).mockResolvedValue([]);
+    });
+
+    it("should abort the first request signal when a second fetch starts.", async() => {
+      const firstResponse = Promise.withResolvers<Question[]>();
+      vi.mocked(questionsRepository($fetch).getRandom).mockReturnValueOnce(firstResponse.promise);
+      const store = useGameStore();
+
+      const firstFetch = store.fetchAndAppendRandomQuestions();
+      const secondFetch = store.fetchAndAppendRandomQuestions();
+      const firstSignal = vi.mocked(questionsRepository($fetch).getRandom).mock.calls[0]?.[1]?.signal;
+
+      expect((firstSignal?.reason as DOMException | undefined)?.name).toBe("AbortError");
+
+      firstResponse.resolve([]);
+      await firstFetch;
+      await secondFetch;
+    });
+
+    it("should append only the latest batch when the older response arrives last.", async() => {
+      const olderResponse = Promise.withResolvers<Question[]>();
+      const newerQuestions = [createFakeQuestion()];
+      vi.mocked(questionsRepository($fetch).getRandom).mockReturnValueOnce(olderResponse.promise).mockResolvedValueOnce(newerQuestions);
+      const store = useGameStore();
+
+      const olderFetch = store.fetchAndAppendRandomQuestions();
+      await store.fetchAndAppendRandomQuestions();
+      olderResponse.resolve([createFakeQuestion()]);
+      await olderFetch;
+
+      expect(store.questions).toStrictEqual(newerQuestions);
+    });
+
+    it("should append only the latest batch when the older response arrives first.", async() => {
+      const olderResponse = Promise.withResolvers<Question[]>();
+      const newerResponse = Promise.withResolvers<Question[]>();
+      const newerQuestions = [createFakeQuestion()];
+      vi.mocked(questionsRepository($fetch).getRandom).mockReturnValueOnce(olderResponse.promise).mockReturnValueOnce(newerResponse.promise);
+      const store = useGameStore();
+
+      const olderFetch = store.fetchAndAppendRandomQuestions();
+      const newerFetch = store.fetchAndAppendRandomQuestions();
+      olderResponse.resolve([createFakeQuestion()]);
+      await olderFetch;
+      newerResponse.resolve(newerQuestions);
+      await newerFetch;
+
+      expect(store.questions).toStrictEqual(newerQuestions);
+    });
+
+    it("should stay pending when the older request settles before the latest one.", async() => {
+      const olderResponse = Promise.withResolvers<Question[]>();
+      const newerResponse = Promise.withResolvers<Question[]>();
+      vi.mocked(questionsRepository($fetch).getRandom).mockReturnValueOnce(olderResponse.promise).mockReturnValueOnce(newerResponse.promise);
+      const store = useGameStore();
+
+      const olderFetch = store.fetchAndAppendRandomQuestions();
+      const newerFetch = store.fetchAndAppendRandomQuestions();
+      olderResponse.resolve([]);
+      await olderFetch;
+
+      expect(store.isPending).toBe(true);
+
+      newerResponse.resolve([]);
+      await newerFetch;
+    });
+
+    it("should fail the pending request when the request timeout elapses.", async() => {
+      vi.useFakeTimers();
+      const abortError = new Error("aborted");
+      const store = useGameStore();
+      vi.mocked(questionsRepository($fetch).getRandom).mockImplementation(async(_body, options) => {
+        const response = Promise.withResolvers<Question[]>();
+        options?.signal?.addEventListener("abort", () => {
+          response.reject(abortError);
+        });
+
+        return response.promise;
+      });
+
+      const fetchPromise = store.fetchAndAppendRandomQuestions();
+      await vi.advanceTimersByTimeAsync(GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS);
+
+      await expect(fetchPromise).resolves.toStrictEqual({ ok: false, error: abortError });
+    });
+
+    it("should stop being pending when the request timeout elapses.", async() => {
+      vi.useFakeTimers();
+      const store = useGameStore();
+      vi.mocked(questionsRepository($fetch).getRandom).mockImplementation(async(_body, options) => {
+        const response = Promise.withResolvers<Question[]>();
+        options?.signal?.addEventListener("abort", () => {
+          response.reject(new Error("aborted"));
+        });
+
+        return response.promise;
+      });
+
+      const fetchPromise = store.fetchAndAppendRandomQuestions();
+      await vi.advanceTimersByTimeAsync(GOAT_IT_API_CLIENT_REQUEST_TIMEOUT_IN_MS);
+      await fetchPromise;
+
+      expect(store.isPending).toBe(false);
     });
   });
 });

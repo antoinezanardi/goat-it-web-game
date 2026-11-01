@@ -7,6 +7,16 @@
     "previousQuestionTooltip": "Torna alla domanda precedente",
     "menuTooltip": "Apri menu",
     "noMoreQuestions": "Hai visto tutto! Torna presto per nuove domande.",
+    "fetchError": {
+      "title": "Impossibile caricare le domande",
+      "description": "La connessione al server del gioco non è riuscita. Controlla la connessione e riprova.",
+      "retry": "Riprova"
+    },
+    "emptyFilters": {
+      "title": "Nessuna domanda corrisponde a questi filtri",
+      "description": "I filtri sono troppo restrittivi per le domande rimanenti. Reimpostali per continuare a giocare.",
+      "reset": "Reimposta i filtri"
+    },
     "rules": "Regole del gioco",
     "backToHome": "Torna alla home",
     "leaveConfirmTitle": "Abbandonare la partita?",
@@ -20,6 +30,7 @@
         "about": "Informazioni"
       },
       "languageLabel": "Lingua",
+      "resetNotice": "Alcune delle tue impostazioni di gioco non sono state lette e sono state ripristinate.",
       "adultContent": {
         "label": "Contenuti per adulti",
         "descriptionDisabled": "Appariranno solo domande adatte a tutti i tipi di pubblico.",
@@ -28,6 +39,7 @@
       "filters": {
         "searchPlaceholder": "Cerca opzioni…",
         "selectedCount": "{count} selezionati",
+        "selectAriaLabel": "{label}: {value}",
         "confirmRestoreTitle": "Ripristinare tutte le opzioni?",
         "confirmRestoreDescription": "Se deselezioni l'ultima opzione, tutte le opzioni verranno ripristinate.",
         "confirmRestoreAction": "Ripristina tutto"

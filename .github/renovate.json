@@ -4,6 +4,8 @@
     "config:recommended"
   ],
   "rangeStrategy": "bump",
+  "pinDigests": true,
+  "minimumReleaseAge": "3 days",
   "assignees": [
     "antoinezanardi"
   ],
@@ -14,5 +16,16 @@
   "reviewers": [
     "antoinezanardi"
   ],
-  "dependencyDashboardApproval": false
+  "dependencyDashboardApproval": false,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update pnpm version installed in the Dockerfile",
+      "managerFilePatterns": ["/^Dockerfile$/"],
+      "matchStrings": ["npm install -g pnpm@(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "pnpm",
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "semver"
+    }
+  ]
 }

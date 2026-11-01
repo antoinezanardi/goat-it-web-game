@@ -1,13 +1,13 @@
 import type { Toast } from "#ui/composables";
+import type { UseAppToast } from "@/composables/ui/useAppToast/use-app-toast.types";
 
-type UseAppToast = {
-  addSuccessToast: (options: Partial<Toast>) => Toast;
-  addErrorToast: (options: Partial<Toast>) => Toast;
-  addInfoToast: (options: Partial<Toast>) => Toast;
-  updateToast: (id: string | number, options: Omit<Partial<Toast>, "id">) => void;
-  removeToast: (id: string | number) => void;
-};
-
+/**
+ * Wraps Nuxt UI `useToast` with the app's localized defaults.
+ *
+ * Each add helper fills the default title, icon, and color from `common.*`
+ * translations and tags the toast with `data-nosnippet`, then applies caller
+ * overrides. The helpers return the toast handle so it can be updated or removed.
+ */
 function useAppToast(): UseAppToast {
   const toast = useToast();
   const { $i18n } = useNuxtApp();
@@ -46,6 +46,16 @@ function useAppToast(): UseAppToast {
     });
   }
 
+  function addWarningToast(options: Partial<Toast>): Toast {
+    return toast.add({
+      icon: "i-lucide-triangle-alert",
+      color: "warning",
+      title: $i18n.t("common.warning"),
+      ...toastExtraData,
+      ...options,
+    });
+  }
+
   function updateToast(id: string | number, options: Omit<Partial<Toast>, "id">): void {
     toast.update(id, options);
   }
@@ -57,13 +67,10 @@ function useAppToast(): UseAppToast {
     addSuccessToast,
     addErrorToast,
     addInfoToast,
+    addWarningToast,
     updateToast,
     removeToast,
   };
 }
-
-export type {
-  UseAppToast,
-};
 
 export { useAppToast };

@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import { onKeyStroke } from "@vueuse/core";
 
-import { isEditableKeyboardTarget } from "#shared/utils/helpers/element/element.dom.helpers";
-import type { GameQuestionCardSwitcherDirection } from "@/components/domain/game/GamePlaying/GameQuestionCardSwitcher/game-question-card-switcher.types";
+import { isEditableKeyboardTarget } from "@/utils/core/element/element.dom.helpers";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 import type { GamePlayingEmits, GamePlayingProps } from "@/components/domain/game/GamePlaying/game-playing.types";
 
 const props = defineProps<GamePlayingProps>();
 const emit = defineEmits<GamePlayingEmits>();
 
-const transitionDirection = ref<GameQuestionCardSwitcherDirection>("forward");
+const transitionDirection = ref<GameNavigationDirection>("forward");
 const isTransitioning = ref<boolean>(false);
-const pendingDirection = ref<GameQuestionCardSwitcherDirection | undefined>(undefined);
+const pendingDirection = ref<GameNavigationDirection | undefined>(undefined);
 
 function onTransitionComplete(): void {
   finishTransition();
@@ -25,14 +25,14 @@ function finishTransition(): void {
   emit("previous");
 }
 
-function canNavigate(direction: GameQuestionCardSwitcherDirection): boolean {
+function canNavigate(direction: GameNavigationDirection): boolean {
   if (isTransitioning.value) {
     return false;
   }
   return direction === "forward" || props.canGoToPreviousQuestion;
 }
 
-function navigate(direction: GameQuestionCardSwitcherDirection): void {
+function navigate(direction: GameNavigationDirection): void {
   if (!canNavigate(direction)) {
     return;
   }
@@ -69,7 +69,7 @@ function onStaged(): void {
   pendingDirection.value = undefined;
 }
 
-function onQuestionShortcut(event: KeyboardEvent, direction: GameQuestionCardSwitcherDirection): void {
+function onQuestionShortcut(event: KeyboardEvent, direction: GameNavigationDirection): void {
   if (props.areShortcutsDisabled || event.repeat || isEditableKeyboardTarget(event.target)) {
     return;
   }

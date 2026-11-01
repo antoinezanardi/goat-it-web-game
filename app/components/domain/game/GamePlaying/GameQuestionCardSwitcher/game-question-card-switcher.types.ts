@@ -1,10 +1,9 @@
 import type { Question } from "#shared/types/question.types";
-
-type GameQuestionCardSwitcherDirection = "forward" | "backward";
+import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 
 type GameQuestionCardSwitcherProps = {
   currentIndex: number;
-  pendingDirection?: GameQuestionCardSwitcherDirection;
+  pendingDirection?: GameNavigationDirection;
   questions: Question[];
 };
 
@@ -13,4 +12,4 @@ type GameQuestionCardSwitcherEmits = {
   staged: [];
 };
 
-export type { GameQuestionCardSwitcherDirection, GameQuestionCardSwitcherEmits, GameQuestionCardSwitcherProps };
+export type { GameQuestionCardSwitcherEmits, GameQuestionCardSwitcherProps };

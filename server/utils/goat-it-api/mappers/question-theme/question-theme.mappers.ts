@@ -2,6 +2,9 @@ import type { QuestionThemeDto } from "@goat-it/schemas/question-theme";
 
 import type { QuestionTheme } from "#shared/types/question-theme.types";
 
+/**
+ * Maps a question-theme DTO from the upstream API to the domain `QuestionTheme`, converting date strings to `Date` instances.
+ */
 function createQuestionThemeFromQuestionThemeDto(questionThemeDto: QuestionThemeDto): QuestionTheme {
   return {
     id: questionThemeDto.id,

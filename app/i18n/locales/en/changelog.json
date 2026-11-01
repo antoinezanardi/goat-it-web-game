@@ -2,12 +2,16 @@
   "changelog": {
     "entryPoint": "What's new",
     "modal": {
-      "title": "What's new"
+      "title": "What's new",
+      "loading": "Loading changelog entries.",
+      "empty": "No changelog entries are available.",
+      "error": "The changelog couldn't be loaded. Reload the page to try again."
     },
     "toast": {
       "title": "There's something new in Goat It!",
       "description": "Discover the latest improvements to the game.",
       "action": "Read notes"
-    }
+    },
+    "unreadStatus": "New changelog updates available."
   }
 }

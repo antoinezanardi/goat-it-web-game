@@ -1,4 +1,5 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+import { captureException } from "@sentry/nuxt";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchError } from "ofetch";
 
@@ -7,12 +8,7 @@ import { createUseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/
 import type { UseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock";
 import { createUseI18nMock } from "~~/tests/unit/utils/mocks/composables/nuxt/useI18n/useI18n.mock";
 
-import type { useGoatItApiErrorToast as UseGoatItApiErrorToastType, extractErrorCode as ExtractErrorCodeType } from "~/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast";
-
-type ExtractErrorCodeUndefinedCase = {
-  condition: string;
-  createError: () => unknown;
-};
+import type { useGoatItApiErrorToast as UseGoatItApiErrorToastType } from "@/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast";
 
 type GenericFallbackCase = {
   condition: string;
@@ -27,71 +23,12 @@ mockNuxtImport("useAppToast", () => (): UseAppToastMock => useAppToastMock);
 mockNuxtImport("useI18n", () => (): UseI18nMock => useI18nMock);
 
 let useGoatItApiErrorToast: typeof UseGoatItApiErrorToastType;
-let extractErrorCode: typeof ExtractErrorCodeType;
 
 describe("useGoatItApiErrorToast", () => {
   beforeEach(async() => {
     useAppToastMock = createUseAppToastMock();
     useI18nMock = createUseI18nMock();
-    ({ useGoatItApiErrorToast, extractErrorCode } = await import("~/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast"));
-  });
-
-  describe("extractErrorCode", () => {
-    it("should return the error code when error is a FetchError with a valid string errorCode.", () => {
-      const fetchError = new FetchError("Conflict");
-      fetchError.data = { data: { errorCode: "someErrorCode" } };
-
-      expect(extractErrorCode(fetchError)).toBe("someErrorCode");
-    });
-
-    it.each<ExtractErrorCodeUndefinedCase>([
-      {
-        condition: "error is not a FetchError",
-        createError: (): unknown => ({ data: { data: { errorCode: "shouldNotBeExtracted" } } }),
-      },
-      {
-        condition: "error is a FetchError with no data",
-        createError: (): FetchError => new FetchError("Server Error"),
-      },
-      {
-        condition: "error is a FetchError with non-object nested data",
-        createError: (): FetchError => {
-          const fetchError = new FetchError("Server Error");
-          fetchError.data = { data: "not-an-object" };
-
-          return fetchError;
-        },
-      },
-      {
-        condition: "error is a FetchError with null nested data",
-        createError: (): FetchError => {
-          const fetchError = new FetchError("Server Error");
-          fetchError.data = { data: null };
-
-          return fetchError;
-        },
-      },
-      {
-        condition: "error is a FetchError with non-string errorCode",
-        createError: (): FetchError => {
-          const fetchError = new FetchError("Server Error");
-          fetchError.data = { data: { errorCode: 123 } };
-
-          return fetchError;
-        },
-      },
-      {
-        condition: "error is a FetchError with no errorCode property",
-        createError: (): FetchError => {
-          const fetchError = new FetchError("Server Error");
-          fetchError.data = { data: {} };
-
-          return fetchError;
-        },
-      },
-    ])("should return undefined when $condition.", ({ createError }) => {
-      expect(extractErrorCode(createError())).toBeUndefined();
-    });
+    ({ useGoatItApiErrorToast } = await import("@/composables/domain/useGoatItApiErrorToast/useGoatItApiErrorToast"));
   });
 
   describe("handleGoatItApiError", () => {
@@ -104,7 +41,7 @@ describe("useGoatItApiErrorToast", () => {
       };
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't archive question theme");
+      handleGoatItApiError(fetchError, { title: "Can't archive question theme", context: "questions" });
 
       expect(useI18nMock.te).toHaveBeenCalledExactlyOnceWith("errors.goatItApi.questionThemeReferencedByLiveQuestions");
     });
@@ -118,12 +55,12 @@ describe("useGoatItApiErrorToast", () => {
       };
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't archive question theme");
+      handleGoatItApiError(fetchError, { title: "Can't archive question theme", context: "questions" });
 
       expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
         title: "Can't archive question theme",
         description: "translated:errors.goatItApi.questionThemeReferencedByLiveQuestions",
-        id: "api-error-questionThemeReferencedByLiveQuestions",
+        id: "questions-api-error-questionThemeReferencedByLiveQuestions",
       });
     });
 
@@ -137,7 +74,7 @@ describe("useGoatItApiErrorToast", () => {
       };
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't archive question theme");
+      handleGoatItApiError(fetchError, { title: "Can't archive question theme", context: "questions" });
 
       expect(consoleSpy).not.toHaveBeenCalled();
     });
@@ -205,12 +142,12 @@ describe("useGoatItApiErrorToast", () => {
       vi.spyOn(console, "error").mockReturnValue();
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(createError(), title);
+      handleGoatItApiError(createError(), { title, context: "questions" });
 
       expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
         title,
         description: "translated:errors.unknown",
-        id: "api-error-unknown",
+        id: "questions-api-error-unknown",
       });
     });
 
@@ -224,7 +161,7 @@ describe("useGoatItApiErrorToast", () => {
       };
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(fetchError, "Can't fetch question themes");
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
 
       expect(consoleSpy).toHaveBeenCalledExactlyOnceWith("Unknown Goat It API error code: unknownErrorCode");
     });
@@ -278,9 +215,140 @@ describe("useGoatItApiErrorToast", () => {
       vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
       const { handleGoatItApiError } = useGoatItApiErrorToast();
 
-      handleGoatItApiError(createError(), title);
+      handleGoatItApiError(createError(), { title, context: "questions" });
 
       expect(useI18nMock.te).not.toHaveBeenCalled();
+    });
+
+    it.each<{ statusCode: number; expectedErrorCode: string }>([
+      { statusCode: 400, expectedErrorCode: "invalid-request" },
+      { statusCode: 429, expectedErrorCode: "rate-limited" },
+      { statusCode: 500, expectedErrorCode: "internal-error" },
+      { statusCode: 502, expectedErrorCode: "upstream-error" },
+      { statusCode: 503, expectedErrorCode: "upstream-error" },
+      { statusCode: 504, expectedErrorCode: "upstream-timeout" },
+    ])("should call addErrorToast with the $expectedErrorCode message when the error has no error code and status $statusCode.", ({ statusCode, expectedErrorCode }) => {
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const fetchError = new FetchError("Upstream error");
+      fetchError.statusCode = statusCode;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+        title: "Can't fetch question themes",
+        description: `translated:errors.goatItApi.${expectedErrorCode}`,
+        id: `questions-api-error-${expectedErrorCode}`,
+      });
+    });
+
+    it("should call addErrorToast with the status mapped message when the error has an unknown error code and a known status.", () => {
+      vi.mocked(useI18nMock.te).mockReturnValue(false);
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      vi.spyOn(console, "error").mockReturnValue();
+      const fetchError = new FetchError("Too Many Requests");
+      fetchError.data = { data: { errorCode: "custom-upstream-code" } };
+      fetchError.statusCode = 429;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+        title: "Can't fetch question themes",
+        description: "translated:errors.goatItApi.rate-limited",
+        id: "questions-api-error-rate-limited",
+      });
+    });
+
+    it("should call addErrorToast with the generic fallback description when the error has no error code and an unknown status.", () => {
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const fetchError = new FetchError("Not Found");
+      fetchError.statusCode = 404;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(useAppToastMock.addErrorToast).toHaveBeenCalledExactlyOnceWith({
+        title: "Can't fetch question themes",
+        description: "translated:errors.unknown",
+        id: "questions-api-error-unknown",
+      });
+    });
+
+    it("should not log when the error has no error code and a known status.", () => {
+      const consoleSpy = vi.spyOn(console, "error").mockReturnValue();
+      const fetchError = new FetchError("Too Many Requests");
+      fetchError.statusCode = 429;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+    });
+
+    it("should report a client-only unexpected error once when the failure is not an api fetch error.", () => {
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const runtimeError = new TypeError("render failed");
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(runtimeError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(captureException).toHaveBeenCalledExactlyOnceWith(runtimeError);
+    });
+
+    it("should not report a server-owned api failure when the failure carries a server error status.", () => {
+      vi.mocked(useI18nMock.te).mockReturnValue(true);
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const fetchError = new FetchError("Server Error");
+      fetchError.statusCode = 502;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(captureException).not.toHaveBeenCalled();
+    });
+
+    it("should not report a network api failure when the fetch error has no response.", () => {
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const fetchError = new FetchError("Failed to fetch");
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(captureException).not.toHaveBeenCalled();
+    });
+
+    it("should not report a known business api failure when the failure carries a known error code.", () => {
+      vi.mocked(useI18nMock.te).mockReturnValue(true);
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const fetchError = new FetchError("Conflict");
+      fetchError.data = { data: { errorCode: "questionThemeReferencedByLiveQuestions" } };
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, { title: "Can't archive question theme", context: "questions" });
+
+      expect(captureException).not.toHaveBeenCalled();
+    });
+
+    it("should not report an expected api failure when the failure is a client error.", () => {
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const fetchError = new FetchError("Not Found");
+      fetchError.statusCode = 404;
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(fetchError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(captureException).not.toHaveBeenCalled();
+    });
+
+    it("should not report a cancelled api failure when the request is aborted.", () => {
+      vi.mocked(useI18nMock.t).mockImplementation((key: string) => `translated:${key}`);
+      const abortError = Object.assign(new Error("aborted"), { name: "AbortError" });
+      const { handleGoatItApiError } = useGoatItApiErrorToast();
+
+      handleGoatItApiError(abortError, { title: "Can't fetch question themes", context: "questions" });
+
+      expect(captureException).not.toHaveBeenCalled();
     });
   });
 });

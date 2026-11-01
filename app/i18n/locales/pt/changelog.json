@@ -2,12 +2,16 @@
   "changelog": {
     "entryPoint": "Novidades",
     "modal": {
-      "title": "Novidades"
+      "title": "Novidades",
+      "loading": "A carregar as novidades.",
+      "empty": "Não há novidades disponíveis.",
+      "error": "Não foi possível carregar as novidades. Recarrega a página para tentar novamente."
     },
     "toast": {
       "title": "Há novidades no Goat It!",
       "description": "Descobre as últimas melhorias do jogo.",
       "action": "Ler as notas"
-    }
+    },
+    "unreadStatus": "Há novas atualizações disponíveis."
   }
 }

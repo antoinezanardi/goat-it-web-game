@@ -10,8 +10,9 @@ Write a complete, passing unit test for the file specified in the prompt (or inf
 
 Before writing anything:
 
-1. Load the `unit-testing` skill from `.agents/skills/unit-testing/SKILL.md`.
-2. Read `docs/unit-testing.md` in full.
+1. Read `docs/architecture.md` to identify the tested unit's owned directory and spec path.
+2. Load the `unit-testing` skill from `.agents/skills/unit-testing/SKILL.md`.
+3. Read `docs/unit-testing.md` in full.
 
 ### 2. Identify the source file
 
@@ -51,7 +52,7 @@ Follow these rules:
 
 If a required faketory or mock does not exist, create it following the patterns in `docs/unit-testing.md` sections 7 and 8 **before** writing the test.
 
-If you create a new composable or repository mock setup file, also register it in `configs/vitest/vitest.config.constants.ts`.
+If you create a new composable or repository mock setup file, also register it in `configs/vitest/vitest.config.setup-files.constants.ts`.
 
 ### 7. Verify
 

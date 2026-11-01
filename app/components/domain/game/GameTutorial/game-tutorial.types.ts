@@ -24,12 +24,17 @@ type GameTutorialStepKey =
   "sources" |
   "welcome";
 
-type GameTutorialStepDirection = "forward" | "backward";
-
 type GameTutorialStep = {
   icon: string;
   key: GameTutorialStepKey;
   target?: string;
 };
 
-export type { GameTutorialEmits, GameTutorialProps, GameTutorialSpotlightRect, GameTutorialStep, GameTutorialStepDirection, GameTutorialStepKey };
+type GameTutorialPopoverContentConfig = {
+  "side": "bottom" | "top";
+  "sideOffset": number;
+  "aria-label": string | undefined;
+  "onEscapeKeyDown": (event: KeyboardEvent) => void;
+};
+
+export type { GameTutorialEmits, GameTutorialPopoverContentConfig, GameTutorialProps, GameTutorialSpotlightRect, GameTutorialStep, GameTutorialStepKey };

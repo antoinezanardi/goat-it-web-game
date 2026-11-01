@@ -7,6 +7,16 @@
     "previousQuestionTooltip": "Zur vorherigen Frage zurück",
     "menuTooltip": "Menü öffnen",
     "noMoreQuestions": "Du hast alle gesehen! Schau bald wieder vorbei für neue Fragen.",
+    "fetchError": {
+      "title": "Fragen konnten nicht geladen werden",
+      "description": "Die Verbindung zum Spielserver ist fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut.",
+      "retry": "Erneut versuchen"
+    },
+    "emptyFilters": {
+      "title": "Keine Fragen entsprechen diesen Filtern",
+      "description": "Deine Filter sind für die verbleibenden Fragen zu streng. Setze sie zurück, um weiterzuspielen.",
+      "reset": "Filter zurücksetzen"
+    },
     "rules": "Spielregeln",
     "backToHome": "Zurück zur Startseite",
     "leaveConfirmTitle": "Spiel verlassen?",
@@ -20,6 +30,7 @@
         "about": "Über"
       },
       "languageLabel": "Sprache",
+      "resetNotice": "Einige deiner Spieleinstellungen konnten nicht gelesen werden und wurden zurückgesetzt.",
       "adultContent": {
         "label": "Erwachseneninhalte",
         "descriptionDisabled": "Es werden nur Fragen angezeigt, die für alle Zielgruppen geeignet sind.",
@@ -28,6 +39,7 @@
       "filters": {
         "searchPlaceholder": "Optionen suchen…",
         "selectedCount": "{count} ausgewählt",
+        "selectAriaLabel": "{label}: {value}",
         "confirmRestoreTitle": "Alle Optionen wiederherstellen?",
         "confirmRestoreDescription": "Wenn Sie die letzte Option abwählen, werden alle Optionen wiederhergestellt.",
         "confirmRestoreAction": "Alle wiederherstellen"

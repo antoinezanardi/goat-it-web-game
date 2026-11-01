@@ -3,6 +3,12 @@
     "unknown": "Ocorreu um erro desconhecido. Tente novamente mais tarde.",
     "generic": "Ocorreu um erro. Por favor, tente novamente mais tarde.",
     "pageNotFound": "Página não encontrada.",
-    "goatItApi": {}
+    "goatItApi": {
+      "invalid-request": "Não foi possível processar o pedido. Verifique a sua seleção e tente novamente.",
+      "rate-limited": "Demasiados pedidos. Aguarde um momento e tente novamente.",
+      "upstream-error": "O servidor do jogo está temporariamente indisponível. Tente novamente mais tarde.",
+      "upstream-timeout": "O servidor do jogo demorou demasiado a responder. Tente novamente mais tarde.",
+      "internal-error": "Ocorreu um erro inesperado. Tente novamente mais tarde."
+    }
   }
 }

@@ -1,7 +1,6 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it } from "vitest";
-import type { Ref } from "vue";
 
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
@@ -9,26 +8,22 @@ import { ChangelogWhatsNewButton } from "#components";
 import type { ChangelogWhatsNewButtonContent } from "#components";
 
 import type { ChangelogWhatsNewButtonProps } from "@/components/domain/changelog/ChangelogWhatsNewButton/changelog-whats-new-button.types";
-import { StateNames } from "#shared/enums/state.enums";
+import { CHANGELOG_UNREAD_STATUS_ID } from "@/utils/ui/changelog/changelog.constants";
 
 describe("ChangelogWhatsNewButton Component", () => {
-  const defaultChangelogWhatsNewButtonProps: ChangelogWhatsNewButtonProps = { variant: "button" } as const;
+  const defaultChangelogWhatsNewButtonProps: ChangelogWhatsNewButtonProps = { displayVariant: "button", isChangelogUnread: false } as const;
+
   let wrapper: VueWrapper;
 
   async function mountChangelogWhatsNewButton(options: MountSuspendedOptions<typeof ChangelogWhatsNewButton> = {}): Promise<VueWrapper> {
     return mountSuspended(ChangelogWhatsNewButton, { props: defaultChangelogWhatsNewButtonProps, ...options });
   }
 
-  function getUnreadState(): Ref<boolean> {
-    return useState<boolean>(StateNames.CHANGELOG_IS_UNREAD);
-  }
-
-  function getOpenState(): Ref<boolean> {
-    return useState<boolean>(StateNames.CHANGELOG_IS_OPEN);
+  function getContent(): VueWrapper<InstanceType<typeof ChangelogWhatsNewButtonContent>> {
+    return wrapper.findComponent<typeof ChangelogWhatsNewButtonContent>({ name: "ChangelogWhatsNewButtonContent" });
   }
 
   beforeEach(async() => {
-    clearNuxtState([StateNames.CHANGELOG_IS_OPEN, StateNames.CHANGELOG_IS_UNREAD]);
     wrapper = await mountChangelogWhatsNewButton();
   });
 
@@ -37,7 +32,7 @@ describe("ChangelogWhatsNewButton Component", () => {
   });
 
   it("should render the changelog entry point content in the button variant when mounted.", () => {
-    expect(wrapper.findComponent<typeof ChangelogWhatsNewButtonContent>({ name: "ChangelogWhatsNewButtonContent" }).exists()).toBe(true);
+    expect(getContent().exists()).toBe(true);
   });
 
   it("should render the entry point label translation key in the button variant when mounted.", () => {
@@ -48,58 +43,66 @@ describe("ChangelogWhatsNewButton Component", () => {
     expect(wrapper.element).toBe(wrapper.findComponent({ name: "UButton" }).element);
   });
 
-  it("should not render the unread indicator when the changelog is read.", () => {
-    expect(wrapper.find("[data-testid='changelog-unread-indicator']").exists()).toBe(false);
+  it("should pass isChangelogUnread as false to the content when mounted.", () => {
+    expect(getContent().props("isChangelogUnread")).toBe(false);
   });
 
-  it("should render the unread indicator when the changelog is unread.", async() => {
-    getUnreadState().value = true;
-    wrapper = await mountChangelogWhatsNewButton();
+  it("should pass isChangelogUnread as true to the content when the changelog is unread.", async() => {
+    await wrapper.setProps({ isChangelogUnread: true });
 
-    expect(wrapper.find("[data-testid='changelog-unread-indicator']").exists()).toBe(true);
+    expect(getContent().props("isChangelogUnread")).toBe(true);
   });
 
-  it("should render the unread indicator in the menu variant when the changelog is unread.", async() => {
-    getUnreadState().value = true;
-    wrapper = await mountChangelogWhatsNewButton({ props: { variant: "menu" } });
+  it("should pass isChangelogUnread as true to the content in the menu variant when the changelog is unread.", async() => {
+    wrapper = await mountChangelogWhatsNewButton({ props: { displayVariant: "menu", isChangelogUnread: true } });
 
-    expect(wrapper.find("[data-testid='changelog-unread-indicator']").exists()).toBe(true);
+    expect(getContent().props("isChangelogUnread")).toBe(true);
   });
 
-  it("should open the changelog when the button variant is clicked.", async() => {
+  it("should emit openChangelog when the button variant is clicked.", async() => {
     await wrapper.findComponent({ name: "UButton" }).trigger("click");
 
-    expect(getOpenState().value).toBe(true);
+    expect(wrapper.emitted("openChangelog")).toStrictEqual([[]]);
   });
 
   it("should render a link when the variant is menu.", async() => {
-    wrapper = await mountChangelogWhatsNewButton({ props: { variant: "menu" } });
+    wrapper = await mountChangelogWhatsNewButton({ props: { displayVariant: "menu", isChangelogUnread: false } });
 
     expect(wrapper.findComponent({ name: "ULink" }).exists()).toBe(true);
   });
 
   it("should not render a button when the variant is menu.", async() => {
-    wrapper = await mountChangelogWhatsNewButton({ props: { variant: "menu" } });
+    wrapper = await mountChangelogWhatsNewButton({ props: { displayVariant: "menu", isChangelogUnread: false } });
 
     expect(wrapper.findComponent({ name: "UButton" }).exists()).toBe(false);
   });
 
   it("should render the entry point label translation key in the menu variant when the variant is menu.", async() => {
-    wrapper = await mountChangelogWhatsNewButton({ props: { variant: "menu" } });
+    wrapper = await mountChangelogWhatsNewButton({ props: { displayVariant: "menu", isChangelogUnread: false } });
 
     expect(wrapper.findComponent({ name: "ULink" }).text()).toContain("changelog.entryPoint");
   });
 
-  it("should render the sparkles icon in the menu variant when the variant is menu.", async() => {
-    wrapper = await mountChangelogWhatsNewButton({ props: { variant: "menu" } });
+  it("should render the megaphone icon in the menu variant when the variant is menu.", async() => {
+    wrapper = await mountChangelogWhatsNewButton({ props: { displayVariant: "menu", isChangelogUnread: false } });
 
-    expect(wrapper.findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-sparkles");
+    expect(wrapper.findComponent({ name: "UIcon" }).props("name")).toBe("i-lucide-megaphone");
   });
 
-  it("should open the changelog when the menu variant is clicked.", async() => {
-    wrapper = await mountChangelogWhatsNewButton({ props: { variant: "menu" } });
+  it("should emit openChangelog when the menu variant is clicked.", async() => {
+    wrapper = await mountChangelogWhatsNewButton({ props: { displayVariant: "menu", isChangelogUnread: false } });
     await wrapper.findComponent({ name: "ULink" }).trigger("click");
 
-    expect(getOpenState().value).toBe(true);
+    expect(wrapper.emitted("openChangelog")).toStrictEqual([[]]);
+  });
+
+  it("should describe the changelog button with the unread status when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UButton" }).attributes("aria-describedby")).toBe(CHANGELOG_UNREAD_STATUS_ID);
+  });
+
+  it("should describe the changelog menu link with the unread status when the variant is menu.", async() => {
+    wrapper = await mountChangelogWhatsNewButton({ props: { displayVariant: "menu", isChangelogUnread: false } });
+
+    expect(wrapper.findComponent({ name: "ULink" }).attributes("aria-describedby")).toBe(CHANGELOG_UNREAD_STATUS_ID);
   });
 });

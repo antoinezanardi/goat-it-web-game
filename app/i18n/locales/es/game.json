@@ -7,6 +7,16 @@
     "previousQuestionTooltip": "Volver a la pregunta anterior",
     "menuTooltip": "Abrir menú",
     "noMoreQuestions": "¡Ya las viste todas! Vuelve pronto para nuevas preguntas.",
+    "fetchError": {
+      "title": "No se pudieron cargar las preguntas",
+      "description": "La conexión con el servidor del juego falló. Comprueba tu conexión e inténtalo de nuevo.",
+      "retry": "Reintentar"
+    },
+    "emptyFilters": {
+      "title": "Ninguna pregunta coincide con estos filtros",
+      "description": "Tus filtros son demasiado restrictivos para las preguntas restantes. Restablécelos para seguir jugando.",
+      "reset": "Restablecer filtros"
+    },
     "rules": "Reglas del juego",
     "backToHome": "Volver al inicio",
     "leaveConfirmTitle": "¿Salir del juego?",
@@ -20,6 +30,7 @@
         "about": "Acerca de"
       },
       "languageLabel": "Idioma",
+      "resetNotice": "Algunos de tus ajustes de juego no se pudieron leer y se han restablecido.",
       "adultContent": {
         "label": "Contenido para adultos",
         "descriptionDisabled": "Solo aparecerán preguntas aptas para todos los públicos.",
@@ -28,6 +39,7 @@
       "filters": {
         "searchPlaceholder": "Buscar opciones…",
         "selectedCount": "{count} seleccionados",
+        "selectAriaLabel": "{label}: {value}",
         "confirmRestoreTitle": "¿Restaurar todas las opciones?",
         "confirmRestoreDescription": "Si deseleccionas la última opción, se restaurarán todas las opciones.",
         "confirmRestoreAction": "Restaurar todo"

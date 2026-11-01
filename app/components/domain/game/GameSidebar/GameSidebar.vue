@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { GameSidebarEmits, GameSidebarProps } from "@/components/domain/game/GameSidebar/game-sidebar.types";
-import { GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
+import { GAME_SIDEBAR_ICONS, GAME_SIDEBAR_UI } from "@/components/domain/game/GameSidebar/game-sidebar.constants";
 
 const props = defineProps<GameSidebarProps>();
 const emit = defineEmits<GameSidebarEmits>();
@@ -8,20 +8,27 @@ const { t } = useI18n();
 
 const { activeFiltersCount } = useGameQuestionsFilters();
 
+const { isChangelogUnread, openChangelog } = useChangelogState();
+
 function onUpdateOpen(value: boolean): void {
-  emit("update:isOpen", value);
+  emit("update:isSidebarOpen", value);
 }
 
 function onStartTutorial(): void {
-  emit("startTutorial");
+  emit("startGameTutorial");
 }
 
 function onOpenSettings(): void {
-  emit("openSettings");
+  emit("openGameSettings");
 }
 
 function onOpenFilters(): void {
-  emit("openFilters");
+  emit("openGameFilters");
+}
+
+function onOpenChangelog(): void {
+  openChangelog();
+  emit("openChangelog");
 }
 
 function onAfterLeave(): void {
@@ -32,7 +39,7 @@ function onAfterLeave(): void {
 <template>
   <USlideover
     :close="false"
-    :open="props.isOpen"
+    :open="props.isSidebarOpen"
     side="left"
     :title="t('home.brand')"
     :ui="GAME_SIDEBAR_UI"
@@ -48,7 +55,9 @@ function onAfterLeave(): void {
         <img
           alt=""
           class="h-8 w-8"
+          decoding="async"
           height="64"
+          loading="lazy"
           src="/img/logo/logo-64.avif"
           width="64"
         >
@@ -62,14 +71,14 @@ function onAfterLeave(): void {
     <template #body>
       <div class="flex flex-col gap-3">
         <ULink
-          v-if="props.isTutorialAvailable"
+          v-if="props.isGameTutorialAvailable"
           class="flex gap-1.5 items-center"
           data-testid="game-sidebar-tutorial-link"
           @click="onStartTutorial"
         >
           <UIcon
             class="size-4"
-            name="i-lucide-compass"
+            :name="GAME_SIDEBAR_ICONS.tutorial"
           />
           {{ t("game.interactiveTutorial.label") }}
         </ULink>
@@ -81,7 +90,7 @@ function onAfterLeave(): void {
         >
           <UIcon
             class="size-4"
-            name="i-lucide-funnel"
+            :name="GAME_SIDEBAR_ICONS.filters"
           />
           {{ t("game.questionsFilters.sidebarLabel") }}
 
@@ -95,18 +104,21 @@ function onAfterLeave(): void {
 
         <ChangelogWhatsNewButton
           data-testid="game-sidebar-changelog-link"
-          variant="menu"
+          display-variant="menu"
+          :is-changelog-unread="isChangelogUnread"
+          @open-changelog="onOpenChangelog"
         />
 
         <ULink
           class="flex gap-1.5 items-center"
           data-testid="game-sidebar-rules-link"
+          rel="noopener noreferrer"
           target="_blank"
           to="/rules"
         >
           <UIcon
             class="size-4"
-            name="i-lucide-book-open"
+            :name="GAME_SIDEBAR_ICONS.rules"
           />
           {{ t("game.rules") }}
         </ULink>
@@ -118,7 +130,7 @@ function onAfterLeave(): void {
         >
           <UIcon
             class="size-4"
-            name="i-lucide-house"
+            :name="GAME_SIDEBAR_ICONS.backToHome"
           />
           {{ t("game.backToHome") }}
         </ULink>
@@ -134,7 +146,7 @@ function onAfterLeave(): void {
           block
           color="secondary"
           data-testid="game-sidebar-settings-button"
-          icon="i-lucide-settings"
+          :icon="GAME_SIDEBAR_ICONS.settings"
           :label="t('game.settings.trigger')"
           variant="solid"
           @click="onOpenSettings"

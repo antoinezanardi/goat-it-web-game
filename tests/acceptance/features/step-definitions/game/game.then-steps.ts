@@ -2,7 +2,7 @@ import { Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
 import type { GoatItWorld } from "#acceptance/features/support/types/world.types.ts";
-import { getVisibleGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
+import { getActiveGameQuestionCard } from "#acceptance/features/support/helpers/game.helpers.ts";
 import {
   expectQuestionCardElementVisibility,
   expectQuestionCardFieldText,
@@ -13,7 +13,7 @@ import {
 Then(
   /^a game question should be displayed$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     await expect(question).toHaveCount(1);
     await expect(question).toBeVisible();
   },
@@ -57,7 +57,7 @@ Then(
 Then(
   /^the question card should be displayed$/u,
   async function(this: GoatItWorld): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     await expect(question).toHaveCount(1);
     await expect(question).toBeVisible();
   },
@@ -80,7 +80,7 @@ Then(
 Then(
   /^the question difficulty should be "(?<difficulty>[^"]*)"$/u,
   async function(this: GoatItWorld, difficulty: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     const difficultyBadge = question.getByTestId("game-question-difficulty");
 
     const gameQuestionDifficultyTooltip: Readonly<Record<string, string>> = {
@@ -111,7 +111,7 @@ Then(
 Then(
   /^the question source link "(?<domain>[^"]*)" should be visible$/u,
   async function(this: GoatItWorld, domain: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     const sourceNav = question.getByTestId("game-question-source-links");
 
     await expect(sourceNav.getByText(domain, { exact: true })).toBeVisible();
@@ -128,7 +128,7 @@ Then(
 Then(
   /^the question trivia item "(?<text>[^"]*)" should be visible$/u,
   async function(this: GoatItWorld, text: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     const triviaList = question.getByTestId("game-question-trivia");
 
     await expect(triviaList.getByText(text, { exact: true })).toBeVisible();
@@ -152,7 +152,7 @@ Then(
 Then(
   /^the "\+(?<count>\d+) other themes?" text should be visible$/u,
   async function(this: GoatItWorld, count: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     const labelRegex = new RegExp(`\\+${count} other themes?`, "iu");
 
     await expect(question.getByText(labelRegex)).toBeVisible();
@@ -215,7 +215,7 @@ Then(
 Then(
   /^hovering the primary theme hint badge shows the popover "(?<text>[^"]*)"$/u,
   async function(this: GoatItWorld, text: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     const hintBadge = question.getByTestId("game-question-hint");
 
     await hoverBadgeAndExpectPopoverText(this.page, hintBadge, "game-question-hint-popover", text);
@@ -264,7 +264,7 @@ Then(
 Then(
   /^hovering the adult content badge shows the popover "(?<text>[^"]*)"$/u,
   async function(this: GoatItWorld, text: string): Promise<void> {
-    const question = getVisibleGameQuestionCard(this.page);
+    const question = getActiveGameQuestionCard(this.page);
     const adultContentBadge = question.getByTestId("game-question-adult-content");
 
     await hoverBadgeAndExpectPopoverText(this.page, adultContentBadge, "game-question-adult-content-popover", text);

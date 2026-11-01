@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { GameSidebarToggleButtonEmits } from "@/components/domain/game/GameSidebarToggleButton/game-sidebar-toggle-button.types";
-import { GAME_SIDEBAR_TOGGLE_BUTTON_UI } from "@/components/domain/game/GameSidebarToggleButton/game-sidebar-toggle-button.constants";
+import { GAME_INTERACTIVE_BUTTON_UI } from "@/utils/ui/game/game-buttons.constants";
 
 const emit = defineEmits<GameSidebarToggleButtonEmits>();
 const { t } = useI18n();
@@ -24,7 +24,7 @@ function onClick(): void {
       data-testid="game-sidebar-toggle-button"
       icon="i-lucide-menu"
       size="lg"
-      :ui="GAME_SIDEBAR_TOGGLE_BUTTON_UI"
+      :ui="GAME_INTERACTIVE_BUTTON_UI"
       variant="outline"
       @click="onClick"
     />

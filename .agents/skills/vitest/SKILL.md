@@ -6,6 +6,8 @@ license: MIT
 
 # Vitest
 
+For this repository's source/spec ownership and spec placement, read `docs/architecture.md`; use `docs/unit-testing.md` for detailed test rules.
+
 Vite-native testing framework with Jest-compatible API.
 
 ## When to Use

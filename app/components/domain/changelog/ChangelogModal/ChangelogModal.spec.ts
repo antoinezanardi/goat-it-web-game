@@ -16,10 +16,17 @@ import type { QueryCollectionMockEntry } from "~~/tests/unit/utils/mocks/composa
 import type { UseAsyncDataMockResult } from "~~/tests/unit/utils/mocks/composables/nuxt/useAsyncData/useAsyncData.mock";
 
 import { ChangelogModal } from "#components";
-import type { ContentRenderer, DefaultModalFooter, DefaultModalTitle, UChangelogVersion } from "#components";
+import type {
+  ChangelogModalContent,
+  ChangelogModalSkeleton,
+  ContentRenderer,
+  DefaultModalFooter,
+  DefaultModalTitle,
+  UChangelogVersion,
+} from "#components";
 
-import { CHANGELOG_MODAL_UI, CHANGELOG_VERSION_UI } from "@/components/domain/changelog/ChangelogModal/changelog-modal.constants";
-import type { ChangelogEntry } from "~/composables/domain/useChangelog/use-changelog.types";
+import { CHANGELOG_VERSION_UI } from "@/components/domain/changelog/ChangelogModal/ChangelogModalContent/changelog-modal-content.constants";
+import type { ChangelogEntry } from "@/composables/domain/useChangelog/use-changelog.types";
 import { StateNames } from "#shared/enums/state.enums";
 
 const defaultChangelogEntries: ChangelogEntry[] = [
@@ -107,8 +114,15 @@ describe("ChangelogModal Component", () => {
     expect(wrapper.findComponent({ name: "UModal" }).props("open")).toBe(true);
   });
 
-  it("should pass the changelog modal ui config to UModal when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UModal" }).props("ui")).toStrictEqual(CHANGELOG_MODAL_UI);
+  it("should give the modal a fixed viewport-fit height shell with an internally scrolling body when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UModal" }).props("ui")).toStrictEqual({
+      body: "min-h-0",
+      content: "h-[calc(100dvh-2rem)] sm:h-[calc(100dvh-4rem)] max-w-3xl lg:max-w-6xl",
+    });
+  });
+
+  it("should not use the overlay scrolling modal mode when mounted.", () => {
+    expect(wrapper.findComponent({ name: "UModal" }).props("scrollable")).toBe(false);
   });
 
   it("should pass the title translation key to the modal title when mounted.", () => {
@@ -117,10 +131,10 @@ describe("ChangelogModal Component", () => {
     expect(title.props("title")).toBe("changelog.modal.title");
   });
 
-  it("should pass the sparkles icon to the modal title when mounted.", () => {
+  it("should pass the megaphone icon to the modal title when mounted.", () => {
     const title = wrapper.findComponent<typeof DefaultModalTitle>("[data-testid='changelog-modal-title']");
 
-    expect(title.props("icon")).toBe("i-lucide-sparkles");
+    expect(title.props("icon")).toBe("i-lucide-megaphone");
   });
 
   it("should render the changelog modal body when mounted.", () => {
@@ -191,34 +205,25 @@ describe("ChangelogModal Component", () => {
       .map(renderer => ({ value: renderer.props("value") }))).toStrictEqual(defaultChangelogEntries.map(entry => ({ value: entry })));
   });
 
+  it("should render the changelog modal content when mounted.", () => {
+    expect(wrapper.findComponent<typeof ChangelogModalContent>("[data-testid='changelog-modal']").exists()).toBe(true);
+  });
+
+  it("should pass the sorted changelog entries to the changelog modal content when mounted.", () => {
+    expect(wrapper.findComponent<typeof ChangelogModalContent>("[data-testid='changelog-modal']").props("changelogEntries"))
+      .toStrictEqual(defaultChangelogEntries);
+  });
+
   it.each<{ entriesStatus: string }>([
-    { entriesStatus: "pending" },
     { entriesStatus: "idle" },
-  ])("should render a loading spinner when the changelog entries status is $entriesStatus.", async({ entriesStatus }) => {
+    { entriesStatus: "pending" },
+    { entriesStatus: "success" },
+    { entriesStatus: "error" },
+  ])("should pass the $entriesStatus changelog entries status to the changelog modal content when mounted.", async({ entriesStatus }) => {
     changelogEntriesStatusReference.value = entriesStatus;
     await nextTick();
 
-    expect({
-      spinner: wrapper.findComponent({ name: "LoadingSpinner" }).exists(),
-      versions: wrapper.findComponent({ name: "UChangelogVersions" }).exists(),
-    }).toStrictEqual({
-      spinner: true,
-      versions: false,
-    });
-  });
-
-  it("should render a generic error message when the changelog entries failed to load.", async() => {
-    changelogEntriesStatusReference.value = "error";
-    await nextTick();
-
-    expect(document.body.querySelector("[data-testid='changelog-modal']")?.textContent).toContain("errors.generic");
-  });
-
-  it("should not render the changelog versions when the changelog entries failed to load.", async() => {
-    changelogEntriesStatusReference.value = "error";
-    await nextTick();
-
-    expect(wrapper.findComponent({ name: "UChangelogVersions" }).exists()).toBe(false);
+    expect(wrapper.findComponent<typeof ChangelogModalContent>("[data-testid='changelog-modal']").props("changelogEntriesStatus")).toBe(entriesStatus);
   });
 
   it("should pass a locale-prefixed latest release key getter to useAsyncData when mounted.", () => {
@@ -238,6 +243,18 @@ describe("ChangelogModal Component", () => {
     const { locale } = useI18n();
 
     expect(options?.watch).toStrictEqual([locale]);
+  });
+
+  it("should fetch the latest release on the client only when mounted.", () => {
+    const options = useAsyncDataMock.instance.mock.calls[0]?.[2];
+
+    expect(options?.server).toBe(false);
+  });
+
+  it("should load the latest release without blocking navigation when mounted.", () => {
+    const options = useAsyncDataMock.instance.mock.calls[0]?.[2];
+
+    expect(options?.lazy).toBe(true);
   });
 
   it("should not pass a default factory for the latest release query when mounted.", () => {
@@ -337,6 +354,25 @@ describe("ChangelogModal Component", () => {
     await flushPromises();
 
     expect(fetchChangelogEntriesMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("should replace the changelog versions with the skeleton when the locale changes and the new entries are pending while the modal is open.", async() => {
+    const openState = getOpenState();
+    openState.value = false;
+    await nextTick();
+    openState.value = true;
+    await nextTick();
+
+    const { locale } = useI18n();
+    locale.value = "fr";
+    changelogEntriesStatusReference.value = "pending";
+    await flushPromises();
+
+    expect({
+      fetches: fetchChangelogEntriesMock.mock.calls.length,
+      skeleton: wrapper.findComponent<typeof ChangelogModalSkeleton>({ name: "ChangelogModalSkeleton" }).exists(),
+      versions: wrapper.findComponent({ name: "UChangelogVersions" }).exists(),
+    }).toStrictEqual({ fetches: 2, skeleton: true, versions: false });
   });
 
   it("should not fetch the changelog entries when the locale changes while the modal is closed.", async() => {

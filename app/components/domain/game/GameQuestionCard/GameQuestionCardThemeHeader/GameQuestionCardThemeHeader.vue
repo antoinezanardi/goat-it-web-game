@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import { nextTick, onMounted, watch } from "vue";
-
 import { GameQuestionCardAdultContentBadge, GameQuestionCardHintBadge, GameQuestionCardThemeStack } from "#components";
 
 import { QUESTION_CARD_HIGHLIGHT_SEQUENCE_GAP_MS } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.constants";
 import type { GameQuestionCardThemeHeaderProps } from "@/components/domain/game/GameQuestionCard/GameQuestionCardThemeHeader/game-question-card-theme-header.types";
-import { getCategoryIcon, getPrimaryTheme, getSecondaryThemes, hasSecondaryThemes, isPrimaryThemeHint } from "~/composables/domain/question/helpers/question.helpers";
+import { getPrimaryTheme, getSecondaryThemes, hasSecondaryThemes, isPrimaryThemeHint } from "#shared/utils/helpers/question/themes/question-themes.helpers";
+import { getCategoryIcon } from "@/utils/ui/question/helpers/category-display/question-category-display.helpers";
 
 const props = withDefaults(defineProps<GameQuestionCardThemeHeaderProps>(), {
   isActive: true,
@@ -75,7 +74,7 @@ watch(() => props.isActive, triggerHighlightIfActive);
           />
 
           <span
-            class="font-semibold md:text-lg text-(--game-theme-neon) text-base"
+            class="font-semibold md:text-lg text-(--game-theme-neon) text-base wrap-anywhere"
             data-testid="game-question-theme"
           >
             {{ primaryTheme?.label }}
@@ -84,7 +83,7 @@ watch(() => props.isActive, triggerHighlightIfActive);
 
         <UButton
           v-if="hasOtherThemes"
-          class="rounded-lg"
+          class="rounded-lg wrap-anywhere"
           color="neutral"
           data-testid="theme-other-themes-trigger"
           size="xs"
@@ -102,7 +101,7 @@ watch(() => props.isActive, triggerHighlightIfActive);
         />
 
         <span
-          class="font-medium text-(--game-theme-neon)"
+          class="font-medium text-(--game-theme-neon) wrap-anywhere"
           data-testid="game-question-category"
         >
           {{ $t(`questions.category.${category}`) }}

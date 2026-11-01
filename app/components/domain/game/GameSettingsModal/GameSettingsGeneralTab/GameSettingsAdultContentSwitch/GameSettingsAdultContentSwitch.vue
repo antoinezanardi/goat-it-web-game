@@ -7,7 +7,7 @@ import type {
   GameSettingsAdultContentSwitchEmits,
   GameSettingsAdultContentSwitchProps,
 } from "@/components/domain/game/GameSettingsModal/GameSettingsGeneralTab/GameSettingsAdultContentSwitch/game-settings-adult-content-switch.types";
-import { QUESTION_ADULT_CONTENT_ICON } from "~/composables/domain/question/constants/question.constants";
+import { QUESTION_ADULT_CONTENT_ICON } from "@/utils/ui/question/question.constants";
 
 const props = defineProps<GameSettingsAdultContentSwitchProps>();
 const emit = defineEmits<GameSettingsAdultContentSwitchEmits>();

@@ -4,10 +4,11 @@ import { ref } from "vue";
 import type { Ref } from "vue";
 
 type UseAsyncDataMockOptions = {
-  watch?: unknown[];
   default?: () => unknown;
   immediate?: boolean;
+  lazy?: boolean;
   server?: boolean;
+  watch?: unknown[];
 };
 
 type UseAsyncDataMockResult = {

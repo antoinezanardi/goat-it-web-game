@@ -1,25 +1,33 @@
 <script lang="ts" setup>
 import type { GameTutorialPopoverContentEmits, GameTutorialPopoverContentProps } from "@/components/domain/game/GameTutorial/GameTutorialPopoverContent/game-tutorial-popover-content.types";
-import { GAME_TUTORIAL_CONTROL_ICONS } from "@/components/domain/game/GameTutorial/GameTutorialPopoverContent/game-tutorial-popover-content.constants";
+import { GAME_TUTORIAL_CONTROL_ICONS, GAME_TUTORIAL_SKIP_SHORTCUT } from "@/components/domain/game/GameTutorial/GameTutorialPopoverContent/game-tutorial-popover-content.constants";
+import { GAME_ARROW_SHORTCUT_KBDS, GAME_ARROW_SHORTCUTS, GAME_SHORTCUT_TOOLTIP_KBD_UI } from "@/utils/ui/game/game-shortcuts.constants";
 
 const props = defineProps<GameTutorialPopoverContentProps>();
 const emit = defineEmits<GameTutorialPopoverContentEmits>();
 const { t } = useI18n();
 
-function onBack(): void {
-  emit("back");
+const backwardShortcut = GAME_ARROW_SHORTCUTS.backward;
+const forwardShortcut = GAME_ARROW_SHORTCUTS.forward;
+
+const previousStepLabel = computed<string>(() => t("game.interactiveTutorial.controls.back"));
+const nextStepLabel = computed<string>(() => t("game.interactiveTutorial.controls.next"));
+const finishTutorialLabel = computed<string>(() => t("game.interactiveTutorial.controls.finish"));
+
+function onGoToPreviousStep(): void {
+  emit("goToPreviousStep");
 }
 
-function onFinish(): void {
-  emit("finish");
+function onFinishTutorial(): void {
+  emit("finishTutorial");
 }
 
-function onNext(): void {
-  emit("next");
+function onGoToNextStep(): void {
+  emit("goToNextStep");
 }
 
-function onSkip(): void {
-  emit("skip");
+function onSkipTutorial(): void {
+  emit("skipTutorial");
 }
 </script>
 
@@ -27,20 +35,20 @@ function onSkip(): void {
   <div
     class="flex flex-col gap-4 max-w-[min(28rem,calc(100vw-2rem))] overflow-y-auto p-4"
     data-testid="game-tutorial"
-    :style="{ 'maxHeight': props.maxHeight }"
+    :style="{ 'maxHeight': props.popoverMaxHeight }"
   >
     <div class="flex gap-2 items-center min-w-0">
       <UIcon
-        v-if="props.icon"
+        v-if="props.stepIcon"
         class="shrink-0 size-5 text-primary"
-        :name="props.icon"
+        :name="props.stepIcon"
       />
 
       <h2
         class="font-semibold text-fg-primary"
         data-testid="game-tutorial-title"
       >
-        {{ props.title }}
+        {{ props.stepTitle }}
       </h2>
     </div>
 
@@ -50,55 +58,75 @@ function onSkip(): void {
       class="text-muted text-sm"
       data-testid="game-tutorial-description"
     >
-      {{ props.description }}
+      {{ props.stepDescription }}
     </p>
 
     <USeparator/>
 
     <div class="flex gap-2 items-center justify-end">
       <UButton
-        v-if="props.hasNext"
+        v-if="props.hasNextStep"
+        :aria-keyshortcuts="GAME_TUTORIAL_SKIP_SHORTCUT.ariaKeyshortcuts"
         class="mr-auto"
         color="neutral"
         data-testid="game-tutorial-skip"
         :icon="GAME_TUTORIAL_CONTROL_ICONS.skip"
         size="xs"
         variant="outline"
-        @click="onSkip"
+        @click="onSkipTutorial"
       >
         {{ t("game.interactiveTutorial.controls.skip") }}
+
+        <template #trailing>
+          <UKbd
+            aria-hidden="true"
+            class="hidden pointer-fine:inline-flex"
+            data-testid="game-tutorial-skip-shortcut"
+            size="sm"
+            :value="GAME_TUTORIAL_SKIP_SHORTCUT.kbd"
+          />
+        </template>
       </UButton>
 
-      <UButton
-        v-if="props.hasPrev"
-        key="u-button-2"
-        :aria-label="t('game.interactiveTutorial.controls.back')"
-        color="neutral"
-        data-testid="game-tutorial-back"
-        :icon="GAME_TUTORIAL_CONTROL_ICONS.back"
-        square
-        variant="soft"
-        @click="onBack"
-      />
+      <UTooltip
+        v-if="props.hasPreviousStep"
+        :kbds="GAME_ARROW_SHORTCUT_KBDS.backward"
+        :text="previousStepLabel"
+        :ui="GAME_SHORTCUT_TOOLTIP_KBD_UI"
+      >
+        <UButton
+          key="game-tutorial-back"
+          :aria-keyshortcuts="backwardShortcut.ariaKeyshortcuts"
+          :aria-label="previousStepLabel"
+          color="neutral"
+          data-testid="game-tutorial-back"
+          :icon="GAME_TUTORIAL_CONTROL_ICONS.back"
+          square
+          variant="soft"
+          @click="onGoToPreviousStep"
+        />
+      </UTooltip>
 
       <UButton
-        v-if="props.hasNext"
-        key="u-button-2"
+        v-if="props.hasNextStep"
+        key="game-tutorial-next"
+        :aria-keyshortcuts="forwardShortcut.ariaKeyshortcuts"
         data-testid="game-tutorial-next"
         :icon="GAME_TUTORIAL_CONTROL_ICONS.next"
-        @click="onNext"
+        @click="onGoToNextStep"
       >
-        {{ t("game.interactiveTutorial.controls.next") }}
+        {{ nextStepLabel }}
       </UButton>
 
       <UButton
         v-else
-        key="u-button-3"
+        key="game-tutorial-finish"
+        :aria-keyshortcuts="forwardShortcut.ariaKeyshortcuts"
         data-testid="game-tutorial-finish"
         :icon="GAME_TUTORIAL_CONTROL_ICONS.finish"
-        @click="onFinish"
+        @click="onFinishTutorial"
       >
-        {{ t("game.interactiveTutorial.controls.finish") }}
+        {{ finishTutorialLabel }}
       </UButton>
     </div>
   </div>

@@ -9,6 +9,7 @@ import { createFakeQuestionTheme } from "~~/tests/unit/utils/faketories/question
 import { createFakeQuestionThemeAssignment } from "~~/tests/unit/utils/faketories/question-theme/question-theme-assignment.entity.faketory";
 import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 
+import type { GameQuestionCardSection } from "#components";
 import { GameQuestionCard } from "#components";
 
 import type { GameQuestionCardProps } from "@/components/domain/game/GameQuestionCard/game-question-card.types";
@@ -39,6 +40,17 @@ describe("GameQuestionCard Component", () => {
 
   async function mountGameQuestionCard(options: MountSuspendedOptions<typeof GameQuestionCard> = {}): Promise<VueWrapper> {
     return mountSuspended(GameQuestionCard, { props: defaultGameQuestionCardProps, shallow: false, ...options });
+  }
+
+  function getSectionWrapper(dataTestid: string): VueWrapper<InstanceType<typeof GameQuestionCardSection>> {
+    const section = wrapper
+      .findAllComponents<typeof GameQuestionCardSection>({ name: "GameQuestionCardSection" })
+      .find(component => component.props("dataTestid") === dataTestid);
+
+    if (!section) {
+      throw new Error(`Expected the "${dataTestid}" game question section to be rendered`);
+    }
+    return section;
   }
 
   beforeEach(async() => {
@@ -87,24 +99,32 @@ describe("GameQuestionCard Component", () => {
     expect(wrapper.findComponent({ name: "GameQuestionCardThemeHeader" }).exists()).toBe(true);
   });
 
-  it("should render the statement component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "GameQuestionCardStatement" }).exists()).toBe(true);
+  it("should render two section components when mounted.", () => {
+    expect(wrapper.findAllComponents({ name: "GameQuestionCardSection" })).toHaveLength(2);
   });
 
-  it("should pass the question statement to the statement component when mounted.", () => {
-    const statement = wrapper.findComponent({ name: "GameQuestionCardStatement" });
+  it("should keep the statement and answer test ids on the section body paragraphs when mounted.", () => {
+    const sectionTestIds = wrapper
+      .findAll("[data-testid='game-question-statement'], [data-testid='game-question-answer']")
+      .map(paragraph => paragraph.attributes("data-testid"));
 
-    expect(statement.props("text")).toBe("What is the capital of France?");
+    expect(sectionTestIds).toStrictEqual(["game-question-statement", "game-question-answer"]);
   });
 
-  it("should render the answer component when mounted.", () => {
-    expect(wrapper.findComponent({ name: "GameQuestionCardAnswer" }).exists()).toBe(true);
+  it("should pass the question label to the statement section when mounted.", () => {
+    expect(getSectionWrapper("game-question-statement").props("label")).toBe("questions.questionLabel");
   });
 
-  it("should pass the question answer to the answer component when mounted.", () => {
-    const answer = wrapper.findComponent({ name: "GameQuestionCardAnswer" });
+  it("should pass the question label icon to the statement section when mounted.", () => {
+    expect(getSectionWrapper("game-question-statement").props("icon")).toBe("i-lucide-help-circle");
+  });
 
-    expect(answer.props("text")).toBe("Paris");
+  it("should pass the answer label to the answer section when mounted.", () => {
+    expect(getSectionWrapper("game-question-answer").props("label")).toBe("questions.answerLabel");
+  });
+
+  it("should pass the lightbulb icon to the answer section when mounted.", () => {
+    expect(getSectionWrapper("game-question-answer").props("icon")).toBe("i-lucide-lightbulb");
   });
 
   it("should render the separator component when mounted.", () => {

@@ -8,12 +8,13 @@ import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-coo
 import { createUseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
 import type { UseAppToastMock } from "~~/tests/unit/utils/mocks/composables/ui/useAppToast/useAppToast.mock";
 
-import { CHANGELOG_ICON, CHANGELOG_TOAST_DURATION_IN_MS } from "@/components/shared/core/changelog/changelog.constants";
+import { CHANGELOG_TOAST_DURATION_IN_MS } from "@/composables/domain/useChangelog/use-changelog.constants";
+import { CHANGELOG_ICON } from "@/utils/ui/changelog/changelog.constants";
 import { CookieNames } from "#shared/enums/cookie.enums";
 import { StateNames } from "#shared/enums/state.enums";
 import type { Toast } from "#ui/composables";
-import type { useChangelog as UseChangelogType } from "~/composables/domain/useChangelog/useChangelog";
-import type { UseChangelog } from "~/composables/domain/useChangelog/use-changelog.types";
+import type { useChangelog as UseChangelogType } from "@/composables/domain/useChangelog/useChangelog";
+import type { UseChangelog } from "@/composables/domain/useChangelog/use-changelog.types";
 
 let useAppToastMock: UseAppToastMock;
 
@@ -70,7 +71,7 @@ describe("useChangelog", () => {
     useCookieMockState.capturedOptions.current = undefined;
     useCookieMockState.cookieRef.value = null;
     latestVersion = ref<string | undefined>("1.9.0");
-    ({ useChangelog } = await import("~/composables/domain/useChangelog/useChangelog"));
+    ({ useChangelog } = await import("@/composables/domain/useChangelog/useChangelog"));
     mountChangelogHarness();
   });
 
@@ -175,7 +176,7 @@ describe("useChangelog", () => {
       useCookieMockState.cookieRef.value = { lastSeenVersion: "1.8.0", lastNotifiedVersion: "1.8.0" };
       latestVersion = ref<string | undefined>("1.8.0");
       mountChangelogHarness();
-      changelog.open();
+      changelog.openChangelog();
       await nextTick();
 
       latestVersion.value = "1.9.0";
@@ -189,7 +190,7 @@ describe("useChangelog", () => {
       useCookieMockState.cookieRef.value = { lastSeenVersion: "1.8.0", lastNotifiedVersion: "1.8.0" };
       latestVersion = ref<string | undefined>("1.8.0");
       mountChangelogHarness();
-      changelog.open();
+      changelog.openChangelog();
       await nextTick();
 
       latestVersion.value = "1.9.0";
@@ -217,7 +218,7 @@ describe("useChangelog", () => {
       useCookieMockState.cookieRef.value = { lastSeenVersion: "1.8.0", lastNotifiedVersion: "1.9.0" };
       mountChangelogHarness();
 
-      changelog.open();
+      changelog.openChangelog();
       await nextTick();
 
       expect(getLastSeenVersionCookie()).toBe("1.9.0");
@@ -228,23 +229,23 @@ describe("useChangelog", () => {
       useCookieMockState.cookieRef.value = { lastSeenVersion: "1.8.0", lastNotifiedVersion: "1.9.0" };
       mountChangelogHarness();
 
-      changelog.open();
+      changelog.openChangelog();
       await nextTick();
 
       expect(unreadState.value).toBe(false);
     });
 
-    it("should set the open state to true when open is called.", () => {
-      changelog.open();
+    it("should set the open state to true when openChangelog is called.", () => {
+      changelog.openChangelog();
 
-      expect(changelog.isOpen.value).toBe(true);
+      expect(changelog.isChangelogOpen.value).toBe(true);
     });
 
-    it("should set the open state to false when close is called.", () => {
-      changelog.open();
-      changelog.close();
+    it("should set the open state to false when closeChangelog is called.", () => {
+      changelog.openChangelog();
+      changelog.closeChangelog();
 
-      expect(changelog.isOpen.value).toBe(false);
+      expect(changelog.isChangelogOpen.value).toBe(false);
     });
 
     it("should open the changelog when the notification action is invoked.", () => {
@@ -254,7 +255,7 @@ describe("useChangelog", () => {
 
       clickToastAction();
 
-      expect(changelog.isOpen.value).toBe(true);
+      expect(changelog.isChangelogOpen.value).toBe(true);
     });
 
     it("should keep the stored seen version untouched when the latest release was already seen.", async() => {
@@ -263,7 +264,7 @@ describe("useChangelog", () => {
       useCookieMockState.cookieRef.value = storedCookie;
       mountChangelogHarness();
 
-      changelog.open();
+      changelog.openChangelog();
       await nextTick();
 
       expect(useCookieMockState.cookieRef.value).toBe(storedCookie);

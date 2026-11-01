@@ -4,10 +4,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { useCookieMockState } from "~~/tests/unit/setup/nuxt/composables/use-cookie.nuxt.unit-setup";
 import { createFakeGameSettings } from "~~/tests/unit/utils/faketories/game-settings/game-settings.entity.faketory";
 
-import { GAME_SETTINGS_COOKIE_OPTIONS } from "~/composables/domain/useGameSettingsCookie/use-game-settings-cookie.constants";
-import type { useGameSettingsCookie as UseGameSettingsCookieType } from "~/composables/domain/useGameSettingsCookie/useGameSettingsCookie";
-import { GAME_SETTINGS_DEFAULTS } from "~/stores/domain/game-settings/game-settings.constants";
-import type { GameSettings } from "~/stores/domain/game-settings/game-settings.types";
+import { GAME_SETTINGS_COOKIE_OPTIONS } from "@/composables/domain/useGameSettingsCookie/use-game-settings-cookie.constants";
+import type { useGameSettingsCookie as UseGameSettingsCookieType } from "@/composables/domain/useGameSettingsCookie/useGameSettingsCookie";
+import { GAME_SETTINGS_DEFAULTS } from "@/stores/domain/game-settings/game-settings.constants";
+import type { GameSettings } from "@/stores/domain/game-settings/game-settings.types";
 import { CookieNames } from "#shared/enums/cookie.enums";
 
 const DEFAULTED_FILTERS = {
@@ -22,7 +22,7 @@ describe("useGameSettingsCookie", () => {
     useCookieMockState.capturedName.current = undefined;
     useCookieMockState.capturedOptions.current = undefined;
     useCookieMockState.cookieRef.value = null;
-    ({ useGameSettingsCookie } = await import("~/composables/domain/useGameSettingsCookie/useGameSettingsCookie"));
+    ({ useGameSettingsCookie } = await import("@/composables/domain/useGameSettingsCookie/useGameSettingsCookie"));
   });
 
   describe("cookie registration", () => {
@@ -165,6 +165,90 @@ describe("useGameSettingsCookie", () => {
       const { readGameSettingsCookie } = useGameSettingsCookie();
 
       expect(readGameSettingsCookie().themeIds).toBeUndefined();
+    });
+
+    it("should return independent defaults when the returned settings are mutated.", () => {
+      const expectedDefaults = structuredClone(GAME_SETTINGS_DEFAULTS);
+      const { readGameSettingsCookie } = useGameSettingsCookie();
+      const firstRead = readGameSettingsCookie();
+      firstRead.cognitiveDifficulties.push("easy");
+      const secondRead = readGameSettingsCookie();
+
+      expect(secondRead).toStrictEqual(expectedDefaults);
+    });
+
+    it("should not report a reset when the cookie is missing.", () => {
+      const { readGameSettingsCookie, wasGameSettingsReset } = useGameSettingsCookie();
+
+      readGameSettingsCookie();
+
+      expect(wasGameSettingsReset.value).toBe(false);
+    });
+
+    it("should report a reset when an existing cookie cannot be parsed.", () => {
+      useCookieMockState.cookieRef.value = "not-a-valid-settings-payload";
+      const { readGameSettingsCookie, wasGameSettingsReset } = useGameSettingsCookie();
+
+      readGameSettingsCookie();
+
+      expect(wasGameSettingsReset.value).toBe(true);
+    });
+
+    it.each<{ description: string; cookieValue: Record<string, unknown> }>([
+      { description: "an empty categories array", cookieValue: { categories: [] } },
+      { description: "an unknown category", cookieValue: { categories: ["unknown"] } },
+      { description: "an invalid adult content flag", cookieValue: { isAdultContentEnabled: "enabled" } },
+      { description: "an invalid theme ids value", cookieValue: { themeIds: "theme-a" } },
+    ])("should report a reset when $description is stored in the cookie.", ({ cookieValue }) => {
+      useCookieMockState.cookieRef.value = cookieValue;
+      const { readGameSettingsCookie, wasGameSettingsReset } = useGameSettingsCookie();
+
+      readGameSettingsCookie();
+
+      expect(wasGameSettingsReset.value).toBe(true);
+    });
+
+    it("should not report a reset when the cookie holds a legacy object omitting the filter fields.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: true };
+      const { readGameSettingsCookie, wasGameSettingsReset } = useGameSettingsCookie();
+
+      readGameSettingsCookie();
+
+      expect(wasGameSettingsReset.value).toBe(false);
+    });
+
+    it.each<{ description: string; cookieValue: Record<string, unknown> }>([
+      { description: "duplicated categories", cookieValue: { categories: ["trivia", "trivia"] } },
+      { description: "duplicated cognitive difficulties", cookieValue: { cognitiveDifficulties: ["easy", "easy"] } },
+    ])("should not report a reset when $description is stored in the cookie.", ({ cookieValue }) => {
+      useCookieMockState.cookieRef.value = cookieValue;
+      const { readGameSettingsCookie, wasGameSettingsReset } = useGameSettingsCookie();
+
+      readGameSettingsCookie();
+
+      expect(wasGameSettingsReset.value).toBe(false);
+    });
+  });
+
+  describe("acknowledgeSettingsReset", () => {
+    it("should clear the reset flag when called.", () => {
+      useCookieMockState.cookieRef.value = "not-a-valid-settings-payload";
+      const { readGameSettingsCookie, acknowledgeSettingsReset, wasGameSettingsReset } = useGameSettingsCookie();
+      readGameSettingsCookie();
+
+      acknowledgeSettingsReset();
+
+      expect(wasGameSettingsReset.value).toBe(false);
+    });
+
+    it("should not write the cookie when called.", () => {
+      useCookieMockState.cookieRef.value = { isAdultContentEnabled: true, categories: [] };
+      const { readGameSettingsCookie, acknowledgeSettingsReset } = useGameSettingsCookie();
+      readGameSettingsCookie();
+
+      acknowledgeSettingsReset();
+
+      expect(useCookieMockState.cookieRef.value).toStrictEqual({ isAdultContentEnabled: true, categories: [] });
     });
   });
 
