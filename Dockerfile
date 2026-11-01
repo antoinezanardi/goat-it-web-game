@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:26.13.0-alpine AS base
+FROM --platform=$BUILDPLATFORM node:26.13.0-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94 AS base
 LABEL maintainer="Antoine ZANARDI"
 
 ARG TARGETPLATFORM
@@ -87,7 +87,7 @@ COPY --chown=node:node --from=development /app/node_modules ./node_modules
 
 RUN pnpm run build && pnpm run check:secrets-in-built-output
 
-FROM node:26.13.0-alpine AS production
+FROM node:26.13.0-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94 AS production
 
 ENV NODE_ENV="production"
 ENV PORT=3002
