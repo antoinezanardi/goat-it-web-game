@@ -1,5 +1,98 @@
 # 🐐👑 Goat It Web Game Versioning Changelog
 
+## [1.11.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.10.0...v1.11.0) (2026-11-01)
+
+### 🚀 Features
+
+* **changelog:** enhance entry points and release history UX ([#595](https://github.com/antoinezanardi/goat-it-web-game/issues/595)) ([04f57f3](https://github.com/antoinezanardi/goat-it-web-game/commit/04f57f3a18a3d0e325d6bfd2a92b19b14dfba399))
+* **goat-audit:** add 20-category audit skill, agent and command ([#592](https://github.com/antoinezanardi/goat-it-web-game/issues/592)) ([a15af2b](https://github.com/antoinezanardi/goat-it-web-game/commit/a15af2bec031c75d1aa874d4c9c188dbd4cf87e9))
+* **health:** add root liveness and readiness probes ([#583](https://github.com/antoinezanardi/goat-it-web-game/issues/583)) ([6fdf497](https://github.com/antoinezanardi/goat-it-web-game/commit/6fdf497f5f11b5ab2749c31c2cf2007fc35bac1d))
+* **observability:** add Sentry tracking, structured logs and uptime runbook ([#584](https://github.com/antoinezanardi/goat-it-web-game/issues/584)) ([74d6a03](https://github.com/antoinezanardi/goat-it-web-game/commit/74d6a03ee99d9af290f3b8a04ddb22284fba7b0b))
+* **pwa:** add offline fallback and connectivity status ([#567](https://github.com/antoinezanardi/goat-it-web-game/issues/567)) ([455cab3](https://github.com/antoinezanardi/goat-it-web-game/commit/455cab3704526008b238b0eabd16a42c50cfd260))
+* **security:** rate limiting, hardened fetch pipeline, CSP, excluded ids cap and error messages ([#528](https://github.com/antoinezanardi/goat-it-web-game/issues/528)) ([76fe41a](https://github.com/antoinezanardi/goat-it-web-game/commit/76fe41aa67ab8ef4bb80b62caf773bb31635f236))
+* **seo:** add organization identity and localized social image alt ([#549](https://github.com/antoinezanardi/goat-it-web-game/issues/549)) ([1182298](https://github.com/antoinezanardi/goat-it-web-game/commit/11822987dfa3f94d5cd70012992494d2a02d8e22))
+
+### 🐛 Bug Fixes
+
+* **api:** validate payloads, cap limits and fail fast on invalid env ([#523](https://github.com/antoinezanardi/goat-it-web-game/issues/523)) ([2db3905](https://github.com/antoinezanardi/goat-it-web-game/commit/2db39054af1328270198f4396a22c6de434483b5)), closes [#456](https://github.com/antoinezanardi/goat-it-web-game/issues/456) [#457](https://github.com/antoinezanardi/goat-it-web-game/issues/457) [#458](https://github.com/antoinezanardi/goat-it-web-game/issues/458)
+* audit bug bundle (staging SEO, game error/empty states, tutorial focus) ([#536](https://github.com/antoinezanardi/goat-it-web-game/issues/536)) ([2f3fd64](https://github.com/antoinezanardi/goat-it-web-game/commit/2f3fd64363c7c82ccdaa9f59f332397423f38b24)), closes [#467](https://github.com/antoinezanardi/goat-it-web-game/issues/467) [#468](https://github.com/antoinezanardi/goat-it-web-game/issues/468) [#469](https://github.com/antoinezanardi/goat-it-web-game/issues/469) [#499](https://github.com/antoinezanardi/goat-it-web-game/issues/499)
+* **ci:** whitelist NUXT_SITE_ENV in built output secrets scan ([#547](https://github.com/antoinezanardi/goat-it-web-game/issues/547)) ([71344c9](https://github.com/antoinezanardi/goat-it-web-game/commit/71344c91ea1a4e4531b66efe6e1b313d99cc5c04))
+* **core:** add request identity, cancellation and latest-wins semantics to async actions ([#560](https://github.com/antoinezanardi/goat-it-web-game/issues/560)) ([9a51696](https://github.com/antoinezanardi/goat-it-web-game/commit/9a516962895f46faceefc5dbbb284bcc6c73d719)), closes [#470](https://github.com/antoinezanardi/goat-it-web-game/issues/470)
+* **docker:** copy sentry config entrypoints into the image ([d27270e](https://github.com/antoinezanardi/goat-it-web-game/commit/d27270e7b9d60b4ade949aecf461e92aaff22234))
+* **game:** wrap card text, gate shortcuts, and enforce state ownership ([#563](https://github.com/antoinezanardi/goat-it-web-game/issues/563)) ([6feb6a5](https://github.com/antoinezanardi/goat-it-web-game/commit/6feb6a5c06414cd6337de21dbd0ac917a244dbc1))
+* **sentry:** scrub nuxt context path and add error tags ([#588](https://github.com/antoinezanardi/goat-it-web-game/issues/588)) ([f3508e3](https://github.com/antoinezanardi/goat-it-web-game/commit/f3508e3490f6517e9b4d01055de78f59536c4dee))
+* small bug bundle (source URLs, locale suggestion, cookies, components) ([#535](https://github.com/antoinezanardi/goat-it-web-game/issues/535)) ([ffc2744](https://github.com/antoinezanardi/goat-it-web-game/commit/ffc2744d4c7b6bf9bf9305b8d0b64dcaa3ee4943)), closes [#461](https://github.com/antoinezanardi/goat-it-web-game/issues/461) [#474](https://github.com/antoinezanardi/goat-it-web-game/issues/474) [#484](https://github.com/antoinezanardi/goat-it-web-game/issues/484) [#501](https://github.com/antoinezanardi/goat-it-web-game/issues/501)
+* **ssr:** guard tutorial and lazy-load the changelog query ([#566](https://github.com/antoinezanardi/goat-it-web-game/issues/566)) ([3845b6a](https://github.com/antoinezanardi/goat-it-web-game/commit/3845b6a43f7d36a6bdbeffd629534e22e1c9abe9))
+
+### 📖 Docs
+
+* **changelog:** add end-user changelog for v1.11.0 ([#596](https://github.com/antoinezanardi/goat-it-web-game/issues/596)) ([370ee91](https://github.com/antoinezanardi/goat-it-web-game/commit/370ee918582c5740ef5e9a2fbdcc87b199e6d6b0))
+* **jsdoc:** document public logic APIs and add quality guard ([#564](https://github.com/antoinezanardi/goat-it-web-game/issues/564)) ([89c4295](https://github.com/antoinezanardi/goat-it-web-game/commit/89c429586c26d6afd78b81825c42fa7d60d9ae52))
+
+### 🔩 Refactor
+
+* **api:** consolidate server helper hygiene ([#527](https://github.com/antoinezanardi/goat-it-web-game/issues/527)) ([e340a0d](https://github.com/antoinezanardi/goat-it-web-game/commit/e340a0de55067d047db098d82628786eba0ffbeb)), closes [#488](https://github.com/antoinezanardi/goat-it-web-game/issues/488)
+* **env:** validate the app runtime config with a single Zod schema ([#591](https://github.com/antoinezanardi/goat-it-web-game/issues/591)) ([631c025](https://github.com/antoinezanardi/goat-it-web-game/commit/631c025ad39ae811273b1982cefcf5ebdd740d33))
+* **game:** decompose game state architecture into focused units ([#534](https://github.com/antoinezanardi/goat-it-web-game/issues/534)) ([11aab35](https://github.com/antoinezanardi/goat-it-web-game/commit/11aab356de5ffeccbf987aa426a34f8d8f381098)), closes [#485](https://github.com/antoinezanardi/goat-it-web-game/issues/485) [#476](https://github.com/antoinezanardi/goat-it-web-game/issues/476) [#483](https://github.com/antoinezanardi/goat-it-web-game/issues/483) [#479](https://github.com/antoinezanardi/goat-it-web-game/issues/479) [#478](https://github.com/antoinezanardi/goat-it-web-game/issues/478) [#480](https://github.com/antoinezanardi/goat-it-web-game/issues/480)
+* **game:** extract game state renderer and merge card sections ([#546](https://github.com/antoinezanardi/goat-it-web-game/issues/546)) ([9c21174](https://github.com/antoinezanardi/goat-it-web-game/commit/9c21174f571f767f06ba83213c5b064c75756593))
+* **repositories:** validate internal API responses with zod ([#565](https://github.com/antoinezanardi/goat-it-web-game/issues/565)) ([f8a98b6](https://github.com/antoinezanardi/goat-it-web-game/commit/f8a98b6de06f2ae3bb1a033e23329d2a718d782a))
+* small hygiene bundle (content loop, SSR await, ring one-shot, DocsToc hook, perf, deps) ([#530](https://github.com/antoinezanardi/goat-it-web-game/issues/530)) ([3a2923c](https://github.com/antoinezanardi/goat-it-web-game/commit/3a2923c53c0df827913386ac5fd9fdb986cda60b)), references [#510](https://github.com/antoinezanardi/goat-it-web-game/issues/510) [#472](https://github.com/antoinezanardi/goat-it-web-game/issues/472) [#473](https://github.com/antoinezanardi/goat-it-web-game/issues/473) [#481](https://github.com/antoinezanardi/goat-it-web-game/issues/481) [#495](https://github.com/antoinezanardi/goat-it-web-game/issues/495) [#511](https://github.com/antoinezanardi/goat-it-web-game/issues/511)
+* state project conventions and architecture ([#531](https://github.com/antoinezanardi/goat-it-web-game/issues/531)) ([53d1547](https://github.com/antoinezanardi/goat-it-web-game/commit/53d154752851943691f3a031ca933d5d26975302))
+* **ui:** extract a shared status screen component ([#572](https://github.com/antoinezanardi/goat-it-web-game/issues/572)) ([cb5fc71](https://github.com/antoinezanardi/goat-it-web-game/commit/cb5fc717baed49a1f164057fcf958485583d1f32))
+
+### ⚡️ Performance
+
+* **bundle:** lazy-load GSAP core on the game route and drop unused plugins ([#559](https://github.com/antoinezanardi/goat-it-web-game/issues/559)) ([c252b47](https://github.com/antoinezanardi/goat-it-web-game/commit/c252b4775c9a8ca549c3a51f95d0cd6af3d04c2d))
+* **pwa:** slim precache, localize manifest and add iOS safe areas ([#570](https://github.com/antoinezanardi/goat-it-web-game/issues/570)) ([9b110c7](https://github.com/antoinezanardi/goat-it-web-game/commit/9b110c7b15d93c97d164b7bbcaed8ff35f57447a))
+
+### ✅ Tests
+
+* **acceptance:** wait for full nuxt hydration before interactions ([#589](https://github.com/antoinezanardi/goat-it-web-game/issues/589)) ([7323a17](https://github.com/antoinezanardi/goat-it-web-game/commit/7323a175f282535d6cd3ffa93b41853a808f92cd))
+* **pwa:** increase random-question failure timeout ([747b435](https://github.com/antoinezanardi/goat-it-web-game/commit/747b4359e12020af9f5c63b90f6dfe99c46373dc))
+* **seo:** lock the runtime <html lang> locale update with a regression test ([#525](https://github.com/antoinezanardi/goat-it-web-game/issues/525)) ([264fa71](https://github.com/antoinezanardi/goat-it-web-game/commit/264fa71198b05181ea796e5a653b5cae947f0cc2)), closes [#496](https://github.com/antoinezanardi/goat-it-web-game/issues/496)
+* stabilize unit suite and raise acceptance step timeout ([#544](https://github.com/antoinezanardi/goat-it-web-game/issues/544)) ([85d2b80](https://github.com/antoinezanardi/goat-it-web-game/commit/85d2b8005af26149ce5e1d1e4e8e79c54a00474a))
+* unify acceptance tags and test infrastructure hygiene ([#556](https://github.com/antoinezanardi/goat-it-web-game/issues/556)) ([7e6e444](https://github.com/antoinezanardi/goat-it-web-game/commit/7e6e444b04d87623f91f5e81f1acbf3af7c1fc29))
+
+### 🔁 CI
+
+* **acceptance:** cache Playwright browsers and drop redundant apt installs ([#576](https://github.com/antoinezanardi/goat-it-web-game/issues/576)) ([f8638e5](https://github.com/antoinezanardi/goat-it-web-game/commit/f8638e5356ab349a4300af6be3b61dca1cda9216))
+* **build:** enforce client bundle-size budgets and report PR comparison ([#580](https://github.com/antoinezanardi/goat-it-web-game/issues/580)) ([7232564](https://github.com/antoinezanardi/goat-it-web-game/commit/7232564da146d9ff20ed9749931503df262f3a5d))
+* **security:** verify deploy host keys, pin actions by SHA, add supply-chain cooldown and audit job ([#522](https://github.com/antoinezanardi/goat-it-web-game/issues/522)) ([5392da2](https://github.com/antoinezanardi/goat-it-web-game/commit/5392da2d9beea19b9d55cf607fc58e5d32dcf79a))
+
+### 🧹 Chore
+
+* batch repo hygiene, test docs and UI constant follow-ups ([#553](https://github.com/antoinezanardi/goat-it-web-game/issues/553)) ([4f4c749](https://github.com/antoinezanardi/goat-it-web-game/commit/4f4c74911324912345b05af90ec9a2fe51b2cba9)), closes [#514](https://github.com/antoinezanardi/goat-it-web-game/issues/514) [#503](https://github.com/antoinezanardi/goat-it-web-game/issues/503) [#509](https://github.com/antoinezanardi/goat-it-web-game/issues/509) [#502](https://github.com/antoinezanardi/goat-it-web-game/issues/502)
+* **docker:** stop baking secrets into images and harden build hygiene ([#520](https://github.com/antoinezanardi/goat-it-web-game/issues/520)) ([dd895f6](https://github.com/antoinezanardi/goat-it-web-game/commit/dd895f668cb9957c6a9ca81c81c396aa727991fb))
+* sync release v1.10.0 from main ([90e8713](https://github.com/antoinezanardi/goat-it-web-game/commit/90e8713c1c19adf67e47ad820be51de3babd5c69))
+
+### 📦 Upgraded Dependencies
+
+| Package | Version |
+| --- | :---: |
+| `commitlint monorepo` | `^21.2.4` |
+| `@axe-core/playwright` | `^4.14.0` |
+| `@goat-it/schemas` | `^0.0.26` |
+| `@iconify-json/lucide` | `^1.2.147` |
+| `@nuxt/test-utils` | `^4.3.4` |
+| `@nuxt/ui` | `^4.12.0` |
+| `@semantic-release/npm` | `^13.2.0` |
+| `@types/node` | `v26` |
+| `@vitest/eslint-plugin` | `^1.6.28` |
+| `eslint` | `^10.13.0` |
+| `eslint-plugin-unicorn` | `v79` |
+| `happy-dom` | `^21.0.4` |
+| `nuxt` | `^4.6.3` |
+| `oxlint-tsgolint` | `^7.0.2005` |
+| `radashi` | `v13` |
+| `vite` | `^8.3.5` |
+| `docker/login-action digest` | `81c6f93` |
+| `github/codeql-action digest` | `9b32540` |
+| `node.js` | `v26.13.0` |
+| `oxlint monorepo` | `^1.90.0` |
+| `pnpm` | `v12.16.1` |
+| `sentry-javascript monorepo` | `^11.10.0` |
+| `sonarsource/sonarqube-scan-action action` | `v8.4` |
+
 ## [1.10.0](https://github.com/antoinezanardi/goat-it-web-game/compare/v1.9.0...v1.10.0) (2026-10-16)
 
 ### 🚀 Features
