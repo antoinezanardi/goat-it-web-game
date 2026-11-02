@@ -5,7 +5,7 @@ Architecture and file placement are owned by [Architecture](architecture.md); re
 
 ## Health endpoints
 
-Both endpoints are public, unauthenticated, and answer `GET` at the site root. Neither passes through the rate limiter, which only guards `/api/goat-it-api/**`.
+Both endpoints are public, unauthenticated, and answer `GET` and `HEAD` at the site root. `HEAD` returns the same status and headers with no body, so HEAD-based uptime monitors and load balancers see the same result as `GET`. Neither passes through the rate limiter, which only guards `/api/goat-it-api/**`.
 
 | Endpoint | Meaning | Success | Failure |
 | --- | --- | --- | --- |

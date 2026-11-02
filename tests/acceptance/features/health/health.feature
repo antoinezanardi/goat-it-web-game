@@ -12,3 +12,13 @@ Feature: 🩺 Health probes
     Then the response status should be 200
     And the health response should report the status "ready"
     And the health response should not be cached
+
+  Scenario: 🩺 Liveness probe answers HEAD requests
+    When the user sends a HEAD request to the "/healthz" route
+    Then the response status should be 200
+    And the health response should not be cached
+
+  Scenario: 🩺 Readiness probe answers HEAD requests
+    When the user sends a HEAD request to the "/readyz" route
+    Then the response status should be 200
+    And the health response should not be cached
