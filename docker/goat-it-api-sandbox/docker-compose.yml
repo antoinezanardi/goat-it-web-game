@@ -4,7 +4,7 @@
 
 services:
   api-0:
-    image: antoinezanardi/goat-it-api:develop
+    image: antoinezanardi/goat-it-api:develop@sha256:d73f9acf32c412843879a6dd8a4522d0dcc25ad92af927d9ac5c11c1c9a33521
     container_name: goat-it-api-sandbox-0
     depends_on:
       mongodb-0:
@@ -25,7 +25,7 @@ services:
 
   mongodb-0:
     container_name: goat-it-api-sandbox-mongodb-0
-    image: mongo:9
+    image: mongo:9@sha256:452bdaf2127b8ff851e31410a267809b9829eded219979f2210e7c7efb85a058
     ports:
       - "127.0.0.1:27117:27017"
     volumes:
@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
 
   api-1:
-    image: antoinezanardi/goat-it-api:develop
+    image: antoinezanardi/goat-it-api:develop@sha256:d73f9acf32c412843879a6dd8a4522d0dcc25ad92af927d9ac5c11c1c9a33521
     container_name: goat-it-api-sandbox-1
     depends_on:
       mongodb-1:
@@ -60,7 +60,7 @@ services:
 
   mongodb-1:
     container_name: goat-it-api-sandbox-mongodb-1
-    image: mongo:9
+    image: mongo:9@sha256:452bdaf2127b8ff851e31410a267809b9829eded219979f2210e7c7efb85a058
     ports:
       - "127.0.0.1:27118:27017"
     volumes:
@@ -74,7 +74,7 @@ services:
     restart: unless-stopped
 
   api-2:
-    image: antoinezanardi/goat-it-api:develop
+    image: antoinezanardi/goat-it-api:develop@sha256:d73f9acf32c412843879a6dd8a4522d0dcc25ad92af927d9ac5c11c1c9a33521
     container_name: goat-it-api-sandbox-2
     depends_on:
       mongodb-2:
@@ -95,7 +95,7 @@ services:
 
   mongodb-2:
     container_name: goat-it-api-sandbox-mongodb-2
-    image: mongo:9
+    image: mongo:9@sha256:452bdaf2127b8ff851e31410a267809b9829eded219979f2210e7c7efb85a058
     ports:
       - "127.0.0.1:27119:27017"
     volumes:
@@ -109,7 +109,7 @@ services:
     restart: unless-stopped
 
   api-3:
-    image: antoinezanardi/goat-it-api:develop
+    image: antoinezanardi/goat-it-api:develop@sha256:d73f9acf32c412843879a6dd8a4522d0dcc25ad92af927d9ac5c11c1c9a33521
     container_name: goat-it-api-sandbox-3
     depends_on:
       mongodb-3:
@@ -130,7 +130,7 @@ services:
 
   mongodb-3:
     container_name: goat-it-api-sandbox-mongodb-3
-    image: mongo:9
+    image: mongo:9@sha256:452bdaf2127b8ff851e31410a267809b9829eded219979f2210e7c7efb85a058
     ports:
       - "127.0.0.1:27120:27017"
     volumes:
