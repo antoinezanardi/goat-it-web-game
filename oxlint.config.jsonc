@@ -1328,7 +1328,7 @@
     // ---- Override for server api endpoint files -----
     {
       "files": [
-        "**/server/api/**/*.{get,post,put,patch,delete}.ts"
+        "**/server/api/**/*.{get,head,post,put,patch,delete}.ts"
       ],
       "rules": {
         "import/no-default-export": "off"
@@ -1337,7 +1337,7 @@
     // ---- Override for server root route endpoint files -----
     {
       "files": [
-        "**/server/routes/**/*.{get,post,put,patch,delete}.ts"
+        "**/server/routes/**/*.{get,head,post,put,patch,delete}.ts"
       ],
       "rules": {
         "import/no-default-export": "off"
