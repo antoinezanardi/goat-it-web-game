@@ -341,8 +341,8 @@ importers:
         specifier: ^1.64.1
         version: 1.64.1
       radashi:
-        specifier: ^13.0.1
-        version: 13.0.1
+        specifier: ^13.0.4
+        version: 13.0.4
       rimraf:
         specifier: ^6.1.4
         version: 6.1.4
@@ -9361,8 +9361,8 @@ packages:
     resolution: {integrity: sha512-Y3NoRtprEEZQD8RfxMCfS0ZTqc4e+i18OrXEXAvpM6TfC/3y+0L5rNbZiSnbBBEkDfFzbpd8o+cE8q3/anjMGA==}
     engines: {node: '>=22'}
 
-  radashi@13.0.1:
-    resolution: {integrity: sha512-rn7Rg2qfyRl64XMraDtAQenu5UdTAayne8QKe4pmTAKMgkD5C6crAol00ho3THqwgYCm8xgWdmYND1WYP9VrfA==}
+  radashi@13.0.4:
+    resolution: {integrity: sha512-LbAKjpZi73m544arwpuKesF3lDFNKDL4N9gqW2E+/CDl2lsGLF2ABB5yhyKb7nnjmrKpn2QMUogv7Q0vMtyODw==}
     engines: {node: '>=18.0.0'}
 
   radix3@1.1.2:
@@ -22231,7 +22231,7 @@ snapshots:
 
   quote-js-string@0.1.0: {}
 
-  radashi@13.0.1: {}
+  radashi@13.0.4: {}
 
   radix3@1.1.2: {}
 
