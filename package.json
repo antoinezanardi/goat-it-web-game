@@ -140,7 +140,7 @@
     "nuxtseo-devtools-host": "^1.0.2",
     "nuxtseo-layer-devtools": "^6.0.2",
     "oxlint": "^1.90.0",
-    "oxlint-tsgolint": "^7.0.2005",
+    "oxlint-tsgolint": "^7.0.2006",
     "pinia": "^4.1.0",
     "playwright": "^1.65.0",
     "playwright-core": "^1.65.0",
