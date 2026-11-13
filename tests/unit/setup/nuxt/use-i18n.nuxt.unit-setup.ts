@@ -56,6 +56,8 @@ type UnctxContext = {
 const UNCTX_CONTEXT_KEY = "\u005F\u005Functx\u005F\u005F";
 
 function noop(): void {
+  // Acceptable as the i18n composer methods are intentionally replaced by a no-op
+  // oxlint-disable-next-line unicorn/no-useless-undefined
   return undefined;
 }
 
