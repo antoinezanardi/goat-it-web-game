@@ -1,3 +1,4 @@
+import type { QuestionCognitiveDifficulty } from "@goat-it/schemas/question";
 import { QUESTION_CATEGORIES, QUESTION_COGNITIVE_DIFFICULTIES } from "@goat-it/schemas/question";
 import { describe, expect, it } from "vitest";
 
@@ -126,24 +127,29 @@ describe(buildGameSettingsFetchFilters, () => {
     expect(buildGameSettingsFetchFilters(createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, ...settings }), activeThemeIds)).toStrictEqual(expected);
   });
 
-  it("should keep the UI activity and the fetch narrowing aligned when a cognitive difficulties group is narrowed.", () => {
+  it.each<{
+    cognitiveDifficulties: QuestionCognitiveDifficulty[];
+    description: string;
+    expected: [boolean, boolean];
+  }>([
+    {
+      cognitiveDifficulties: ["easy"],
+      description: "a cognitive difficulties group is narrowed",
+      expected: [true, true],
+    },
+    {
+      cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES],
+      description: "cognitive difficulties are unrestricted",
+      expected: [false, false],
+    },
+  ])("should keep the UI activity and the fetch narrowing aligned when $description.", ({ cognitiveDifficulties, expected }) => {
     const cognitiveDifficultiesDefinition = getFilterGroupDefinition(1);
-    const settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, cognitiveDifficulties: ["easy"] });
+    const settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, cognitiveDifficulties });
 
     expect([
       cognitiveDifficultiesDefinition.isActiveInQuestionFiltersUi(settings, []),
       hasNonEmptyFetchFilter(cognitiveDifficultiesDefinition, settings, []),
-    ]).toStrictEqual([true, true]);
-  });
-
-  it("should keep the UI activity and the fetch narrowing aligned when cognitive difficulties are unrestricted.", () => {
-    const cognitiveDifficultiesDefinition = getFilterGroupDefinition(1);
-    const settings = createFakeGameSettings({ ...UNRESTRICTED_SETTINGS_FIELDS, cognitiveDifficulties: [...QUESTION_COGNITIVE_DIFFICULTIES] });
-
-    expect([
-      cognitiveDifficultiesDefinition.isActiveInQuestionFiltersUi(settings, []),
-      hasNonEmptyFetchFilter(cognitiveDifficultiesDefinition, settings, []),
-    ]).toStrictEqual([false, false]);
+    ]).toStrictEqual(expected);
   });
 
   it("should keep the adult content UI activity complementary to the fetch narrowing when adult content is enabled or disabled.", () => {

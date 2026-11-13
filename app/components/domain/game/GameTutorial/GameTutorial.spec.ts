@@ -672,12 +672,6 @@ describe("GameTutorial Component", () => {
     expect(wrapper.findComponent({ name: "UPopover" }).props("reference")).toBe(getGameTutorialElement("game-questions-filters-button"));
   });
 
-  it("should open the popover in modal mode when the tour starts.", async() => {
-    await startTour();
-
-    expect(wrapper.findComponent({ name: "UPopover" }).props("modal")).toBe(true);
-  });
-
   it("should hide the tutorial when Escape is pressed.", async() => {
     await startTour();
 

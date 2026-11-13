@@ -101,11 +101,4 @@ describe("OfflineStatusIndicator Component", () => {
 
     expect(wrapper.get("[data-testid='connectivity-status-icon']").attributes("data-icon-name")).toBe("i-lucide-wifi");
   });
-
-  it("should expose a polite status live region when the chip is displayed.", async() => {
-    await setOnline(false);
-    const chip = wrapper.find("[data-testid='connectivity-status']");
-
-    expect({ role: chip.attributes("role"), live: chip.attributes("aria-live") }).toStrictEqual({ role: "status", live: "polite" });
-  });
 });

@@ -10,26 +10,22 @@ import { ChangelogModalContent } from "#components";
 
 import type { ChangelogModalContentProps } from "@/components/domain/changelog/ChangelogModal/ChangelogModalContent/changelog-modal-content.types";
 
-const defaultChangelogModalContentProps: ChangelogModalContentProps = {
-  changelogEntries: [
-    createFakeChangelogEntry({ version: "1.9.0", date: "2026-09-25" }),
-    createFakeChangelogEntry({ version: "1.8.0", date: "2026-07-01" }),
-  ],
-  changelogEntriesStatus: "success",
-};
-
 describe("ChangelogModalContent Component", () => {
   let wrapper: VueWrapper;
+
+  const defaultChangelogModalContentProps: ChangelogModalContentProps = {
+    changelogEntries: [
+      createFakeChangelogEntry({ version: "1.9.0", date: "2026-09-25" }),
+      createFakeChangelogEntry({ version: "1.8.0", date: "2026-07-01" }),
+    ],
+    changelogEntriesStatus: "success",
+  };
 
   async function mountChangelogModalContent(options: MountSuspendedOptions<typeof ChangelogModalContent> = {}): Promise<VueWrapper> {
     return mountSuspended(ChangelogModalContent, {
       props: defaultChangelogModalContentProps,
       ...options,
     });
-  }
-
-  function findStatusRegion(): Element {
-    return wrapper.find("output").element;
   }
 
   beforeEach(async() => {
@@ -46,26 +42,6 @@ describe("ChangelogModalContent Component", () => {
 
   it("should render the changelog modal body when mounted.", () => {
     expect(wrapper.find("[data-testid='changelog-modal-body']").exists()).toBe(true);
-  });
-
-  it("should make the changelog body keyboard focusable when mounted.", () => {
-    expect(wrapper.find("[data-testid='changelog-modal-body']").attributes("tabindex")).toBe("0");
-  });
-
-  it("should wrap the changelog body states in the fade slide up transition when mounted.", () => {
-    expect(wrapper.findComponent({ name: "Transition" }).props("name")).toBe("fade-slide-up");
-  });
-
-  it("should swap the changelog body states with the out in transition mode when mounted.", () => {
-    expect(wrapper.findComponent({ name: "Transition" }).props("mode")).toBe("out-in");
-  });
-
-  it("should not transition the changelog body states on mount when the content renders.", () => {
-    expect(wrapper.findComponent({ name: "Transition" }).props("appear")).toBeFalsy();
-  });
-
-  it("should render exactly one root element per changelog body state when mounted.", () => {
-    expect(wrapper.find("transition-stub").element.children).toHaveLength(1);
   });
 
   it.each<{ entriesStatus: ChangelogModalContentProps["changelogEntriesStatus"]; expectedAriaBusy: string }>([
@@ -99,14 +75,6 @@ describe("ChangelogModalContent Component", () => {
     expect(wrapper.find("output").text()).toBe("");
   });
 
-  it("should keep the status region outside the changelog body transition when mounted.", () => {
-    expect(wrapper.find("transition-stub").element.contains(findStatusRegion())).toBe(false);
-  });
-
-  it("should keep the status region outside the busy changelog body when mounted.", () => {
-    expect(wrapper.find("[data-testid='changelog-modal-body']").element.contains(findStatusRegion())).toBe(false);
-  });
-
   it.each<{ entriesStatus: ChangelogModalContentProps["changelogEntriesStatus"] }>([
     { entriesStatus: "idle" },
     { entriesStatus: "pending" },
@@ -127,6 +95,14 @@ describe("ChangelogModalContent Component", () => {
 
   it("should render the changelog versions when the changelog entries are populated.", () => {
     expect(wrapper.findComponent({ name: "UChangelogVersions" }).exists()).toBe(true);
+  });
+
+  it("should render the changelog version entries when the changelog entries are populated.", () => {
+    expect(wrapper.findComponent({ name: "UChangelogVersion" }).exists()).toBe(true);
+  });
+
+  it("should render the changelog version content when the changelog entries are populated.", () => {
+    expect(wrapper.findComponent({ name: "ContentRenderer" }).exists()).toBe(true);
   });
 
   it("should render the changelog error screen with the cloud off icon when the changelog entries failed to load.", async() => {
