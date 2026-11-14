@@ -2,7 +2,7 @@ overrides:
   conventional-changelog-writer: ^9.3.0
   eslint-plugin-import-x: 4.18.1
   unhead: ^3.4.3
-  vite: ^8.3.7
+  vite: ^8.3.8
 
 allowBuilds:
   '@parcel/watcher': true
