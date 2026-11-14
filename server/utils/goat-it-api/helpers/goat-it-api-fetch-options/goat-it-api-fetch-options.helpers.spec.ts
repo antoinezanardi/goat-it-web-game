@@ -1,12 +1,13 @@
 import { EventEmitter } from "node:events";
 
-import { getCookie } from "h3";
 import type { H3Event } from "h3";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createGoatItApiFetchOptions } from "#server/utils/goat-it-api/helpers/goat-it-api-fetch-options/goat-it-api-fetch-options.helpers";
+import { extractLocaleFromEvent } from "#server/utils/goat-it-api/helpers/goat-it-api-locale/goat-it-api-locale.helpers";
 
 vi.stubGlobal("useRuntimeConfig", vi.fn());
+vi.mock(import("#server/utils/goat-it-api/helpers/goat-it-api-locale/goat-it-api-locale.helpers"));
 
 function mockGoatItApiEnvironment(): void {
   const runtimeConfigMock = {
@@ -19,7 +20,7 @@ function mockGoatItApiEnvironment(): void {
     },
   } as const;
   vi.mocked(useRuntimeConfig).mockReturnValue(runtimeConfigMock as unknown as ReturnType<typeof useRuntimeConfig>);
-  vi.mocked(getCookie).mockReturnValue(undefined);
+  vi.mocked(extractLocaleFromEvent).mockReturnValue("en");
 }
 
 type FakeResponse = EventEmitter & { writableEnded: boolean };
@@ -40,7 +41,7 @@ describe(createGoatItApiFetchOptions, () => {
   beforeEach(() => mockGoatItApiEnvironment());
 
   it("should create fetch options with baseURL, api key and the resolved locale accept-language header when called with event.", () => {
-    vi.mocked(getCookie).mockReturnValue("fr");
+    vi.mocked(extractLocaleFromEvent).mockReturnValue("fr");
     const { event } = createEventWithResponse();
 
     const fetchOptions = createGoatItApiFetchOptions(event);
@@ -60,9 +61,9 @@ describe(createGoatItApiFetchOptions, () => {
   it("should resolve the accept-language header from the event and the configured default locale when called.", () => {
     const { event } = createEventWithResponse();
 
-    const fetchOptions = createGoatItApiFetchOptions(event);
+    createGoatItApiFetchOptions(event);
 
-    expect(fetchOptions).toMatchObject({ headers: { "Accept-Language": "en" } });
+    expect(extractLocaleFromEvent).toHaveBeenCalledExactlyOnceWith(event, "en");
   });
 
   it("should not set the timeout option when called.", () => {
