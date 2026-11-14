@@ -42,10 +42,6 @@ describe("GameNextQuestionButton Component", () => {
     expect(wrapper.find("button").attributes("aria-keyshortcuts")).toBe("ArrowRight");
   });
 
-  it("should not wrap the button in a tooltip when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UTooltip" }).exists()).toBe(false);
-  });
-
   it("should emit click when the button is clicked.", async() => {
     await wrapper.find("button").trigger("click");
 

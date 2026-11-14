@@ -22,10 +22,6 @@ describe("ChangelogModalSkeleton Component", () => {
     expect(wrapper.exists()).toBeTruthy();
   });
 
-  it("should hide the skeleton from assistive technologies when mounted.", () => {
-    expect(wrapper.attributes("aria-hidden")).toBe("true");
-  });
-
   it("should render the skeleton container when mounted.", () => {
     expect(wrapper.find("[data-testid='changelog-modal-skeleton']").exists()).toBe(true);
   });

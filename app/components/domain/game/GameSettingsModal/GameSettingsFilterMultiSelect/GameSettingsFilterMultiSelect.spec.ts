@@ -1,4 +1,3 @@
-import { createTestingPinia } from "@pinia/testing";
 import type { VueWrapper } from "@vue/test-utils";
 import { flushPromises } from "@vue/test-utils";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
@@ -9,7 +8,7 @@ import { getWrapperVm } from "~~/tests/unit/utils/helpers/vtu.helpers";
 import { useOverlayMock } from "~~/tests/unit/setup/nuxt/composables/use-overlay.nuxt.unit-setup";
 import type { UseOverlayCreateReturnValue } from "~~/tests/unit/utils/mocks/composables/nuxt-ui/useOverlay/useOverlay.mock.types";
 
-import { GameSettingsFilterMultiSelect } from "#components";
+import { ConfirmDialog, GameSettingsFilterMultiSelect } from "#components";
 import type { UIcon, USelectMenu } from "#components";
 
 import type { GameSettingsFilterMultiSelectProps } from "@/components/domain/game/GameSettingsModal/GameSettingsFilterMultiSelect/game-settings-filter-multi-select.types";
@@ -41,7 +40,6 @@ describe("GameSettingsFilterMultiSelect Component", () => {
   async function mountGameSettingsFilterMultiSelect(options: MountSuspendedOptions<typeof GameSettingsFilterMultiSelect> = {}): Promise<VueWrapper> {
     return mountSuspended(GameSettingsFilterMultiSelect, {
       props: defaultGameSettingsFilterMultiSelectProps,
-      global: { plugins: [createTestingPinia()] },
       attachTo: document.body,
       ...options,
     });
@@ -100,6 +98,22 @@ describe("GameSettingsFilterMultiSelect Component", () => {
 
   it("should render the USelectMenu component when mounted.", () => {
     expect(wrapper.findComponent({ name: "USelectMenu" }).exists()).toBe(true);
+  });
+
+  it("should bind the model value to the select menu when mounted.", () => {
+    const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
+
+    expect(selectMenu.props("modelValue")).toStrictEqual(["easy", "medium", "hard"]);
+  });
+
+  it("should pass the restored selection to the select menu when the confirmation dialog is canceled.", async() => {
+    const selectMenu = wrapper.findComponent<typeof USelectMenu>({ name: "USelectMenu" });
+    getWrapperVm(selectMenu).$emit("update:modelValue", []);
+    await flushPromises();
+    getCreatedModalInstance().close(false);
+    await flushPromises();
+
+    expect(selectMenu.props("modelValue")).toStrictEqual(["easy", "medium", "hard"]);
   });
 
   it("should pass the options as select menu items with their icons and colors when mounted.", () => {
@@ -196,7 +210,7 @@ describe("GameSettingsFilterMultiSelect Component", () => {
     await flushPromises();
 
     expect(useOverlayMock.instance.create).toHaveBeenCalledExactlyOnceWith(
-      expect.any(Object),
+      ConfirmDialog,
       expect.objectContaining({
         props: {
           description: "game.settings.filters.confirmRestoreDescription",
@@ -280,17 +294,17 @@ describe("GameSettingsFilterMultiSelect Component", () => {
 
   it("should render the selected state icon on a selected option when the menu opens.", async() => {
     await openSelectMenu();
-    const stateIcon = document.body.querySelector("[data-testid='game-settings-filter-option-state-easy']");
+    const stateIcon = wrapper.findComponent<typeof UIcon>("[data-testid='game-settings-filter-option-state-easy']");
 
-    expect(stateIcon?.classList.contains("i-lucide:square-check")).toBe(true);
+    expect(stateIcon.props("name")).toBe("i-lucide-square-check");
   });
 
   it("should render the unselected state icon on an unselected option when the menu opens.", async() => {
     await wrapper.setProps({ modelValue: ["hard"] });
     await openSelectMenu();
-    const stateIcon = document.body.querySelector("[data-testid='game-settings-filter-option-state-easy']");
+    const stateIcon = wrapper.findComponent<typeof UIcon>("[data-testid='game-settings-filter-option-state-easy']");
 
-    expect(stateIcon?.classList.contains("i-lucide:square")).toBe(true);
+    expect(stateIcon.props("name")).toBe("i-lucide-square");
   });
 
   it("should hide the built-in selected icon and center the trailing content of the select menu when mounted.", () => {
