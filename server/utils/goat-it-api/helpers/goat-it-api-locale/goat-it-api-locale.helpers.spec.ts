@@ -1,3 +1,4 @@
+import type { Locale } from "@goat-it/schemas/shared/locale";
 import { getCookie } from "h3";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
@@ -20,47 +21,35 @@ describe(extractLocaleFromEvent, () => {
     expect(locale).toBe("fr");
   });
 
-  it.each<{ cookieValue: string; description: string }>([
-    { cookieValue: "", description: "an empty string" },
-    { cookieValue: "FR", description: "an uppercase locale code" },
-    { cookieValue: "ja", description: "an unsupported locale" },
-    { cookieValue: "garbage", description: "a garbage value" },
-  ])("should fall back to default locale when goat_it_locale cookie is $description.", ({ cookieValue }) => {
+  it.each<{ cookieValue: string; defaultLocale: Locale; expectedLocale: Locale; description: string }>([
+    { cookieValue: "", defaultLocale: "en", expectedLocale: "en", description: "an empty string" },
+    { cookieValue: "FR", defaultLocale: "en", expectedLocale: "en", description: "an uppercase locale code" },
+    { cookieValue: "ja", defaultLocale: "en", expectedLocale: "en", description: "an unsupported locale" },
+    { cookieValue: "garbage", defaultLocale: "en", expectedLocale: "en", description: "a garbage value" },
+    { cookieValue: "", defaultLocale: "fr", expectedLocale: "fr", description: "an empty string" },
+    { cookieValue: "FR", defaultLocale: "fr", expectedLocale: "fr", description: "an uppercase locale code" },
+    { cookieValue: "ja", defaultLocale: "fr", expectedLocale: "fr", description: "an unsupported locale" },
+    { cookieValue: "garbage", defaultLocale: "fr", expectedLocale: "fr", description: "a garbage value" },
+  ])("should fall back to the $defaultLocale default locale when goat_it_locale cookie is $description.", ({ cookieValue, defaultLocale, expectedLocale }) => {
     vi.mocked(getCookie).mockReturnValue(cookieValue);
 
-    const locale = extractLocaleFromEvent(mockedEvent, "en");
+    const locale = extractLocaleFromEvent(mockedEvent, defaultLocale);
 
-    expect(locale).toBe("en");
+    expect(locale).toBe(expectedLocale);
   });
 
-  it("should fall back to default locale when cookie is missing.", () => {
-    const locale = extractLocaleFromEvent(mockedEvent, "en");
+  it.each<{ defaultLocale: Locale; expectedLocale: Locale; description: string }>([
+    { defaultLocale: "en", expectedLocale: "en", description: "the en default locale" },
+    { defaultLocale: "fr", expectedLocale: "fr", description: "the fr default locale" },
+  ])("should fall back to the $defaultLocale default locale when cookie is missing.", ({ defaultLocale, expectedLocale }) => {
+    const locale = extractLocaleFromEvent(mockedEvent, defaultLocale);
 
-    expect(locale).toBe("en");
+    expect(locale).toBe(expectedLocale);
   });
 
   it("should read the goat_it_locale cookie when resolving the locale from the event.", () => {
     extractLocaleFromEvent(mockedEvent, "en");
 
     expect(getCookie).toHaveBeenCalledExactlyOnceWith(mockedEvent, "goat_it_locale");
-  });
-
-  it("should fall back to the provided default locale when cookie is missing and the default locale is fr.", () => {
-    const locale = extractLocaleFromEvent(mockedEvent, "fr");
-
-    expect(locale).toBe("fr");
-  });
-
-  it.each<{ cookieValue: string; description: string }>([
-    { cookieValue: "", description: "an empty string" },
-    { cookieValue: "FR", description: "an uppercase locale code" },
-    { cookieValue: "ja", description: "an unsupported locale" },
-    { cookieValue: "garbage", description: "a garbage value" },
-  ])("should fall back to the provided fr default locale when goat_it_locale cookie is $description.", ({ cookieValue }) => {
-    vi.mocked(getCookie).mockReturnValue(cookieValue);
-
-    const locale = extractLocaleFromEvent(mockedEvent, "fr");
-
-    expect(locale).toBe("fr");
   });
 });

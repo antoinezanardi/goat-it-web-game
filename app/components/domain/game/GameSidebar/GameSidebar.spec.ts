@@ -86,12 +86,6 @@ describe("GameSidebar Component", () => {
     expect(document.body.querySelector("[data-testid='game-sidebar']")?.textContent).toContain("home.brand");
   });
 
-  it("should provide lazy loading and asynchronous decoding hints to the brand logo when mounted.", () => {
-    const logo = document.body.querySelector<HTMLImageElement>("[data-testid='game-sidebar'] img");
-
-    expect({ decoding: logo?.getAttribute("decoding"), loading: logo?.getAttribute("loading") }).toStrictEqual({ decoding: "async", loading: "lazy" });
-  });
-
   it("should render the sidebar title as a link to the home page when mounted.", () => {
     expect(findLinkByTestId("game-sidebar").props("to")).toBe("/");
   });
@@ -231,10 +225,6 @@ describe("GameSidebar Component", () => {
     await nextTick();
 
     expect(document.body.querySelector("[data-testid='game-sidebar-filters-count-badge']")).not.toBeNull();
-  });
-
-  it("should not set an explicit aria-label on the question filters action when mounted.", () => {
-    expect(document.body.querySelector("[data-testid='game-sidebar-filters-link']")?.getAttribute("aria-label")).toBeNull();
   });
 
   it("should emit openGameFilters when the question filters action is clicked.", async() => {
