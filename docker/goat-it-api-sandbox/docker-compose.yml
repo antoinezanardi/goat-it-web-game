@@ -25,7 +25,7 @@ services:
 
   mongodb-0:
     container_name: goat-it-api-sandbox-mongodb-0
-    image: mongo:9@sha256:452bdaf2127b8ff851e31410a267809b9829eded219979f2210e7c7efb85a058
+    image: mongo:9@sha256:1444adda2e4b8d6a0d7f242a625d834a78d6e3aa6e4ed1b0b4c2dab2318c5e3d
     ports:
       - "127.0.0.1:27117:27017"
     volumes:
@@ -60,7 +60,7 @@ services:
 
   mongodb-1:
     container_name: goat-it-api-sandbox-mongodb-1
-    image: mongo:9@sha256:452bdaf2127b8ff851e31410a267809b9829eded219979f2210e7c7efb85a058
+    image: mongo:9@sha256:1444adda2e4b8d6a0d7f242a625d834a78d6e3aa6e4ed1b0b4c2dab2318c5e3d
     ports:
       - "127.0.0.1:27118:27017"
     volumes:
@@ -95,7 +95,7 @@ services:
 
   mongodb-2:
     container_name: goat-it-api-sandbox-mongodb-2
-    image: mongo:9@sha256:452bdaf2127b8ff851e31410a267809b9829eded219979f2210e7c7efb85a058
+    image: mongo:9@sha256:1444adda2e4b8d6a0d7f242a625d834a78d6e3aa6e4ed1b0b4c2dab2318c5e3d
     ports:
       - "127.0.0.1:27119:27017"
     volumes:
@@ -130,7 +130,7 @@ services:
 
   mongodb-3:
     container_name: goat-it-api-sandbox-mongodb-3
-    image: mongo:9@sha256:452bdaf2127b8ff851e31410a267809b9829eded219979f2210e7c7efb85a058
+    image: mongo:9@sha256:1444adda2e4b8d6a0d7f242a625d834a78d6e3aa6e4ed1b0b4c2dab2318c5e3d
     ports:
       - "127.0.0.1:27120:27017"
     volumes:
