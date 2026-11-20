@@ -368,8 +368,8 @@ importers:
         specifier: ^4.3.5
         version: 4.3.5
       type-fest:
-        specifier: ^5.10.0
-        version: 5.10.0
+        specifier: ^6.0.1
+        version: 6.0.1
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -10359,6 +10359,10 @@ packages:
   type-fest@5.10.0:
     resolution: {integrity: sha512-NoSdpq/WEiAg5sjmBkmV/hfxv6HJH4NqPNrqjtSO5CwRmpsDfaf4begxW34KdJykH/l1yHtwBWQkCRdoXO8mPA==}
     engines: {node: '>=20'}
+
+  type-fest@6.0.1:
+    resolution: {integrity: sha512-nnRRKEpyNxX4XkeR6dpMy27ZNT5/nE3D73fs5FcKW/+OtqwSmdshWUw5azvpsMzjst5rAUe61ZxilQ70YFS9yA==}
+    engines: {node: '>=22'}
 
   type-level-regexp@0.1.17:
     resolution: {integrity: sha512-wTk4DH3cxwk196uGLK/E9pE45aLfeKJacKmcEgEOA/q5dnPGNxXt0cfYdFxb57L+sEpf1oJH4Dnx/pnRcku9jg==}
@@ -23421,6 +23425,10 @@ snapshots:
   type-fest@4.41.0: {}
 
   type-fest@5.10.0:
+    dependencies:
+      tagged-tag: 1.0.0
+
+  type-fest@6.0.1:
     dependencies:
       tagged-tag: 1.0.0
 
