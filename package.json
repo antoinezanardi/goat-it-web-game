@@ -137,7 +137,7 @@
     "nuxt-schema-org": "^7.0.1",
     "nuxt-seo-utils": "^9.0.2",
     "nuxt-site-config": "^5.0.3",
-    "nuxtseo-devtools-host": "^1.0.2",
+    "nuxtseo-devtools-host": "^1.0.3",
     "nuxtseo-layer-devtools": "^6.0.2",
     "oxlint": "^1.93.0",
     "oxlint-tsgolint": "^7.0.2007",
