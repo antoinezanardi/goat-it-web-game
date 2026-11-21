@@ -131,7 +131,7 @@
     "happy-dom": "^21.0.4",
     "husky": "^9.1.7",
     "is-ci": "^4.1.0",
-    "lint-staged": "^17.6.0",
+    "lint-staged": "^17.6.1",
     "mongodb": "^7.9.0",
     "nuxt": "^4.6.4",
     "nuxt-schema-org": "^7.0.1",
