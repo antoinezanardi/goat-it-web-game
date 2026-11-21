@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { MountSuspendedOptions } from "~~/tests/unit/utils/types/mount.types";
 
 import { GameSettingsAdultContentSwitch } from "#components";
-import type { UIcon } from "#components";
+import type { UIcon, USwitch } from "#components";
 
 import type { GameSettingsAdultContentSwitchProps } from "@/components/domain/game/GameSettingsModal/GameSettingsGeneralTab/GameSettingsAdultContentSwitch/game-settings-adult-content-switch.types";
 
@@ -38,6 +38,19 @@ describe("GameSettingsAdultContentSwitch Component", () => {
 
   it("should render the USwitch component when mounted.", () => {
     expect(wrapper.findComponent({ name: "USwitch" }).exists()).toBe(true);
+  });
+
+  it("should bind the disabled state to the switch when adult content is disabled.", () => {
+    const switchComponent = wrapper.findComponent<typeof USwitch>({ name: "USwitch" });
+
+    expect(switchComponent.props("modelValue")).toBe(false);
+  });
+
+  it("should bind the enabled state to the switch when adult content is enabled.", async() => {
+    await wrapper.setProps({ isAdultContentEnabled: true });
+    const switchComponent = wrapper.findComponent<typeof USwitch>({ name: "USwitch" });
+
+    expect(switchComponent.props("modelValue")).toBe(true);
   });
 
   it("should render the adult content icon when mounted.", () => {

@@ -107,8 +107,8 @@ All other projects use `environment: "nuxt"` (happy-dom + Nuxt runtime).
   - `**/*.config.ts`
   - `**/*.spec.ts`
   - `app/plugins/**/*.ts`
-  - `server/api/**/*.{get,post,put,patch,delete}.ts` (thin route wrappers)
-  - `server/routes/**/*.{get,post,put,patch,delete}.ts` (thin root route wrappers)
+  - `server/api/**/*.{get,head,post,put,patch,delete}.ts` (thin route wrappers)
+  - `server/routes/**/*.{get,head,post,put,patch,delete}.ts` (thin root route wrappers)
   - `server/middleware/**/*.ts`
   - `server/plugins/**/*.ts`
 

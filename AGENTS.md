@@ -209,8 +209,8 @@ Every added or changed file MUST strictly follow the canonical conventions in [`
 - Coverage threshold: 100% aggregate across all projects (not per project), via `thresholds: { 100: true }`.
   - Collected for `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`, `shared/**/*.ts`.
   - Excluded: `*.constants.ts`, `*.enums.ts`, `*.types.ts`, `*.d.ts`, `*.config.ts`,
-    `*.spec.ts`, `app/plugins/**/*.ts`, `server/api/**/*.{get,post,put,patch,delete}.ts`,
-    `server/routes/**/*.{get,post,put,patch,delete}.ts`, `server/middleware/**/*.ts`,
+    `*.spec.ts`, `app/plugins/**/*.ts`, `server/api/**/*.{get,head,post,put,patch,delete}.ts`,
+    `server/routes/**/*.{get,head,post,put,patch,delete}.ts`, `server/middleware/**/*.ts`,
     `server/plugins/**/*.ts`.
 
 - Mocks in `tests/unit/utils/mocks/` — `composables/` and `repositories/` sub-dirs.

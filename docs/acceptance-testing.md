@@ -536,6 +536,10 @@ step-definitions/
 │       └── element.when-steps.helpers.ts
 ├── form/                   # Form input interactions
 │   └── form.when-steps.ts
+├── http/                   # HTTP requests to any route
+│   ├── helpers/
+│   │   └── http.when-steps.helpers.ts
+│   └── http.when-steps.ts
 ├── keyboard/               # Keyboard actions
 │   └── keyboard.when-steps.ts
 ├── locale/                 # Locale switching
@@ -583,7 +587,7 @@ Steps are split into **generic** (reusable across all domains) and **domain-spec
 
 | Category        | Domains                                                                                                        |
 |-----------------|----------------------------------------------------------------------------------------------------------------|
-| Generic         | `accessibility`, `element`, `form`, `keyboard`, `locale`, `modal`, `navigation`, `text`, `toast`             |
+| Generic         | `accessibility`, `element`, `form`, `http`, `keyboard`, `locale`, `modal`, `navigation`, `text`, `toast`     |
 | Domain-specific | `question-theme`, `question`                                                                                   |
 
 **Sub-feature step grouping:** When a domain has a distinct sub-feature with its own unique steps (e.g., source URL tag interactions within questions), those steps are grouped in a subdirectory: `step-definitions/question/source-url-tag/`. The naming follows `<domain>-<sub-feature>.<step-type>-steps.ts`.
@@ -1135,6 +1139,7 @@ If the sandbox is not healthy after all retries, the test suite fails immediatel
    | `navigation`    | Given: navigate to page. When: reload page. Then: assert current page.                                  |
    | `element`       | When: click, hover, scroll (by role + name). Then: visible, hidden, disabled, enabled (by role + name). |
    | `form`          | When: fill input, clear input (by accessible name).                                                     |
+   | `http`          | When: send a request to a route with any HTTP method (GET, HEAD, POST, PUT, PATCH, DELETE).              |
    | `keyboard`      | When: press any key.                                                                                    |
    | `text`          | When: click on text. Then: text visible/hidden.                                                         |
    | `toast`         | Then: toast with text visible (scoped to Notifications region).                                         |

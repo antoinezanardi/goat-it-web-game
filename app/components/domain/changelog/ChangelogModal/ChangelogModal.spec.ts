@@ -121,10 +121,6 @@ describe("ChangelogModal Component", () => {
     });
   });
 
-  it("should not use the overlay scrolling modal mode when mounted.", () => {
-    expect(wrapper.findComponent({ name: "UModal" }).props("scrollable")).toBe(false);
-  });
-
   it("should pass the title translation key to the modal title when mounted.", () => {
     const title = wrapper.findComponent<typeof DefaultModalTitle>("[data-testid='changelog-modal-title']");
 

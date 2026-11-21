@@ -225,10 +225,14 @@ describe("useGameQuestionFeed", () => {
       expect(feed.isExhausted.value).toBe(false);
     });
 
-    it("should show the API error toast when a fetch fails.", async() => {
+    it.each<{ description: string; error: Error; isOnline: boolean }>([
+      { description: "a generic error while online", error: new Error("fetch failed"), isOnline: true },
+      { description: "a response error while offline", error: createFetchErrorWithResponse(), isOnline: false },
+      { description: "a network error without a response while online", error: createFetchErrorWithoutResponse(), isOnline: true },
+    ])("should show the API error toast when a fetch fails with $description.", async({ error, isOnline }) => {
       const store = mockStore(useGameStore);
       const feed = useGameQuestionFeed({ currentIndex: ref(0) });
-      const error = new Error("fetch failed");
+      useNetworkMock.isOnlineRef.value = isOnline;
       store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error });
 
       await feed.initialize();
@@ -256,29 +260,6 @@ describe("useGameQuestionFeed", () => {
       await feed.initialize();
 
       expect(feed.hasFetchError.value).toBe(true);
-    });
-
-    it("should show the API error toast when a fetch fails with a response while offline.", async() => {
-      const store = mockStore(useGameStore);
-      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
-      const error = createFetchErrorWithResponse();
-      useNetworkMock.isOnlineRef.value = false;
-      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error });
-
-      await feed.initialize();
-
-      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, { title: "questions.cantFetch", context: "questions" });
-    });
-
-    it("should show the API error toast when a fetch fails without a response while online.", async() => {
-      const store = mockStore(useGameStore);
-      const feed = useGameQuestionFeed({ currentIndex: ref(0) });
-      const error = createFetchErrorWithoutResponse();
-      store.fetchAndAppendRandomQuestions.mockResolvedValue({ ok: false, error });
-
-      await feed.initialize();
-
-      expect(useGoatItApiErrorToastMock.handleGoatItApiError).toHaveBeenCalledExactlyOnceWith(error, { title: "questions.cantFetch", context: "questions" });
     });
 
     it("should not append questions when a fetch fails.", async() => {

@@ -93,14 +93,11 @@ describe("GameQuestionsFiltersThemeFilter Component", () => {
     expect(getGenericFilter().props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
   });
 
-  it("should render every active theme as selected when the model value is empty.", async() => {
-    await wrapper.setProps({ modelValue: [] });
-
-    expect(getGenericFilter().props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
-  });
-
-  it("should render every active theme as selected when the model value is undefined.", async() => {
-    await wrapper.setProps({ modelValue: undefined });
+  it.each<{ description: string; modelValue: string[] | undefined }>([
+    { description: "empty", modelValue: [] },
+    { description: "undefined", modelValue: undefined },
+  ])("should render every active theme as selected when the model value is $description.", async({ modelValue }) => {
+    await wrapper.setProps({ modelValue });
 
     expect(getGenericFilter().props("modelValue")).toStrictEqual(["theme-a", "theme-b"]);
   });

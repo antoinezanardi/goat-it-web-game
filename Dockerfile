@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:26.13.0-alpine AS base
+FROM --platform=$BUILDPLATFORM node:26.13.1-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS base
 LABEL maintainer="Antoine ZANARDI"
 
 ARG TARGETPLATFORM
@@ -9,7 +9,7 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV CI="true"
 
-RUN npm install -g pnpm@12.11.2
+RUN npm install -g pnpm@12.21.0
 
 RUN mkdir -p "$PNPM_HOME" && chown node:node "$PNPM_HOME"
 
@@ -87,7 +87,7 @@ COPY --chown=node:node --from=development /app/node_modules ./node_modules
 
 RUN pnpm run build && pnpm run check:secrets-in-built-output
 
-FROM node:26.13.0-alpine AS production
+FROM node:26.13.1-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS production
 
 ENV NODE_ENV="production"
 ENV PORT=3002

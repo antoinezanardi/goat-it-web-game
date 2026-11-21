@@ -13,6 +13,11 @@ type InvalidQuestionThemeSerializedCase = {
   mutateSerialized: (serializedQuestionTheme: Jsonify<QuestionTheme>) => unknown;
 };
 
+type InvalidQuestionThemesSerializedCase = {
+  description: string;
+  mutateSerialized: (serializedQuestionThemes: Jsonify<QuestionTheme>[]) => unknown;
+};
+
 describe("Question theme schema", () => {
   it("should return a question theme with date instances when given a JSON-transported question theme.", () => {
     const questionTheme = createFakeQuestionTheme();
@@ -49,5 +54,23 @@ describe("Question themes schema", () => {
     const questionThemes = [createFakeQuestionTheme(), createFakeQuestionTheme()];
 
     expect(QUESTION_THEMES_SCHEMA.parse(questionThemes.map(createFakeQuestionThemeSerialized))).toStrictEqual(questionThemes);
+  });
+
+  it.each<InvalidQuestionThemesSerializedCase>([
+    {
+      description: "an invalid question theme",
+      mutateSerialized: (serializedQuestionThemes): unknown => [
+        ...serializedQuestionThemes,
+        { ...createFakeQuestionThemeSerialized(createFakeQuestionTheme()), unknownKey: "value" },
+      ],
+    },
+    {
+      description: "a null payload",
+      mutateSerialized: (): unknown => null,
+    },
+  ])("should throw a ZodError when given question themes with $description.", ({ mutateSerialized }) => {
+    const serializedQuestionThemes = [createFakeQuestionTheme(), createFakeQuestionTheme()].map(createFakeQuestionThemeSerialized);
+
+    expect(() => QUESTION_THEMES_SCHEMA.parse(mutateSerialized(serializedQuestionThemes))).toThrow(ZodError);
   });
 });

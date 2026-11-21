@@ -50,7 +50,8 @@ describe("useGsap", () => {
 
     try {
       await freshUseGsap().loadGsap();
-    } catch {
+    } catch(error: unknown) {
+      void error;
       gsapImportState.shouldFail = false;
     }
 
