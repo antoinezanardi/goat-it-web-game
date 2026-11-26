@@ -97,7 +97,7 @@
     "@iconify-json/lucide": "^1.2.156",
     "@nuxt/content": "^3.17.0",
     "@nuxt/eslint": "^1.17.0",
-    "@nuxt/hints": "^1.1.5",
+    "@nuxt/hints": "^1.1.6",
     "@nuxt/test-utils": "^4.4.0",
     "@nuxt/ui": "^4.12.0",
     "@nuxtjs/i18n": "^10.6.0",
