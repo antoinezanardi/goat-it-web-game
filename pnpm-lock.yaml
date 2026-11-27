@@ -200,8 +200,8 @@ importers:
         specifier: ^0.0.26
         version: 0.0.26(@faker-js/faker@10.6.0)(zod@4.6.7)
       '@iconify-json/lucide':
-        specifier: ^1.2.158
-        version: 1.2.158
+        specifier: ^1.2.159
+        version: 1.2.159
       '@nuxt/content':
         specifier: ^3.17.0
         version: 3.17.0(@nuxt/schema@4.6.4)(@oxc-project/types@0.153.0)(@valibot/to-json-schema@1.7.1(valibot@1.5.0(typescript@6.0.3)))(better-sqlite3@13.0.3)(confbox@0.3.1)(dotenv@17.4.2)(esbuild@0.28.2)(giget@3.3.1)(magic-string@1.4.5)(magicast@0.5.5)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.18)(rollup@4.67.5)(supports-color@11.0.0)(valibot@1.5.0(typescript@6.0.3))(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.51.2)(yaml@2.9.0))
@@ -1672,8 +1672,8 @@ packages:
   '@iconify-json/carbon@1.2.28':
     resolution: {integrity: sha512-dog92E0fGszJSrmeikPQmFrd4ptbdapogEhtZ9MCA9KiCNacYb2/nDi0euwsK0kTevsFiTy7Mte6QvRq3LDyHQ==}
 
-  '@iconify-json/lucide@1.2.158':
-    resolution: {integrity: sha512-odd13G5/Jv4W+yomId3BjCQ/a1k7QemC0mi+CBvvpl18JBO+sQajKl4F3WtPvFHMnkOQ4d3/BFKShTmBlbG0dg==}
+  '@iconify-json/lucide@1.2.159':
+    resolution: {integrity: sha512-rE8dHb2LRSR2Vl6L6LspAJ83uPNKOIbEE8BLLo/ObQT8xHIEE3zmwIpO9LcZPjTsEnICSxWPFJcJ0Q38nxuZPw==}
 
   '@iconify/collections@1.0.768':
     resolution: {integrity: sha512-udBsNOj5OEEW7XUWh7lFdG9iVnN6g++VQbPCIp/L73Cdih6Gjt+NjYXQFVSepxjgSjtWNpy972QoAq3dyOJDwQ==}
@@ -12332,7 +12332,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/lucide@1.2.158':
+  '@iconify-json/lucide@1.2.159':
     dependencies:
       '@iconify/types': 2.0.0
 
