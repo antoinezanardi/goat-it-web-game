@@ -15,6 +15,7 @@ import { getThemeIcon } from "@/utils/ui/question-theme/helpers/display/question
 
 type GameQuestionCardThemeIconVm = ComponentVm & {
   borderStyle: string;
+  glowStyle: string;
   neonColor: string;
 };
 
@@ -25,6 +26,7 @@ describe("GameQuestionCardThemeIcon Component", () => {
 
   const expectedNeonColor = "oklch(from #33A1FF max(l, 0.85) c h)";
   const expectedBorderStyle = `color-mix(in oklch, ${expectedNeonColor} 55%, transparent)`;
+  const expectedGlowStyle = `0 0 8px color-mix(in oklch, ${expectedNeonColor} 15%, transparent)`;
 
   let wrapper: VueWrapper;
 
@@ -55,7 +57,9 @@ describe("GameQuestionCardThemeIcon Component", () => {
   });
 
   it("should set inline glow shadow derived from the theme color when mounted.", () => {
-    expect(wrapper.attributes("style")).toContain("box-shadow:");
+    const vm = getWrapperVm<GameQuestionCardThemeIconVm>(wrapper);
+
+    expect(vm.glowStyle).toBe(expectedGlowStyle);
   });
 
   it("should derive the border style color mix from the theme color when mounted.", () => {

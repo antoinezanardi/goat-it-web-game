@@ -13,6 +13,11 @@ type InvalidQuestionSerializedCase = {
   mutateSerialized: (serializedQuestion: Jsonify<Question>) => unknown;
 };
 
+type InvalidQuestionsSerializedCase = {
+  description: string;
+  mutateSerialized: (serializedQuestions: Jsonify<Question>[]) => unknown;
+};
+
 describe("Question schema", () => {
   it("should return a question with date instances when given a JSON-transported question.", () => {
     const question = createFakeQuestion({ sourceUrls: ["https://example.com"] });
@@ -76,5 +81,26 @@ describe("Questions schema", () => {
     ];
 
     expect(QUESTIONS_SCHEMA.parse(questions.map(createFakeQuestionSerialized))).toStrictEqual(questions);
+  });
+
+  it.each<InvalidQuestionsSerializedCase>([
+    {
+      description: "an invalid question",
+      mutateSerialized: (serializedQuestions): unknown => [
+        ...serializedQuestions,
+        { ...createFakeQuestionSerialized(createFakeQuestion()), unknownKey: "value" },
+      ],
+    },
+    {
+      description: "a null payload",
+      mutateSerialized: (): unknown => null,
+    },
+  ])("should throw a ZodError when given questions with $description.", ({ mutateSerialized }) => {
+    const serializedQuestions = [
+      createFakeQuestion({ sourceUrls: ["https://example.com"] }),
+      createFakeQuestion({ sourceUrls: ["https://example.org"] }),
+    ].map(createFakeQuestionSerialized);
+
+    expect(() => QUESTIONS_SCHEMA.parse(mutateSerialized(serializedQuestions))).toThrow(ZodError);
   });
 });

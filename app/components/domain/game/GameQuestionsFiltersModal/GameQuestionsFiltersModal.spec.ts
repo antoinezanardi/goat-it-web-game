@@ -134,12 +134,6 @@ describe("GameQuestionsFiltersModal Component", () => {
     expect(getFooter().props("primaryButtonIcon")).toBe("i-lucide-check");
   });
 
-  it("should disable the footer shortcuts when opened.", async() => {
-    await openFiltersModal();
-
-    expect(getFooter().props("disableShortcuts")).toBe(true);
-  });
-
   it("should pass the apply pending state as loading to the footer when it is pending.", async() => {
     await openFiltersModal();
     await wrapper.setProps({ isApplyFiltersPending: true });

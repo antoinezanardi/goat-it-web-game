@@ -108,10 +108,6 @@ describe("GameTutorialPopoverContent Component", () => {
     expect(skipShortcut.props("value")).toBe(GAME_TUTORIAL_SKIP_SHORTCUT.kbd);
   });
 
-  it("should hide the Escape keyboard hint from assistive technologies when there is a next step.", () => {
-    expect(getGameTutorialPopoverContentElement("game-tutorial-skip-shortcut").attributes("aria-hidden")).toBe("true");
-  });
-
   it("should not render the Back control when there is no previous step.", () => {
     expect(getGameTutorialPopoverContentElement("game-tutorial-back").exists()).toBeFalsy();
   });

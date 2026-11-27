@@ -133,20 +133,13 @@ describe("useGameLeaveConfirmation", () => {
     void guardPromise;
   });
 
-  it("should expose the leave confirmation as closed when the confirmation is accepted.", async() => {
+  it.each<{ description: string; isConfirmed: boolean }>([
+    { description: "accepted", isConfirmed: true },
+    { description: "cancelled", isConfirmed: false },
+  ])("should expose the leave confirmation as closed when the confirmation is $description.", async({ isConfirmed }) => {
     gameStateValue.value = "playing";
     const guardPromise = getCapturedLeaveGuard()();
-    getCreatedModalInstance().close(true);
-
-    await guardPromise;
-
-    expect(leaveConfirmation.isLeaveConfirmationOpen.value).toBe(false);
-  });
-
-  it("should expose the leave confirmation as closed when the confirmation is cancelled.", async() => {
-    gameStateValue.value = "playing";
-    const guardPromise = getCapturedLeaveGuard()();
-    getCreatedModalInstance().close(false);
+    getCreatedModalInstance().close(isConfirmed);
 
     await guardPromise;
 

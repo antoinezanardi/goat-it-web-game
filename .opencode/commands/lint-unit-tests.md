@@ -109,9 +109,9 @@ A test is **worthy** when it pins behaviour that can vary; it is **unworthy** wh
 Worthy — each item below should be exercised by at least one test in the spec:
 
 - **Branches** — every point where rendering or output can take two or more paths: `v-if` / `v-else-if` / `v-else` / `v-show` (both sides), ternaries and short-circuits inside template expressions (`:class="cond ? a : b"`), function-driven rendered content (`{{ formatX(...) }}`), and state-dependent render states (loading / empty / populated / error).
-- **Child component presence** — every child Vue component rendered by the template has its presence asserted at least once in the spec (`findComponent({ name: "X" }).exists()` / `.findComponent(Xxx)` / `.findComponent("[data-testid='…']")` — all three count as presence assertions), even when its rendering is not conditional. Vue components are contract surfaces (props/emits/slots), unlike plain HTML tags, so their presence is always worth pinning.
-- **Emits** — every event the component can emit, payload asserted; conditional events also assert absence on the non-emitting path.
-- **Dynamically-bound props** — every `:`-bound prop forwarded to children is asserted, preferably via `.props()`. Exception: when `.props()` is genuinely not possible — e.g. the binding falls through to a native DOM element rather than a Vue component, or the receiving component is a third-party stub without accessible source — asserting via `.attributes()` on the rendered element is acceptable.
+- **Child component presence [W8]** — every child Vue component rendered by the template has its presence asserted at least once in the spec (`findComponent({ name: "X" }).exists()` / `.findComponent(Xxx)` / `.findComponent("[data-testid='…']")` — all three count as presence assertions), even when its rendering is not conditional. Vue components are contract surfaces (props/emits/slots), unlike plain HTML tags, so their presence is always worth pinning.
+- **Emits [W9]** — every event the component can emit, payload asserted; conditional events also assert absence on the non-emitting path.
+- **Dynamically-bound props [W7]** — every `:`-bound prop forwarded to children is asserted, preferably via `.props()`. Exception: when `.props()` is genuinely not possible — e.g. the binding falls through to a native DOM element rather than a Vue component, or the receiving component is a third-party stub without accessible source — asserting via `.attributes()` on the rendered element is acceptable.
 - **i18n in DOM** — every `$t()` / `$tc()` / `t()` usage rendered by the template is asserted by its key somewhere in the spec, even when the usage is static.
 - **Named slots** — every named slot exercised at least once.
 - **Reactive updates** — prop mutations via `setProps`, or mock-holder/store mutations followed by `await nextTick()`, with re-render assertions.
@@ -120,6 +120,7 @@ Unworthy — asserting any of these in a spec is a violation:
 
 - Static Tailwind/utility classes that no binding ever touches.
 - Static props or attributes without `:` binding (e.g. `variant="subtle"`, `color="neutral"`) — implementation constants. Exceptions: static icons ([W5]) and static link targets ([W6]) must still be asserted even though unbound.
+- Static accessibility attributes without `:` binding (`aria-hidden="true"`, `role="status"`, `aria-live="polite"`, or the absence of a static `aria-label`) — unworthy markup constants, reported as [W1] violations, never as warnings. They are not covered by the [W5]/[W6] exceptions.
 - Any markup constant that cannot change with props, watch, computed or emits.
 
 Child component presence is never unworthy — see the "Child component presence" worthy item above.
@@ -132,6 +133,9 @@ Checks:
 - **[W4] data-testid presence** — Every element with a `data-testid` in the source template must have its presence asserted at least once in the spec, even when not conditionally rendered.
 - **[W5] Icons name** – Every icon rendered by the source template must be asserted via its icon prop (`name` on UIcon, or `icon` / `leading-icon` / `trailing-icon` on components like UButton/UBadge), even when the usage is static.
 - **[W6] Link to** – Every link to rendered by the source template must be asserted by its `to` prop, even when the usage is static.
+- **[W7] Dynamically-bound props** — Every `:`-bound prop forwarded to a child is asserted, preferably via `.props()`, with the documented `.attributes()` fallback when `.props()` is genuinely impossible.
+- **[W8] Child component presence** — Every child Vue component rendered by the template has its presence asserted at least once, even when unconditionally rendered.
+- **[W9] Emits** — Every event the component can emit is asserted with its payload; conditional events also assert absence on the non-emitting path.
 
 Missing branch/slot coverage detection stays out of audit scope — it is enforced by `pnpm run test:unit:cov`.
 
@@ -251,6 +255,7 @@ Table lists **only failing/warning files**, ordered by path — one row per file
 ```markdown
 **V1** `app/pages/index/index.spec.ts:38` — [P2] Missing `shallow: true` in mount helper
 **V2** `app/stores/domain/game/game.store.spec.ts:31,45` — [U5] `toHaveBeenCalledTimes(1)` + `toHaveBeenCalledWith` → use `toHaveBeenCalledExactlyOnceWith(...)`
+**V3** `app/components/domain/game/GameCard/GameCard.spec.ts:52` — [W7] `:`-bound `status` passed to `UCard` is never asserted → add `.props("status")`
 ```
 
 Format per violation: ID → backticked `file:line(s)` → `[rule tag]` → concise description including the expected pattern.
@@ -259,7 +264,7 @@ Warnings carry no IDs — list them after the violations as unnumbered bullets, 
 
 ### 7. Category-based fix approval
 
-Immediately after the report, group every reported violation AND actionable warning (skip report-only warnings already accepted as conventions) by rule tag into fix **categories** (e.g. `W3 — wrapper-existence first tests`, `C3 — default props consts`, `U10 — typed it.each`). Present the categories to the user via the question tool so they can approve which to fix, one category at a time (also offer "all categories" and "nothing — report only"; always allow a custom answer with specific categories/violation IDs).
+Immediately after the report, group every reported violation AND actionable warning (skip report-only warnings already accepted as conventions) by rule tag into fix **categories** (e.g. `W3 — wrapper-existence first tests`, `W7 — dynamically-bound props`, `W8 — child component presence`, `C3 — default props consts`, `U10 — typed it.each`). Present the categories to the user via the question tool so they can approve which to fix, one category at a time (also offer "all categories" and "nothing — report only"; always allow a custom answer with specific categories/violation IDs).
 
 Classify before asking: **mechanical** = unambiguous single-file edits; **judgmental** = requires writing new test logic or removal decisions that may affect coverage. State the split in the question description so the user can decide informedly.
 

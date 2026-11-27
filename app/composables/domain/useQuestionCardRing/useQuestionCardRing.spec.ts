@@ -12,6 +12,8 @@ import type { useQuestionCardRing as UseQuestionCardRingType } from "@/composabl
 import type { Question } from "#shared/types/question.types";
 import type { GameNavigationDirection } from "@/utils/domain/game/game-navigation.types";
 
+let useQuestionCardRing: typeof UseQuestionCardRingType;
+
 describe("useQuestionCardRing", () => {
   let questions: Ref<Question[]>;
   let currentIndex: Ref<number>;
@@ -20,7 +22,6 @@ describe("useQuestionCardRing", () => {
   let onResetSlot: Mock<(slotIndex: number) => void>;
   let requestAnimationFrameCallbacks: FrameRequestCallback[];
   let ring: UseQuestionCardRingReturn;
-  let useQuestionCardRing: typeof UseQuestionCardRingType;
 
   function createOptions(): UseQuestionCardRingOptions {
     return {
